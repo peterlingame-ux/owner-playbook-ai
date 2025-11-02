@@ -1,6 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { AIModel } from "@/types/prediction";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import openaiIcon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
 
 interface ModelCardProps {
   model: AIModel;
@@ -9,6 +14,23 @@ interface ModelCardProps {
 
 const ModelCard = ({ model, onClick }: ModelCardProps) => {
   const isPositive = model.changePercent > 0;
+  
+  const getModelIcon = (modelId: string) => {
+    switch(modelId) {
+      case 'deepseek':
+        return deepseekIcon;
+      case 'gpt5':
+        return openaiIcon;
+      case 'claude':
+        return claudeIcon;
+      case 'gemini':
+        return geminiIcon;
+      case 'grok':
+        return grokIcon;
+      default:
+        return deepseekIcon;
+    }
+  };
   
   return (
     <Card 
@@ -21,18 +43,16 @@ const ModelCard = ({ model, onClick }: ModelCardProps) => {
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div 
-            className="w-10 h-10 rounded-full flex items-center justify-center"
+            className="w-12 h-12 rounded-full flex items-center justify-center p-1.5 bg-card"
             style={{
-              backgroundColor: `hsl(var(--${model.color}) / 0.2)`,
               border: `2px solid hsl(var(--${model.color}))`
             }}
           >
-            <span 
-              className="text-sm font-bold"
-              style={{ color: `hsl(var(--${model.color}))` }}
-            >
-              {model.name.substring(0, 2).toUpperCase()}
-            </span>
+            <img 
+              src={getModelIcon(model.id)} 
+              alt={model.name}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <h3 className="font-bold text-sm" style={{ color: `hsl(var(--${model.color}))` }}>

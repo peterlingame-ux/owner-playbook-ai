@@ -1,7 +1,11 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
 import { generateChartData } from "@/data/mockData";
-import { Brain, Sparkles, Zap, Diamond, Lightbulb } from "lucide-react";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import openaiIcon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
 
 const PerformanceChart = () => {
   const data = generateChartData();
@@ -13,22 +17,22 @@ const PerformanceChart = () => {
     
     if (!isLastPoint) return null;
     
-    let Icon;
+    let iconSrc;
     switch(dataKey) {
       case 'deepseek':
-        Icon = Brain;
+        iconSrc = deepseekIcon;
         break;
       case 'gpt5':
-        Icon = Sparkles;
+        iconSrc = openaiIcon;
         break;
       case 'claude':
-        Icon = Zap;
+        iconSrc = claudeIcon;
         break;
       case 'gemini':
-        Icon = Diamond;
+        iconSrc = geminiIcon;
         break;
       case 'grok':
-        Icon = Lightbulb;
+        iconSrc = grokIcon;
         break;
       default:
         return null;
@@ -36,12 +40,15 @@ const PerformanceChart = () => {
     
     return (
       <g>
-        <circle cx={cx} cy={cy} r={20} fill="hsl(var(--background))" stroke={stroke} strokeWidth={2} />
-        <foreignObject x={cx - 12} y={cy - 12} width={24} height={24}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-            <Icon size={16} color={stroke} />
-          </div>
-        </foreignObject>
+        <circle cx={cx} cy={cy} r={24} fill="hsl(var(--background))" stroke={stroke} strokeWidth={3} />
+        <image 
+          x={cx - 18} 
+          y={cy - 18} 
+          width={36} 
+          height={36} 
+          href={iconSrc}
+          style={{ clipPath: 'circle(16px)' }}
+        />
       </g>
     );
   };
