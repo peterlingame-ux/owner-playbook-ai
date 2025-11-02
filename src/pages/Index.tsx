@@ -14,6 +14,17 @@ const Index = () => {
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("leaderboard");
   
+  const handleChatClick = () => {
+    setActiveTab("chat");
+    // Scroll to tabs section
+    setTimeout(() => {
+      const tabsElement = document.querySelector('[role="tabpanel"]');
+      if (tabsElement) {
+        tabsElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  };
+  
   // Sort models by win rate
   const sortedModels = [...aiModels].sort((a, b) => b.winRate - a.winRate);
   const topModel = sortedModels[0];
@@ -162,7 +173,7 @@ const Index = () => {
       </div>
       
       {/* Floating Chat Button */}
-      <FloatingChatButton onClick={() => setActiveTab("chat")} />
+      <FloatingChatButton onClick={handleChatClick} />
     </div>
   );
 };
