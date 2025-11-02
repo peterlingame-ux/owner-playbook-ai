@@ -223,7 +223,7 @@ export const upcomingMatches: Match[] = [
   }
 ];
 
-// AI predictions for each match - different AIs purchase different matches
+// AI predictions for each match - all 5 AIs predict every match
 export const matchPredictions: Record<string, Array<{ aiId: string; prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW"; confidence: number }>> = {
   "m1": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 68 },
@@ -234,19 +234,24 @@ export const matchPredictions: Record<string, Array<{ aiId: string; prediction: 
   ],
   "m2": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 72 },
+    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 64 },
     { aiId: "claude", prediction: "AWAY_WIN", confidence: 58 },
+    { aiId: "gemini", prediction: "HOME_WIN", confidence: 69 },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 65 },
   ],
   "m3": [
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 61 },
     { aiId: "gpt5", prediction: "DRAW", confidence: 51 },
-    { aiId: "gemini", prediction: "HOME_WIN", confidence: 63 },
     { aiId: "claude", prediction: "AWAY_WIN", confidence: 59 },
+    { aiId: "gemini", prediction: "HOME_WIN", confidence: 63 },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 67 },
   ],
   "m4": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 76 },
     { aiId: "gpt5", prediction: "HOME_WIN", confidence: 61 },
+    { aiId: "claude", prediction: "HOME_WIN", confidence: 70 },
     { aiId: "gemini", prediction: "DRAW", confidence: 48 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 73 },
   ],
 };
 
