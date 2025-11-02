@@ -88,7 +88,7 @@ const LiveMatches = () => {
           >
             {/* Weather-based Background */}
             <div 
-              className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
+              className="absolute inset-0 opacity-70 group-hover:opacity-80 transition-opacity duration-300"
               style={{
                 backgroundImage: `url(${getWeatherBackground(match.weather)})`,
                 backgroundSize: 'cover',
@@ -97,7 +97,7 @@ const LiveMatches = () => {
             />
             
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/85 to-background/90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/60 to-background/70" />
             
             {/* Content */}
             <div className="relative z-10 p-4">
@@ -112,11 +112,6 @@ const LiveMatches = () => {
                   <Badge variant="secondary" className="text-xs">
                     {match.league}
                   </Badge>
-                  {/* Weather indicator */}
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
-                    {getWeatherIcon(match.weather)}
-                    <span className="text-xs">{getWeatherText(match.weather)}</span>
-                  </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
