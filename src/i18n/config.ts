@@ -113,6 +113,13 @@ const resources = {
       "draw": "Draw",
       "win": "Win",
       "confidence": "Confidence",
+      "half_time": "Half Time",
+      "betting_odds_handicap": "Betting Odds - Handicap",
+      "bookmaker": "Bookmaker",
+      "home_win": "Home",
+      "away_win": "Away",
+      "home_handicap": "Home Handicap",
+      "away_handicap": "Away Handicap",
       "click_analyze_to_see_predictions": "Click the 'Analyze with AI' buttons above to generate match predictions from 5 different AI models."
     }
   },
@@ -227,6 +234,13 @@ const resources = {
       "draw": "平局",
       "win": "获胜",
       "confidence": "置信度",
+      "half_time": "半场",
+      "betting_odds_handicap": "博彩赔率 - 让球盘",
+      "bookmaker": "博彩公司",
+      "home_win": "主胜",
+      "away_win": "客胜",
+      "home_handicap": "主队让球",
+      "away_handicap": "客队让球",
       "click_analyze_to_see_predictions": "点击上方的\"AI 分析\"按钮，让5个不同的AI模型生成比赛预测。"
     }
   }

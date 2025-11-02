@@ -134,7 +134,24 @@ export const upcomingMatches: Match[] = [
     awayLogo: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=100&h=100&fit=crop",
     status: "live",
     homeScore: 2,
-    awayScore: 1
+    awayScore: 1,
+    halfTimeHomeScore: 1,
+    halfTimeAwayScore: 0,
+    bettingOdds: [
+      { bookmaker: "36*", homeWin: 0.77, draw: 0.0, awayWin: 1.02, homeHandicap: 0.87, awayHandicap: 0.92 },
+      { bookmaker: "皇*", homeWin: 0.85, draw: 0.0, awayWin: 0.97, homeHandicap: 0.92, awayHandicap: 0.96 },
+      { bookmaker: "威***", homeWin: 1.04, draw: 0.25, awayWin: 0.72, homeHandicap: 0.91, awayHandicap: 0.82 },
+      { bookmaker: "易**", homeWin: 0.75, draw: 0.0, awayWin: 1.01, homeHandicap: 0.0, awayHandicap: 0.0 },
+      { bookmaker: "澳*", homeWin: 0.72, draw: 0.0, awayWin: 0.98, homeHandicap: 0.94, awayHandicap: 0.76 },
+      { bookmaker: "立*", homeWin: 1.25, draw: 0.5, awayWin: 0.57, homeHandicap: 1.2, awayHandicap: 0.6 },
+      { bookmaker: "韦*", homeWin: 0.94, draw: 0.25, awayWin: 0.74, homeHandicap: 0.9, awayHandicap: 0.91 },
+      { bookmaker: "Inter*", homeWin: 0.95, draw: 0.0, awayWin: 0.75, homeHandicap: 0.6, awayHandicap: 1.2 },
+      { bookmaker: "12*", homeWin: 1.01, draw: 0.25, awayWin: 0.79, homeHandicap: 0.91, awayHandicap: 0.94 },
+      { bookmaker: "利*", homeWin: 0.89, draw: 0.0, awayWin: 1.01, homeHandicap: 0.93, awayHandicap: 0.99 },
+      { bookmaker: "18*", homeWin: 0.86, draw: 0.0, awayWin: 0.98, homeHandicap: 0.0, awayHandicap: 0.0 },
+      { bookmaker: "盈*", homeWin: 1.05, draw: 0.0, awayWin: 0.81, homeHandicap: 0.93, awayHandicap: 0.97 },
+      { bookmaker: "18**", homeWin: 0.98, draw: 0.0, awayWin: 0.76, homeHandicap: 0.87, awayHandicap: 0.87 }
+    ]
   },
   {
     id: "m2",

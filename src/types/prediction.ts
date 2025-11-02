@@ -1,3 +1,12 @@
+export interface BettingOdds {
+  bookmaker: string;
+  homeWin: number;
+  draw: number;
+  awayWin: number;
+  homeHandicap: number;
+  awayHandicap: number;
+}
+
 export interface Match {
   id: string;
   homeTeam: string;
@@ -11,6 +20,9 @@ export interface Match {
   status: "upcoming" | "live" | "finished";
   homeScore?: number;
   awayScore?: number;
+  halfTimeHomeScore?: number;
+  halfTimeAwayScore?: number;
+  bettingOdds?: BettingOdds[];
 }
 
 export interface TeamOwner {

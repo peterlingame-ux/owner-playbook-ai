@@ -407,6 +407,30 @@ const MatchDetail = () => {
             </p>
           </div>
 
+          {/* Live Score Display */}
+          {match.status === 'live' && match.homeScore !== undefined && match.awayScore !== undefined && (
+            <div className="bg-gradient-to-r from-success/20 via-success/10 to-success/20 border border-success/30 rounded-lg p-6 mb-6">
+              <div className="flex items-center justify-center gap-8">
+                <div className="text-center flex-1">
+                  <div className="text-4xl font-bold text-foreground">{match.homeTeam}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-6xl font-bold text-foreground">
+                    {match.homeScore} - {match.awayScore}
+                  </div>
+                  {match.halfTimeHomeScore !== undefined && match.halfTimeAwayScore !== undefined && (
+                    <div className="text-sm text-muted-foreground mt-2">
+                      {t('half_time')} {match.halfTimeHomeScore}-{match.halfTimeAwayScore}
+                    </div>
+                  )}
+                </div>
+                <div className="text-center flex-1">
+                  <div className="text-4xl font-bold text-foreground">{match.awayTeam}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
             <p className="text-sm font-medium text-primary">
               {t('owner_analysis_warning')}
@@ -415,6 +439,52 @@ const MatchDetail = () => {
         </div>
       </div>
       
+      {/* Betting Odds Table */}
+      {match.bettingOdds && match.bettingOdds.length > 0 && (
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                {t('betting_odds_handicap')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-2 font-semibold text-muted-foreground">{t('bookmaker')}</th>
+                      <th className="text-center py-3 px-2 font-semibold text-muted-foreground">{t('home_win')}</th>
+                      <th className="text-center py-3 px-2 font-semibold text-muted-foreground">{t('draw')}</th>
+                      <th className="text-center py-3 px-2 font-semibold text-muted-foreground">{t('away_win')}</th>
+                      <th className="text-center py-3 px-2 font-semibold text-destructive">{t('home_handicap')}</th>
+                      <th className="text-center py-3 px-2 font-semibold text-success">{t('away_handicap')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {match.bettingOdds.map((odds, idx) => (
+                      <tr key={idx} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                        <td className="py-3 px-2 font-medium">{odds.bookmaker}</td>
+                        <td className="text-center py-3 px-2 font-mono-data">{odds.homeWin.toFixed(2)}</td>
+                        <td className="text-center py-3 px-2 font-mono-data">{odds.draw.toFixed(2)}</td>
+                        <td className="text-center py-3 px-2 font-mono-data">{odds.awayWin.toFixed(2)}</td>
+                        <td className="text-center py-3 px-2 font-mono-data text-destructive font-bold">
+                          {odds.homeHandicap > 0 ? odds.homeHandicap.toFixed(2) : '-'}
+                        </td>
+                        <td className="text-center py-3 px-2 font-mono-data text-success font-bold">
+                          {odds.awayHandicap > 0 ? odds.awayHandicap.toFixed(2) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Owners Comparison */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
