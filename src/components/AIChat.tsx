@@ -59,8 +59,8 @@ const AIChat = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Ask about predictions, team owners, or matches..."
-          className="flex-1 bg-secondary border-border"
+          placeholder="Which platform is most reliable? Ask me anything..."
+          className="flex-1 bg-secondary border-border placeholder:text-muted-foreground/50"
         />
         <Button onClick={handleSend} size="icon">
           <Send size={18} />
