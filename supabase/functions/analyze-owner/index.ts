@@ -102,6 +102,16 @@ ${ownerData.scandals.map((s: any) => `- ${s}`).join('\n')}
 ` : ''}
 
 Task: Provide a 3-4 paragraph analysis of this team owner's current situation and how it might impact their team's performance. Focus on your unique analytical perspective and be specific about patterns, risks, or opportunities you identify. Keep your analysis under 300 words.
+
+IMPORTANT: At the end of your analysis, you MUST provide a match outcome prediction in this exact format on a new line:
+PREDICTION: [home_win/away_win/draw] [probability as integer 0-100]
+
+For example:
+PREDICTION: home_win 65
+or
+PREDICTION: draw 45
+or
+PREDICTION: away_win 70
 `;
 
     // Call all AI models in parallel
@@ -130,15 +140,33 @@ Task: Provide a 3-4 paragraph analysis of this team owner's current situation an
               id: aiModel.id,
               name: aiModel.name,
               analysis: `Analysis temporarily unavailable. Please try again later.`,
+              prediction: null,
               error: true
             };
           }
 
           const data = await response.json();
+          const fullAnalysis = data.choices[0].message.content;
+          
+          // Extract prediction from analysis
+          const predictionMatch = fullAnalysis.match(/PREDICTION:\s*(home_win|away_win|draw)\s*(\d+)/i);
+          let prediction = null;
+          let analysisText = fullAnalysis;
+          
+          if (predictionMatch) {
+            prediction = {
+              outcome: predictionMatch[1].toLowerCase(),
+              probability: parseInt(predictionMatch[2])
+            };
+            // Remove prediction line from analysis text
+            analysisText = fullAnalysis.replace(/PREDICTION:.*$/im, '').trim();
+          }
+          
           return {
             id: aiModel.id,
             name: aiModel.name,
-            analysis: data.choices[0].message.content,
+            analysis: analysisText,
+            prediction: prediction,
             error: false
           };
         } catch (error) {
@@ -147,6 +175,7 @@ Task: Provide a 3-4 paragraph analysis of this team owner's current situation an
             id: aiModel.id,
             name: aiModel.name,
             analysis: `Analysis temporarily unavailable due to an error.`,
+            prediction: null,
             error: true
           };
         }

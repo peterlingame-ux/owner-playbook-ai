@@ -108,7 +108,11 @@ const resources = {
       "ai_analyses": "AI Model Analyses",
       "analyze_with_ai": "Analyze with AI",
       "analyzing": "Analyzing...",
-      "analysis_error": "Failed to generate analysis. Please try again."
+      "analysis_error": "Failed to generate analysis. Please try again.",
+      "ai_predictions_intro": "Five AI models have analyzed both team owners and predicted the match outcome:",
+      "draw": "Draw",
+      "confidence": "Confidence",
+      "click_analyze_to_see_predictions": "Click the 'Analyze with AI' buttons above to generate match predictions from 5 different AI models."
     }
   },
   zh: {
@@ -217,7 +221,11 @@ const resources = {
       "ai_analyses": "AI 模型分析",
       "analyze_with_ai": "AI 分析",
       "analyzing": "分析中...",
-      "analysis_error": "分析失败，请重试。"
+      "analysis_error": "分析失败，请重试。",
+      "ai_predictions_intro": "五个AI模型分析了双方老板情况并预测了比赛结果：",
+      "draw": "平局",
+      "confidence": "置信度",
+      "click_analyze_to_see_predictions": "点击上方的\"AI 分析\"按钮，让5个不同的AI模型生成比赛预测。"
     }
   }
 };

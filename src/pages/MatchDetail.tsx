@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { ArrowLeft, TrendingUp, TrendingDown, Users, Heart, DollarSign, Activity, Newspaper, Sparkles } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Users, Heart, DollarSign, Activity, Newspaper, Sparkles, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,21 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { upcomingMatches, matchOwnersData } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
+
+// AI Model Icons
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import openaiIcon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
+
+const AI_ICONS: Record<string, string> = {
+  deepseek: deepseekIcon,
+  gpt5: openaiIcon,
+  claude: claudeIcon,
+  gemini: geminiIcon,
+  grok: grokIcon,
+};
 
 const MatchDetail = () => {
   const { t } = useTranslation();
@@ -410,12 +425,66 @@ const MatchDetail = () => {
         {/* Match Analysis Summary */}
         <Card className="mt-8 bg-gradient-to-br from-muted/50 to-background">
           <CardHeader>
-            <CardTitle className="text-2xl">{t('match_outcome_analysis')}</CardTitle>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Trophy className="h-6 w-6 text-primary" />
+              {t('match_outcome_analysis')}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground leading-relaxed">
-              {t('match_outcome_text')}
-            </p>
+            {(homeAnalyses.length > 0 || awayAnalyses.length > 0) && 
+             homeAnalyses.some(a => a.prediction) ? (
+              <div className="space-y-6">
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  {t('ai_predictions_intro')}
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {homeAnalyses.map((analysis) => {
+                    if (!analysis.prediction) return null;
+                    
+                    const getOutcomeColor = (outcome: string) => {
+                      if (outcome === 'home_win') return 'text-success';
+                      if (outcome === 'away_win') return 'text-destructive';
+                      return 'text-warning';
+                    };
+                    
+                    const getOutcomeText = (outcome: string) => {
+                      if (outcome === 'home_win') return match.homeTeam;
+                      if (outcome === 'away_win') return match.awayTeam;
+                      return t('draw');
+                    };
+                    
+                    return (
+                      <Card key={analysis.id} className="text-center hover:shadow-lg transition-shadow">
+                        <CardContent className="pt-6 pb-4">
+                          <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-muted/50 flex items-center justify-center">
+                            <img 
+                              src={AI_ICONS[analysis.id]} 
+                              alt={analysis.name}
+                              className="w-10 h-10 object-contain"
+                            />
+                          </div>
+                          <h4 className="font-bold text-sm mb-2">{analysis.name}</h4>
+                          <div className={`font-bold text-lg mb-1 ${getOutcomeColor(analysis.prediction.outcome)}`}>
+                            {getOutcomeText(analysis.prediction.outcome)}
+                          </div>
+                          <div className="text-2xl font-bold text-primary mb-1">
+                            {analysis.prediction.probability}%
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {t('confidence')}
+                          </Badge>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <p className="text-muted-foreground leading-relaxed text-center py-8">
+                {t('click_analyze_to_see_predictions')}
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
