@@ -1,9 +1,50 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
 import { generateChartData } from "@/data/mockData";
+import { Brain, Sparkles, Zap, Diamond, Lightbulb } from "lucide-react";
 
 const PerformanceChart = () => {
   const data = generateChartData();
+
+  // Custom dot component with model icons
+  const CustomDot = (props: any) => {
+    const { cx, cy, stroke, dataKey } = props;
+    const isLastPoint = props.index === data.length - 1;
+    
+    if (!isLastPoint) return null;
+    
+    let Icon;
+    switch(dataKey) {
+      case 'deepseek':
+        Icon = Brain;
+        break;
+      case 'gpt5':
+        Icon = Sparkles;
+        break;
+      case 'claude':
+        Icon = Zap;
+        break;
+      case 'gemini':
+        Icon = Diamond;
+        break;
+      case 'grok':
+        Icon = Lightbulb;
+        break;
+      default:
+        return null;
+    }
+    
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={20} fill="hsl(var(--background))" stroke={stroke} strokeWidth={2} />
+        <foreignObject x={cx - 12} y={cy - 12} width={24} height={24}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+            <Icon size={16} color={stroke} />
+          </div>
+        </foreignObject>
+      </g>
+    );
+  };
 
   return (
     <Card className="p-6 bg-card border-border">
@@ -54,7 +95,7 @@ const PerformanceChart = () => {
             dataKey="deepseek" 
             stroke="hsl(var(--deepseek))" 
             strokeWidth={2}
-            dot={false}
+            dot={<CustomDot />}
             name="DeepSeek"
           />
           <Line 
@@ -62,7 +103,7 @@ const PerformanceChart = () => {
             dataKey="gpt5" 
             stroke="hsl(var(--gpt))" 
             strokeWidth={2}
-            dot={false}
+            dot={<CustomDot />}
             name="GPT 5"
           />
           <Line 
@@ -70,7 +111,7 @@ const PerformanceChart = () => {
             dataKey="claude" 
             stroke="hsl(var(--claude))" 
             strokeWidth={2}
-            dot={false}
+            dot={<CustomDot />}
             name="Claude"
           />
           <Line 
@@ -78,7 +119,7 @@ const PerformanceChart = () => {
             dataKey="gemini" 
             stroke="hsl(var(--gemini))" 
             strokeWidth={2}
-            dot={false}
+            dot={<CustomDot />}
             name="Gemini"
           />
           <Line 
@@ -86,7 +127,7 @@ const PerformanceChart = () => {
             dataKey="grok" 
             stroke="hsl(var(--grok))" 
             strokeWidth={2}
-            dot={false}
+            dot={<CustomDot />}
             name="Grok"
           />
         </LineChart>
