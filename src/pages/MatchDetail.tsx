@@ -400,9 +400,6 @@ const MatchDetail = () => {
           
           <div className="text-center mb-6">
             <Badge className="mb-3">{match.league}</Badge>
-            <h1 className="text-3xl font-bold mb-4">
-              {match.homeTeam} {t('vs')} {match.awayTeam}
-            </h1>
             
             {/* Team Logos */}
             <div className="flex items-center justify-center gap-6 mb-4">
