@@ -27,23 +27,39 @@ const LiveMatches = () => {
               <Badge variant="secondary" className="text-xs">
                 {match.league}
               </Badge>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar size={12} />
-                  {new Date(match.date).toLocaleDateString()}
+              {match.status === "upcoming" ? (
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Calendar size={12} />
+                    {new Date(match.date).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock size={12} />
+                    {match.time}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Clock size={12} />
-                  {match.time}
-                </div>
-              </div>
+              ) : (
+                <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse">
+                  LIVE
+                </Badge>
+              )}
             </div>
             
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="font-semibold">{match.homeTeam}</p>
               </div>
-              <div className="px-4 text-muted-foreground font-bold">VS</div>
+              
+              {match.status === "upcoming" ? (
+                <div className="px-4 text-muted-foreground font-bold">VS</div>
+              ) : (
+                <div className="px-4 flex items-center gap-3">
+                  <span className="text-2xl font-bold font-mono-data text-primary">{match.homeScore}</span>
+                  <span className="text-muted-foreground">-</span>
+                  <span className="text-2xl font-bold font-mono-data text-primary">{match.awayScore}</span>
+                </div>
+              )}
+              
               <div className="flex-1 text-right">
                 <p className="font-semibold">{match.awayTeam}</p>
               </div>

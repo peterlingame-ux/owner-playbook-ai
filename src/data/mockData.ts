@@ -7,7 +7,10 @@ export const pastMatches: Match[] = [
     awayTeam: "Arsenal",
     date: "2025-10-28",
     time: "15:00",
-    league: "Premier League"
+    league: "Premier League",
+    status: "finished",
+    homeScore: 3,
+    awayScore: 1
   },
   {
     id: "past2",
@@ -15,7 +18,10 @@ export const pastMatches: Match[] = [
     awayTeam: "Atletico Madrid",
     date: "2025-10-29",
     time: "20:45",
-    league: "La Liga"
+    league: "La Liga",
+    status: "finished",
+    homeScore: 2,
+    awayScore: 0
   },
   {
     id: "past3",
@@ -23,7 +29,10 @@ export const pastMatches: Match[] = [
     awayTeam: "RB Leipzig",
     date: "2025-10-30",
     time: "18:30",
-    league: "Bundesliga"
+    league: "Bundesliga",
+    status: "finished",
+    homeScore: 1,
+    awayScore: 1
   },
   {
     id: "past4",
@@ -31,7 +40,10 @@ export const pastMatches: Match[] = [
     awayTeam: "Lyon",
     date: "2025-10-31",
     time: "21:00",
-    league: "Ligue 1"
+    league: "Ligue 1",
+    status: "finished",
+    homeScore: 4,
+    awayScore: 2
   },
   {
     id: "past5",
@@ -39,7 +51,10 @@ export const pastMatches: Match[] = [
     awayTeam: "AC Milan",
     date: "2025-11-01",
     time: "20:00",
-    league: "Serie A"
+    league: "Serie A",
+    status: "finished",
+    homeScore: 0,
+    awayScore: 2
   }
 ];
 
@@ -113,7 +128,10 @@ export const upcomingMatches: Match[] = [
     awayTeam: "Liverpool",
     date: "2025-11-05",
     time: "20:00",
-    league: "Premier League"
+    league: "Premier League",
+    status: "live",
+    homeScore: 2,
+    awayScore: 1
   },
   {
     id: "m2",
@@ -121,7 +139,8 @@ export const upcomingMatches: Match[] = [
     awayTeam: "Barcelona",
     date: "2025-11-06",
     time: "21:00",
-    league: "La Liga"
+    league: "La Liga",
+    status: "upcoming"
   },
   {
     id: "m3",
@@ -129,7 +148,10 @@ export const upcomingMatches: Match[] = [
     awayTeam: "Borussia Dortmund",
     date: "2025-11-07",
     time: "18:30",
-    league: "Bundesliga"
+    league: "Bundesliga",
+    status: "live",
+    homeScore: 1,
+    awayScore: 1
   }
 ];
 
