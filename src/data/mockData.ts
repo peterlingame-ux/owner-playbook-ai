@@ -192,6 +192,26 @@ export const matchOwnersData: Record<string, {
         { relation: "Daughter", name: "Julia Ratcliffe", age: 32 },
         { relation: "Son", name: "Samuel Ratcliffe", age: 28 }
       ],
+      closeFriends: [
+        { 
+          name: "Sheikh Mansour bin Zayed Al Nahyan", 
+          relationship: "Business Partner & Fellow Club Owner",
+          influence: "High - Major player in sports investment circles",
+          recentInteraction: "Joint meeting at Dubai investment summit last month discussing football business strategies"
+        },
+        { 
+          name: "Bernie Ecclestone", 
+          relationship: "Long-time Friend from Formula 1",
+          influence: "Medium - Influential in motorsports and business networks",
+          recentInteraction: "Attended private yacht gathering in Monaco two weeks ago"
+        },
+        { 
+          name: "Sir Martin Broughton", 
+          relationship: "Business Advisor & Former Club Chairman",
+          influence: "High - Experienced in football club management",
+          recentInteraction: "Regular consultation calls about Manchester United strategy"
+        }
+      ],
       financialStatus: "Net worth increased by 8% this quarter. INEOS chemical company performing strongly. Recent acquisition of cycling team shows diversification strategy.",
       socialStatus: "Active in high-society circles. Regular attendee of Formula 1 events and yacht shows. Known for private nature but increasing public presence since club acquisition.",
       recentActivities: [
@@ -223,6 +243,26 @@ export const matchOwnersData: Record<string, {
         { relation: "Wife", name: "Linda Pizzuti Henry", age: 44 },
         { relation: "Daughter", name: "Sara Henry", age: 28 },
         { relation: "Son", name: "Silas Henry", age: 25 }
+      ],
+      closeFriends: [
+        { 
+          name: "LeBron James", 
+          relationship: "Business Partner & FSG Investor",
+          influence: "Very High - Major sports icon and business mogul",
+          recentInteraction: "Video call discussing Liverpool FC strategy and potential NBA-Premier League marketing synergies"
+        },
+        { 
+          name: "Michael Bloomberg", 
+          relationship: "Fellow Sports Team Owner & Investor",
+          influence: "Very High - Billionaire media mogul with extensive networks",
+          recentInteraction: "Met at exclusive New York business dinner discussing sports media rights"
+        },
+        { 
+          name: "Tom Werner", 
+          relationship: "FSG Partner & Chairman",
+          influence: "High - Close business collaborator in sports ventures",
+          recentInteraction: "Weekly FSG board meetings and strategic planning sessions"
+        }
       ],
       financialStatus: "Fenway Sports Group valuation up 15% year-over-year. Boston Red Sox and Liverpool FC both profitable. Recent tech investments showing promising returns.",
       socialStatus: "Well-connected in both sports and business worlds. Maintains lower profile than other club owners. Respected in investment circles. Strong relationship with MLB and Premier League officials.",
@@ -259,6 +299,26 @@ export const matchOwnersData: Record<string, {
         { relation: "Daughter", name: "María Ángeles Pérez", age: 46 },
         { relation: "Daughter", name: "Laura Pérez", age: 43 }
       ],
+      closeFriends: [
+        { 
+          name: "Andrea Agnelli", 
+          relationship: "Fellow Club President & Super League Ally",
+          influence: "Very High - Former Juventus chairman and European football power broker",
+          recentInteraction: "Private dinner in Turin discussing European football's future and legal strategies"
+        },
+        { 
+          name: "Nasser Al-Khelaifi", 
+          relationship: "PSG President & UEFA Executive",
+          influence: "Very High - Major influence in European football governance",
+          recentInteraction: "Met at UEFA meeting, maintaining cordial relations despite competitive tensions"
+        },
+        { 
+          name: "Emilio Butragueño", 
+          relationship: "Real Madrid Director & Trusted Advisor",
+          influence: "High - Internal club legend with deep institutional knowledge",
+          recentInteraction: "Daily consultations on club operations and player negotiations"
+        }
+      ],
       financialStatus: "ACS construction company facing market challenges but remains stable. Real Madrid's finances strongest in club history with record revenues. Bernabéu project slightly over budget but manageable.",
       socialStatus: "One of most powerful figures in Spanish business and sports. Close ties with political establishment. Regular attendee of royal events. Influential voice in European football governance despite Super League controversy.",
       recentActivities: [
@@ -291,6 +351,26 @@ export const matchOwnersData: Record<string, {
         { relation: "Son", name: "Pol Laporta", age: 30 },
         { relation: "Daughter", name: "Gianna Laporta", age: 27 },
         { relation: "Son", name: "Guillem Laporta", age: 24 }
+      ],
+      closeFriends: [
+        { 
+          name: "Pep Guardiola", 
+          relationship: "Club Legend & Former Player",
+          influence: "Very High - World-renowned manager with deep Barcelona roots",
+          recentInteraction: "Phone conversations about Barcelona's sporting philosophy and youth development"
+        },
+        { 
+          name: "Jordi Cruyff", 
+          relationship: "Former Sporting Director & Cruyff Family Connection",
+          influence: "High - Son of club legend Johan Cruyff, carries family legacy",
+          recentInteraction: "Advisory role on La Masia academy development and club identity"
+        },
+        { 
+          name: "Ferran Reverter", 
+          relationship: "Former CEO & Business Advisor",
+          influence: "Medium - Finance and management expertise",
+          recentInteraction: "Occasional consultations on financial restructuring despite earlier departure"
+        }
       ],
       financialStatus: "Barcelona's finances improving but still under severe La Liga salary cap restrictions. New sponsorship deals providing relief. Spotify Camp Nou renovation creating short-term revenue challenges. Personal wealth limited compared to other club presidents.",
       socialStatus: "Popular among Barcelona members and fans despite controversies. Strong political connections in Catalonia. Charismatic public speaker. Faces pressure from club members and sporting results.",
@@ -326,6 +406,26 @@ export const matchOwnersData: Record<string, {
         { relation: "Son", name: "Tobias Hainer", age: 38 },
         { relation: "Daughter", name: "Sophie Hainer", age: 35 }
       ],
+      closeFriends: [
+        { 
+          name: "Karl-Heinz Rummenigge", 
+          relationship: "Bayern Munich Legend & Former CEO",
+          influence: "Very High - Club icon with decades of influence",
+          recentInteraction: "Regular informal consultations about club strategy and European football matters"
+        },
+        { 
+          name: "Kasper Rorsted", 
+          relationship: "Adidas CEO & Long-time Business Associate",
+          influence: "Very High - Major sponsor relationship and personal friendship from Adidas years",
+          recentInteraction: "Quarterly business dinners discussing sports sponsorship trends"
+        },
+        { 
+          name: "Oliver Kahn", 
+          relationship: "Former Bayern CEO & Club Legend",
+          influence: "High - Recently departed but maintains advisory relationship",
+          recentInteraction: "Occasional phone calls about club management lessons learned"
+        }
+      ],
       financialStatus: "Bayern Munich's finances are exceptionally stable with consistent profitability. No debt burden. Strong commercial partnerships including Adidas, Allianz, and Audi. Conservative but successful financial management approach.",
       socialStatus: "Respected in German business circles from Adidas tenure. Low-key personality compared to other club presidents. Strong relationships with Bundesliga officials. Focused on club tradition and fan engagement.",
       recentActivities: [
@@ -357,6 +457,26 @@ export const matchOwnersData: Record<string, {
         { relation: "Wife", name: "Anke Watzke", age: 62 },
         { relation: "Son", name: "Bastian Watzke", age: 34 },
         { relation: "Daughter", name: "Laura Watzke", age: 31 }
+      ],
+      closeFriends: [
+        { 
+          name: "Jürgen Klopp", 
+          relationship: "Former BVB Manager & Club Legend",
+          influence: "Very High - Beloved figure who transformed club, now Liverpool manager",
+          recentInteraction: "WhatsApp messages exchanging football insights and maintaining close personal bond"
+        },
+        { 
+          name: "Matthias Sammer", 
+          relationship: "Former BVB Sporting Director & Advisor",
+          influence: "High - Football expert with deep Bundesliga knowledge",
+          recentInteraction: "Phone consultations about player recruitment and sporting strategy"
+        },
+        { 
+          name: "Michael Zorc", 
+          relationship: "Long-time Sporting Director & Close Colleague",
+          influence: "Very High - Decades of partnership building Dortmund",
+          recentInteraction: "Still involved in informal advisory capacity despite official retirement"
+        }
       ],
       financialStatus: "Dortmund's finances healthy but more constrained than Bayern. Recent player sales provided significant revenue. Stock market listing creates transparency but also shareholder pressure. Stadium debt largely paid off.",
       socialStatus: "Well-liked by Dortmund fans for saving club from bankruptcy. Outspoken advocate for German football traditions. Regular critic of financial doping in European football. Strong voice in Bundesliga discussions.",

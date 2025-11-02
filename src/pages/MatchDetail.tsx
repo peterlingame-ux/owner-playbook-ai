@@ -105,6 +105,39 @@ const MatchDetail = () => {
           </div>
         </div>
 
+        {/* Close Friends */}
+        {owner.closeFriends && owner.closeFriends.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="h-5 w-5 text-success" />
+              <h4 className="font-bold">{t('close_friends')}</h4>
+            </div>
+            <div className="space-y-3">
+              {owner.closeFriends.map((friend, idx) => (
+                <div key={idx} className="bg-success/5 border border-success/20 p-4 rounded-lg space-y-2">
+                  <div className="flex items-start justify-between">
+                    <span className="font-bold text-lg">{friend.name}</span>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground font-medium min-w-[100px]">{t('relationship')}:</span>
+                      <span className="text-foreground">{friend.relationship}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground font-medium min-w-[100px]">{t('influence_level')}:</span>
+                      <span className="text-success font-medium">{friend.influence}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground font-medium min-w-[100px]">{t('recent_interaction')}:</span>
+                      <span className="text-muted-foreground italic">{friend.recentInteraction}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Social Status */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">

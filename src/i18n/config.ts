@@ -86,7 +86,11 @@ const resources = {
       "vs": "vs",
       "owner_analysis_warning": "⚠️ This analysis focuses exclusively on team owners, not players",
       "match_outcome_analysis": "Match Outcome Analysis",
-      "match_outcome_text": "Based on the comprehensive analysis of both team owners' financial situations, health status, family dynamics, recent scandals, and social activities, our AI models will evaluate which owner's current circumstances may indirectly influence the team's performance. This unique approach considers factors that traditional sports analytics overlook."
+      "match_outcome_text": "Based on the comprehensive analysis of both team owners' financial situations, health status, family dynamics, recent scandals, and social activities, our AI models will evaluate which owner's current circumstances may indirectly influence the team's performance. This unique approach considers factors that traditional sports analytics overlook.",
+      "close_friends": "Close Friends & Associates",
+      "relationship": "Relationship",
+      "influence_level": "Influence Level",
+      "recent_interaction": "Recent Interaction"
     }
   },
   zh: {
@@ -173,7 +177,11 @@ const resources = {
       "vs": "对阵",
       "owner_analysis_warning": "⚠️ 此分析专注于球队老板，而非球员",
       "match_outcome_analysis": "比赛结果分析",
-      "match_outcome_text": "基于对两队老板财务状况、健康状况、家庭动态、近期丑闻和社交活动的综合分析，我们的 AI 模型将评估哪位老板的当前情况可能间接影响球队表现。这种独特的方法考虑了传统体育分析所忽视的因素。"
+      "match_outcome_text": "基于对两队老板财务状况、健康状况、家庭动态、近期丑闻和社交活动的综合分析，我们的 AI 模型将评估哪位老板的当前情况可能间接影响球队表现。这种独特的方法考虑了传统体育分析所忽视的因素。",
+      "close_friends": "亲密好友与伙伴",
+      "relationship": "关系",
+      "influence_level": "影响力水平",
+      "recent_interaction": "最近互动"
     }
   }
 };

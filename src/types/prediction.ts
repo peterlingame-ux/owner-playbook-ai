@@ -28,6 +28,12 @@ export interface TeamOwner {
     name: string;
     age: number;
   }[];
+  closeFriends?: {
+    name: string;
+    relationship: string;
+    influence: string;
+    recentInteraction: string;
+  }[];
   financialStatus: string;
   socialStatus: string;
   recentActivities: string[];
