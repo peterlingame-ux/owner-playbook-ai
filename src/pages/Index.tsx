@@ -30,8 +30,6 @@ const Index = () => {
   
   // Sort models by win rate
   const sortedModels = [...aiModels].sort((a, b) => b.winRate - a.winRate);
-  const topModel = sortedModels[0];
-  const lowestModel = sortedModels[sortedModels.length - 1];
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,45 +37,9 @@ const Index = () => {
       <CryptoTicker />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Top Stats Bar */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 p-4 bg-card border border-border rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('highest_win_rate')}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span 
-                  className="font-bold"
-                  style={{ color: `hsl(var(--${topModel.color}))` }}
-                >
-                  {topModel.displayName}
-                </span>
-                <span className="text-success font-mono-data text-sm">{topModel.winRate.toFixed(1)}%</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold font-mono-data">{topModel.correctPredictions}/{topModel.totalPredictions}</p>
-              <p className="text-xs text-muted-foreground">{t('correct_predictions')}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between border-l border-border pl-4">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('lowest_win_rate')}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span 
-                  className="font-bold"
-                  style={{ color: `hsl(var(--${lowestModel.color}))` }}
-                >
-                  {lowestModel.displayName}
-                </span>
-                <span className="text-destructive font-mono-data text-sm">{lowestModel.winRate.toFixed(1)}%</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold font-mono-data">{lowestModel.correctPredictions}/{lowestModel.totalPredictions}</p>
-              <p className="text-xs text-muted-foreground">{t('correct_predictions')}</p>
-            </div>
-          </div>
+        {/* AI Chat Section */}
+        <div className="mb-8">
+          <AIChat />
         </div>
 
         {/* Main Content */}
