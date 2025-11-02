@@ -164,10 +164,13 @@ const LeaderboardTable = () => {
             {/* Bar Chart */}
             <Card className="lg:col-span-2">
               <CardContent className="p-6">
-                <div className="flex items-end justify-between h-full gap-4">
+                <div className="flex items-end justify-between h-full gap-4 min-h-[350px]">
                   {enhancedModels.map((model) => {
-                    const maxValue = Math.max(...enhancedModels.map(m => m.winRate));
-                    const heightPercent = (model.winRate / maxValue) * 100;
+                    const maxWinRate = Math.max(...enhancedModels.map(m => m.winRate));
+                    const minWinRate = Math.min(...enhancedModels.map(m => m.winRate));
+                    
+                    // Calculate height with more contrast - scale between 30% and 100% of container
+                    const normalizedHeight = ((model.winRate - minWinRate) / (maxWinRate - minWinRate)) * 70 + 30;
                     
                     return (
                       <div key={model.id} className="flex-1 flex flex-col items-center gap-2">
@@ -175,10 +178,9 @@ const LeaderboardTable = () => {
                           {model.winRate.toFixed(1)}%
                         </div>
                         <div 
-                          className="w-full rounded-t-lg relative flex items-end justify-center pb-4"
+                          className="w-full rounded-t-lg relative flex items-end justify-center pb-4 transition-all duration-300 hover:opacity-80"
                           style={{ 
-                            height: `${Math.max(heightPercent, 20)}%`,
-                            minHeight: '100px',
+                            height: `${normalizedHeight}%`,
                             backgroundColor: `hsl(var(--${model.color}))`,
                           }}
                         >
