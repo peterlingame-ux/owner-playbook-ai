@@ -87,6 +87,14 @@ const ModelCard = ({ model }: ModelCardProps) => {
         }}
       />
       
+      {/* Color Overlay matching AI logo */}
+      <div 
+        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300 mix-blend-multiply"
+        style={{
+          backgroundColor: `hsl(var(--${model.color}))`
+        }}
+      />
+      
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent" />
       
