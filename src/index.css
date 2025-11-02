@@ -70,7 +70,8 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-pixel antialiased;
+    letter-spacing: 0.05em;
   }
   
   .font-mono-data {
