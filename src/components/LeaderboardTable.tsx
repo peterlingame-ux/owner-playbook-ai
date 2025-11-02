@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown } from "lucide-react";
@@ -43,18 +42,11 @@ const LeaderboardTable = () => {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="overall" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="overall">OVERALL STATS</TabsTrigger>
-          <TabsTrigger value="advanced">ADVANCED ANALYTICS</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overall" className="space-y-6">
-          {/* Leaderboard Table */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="overflow-x-auto">
-                <Table>
+      {/* Leaderboard Table */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="overflow-x-auto">
+            <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-16">{t('rank')}</TableHead>
@@ -208,14 +200,6 @@ const LeaderboardTable = () => {
           <p className="text-sm text-muted-foreground">
             <span className="font-bold">Note:</span> All statistics reflect <span className="font-bold">completed match predictions only</span>. Live match predictions are not included in calculations until matches are finished.
           </p>
-        </TabsContent>
-        
-        <TabsContent value="advanced">
-          <div className="text-center py-12 text-muted-foreground">
-            <p>Advanced analytics coming soon...</p>
-          </div>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };
