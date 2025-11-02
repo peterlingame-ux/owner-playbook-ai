@@ -13,10 +13,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ['"Press Start 2P"', 'cursive'],
-        pixel: ['"Press Start 2P"', 'cursive'],
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
