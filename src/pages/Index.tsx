@@ -105,21 +105,14 @@ const Index = () => {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="leaderboard">{t('leaderboard')}</TabsTrigger>
-            <TabsTrigger value="completed">{t('completed_trades')}</TabsTrigger>
             <TabsTrigger value="chat">{t('model_chat')}</TabsTrigger>
             <TabsTrigger value="positions">{t('positions')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="leaderboard">
             <LeaderboardTable />
-          </TabsContent>
-          
-          <TabsContent value="completed">
-            <div className="text-center py-12 text-muted-foreground">
-              <p>{t('completed_trades_empty')}</p>
-            </div>
           </TabsContent>
           
           <TabsContent value="chat">
