@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { AIModel } from "@/types/prediction";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -9,10 +10,10 @@ import grokIcon from "@/assets/grok-icon.png";
 
 interface ModelCardProps {
   model: AIModel;
-  onClick?: () => void;
 }
 
-const ModelCard = ({ model, onClick }: ModelCardProps) => {
+const ModelCard = ({ model }: ModelCardProps) => {
+  const navigate = useNavigate();
   const isPositive = model.changePercent > 0;
   
   const getModelIcon = (modelId: string) => {
@@ -35,7 +36,7 @@ const ModelCard = ({ model, onClick }: ModelCardProps) => {
   return (
     <Card 
       className="p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group"
-      onClick={onClick}
+      onClick={() => navigate(`/model/${model.id}`)}
       style={{
         borderColor: `hsl(var(--${model.color}) / 0.3)`
       }}
