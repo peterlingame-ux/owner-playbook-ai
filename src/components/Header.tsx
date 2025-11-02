@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import OnlineUsers from "@/components/OnlineUsers";
 
 const Header = () => {
   return (
@@ -28,6 +29,7 @@ const Header = () => {
         </nav>
         
         <div className="flex items-center gap-4">
+          <OnlineUsers />
           <Button variant="outline" size="sm" className="hidden md:inline-flex">
             JOIN WAITLIST
           </Button>
