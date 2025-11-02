@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Leaderboard from "./pages/Leaderboard";
 import ModelDetail from "./pages/ModelDetail";
 import MatchDetail from "./pages/MatchDetail";
 import NotFound from "./pages/NotFound";
@@ -18,6 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/model/:modelId" element={<ModelDetail />} />
           <Route path="/match/:matchId" element={<MatchDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
