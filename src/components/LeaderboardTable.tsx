@@ -3,11 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 const LeaderboardTable = () => {
-  const { t } = useTranslation();
-  
   // Calculate additional stats for each model
   const enhancedModels = aiModels.map(model => {
     const wrongPredictions = model.totalPredictions - model.correctPredictions;
@@ -46,8 +43,8 @@ const LeaderboardTable = () => {
     <div className="space-y-6">
       <Tabs defaultValue="overall" className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="overall">{t('leaderboard.overallStats').toUpperCase()}</TabsTrigger>
-          <TabsTrigger value="advanced">{t('leaderboard.advancedAnalytics').toUpperCase()}</TabsTrigger>
+          <TabsTrigger value="overall">OVERALL STATS</TabsTrigger>
+          <TabsTrigger value="advanced">ADVANCED ANALYTICS</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overall" className="space-y-6">
@@ -58,21 +55,21 @@ const LeaderboardTable = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-16">{t('leaderboard.rank').toUpperCase()}</TableHead>
-                      <TableHead>{t('leaderboard.model').toUpperCase()}</TableHead>
+                      <TableHead className="w-16">RANK</TableHead>
+                      <TableHead>MODEL</TableHead>
                       <TableHead className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          {t('leaderboard.winRate').toUpperCase()} <ArrowDown className="h-3 w-3" />
+                          WIN RATE <ArrowDown className="h-3 w-3" />
                         </div>
                       </TableHead>
-                      <TableHead className="text-right">{t('leaderboard.predictions').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.correct').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.wrong').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.currentStreak').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.bestStreak').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.worstStreak').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.avgConfidence').toUpperCase()}</TableHead>
-                      <TableHead className="text-right">{t('leaderboard.matches').toUpperCase()}</TableHead>
+                      <TableHead className="text-right">PREDICTIONS</TableHead>
+                      <TableHead className="text-right">CORRECT</TableHead>
+                      <TableHead className="text-right">WRONG</TableHead>
+                      <TableHead className="text-right">CURRENT STREAK</TableHead>
+                      <TableHead className="text-right">BEST STREAK</TableHead>
+                      <TableHead className="text-right">WORST STREAK</TableHead>
+                      <TableHead className="text-right">AVG CONFIDENCE</TableHead>
+                      <TableHead className="text-right">MATCHES</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -125,7 +122,7 @@ const LeaderboardTable = () => {
             {/* Winning Model Card */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-sm font-bold mb-4 text-muted-foreground">{t('leaderboard.winningModel').toUpperCase()}</h3>
+                <h3 className="text-sm font-bold mb-4 text-muted-foreground">WINNING MODEL</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className="h-10 w-10" />
                   <span className="text-xl font-bold">{winningModel.displayName}</span>
@@ -133,30 +130,30 @@ const LeaderboardTable = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">{t('leaderboard.winRate').toUpperCase()}</p>
+                    <p className="text-sm text-muted-foreground mb-1">WIN RATE</p>
                     <p className="text-2xl font-bold font-mono-data text-primary">
                       {winningModel.winRate.toFixed(1)}%
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">{t('home.correctPredictions').toUpperCase()}</p>
+                    <p className="text-sm text-muted-foreground mb-1">CORRECT PREDICTIONS</p>
                     <p className="text-xl font-bold font-mono-data text-success">
                       {winningModel.correctPredictions} / {winningModel.totalPredictions}
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-muted-foreground mb-3">{t('leaderboard.activeMatches').toUpperCase()}</p>
+                    <p className="text-sm text-muted-foreground mb-3">ACTIVE MATCHES</p>
                     <div className="flex gap-2 flex-wrap">
                       <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
-                        ⚽ {t('leaderboard.premierLeague')}
+                        ⚽ Premier League
                       </div>
                       <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
-                        ⚽ {t('leaderboard.laLiga')}
+                        ⚽ La Liga
                       </div>
                       <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
-                        ⚽ {t('leaderboard.bundesliga')}
+                        ⚽ Bundesliga
                       </div>
                     </div>
                   </div>
@@ -207,13 +204,13 @@ const LeaderboardTable = () => {
 
           {/* Note */}
           <p className="text-sm text-muted-foreground">
-            <span className="font-bold">{t('leaderboard.note')}</span>
+            <span className="font-bold">Note:</span> All statistics reflect <span className="font-bold">completed match predictions only</span>. Live match predictions are not included in calculations until matches are finished.
           </p>
         </TabsContent>
         
         <TabsContent value="advanced">
           <div className="text-center py-12 text-muted-foreground">
-            <p>{t('leaderboard.advancedComingSoon')}</p>
+            <p>Advanced analytics coming soon...</p>
           </div>
         </TabsContent>
       </Tabs>

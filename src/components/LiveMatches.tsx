@@ -3,18 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { upcomingMatches } from "@/data/mockData";
 import { Calendar, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 const LiveMatches = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   
   return (
     <Card className="p-6 bg-card border-border">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">{t('liveMatches.title').toUpperCase()}</h2>
+        <h2 className="text-xl font-bold">UPCOMING MATCHES</h2>
         <Badge variant="outline" className="bg-success/20 text-success border-success/50">
-          {t('liveMatches.live').toUpperCase()}
+          LIVE
         </Badge>
       </div>
       
@@ -42,7 +40,7 @@ const LiveMatches = () => {
                 </div>
               ) : (
                 <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse">
-                  {t('liveMatches.live').toUpperCase()}
+                  LIVE
                 </Badge>
               )}
             </div>
@@ -53,7 +51,7 @@ const LiveMatches = () => {
               </div>
               
               {match.status === "upcoming" ? (
-                <div className="px-4 text-muted-foreground font-bold">{t('liveMatches.vs').toUpperCase()}</div>
+                <div className="px-4 text-muted-foreground font-bold">VS</div>
               ) : (
                 <div className="px-4 flex items-center gap-3">
                   <span className="text-2xl font-bold font-mono-data text-primary">{match.homeScore}</span>

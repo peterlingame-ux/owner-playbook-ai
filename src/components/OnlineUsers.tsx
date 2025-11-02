@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "react-i18next";
 
 const OnlineUsers = () => {
-  const { t } = useTranslation();
   const [onlineCount, setOnlineCount] = useState(1);
 
   useEffect(() => {
@@ -31,7 +29,7 @@ const OnlineUsers = () => {
     >
       <Users className="h-4 w-4" />
       <span className="font-bold font-mono-data">{onlineCount.toLocaleString()}</span>
-      <span className="text-xs">{t('header.online')}</span>
+      <span className="text-xs">online</span>
     </Badge>
   );
 };

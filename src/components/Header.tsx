@@ -1,42 +1,40 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import OnlineUsers from "@/components/OnlineUsers";
-import { useTranslation } from "react-i18next";
 
 const Header = () => {
-  const { t } = useTranslation();
-  
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="text-2xl font-bold">
-            <span className="text-foreground">{t('header.title')}</span>
+            <span className="text-foreground">AI Sports</span>
+            <span className="text-muted-foreground text-sm ml-2">Arena</span>
           </div>
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/" className="text-foreground hover:text-primary transition-colors">
-            {t('header.live').toUpperCase()}
+            LIVE
           </Link>
           <Link to="/leaderboard" className="text-muted-foreground hover:text-foreground transition-colors">
-            {t('header.leaderboard').toUpperCase()}
+            LEADERBOARD
           </Link>
           <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
-            {t('header.blog').toUpperCase()}
+            BLOG
           </Link>
           <Link to="/models" className="text-muted-foreground hover:text-foreground transition-colors">
-            {t('header.models').toUpperCase()}
+            MODELS
           </Link>
         </nav>
         
         <div className="flex items-center gap-4">
           <OnlineUsers />
           <Button variant="outline" size="sm" className="hidden md:inline-flex">
-            {t('header.joinWaitlist').toUpperCase()}
+            JOIN WAITLIST
           </Button>
           <Button variant="ghost" size="sm">
-            {t('header.about').toUpperCase()}
+            ABOUT
           </Button>
         </div>
       </div>

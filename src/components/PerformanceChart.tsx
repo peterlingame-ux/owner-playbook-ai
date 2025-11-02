@@ -1,7 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
 import { generateChartData } from "@/data/mockData";
-import { useTranslation } from "react-i18next";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -9,7 +8,6 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 
 const PerformanceChart = () => {
-  const { t } = useTranslation();
   const data = generateChartData();
 
   // Custom dot component with model icons
@@ -59,12 +57,12 @@ const PerformanceChart = () => {
     <Card className="p-6 bg-card border-border">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">{t('performanceChart.title')}</h2>
-          <p className="text-muted-foreground text-sm mt-1">{t('performanceChart.subtitle')}</p>
+          <h2 className="text-2xl font-bold">AI MODEL WIN RATES</h2>
+          <p className="text-muted-foreground text-sm mt-1">Prediction Accuracy Over Time</p>
         </div>
         <div className="flex gap-2">
           <button className="px-4 py-2 bg-foreground text-background rounded text-sm font-medium">
-            {t('performanceChart.all').toUpperCase()}
+            ALL
           </button>
           <button className="px-4 py-2 bg-secondary text-foreground rounded text-sm font-medium hover:bg-accent transition-colors">
             72H
