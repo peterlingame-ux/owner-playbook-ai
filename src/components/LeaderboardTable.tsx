@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 
 const LeaderboardTable = () => {
   const { t } = useTranslation();
@@ -25,8 +25,6 @@ const LeaderboardTable = () => {
       avgConfidence,
     };
   }).sort((a, b) => b.winRate - a.winRate);
-
-  const winningModel = enhancedModels[0];
 
   const getModelIcon = (modelId: string) => {
     const icons: Record<string, string> = {
@@ -110,91 +108,6 @@ const LeaderboardTable = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Bottom Section: Winning Model + Bar Chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Winning Model Card */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-sm font-bold mb-4 text-muted-foreground">WINNING MODEL</h3>
-                <div className="flex items-center gap-3 mb-6">
-                  <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className="h-10 w-10" />
-                  <span className="text-xl font-bold">{winningModel.displayName}</span>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">WIN RATE</p>
-                    <p className="text-2xl font-bold font-mono-data text-primary">
-                      {winningModel.winRate.toFixed(1)}%
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">CORRECT PREDICTIONS</p>
-                    <p className="text-xl font-bold font-mono-data text-success">
-                      {winningModel.correctPredictions} / {winningModel.totalPredictions}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-3">ACTIVE MATCHES</p>
-                    <div className="flex gap-2 flex-wrap">
-                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
-                        ⚽ Premier League
-                      </div>
-                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
-                        ⚽ La Liga
-                      </div>
-                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
-                        ⚽ Bundesliga
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bar Chart */}
-            <Card className="lg:col-span-2">
-              <CardContent className="p-6">
-                <div className="flex items-end justify-between gap-4" style={{ height: '320px' }}>
-                  {enhancedModels.map((model) => {
-                    const maxWinRate = Math.max(...enhancedModels.map(m => m.winRate));
-                    const minWinRate = Math.min(...enhancedModels.map(m => m.winRate));
-                    
-                    // Calculate height in pixels with strong contrast
-                    // Range from 120px (lowest) to 280px (highest)
-                    const heightPx = ((model.winRate - minWinRate) / (maxWinRate - minWinRate)) * 160 + 120;
-                    
-                    return (
-                      <div key={model.id} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="text-sm font-mono-data font-bold mb-2">
-                          {model.winRate.toFixed(1)}%
-                        </div>
-                        <div 
-                          className="w-full rounded-t-lg relative flex items-end justify-center pb-4 transition-all duration-300 hover:opacity-80"
-                          style={{ 
-                            height: `${heightPx}px`,
-                            backgroundColor: `hsl(var(--${model.color}))`,
-                          }}
-                        >
-                          <img 
-                            src={getModelIcon(model.id)} 
-                            alt={model.name}
-                            className="h-8 w-8 object-contain"
-                          />
-                        </div>
-                        <div className="text-xs text-center font-medium text-muted-foreground">
-                          {model.displayName.split(' ')[0]}...
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Note */}
           <p className="text-sm text-muted-foreground">
