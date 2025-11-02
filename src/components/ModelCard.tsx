@@ -13,6 +13,7 @@ import expertGpt5 from "@/assets/expert-gpt5.jpg";
 import expertClaude from "@/assets/expert-claude.jpg";
 import expertGemini from "@/assets/expert-gemini.jpg";
 import expertGrok from "@/assets/expert-grok.jpg";
+import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface ModelCardProps {
   model: AIModel;
@@ -65,6 +66,16 @@ const ModelCard = ({ model }: ModelCardProps) => {
         borderColor: `hsl(var(--${model.color}) / 0.3)`
       }}
     >
+      {/* Football Field Background */}
+      <div 
+        className="absolute inset-0 opacity-20 transition-opacity duration-300"
+        style={{
+          backgroundImage: `url(${footballFieldBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      />
+      
       {/* Expert Background Image */}
       <div 
         className="absolute inset-0 opacity-10 group-hover:opacity-15 transition-opacity duration-300"
