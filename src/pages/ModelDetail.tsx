@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
+import authBg from "@/assets/auth-football-bg.jpg";
 
 const ModelDetail = () => {
   const { modelId } = useParams<{ modelId: string }>();
@@ -35,72 +36,81 @@ const ModelDetail = () => {
   };
   
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Models
-          </Button>
-          
-          <div className="flex items-center gap-4">
-            <div 
-              className="w-16 h-16 rounded-full flex items-center justify-center p-2 bg-card"
-              style={{
-                border: `3px solid hsl(var(--${model.color}))`
-              }}
+    <div className="min-h-screen relative">
+      {/* Background with overlay */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${authBg})` }}
+      />
+      <div className="fixed inset-0 bg-gradient-to-br from-black/85 via-black/80 to-primary/20 backdrop-blur-sm" />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="border-b border-primary/20 bg-card/80 backdrop-blur-md">
+          <div className="container mx-auto px-4 py-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/")}
+              className="mb-4 hover:text-primary transition-colors"
             >
-              <img 
-                src={`/src/assets/${model.id}-icon.png`}
-                alt={model.name}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div>
-              <h1 
-                className="text-3xl font-bold"
-                style={{ color: `hsl(var(--${model.color}))` }}
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Models
+            </Button>
+            
+            <div className="flex items-center gap-4">
+              <div 
+                className="w-16 h-16 rounded-full flex items-center justify-center p-2 bg-card/50 backdrop-blur-sm animate-fade-in"
+                style={{
+                  border: `3px solid hsl(var(--${model.color}))`
+                }}
               >
-                {model.displayName}
-              </h1>
-              <p className="text-muted-foreground">
-                {model.totalPredictions} predictions · {model.winRate.toFixed(1)}% win rate
-              </p>
+                <img 
+                  src={`/src/assets/${model.id}-icon.png`}
+                  alt={model.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div>
+                <h1 
+                  className="text-3xl font-bold animate-fade-in"
+                  style={{ color: `hsl(var(--${model.color}))` }}
+                >
+                  {model.displayName}
+                </h1>
+                <p className="text-muted-foreground animate-fade-in delay-75">
+                  {model.totalPredictions} predictions · {model.winRate.toFixed(1)}% win rate
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Stats Section */}
-      <div className="container mx-auto px-4 py-8">
+        
+        {/* Stats Section */}
+        <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-6">
+          <Card className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in">
             <p className="text-sm text-muted-foreground mb-2">Win Rate</p>
             <p className="text-3xl font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
               {model.winRate.toFixed(1)}%
             </p>
           </Card>
           
-          <Card className="p-6">
+          <Card className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in delay-75">
             <p className="text-sm text-muted-foreground mb-2">Total Predictions</p>
             <p className="text-3xl font-bold font-mono-data">
               {model.totalPredictions}
             </p>
           </Card>
           
-          <Card className="p-6">
+          <Card className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in delay-150">
             <p className="text-sm text-muted-foreground mb-2">Correct</p>
             <p className="text-3xl font-bold font-mono-data text-success">
               {model.correctPredictions}
             </p>
           </Card>
           
-          <Card className="p-6">
+          <Card className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in delay-200">
             <p className="text-sm text-muted-foreground mb-2">Wrong</p>
             <p className="text-3xl font-bold font-mono-data text-destructive">
               {model.totalPredictions - model.correctPredictions}
@@ -110,14 +120,18 @@ const ModelDetail = () => {
         
         {/* Prediction History */}
         <div>
-          <h2 className="text-2xl font-bold mb-6">Prediction History</h2>
+          <h2 className="text-2xl font-bold mb-6 animate-fade-in">Prediction History</h2>
           <div className="space-y-4">
-            {modelPredictions.map((prediction) => {
+            {modelPredictions.map((prediction, index) => {
               const match = pastMatches.find(m => m.id === prediction.matchId);
               if (!match) return null;
               
               return (
-                <Card key={prediction.id} className="p-6">
+                <Card 
+                  key={prediction.id} 
+                  className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -179,6 +193,7 @@ const ModelDetail = () => {
             })}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
