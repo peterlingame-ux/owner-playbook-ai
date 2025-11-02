@@ -37,15 +37,14 @@ const Index = () => {
       <CryptoTicker />
       
       <div className="container mx-auto px-4 py-8">
-        {/* AI Chat Section */}
-        <div className="mb-8">
-          <AIChat />
-        </div>
-
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2">
             <PerformanceChart />
+            {/* AI Chat Section below performance chart */}
+            <div className="mt-8">
+              <AIChat />
+            </div>
           </div>
           <div>
             <LiveMatches />
