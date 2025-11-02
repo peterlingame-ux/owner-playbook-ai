@@ -62,7 +62,7 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="hidden md:inline-flex items-center gap-2"
+              className="hidden md:inline-flex items-center gap-2 font-pixel text-xs"
             >
               <LogOut size={16} />
               登出
@@ -72,14 +72,14 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/auth")}
-              className="hidden md:inline-flex"
+              className="hidden md:inline-flex font-pixel text-xs"
             >
               登录
             </Button>
           )}
           <Link 
             to="/waitlist" 
-            className="hidden md:inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors underline underline-offset-4"
+            className="hidden md:inline-flex items-center gap-1 text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
           >
             JOIN THE PLATFORM WAITLIST
             <ExternalLink size={14} />
