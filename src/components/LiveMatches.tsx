@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
 import { upcomingMatches } from "@/data/mockData";
 import { Calendar, Clock, Trophy, Radio, Sun, CloudRain, Cloud, Snowflake } from "lucide-react";
@@ -71,7 +72,7 @@ const LiveMatches = () => {
   };
   
   return (
-    <Card className="p-6 bg-card border-border h-full">
+    <Card className="p-6 bg-card border-border h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">{t('upcoming_matches')}</h2>
         <Badge variant="outline" className="bg-success/20 text-success border-success/50">
@@ -79,8 +80,9 @@ const LiveMatches = () => {
         </Badge>
       </div>
       
-      <div className="space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100% - 60px)' }}>
-        {upcomingMatches.map((match) => (
+      <ScrollArea className="flex-1 pr-4">
+        <div className="space-y-4">
+          {upcomingMatches.map((match) => (
           <div 
             key={match.id} 
             className="relative rounded-lg border border-border overflow-hidden group cursor-pointer"
@@ -239,8 +241,9 @@ const LiveMatches = () => {
               )}
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ScrollArea>
     </Card>
   );
 };
