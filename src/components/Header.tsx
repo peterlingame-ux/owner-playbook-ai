@@ -17,8 +17,8 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="text-2xl font-bold">
-            <span className="text-foreground">AI Sports</span>
-            <span className="text-muted-foreground text-sm ml-2">Arena</span>
+            <span className="text-foreground">BOOSPORT</span>
+            <span className="text-muted-foreground text-sm ml-2">ARENA</span>
           </div>
         </Link>
         
