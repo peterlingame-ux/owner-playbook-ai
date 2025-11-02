@@ -23,6 +23,14 @@ export interface Match {
   halfTimeHomeScore?: number;
   halfTimeAwayScore?: number;
   currentMinute?: number;
+  matchPeriod?: "first_half" | "half_time" | "second_half" | "full_time";
+  homeYellowCards?: number;
+  awayYellowCards?: number;
+  homeRedCards?: number;
+  awayRedCards?: number;
+  homeCorners?: number;
+  awayCorners?: number;
+  liveStreamUrl?: string;
   bettingOdds?: BettingOdds[];
 }
 

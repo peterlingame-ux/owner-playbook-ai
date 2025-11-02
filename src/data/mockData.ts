@@ -138,6 +138,14 @@ export const upcomingMatches: Match[] = [
     halfTimeHomeScore: 1,
     halfTimeAwayScore: 0,
     currentMinute: 67,
+    matchPeriod: "second_half",
+    homeYellowCards: 2,
+    awayYellowCards: 3,
+    homeRedCards: 0,
+    awayRedCards: 1,
+    homeCorners: 5,
+    awayCorners: 3,
+    liveStreamUrl: "#",
     bettingOdds: [
       { bookmaker: "36*", homeWin: 0.77, draw: 0.0, awayWin: 1.02, homeHandicap: 0.87, awayHandicap: 0.92 },
       { bookmaker: "皇*", homeWin: 0.85, draw: 0.0, awayWin: 0.97, homeHandicap: 0.92, awayHandicap: 0.96 },
@@ -164,7 +172,13 @@ export const upcomingMatches: Match[] = [
     leagueLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
     homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
     awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
-    status: "upcoming"
+    status: "upcoming",
+    homeYellowCards: 0,
+    awayYellowCards: 0,
+    homeRedCards: 0,
+    awayRedCards: 0,
+    homeCorners: 0,
+    awayCorners: 0
   },
   {
     id: "m3",
@@ -178,7 +192,16 @@ export const upcomingMatches: Match[] = [
     awayLogo: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=100&h=100&fit=crop",
     status: "live",
     homeScore: 1,
-    awayScore: 1
+    awayScore: 1,
+    currentMinute: 45,
+    matchPeriod: "first_half",
+    homeYellowCards: 1,
+    awayYellowCards: 2,
+    homeRedCards: 0,
+    awayRedCards: 0,
+    homeCorners: 4,
+    awayCorners: 6,
+    liveStreamUrl: "#"
   }
 ];
 
