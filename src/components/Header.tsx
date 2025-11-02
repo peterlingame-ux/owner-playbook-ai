@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
   const { i18n } = useTranslation();
@@ -39,10 +40,11 @@ const Header = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="text-2xl font-bold">
-            <span className="text-foreground">BOOSPORT</span>
-            <span className="text-muted-foreground text-sm ml-2">ARENA</span>
-          </div>
+          <img 
+            src={boosportLogo} 
+            alt="BOOSPORT ARENA" 
+            className="h-10 md:h-12 w-auto object-contain hover:scale-105 transition-transform duration-300"
+          />
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
