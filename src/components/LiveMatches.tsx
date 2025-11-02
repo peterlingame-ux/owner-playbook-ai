@@ -68,16 +68,21 @@ const LiveMatches = () => {
                 
                 <div className="flex items-center gap-3">
                   {match.status === "upcoming" ? (
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar size={12} />
-                        {new Date(match.date).toLocaleDateString('zh-CN')}
+                    <>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar size={12} />
+                          {new Date(match.date).toLocaleDateString('zh-CN')}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock size={12} />
+                          {match.time}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Clock size={12} />
-                        {match.time}
-                      </div>
-                    </div>
+                      <Badge variant="secondary" className="text-xs">
+                        未开始
+                      </Badge>
+                    </>
                   ) : (
                     <>
                       {match.matchPeriod && (
