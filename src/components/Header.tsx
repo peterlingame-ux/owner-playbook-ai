@@ -43,16 +43,16 @@ const Header = () => {
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-foreground hover:text-primary transition-colors">
+          <Link to="/" className="font-pixel text-xs text-foreground hover:text-primary transition-colors tracking-wider">
             LIVE
           </Link>
-          <Link to="/leaderboard" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/leaderboard" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
             LEADERBOARD
           </Link>
-          <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/blog" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
             BLOG
           </Link>
-          <Link to="/models" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/models" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
             MODELS
           </Link>
         </nav>
