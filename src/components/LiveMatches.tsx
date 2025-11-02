@@ -2,8 +2,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { upcomingMatches } from "@/data/mockData";
 import { Calendar, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LiveMatches = () => {
+  const navigate = useNavigate();
+  
   return (
     <Card className="p-6 bg-card border-border">
       <div className="flex items-center justify-between mb-6">
@@ -18,6 +21,7 @@ const LiveMatches = () => {
           <div 
             key={match.id} 
             className="p-4 rounded-lg border border-border bg-secondary/50 hover:bg-accent/50 transition-colors cursor-pointer"
+            onClick={() => navigate(`/match/${match.id}`)}
           >
             <div className="flex items-center justify-between mb-3">
               <Badge variant="secondary" className="text-xs">

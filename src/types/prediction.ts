@@ -16,6 +16,16 @@ export interface TeamOwner {
   familyStatus: string;
   socialActivity: number;
   recentNews: string[];
+  scandals: string[];
+  familyMembers: {
+    relation: string;
+    name: string;
+    age: number;
+  }[];
+  financialStatus: string;
+  socialStatus: string;
+  recentActivities: string[];
+  exclusiveAnalysis: string;
 }
 
 export interface Prediction {

@@ -1,4 +1,4 @@
-import { AIModel, PredictionHistory, Match } from "@/types/prediction";
+import { AIModel, PredictionHistory, Match, TeamOwner } from "@/types/prediction";
 
 export const pastMatches: Match[] = [
   {
@@ -132,6 +132,213 @@ export const upcomingMatches: Match[] = [
     league: "Bundesliga"
   }
 ];
+
+export const matchOwnersData: Record<string, {
+  homeOwner: TeamOwner;
+  awayOwner: TeamOwner;
+}> = {
+  "m1": {
+    homeOwner: {
+      name: "Sir Jim Ratcliffe",
+      photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      netWorth: "$23.5B",
+      age: 71,
+      healthStatus: "Recently underwent minor surgery but recovering well. Regular health checkups show stable condition.",
+      familyStatus: "Married with three children",
+      socialActivity: 7,
+      recentNews: [
+        "Attended charity gala in Monaco",
+        "Met with Premier League officials",
+        "Announced new stadium investment"
+      ],
+      scandals: [
+        "Controversial tax arrangement scrutiny from UK authorities in 2023",
+        "Criticism over delayed stadium renovation plans"
+      ],
+      familyMembers: [
+        { relation: "Wife", name: "Maria Alessandro", age: 58 },
+        { relation: "Son", name: "George Ratcliffe", age: 35 },
+        { relation: "Daughter", name: "Julia Ratcliffe", age: 32 },
+        { relation: "Son", name: "Samuel Ratcliffe", age: 28 }
+      ],
+      financialStatus: "Net worth increased by 8% this quarter. INEOS chemical company performing strongly. Recent acquisition of cycling team shows diversification strategy.",
+      socialStatus: "Active in high-society circles. Regular attendee of Formula 1 events and yacht shows. Known for private nature but increasing public presence since club acquisition.",
+      recentActivities: [
+        "Attended Manchester United board meeting last week",
+        "Met with potential sponsorship partners in Dubai",
+        "Hosted exclusive dinner for club legends",
+        "Visited club training facilities"
+      ],
+      exclusiveAnalysis: "Ratcliffe's recent increased involvement in day-to-day operations signals a shift in management strategy. His chemical empire's strong performance provides substantial backing for club investments. However, ongoing stadium renovation debates and tax scrutiny may be creating added pressure. The owner's health recovery appears positive, potentially boosting confidence in decision-making. His growing public presence suggests a more hands-on approach compared to previous management style."
+    },
+    awayOwner: {
+      name: "John W. Henry",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      netWorth: "$4.8B",
+      age: 75,
+      healthStatus: "Excellent health for age. Regular fitness routine maintained. No recent health concerns reported.",
+      familyStatus: "Married to Linda Pizzuti Henry",
+      socialActivity: 6,
+      recentNews: [
+        "Expanded FSG sports portfolio",
+        "Invested in artificial intelligence startup",
+        "Spoke at sports business conference"
+      ],
+      scandals: [
+        "European Super League controversy aftermath still affecting reputation",
+        "Ticket pricing disputes with fan groups in 2022"
+      ],
+      familyMembers: [
+        { relation: "Wife", name: "Linda Pizzuti Henry", age: 44 },
+        { relation: "Daughter", name: "Sara Henry", age: 28 },
+        { relation: "Son", name: "Silas Henry", age: 25 }
+      ],
+      financialStatus: "Fenway Sports Group valuation up 15% year-over-year. Boston Red Sox and Liverpool FC both profitable. Recent tech investments showing promising returns.",
+      socialStatus: "Well-connected in both sports and business worlds. Maintains lower profile than other club owners. Respected in investment circles. Strong relationship with MLB and Premier League officials.",
+      recentActivities: [
+        "Finalized strategic partnership with private equity firm",
+        "Attended FSG annual investor meeting in Boston",
+        "Reviewed Liverpool's summer transfer strategy",
+        "Met with club manager to discuss long-term vision"
+      ],
+      exclusiveAnalysis: "Henry's Fenway Sports Group is riding high on successful multi-sport portfolio management. The recent equity partnerships strengthen financial position while maintaining control. His data-driven approach and patient investment strategy have proven successful. However, lingering Super League reputation damage among fans could affect atmosphere. The owner's focus on sustainability and long-term growth over quick wins suggests confidence in current trajectory despite increased competition for Premier League supremacy."
+    }
+  },
+  "m2": {
+    homeOwner: {
+      name: "Florentino Pérez",
+      photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      netWorth: "$2.1B",
+      age: 77,
+      healthStatus: "Recently recovered from minor illness. Generally maintains good health through regular medical monitoring.",
+      familyStatus: "Widowed, has three children",
+      socialActivity: 9,
+      recentNews: [
+        "Re-elected as Real Madrid president",
+        "Announced new Bernabéu renovation phase",
+        "Met with Spanish government officials"
+      ],
+      scandals: [
+        "Ongoing legal battles from Super League project",
+        "Allegations of favorable media coverage arrangements",
+        "Controversy over Bernabéu construction permits"
+      ],
+      familyMembers: [
+        { relation: "Son", name: "Florentino Pérez Jr.", age: 48 },
+        { relation: "Daughter", name: "María Ángeles Pérez", age: 46 },
+        { relation: "Daughter", name: "Laura Pérez", age: 43 }
+      ],
+      financialStatus: "ACS construction company facing market challenges but remains stable. Real Madrid's finances strongest in club history with record revenues. Bernabéu project slightly over budget but manageable.",
+      socialStatus: "One of most powerful figures in Spanish business and sports. Close ties with political establishment. Regular attendee of royal events. Influential voice in European football governance despite Super League controversy.",
+      recentActivities: [
+        "Hosted meeting with potential galáctico signing",
+        "Appeared at Spanish business leaders summit",
+        "Oversaw final Bernabéu renovation details",
+        "Met with La Liga president regarding media rights"
+      ],
+      exclusiveAnalysis: "Pérez remains determined to revolutionize European football despite Super League setbacks. His re-election demonstrates strong institutional support, but legal battles are consuming time and resources. The completed Bernabéu transformation provides prestige boost and revenue stream. Construction company challenges create minor financial pressure but unlikely to impact club operations. His age and health may prompt succession planning, potentially affecting long-term strategic decisions. The relentless pursuit of marquee signings continues despite financial fair play considerations."
+    },
+    awayOwner: {
+      name: "Joan Laporta",
+      photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      netWorth: "$50M",
+      age: 61,
+      healthStatus: "Good overall health. Maintains active lifestyle. No significant health issues reported.",
+      familyStatus: "Divorced, has three children",
+      socialActivity: 8,
+      recentNews: [
+        "Announced major sponsorship deal",
+        "Defended club's financial decisions",
+        "Visited La Masia youth academy"
+      ],
+      scandals: [
+        "Ongoing investigation into Negreira referee payments case",
+        "Controversy over salary cap management and player registrations",
+        "Disputed financial projections and transparency concerns"
+      ],
+      familyMembers: [
+        { relation: "Son", name: "Pol Laporta", age: 30 },
+        { relation: "Daughter", name: "Gianna Laporta", age: 27 },
+        { relation: "Son", name: "Guillem Laporta", age: 24 }
+      ],
+      financialStatus: "Barcelona's finances improving but still under severe La Liga salary cap restrictions. New sponsorship deals providing relief. Spotify Camp Nou renovation creating short-term revenue challenges. Personal wealth limited compared to other club presidents.",
+      socialStatus: "Popular among Barcelona members and fans despite controversies. Strong political connections in Catalonia. Charismatic public speaker. Faces pressure from club members and sporting results.",
+      recentActivities: [
+        "Negotiated emergency financial levers for player signings",
+        "Met with city officials regarding stadium construction",
+        "Addressed club members on financial situation",
+        "Attended Catalonian business forum"
+      ],
+      exclusiveAnalysis: "Laporta is walking a financial tightrope while maintaining competitive ambitions. The Negreira case clouds his presidency and could have severe consequences. His optimistic projections often clash with financial reality, creating credibility concerns. However, his charisma and political skills have kept member support relatively strong. The temporary stadium situation during renovations affects matchday atmosphere and revenues. Personal financial limitations mean complete dependency on club resources. His presidency's success hinges on sporting results while managing unprecedented financial constraints and legal threats."
+    }
+  },
+  "m3": {
+    homeOwner: {
+      name: "Herbert Hainer",
+      photo: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop",
+      netWorth: "$180M",
+      age: 69,
+      healthStatus: "Excellent health. Regular sports activity. No health concerns.",
+      familyStatus: "Married with two children",
+      socialActivity: 7,
+      recentNews: [
+        "Spoke at Bundesliga innovation summit",
+        "Announced club sustainability initiative",
+        "Met with German FA officials"
+      ],
+      scandals: [
+        "Minor criticism over ticket price increases",
+        "Debate over club's commercial direction vs tradition"
+      ],
+      familyMembers: [
+        { relation: "Wife", name: "Gabriele Hainer", age: 66 },
+        { relation: "Son", name: "Tobias Hainer", age: 38 },
+        { relation: "Daughter", name: "Sophie Hainer", age: 35 }
+      ],
+      financialStatus: "Bayern Munich's finances are exceptionally stable with consistent profitability. No debt burden. Strong commercial partnerships including Adidas, Allianz, and Audi. Conservative but successful financial management approach.",
+      socialStatus: "Respected in German business circles from Adidas tenure. Low-key personality compared to other club presidents. Strong relationships with Bundesliga officials. Focused on club tradition and fan engagement.",
+      recentActivities: [
+        "Reviewed club's youth development strategy",
+        "Met with potential sponsors in Munich",
+        "Attended supervisory board meeting",
+        "Visited women's team facilities"
+      ],
+      exclusiveAnalysis: "Hainer represents stability and Germanic efficiency in football management. His Adidas background brings valuable commercial expertise without compromising club values. The 50+1 ownership rule means fan-owned structure limits his individual power but ensures democratic accountability. Financial conservatism prevents reckless spending but also limits ability to compete with oil-backed clubs in transfer market. His focus on sustainability and youth development aligns with club philosophy. No major scandals or health concerns provide consistent leadership. However, pressure to maintain Bundesliga dominance while competing in Champions League may test conservative approach."
+    },
+    awayOwner: {
+      name: "Hans-Joachim Watzke",
+      photo: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&h=400&fit=crop",
+      netWorth: "$90M",
+      age: 64,
+      healthStatus: "Good health overall. Recently mentioned reducing work stress. No major health issues.",
+      familyStatus: "Married with children",
+      socialActivity: 6,
+      recentNews: [
+        "Discussed Bundesliga competitiveness issues",
+        "Announced stadium expansion plans",
+        "Defended club transfer strategy"
+      ],
+      scandals: [
+        "Criticism over selling key players to rivals",
+        "Controversy regarding youth player compensation dispute"
+      ],
+      familyMembers: [
+        { relation: "Wife", name: "Anke Watzke", age: 62 },
+        { relation: "Son", name: "Bastian Watzke", age: 34 },
+        { relation: "Daughter", name: "Laura Watzke", age: 31 }
+      ],
+      financialStatus: "Dortmund's finances healthy but more constrained than Bayern. Recent player sales provided significant revenue. Stock market listing creates transparency but also shareholder pressure. Stadium debt largely paid off.",
+      socialStatus: "Well-liked by Dortmund fans for saving club from bankruptcy. Outspoken advocate for German football traditions. Regular critic of financial doping in European football. Strong voice in Bundesliga discussions.",
+      recentActivities: [
+        "Negotiated contract extension with key player",
+        "Attended European Club Association meeting",
+        "Met with local government about infrastructure",
+        "Gave interview about Bundesliga future"
+      ],
+      exclusiveAnalysis: "Watzke continues balancing act between competitiveness and financial sustainability. His emotional connection to club is genuine asset with fans but may cloud judgment in key decisions. The perennial challenge of retaining star players against richer clubs creates cycle of rebuild rather than sustained excellence. His mentions of reducing stress suggest potential succession planning or delegation. Recent player sales provided financial cushion but weakened squad competitiveness. Stock market pressures demand short-term results conflicting with long-term development strategy. His outspoken nature wins respect but sometimes creates unnecessary controversies. Health and stress comments worth monitoring for leadership stability."
+    }
+  }
+};
 
 export const predictionHistory: PredictionHistory[] = [
   // Match 1 - Manchester City vs Arsenal
