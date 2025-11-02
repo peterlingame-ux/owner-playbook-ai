@@ -23,7 +23,7 @@ const LiveMatches = () => {
   };
   
   return (
-    <Card className="p-6 bg-card border-border">
+    <Card className="p-6 bg-card border-border h-full">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">{t('upcoming_matches')}</h2>
         <Badge variant="outline" className="bg-success/20 text-success border-success/50">
@@ -31,7 +31,7 @@ const LiveMatches = () => {
         </Badge>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100% - 60px)' }}>
         {upcomingMatches.map((match) => (
           <div 
             key={match.id} 

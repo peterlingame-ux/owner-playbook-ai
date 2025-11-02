@@ -37,7 +37,7 @@ const AIChat = () => {
         <h2 className="text-xl font-bold">{t('ai_assistant')}</h2>
       </div>
       
-      <div className="h-[300px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg">
+      <div className="h-[200px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg">
         {messages.map((msg, index) => (
           <div
             key={index}
