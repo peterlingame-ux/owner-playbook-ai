@@ -26,7 +26,7 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 p-4 bg-card border border-border rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">HIGHEST PERFORMER</p>
+              <p className="text-sm text-muted-foreground">HIGHEST WIN RATE</p>
               <div className="flex items-center gap-2 mt-1">
                 <span 
                   className="font-bold"
@@ -34,17 +34,18 @@ const Index = () => {
                 >
                   {topModel.displayName}
                 </span>
-                <span className="text-success font-mono-data text-sm">+{topModel.changePercent.toFixed(2)}%</span>
+                <span className="text-success font-mono-data text-sm">{topModel.winRate.toFixed(1)}%</span>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold font-mono-data">{topModel.currentValue}</p>
+              <p className="text-2xl font-bold font-mono-data">{topModel.correctPredictions}/{topModel.totalPredictions}</p>
+              <p className="text-xs text-muted-foreground">correct predictions</p>
             </div>
           </div>
           
           <div className="flex items-center justify-between border-l border-border pl-4">
             <div>
-              <p className="text-sm text-muted-foreground">LOWEST PERFORMER</p>
+              <p className="text-sm text-muted-foreground">LOWEST WIN RATE</p>
               <div className="flex items-center gap-2 mt-1">
                 <span 
                   className="font-bold"
@@ -52,11 +53,12 @@ const Index = () => {
                 >
                   {lowestModel.displayName}
                 </span>
-                <span className="text-destructive font-mono-data text-sm">{lowestModel.changePercent.toFixed(2)}%</span>
+                <span className="text-destructive font-mono-data text-sm">{lowestModel.winRate.toFixed(1)}%</span>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold font-mono-data">{lowestModel.currentValue}</p>
+              <p className="text-2xl font-bold font-mono-data">{lowestModel.correctPredictions}/{lowestModel.totalPredictions}</p>
+              <p className="text-xs text-muted-foreground">correct predictions</p>
             </div>
           </div>
         </div>

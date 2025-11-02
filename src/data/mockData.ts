@@ -145,7 +145,7 @@ export const predictionHistory: PredictionHistory[] = [
 
 export const generateChartData = () => {
   const dataPoints = 50;
-  const startValue = 10000;
+  const startWinRate = 50; // Starting win rate around 50%
   const data = [];
   
   for (let i = 0; i < dataPoints; i++) {
@@ -154,11 +154,11 @@ export const generateChartData = () => {
     
     data.push({
       date: date.toISOString().split('T')[0],
-      deepseek: startValue + Math.random() * 5000 + i * 50,
-      gpt5: startValue - Math.random() * 7000 - i * 20,
-      claude: startValue + Math.random() * 2000 - i * 10,
-      gemini: startValue - Math.random() * 6000 - i * 30,
-      grok: startValue - Math.random() * 4000 + i * 10
+      deepseek: Math.max(30, Math.min(70, startWinRate + 15 + Math.random() * 10 - 5 + (i * 0.1))),
+      gpt5: Math.max(20, Math.min(45, startWinRate - 15 + Math.random() * 10 - 5 - (i * 0.1))),
+      claude: Math.max(35, Math.min(60, startWinRate + 5 + Math.random() * 10 - 5)),
+      gemini: Math.max(25, Math.min(50, startWinRate - 10 + Math.random() * 10 - 5 - (i * 0.05))),
+      grok: Math.max(30, Math.min(60, startWinRate + 2 + Math.random() * 10 - 5 + (i * 0.05)))
     });
   }
   

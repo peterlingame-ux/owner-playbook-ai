@@ -57,8 +57,8 @@ const PerformanceChart = () => {
     <Card className="p-6 bg-card border-border">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">TOTAL ACCOUNT VALUE</h2>
-          <p className="text-muted-foreground text-sm mt-1">AI Model Performance Over Time</p>
+          <h2 className="text-2xl font-bold">AI MODEL WIN RATES</h2>
+          <p className="text-muted-foreground text-sm mt-1">Prediction Accuracy Over Time</p>
         </div>
         <div className="flex gap-2">
           <button className="px-4 py-2 bg-foreground text-background rounded text-sm font-medium">
@@ -83,7 +83,8 @@ const PerformanceChart = () => {
             stroke="hsl(var(--muted-foreground))"
             fontSize={12}
             tickLine={false}
-            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+            domain={[0, 100]}
+            tickFormatter={(value) => `${value}%`}
           />
           <Tooltip 
             contentStyle={{
@@ -91,7 +92,7 @@ const PerformanceChart = () => {
               border: "1px solid hsl(var(--border))",
               borderRadius: "8px"
             }}
-            formatter={(value: number) => [`$${value.toFixed(2)}`, ""]}
+            formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
           />
           <Legend 
             wrapperStyle={{ paddingTop: "20px" }}
