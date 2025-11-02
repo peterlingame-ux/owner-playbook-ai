@@ -35,11 +35,9 @@ const Header = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img 
-            src={boosportLogo} 
-            alt="BOOSPORT ARENA" 
-            className="h-10 md:h-12 w-auto object-contain hover:scale-105 transition-transform duration-300"
-          />
+          <h1 className="font-pixel text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
+            BOOSPORT ARENA
+          </h1>
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
