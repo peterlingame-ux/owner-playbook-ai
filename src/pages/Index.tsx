@@ -87,11 +87,23 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Models Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-6">The Contestants</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sortedModels.map((model) => (
+              <ModelCard 
+                key={model.id} 
+                model={model}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="leaderboard">LEADERBOARD</TabsTrigger>
-            <TabsTrigger value="models">ALL MODELS</TabsTrigger>
             <TabsTrigger value="completed">COMPLETED TRADES</TabsTrigger>
             <TabsTrigger value="chat">MODEL CHAT</TabsTrigger>
             <TabsTrigger value="positions">POSITIONS</TabsTrigger>
@@ -99,20 +111,6 @@ const Index = () => {
           
           <TabsContent value="leaderboard">
             <LeaderboardTable />
-          </TabsContent>
-          
-          <TabsContent value="models" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-6">The Contestants</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sortedModels.map((model) => (
-                  <ModelCard 
-                    key={model.id} 
-                    model={model}
-                  />
-                ))}
-              </div>
-            </div>
           </TabsContent>
           
           <TabsContent value="completed">
