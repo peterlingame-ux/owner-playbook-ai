@@ -88,7 +88,7 @@ const LiveMatches = () => {
           >
             {/* Weather-based Background */}
             <div 
-              className="absolute inset-0 opacity-70 group-hover:opacity-80 transition-opacity duration-300"
+              className="absolute inset-0 opacity-75 group-hover:opacity-85 transition-opacity duration-300"
               style={{
                 backgroundImage: `url(${getWeatherBackground(match.weather)})`,
                 backgroundSize: 'cover',
@@ -96,8 +96,8 @@ const LiveMatches = () => {
               }}
             />
             
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/60 to-background/70" />
+            {/* Gradient Overlay - lighter for better weather visibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/75 via-background/50 to-background/60" />
             
             {/* Content */}
             <div className="relative z-10 p-4">
