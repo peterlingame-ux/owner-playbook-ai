@@ -7,7 +7,6 @@ import LiveMatches from "@/components/LiveMatches";
 import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
-import FloatingChatButton from "@/components/FloatingChatButton";
 import ActivePredictions from "@/components/ActivePredictions";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,17 +15,6 @@ const Index = () => {
   const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("leaderboard");
-  
-  const handleChatClick = () => {
-    setActiveTab("chat");
-    // Scroll to tabs section
-    setTimeout(() => {
-      const tabsElement = document.querySelector('[role="tabpanel"]');
-      if (tabsElement) {
-        tabsElement.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 100);
-  };
   
   // Sort models by win rate
   const sortedModels = [...aiModels].sort((a, b) => b.winRate - a.winRate);
@@ -64,18 +52,13 @@ const Index = () => {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="leaderboard">{t('leaderboard')}</TabsTrigger>
-            <TabsTrigger value="chat">{t('model_chat')}</TabsTrigger>
             <TabsTrigger value="positions">{t('positions')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="leaderboard">
             <LeaderboardTable />
-          </TabsContent>
-          
-          <TabsContent value="chat">
-            <AIChat />
           </TabsContent>
           
           <TabsContent value="positions">
@@ -119,9 +102,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-      
-      {/* Floating Chat Button */}
-      <FloatingChatButton onClick={handleChatClick} />
     </div>
   );
 };
