@@ -93,13 +93,13 @@ const Header = () => {
               登录
             </Button>
           )}
-          <a 
-            href="#" 
+          <Link 
+            to="/waitlist" 
             className="hidden md:inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors underline underline-offset-4"
           >
             JOIN THE PLATFORM WAITLIST
             <ExternalLink size={14} />
-          </a>
+          </Link>
         </div>
       </div>
     </header>

@@ -11,6 +11,7 @@ import ModelDetail from "./pages/ModelDetail";
 import MatchDetail from "./pages/MatchDetail";
 import Blog from "./pages/Blog";
 import Auth from "./pages/Auth";
+import Waitlist from "./pages/Waitlist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/match/:matchId" element={<MatchDetail />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/waitlist" element={<Waitlist />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
