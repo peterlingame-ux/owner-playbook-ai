@@ -1,0 +1,152 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const resources = {
+  en: {
+    translation: {
+      // Header
+      "online_users": "ONLINE USERS",
+      "users_watching": "users watching now",
+      
+      // Stats
+      "highest_win_rate": "HIGHEST WIN RATE",
+      "lowest_win_rate": "LOWEST WIN RATE",
+      "correct_predictions": "correct predictions",
+      
+      // Performance Chart
+      "performance_over_time": "PERFORMANCE OVER TIME",
+      "win_rate": "Win Rate (%)",
+      
+      // Live Matches
+      "upcoming_matches": "UPCOMING MATCHES",
+      "live": "LIVE",
+      
+      // Tabs
+      "leaderboard": "LEADERBOARD",
+      "completed_trades": "COMPLETED TRADES",
+      "model_chat": "MODEL CHAT",
+      "positions": "POSITIONS",
+      
+      // Leaderboard
+      "rank": "RANK",
+      "model": "MODEL",
+      "predictions": "PREDICTIONS",
+      "correct": "CORRECT",
+      "wrong": "WRONG",
+      "performance": "PERFORMANCE",
+      
+      // Model Cards
+      "the_contestants": "The Contestants",
+      "view_details": "VIEW DETAILS",
+      "total_predictions": "Total Predictions",
+      
+      // AI Chat
+      "ai_assistant": "AI ASSISTANT",
+      "chat_welcome": "Hello! I'm a professional sports bot. You can ask me any questions, such as which platform is most reliable.",
+      "chat_placeholder": "Which platform is most reliable? Ask me anything...",
+      
+      // Crypto Ticker
+      "market_overview": "MARKET OVERVIEW",
+      
+      // Info Section
+      "better_benchmark": "A Better Benchmark",
+      "better_benchmark_text1": "AI Sports Arena is the first benchmark designed to measure AI's sports prediction abilities. Each model is given $10,000 of real money, in real markets, with identical prompts and input data.",
+      "better_benchmark_text2": "Our goal with AI Sports Arena is to make benchmarks more like the real world, and markets are perfect for this. They're dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static benchmarks cannot.",
+      "better_benchmark_text3": "Markets are the ultimate test of intelligence.",
+      
+      "owner_based_analysis": "Owner-Based Analysis",
+      "owner_based_text1": "Unlike traditional sports prediction models that focus on player statistics, our AI models analyze team owners to predict match outcomes.",
+      "owner_based_text2": "Each prediction considers:",
+      "owner_consideration_1": "Owner's financial status and net worth",
+      "owner_consideration_2": "Recent business activities and investments",
+      "owner_consideration_3": "Health and personal circumstances",
+      "owner_consideration_4": "Family dynamics and social activity",
+      "owner_consideration_5": "News sentiment and media presence",
+      "owner_based_text3": "So do we need to train models with new architectures for investing, or are LLMs good enough? Let's find out.",
+      
+      // Empty states
+      "completed_trades_empty": "Prediction history and completed matches will appear here",
+      "positions_empty": "Active predictions and positions will appear here"
+    }
+  },
+  zh: {
+    translation: {
+      // Header
+      "online_users": "在线用户",
+      "users_watching": "位用户正在观看",
+      
+      // Stats
+      "highest_win_rate": "最高胜率",
+      "lowest_win_rate": "最低胜率",
+      "correct_predictions": "次正确预测",
+      
+      // Performance Chart
+      "performance_over_time": "历史表现",
+      "win_rate": "胜率 (%)",
+      
+      // Live Matches
+      "upcoming_matches": "即将开始的比赛",
+      "live": "直播中",
+      
+      // Tabs
+      "leaderboard": "排行榜",
+      "completed_trades": "已完成交易",
+      "model_chat": "模型对话",
+      "positions": "持仓",
+      
+      // Leaderboard
+      "rank": "排名",
+      "model": "模型",
+      "predictions": "预测",
+      "correct": "正确",
+      "wrong": "错误",
+      "performance": "表现",
+      
+      // Model Cards
+      "the_contestants": "参赛选手",
+      "view_details": "查看详情",
+      "total_predictions": "总预测次数",
+      
+      // AI Chat
+      "ai_assistant": "AI 助手",
+      "chat_welcome": "你好，我是专业的体育机器人，你可以咨询我所有问题，例如哪个平台最靠谱",
+      "chat_placeholder": "哪个平台最靠谱？问我任何问题...",
+      
+      // Crypto Ticker
+      "market_overview": "市场概览",
+      
+      // Info Section
+      "better_benchmark": "更好的基准测试",
+      "better_benchmark_text1": "AI 体育竞技场是第一个旨在衡量 AI 体育预测能力的基准测试。每个模型都获得 10,000 美元的真实资金，在真实市场中，使用相同的提示和输入数据。",
+      "better_benchmark_text2": "我们的目标是让基准测试更接近真实世界，而市场正是完美的选择。它们是动态的、对抗性的、开放式的，并且无限不可预测。它们以静态基准测试无法做到的方式挑战 AI。",
+      "better_benchmark_text3": "市场是智能的终极考验。",
+      
+      "owner_based_analysis": "基于老板的分析",
+      "owner_based_text1": "与传统的关注球员统计数据的体育预测模型不同，我们的 AI 模型通过分析球队老板来预测比赛结果。",
+      "owner_based_text2": "每次预测都会考虑：",
+      "owner_consideration_1": "老板的财务状况和净资产",
+      "owner_consideration_2": "近期商业活动和投资",
+      "owner_consideration_3": "健康状况和个人情况",
+      "owner_consideration_4": "家庭动态和社交活动",
+      "owner_consideration_5": "新闻情绪和媒体曝光度",
+      "owner_based_text3": "那么我们需要为投资训练具有新架构的模型，还是 LLM 已经足够好了？让我们拭目以待。",
+      
+      // Empty states
+      "completed_trades_empty": "预测历史和已完成的比赛将显示在这里",
+      "positions_empty": "活跃的预测和持仓将显示在这里"
+    }
+  }
+};
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources,
+    lng: 'en',
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false
+    }
+  });
+
+export default i18n;

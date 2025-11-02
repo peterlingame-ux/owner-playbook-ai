@@ -1,15 +1,17 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bot } from "lucide-react";
 
 const AIChat = () => {
+  const { t } = useTranslation();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
     {
       role: "assistant",
-      content: "你好，我是专业的体育机器人，你可以咨询我所有问题，例如哪个平台最靠谱"
+      content: t('chat_welcome')
     }
   ]);
 
@@ -32,7 +34,7 @@ const AIChat = () => {
     <Card className="p-6 bg-card border-border">
       <div className="flex items-center gap-2 mb-4">
         <Bot className="text-primary" size={24} />
-        <h2 className="text-xl font-bold">AI ASSISTANT</h2>
+        <h2 className="text-xl font-bold">{t('ai_assistant')}</h2>
       </div>
       
       <div className="h-[300px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg">
@@ -59,7 +61,7 @@ const AIChat = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Which platform is most reliable? Ask me anything..."
+          placeholder={t('chat_placeholder')}
           className="flex-1 bg-secondary border-border placeholder:text-muted-foreground/50"
         />
         <Button onClick={handleSend} size="icon">

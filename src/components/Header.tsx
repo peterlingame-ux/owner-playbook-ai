@@ -1,8 +1,17 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Languages } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
+import { useTranslation } from "react-i18next";
 
 const Header = () => {
+  const { i18n } = useTranslation();
+  
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'zh' : 'en';
+    i18n.changeLanguage(newLang);
+  };
+  
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -30,6 +39,15 @@ const Header = () => {
         
         <div className="flex items-center gap-4">
           <OnlineUsers />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={toggleLanguage}
+            className="flex items-center gap-2"
+          >
+            <Languages size={16} />
+            {i18n.language === 'en' ? '中文' : 'EN'}
+          </Button>
           <Button variant="outline" size="sm" className="hidden md:inline-flex">
             JOIN WAITLIST
           </Button>

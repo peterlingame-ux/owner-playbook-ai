@@ -1,19 +1,21 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
 import { upcomingMatches } from "@/data/mockData";
 import { Calendar, Clock, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const LiveMatches = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   
   return (
     <Card className="p-6 bg-card border-border">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">UPCOMING MATCHES</h2>
+        <h2 className="text-xl font-bold">{t('upcoming_matches')}</h2>
         <Badge variant="outline" className="bg-success/20 text-success border-success/50">
-          LIVE
+          {t('live')}
         </Badge>
       </div>
       
@@ -49,7 +51,7 @@ const LiveMatches = () => {
                 </div>
               ) : (
                 <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse">
-                  LIVE
+                  {t('live')}
                 </Badge>
               )}
             </div>

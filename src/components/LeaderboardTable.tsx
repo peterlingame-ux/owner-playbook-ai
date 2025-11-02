@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown } from "lucide-react";
 
 const LeaderboardTable = () => {
+  const { t } = useTranslation();
   // Calculate additional stats for each model
   const enhancedModels = aiModels.map(model => {
     const wrongPredictions = model.totalPredictions - model.correctPredictions;
@@ -55,16 +57,16 @@ const LeaderboardTable = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-16">RANK</TableHead>
-                      <TableHead>MODEL</TableHead>
+                      <TableHead className="w-16">{t('rank')}</TableHead>
+                      <TableHead>{t('model')}</TableHead>
                       <TableHead className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          WIN RATE <ArrowDown className="h-3 w-3" />
+                          {t('win_rate')} <ArrowDown className="h-3 w-3" />
                         </div>
                       </TableHead>
-                      <TableHead className="text-right">PREDICTIONS</TableHead>
-                      <TableHead className="text-right">CORRECT</TableHead>
-                      <TableHead className="text-right">WRONG</TableHead>
+                      <TableHead className="text-right">{t('predictions')}</TableHead>
+                      <TableHead className="text-right">{t('correct')}</TableHead>
+                      <TableHead className="text-right">{t('wrong')}</TableHead>
                       <TableHead className="text-right">CURRENT STREAK</TableHead>
                       <TableHead className="text-right">BEST STREAK</TableHead>
                       <TableHead className="text-right">WORST STREAK</TableHead>

@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 import { generateChartData } from "@/data/mockData";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
@@ -8,6 +9,7 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 
 const PerformanceChart = () => {
+  const { t } = useTranslation();
   const data = generateChartData();
 
   // Custom dot component with model icons
@@ -57,7 +59,7 @@ const PerformanceChart = () => {
     <Card className="p-6 bg-card border-border">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">AI MODEL WIN RATES</h2>
+          <h2 className="text-2xl font-bold">{t('performance_over_time')}</h2>
           <p className="text-muted-foreground text-sm mt-1">Prediction Accuracy Over Time</p>
         </div>
         <div className="flex gap-2">

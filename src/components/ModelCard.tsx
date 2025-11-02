@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { AIModel } from "@/types/prediction";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -13,6 +14,7 @@ interface ModelCardProps {
 }
 
 const ModelCard = ({ model }: ModelCardProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = model.changePercent > 0;
   
@@ -60,7 +62,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               {model.displayName}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {model.totalPredictions} predictions
+              {model.totalPredictions} {t('predictions')}
             </p>
           </div>
         </div>
@@ -69,7 +71,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       <div className="space-y-4">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Win Rate</span>
+            <span className="text-sm text-muted-foreground">{t('win_rate')}</span>
             <span className="text-3xl font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
               {model.winRate.toFixed(1)}%
             </span>
@@ -89,19 +91,19 @@ const ModelCard = ({ model }: ModelCardProps) => {
         
         <div className="flex items-center justify-between pt-2 border-t border-border/50">
           <div>
-            <p className="text-xs text-muted-foreground">Correct</p>
+            <p className="text-xs text-muted-foreground">{t('correct')}</p>
             <p className="text-lg font-bold font-mono-data text-success">
               {model.correctPredictions}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-xs text-muted-foreground">{t('total_predictions')}</p>
             <p className="text-lg font-bold font-mono-data">
               {model.totalPredictions}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">Wrong</p>
+            <p className="text-xs text-muted-foreground">{t('wrong')}</p>
             <p className="text-lg font-bold font-mono-data text-destructive">
               {model.totalPredictions - model.correctPredictions}
             </p>
