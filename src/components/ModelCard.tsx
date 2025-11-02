@@ -65,26 +65,55 @@ const ModelCard = ({ model, onClick }: ModelCardProps) => {
         </div>
       </div>
       
-      <div className="space-y-2">
-        <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-bold font-mono-data">{model.currentValue}</span>
-          <span className={`text-sm font-medium flex items-center gap-1 ${isPositive ? 'text-success' : 'text-destructive'}`}>
-            {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-            {isPositive ? '+' : ''}{model.changePercent.toFixed(2)}%
-          </span>
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted-foreground">Win Rate</span>
+            <span className="text-3xl font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
+              {model.winRate.toFixed(1)}%
+            </span>
+          </div>
+          
+          {/* Win Rate Progress Bar */}
+          <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
+            <div 
+              className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${model.winRate}%`,
+                backgroundColor: `hsl(var(--${model.color}))`
+              }}
+            />
+          </div>
         </div>
         
-        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
           <div>
-            <p className="text-xs text-muted-foreground">Win Rate</p>
-            <p className="text-lg font-bold font-mono-data">{model.winRate.toFixed(2)}%</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Accuracy</p>
-            <p className="text-lg font-bold font-mono-data">
-              {model.correctPredictions}/{model.totalPredictions}
+            <p className="text-xs text-muted-foreground">Correct</p>
+            <p className="text-lg font-bold font-mono-data text-success">
+              {model.correctPredictions}
             </p>
           </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-lg font-bold font-mono-data">
+              {model.totalPredictions}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Wrong</p>
+            <p className="text-lg font-bold font-mono-data text-destructive">
+              {model.totalPredictions - model.correctPredictions}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+          <span className="text-xs text-muted-foreground">Value:</span>
+          <span className="text-sm font-bold font-mono-data">{model.currentValue}</span>
+          <span className={`text-xs font-medium flex items-center gap-1 ml-auto ${isPositive ? 'text-success' : 'text-destructive'}`}>
+            {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {isPositive ? '+' : ''}{model.changePercent.toFixed(2)}%
+          </span>
         </div>
       </div>
     </Card>
