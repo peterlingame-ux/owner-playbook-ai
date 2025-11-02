@@ -47,10 +47,10 @@ const AIChat = () => {
               className={`max-w-[80%] p-3 rounded-lg ${
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-accent text-accent-foreground"
+                  : "bg-accent"
               }`}
             >
-              <p className="text-sm">{msg.content}</p>
+              <p className={`text-sm ${msg.role === "assistant" ? "text-muted-foreground" : ""}`}>{msg.content}</p>
             </div>
           </div>
         ))}
