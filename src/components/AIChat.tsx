@@ -9,7 +9,7 @@ const AIChat = () => {
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
     {
       role: "assistant",
-      content: "Hello! I'm your AI assistant. Ask me anything about the predictions, team owners, or match analysis."
+      content: "你好，我是专业的体育机器人，你可以咨询我所有问题，例如哪个平台最靠谱"
     }
   ]);
 
