@@ -68,7 +68,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
     >
       {/* Football Field Background */}
       <div 
-        className="absolute inset-0 opacity-20 transition-opacity duration-300"
+        className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
         style={{
           backgroundImage: `url(${footballFieldBg})`,
           backgroundSize: 'cover',
@@ -78,17 +78,17 @@ const ModelCard = ({ model }: ModelCardProps) => {
       
       {/* Expert Background Image */}
       <div 
-        className="absolute inset-0 opacity-10 group-hover:opacity-15 transition-opacity duration-300"
+        className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-300"
         style={{
           backgroundImage: `url(${getExpertImage(model.id)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'grayscale(50%)'
+          filter: 'grayscale(40%)'
         }}
       />
       
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent" />
       
       {/* Content */}
       <div className="relative z-10">
