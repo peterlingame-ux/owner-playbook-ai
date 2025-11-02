@@ -5,6 +5,7 @@ import ModelCard from "@/components/ModelCard";
 import LiveMatches from "@/components/LiveMatches";
 import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
+import LeaderboardTable from "@/components/LeaderboardTable";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -74,13 +75,18 @@ const Index = () => {
         </div>
 
         {/* Tabs Section */}
-        <Tabs defaultValue="models" className="mb-8">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+        <Tabs defaultValue="leaderboard" className="mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsTrigger value="leaderboard">LEADERBOARD</TabsTrigger>
             <TabsTrigger value="models">ALL MODELS</TabsTrigger>
             <TabsTrigger value="completed">COMPLETED TRADES</TabsTrigger>
             <TabsTrigger value="chat">MODEL CHAT</TabsTrigger>
             <TabsTrigger value="positions">POSITIONS</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="leaderboard">
+            <LeaderboardTable />
+          </TabsContent>
           
           <TabsContent value="models" className="space-y-6">
             <div>
