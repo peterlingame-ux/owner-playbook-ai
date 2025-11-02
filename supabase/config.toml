@@ -1,0 +1,4 @@
+project_id = "bxxcyngrwsnrcsozrzno"
+
+[functions.analyze-owner]
+verify_jwt = false

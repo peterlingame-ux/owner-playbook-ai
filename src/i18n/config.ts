@@ -104,7 +104,11 @@ const resources = {
       "debt_situation": "Debt Situation",
       "occupation": "Occupation",
       "member_net_worth": "Net Worth",
-      "member_influence": "Influence on Owner"
+      "member_influence": "Influence on Owner",
+      "ai_analyses": "AI Model Analyses",
+      "analyze_with_ai": "Analyze with AI",
+      "analyzing": "Analyzing...",
+      "analysis_error": "Failed to generate analysis. Please try again."
     }
   },
   zh: {
@@ -209,7 +213,11 @@ const resources = {
       "debt_situation": "债务情况",
       "occupation": "职业",
       "member_net_worth": "净资产",
-      "member_influence": "对老板的影响"
+      "member_influence": "对老板的影响",
+      "ai_analyses": "AI 模型分析",
+      "analyze_with_ai": "AI 分析",
+      "analyzing": "分析中...",
+      "analysis_error": "分析失败，请重试。"
     }
   }
 };

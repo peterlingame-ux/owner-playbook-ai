@@ -1,19 +1,67 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, TrendingUp, TrendingDown, Users, Heart, DollarSign, Activity, Newspaper } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, TrendingUp, TrendingDown, Users, Heart, DollarSign, Activity, Newspaper, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { upcomingMatches, matchOwnersData } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
 
 const MatchDetail = () => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
+  const [homeAnalyses, setHomeAnalyses] = useState<any[]>([]);
+  const [awayAnalyses, setAwayAnalyses] = useState<any[]>([]);
+  const [loadingHome, setLoadingHome] = useState(false);
+  const [loadingAway, setLoadingAway] = useState(false);
   
   const match = upcomingMatches.find(m => m.id === matchId);
   const ownersData = matchOwnersData[matchId || ''];
+  
+  const handleAnalyzeOwner = async (owner: any, isHome: boolean) => {
+    if (isHome) {
+      setLoadingHome(true);
+    } else {
+      setLoadingAway(true);
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-owner', {
+        body: { ownerData: owner }
+      });
+
+      if (error) throw error;
+
+      if (isHome) {
+        setHomeAnalyses(data.analyses);
+      } else {
+        setAwayAnalyses(data.analyses);
+      }
+
+      toast({
+        title: "Analysis Complete",
+        description: "AI models have analyzed the owner's situation.",
+      });
+    } catch (error) {
+      console.error('Analysis error:', error);
+      toast({
+        title: "Analysis Failed",
+        description: t('analysis_error'),
+        variant: "destructive",
+      });
+    } finally {
+      if (isHome) {
+        setLoadingHome(false);
+      } else {
+        setLoadingAway(false);
+      }
+    }
+  };
   
   if (!match || !ownersData) {
     return (
@@ -28,7 +76,11 @@ const MatchDetail = () => {
     );
   }
   
-  const OwnerCard = ({ owner, team }: { owner: typeof ownersData.homeOwner, team: string }) => (
+  const OwnerCard = ({ owner, team, isHome }: { owner: typeof ownersData.homeOwner, team: string, isHome: boolean }) => {
+    const analyses = isHome ? homeAnalyses : awayAnalyses;
+    const loading = isHome ? loadingHome : loadingAway;
+    
+    return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
         <CardTitle className="flex items-center justify-between">
@@ -268,19 +320,53 @@ const MatchDetail = () => {
 
         <Separator className="my-6" />
 
-        {/* Exclusive Analysis */}
+        {/* AI Analyses Section */}
         <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-lg border border-primary/20">
-          <h4 className="font-bold text-lg mb-3 flex items-center gap-2">
-            <span className="text-primary">🔍</span>
-            {t('exclusive_owner_analysis')}
-          </h4>
-          <p className="text-sm leading-relaxed text-foreground">
-            {owner.exclusiveAnalysis}
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-bold text-lg flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              {t('ai_analyses')}
+            </h4>
+            <Button 
+              onClick={() => handleAnalyzeOwner(owner, isHome)}
+              disabled={loading}
+              size="sm"
+              variant="outline"
+            >
+              {loading ? t('analyzing') : t('analyze_with_ai')}
+            </Button>
+          </div>
+          
+          {analyses.length > 0 ? (
+            <div className="space-y-4 mt-4">
+              {analyses.map((analysis) => (
+                <div 
+                  key={analysis.id} 
+                  className={`bg-background/80 p-4 rounded-lg border ${
+                    analysis.error ? 'border-destructive/20' : 'border-primary/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant={analysis.error ? "destructive" : "default"}>
+                      {analysis.name}
+                    </Badge>
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                    {analysis.analysis}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              Click the button above to generate AI analyses from 5 different models
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
   );
+};
   
   return (
     <div className="min-h-screen bg-background">
@@ -317,8 +403,8 @@ const MatchDetail = () => {
       {/* Owners Comparison */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <OwnerCard owner={ownersData.homeOwner} team={match.homeTeam} />
-          <OwnerCard owner={ownersData.awayOwner} team={match.awayTeam} />
+          <OwnerCard owner={ownersData.homeOwner} team={match.homeTeam} isHome={true} />
+          <OwnerCard owner={ownersData.awayOwner} team={match.awayTeam} isHome={false} />
         </div>
 
         {/* Match Analysis Summary */}
