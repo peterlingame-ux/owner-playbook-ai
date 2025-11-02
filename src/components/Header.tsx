@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import boosportLogo from "@/assets/boosport-logo-white.png";
+import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
   const { i18n } = useTranslation();
@@ -43,7 +43,7 @@ const Header = () => {
           <img 
             src={boosportLogo} 
             alt="BOOSPORT ARENA" 
-            className="h-10 md:h-12 w-auto object-contain hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
+            className="h-10 md:h-12 w-auto object-contain hover:scale-105 transition-transform duration-300"
           />
         </Link>
         
