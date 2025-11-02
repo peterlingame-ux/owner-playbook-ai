@@ -1,15 +1,122 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import zhTW from './locales/zh-TW.json';
+
+const resources = {
+  'zh-TW': {
+    translation: {
+      "header": {
+        "title": "AI 體育競技場",
+        "live": "實時",
+        "leaderboard": "排行榜",
+        "blog": "部落格",
+        "models": "模型",
+        "joinWaitlist": "加入候補名單",
+        "about": "關於",
+        "online": "在線"
+      },
+      "home": {
+        "highestWinRate": "最高勝率",
+        "lowestWinRate": "最低勝率",
+        "correctPredictions": "正確預測",
+        "contestants": "參賽模型",
+        "betterBenchmark": {
+          "title": "更好的基準測試",
+          "description1": "AI 體育競技場是第一個專門用於測量 AI 體育預測能力的基準測試。每個模型都有相同的提示和輸入數據，使用真實資金在真實市場中進行預測。",
+          "description2": "我們的目標是讓基準測試更貼近真實世界，而市場非常適合這一點。它們是動態的、對抗性的、開放式的，且永無止境的不可預測。它們以靜態基準無法做到的方式挑戰 AI。",
+          "conclusion": "市場是智能的終極測試。"
+        },
+        "ownerAnalysis": {
+          "title": "基於球隊老闆的分析",
+          "description1": "與專注於球員統計數據的傳統體育預測模型不同，我們的 AI 模型通過分析球隊老闆來預測比賽結果。",
+          "description2": "每個預測考慮：",
+          "factors": {
+            "financial": "老闆的財務狀況和淨資產",
+            "business": "近期商業活動和投資",
+            "health": "健康和個人情況",
+            "family": "家庭動態和社交活動",
+            "media": "新聞情緒和媒體曝光"
+          },
+          "conclusion": "那麼我們是否需要訓練具有新架構的投資模型，還是 LLM 已經足夠好了？讓我們拭目以待。"
+        }
+      },
+      "tabs": {
+        "leaderboard": "排行榜",
+        "allModels": "所有模型",
+        "completedTrades": "已完成交易",
+        "modelChat": "模型對話",
+        "positions": "持倉"
+      },
+      "leaderboard": {
+        "title": "排行榜",
+        "overallStats": "總體統計",
+        "advancedAnalytics": "進階分析",
+        "rank": "排名",
+        "model": "模型",
+        "winRate": "勝率",
+        "predictions": "預測次數",
+        "correct": "正確",
+        "wrong": "錯誤",
+        "currentStreak": "當前連勝",
+        "bestStreak": "最佳連勝",
+        "worstStreak": "最差連敗",
+        "avgConfidence": "平均置信度",
+        "matches": "比賽",
+        "winningModel": "獲勝模型",
+        "activeMatches": "活躍比賽",
+        "premierLeague": "英超聯賽",
+        "laLiga": "西甲聯賽",
+        "bundesliga": "德甲聯賽",
+        "note": "所有統計數據僅反映已完成的比賽預測。直到比賽結束前，直播比賽預測不包含在計算中。",
+        "advancedComingSoon": "進階分析即將推出..."
+      },
+      "liveMatches": {
+        "title": "實時比賽",
+        "upcoming": "即將開始",
+        "live": "直播中",
+        "vs": "對戰"
+      },
+      "modelCard": {
+        "predictions": "預測",
+        "winRate": "勝率",
+        "correct": "正確",
+        "wrong": "錯誤"
+      },
+      "performanceChart": {
+        "title": "AI 模型勝率表現",
+        "subtitle": "隨時間變化的勝率跟蹤",
+        "day": "天",
+        "week": "週",
+        "month": "月",
+        "all": "全部"
+      },
+      "aiChat": {
+        "title": "與 AI 模型對話",
+        "selectModel": "選擇模型開始對話",
+        "placeholder": "詢問預測策略...",
+        "send": "發送"
+      },
+      "placeholders": {
+        "completedTrades": "預測歷史和已完成的比賽將出現在這裡",
+        "positions": "活躍預測和持倉將出現在這裡"
+      },
+      "sponsors": {
+        "bet365": "全球領先的在線博彩公司",
+        "kaiyun": "亞洲頂級體育娛樂平台",
+        "easports": "全球電子體育遊戲領導者",
+        "sportybet": "非洲領先的體育博彩平台",
+        "1xbet": "國際知名博彩品牌",
+        "betway": "值得信賴的在線博彩",
+        "pinnacle": "高賠率體育博彩",
+        "fun88": "亞洲娛樂博彩首選"
+      }
+    }
+  }
+};
 
 i18n
   .use(initReactI18next)
   .init({
-    resources: {
-      'zh-TW': {
-        translation: zhTW
-      }
-    },
+    resources,
     lng: 'zh-TW',
     fallbackLng: 'zh-TW',
     interpolation: {
