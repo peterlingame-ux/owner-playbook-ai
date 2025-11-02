@@ -1,15 +1,18 @@
 import { TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const CryptoTicker = () => {
+  const { t } = useTranslation();
+  
   const sportsSponsors = [
-    { name: "BET365", tagline: "The World's Favourite Online Sports Betting Company" },
-    { name: "开云体育", tagline: "亚洲领先体育平台" },
-    { name: "EA SPORTS", tagline: "It's In The Game" },
-    { name: "SPORTYBET", tagline: "Africa's Best Sports Betting Platform" },
-    { name: "1XBET", tagline: "Best Odds & Live Betting" },
-    { name: "BETWAY", tagline: "Bet With The Best" },
-    { name: "PINNACLE", tagline: "High Limits, Low Margins" },
-    { name: "FUN88", tagline: "亚洲顶级体育竞技平台" }
+    { name: "BET365", tagline: t('sponsors.bet365') },
+    { name: "开云体育", tagline: t('sponsors.kaiyun') },
+    { name: "EA SPORTS", tagline: t('sponsors.easports') },
+    { name: "SPORTYBET", tagline: t('sponsors.sportybet') },
+    { name: "1XBET", tagline: t('sponsors.1xbet') },
+    { name: "BETWAY", tagline: t('sponsors.betway') },
+    { name: "PINNACLE", tagline: t('sponsors.pinnacle') },
+    { name: "FUN88", tagline: t('sponsors.fun88') }
   ];
 
   return (

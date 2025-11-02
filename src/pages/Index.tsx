@@ -8,8 +8,10 @@ import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   
   // Sort models by win rate
@@ -27,7 +29,7 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 p-4 bg-card border border-border rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">HIGHEST WIN RATE</p>
+              <p className="text-sm text-muted-foreground">{t('home.highestWinRate').toUpperCase()}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span 
                   className="font-bold"
@@ -40,13 +42,13 @@ const Index = () => {
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold font-mono-data">{topModel.correctPredictions}/{topModel.totalPredictions}</p>
-              <p className="text-xs text-muted-foreground">correct predictions</p>
+              <p className="text-xs text-muted-foreground">{t('home.correctPredictions')}</p>
             </div>
           </div>
           
           <div className="flex items-center justify-between border-l border-border pl-4">
             <div>
-              <p className="text-sm text-muted-foreground">LOWEST WIN RATE</p>
+              <p className="text-sm text-muted-foreground">{t('home.lowestWinRate').toUpperCase()}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span 
                   className="font-bold"
@@ -59,7 +61,7 @@ const Index = () => {
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold font-mono-data">{lowestModel.correctPredictions}/{lowestModel.totalPredictions}</p>
-              <p className="text-xs text-muted-foreground">correct predictions</p>
+              <p className="text-xs text-muted-foreground">{t('home.correctPredictions')}</p>
             </div>
           </div>
         </div>
@@ -77,11 +79,11 @@ const Index = () => {
         {/* Tabs Section */}
         <Tabs defaultValue="leaderboard" className="mb-8">
           <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="leaderboard">LEADERBOARD</TabsTrigger>
-            <TabsTrigger value="models">ALL MODELS</TabsTrigger>
-            <TabsTrigger value="completed">COMPLETED TRADES</TabsTrigger>
-            <TabsTrigger value="chat">MODEL CHAT</TabsTrigger>
-            <TabsTrigger value="positions">POSITIONS</TabsTrigger>
+            <TabsTrigger value="leaderboard">{t('tabs.leaderboard').toUpperCase()}</TabsTrigger>
+            <TabsTrigger value="models">{t('tabs.allModels').toUpperCase()}</TabsTrigger>
+            <TabsTrigger value="completed">{t('tabs.completedTrades').toUpperCase()}</TabsTrigger>
+            <TabsTrigger value="chat">{t('tabs.modelChat').toUpperCase()}</TabsTrigger>
+            <TabsTrigger value="positions">{t('tabs.positions').toUpperCase()}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="leaderboard">
@@ -90,7 +92,7 @@ const Index = () => {
           
           <TabsContent value="models" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold mb-6">The Contestants</h2>
+              <h2 className="text-2xl font-bold mb-6">{t('home.contestants')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {sortedModels.map((model) => (
                   <ModelCard 
@@ -104,7 +106,7 @@ const Index = () => {
           
           <TabsContent value="completed">
             <div className="text-center py-12 text-muted-foreground">
-              <p>Prediction history and completed matches will appear here</p>
+              <p>{t('placeholders.completedTrades')}</p>
             </div>
           </TabsContent>
           
@@ -114,7 +116,7 @@ const Index = () => {
           
           <TabsContent value="positions">
             <div className="text-center py-12 text-muted-foreground">
-              <p>Active predictions and positions will appear here</p>
+              <p>{t('placeholders.positions')}</p>
             </div>
           </TabsContent>
         </Tabs>
@@ -122,38 +124,35 @@ const Index = () => {
         {/* Info Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
           <div className="p-8 bg-card border border-border rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">A Better Benchmark</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('home.betterBenchmark.title')}</h2>
             <p className="text-muted-foreground mb-4">
-              <span className="font-bold text-foreground">AI Sports Arena</span> is the first benchmark designed to measure AI's sports prediction abilities. 
-              Each model is given $10,000 of <span className="text-success">real money</span>, in <span className="text-success">real markets</span>, 
-              with identical prompts and input data.
+              {t('home.betterBenchmark.description1')}
             </p>
             <p className="text-muted-foreground mb-4">
-              Our goal with AI Sports Arena is to make benchmarks more like the real world, and markets are perfect for this. 
-              They're dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static benchmarks cannot.
+              {t('home.betterBenchmark.description2')}
             </p>
             <p className="text-foreground font-bold">
-              Markets are the ultimate test of intelligence.
+              {t('home.betterBenchmark.conclusion')}
             </p>
           </div>
           
           <div className="p-8 bg-card border border-border rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Owner-Based Analysis</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('home.ownerAnalysis.title')}</h2>
             <p className="text-muted-foreground mb-4">
-              Unlike traditional sports prediction models that focus on player statistics, our AI models analyze team owners to predict match outcomes.
+              {t('home.ownerAnalysis.description1')}
             </p>
             <p className="text-muted-foreground">
-              Each prediction considers:
+              {t('home.ownerAnalysis.description2')}
             </p>
             <ul className="list-disc list-inside text-muted-foreground space-y-2 mt-4">
-              <li>Owner's financial status and net worth</li>
-              <li>Recent business activities and investments</li>
-              <li>Health and personal circumstances</li>
-              <li>Family dynamics and social activity</li>
-              <li>News sentiment and media presence</li>
+              <li>{t('home.ownerAnalysis.factors.financial')}</li>
+              <li>{t('home.ownerAnalysis.factors.business')}</li>
+              <li>{t('home.ownerAnalysis.factors.health')}</li>
+              <li>{t('home.ownerAnalysis.factors.family')}</li>
+              <li>{t('home.ownerAnalysis.factors.media')}</li>
             </ul>
             <p className="text-foreground font-bold mt-4">
-              So do we need to train models with new architectures for investing, or are LLMs good enough? Let's find out.
+              {t('home.ownerAnalysis.conclusion')}
             </p>
           </div>
         </div>
