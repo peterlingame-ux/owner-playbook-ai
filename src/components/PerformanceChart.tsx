@@ -7,6 +7,9 @@ import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
+import ronaldoBg from "@/assets/ronaldo-bg.jpg";
+import messiBg from "@/assets/messi-bg.jpg";
+import mbappeBg from "@/assets/mbappe-bg.jpg";
 
 const PerformanceChart = () => {
   const { t } = useTranslation();
@@ -89,7 +92,48 @@ const PerformanceChart = () => {
   };
 
   return (
-    <Card className="p-6 bg-card border-border">
+    <Card className="p-6 bg-card border-border relative overflow-hidden">
+      {/* Football Stars Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-10">
+          <div 
+            className="w-full h-full"
+            style={{
+              backgroundImage: `url(${ronaldoBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'grayscale(60%)'
+            }}
+          />
+        </div>
+        <div className="absolute left-1/3 top-0 bottom-0 w-1/3 opacity-10">
+          <div 
+            className="w-full h-full"
+            style={{
+              backgroundImage: `url(${messiBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'grayscale(60%)'
+            }}
+          />
+        </div>
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10">
+          <div 
+            className="w-full h-full"
+            style={{
+              backgroundImage: `url(${mbappeBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'grayscale(60%)'
+            }}
+          />
+        </div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/95 to-background/90" />
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{t('performance_over_time')}</h2>
@@ -174,6 +218,7 @@ const PerformanceChart = () => {
           />
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </Card>
   );
 };
