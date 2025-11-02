@@ -55,6 +55,39 @@ const PerformanceChart = () => {
     );
   };
 
+  // Custom Legend Component with icons
+  const CustomLegend = (props: any) => {
+    const { payload } = props;
+    
+    const getIcon = (dataKey: string) => {
+      switch(dataKey) {
+        case 'deepseek': return deepseekIcon;
+        case 'gpt5': return openaiIcon;
+        case 'claude': return claudeIcon;
+        case 'gemini': return geminiIcon;
+        case 'grok': return grokIcon;
+        default: return null;
+      }
+    };
+    
+    return (
+      <div className="flex flex-wrap justify-center items-center gap-6 pt-6">
+        {payload.map((entry: any, index: number) => (
+          <div key={`item-${index}`} className="flex items-center gap-2">
+            <img 
+              src={getIcon(entry.dataKey)} 
+              alt={entry.value}
+              className="w-5 h-5 object-contain"
+            />
+            <span className="text-sm font-medium" style={{ color: entry.color }}>
+              {entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <Card className="p-6 bg-card border-border">
       <div className="mb-6 flex items-center justify-between">
@@ -97,8 +130,7 @@ const PerformanceChart = () => {
             formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
           />
           <Legend 
-            wrapperStyle={{ paddingTop: "20px" }}
-            iconType="line"
+            content={<CustomLegend />}
           />
           <Line 
             type="monotone" 
