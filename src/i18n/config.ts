@@ -120,6 +120,9 @@ const resources = {
       "away_win": "Away",
       "home_handicap": "Home Handicap",
       "away_handicap": "Away Handicap",
+      "no_active_predictions": "No active predictions at the moment",
+      "upcoming_match": "Upcoming",
+      "prediction_summary": "Prediction Summary",
       "click_analyze_to_see_predictions": "Click the 'Analyze with AI' buttons above to generate match predictions from 5 different AI models."
     }
   },
@@ -241,6 +244,9 @@ const resources = {
       "away_win": "客胜",
       "home_handicap": "主队让球",
       "away_handicap": "客队让球",
+      "no_active_predictions": "当前没有活跃的预测",
+      "upcoming_match": "即将开始",
+      "prediction_summary": "预测汇总",
       "click_analyze_to_see_predictions": "点击上方的\"AI 分析\"按钮，让5个不同的AI模型生成比赛预测。"
     }
   }

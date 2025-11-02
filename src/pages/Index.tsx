@@ -8,6 +8,7 @@ import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import FloatingChatButton from "@/components/FloatingChatButton";
+import ActivePredictions from "@/components/ActivePredictions";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -126,9 +127,7 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="positions">
-            <div className="text-center py-12 text-muted-foreground">
-              <p>{t('positions_empty')}</p>
-            </div>
+            <ActivePredictions />
           </TabsContent>
         </Tabs>
 
