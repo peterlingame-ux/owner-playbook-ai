@@ -92,7 +92,7 @@ const PerformanceChart = () => {
   };
 
   return (
-    <Card className="p-6 bg-card border-border relative overflow-hidden">
+    <Card className="p-3 sm:p-6 bg-card border-border relative overflow-hidden">
       {/* Football Stars Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-25">
@@ -134,22 +134,22 @@ const PerformanceChart = () => {
       
       {/* Content */}
       <div className="relative z-10">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">{t('performance_over_time')}</h2>
-          <p className="text-muted-foreground text-sm mt-1">Prediction Accuracy Over Time</p>
+          <h2 className="text-lg sm:text-2xl font-bold">{t('performance_over_time')}</h2>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-1">Prediction Accuracy Over Time</p>
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 bg-foreground text-background rounded text-sm font-medium">
+          <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-foreground text-background rounded text-xs sm:text-sm font-medium">
             ALL
           </button>
-          <button className="px-4 py-2 bg-secondary text-foreground rounded text-sm font-medium hover:bg-accent transition-colors">
+          <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-secondary text-foreground rounded text-xs sm:text-sm font-medium hover:bg-accent transition-colors">
             72H
           </button>
         </div>
       </div>
       
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={300} className="sm:h-[400px]">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
           <XAxis 

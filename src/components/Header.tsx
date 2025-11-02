@@ -33,9 +33,9 @@ const Header = () => {
   
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <h1 className="font-pixel text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
+          <h1 className="font-pixel text-xs sm:text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
             BOOSPORT ARENA
           </h1>
         </Link>
