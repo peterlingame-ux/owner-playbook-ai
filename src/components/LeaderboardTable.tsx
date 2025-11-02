@@ -4,6 +4,11 @@ import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import grassTexture from "@/assets/grass-texture.jpg";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMessi from "@/assets/star-messi.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
 
 const LeaderboardTable = () => {
   const { t } = useTranslation();
@@ -39,6 +44,40 @@ const LeaderboardTable = () => {
       'gpt': '/src/assets/openai-icon.png',
     };
     return icons[modelId] || icons.gpt;
+  };
+
+  const getExpertImage = (modelId: string) => {
+    switch(modelId) {
+      case 'deepseek':
+        return starRonaldo;
+      case 'gpt5':
+        return starNeymar;
+      case 'claude':
+        return starMessi;
+      case 'gemini':
+        return starHaaland;
+      case 'grok':
+        return starMbappe;
+      default:
+        return starRonaldo;
+    }
+  };
+
+  const getColorTint = (modelId: string) => {
+    switch(modelId) {
+      case 'deepseek':
+        return 'from-blue-600/80 to-blue-900/80';
+      case 'gpt5':
+        return 'from-red-600/80 to-red-900/80';
+      case 'claude':
+        return 'from-orange-600/80 to-orange-900/80';
+      case 'gemini':
+        return 'from-purple-600/80 to-purple-900/80';
+      case 'grok':
+        return 'from-green-600/80 to-green-900/80';
+      default:
+        return 'from-blue-600/80 to-blue-900/80';
+    }
   };
 
   return (
@@ -115,39 +154,51 @@ const LeaderboardTable = () => {
           {/* Bottom Section: Winning Model + Bar Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Winning Model Card */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-sm font-bold mb-4 text-muted-foreground">WINNING MODEL</h3>
+            <Card className="relative overflow-hidden">
+              {/* Background Image */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${getExpertImage(winningModel.id)})` }}
+              />
+              
+              {/* Color Tint Overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${getColorTint(winningModel.id)}`} />
+              
+              {/* Dark gradient for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+              
+              <CardContent className="p-6 relative z-10">
+                <h3 className="text-sm font-bold mb-4 text-white/80">WINNING MODEL</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className="h-10 w-10" />
-                  <span className="text-xl font-bold">{winningModel.displayName}</span>
+                  <span className="text-xl font-bold text-white">{winningModel.displayName}</span>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">WIN RATE</p>
-                    <p className="text-2xl font-bold font-mono-data text-primary">
+                    <p className="text-sm text-white/70 mb-1">WIN RATE</p>
+                    <p className="text-2xl font-bold font-mono-data text-white">
                       {winningModel.winRate.toFixed(1)}%
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">CORRECT PREDICTIONS</p>
+                    <p className="text-sm text-white/70 mb-1">CORRECT PREDICTIONS</p>
                     <p className="text-xl font-bold font-mono-data text-success">
                       {winningModel.correctPredictions} / {winningModel.totalPredictions}
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-muted-foreground mb-3">ACTIVE MATCHES</p>
+                    <p className="text-sm text-white/70 mb-3">ACTIVE MATCHES</p>
                     <div className="flex gap-2 flex-wrap">
-                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
+                      <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs text-white">
                         ⚽ Premier League
                       </div>
-                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
+                      <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs text-white">
                         ⚽ La Liga
                       </div>
-                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
+                      <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs text-white">
                         ⚽ Bundesliga
                       </div>
                     </div>
