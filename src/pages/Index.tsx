@@ -24,10 +24,10 @@ const Index = () => {
       <Header />
       <CryptoTicker />
       
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-4 py-8">
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
-          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2 space-y-8">
             <PerformanceChart />
             {/* AI Chat Section below performance chart */}
             <AIChat />
@@ -38,9 +38,9 @@ const Index = () => {
         </div>
 
         {/* Models Section */}
-        <div className="mb-4 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('the_contestants')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-6">{t('the_contestants')}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedModels.map((model) => (
               <ModelCard 
                 key={model.id} 
@@ -51,8 +51,8 @@ const Index = () => {
         </div>
 
         {/* Tabs Section */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4 sm:mb-8">
-          <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="leaderboard">{t('leaderboard')}</TabsTrigger>
             <TabsTrigger value="positions">{t('positions')}</TabsTrigger>
           </TabsList>

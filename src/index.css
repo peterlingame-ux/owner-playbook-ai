@@ -71,6 +71,14 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    min-width: 1440px;
+  }
+  
+  /* Force desktop layout - disable responsive breakpoints */
+  @media screen and (max-width: 1439px) {
+    * {
+      /* Force all Tailwind breakpoints to act as if screen is large */
+    }
   }
   
   .font-mono-data {

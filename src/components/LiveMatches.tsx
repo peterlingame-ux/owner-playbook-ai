@@ -71,15 +71,15 @@ const LiveMatches = () => {
   };
   
   return (
-    <Card className="p-3 sm:p-6 bg-card border-border h-full">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-lg sm:text-xl font-bold">{t('upcoming_matches')}</h2>
-        <Badge variant="outline" className="bg-success/20 text-success border-success/50 text-xs">
+    <Card className="p-6 bg-card border-border h-full">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold">{t('upcoming_matches')}</h2>
+        <Badge variant="outline" className="bg-success/20 text-success border-success/50">
           {t('live')}
         </Badge>
       </div>
       
-      <div className="space-y-3 sm:space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100% - 60px)' }}>
+      <div className="space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100% - 60px)' }}>
         {upcomingMatches.map((match) => (
           <div 
             key={match.id} 
@@ -100,8 +100,8 @@ const LiveMatches = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-background/65 via-background/35 to-background/45" />
             
             {/* Content */}
-            <div className="relative z-10 p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
+            <div className="relative z-10 p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   {match.leagueLogo && (
                     <Avatar className="h-6 w-6">
@@ -149,7 +149,7 @@ const LiveMatches = () => {
                       {match.liveStreamUrl && (
                         <Button 
                           size="sm" 
-                          className="h-6 px-2 gap-1 bg-success/20 hover:bg-success/30 text-success border-success/50 text-xs"
+                          className="h-6 px-2 gap-1 bg-success/20 hover:bg-success/30 text-success border-success/50"
                           onClick={(e) => {
                             e.stopPropagation();
                             window.open(match.liveStreamUrl, '_blank');
@@ -165,30 +165,30 @@ const LiveMatches = () => {
               </div>
               
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-3 flex-1">
                   {match.homeLogo && (
-                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-background flex-shrink-0">
+                    <Avatar className="h-10 w-10 ring-2 ring-background">
                       <AvatarImage src={match.homeLogo} alt={match.homeTeam} />
                       <AvatarFallback>{match.homeTeam.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                   )}
-                  <p className="font-semibold text-sm sm:text-base truncate">{match.homeTeam}</p>
+                  <p className="font-semibold">{match.homeTeam}</p>
                 </div>
                 
                 {match.status === "upcoming" ? (
-                  <div className="px-2 sm:px-4 text-muted-foreground font-bold text-sm sm:text-base flex-shrink-0">VS</div>
+                  <div className="px-4 text-muted-foreground font-bold">VS</div>
                 ) : (
-                  <div className="px-2 sm:px-4 flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                    <span className="text-xl sm:text-2xl font-bold font-mono-data text-primary">{match.homeScore}</span>
+                  <div className="px-4 flex items-center gap-3">
+                    <span className="text-2xl font-bold font-mono-data text-primary">{match.homeScore}</span>
                     <span className="text-muted-foreground">-</span>
-                    <span className="text-xl sm:text-2xl font-bold font-mono-data text-primary">{match.awayScore}</span>
+                    <span className="text-2xl font-bold font-mono-data text-primary">{match.awayScore}</span>
                   </div>
                 )}
                 
-                <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-end min-w-0">
-                  <p className="font-semibold text-sm sm:text-base text-right truncate">{match.awayTeam}</p>
+                <div className="flex items-center gap-3 flex-1 justify-end">
+                  <p className="font-semibold text-right">{match.awayTeam}</p>
                   {match.awayLogo && (
-                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-background flex-shrink-0">
+                    <Avatar className="h-10 w-10 ring-2 ring-background">
                       <AvatarImage src={match.awayLogo} alt={match.awayTeam} />
                       <AvatarFallback>{match.awayTeam.substring(0, 2)}</AvatarFallback>
                     </Avatar>

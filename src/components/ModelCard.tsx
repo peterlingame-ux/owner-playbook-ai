@@ -79,7 +79,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <Card 
-      className="relative p-4 sm:p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
       onClick={() => navigate(`/model/${model.id}`)}
       style={{
         borderColor: `hsl(var(--${model.color}) / 0.3)`
