@@ -8,11 +8,11 @@ import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
-import expertDeepseek from "@/assets/expert-deepseek.jpg";
-import expertGpt5 from "@/assets/expert-gpt5.jpg";
-import expertClaude from "@/assets/expert-claude.jpg";
-import expertGemini from "@/assets/expert-gemini.jpg";
-import expertGrok from "@/assets/expert-grok.jpg";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMessi from "@/assets/star-messi.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
 import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface ModelCardProps {
@@ -44,17 +44,17 @@ const ModelCard = ({ model }: ModelCardProps) => {
   const getExpertImage = (modelId: string) => {
     switch(modelId) {
       case 'deepseek':
-        return expertDeepseek;
+        return starRonaldo;
       case 'gpt5':
-        return expertGpt5;
+        return starNeymar;
       case 'claude':
-        return expertClaude;
+        return starMessi;
       case 'gemini':
-        return expertGemini;
+        return starHaaland;
       case 'grok':
-        return expertGrok;
+        return starMbappe;
       default:
-        return expertDeepseek;
+        return starRonaldo;
     }
   };
   
