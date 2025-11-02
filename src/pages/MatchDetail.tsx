@@ -400,9 +400,33 @@ const MatchDetail = () => {
           
           <div className="text-center mb-6">
             <Badge className="mb-3">{match.league}</Badge>
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-3xl font-bold mb-4">
               {match.homeTeam} {t('vs')} {match.awayTeam}
             </h1>
+            
+            {/* Team Logos */}
+            <div className="flex items-center justify-center gap-6 mb-4">
+              {match.homeLogo && (
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-muted/50 flex items-center justify-center">
+                  <img 
+                    src={match.homeLogo} 
+                    alt={match.homeTeam}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <span className="text-2xl font-bold text-muted-foreground">VS</span>
+              {match.awayLogo && (
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-muted/50 flex items-center justify-center">
+                  <img 
+                    src={match.awayLogo} 
+                    alt={match.awayTeam}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+            
             <p className="text-muted-foreground">
               {match.date} {t('at')} {match.time}
             </p>
