@@ -137,6 +137,7 @@ export const upcomingMatches: Match[] = [
     awayScore: 1,
     halfTimeHomeScore: 1,
     halfTimeAwayScore: 0,
+    currentMinute: 67,
     bettingOdds: [
       { bookmaker: "36*", homeWin: 0.77, draw: 0.0, awayWin: 1.02, homeHandicap: 0.87, awayHandicap: 0.92 },
       { bookmaker: "皇*", homeWin: 0.85, draw: 0.0, awayWin: 0.97, homeHandicap: 0.92, awayHandicap: 0.96 },

@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { upcomingMatches, matchOwnersData } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
+import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 // AI Model Icons
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -409,23 +410,43 @@ const MatchDetail = () => {
 
           {/* Live Score Display */}
           {match.status === 'live' && match.homeScore !== undefined && match.awayScore !== undefined && (
-            <div className="bg-gradient-to-r from-success/20 via-success/10 to-success/20 border border-success/30 rounded-lg p-6 mb-6">
-              <div className="flex items-center justify-center gap-8">
-                <div className="text-center flex-1">
-                  <div className="text-4xl font-bold text-foreground">{match.homeTeam}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-6xl font-bold text-foreground">
-                    {match.homeScore} - {match.awayScore}
+            <div 
+              className="relative rounded-lg p-8 mb-6 overflow-hidden"
+              style={{
+                backgroundImage: `url(${footballFieldBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+              
+              <div className="relative z-10">
+                {/* Match Time */}
+                {match.currentMinute && (
+                  <div className="text-center mb-4">
+                    <Badge variant="destructive" className="text-lg px-4 py-1 bg-destructive/90 animate-pulse">
+                      {match.currentMinute}'
+                    </Badge>
                   </div>
-                  {match.halfTimeHomeScore !== undefined && match.halfTimeAwayScore !== undefined && (
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {t('half_time')} {match.halfTimeHomeScore}-{match.halfTimeAwayScore}
+                )}
+                
+                <div className="flex items-center justify-center gap-8">
+                  <div className="text-center flex-1">
+                    <div className="text-4xl font-bold text-white drop-shadow-lg">{match.homeTeam}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-7xl font-bold text-white drop-shadow-2xl">
+                      {match.homeScore} - {match.awayScore}
                     </div>
-                  )}
-                </div>
-                <div className="text-center flex-1">
-                  <div className="text-4xl font-bold text-foreground">{match.awayTeam}</div>
+                    {match.halfTimeHomeScore !== undefined && match.halfTimeAwayScore !== undefined && (
+                      <div className="text-sm text-white/90 mt-2 drop-shadow-lg">
+                        {t('half_time')} {match.halfTimeHomeScore}-{match.halfTimeAwayScore}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-center flex-1">
+                    <div className="text-4xl font-bold text-white drop-shadow-lg">{match.awayTeam}</div>
+                  </div>
                 </div>
               </div>
             </div>

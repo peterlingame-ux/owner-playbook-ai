@@ -22,6 +22,7 @@ export interface Match {
   awayScore?: number;
   halfTimeHomeScore?: number;
   halfTimeAwayScore?: number;
+  currentMinute?: number;
   bettingOdds?: BettingOdds[];
 }
 
