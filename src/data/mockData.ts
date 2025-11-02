@@ -146,6 +146,7 @@ export const upcomingMatches: Match[] = [
     homeCorners: 5,
     awayCorners: 3,
     liveStreamUrl: "#",
+    weather: "rainy",
     bettingOdds: [
       { bookmaker: "36*", homeWin: 0.77, draw: 0.0, awayWin: 1.02, homeHandicap: 0.87, awayHandicap: 0.92 },
       { bookmaker: "皇*", homeWin: 0.85, draw: 0.0, awayWin: 0.97, homeHandicap: 0.92, awayHandicap: 0.96 },
@@ -178,7 +179,8 @@ export const upcomingMatches: Match[] = [
     homeRedCards: 0,
     awayRedCards: 0,
     homeCorners: 0,
-    awayCorners: 0
+    awayCorners: 0,
+    weather: "sunny"
   },
   {
     id: "m3",
@@ -201,7 +203,8 @@ export const upcomingMatches: Match[] = [
     awayRedCards: 0,
     homeCorners: 4,
     awayCorners: 6,
-    liveStreamUrl: "#"
+    liveStreamUrl: "#",
+    weather: "snowy"
   },
   {
     id: "m4",
@@ -219,7 +222,8 @@ export const upcomingMatches: Match[] = [
     homeRedCards: 0,
     awayRedCards: 0,
     homeCorners: 0,
-    awayCorners: 0
+    awayCorners: 0,
+    weather: "cloudy"
   }
 ];
 

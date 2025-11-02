@@ -32,6 +32,7 @@ export interface Match {
   awayCorners?: number;
   liveStreamUrl?: string;
   bettingOdds?: BettingOdds[];
+  weather?: "sunny" | "rainy" | "cloudy" | "snowy";
 }
 
 export interface TeamOwner {

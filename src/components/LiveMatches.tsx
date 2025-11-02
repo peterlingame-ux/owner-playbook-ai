@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { upcomingMatches } from "@/data/mockData";
-import { Calendar, Clock, Trophy, Radio } from "lucide-react";
+import { Calendar, Clock, Trophy, Radio, Sun, CloudRain, Cloud, Snowflake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import footballFieldBg from "@/assets/football-field-bg.jpg";
+import weatherSunny from "@/assets/weather-sunny.jpg";
+import weatherRainy from "@/assets/weather-rainy.jpg";
+import weatherCloudy from "@/assets/weather-cloudy.jpg";
+import weatherSnowy from "@/assets/weather-snowy.jpg";
 
 const LiveMatches = () => {
   const { t } = useTranslation();
@@ -19,6 +22,51 @@ const LiveMatches = () => {
       case "second_half": return "下半场";
       case "full_time": return "全场结束";
       default: return "";
+    }
+  };
+
+  const getWeatherBackground = (weather?: string) => {
+    switch(weather) {
+      case "sunny":
+        return weatherSunny;
+      case "rainy":
+        return weatherRainy;
+      case "cloudy":
+        return weatherCloudy;
+      case "snowy":
+        return weatherSnowy;
+      default:
+        return weatherSunny;
+    }
+  };
+
+  const getWeatherIcon = (weather?: string) => {
+    switch(weather) {
+      case "sunny":
+        return <Sun className="h-4 w-4 text-yellow-400" />;
+      case "rainy":
+        return <CloudRain className="h-4 w-4 text-blue-400" />;
+      case "cloudy":
+        return <Cloud className="h-4 w-4 text-gray-400" />;
+      case "snowy":
+        return <Snowflake className="h-4 w-4 text-blue-200" />;
+      default:
+        return <Sun className="h-4 w-4 text-yellow-400" />;
+    }
+  };
+
+  const getWeatherText = (weather?: string) => {
+    switch(weather) {
+      case "sunny":
+        return "晴朗";
+      case "rainy":
+        return "雨天";
+      case "cloudy":
+        return "多云";
+      case "snowy":
+        return "降雪";
+      default:
+        return "晴朗";
     }
   };
   
@@ -38,11 +86,11 @@ const LiveMatches = () => {
             className="relative rounded-lg border border-border overflow-hidden group cursor-pointer"
             onClick={() => navigate(`/match/${match.id}`)}
           >
-            {/* Football Field Background */}
+            {/* Weather-based Background */}
             <div 
-              className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
+              className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
               style={{
-                backgroundImage: `url(${footballFieldBg})`,
+                backgroundImage: `url(${getWeatherBackground(match.weather)})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
@@ -64,6 +112,11 @@ const LiveMatches = () => {
                   <Badge variant="secondary" className="text-xs">
                     {match.league}
                   </Badge>
+                  {/* Weather indicator */}
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
+                    {getWeatherIcon(match.weather)}
+                    <span className="text-xs">{getWeatherText(match.weather)}</span>
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
