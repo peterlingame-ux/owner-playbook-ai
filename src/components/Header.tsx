@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Languages, LogOut, ExternalLink } from "lucide-react";
+import { LogOut, ExternalLink } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,15 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'zh' : 'en';
-    i18n.changeLanguage(newLang);
-  };
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -64,15 +59,6 @@ const Header = () => {
         
         <div className="flex items-center gap-4">
           <OnlineUsers />
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={toggleLanguage}
-            className="flex items-center gap-2"
-          >
-            <Languages size={16} />
-            {i18n.language === 'en' ? '中文' : 'EN'}
-          </Button>
           {user ? (
             <Button 
               variant="outline" 
