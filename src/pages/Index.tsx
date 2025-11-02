@@ -90,6 +90,7 @@ const Index = () => {
                   <ModelCard 
                     key={model.id} 
                     model={model}
+                    onClick={() => setSelectedModel(model.id)}
                   />
                 ))}
               </div>

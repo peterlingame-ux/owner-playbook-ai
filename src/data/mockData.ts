@@ -93,153 +93,53 @@ export const upcomingMatches: Match[] = [
 export const predictionHistory: PredictionHistory[] = [
   {
     id: "1",
-    matchId: "Manchester United vs Liverpool - Premier League",
+    matchId: "past1",
     aiModel: "deepseek",
     prediction: "HOME_WIN",
     actualResult: "HOME_WIN",
     correct: true,
     confidence: 87,
-    date: "2025-11-01T20:00:00"
+    date: "2025-11-01"
   },
   {
     id: "2",
-    matchId: "Manchester United vs Liverpool - Premier League",
+    matchId: "past1",
     aiModel: "gpt5",
     prediction: "AWAY_WIN",
     actualResult: "HOME_WIN",
     correct: false,
     confidence: 65,
-    date: "2025-11-01T20:00:00"
+    date: "2025-11-01"
   },
   {
     id: "3",
-    matchId: "Manchester United vs Liverpool - Premier League",
+    matchId: "past1",
     aiModel: "claude",
     prediction: "HOME_WIN",
     actualResult: "HOME_WIN",
     correct: true,
     confidence: 79,
-    date: "2025-11-01T20:00:00"
+    date: "2025-11-01"
   },
   {
     id: "4",
-    matchId: "Manchester United vs Liverpool - Premier League",
+    matchId: "past1",
     aiModel: "gemini",
     prediction: "DRAW",
     actualResult: "HOME_WIN",
     correct: false,
     confidence: 72,
-    date: "2025-11-01T20:00:00"
+    date: "2025-11-01"
   },
   {
     id: "5",
-    matchId: "Manchester United vs Liverpool - Premier League",
+    matchId: "past1",
     aiModel: "grok",
     prediction: "HOME_WIN",
     actualResult: "HOME_WIN",
     correct: true,
     confidence: 81,
-    date: "2025-11-01T20:00:00"
-  },
-  {
-    id: "6",
-    matchId: "Real Madrid vs Barcelona - La Liga",
-    aiModel: "deepseek",
-    prediction: "AWAY_WIN",
-    actualResult: "DRAW",
-    correct: false,
-    confidence: 76,
-    date: "2025-10-28T21:00:00"
-  },
-  {
-    id: "7",
-    matchId: "Real Madrid vs Barcelona - La Liga",
-    aiModel: "gpt5",
-    prediction: "HOME_WIN",
-    actualResult: "DRAW",
-    correct: false,
-    confidence: 68,
-    date: "2025-10-28T21:00:00"
-  },
-  {
-    id: "8",
-    matchId: "Real Madrid vs Barcelona - La Liga",
-    aiModel: "claude",
-    prediction: "DRAW",
-    actualResult: "DRAW",
-    correct: true,
-    confidence: 84,
-    date: "2025-10-28T21:00:00"
-  },
-  {
-    id: "9",
-    matchId: "Real Madrid vs Barcelona - La Liga",
-    aiModel: "gemini",
-    prediction: "HOME_WIN",
-    actualResult: "DRAW",
-    correct: false,
-    confidence: 71,
-    date: "2025-10-28T21:00:00"
-  },
-  {
-    id: "10",
-    matchId: "Real Madrid vs Barcelona - La Liga",
-    aiModel: "grok",
-    prediction: "AWAY_WIN",
-    actualResult: "DRAW",
-    correct: false,
-    confidence: 73,
-    date: "2025-10-28T21:00:00"
-  },
-  {
-    id: "11",
-    matchId: "Bayern Munich vs Borussia Dortmund - Bundesliga",
-    aiModel: "deepseek",
-    prediction: "HOME_WIN",
-    actualResult: "HOME_WIN",
-    correct: true,
-    confidence: 91,
-    date: "2025-10-25T18:30:00"
-  },
-  {
-    id: "12",
-    matchId: "Bayern Munich vs Borussia Dortmund - Bundesliga",
-    aiModel: "gpt5",
-    prediction: "DRAW",
-    actualResult: "HOME_WIN",
-    correct: false,
-    confidence: 62,
-    date: "2025-10-25T18:30:00"
-  },
-  {
-    id: "13",
-    matchId: "Bayern Munich vs Borussia Dortmund - Bundesliga",
-    aiModel: "claude",
-    prediction: "HOME_WIN",
-    actualResult: "HOME_WIN",
-    correct: true,
-    confidence: 88,
-    date: "2025-10-25T18:30:00"
-  },
-  {
-    id: "14",
-    matchId: "Bayern Munich vs Borussia Dortmund - Bundesliga",
-    aiModel: "gemini",
-    prediction: "AWAY_WIN",
-    actualResult: "HOME_WIN",
-    correct: false,
-    confidence: 69,
-    date: "2025-10-25T18:30:00"
-  },
-  {
-    id: "15",
-    matchId: "Bayern Munich vs Borussia Dortmund - Bundesliga",
-    aiModel: "grok",
-    prediction: "HOME_WIN",
-    actualResult: "HOME_WIN",
-    correct: true,
-    confidence: 85,
-    date: "2025-10-25T18:30:00"
+    date: "2025-11-01"
   }
 ];
 
