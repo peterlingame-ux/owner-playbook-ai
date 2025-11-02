@@ -66,7 +66,27 @@ const resources = {
       
       // Empty states
       "completed_trades_empty": "Prediction history and completed matches will appear here",
-      "positions_empty": "Active predictions and positions will appear here"
+      "positions_empty": "Active predictions and positions will appear here",
+      
+      // Match Detail
+      "match_not_found": "Match not found",
+      "go_back": "Go Back",
+      "owner": "Owner",
+      "health_status": "Health Status",
+      "financial_status": "Financial Status",
+      "family_members": "Family Members",
+      "social_status": "Social Status",
+      "scandals_controversies": "Scandals & Controversies",
+      "recent_activities": "Recent Activities",
+      "exclusive_owner_analysis": "Exclusive Owner Analysis",
+      "years_old": "years old",
+      "years": "years",
+      "back_to_matches": "Back to Matches",
+      "at": "at",
+      "vs": "vs",
+      "owner_analysis_warning": "⚠️ This analysis focuses exclusively on team owners, not players",
+      "match_outcome_analysis": "Match Outcome Analysis",
+      "match_outcome_text": "Based on the comprehensive analysis of both team owners' financial situations, health status, family dynamics, recent scandals, and social activities, our AI models will evaluate which owner's current circumstances may indirectly influence the team's performance. This unique approach considers factors that traditional sports analytics overlook."
     }
   },
   zh: {
@@ -133,7 +153,27 @@ const resources = {
       
       // Empty states
       "completed_trades_empty": "预测历史和已完成的比赛将显示在这里",
-      "positions_empty": "活跃的预测和持仓将显示在这里"
+      "positions_empty": "活跃的预测和持仓将显示在这里",
+      
+      // Match Detail
+      "match_not_found": "未找到比赛",
+      "go_back": "返回",
+      "owner": "老板",
+      "health_status": "健康状况",
+      "financial_status": "财务状况",
+      "family_members": "家庭成员",
+      "social_status": "社会地位",
+      "scandals_controversies": "丑闻与争议",
+      "recent_activities": "近期活动",
+      "exclusive_owner_analysis": "独家老板分析",
+      "years_old": "岁",
+      "years": "岁",
+      "back_to_matches": "返回比赛",
+      "at": "于",
+      "vs": "对阵",
+      "owner_analysis_warning": "⚠️ 此分析专注于球队老板，而非球员",
+      "match_outcome_analysis": "比赛结果分析",
+      "match_outcome_text": "基于对两队老板财务状况、健康状况、家庭动态、近期丑闻和社交活动的综合分析，我们的 AI 模型将评估哪位老板的当前情况可能间接影响球队表现。这种独特的方法考虑了传统体育分析所忽视的因素。"
     }
   }
 };
