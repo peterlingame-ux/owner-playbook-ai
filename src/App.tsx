@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Leaderboard from "./pages/Leaderboard";
+import Models from "./pages/Models";
 import ModelDetail from "./pages/ModelDetail";
 import MatchDetail from "./pages/MatchDetail";
 import Blog from "./pages/Blog";
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/models" element={<Models />} />
             <Route path="/model/:modelId" element={<ModelDetail />} />
             <Route path="/match/:matchId" element={<MatchDetail />} />
             <Route path="/blog" element={<Blog />} />
