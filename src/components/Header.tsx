@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Languages, LogOut } from "lucide-react";
+import { Languages, LogOut, ExternalLink } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -93,9 +93,13 @@ const Header = () => {
               登录
             </Button>
           )}
-          <Button variant="ghost" size="sm">
-            ABOUT
-          </Button>
+          <a 
+            href="#" 
+            className="hidden md:inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors underline underline-offset-4"
+          >
+            JOIN THE PLATFORM WAITLIST
+            <ExternalLink size={14} />
+          </a>
         </div>
       </div>
     </header>
