@@ -187,10 +187,38 @@ export const matchOwnersData: Record<string, {
         "Criticism over delayed stadium renovation plans"
       ],
       familyMembers: [
-        { relation: "Wife", name: "Maria Alessandro", age: 58 },
-        { relation: "Son", name: "George Ratcliffe", age: 35 },
-        { relation: "Daughter", name: "Julia Ratcliffe", age: 32 },
-        { relation: "Son", name: "Samuel Ratcliffe", age: 28 }
+        { 
+          relation: "Wife", 
+          name: "Maria Alessandro", 
+          age: 58,
+          occupation: "Philanthropist & Art Collector",
+          netWorth: "$120M",
+          influence: "Moderate - Influences charity work and social image"
+        },
+        { 
+          relation: "Son", 
+          name: "George Ratcliffe", 
+          age: 35,
+          occupation: "INEOS Executive Director",
+          netWorth: "$450M",
+          influence: "High - Involved in business strategy and succession planning"
+        },
+        { 
+          relation: "Daughter", 
+          name: "Julia Ratcliffe", 
+          age: 32,
+          occupation: "Investment Banker at Goldman Sachs",
+          netWorth: "$85M",
+          influence: "Medium - Provides financial advice on major deals"
+        },
+        { 
+          relation: "Son", 
+          name: "Samuel Ratcliffe", 
+          age: 28,
+          occupation: "Sports Marketing Entrepreneur",
+          netWorth: "$42M",
+          influence: "Medium - Connects to younger demographics and sports sponsorships"
+        }
       ],
       closeFriends: [
         { 
@@ -213,6 +241,50 @@ export const matchOwnersData: Record<string, {
         }
       ],
       financialStatus: "Net worth increased by 8% this quarter. INEOS chemical company performing strongly. Recent acquisition of cycling team shows diversification strategy.",
+      financialDetails: {
+        recentExpenses: [
+          {
+            item: "Manchester United Stadium Renovation Planning",
+            amount: "$45M",
+            date: "2025-10-15",
+            purpose: "Initial investment in Old Trafford modernization feasibility study and architectural designs"
+          },
+          {
+            item: "INEOS Grenadiers Cycling Team Expansion",
+            amount: "$28M",
+            date: "2025-10-08",
+            purpose: "Strengthening cycling team roster and infrastructure for Tour de France campaign"
+          },
+          {
+            item: "Luxury Yacht 'Hampshire II' Maintenance",
+            amount: "$3.2M",
+            date: "2025-09-22",
+            purpose: "Annual yacht service and upgrades in Monaco harbor"
+          }
+        ],
+        recentInvestments: [
+          {
+            investment: "Green Hydrogen Technology Startup",
+            amount: "$185M",
+            date: "2025-10-20",
+            expectedReturn: "25% annual ROI over 5 years - Aligns with INEOS sustainability pivot"
+          },
+          {
+            investment: "Swiss Private Bank Stake",
+            amount: "$320M",
+            date: "2025-09-28",
+            expectedReturn: "12-15% annual returns - Diversification into financial services"
+          },
+          {
+            investment: "Premier League Media Rights Fund",
+            amount: "$75M",
+            date: "2025-10-05",
+            expectedReturn: "18% over 3 years - Direct exposure to football commercial growth"
+          }
+        ],
+        cashFlow: "Extremely strong. INEOS generates $2.1B quarterly free cash flow. Regular dividends provide $450M annual personal income. Multiple credit lines totaling $5B remain untouched.",
+        debtSituation: "Minimal personal debt. $800M in strategic corporate debt at favorable 2.8% interest rates. Debt-to-equity ratio of 0.3, well below industry average of 1.2."
+      },
       socialStatus: "Active in high-society circles. Regular attendee of Formula 1 events and yacht shows. Known for private nature but increasing public presence since club acquisition.",
       recentActivities: [
         "Attended Manchester United board meeting last week",
@@ -240,9 +312,30 @@ export const matchOwnersData: Record<string, {
         "Ticket pricing disputes with fan groups in 2022"
       ],
       familyMembers: [
-        { relation: "Wife", name: "Linda Pizzuti Henry", age: 44 },
-        { relation: "Daughter", name: "Sara Henry", age: 28 },
-        { relation: "Son", name: "Silas Henry", age: 25 }
+        { 
+          relation: "Wife", 
+          name: "Linda Pizzuti Henry", 
+          age: 44,
+          occupation: "Boston Globe Managing Director & Investor",
+          netWorth: "$280M",
+          influence: "Very High - Active business partner in FSG operations and media strategy"
+        },
+        { 
+          relation: "Daughter", 
+          name: "Sara Henry", 
+          age: 28,
+          occupation: "Tech Venture Capitalist",
+          netWorth: "$65M",
+          influence: "Medium - Introduces modern tech perspectives to sports business"
+        },
+        { 
+          relation: "Son", 
+          name: "Silas Henry", 
+          age: 25,
+          occupation: "Sports Analytics Startup Founder",
+          netWorth: "$38M",
+          influence: "High - Drives data-driven decision making in FSG portfolio"
+        }
       ],
       closeFriends: [
         { 
@@ -265,6 +358,50 @@ export const matchOwnersData: Record<string, {
         }
       ],
       financialStatus: "Fenway Sports Group valuation up 15% year-over-year. Boston Red Sox and Liverpool FC both profitable. Recent tech investments showing promising returns.",
+      financialDetails: {
+        recentExpenses: [
+          {
+            item: "Liverpool FC Training Facility Upgrade",
+            amount: "$62M",
+            date: "2025-10-12",
+            purpose: "State-of-the-art AXA Training Centre expansion with sports science technology"
+          },
+          {
+            item: "FSG Private Equity Partnership",
+            amount: "$120M",
+            date: "2025-09-30",
+            purpose: "Buy-back of minority stake to maintain control while raising capital"
+          },
+          {
+            item: "Fenway Park Renovation",
+            amount: "$35M",
+            date: "2025-10-01",
+            purpose: "Historic ballpark modernization preserving character while improving amenities"
+          }
+        ],
+        recentInvestments: [
+          {
+            investment: "AI Sports Analytics Platform",
+            amount: "$95M",
+            date: "2025-10-18",
+            expectedReturn: "35% annual ROI over 4 years - Competitive advantage in player recruitment"
+          },
+          {
+            investment: "Pittsburgh Penguins NHL Franchise",
+            amount: "$850M",
+            date: "2025-09-15",
+            expectedReturn: "10-12% annual growth - FSG portfolio expansion into hockey"
+          },
+          {
+            investment: "Sports Betting Technology Startup",
+            amount: "$42M",
+            date: "2025-10-22",
+            expectedReturn: "28% ROI potential - Exposure to growing betting industry"
+          }
+        ],
+        cashFlow: "Strong and diversified. FSG generates $380M annual operating income across multiple franchises. Red Sox broadcasting rights provide $85M annually. Liverpool commercial deals add $120M yearly.",
+        debtSituation: "Moderate debt of $1.2B spread across FSG entities. All secured at favorable rates below 3.5%. Recent private equity deal reduced leverage ratio from 2.1 to 1.6."
+      },
       socialStatus: "Well-connected in both sports and business worlds. Maintains lower profile than other club owners. Respected in investment circles. Strong relationship with MLB and Premier League officials.",
       recentActivities: [
         "Finalized strategic partnership with private equity firm",

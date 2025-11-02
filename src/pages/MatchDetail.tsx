@@ -81,9 +81,73 @@ const MatchDetail = () => {
             <DollarSign className="h-5 w-5 text-success" />
             <h4 className="font-bold">{t('financial_status')}</h4>
           </div>
-          <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+          <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg mb-4">
             {owner.financialStatus}
           </p>
+          
+          {/* Detailed Financial Analysis */}
+          {owner.financialDetails && (
+            <div className="space-y-4 bg-gradient-to-br from-success/5 to-success/10 p-4 rounded-lg border border-success/20">
+              <h5 className="font-bold text-success flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                {t('financial_details')}
+              </h5>
+              
+              {/* Recent Expenses */}
+              <div>
+                <p className="font-semibold text-sm mb-2">{t('recent_expenses')}</p>
+                <div className="space-y-2">
+                  {owner.financialDetails.recentExpenses.map((expense, idx) => (
+                    <div key={idx} className="bg-background/50 p-3 rounded text-xs space-y-1">
+                      <div className="flex justify-between items-start">
+                        <span className="font-bold text-foreground">{expense.item}</span>
+                        <span className="text-destructive font-bold">{expense.amount}</span>
+                      </div>
+                      <div className="text-muted-foreground">
+                        <span className="font-medium">{t('date')}:</span> {expense.date}
+                      </div>
+                      <div className="text-muted-foreground italic">
+                        <span className="font-medium">{t('purpose')}:</span> {expense.purpose}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Recent Investments */}
+              <div>
+                <p className="font-semibold text-sm mb-2">{t('recent_investments')}</p>
+                <div className="space-y-2">
+                  {owner.financialDetails.recentInvestments.map((investment, idx) => (
+                    <div key={idx} className="bg-success/10 p-3 rounded text-xs space-y-1">
+                      <div className="flex justify-between items-start">
+                        <span className="font-bold text-foreground">{investment.investment}</span>
+                        <span className="text-success font-bold">{investment.amount}</span>
+                      </div>
+                      <div className="text-muted-foreground">
+                        <span className="font-medium">{t('date')}:</span> {investment.date}
+                      </div>
+                      <div className="text-success font-medium">
+                        <span>{t('expected_return')}:</span> {investment.expectedReturn}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Cash Flow */}
+              <div className="bg-background/50 p-3 rounded">
+                <p className="font-semibold text-sm mb-1">{t('cash_flow')}</p>
+                <p className="text-xs text-muted-foreground">{owner.financialDetails.cashFlow}</p>
+              </div>
+              
+              {/* Debt Situation */}
+              <div className="bg-background/50 p-3 rounded">
+                <p className="font-semibold text-sm mb-1">{t('debt_situation')}</p>
+                <p className="text-xs text-muted-foreground">{owner.financialDetails.debtSituation}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Family Members */}
@@ -92,14 +156,34 @@ const MatchDetail = () => {
             <Users className="h-5 w-5 text-primary" />
             <h4 className="font-bold">{t('family_members')}</h4>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {owner.familyMembers.map((member, idx) => (
-              <div key={idx} className="flex items-center justify-between bg-muted/50 p-3 rounded-lg text-sm">
-                <div>
-                  <span className="font-medium">{member.name}</span>
-                  <span className="text-muted-foreground ml-2">({member.relation})</span>
+              <div key={idx} className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-lg">{member.name}</span>
+                    <span className="text-muted-foreground ml-2">({member.relation})</span>
+                  </div>
+                  <span className="text-muted-foreground">{member.age} {t('years')}</span>
                 </div>
-                <span className="text-muted-foreground">{member.age} {t('years')}</span>
+                {member.occupation && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <span className="text-muted-foreground font-medium min-w-[80px]">{t('occupation')}:</span>
+                    <span className="text-foreground">{member.occupation}</span>
+                  </div>
+                )}
+                {member.netWorth && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <span className="text-muted-foreground font-medium min-w-[80px]">{t('member_net_worth')}:</span>
+                    <span className="text-success font-bold">{member.netWorth}</span>
+                  </div>
+                )}
+                {member.influence && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <span className="text-muted-foreground font-medium min-w-[80px]">{t('member_influence')}:</span>
+                    <span className="text-primary italic">{member.influence}</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>

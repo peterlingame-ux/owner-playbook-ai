@@ -90,7 +90,21 @@ const resources = {
       "close_friends": "Close Friends & Associates",
       "relationship": "Relationship",
       "influence_level": "Influence Level",
-      "recent_interaction": "Recent Interaction"
+      "recent_interaction": "Recent Interaction",
+      "financial_details": "Detailed Financial Analysis",
+      "recent_expenses": "Recent Major Expenses",
+      "recent_investments": "Recent Investments",
+      "expense_item": "Item",
+      "amount": "Amount",
+      "date": "Date",
+      "purpose": "Purpose",
+      "investment": "Investment",
+      "expected_return": "Expected Return",
+      "cash_flow": "Cash Flow Analysis",
+      "debt_situation": "Debt Situation",
+      "occupation": "Occupation",
+      "member_net_worth": "Net Worth",
+      "member_influence": "Influence on Owner"
     }
   },
   zh: {
@@ -181,7 +195,21 @@ const resources = {
       "close_friends": "亲密好友与伙伴",
       "relationship": "关系",
       "influence_level": "影响力水平",
-      "recent_interaction": "最近互动"
+      "recent_interaction": "最近互动",
+      "financial_details": "详细财务分析",
+      "recent_expenses": "近期重大支出",
+      "recent_investments": "近期投资",
+      "expense_item": "项目",
+      "amount": "金额",
+      "date": "日期",
+      "purpose": "用途",
+      "investment": "投资",
+      "expected_return": "预期回报",
+      "cash_flow": "现金流分析",
+      "debt_situation": "债务情况",
+      "occupation": "职业",
+      "member_net_worth": "净资产",
+      "member_influence": "对老板的影响"
     }
   }
 };

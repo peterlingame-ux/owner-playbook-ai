@@ -27,6 +27,9 @@ export interface TeamOwner {
     relation: string;
     name: string;
     age: number;
+    occupation?: string;
+    netWorth?: string;
+    influence?: string;
   }[];
   closeFriends?: {
     name: string;
@@ -35,6 +38,22 @@ export interface TeamOwner {
     recentInteraction: string;
   }[];
   financialStatus: string;
+  financialDetails?: {
+    recentExpenses: {
+      item: string;
+      amount: string;
+      date: string;
+      purpose: string;
+    }[];
+    recentInvestments: {
+      investment: string;
+      amount: string;
+      date: string;
+      expectedReturn: string;
+    }[];
+    cashFlow: string;
+    debtSituation: string;
+  };
   socialStatus: string;
   recentActivities: string[];
   exclusiveAnalysis: string;
