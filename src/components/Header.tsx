@@ -1,15 +1,38 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Languages } from "lucide-react";
+import { Languages, LogOut } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const { i18n } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'zh' : 'en';
     i18n.changeLanguage(newLang);
+  };
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "登出失败",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "已登出",
+        description: "期待您的再次光临",
+      });
+      navigate("/");
+    }
   };
   
   return (
@@ -48,9 +71,26 @@ const Header = () => {
             <Languages size={16} />
             {i18n.language === 'en' ? '中文' : 'EN'}
           </Button>
-          <Button variant="outline" size="sm" className="hidden md:inline-flex">
-            JOIN WAITLIST
-          </Button>
+          {user ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSignOut}
+              className="hidden md:inline-flex items-center gap-2"
+            >
+              <LogOut size={16} />
+              登出
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate("/auth")}
+              className="hidden md:inline-flex"
+            >
+              登录
+            </Button>
+          )}
           <Button variant="ghost" size="sm">
             ABOUT
           </Button>

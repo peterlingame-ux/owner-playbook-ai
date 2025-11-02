@@ -1,8 +1,11 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Equal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, Equal, Lock } from "lucide-react";
 import { aiModels, upcomingMatches, matchPredictions } from "@/data/mockData";
+import { useAuth } from "@/contexts/AuthContext";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -19,11 +22,41 @@ const AI_ICONS: Record<string, string> = {
 
 const ActivePredictions = () => {
   const { t } = useTranslation();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   
   // Get all matches with predictions
   const activeMatches = upcomingMatches.filter(m => 
     (m.status === 'live' || m.status === 'upcoming') && matchPredictions[m.id]
   );
+  
+  if (loading) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <p>加载中...</p>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="text-center py-12">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6">
+            <Lock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-xl font-bold mb-2">需要登录</h3>
+            <p className="text-muted-foreground mb-6">
+              登录后即可查看AI的预测分析结果
+            </p>
+            <Button onClick={() => navigate("/auth")}>
+              立即登录
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   
   if (activeMatches.length === 0) {
     return (
