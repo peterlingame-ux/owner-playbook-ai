@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Leaderboard from "./pages/Leaderboard";
 import ModelDetail from "./pages/ModelDetail";
 import MatchDetail from "./pages/MatchDetail";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/model/:modelId" element={<ModelDetail />} />
           <Route path="/match/:matchId" element={<MatchDetail />} />
+          <Route path="/blog" element={<Blog />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
