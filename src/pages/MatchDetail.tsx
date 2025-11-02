@@ -442,17 +442,10 @@ const MatchDetail = () => {
                   {homeAnalyses.map((analysis) => {
                     if (!analysis.prediction) return null;
                     
-                    const getOutcomeColor = (outcome: string) => {
-                      if (outcome === 'home_win') return 'text-success';
-                      if (outcome === 'away_win') return 'text-destructive';
-                      return 'text-warning';
-                    };
-                    
-                    const getOutcomeText = (outcome: string) => {
-                      if (outcome === 'home_win') return match.homeTeam;
-                      if (outcome === 'away_win') return match.awayTeam;
-                      return t('draw');
-                    };
+                    const probability = analysis.prediction.probability;
+                    const homeWinProb = analysis.prediction.outcome === 'home_win' ? probability : Math.floor((100 - probability) / 2);
+                    const awayWinProb = analysis.prediction.outcome === 'away_win' ? probability : Math.floor((100 - probability) / 2);
+                    const drawProb = analysis.prediction.outcome === 'draw' ? probability : 100 - homeWinProb - awayWinProb;
                     
                     return (
                       <Card key={analysis.id} className="text-center hover:shadow-lg transition-shadow">
@@ -464,16 +457,30 @@ const MatchDetail = () => {
                               className="w-10 h-10 object-contain"
                             />
                           </div>
-                          <h4 className="font-bold text-sm mb-2">{analysis.name}</h4>
-                          <div className={`font-bold text-lg mb-1 ${getOutcomeColor(analysis.prediction.outcome)}`}>
-                            {getOutcomeText(analysis.prediction.outcome)}
+                          <h4 className="font-bold text-sm mb-3">{analysis.name}</h4>
+                          
+                          <div className="space-y-2 text-left">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-muted-foreground">{match.homeTeam} {t('win')}:</span>
+                              <span className={`font-bold ${homeWinProb > 50 ? 'text-success' : 'text-muted-foreground'}`}>
+                                {homeWinProb}%
+                              </span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-muted-foreground">{t('draw')}:</span>
+                              <span className={`font-bold ${drawProb > 50 ? 'text-warning' : 'text-muted-foreground'}`}>
+                                {drawProb}%
+                              </span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-muted-foreground">{match.awayTeam} {t('win')}:</span>
+                              <span className={`font-bold ${awayWinProb > 50 ? 'text-success' : 'text-muted-foreground'}`}>
+                                {awayWinProb}%
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-2xl font-bold text-primary mb-1">
-                            {analysis.prediction.probability}%
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {t('confidence')}
-                          </Badge>
                         </CardContent>
                       </Card>
                     );
