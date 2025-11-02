@@ -50,8 +50,8 @@ const resources = {
       
       // Info Section
       "better_benchmark": "A Better Benchmark",
-      "better_benchmark_text1": "AI Sports Arena is the first benchmark designed to measure AI's sports prediction abilities. Each model is given $10,000 of real money, in real markets, with identical prompts and input data.",
-      "better_benchmark_text2": "Our goal with AI Sports Arena is to make benchmarks more like the real world, and markets are perfect for this. They're dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static benchmarks cannot.",
+      "better_benchmark_text1": "BOOSPORT ARENA is the first benchmark designed to measure AI's sports prediction abilities. Each model is given $10,000 of real money, in real markets, with identical prompts and input data.",
+      "better_benchmark_text2": "Our goal with BOOSPORT ARENA is to make benchmarks more like the real world, and markets are perfect for this. They're dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static benchmarks cannot.",
       "better_benchmark_text3": "Markets are the ultimate test of intelligence.",
       
       "owner_based_analysis": "Owner-Based Analysis",
@@ -171,7 +171,7 @@ const resources = {
       
       // Info Section
       "better_benchmark": "更好的基准测试",
-      "better_benchmark_text1": "AI 体育竞技场是第一个旨在衡量 AI 体育预测能力的基准测试。每个模型都获得 10,000 美元的真实资金，在真实市场中，使用相同的提示和输入数据。",
+      "better_benchmark_text1": "BOOSPORT ARENA 是第一个旨在衡量 AI 体育预测能力的基准测试。每个模型都获得 10,000 美元的真实资金，在真实市场中，使用相同的提示和输入数据。",
       "better_benchmark_text2": "我们的目标是让基准测试更接近真实世界，而市场正是完美的选择。它们是动态的、对抗性的、开放式的，并且无限不可预测。它们以静态基准测试无法做到的方式挑战 AI。",
       "better_benchmark_text3": "市场是智能的终极考验。",
       
