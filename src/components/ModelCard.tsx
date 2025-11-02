@@ -58,6 +58,25 @@ const ModelCard = ({ model }: ModelCardProps) => {
     }
   };
   
+  const getColorTint = (modelId: string) => {
+    switch(modelId) {
+      case 'deepseek':
+        return { hue: '200deg', color: 'hsl(217 91% 60%)' };
+      case 'claude':
+        return { hue: '20deg', color: 'hsl(14 90% 63%)' };
+      case 'gemini':
+        return { hue: '260deg', color: 'hsl(250 71% 63%)' };
+      case 'grok':
+        return { hue: '150deg', color: 'hsl(158 64% 52%)' };
+      case 'gpt5':
+        return { hue: '0deg', color: 'hsl(0 0% 40%)' };
+      default:
+        return { hue: '0deg', color: 'hsl(0 0% 40%)' };
+    }
+  };
+  
+  const colorTint = getColorTint(model.id);
+  
   return (
     <Card 
       className="relative p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
@@ -76,22 +95,22 @@ const ModelCard = ({ model }: ModelCardProps) => {
         }}
       />
       
-      {/* Expert Background Image */}
+      {/* Expert Background Image with Color Tint */}
       <div 
-        className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-300"
+        className="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity duration-300"
         style={{
           backgroundImage: `url(${getExpertImage(model.id)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'grayscale(40%)'
+          filter: `grayscale(20%) sepia(80%) hue-rotate(${colorTint.hue}) saturate(150%)`
         }}
       />
       
-      {/* Color Overlay matching AI logo */}
+      {/* Strong Color Overlay matching AI logo */}
       <div 
-        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300 mix-blend-multiply"
+        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
         style={{
-          backgroundColor: `hsl(var(--${model.color}))`
+          background: `radial-gradient(circle at 50% 50%, ${colorTint.color.replace(')', ' / 0.5)')} 0%, transparent 70%)`,
         }}
       />
       
