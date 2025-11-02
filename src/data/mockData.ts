@@ -129,6 +129,9 @@ export const upcomingMatches: Match[] = [
     date: "2025-11-05",
     time: "20:00",
     league: "Premier League",
+    leagueLogo: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=100&h=100&fit=crop",
+    homeLogo: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=100&h=100&fit=crop",
+    awayLogo: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=100&h=100&fit=crop",
     status: "live",
     homeScore: 2,
     awayScore: 1
@@ -140,6 +143,9 @@ export const upcomingMatches: Match[] = [
     date: "2025-11-06",
     time: "21:00",
     league: "La Liga",
+    leagueLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
+    homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
+    awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
     status: "upcoming"
   },
   {
@@ -149,6 +155,9 @@ export const upcomingMatches: Match[] = [
     date: "2025-11-07",
     time: "18:30",
     league: "Bundesliga",
+    leagueLogo: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=100&h=100&fit=crop",
+    homeLogo: "https://images.unsplash.com/photo-1511204579483-781ef8490a69?w=100&h=100&fit=crop",
+    awayLogo: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=100&h=100&fit=crop",
     status: "live",
     homeScore: 1,
     awayScore: 1

@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { upcomingMatches } from "@/data/mockData";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const LiveMatches = () => {
@@ -24,9 +25,17 @@ const LiveMatches = () => {
             onClick={() => navigate(`/match/${match.id}`)}
           >
             <div className="flex items-center justify-between mb-3">
-              <Badge variant="secondary" className="text-xs">
-                {match.league}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {match.leagueLogo && (
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={match.leagueLogo} alt={match.league} />
+                    <AvatarFallback><Trophy size={14} /></AvatarFallback>
+                  </Avatar>
+                )}
+                <Badge variant="secondary" className="text-xs">
+                  {match.league}
+                </Badge>
+              </div>
               {match.status === "upcoming" ? (
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
@@ -46,7 +55,13 @@ const LiveMatches = () => {
             </div>
             
             <div className="flex items-center justify-between">
-              <div className="flex-1">
+              <div className="flex items-center gap-3 flex-1">
+                {match.homeLogo && (
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={match.homeLogo} alt={match.homeTeam} />
+                    <AvatarFallback>{match.homeTeam.substring(0, 2)}</AvatarFallback>
+                  </Avatar>
+                )}
                 <p className="font-semibold">{match.homeTeam}</p>
               </div>
               
@@ -60,8 +75,14 @@ const LiveMatches = () => {
                 </div>
               )}
               
-              <div className="flex-1 text-right">
-                <p className="font-semibold">{match.awayTeam}</p>
+              <div className="flex items-center gap-3 flex-1 justify-end">
+                <p className="font-semibold text-right">{match.awayTeam}</p>
+                {match.awayLogo && (
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={match.awayLogo} alt={match.awayTeam} />
+                    <AvatarFallback>{match.awayTeam.substring(0, 2)}</AvatarFallback>
+                  </Avatar>
+                )}
               </div>
             </div>
           </div>
