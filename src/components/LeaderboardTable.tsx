@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import grassTexture from "@/assets/grass-texture.jpg";
 
 const LeaderboardTable = () => {
   const { t } = useTranslation();
@@ -156,8 +157,20 @@ const LeaderboardTable = () => {
             </Card>
 
             {/* Bar Chart */}
-            <Card className="lg:col-span-2">
-              <CardContent className="p-6">
+            <Card className="lg:col-span-2 relative overflow-hidden">
+              {/* Grass texture background */}
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{ 
+                  backgroundImage: `url(${grassTexture})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              {/* Dark overlay for contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
+              
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-end justify-between gap-4" style={{ height: '320px' }}>
                   {enhancedModels.map((model) => {
                     const maxWinRate = Math.max(...enhancedModels.map(m => m.winRate));
@@ -173,7 +186,7 @@ const LeaderboardTable = () => {
                           {model.winRate.toFixed(1)}%
                         </div>
                         <div 
-                          className="w-full rounded-t-lg relative flex items-end justify-center pb-4 transition-all duration-300 hover:opacity-80"
+                          className="w-full rounded-t-lg relative flex items-end justify-center pb-4 transition-all duration-300 hover:opacity-80 shadow-lg"
                           style={{ 
                             height: `${heightPx}px`,
                             backgroundColor: `hsl(var(--${model.color}))`,
