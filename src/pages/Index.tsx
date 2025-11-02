@@ -6,11 +6,13 @@ import LiveMatches from "@/components/LiveMatches";
 import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
+import FloatingChatButton from "@/components/FloatingChatButton";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("leaderboard");
   
   // Sort models by win rate
   const sortedModels = [...aiModels].sort((a, b) => b.winRate - a.winRate);
@@ -75,7 +77,7 @@ const Index = () => {
         </div>
 
         {/* Tabs Section */}
-        <Tabs defaultValue="leaderboard" className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="leaderboard">LEADERBOARD</TabsTrigger>
             <TabsTrigger value="models">ALL MODELS</TabsTrigger>
@@ -158,6 +160,9 @@ const Index = () => {
           </div>
         </div>
       </div>
+      
+      {/* Floating Chat Button */}
+      <FloatingChatButton onClick={() => setActiveTab("chat")} />
     </div>
   );
 };
