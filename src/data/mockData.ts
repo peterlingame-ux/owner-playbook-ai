@@ -202,6 +202,24 @@ export const upcomingMatches: Match[] = [
     homeCorners: 4,
     awayCorners: 6,
     liveStreamUrl: "#"
+  },
+  {
+    id: "m4",
+    homeTeam: "PSG",
+    awayTeam: "Marseille",
+    date: "2025-11-08",
+    time: "21:00",
+    league: "Ligue 1",
+    leagueLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
+    homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
+    awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
+    status: "upcoming",
+    homeYellowCards: 0,
+    awayYellowCards: 0,
+    homeRedCards: 0,
+    awayRedCards: 0,
+    homeCorners: 0,
+    awayCorners: 0
   }
 ];
 
