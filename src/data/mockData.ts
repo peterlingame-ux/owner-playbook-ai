@@ -223,6 +223,33 @@ export const upcomingMatches: Match[] = [
   }
 ];
 
+// AI predictions for each match - different AIs purchase different matches
+export const matchPredictions: Record<string, Array<{ aiId: string; prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW"; confidence: number }>> = {
+  "m1": [
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 68 },
+    { aiId: "gpt5", prediction: "AWAY_WIN", confidence: 55 },
+    { aiId: "claude", prediction: "HOME_WIN", confidence: 62 },
+    { aiId: "gemini", prediction: "DRAW", confidence: 45 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 71 },
+  ],
+  "m2": [
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 72 },
+    { aiId: "claude", prediction: "AWAY_WIN", confidence: 58 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 65 },
+  ],
+  "m3": [
+    { aiId: "gpt5", prediction: "DRAW", confidence: 51 },
+    { aiId: "gemini", prediction: "HOME_WIN", confidence: 63 },
+    { aiId: "claude", prediction: "AWAY_WIN", confidence: 59 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 67 },
+  ],
+  "m4": [
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 76 },
+    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 61 },
+    { aiId: "gemini", prediction: "DRAW", confidence: 48 },
+  ],
+};
+
 export const matchOwnersData: Record<string, {
   homeOwner: TeamOwner;
   awayOwner: TeamOwner;
