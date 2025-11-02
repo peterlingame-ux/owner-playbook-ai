@@ -12,9 +12,9 @@ import { Mail, Phone, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import authBg from "@/assets/auth-football-bg.jpg";
 
-const emailSchema = z.string().email("请输入有效的邮箱地址");
-const passwordSchema = z.string().min(6, "密码至少需要6个字符");
-const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的中国手机号");
+const emailSchema = z.string().email("Please enter a valid email address");
+const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
+const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "Please enter a valid phone number");
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "验证失败",
+          title: "Validation Failed",
           description: error.errors[0].message,
           variant: "destructive",
         });
@@ -57,7 +57,7 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "验证失败",
+          title: "Validation Failed",
           description: error.errors[0].message,
           variant: "destructive",
         });
@@ -87,16 +87,16 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "注册失败",
+        title: "Sign Up Failed",
         description: error.message === "User already registered" 
-          ? "该邮箱已被注册" 
+          ? "This email is already registered" 
           : error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "注册成功！",
-        description: "请查收邮件进行验证",
+        title: "Sign Up Successful!",
+        description: "Please check your email for verification",
       });
     }
   };
@@ -116,14 +116,14 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "发送验证码失败",
+        title: "Failed to Send Code",
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "验证码已发送",
-        description: "请查收短信验证码",
+        title: "Verification Code Sent",
+        description: "Please check your SMS",
       });
     }
   };
@@ -142,7 +142,7 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Google登录失败",
+        title: "Google Sign In Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -165,18 +165,18 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "登录失败",
+        title: "Sign In Failed",
         description: error.message === "Invalid login credentials" 
-          ? "邮箱或密码错误" 
+          ? "Invalid email or password" 
           : error.message === "Email not confirmed"
-          ? "请先验证您的邮箱"
+          ? "Please verify your email first"
           : error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "登录成功！",
-        description: "欢迎回来",
+        title: "Sign In Successful!",
+        description: "Welcome back",
       });
       navigate("/");
     }
@@ -201,30 +201,30 @@ const Auth = () => {
         variant="ghost"
         size="sm"
         onClick={() => navigate("/")}
-        className="absolute top-8 left-8 text-white hover:text-primary transition-colors z-10"
+        className="absolute top-8 left-8 text-white hover:text-primary transition-colors z-10 font-pixel text-xs"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        返回首页
+        BACK HOME
       </Button>
 
       {/* Main card */}
       <Card className="w-full max-w-md relative z-10 bg-card/95 backdrop-blur-md border-primary/20 shadow-2xl animate-fade-in">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in font-pixel">
             BOOSPORT ARENA
           </CardTitle>
-          <CardDescription className="text-base">
-            登录或注册以查看AI分析结果
+          <CardDescription className="text-base font-pixel text-xs">
+            LOGIN OR SIGN UP TO VIEW AI ANALYSIS
           </CardDescription>
         </CardHeader>
         <CardContent className="animate-fade-in delay-75">
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-              <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                登录
+              <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-pixel text-xs">
+                LOGIN
               </TabsTrigger>
-              <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                注册
+              <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-pixel text-xs">
+                SIGN UP
               </TabsTrigger>
             </TabsList>
             
@@ -233,12 +233,12 @@ const Auth = () => {
               <Button 
                 type="button" 
                 variant="outline" 
-                className="w-full hover-scale border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
+                className="w-full hover-scale border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-pixel text-xs"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                使用 Google 登录
+                SIGN IN WITH GOOGLE
               </Button>
 
               <div className="relative">
@@ -246,14 +246,14 @@ const Auth = () => {
                   <span className="w-full border-t border-primary/20" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">或使用邮箱</span>
+                  <span className="bg-card px-2 text-muted-foreground font-pixel">OR USE EMAIL</span>
                 </div>
               </div>
 
               {/* Email Login */}
               <form onSubmit={handleEmailSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">邮箱</Label>
+                  <Label htmlFor="login-email" className="font-pixel text-xs">EMAIL</Label>
                   <Input
                     id="login-email"
                     type="email"
@@ -266,7 +266,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">密码</Label>
+                  <Label htmlFor="login-password" className="font-pixel text-xs">PASSWORD</Label>
                   <Input
                     id="login-password"
                     type="password"
@@ -280,10 +280,10 @@ const Auth = () => {
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90" 
+                  className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
                   disabled={loading}
                 >
-                  {loading ? "登录中..." : "登录"}
+                  {loading ? "SIGNING IN..." : "SIGN IN"}
                 </Button>
               </form>
             </TabsContent>
@@ -293,12 +293,12 @@ const Auth = () => {
               <Button 
                 type="button" 
                 variant="outline" 
-                className="w-full hover-scale border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
+                className="w-full hover-scale border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-pixel text-xs"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                使用 Google 注册
+                SIGN UP WITH GOOGLE
               </Button>
 
               <div className="relative">
@@ -306,7 +306,7 @@ const Auth = () => {
                   <span className="w-full border-t border-primary/20" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">或选择注册方式</span>
+                  <span className="bg-card px-2 text-muted-foreground font-pixel">OR CHOOSE METHOD</span>
                 </div>
               </div>
 
@@ -315,20 +315,20 @@ const Auth = () => {
                 <Button
                   type="button"
                   variant={signupMethod === "email" ? "default" : "outline"}
-                  className="flex-1 hover-scale transition-all"
+                  className="flex-1 hover-scale transition-all font-pixel text-xs"
                   onClick={() => setSignupMethod("email")}
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  邮箱
+                  EMAIL
                 </Button>
                 <Button
                   type="button"
                   variant={signupMethod === "phone" ? "default" : "outline"}
-                  className="flex-1 hover-scale transition-all"
+                  className="flex-1 hover-scale transition-all font-pixel text-xs"
                   onClick={() => setSignupMethod("phone")}
                 >
                   <Phone className="mr-2 h-4 w-4" />
-                  手机号
+                  PHONE
                 </Button>
               </div>
 
@@ -336,7 +336,7 @@ const Auth = () => {
               {signupMethod === "email" && (
                 <form onSubmit={handleEmailSignUp} className="space-y-4 animate-fade-in">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">邮箱</Label>
+                    <Label htmlFor="signup-email" className="font-pixel text-xs">EMAIL</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -349,11 +349,11 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">密码</Label>
+                    <Label htmlFor="signup-password" className="font-pixel text-xs">PASSWORD</Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="至少6个字符"
+                      placeholder="At least 6 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -363,13 +363,13 @@ const Auth = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90" 
+                    className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
                     disabled={loading}
                   >
-                    {loading ? "注册中..." : "注册"}
+                    {loading ? "SIGNING UP..." : "SIGN UP"}
                   </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    注册后请查收验证邮件
+                  <p className="text-xs text-muted-foreground text-center font-pixel">
+                    CHECK YOUR EMAIL AFTER SIGNUP
                   </p>
                 </form>
               )}
@@ -378,7 +378,7 @@ const Auth = () => {
               {signupMethod === "phone" && (
                 <form onSubmit={handlePhoneSignUp} className="space-y-4 animate-fade-in">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-phone">手机号</Label>
+                    <Label htmlFor="signup-phone" className="font-pixel text-xs">PHONE NUMBER</Label>
                     <div className="flex gap-2">
                       <Input
                         className="w-20 border-primary/20"
@@ -399,13 +399,13 @@ const Auth = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90" 
+                    className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
                     disabled={loading}
                   >
-                    {loading ? "发送验证码..." : "获取验证码"}
+                    {loading ? "SENDING CODE..." : "GET CODE"}
                   </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    我们会向您的手机发送验证码
+                  <p className="text-xs text-muted-foreground text-center font-pixel">
+                    WE WILL SEND YOU A CODE
                   </p>
                 </form>
               )}

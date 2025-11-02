@@ -18,14 +18,14 @@ const Header = () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast({
-        title: "登出失败",
+        title: "Sign Out Failed",
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "已登出",
-        description: "期待您的再次光临",
+        title: "Signed Out",
+        description: "See you again soon",
       });
       navigate("/");
     }
@@ -65,7 +65,7 @@ const Header = () => {
               className="hidden md:inline-flex items-center gap-2 font-pixel text-xs"
             >
               <LogOut size={16} />
-              登出
+              SIGN OUT
             </Button>
           ) : (
             <Button 
@@ -74,7 +74,7 @@ const Header = () => {
               onClick={() => navigate("/auth")}
               className="hidden md:inline-flex font-pixel text-xs"
             >
-              登录
+              LOGIN
             </Button>
           )}
           <Link 
