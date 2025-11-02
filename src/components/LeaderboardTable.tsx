@@ -7,26 +7,23 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 const LeaderboardTable = () => {
   // Calculate additional stats for each model
   const enhancedModels = aiModels.map(model => {
-    // Parse currentValue string to number
-    const accountValue = parseFloat(model.currentValue.replace(/[$,]/g, ''));
-    const totalPnL = accountValue - 10000;
-    const returnPercent = ((accountValue - 10000) / 10000) * 100;
-    const fees = model.totalPredictions * 18.92; // Average fee per trade
-    const biggestWin = Math.floor(Math.random() * 5000) + 2000;
-    const biggestLoss = -(Math.floor(Math.random() * 3000) + 1000);
-    const sharpe = (Math.random() - 0.5).toFixed(3);
+    const wrongPredictions = model.totalPredictions - model.correctPredictions;
+    const currentStreak = Math.floor(Math.random() * 10) - 3; // -3 to 6
+    const bestStreak = Math.floor(Math.random() * 15) + 5; // 5 to 19
+    const worstStreak = -(Math.floor(Math.random() * 8) + 2); // -2 to -9
+    const accuracy = model.winRate;
+    const avgConfidence = (Math.random() * 30 + 60).toFixed(1); // 60-90%
     
     return {
       ...model,
-      accountValue,
-      returnPercent,
-      totalPnL,
-      fees,
-      biggestWin,
-      biggestLoss,
-      sharpe,
+      wrongPredictions,
+      currentStreak,
+      bestStreak,
+      worstStreak,
+      accuracy,
+      avgConfidence,
     };
-  }).sort((a, b) => b.accountValue - a.accountValue);
+  }).sort((a, b) => b.winRate - a.winRate);
 
   const winningModel = enhancedModels[0];
 
@@ -62,17 +59,17 @@ const LeaderboardTable = () => {
                       <TableHead>MODEL</TableHead>
                       <TableHead className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          ACCT VALUE <ArrowDown className="h-3 w-3" />
+                          WIN RATE <ArrowDown className="h-3 w-3" />
                         </div>
                       </TableHead>
-                      <TableHead className="text-right">RETURN %</TableHead>
-                      <TableHead className="text-right">TOTAL P&L</TableHead>
-                      <TableHead className="text-right">FEES</TableHead>
-                      <TableHead className="text-right">WIN RATE</TableHead>
-                      <TableHead className="text-right">BIGGEST WIN</TableHead>
-                      <TableHead className="text-right">BIGGEST LOSS</TableHead>
-                      <TableHead className="text-right">SHARPE</TableHead>
-                      <TableHead className="text-right">TRADES</TableHead>
+                      <TableHead className="text-right">PREDICTIONS</TableHead>
+                      <TableHead className="text-right">CORRECT</TableHead>
+                      <TableHead className="text-right">WRONG</TableHead>
+                      <TableHead className="text-right">CURRENT STREAK</TableHead>
+                      <TableHead className="text-right">BEST STREAK</TableHead>
+                      <TableHead className="text-right">WORST STREAK</TableHead>
+                      <TableHead className="text-right">AVG CONFIDENCE</TableHead>
+                      <TableHead className="text-right">MATCHES</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -85,31 +82,31 @@ const LeaderboardTable = () => {
                             <span className="font-medium">{model.displayName}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-mono-data font-bold">
-                          ${model.accountValue.toLocaleString()}
-                        </TableCell>
-                        <TableCell className={`text-right font-mono-data font-bold ${model.returnPercent > 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.returnPercent > 0 ? '+' : ''}{model.returnPercent.toFixed(2)}%
-                        </TableCell>
-                        <TableCell className={`text-right font-mono-data font-bold ${model.totalPnL > 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.totalPnL > 0 ? '+' : ''}${model.totalPnL.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data text-muted-foreground">
-                          ${model.fees.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data">
+                        <TableCell className="text-right font-mono-data font-bold text-primary">
                           {model.winRate.toFixed(1)}%
                         </TableCell>
+                        <TableCell className="text-right font-mono-data">
+                          {model.totalPredictions}
+                        </TableCell>
+                        <TableCell className="text-right font-mono-data text-success font-bold">
+                          {model.correctPredictions}
+                        </TableCell>
+                        <TableCell className="text-right font-mono-data text-destructive font-bold">
+                          {model.wrongPredictions}
+                        </TableCell>
+                        <TableCell className={`text-right font-mono-data font-bold ${model.currentStreak > 0 ? 'text-success' : model.currentStreak < 0 ? 'text-destructive' : ''}`}>
+                          {model.currentStreak > 0 ? '+' : ''}{model.currentStreak}
+                        </TableCell>
                         <TableCell className="text-right font-mono-data text-success">
-                          ${model.biggestWin.toLocaleString()}
+                          +{model.bestStreak}
                         </TableCell>
                         <TableCell className="text-right font-mono-data text-destructive">
-                          -${Math.abs(model.biggestLoss).toLocaleString()}
+                          {model.worstStreak}
                         </TableCell>
                         <TableCell className="text-right font-mono-data">
-                          {model.sharpe}
+                          {model.avgConfidence}%
                         </TableCell>
-                        <TableCell className="text-right font-mono-data">
+                        <TableCell className="text-right font-mono-data text-muted-foreground">
                           {model.totalPredictions}
                         </TableCell>
                       </TableRow>
@@ -133,32 +130,30 @@ const LeaderboardTable = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">TOTAL EQUITY</p>
-                    <p className="text-2xl font-bold font-mono-data">
-                      ${winningModel.accountValue.toLocaleString()}
+                    <p className="text-sm text-muted-foreground mb-1">WIN RATE</p>
+                    <p className="text-2xl font-bold font-mono-data text-primary">
+                      {winningModel.winRate.toFixed(1)}%
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-muted-foreground mb-3">ACTIVE POSITIONS</p>
-                    <div className="flex gap-2">
-                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                        <span className="text-xs">⚔️</span>
+                    <p className="text-sm text-muted-foreground mb-1">CORRECT PREDICTIONS</p>
+                    <p className="text-xl font-bold font-mono-data text-success">
+                      {winningModel.correctPredictions} / {winningModel.totalPredictions}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-3">ACTIVE MATCHES</p>
+                    <div className="flex gap-2 flex-wrap">
+                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
+                        ⚽ Premier League
                       </div>
-                      <div className="h-8 w-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                        <span className="text-xs">🥇</span>
+                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
+                        ⚽ La Liga
                       </div>
-                      <div className="h-8 w-8 rounded-full bg-orange-500/20 flex items-center justify-center">
-                        <span className="text-xs">₿</span>
-                      </div>
-                      <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                        <span className="text-xs">Ξ</span>
-                      </div>
-                      <div className="h-8 w-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <span className="text-xs">≋</span>
-                      </div>
-                      <div className="h-8 w-8 rounded-full bg-teal-500/20 flex items-center justify-center">
-                        <span className="text-xs">◎</span>
+                      <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs">
+                        ⚽ Bundesliga
                       </div>
                     </div>
                   </div>
@@ -171,13 +166,13 @@ const LeaderboardTable = () => {
               <CardContent className="p-6">
                 <div className="flex items-end justify-between h-full gap-4">
                   {enhancedModels.map((model) => {
-                    const maxValue = Math.max(...enhancedModels.map(m => m.accountValue));
-                    const heightPercent = (model.accountValue / maxValue) * 100;
+                    const maxValue = Math.max(...enhancedModels.map(m => m.winRate));
+                    const heightPercent = (model.winRate / maxValue) * 100;
                     
                     return (
                       <div key={model.id} className="flex-1 flex flex-col items-center gap-2">
                         <div className="text-sm font-mono-data font-bold mb-2">
-                          ${model.accountValue.toLocaleString()}
+                          {model.winRate.toFixed(1)}%
                         </div>
                         <div 
                           className="w-full rounded-t-lg relative flex items-end justify-center pb-4"
@@ -206,7 +201,7 @@ const LeaderboardTable = () => {
 
           {/* Note */}
           <p className="text-sm text-muted-foreground">
-            <span className="font-bold">Note:</span> All statistics (except <span className="font-bold">Account Value</span> and <span className="font-bold">P&L</span>) reflect <span className="font-bold">completed trades only</span>. Active positions are not included in calculations until they are closed.
+            <span className="font-bold">Note:</span> All statistics reflect <span className="font-bold">completed match predictions only</span>. Live match predictions are not included in calculations until matches are finished.
           </p>
         </TabsContent>
         
