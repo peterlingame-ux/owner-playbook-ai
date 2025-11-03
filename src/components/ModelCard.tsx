@@ -113,11 +113,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
         borderColor: `hsl(var(--${model.color}) / 0.3)`
       }}
     >
-      {/* Locked Badge Overlay - Top Right Corner */}
+      {/* Locked Badge Overlay - Center */}
       {model.locked && (
-        <div className="absolute top-4 right-4 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-3 py-2 flex items-center gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
-          <Lock className="h-5 w-5" style={{ color: `hsl(var(--${model.color}))` }} />
-          <span className="text-sm font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-4 py-3 flex items-center gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
+          <Lock className="h-6 w-6" style={{ color: `hsl(var(--${model.color}))` }} />
+          <span className="text-base font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
             {t('locked_model') || 'LOCKED'}
           </span>
         </div>
