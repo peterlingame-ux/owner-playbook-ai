@@ -428,16 +428,23 @@ const resources = {
   }
 };
 
+const savedLanguage = localStorage.getItem('language') || 'zh';
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'zh',
+    lng: savedLanguage,
     fallbackLng: 'en',
     supportedLngs: ['en', 'zh'],
     interpolation: {
       escapeValue: false
     }
   });
+
+// Save language changes to localStorage
+i18n.on('languageChanged', (lng) => {
+  localStorage.setItem('language', lng);
+});
 
 export default i18n;
