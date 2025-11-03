@@ -207,9 +207,7 @@ const resources = {
       "invalid_credentials": "Invalid email or password",
       "email_not_confirmed": "Please verify your email first",
       "signin_success": "Sign In Successful!",
-      "welcome_back": "Welcome back",
-      "copy_trade": "Copy Trade",
-      "coming_soon": "Coming Soon"
+      "welcome_back": "Welcome back"
     }
   },
   zh: {
@@ -417,9 +415,7 @@ const resources = {
       "invalid_credentials": "邮箱或密码无效",
       "email_not_confirmed": "请先验证您的邮箱",
       "signin_success": "登录成功！",
-      "welcome_back": "欢迎回来",
-      "copy_trade": "一键跟单",
-      "coming_soon": "即将开放"
+      "welcome_back": "欢迎回来"
     }
   }
 };
