@@ -101,7 +101,6 @@ const LeaderboardTable = () => {
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('current_streak')}</TableHead>
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
-                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('avg_confidence')}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -152,11 +151,6 @@ const LeaderboardTable = () => {
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data text-foreground/70">
                         +{model.bestStreak}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-muted-foreground">
-                        {model.worstStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
