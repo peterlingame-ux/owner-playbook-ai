@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -76,6 +78,14 @@ const ModelCard = ({ model }: ModelCardProps) => {
   };
   
   const colorTint = getColorTint(model.id);
+  
+  const handleCopyTrade = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.info(t('coming_soon'), {
+      description: t('coming_soon'),
+      duration: 2000,
+    });
+  };
   
   return (
     <Card 
@@ -186,13 +196,35 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-            <span className="text-xs text-muted-foreground">{t('value')}:</span>
-            <span className="text-sm font-bold font-mono-data">{model.currentValue}</span>
-            <span className={`text-xs font-medium flex items-center gap-1 ml-auto ${isPositive ? 'text-success' : 'text-destructive'}`}>
-              {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              {isPositive ? '+' : ''}{model.changePercent.toFixed(2)}%
-            </span>
+          {/* Copy Trade Button */}
+          <div className="pt-2 border-t border-border/50">
+            <Button
+              onClick={handleCopyTrade}
+              disabled
+              className="w-full relative overflow-hidden group/btn bg-gradient-to-r from-success/20 to-success/10 hover:from-success/30 hover:to-success/20 border-2 border-success/40 text-success font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{
+                borderColor: `hsl(var(--${model.color}) / 0.4)`,
+              }}
+            >
+              {/* Football field pattern overlay */}
+              <div 
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: `url(${footballFieldBg})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              
+              <div className="relative flex items-center justify-center gap-2">
+                <PlayCircle size={18} className="animate-pulse" />
+                <span>{t('copy_trade')}</span>
+                <span className="text-xs opacity-70">({t('coming_soon')})</span>
+              </div>
+              
+              {/* Animated shine effect */}
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </Button>
           </div>
         </div>
       </div>
