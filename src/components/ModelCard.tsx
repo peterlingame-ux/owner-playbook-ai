@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { TrendingUp, TrendingDown, PlayCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, PlayCircle, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -11,11 +11,13 @@ import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
+import mysteryIcon from "@/assets/mystery-icon.png";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
 import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
+import expertMystery from "@/assets/expert-mystery.jpg";
 import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface ModelCardProps {
@@ -39,6 +41,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         return geminiIcon;
       case 'grok':
         return grokIcon;
+      case 'mystery':
+        return mysteryIcon;
       default:
         return deepseekIcon;
     }
@@ -56,6 +60,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         return starHaaland;
       case 'grok':
         return starMbappe;
+      case 'mystery':
+        return expertMystery;
       default:
         return starRonaldo;
     }
@@ -73,6 +79,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         return { hue: '150deg', color: 'hsl(158 64% 52%)' };
       case 'gpt5':
         return { hue: '0deg', color: 'hsl(0 0% 40%)' };
+      case 'mystery':
+        return { hue: '45deg', color: 'hsl(45 100% 51%)' };
       default:
         return { hue: '0deg', color: 'hsl(0 0% 40%)' };
     }
@@ -82,17 +90,43 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (model.locked) {
+      toast.error(t('locked_model_message') || 'This model is locked. Stay tuned for access!');
+      return;
+    }
+    navigate(`/model/${model.id}`);
+  };
+  
+  const handleCardClick = () => {
+    if (model.locked) {
+      toast.info(t('locked_model_message') || 'This model is locked. Stay tuned for access!');
+      return;
+    }
     navigate(`/model/${model.id}`);
   };
   
   return (
     <Card 
       className="relative p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
-      onClick={() => navigate(`/model/${model.id}`)}
+      onClick={handleCardClick}
       style={{
         borderColor: `hsl(var(--${model.color}) / 0.3)`
       }}
     >
+      {/* Locked Overlay */}
+      {model.locked && (
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-20 flex items-center justify-center">
+          <div className="text-center">
+            <Lock className="h-16 w-16 mx-auto mb-4" style={{ color: `hsl(var(--${model.color}))` }} />
+            <p className="text-lg font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+              {t('locked_model') || 'LOCKED'}
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              {t('coming_soon') || 'Coming Soon'}
+            </p>
+          </div>
+        </div>
+      )}
       {/* Football Field Background */}
       <div 
         className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"

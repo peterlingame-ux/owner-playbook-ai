@@ -112,4 +112,5 @@ export interface AIModel {
   currentValue: string;
   change: string;
   changePercent: number;
+  locked?: boolean;
 }

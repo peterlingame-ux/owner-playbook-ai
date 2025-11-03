@@ -215,7 +215,9 @@ const resources = {
       "copy_trade": "Copy Trade",
       "coming_soon": "Coming Soon",
       "copy_trade_unavailable": "Copy Trade Feature Not Yet Available",
-      "copy_trade_unavailable_desc": "The one-click copy trade feature is coming soon. Stay tuned for updates!"
+      "copy_trade_unavailable_desc": "The one-click copy trade feature is coming soon. Stay tuned for updates!",
+      "locked_model": "LOCKED",
+      "locked_model_message": "This model is locked. Stay tuned for access!"
     }
   },
   zh: {
@@ -431,7 +433,9 @@ const resources = {
       "copy_trade": "一键跟单",
       "coming_soon": "即将开放",
       "copy_trade_unavailable": "一键跟单功能暂未开放",
-      "copy_trade_unavailable_desc": "一键跟单功能即将上线，敬请期待！"
+      "copy_trade_unavailable_desc": "一键跟单功能即将上线，敬请期待！",
+      "locked_model": "已锁定",
+      "locked_model_message": "该模型已锁定，敬请期待开放！"
     }
   }
 };

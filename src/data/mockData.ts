@@ -118,6 +118,19 @@ export const aiModels: AIModel[] = [
     currentValue: "$6,325.53",
     change: "+$234.12",
     changePercent: 8.92
+  },
+  {
+    id: "mystery",
+    name: "BOOSPOT PRO",
+    displayName: "BOOSPOT PRO",
+    color: "mystery",
+    totalPredictions: 247,
+    correctPredictions: 217,
+    winRate: 88.0,
+    currentValue: "$32,456.89",
+    change: "+$8,765.43",
+    changePercent: 125.50,
+    locked: true
   }
 ];
 

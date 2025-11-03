@@ -55,6 +55,7 @@ export default {
         claude: "hsl(var(--claude))",
         gemini: "hsl(var(--gemini))",
         grok: "hsl(var(--grok))",
+        mystery: "hsl(var(--mystery))",
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         info: "hsl(var(--info))",
