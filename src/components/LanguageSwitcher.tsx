@@ -29,8 +29,8 @@ const LanguageSwitcher = () => {
       className="gap-2 font-pixel text-xs"
     >
       <img 
-        src={i18n.language === 'en' ? flagChina : flagUsa} 
-        alt={i18n.language === 'en' ? 'Chinese' : 'English'} 
+        src={i18n.language === 'en' ? flagUsa : flagChina} 
+        alt={i18n.language === 'en' ? 'English' : 'Chinese'} 
         className="h-4 w-6 object-cover rounded-sm"
       />
       {i18n.language === 'en' ? '中文' : 'EN'}
