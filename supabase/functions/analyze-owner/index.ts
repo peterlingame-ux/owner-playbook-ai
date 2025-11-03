@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,6 +8,48 @@ const corsHeaders = {
 };
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
+const ownerSchema = z.object({
+  name: z.string().max(200),
+  age: z.union([z.number(), z.string()]).transform(val => typeof val === 'string' ? parseInt(val) : val),
+  netWorth: z.string().max(100),
+  healthStatus: z.string().max(500),
+  familyStatus: z.string().max(500),
+  familyMembers: z.array(z.object({
+    name: z.string().max(100),
+    relation: z.string().max(50),
+    age: z.union([z.number(), z.string()]).transform(val => typeof val === 'string' ? parseInt(val) : val),
+    occupation: z.string().max(200).optional(),
+    netWorth: z.string().max(100).optional(),
+    influence: z.string().max(500).optional()
+  })).max(20),
+  closeFriends: z.array(z.object({
+    name: z.string().max(100),
+    relationship: z.string().max(200),
+    influence: z.string().max(200),
+    recentInteraction: z.string().max(500)
+  })).max(20).optional(),
+  scandals: z.array(z.string().max(500)).max(50).optional(),
+  recentActivities: z.array(z.string().max(500)).max(50),
+  financialStatus: z.string().max(1000),
+  financialDetails: z.object({
+    recentExpenses: z.array(z.object({
+      item: z.string().max(200),
+      amount: z.string().max(100),
+      date: z.string().max(50),
+      purpose: z.string().max(300)
+    })).max(50),
+    recentInvestments: z.array(z.object({
+      investment: z.string().max(200),
+      amount: z.string().max(100),
+      date: z.string().max(50),
+      expectedReturn: z.string().max(200)
+    })).max(50),
+    cashFlow: z.string().max(500),
+    debtSituation: z.string().max(500)
+  }).optional(),
+  socialStatus: z.string().max(1000)
+});
 
 const AI_MODELS = [
   {
@@ -47,58 +90,84 @@ serve(async (req) => {
   }
 
   try {
-    const { ownerData } = await req.json();
+    // Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const requestBody = await req.json();
+    const { ownerData } = requestBody;
+
+    // Validate input data
+    let validatedData;
+    try {
+      validatedData = ownerSchema.parse(ownerData);
+    } catch (validationError) {
+      console.error('Validation error:', validationError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: validationError instanceof z.ZodError ? validationError.errors : 'Invalid data format'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Build comprehensive context from owner data
+    // Build comprehensive context from validated data
     const context = `
 Team Owner Analysis Request:
 
-Name: ${ownerData.name}
-Age: ${ownerData.age}
-Net Worth: ${ownerData.netWorth}
+Name: ${validatedData.name}
+Age: ${validatedData.age}
+Net Worth: ${validatedData.netWorth}
 
-Health Status: ${ownerData.healthStatus}
+Health Status: ${validatedData.healthStatus}
 
-Family Status: ${ownerData.familyStatus}
+Family Status: ${validatedData.familyStatus}
 Family Members:
-${ownerData.familyMembers.map((m: any) => 
+${validatedData.familyMembers.map((m) => 
   `- ${m.name} (${m.relation}, ${m.age} years old)${m.occupation ? ', ' + m.occupation : ''}${m.netWorth ? ', Net Worth: ' + m.netWorth : ''}${m.influence ? ', Influence: ' + m.influence : ''}`
 ).join('\n')}
 
 Close Friends & Associates:
-${ownerData.closeFriends?.map((f: any) => 
+${validatedData.closeFriends?.map((f) => 
   `- ${f.name}: ${f.relationship}, Influence: ${f.influence}, Recent: ${f.recentInteraction}`
 ).join('\n') || 'None listed'}
 
-Financial Status: ${ownerData.financialStatus}
+Financial Status: ${validatedData.financialStatus}
 
-${ownerData.financialDetails ? `
+${validatedData.financialDetails ? `
 Recent Major Expenses:
-${ownerData.financialDetails.recentExpenses.map((e: any) => 
+${validatedData.financialDetails.recentExpenses.map((e) => 
   `- ${e.item}: ${e.amount} (${e.date}) - ${e.purpose}`
 ).join('\n')}
 
 Recent Investments:
-${ownerData.financialDetails.recentInvestments.map((i: any) => 
+${validatedData.financialDetails.recentInvestments.map((i) => 
   `- ${i.investment}: ${i.amount} (${i.date}) - Expected: ${i.expectedReturn}`
 ).join('\n')}
 
-Cash Flow: ${ownerData.financialDetails.cashFlow}
-Debt Situation: ${ownerData.financialDetails.debtSituation}
+Cash Flow: ${validatedData.financialDetails.cashFlow}
+Debt Situation: ${validatedData.financialDetails.debtSituation}
 ` : ''}
 
-Social Status: ${ownerData.socialStatus}
+Social Status: ${validatedData.socialStatus}
 
 Recent Activities:
-${ownerData.recentActivities.map((a: any) => `- ${a}`).join('\n')}
+${validatedData.recentActivities.map((a) => `- ${a}`).join('\n')}
 
-${ownerData.scandals?.length > 0 ? `
+${validatedData.scandals?.length ? `
 Scandals & Controversies:
-${ownerData.scandals.map((s: any) => `- ${s}`).join('\n')}
+${validatedData.scandals.map((s) => `- ${s}`).join('\n')}
 ` : ''}
 
 Task: Provide a 3-4 paragraph analysis of this team owner's current situation and how it might impact their team's performance. Focus on your unique analytical perspective and be specific about patterns, risks, or opportunities you identify. Keep your analysis under 300 words.
