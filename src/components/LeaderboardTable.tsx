@@ -9,6 +9,8 @@ import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
 import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
+import expertMystery from "@/assets/expert-mystery.jpg";
+import mysteryIcon from "@/assets/mystery-icon.png";
 
 const LeaderboardTable = () => {
   const { t } = useTranslation();
@@ -42,6 +44,8 @@ const LeaderboardTable = () => {
       'grok': '/src/assets/grok-icon.png',
       'gemini': '/src/assets/gemini-icon.png',
       'gpt': '/src/assets/openai-icon.png',
+      'gpt5': '/src/assets/openai-icon.png',
+      'mystery': mysteryIcon,
     };
     return icons[modelId] || icons.gpt;
   };
@@ -58,6 +62,8 @@ const LeaderboardTable = () => {
         return starHaaland;
       case 'grok':
         return starMbappe;
+      case 'mystery':
+        return expertMystery;
       default:
         return starRonaldo;
     }
@@ -75,6 +81,8 @@ const LeaderboardTable = () => {
         return 'from-purple-600/80 to-purple-900/80';
       case 'grok':
         return 'from-green-600/80 to-green-900/80';
+      case 'mystery':
+        return 'from-yellow-600/80 to-yellow-900/80';
       default:
         return 'from-blue-600/80 to-blue-900/80';
     }
