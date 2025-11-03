@@ -135,32 +135,32 @@ const LeaderboardTable = () => {
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-success font-semibold text-base">
+                      <span className="font-mono-data font-semibold text-base text-foreground/80">
                         {model.correctPredictions}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-destructive font-semibold text-base">
+                      <span className="font-mono-data font-semibold text-base text-foreground/60">
                         {model.wrongPredictions}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
-                      <span className={`font-mono-data font-semibold text-base ${model.currentStreak > 0 ? 'text-success' : model.currentStreak < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      <span className={`font-mono-data font-semibold text-base ${model.currentStreak > 0 ? 'text-foreground/80' : model.currentStreak < 0 ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                         {model.currentStreak > 0 ? '+' : ''}{model.currentStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-success/80">
+                      <span className="font-mono-data text-foreground/70">
                         +{model.bestStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-destructive/80">
+                      <span className="font-mono-data text-muted-foreground">
                         {model.worstStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-foreground">
+                      <span className="font-mono-data text-foreground/80">
                         {model.avgConfidence}%
                       </span>
                     </TableCell>
