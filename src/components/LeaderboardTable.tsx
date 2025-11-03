@@ -183,7 +183,7 @@ const LeaderboardTable = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
               
               <CardContent className="p-6 relative z-10">
-                <h3 className="text-sm font-bold mb-4 text-white/80">WINNING MODEL</h3>
+                <h3 className="text-sm font-bold mb-4 text-white/80">{t('winning_model').toUpperCase()}</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className="h-10 w-10" />
                   <span className="text-xl font-bold text-white">{winningModel.displayName}</span>
@@ -191,21 +191,21 @@ const LeaderboardTable = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-white/70 mb-1">WIN RATE</p>
+                    <p className="text-sm text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
                     <p className="text-2xl font-bold font-mono-data text-white">
                       {winningModel.winRate.toFixed(1)}%
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-white/70 mb-1">CORRECT PREDICTIONS</p>
+                    <p className="text-sm text-white/70 mb-1">{t('correct_predictions_label').toUpperCase()}</p>
                     <p className="text-xl font-bold font-mono-data text-success">
                       {winningModel.correctPredictions} / {winningModel.totalPredictions}
                     </p>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-white/70 mb-3">ACTIVE MATCHES</p>
+                    <p className="text-sm text-white/70 mb-3">{t('active_matches').toUpperCase()}</p>
                     <div className="flex gap-2 flex-wrap">
                       <div className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs text-white">
                         ⚽ Premier League
