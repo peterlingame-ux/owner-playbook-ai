@@ -41,22 +41,22 @@ const Header = () => {
           </h1>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-8">
-          <Link to="/" className="font-pixel text-xs text-foreground hover:text-primary transition-colors tracking-wider">
+        <nav className="flex items-center gap-3 sm:gap-6 md:gap-8">
+          <Link to="/" className="font-pixel text-[10px] sm:text-xs text-foreground hover:text-primary transition-colors tracking-wider">
             LIVE
           </Link>
-          <Link to="/leaderboard" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
+          <Link to="/leaderboard" className="font-pixel text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
             LEADERBOARD
           </Link>
-          <Link to="/blog" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
+          <Link to="/blog" className="font-pixel text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
             {t('blog').toUpperCase()}
           </Link>
-          <Link to="/models" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
+          <Link to="/models" className="font-pixel text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
             {t('models_performance').toUpperCase()}
           </Link>
         </nav>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           <OnlineUsers />
           <LanguageSwitcher />
           {user ? (
@@ -64,27 +64,27 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="hidden md:inline-flex items-center gap-2 font-pixel text-xs"
+              className="inline-flex items-center gap-1 sm:gap-2 font-pixel text-[10px] sm:text-xs px-2 sm:px-3"
             >
-              <LogOut size={16} />
-              {t('sign_out').toUpperCase()}
+              <LogOut size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('sign_out').toUpperCase()}</span>
             </Button>
           ) : (
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/auth")}
-              className="hidden md:inline-flex font-pixel text-xs"
+              className="inline-flex font-pixel text-[10px] sm:text-xs px-2 sm:px-3"
             >
               {t('login').toUpperCase()}
             </Button>
           )}
           <Link 
             to="/waitlist" 
-            className="hidden md:inline-flex items-center gap-1 text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
+            className="hidden sm:inline-flex items-center gap-1 text-[10px] sm:text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
           >
             {t('join_waitlist').toUpperCase()}
-            <ExternalLink size={14} />
+            <ExternalLink size={12} className="sm:w-3.5 sm:h-3.5" />
           </Link>
         </div>
       </div>
