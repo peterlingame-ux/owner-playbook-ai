@@ -348,7 +348,7 @@ const resources = {
       "sign_up": "注册",
       "sign_out": "登出",
       "join_waitlist": "加入平台候补名单",
-      "models_performance": "AI 模型表现",
+      "models_performance": "AI 模型",
       "compare_performance": "比较不同 AI 模型在体育预测中的表现",
       "model_not_found": "未找到模型",
       "back_to_models": "返回模型列表",
