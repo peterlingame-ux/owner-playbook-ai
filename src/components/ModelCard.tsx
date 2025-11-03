@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -186,13 +187,15 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-            <span className="text-xs text-muted-foreground">{t('value')}:</span>
-            <span className="text-sm font-bold font-mono-data">{model.currentValue}</span>
-            <span className={`text-xs font-medium flex items-center gap-1 ml-auto ${isPositive ? 'text-success' : 'text-destructive'}`}>
-              {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              {isPositive ? '+' : ''}{model.changePercent.toFixed(2)}%
-            </span>
+          <div className="pt-2 border-t border-border/50">
+            <Button 
+              className="w-full font-pixel text-xs" 
+              variant="outline"
+              disabled
+              style={{ borderColor: `hsl(var(--${model.color}) / 0.3)` }}
+            >
+              {t('copy_trade')} - {t('coming_soon')}
+            </Button>
           </div>
         </div>
       </div>
