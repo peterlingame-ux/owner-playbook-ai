@@ -195,11 +195,13 @@ const ModelCard = ({ model }: ModelCardProps) => {
           
           {/* Copy Trade Button */}
           <div className="pt-2 border-t border-border/50">
-            <Button
+            <Button 
               onClick={handleCopyTrade}
-              className="w-full relative overflow-hidden group/btn bg-gradient-to-r from-success/20 to-success/10 hover:from-success/30 hover:to-success/20 border-2 border-success/40 text-success font-bold hover:scale-105 transition-transform"
+              className="w-full relative overflow-hidden group/btn border-2 font-bold hover:scale-105 transition-transform"
               style={{
-                borderColor: `hsl(var(--${model.color}) / 0.4)`,
+                background: `linear-gradient(to right, ${colorTint.color}20, ${colorTint.color}10)`,
+                borderColor: `${colorTint.color}`,
+                color: colorTint.color,
               }}
             >
               {/* Football field pattern overlay */}
