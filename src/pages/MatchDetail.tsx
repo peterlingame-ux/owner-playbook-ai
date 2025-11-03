@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { upcomingMatches, matchOwnersData } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
 import footballFieldBg from "@/assets/football-field-bg.jpg";
+import grassTexture from "@/assets/grass-texture.jpg";
 
 // AI Model Icons
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -97,7 +98,7 @@ const MatchDetail = () => {
     const loading = isHome ? loadingHome : loadingAway;
     
     return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-card/90 backdrop-blur-sm border-border/50">
       <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
         <CardTitle className="flex items-center justify-between">
           <span>{team} {t('owner')}</span>
@@ -385,52 +386,36 @@ const MatchDetail = () => {
 };
   
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back_to_matches')}
-          </Button>
-          
-          <div className="text-center mb-6">
-            <Badge className="mb-3">{match.league}</Badge>
-            
-            {/* Team Logos */}
-            <div className="flex items-center justify-center gap-6 mb-4">
-              {match.homeLogo && (
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-muted/50 flex items-center justify-center">
-                  <img 
-                    src={match.homeLogo} 
-                    alt={match.homeTeam}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <span className="text-2xl font-bold text-muted-foreground">VS</span>
-              {match.awayLogo && (
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-muted/50 flex items-center justify-center">
-                  <img 
-                    src={match.awayLogo} 
-                    alt={match.awayTeam}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-            
-            <p className="text-muted-foreground">
-              {match.date} {t('at')} {match.time}
-            </p>
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url(${grassTexture})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black/50" />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header with Back Button */}
+        <div className="border-b border-border/30 bg-card/80 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/")}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {t('back_to_matches')}
+            </Button>
           </div>
+        </div>
 
-          {/* Live Score Display */}
-          {match.status === 'live' && match.homeScore !== undefined && match.awayScore !== undefined && (
+        {/* Live Score Display */}
+        {match.status === 'live' && match.homeScore !== undefined && match.awayScore !== undefined && (
+          <div className="container mx-auto px-4 py-8">
             <div 
               className="relative rounded-lg p-8 mb-6 overflow-hidden"
               style={{
@@ -442,6 +427,10 @@ const MatchDetail = () => {
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
               
               <div className="relative z-10">
+                <div className="text-center mb-4">
+                  <Badge className="mb-3">{match.league}</Badge>
+                </div>
+                
                 {/* Match Time */}
                 {match.currentMinute && (
                   <div className="text-center mb-4">
@@ -469,22 +458,27 @@ const MatchDetail = () => {
                     <div className="text-4xl font-bold text-white drop-shadow-lg">{match.awayTeam}</div>
                   </div>
                 </div>
+                
+                <div className="text-center mt-4">
+                  <p className="text-white/80 text-sm">
+                    {match.date} {t('at')} {match.time}
+                  </p>
+                </div>
               </div>
             </div>
-          )}
 
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
-            <p className="text-sm font-medium text-primary">
-              {t('owner_analysis_warning')}
-            </p>
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center backdrop-blur-sm">
+              <p className="text-sm font-medium text-primary">
+                {t('owner_analysis_warning')}
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
       
       {/* Betting Odds Table */}
       {match.bettingOdds && match.bettingOdds.length > 0 && (
         <div className="container mx-auto px-4 py-8">
-          <Card>
+          <Card className="bg-card/90 backdrop-blur-sm border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
@@ -560,7 +554,7 @@ const MatchDetail = () => {
                     const drawProb = analysis.prediction.outcome === 'draw' ? probability : 100 - homeWinProb - awayWinProb;
                     
                     return (
-                      <Card key={analysis.id} className="text-center hover:shadow-lg transition-shadow">
+                      <Card key={analysis.id} className="text-center hover:shadow-lg transition-shadow bg-card/90 backdrop-blur-sm border-border/50">
                         <CardContent className="pt-6 pb-4">
                           <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-muted/50 flex items-center justify-center">
                             <img 
@@ -606,6 +600,7 @@ const MatchDetail = () => {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );
