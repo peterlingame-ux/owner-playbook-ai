@@ -14,6 +14,7 @@ const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  // Updated with tagline
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
