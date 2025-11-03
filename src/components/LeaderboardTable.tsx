@@ -138,32 +138,32 @@ const LeaderboardTable = () => {
                     </TableCell>
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data text-muted-foreground">
-                        {model.totalPredictions}
+                        {model.locked ? '?' : model.totalPredictions}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data font-semibold text-base text-foreground/80">
-                        {model.correctPredictions}
+                        {model.locked ? '?' : model.correctPredictions}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data font-semibold text-base text-foreground/60">
-                        {model.wrongPredictions}
+                        {model.locked ? '?' : model.wrongPredictions}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
                       <span className={`font-mono-data font-semibold text-base ${model.currentStreak > 0 ? 'text-foreground/80' : model.currentStreak < 0 ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-                        {model.currentStreak > 0 ? '+' : ''}{model.currentStreak}
+                        {model.locked ? '?' : (model.currentStreak > 0 ? '+' : '') + model.currentStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data text-foreground/70">
-                        +{model.bestStreak}
+                        {model.locked ? '?' : '+' + model.bestStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data text-foreground/80">
-                        {model.avgConfidence}%
+                        {model.locked ? '?' : model.avgConfidence + '%'}
                       </span>
                     </TableCell>
                   </TableRow>
