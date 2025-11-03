@@ -33,7 +33,7 @@ const ActivePredictions = () => {
   if (loading) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p>加载中...</p>
+        <p>{t('loading')}</p>
       </div>
     );
   }
@@ -45,12 +45,12 @@ const ActivePredictions = () => {
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6">
             <Lock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-bold mb-2">需要登录</h3>
+            <h3 className="text-xl font-bold mb-2">{t('login_required')}</h3>
             <p className="text-muted-foreground mb-6">
-              登录后即可查看AI的预测分析结果
+              {t('login_prompt')}
             </p>
             <Button onClick={() => navigate("/auth")}>
-              立即登录
+              {t('login_now')}
             </Button>
           </CardContent>
         </Card>
@@ -97,7 +97,7 @@ const ActivePredictions = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-2xl mb-2">
-                      {match.homeTeam} vs {match.awayTeam}
+                      {match.homeTeam} {t('vs_text')} {match.awayTeam}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       {match.date} {t('at')} {match.time} • {match.league}

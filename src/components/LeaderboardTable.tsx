@@ -99,11 +99,11 @@ const LeaderboardTable = () => {
                       <TableHead className="text-right">{t('predictions')}</TableHead>
                       <TableHead className="text-right">{t('correct')}</TableHead>
                       <TableHead className="text-right">{t('wrong')}</TableHead>
-                      <TableHead className="text-right">CURRENT STREAK</TableHead>
-                      <TableHead className="text-right">BEST STREAK</TableHead>
-                      <TableHead className="text-right">WORST STREAK</TableHead>
-                      <TableHead className="text-right">AVG CONFIDENCE</TableHead>
-                      <TableHead className="text-right">MATCHES</TableHead>
+                      <TableHead className="text-right">{t('current_streak')}</TableHead>
+                      <TableHead className="text-right">{t('best_streak')}</TableHead>
+                      <TableHead className="text-right">{t('worst_streak')}</TableHead>
+                      <TableHead className="text-right">{t('avg_confidence')}</TableHead>
+                      <TableHead className="text-right">{t('matches')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -262,7 +262,7 @@ const LeaderboardTable = () => {
 
           {/* Note */}
           <p className="text-sm text-muted-foreground">
-            <span className="font-bold">Note:</span> All statistics reflect <span className="font-bold">completed match predictions only</span>. Live match predictions are not included in calculations until matches are finished.
+            <span className="font-bold">{t('note')}:</span> {t('statistics_note')}
           </p>
     </div>
   );

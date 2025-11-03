@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const passwordSchema = z.string().min(6, "Password must be at least 6 characters
 const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "Please enter a valid phone number");
 
 const Auth = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -41,7 +43,7 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "Validation Failed",
+          title: t('validation_failed'),
           description: error.errors[0].message,
           variant: "destructive",
         });
@@ -57,7 +59,7 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "Validation Failed",
+          title: t('validation_failed'),
           description: error.errors[0].message,
           variant: "destructive",
         });
@@ -87,16 +89,16 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Sign Up Failed",
+        title: t('sign_up_failed'),
         description: error.message === "User already registered" 
-          ? "This email is already registered" 
+          ? t('email_registered') 
           : error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Sign Up Successful!",
-        description: "Please check your email for verification",
+        title: t('sign_up_success'),
+        description: t('check_email'),
       });
     }
   };
@@ -116,14 +118,14 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Failed to Send Code",
+        title: t('send_code_failed'),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Verification Code Sent",
-        description: "Please check your SMS",
+        title: t('code_sent'),
+        description: t('check_sms'),
       });
     }
   };
@@ -142,7 +144,7 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Google Sign In Failed",
+        title: t('google_signin_failed'),
         description: error.message,
         variant: "destructive",
       });
@@ -165,18 +167,18 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Sign In Failed",
+        title: t('signin_failed'),
         description: error.message === "Invalid login credentials" 
-          ? "Invalid email or password" 
+          ? t('invalid_credentials') 
           : error.message === "Email not confirmed"
-          ? "Please verify your email first"
+          ? t('email_not_confirmed')
           : error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Sign In Successful!",
-        description: "Welcome back",
+        title: t('signin_success'),
+        description: t('welcome_back'),
       });
       navigate("/");
     }
@@ -204,27 +206,27 @@ const Auth = () => {
         className="absolute top-8 left-8 text-white hover:text-primary transition-colors z-10 font-pixel text-xs"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        BACK HOME
+        {t('back_home')}
       </Button>
 
       {/* Main card */}
       <Card className="w-full max-w-md relative z-10 bg-card/95 backdrop-blur-md border-primary/20 shadow-2xl animate-fade-in">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in font-pixel">
-            BOOSPORT ARENA
+            {t('arena_title')}
           </CardTitle>
           <CardDescription className="text-base font-pixel text-xs">
-            LOGIN OR SIGN UP TO VIEW AI ANALYSIS
+            {t('login_subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent className="animate-fade-in delay-75">
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-muted/50">
               <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-pixel text-xs">
-                LOGIN
+                {t('login')}
               </TabsTrigger>
               <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-pixel text-xs">
-                SIGN UP
+                {t('sign_up')}
               </TabsTrigger>
             </TabsList>
             
@@ -238,7 +240,7 @@ const Auth = () => {
                 disabled={loading}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                SIGN IN WITH GOOGLE
+                {t('sign_in_google')}
               </Button>
 
               <div className="relative">
@@ -246,14 +248,14 @@ const Auth = () => {
                   <span className="w-full border-t border-primary/20" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground font-pixel">OR USE EMAIL</span>
+                  <span className="bg-card px-2 text-muted-foreground font-pixel">{t('or_use_email')}</span>
                 </div>
               </div>
 
               {/* Email Login */}
               <form onSubmit={handleEmailSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email" className="font-pixel text-xs">EMAIL</Label>
+                  <Label htmlFor="login-email" className="font-pixel text-xs">{t('email')}</Label>
                   <Input
                     id="login-email"
                     type="email"
@@ -266,7 +268,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password" className="font-pixel text-xs">PASSWORD</Label>
+                  <Label htmlFor="login-password" className="font-pixel text-xs">{t('password')}</Label>
                   <Input
                     id="login-password"
                     type="password"
@@ -283,7 +285,7 @@ const Auth = () => {
                   className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
                   disabled={loading}
                 >
-                  {loading ? "SIGNING IN..." : "SIGN IN"}
+                  {loading ? t('signing_in') : t('sign_in')}
                 </Button>
               </form>
             </TabsContent>

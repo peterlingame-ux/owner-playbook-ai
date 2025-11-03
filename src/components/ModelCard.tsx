@@ -187,7 +187,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
           
           <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-            <span className="text-xs text-muted-foreground">Value:</span>
+            <span className="text-xs text-muted-foreground">{t('value')}:</span>
             <span className="text-sm font-bold font-mono-data">{model.currentValue}</span>
             <span className={`text-xs font-medium flex items-center gap-1 ml-auto ${isPositive ? 'text-success' : 'text-destructive'}`}>
               {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}

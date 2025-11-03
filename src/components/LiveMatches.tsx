@@ -17,10 +17,10 @@ const LiveMatches = () => {
   
   const getMatchPeriodText = (period?: string) => {
     switch(period) {
-      case "first_half": return "FIRST HALF";
-      case "half_time": return "HALF TIME";
-      case "second_half": return "SECOND HALF";
-      case "full_time": return "FULL TIME";
+      case "first_half": return t('first_half');
+      case "half_time": return t('half_time');
+      case "second_half": return t('second_half');
+      case "full_time": return t('full_time');
       default: return "";
     }
   };
@@ -58,15 +58,15 @@ const LiveMatches = () => {
   const getWeatherText = (weather?: string) => {
     switch(weather) {
       case "sunny":
-        return "SUNNY";
+        return t('sunny');
       case "rainy":
-        return "RAINY";
+        return t('rainy');
       case "cloudy":
-        return "CLOUDY";
+        return t('cloudy');
       case "snowy":
-        return "SNOWY";
+        return t('snowy');
       default:
-        return "SUNNY";
+        return t('sunny');
     }
   };
   
@@ -128,7 +128,7 @@ const LiveMatches = () => {
                         </div>
                       </div>
                       <Badge variant="secondary" className="text-xs">
-                        UPCOMING
+                        {t('upcoming_match')}
                       </Badge>
                     </>
                   ) : (
@@ -176,7 +176,7 @@ const LiveMatches = () => {
                 </div>
                 
                 {match.status === "upcoming" ? (
-                  <div className="px-4 text-muted-foreground font-bold">VS</div>
+                  <div className="px-4 text-muted-foreground font-bold">{t('vs')}</div>
                 ) : (
                   <div className="px-4 flex items-center gap-3">
                     <span className="text-2xl font-bold font-mono-data text-primary">{match.homeScore}</span>
@@ -205,7 +205,7 @@ const LiveMatches = () => {
                       <div className="w-3 h-4 bg-yellow-400 rounded-sm" />
                       <span className="font-mono-data font-bold">{match.homeYellowCards || 0}</span>
                     </div>
-                    <span className="text-muted-foreground">YELLOW</span>
+                    <span className="text-muted-foreground">{t('yellow')}</span>
                     <div className="flex items-center gap-1">
                       <span className="font-mono-data font-bold">{match.awayYellowCards || 0}</span>
                       <div className="w-3 h-4 bg-yellow-400 rounded-sm" />
@@ -218,7 +218,7 @@ const LiveMatches = () => {
                       <div className="w-3 h-4 bg-red-500 rounded-sm" />
                       <span className="font-mono-data font-bold">{match.homeRedCards || 0}</span>
                     </div>
-                    <span className="text-muted-foreground">RED</span>
+                    <span className="text-muted-foreground">{t('red')}</span>
                     <div className="flex items-center gap-1">
                       <span className="font-mono-data font-bold">{match.awayRedCards || 0}</span>
                       <div className="w-3 h-4 bg-red-500 rounded-sm" />
@@ -230,7 +230,7 @@ const LiveMatches = () => {
                     <div className="flex items-center gap-1">
                       <span className="font-mono-data font-bold">{match.homeCorners || 0}</span>
                     </div>
-                    <span className="text-muted-foreground">CORNER</span>
+                    <span className="text-muted-foreground">{t('corner')}</span>
                     <div className="flex items-center gap-1">
                       <span className="font-mono-data font-bold">{match.awayCorners || 0}</span>
                     </div>

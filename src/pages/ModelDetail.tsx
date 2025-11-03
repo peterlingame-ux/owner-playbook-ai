@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,7 @@ import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
 import authBg from "@/assets/auth-football-bg.jpg";
 
 const ModelDetail = () => {
+  const { t } = useTranslation();
   const { modelId } = useParams<{ modelId: string }>();
   const navigate = useNavigate();
   
@@ -17,9 +19,9 @@ const ModelDetail = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground">Model not found</p>
+          <p className="text-muted-foreground">{t('model_not_found')}</p>
           <Button onClick={() => navigate("/")} className="mt-4">
-            Go Back
+            {t('go_back')}
           </Button>
         </div>
       </div>
@@ -28,9 +30,9 @@ const ModelDetail = () => {
   
   const getPredictionLabel = (prediction: string) => {
     switch(prediction) {
-      case "HOME_WIN": return "Home Win";
-      case "AWAY_WIN": return "Away Win";
-      case "DRAW": return "Draw";
+      case "HOME_WIN": return t('home_win_label');
+      case "AWAY_WIN": return t('away_win_label');
+      case "DRAW": return t('draw_label');
       default: return prediction;
     }
   };
@@ -55,7 +57,7 @@ const ModelDetail = () => {
               className="mb-4 hover:text-primary transition-colors"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Models
+              {t('back_to_models')}
             </Button>
             
             <div className="flex items-center gap-4">
@@ -79,7 +81,7 @@ const ModelDetail = () => {
                   {model.displayName}
                 </h1>
                 <p className="text-muted-foreground animate-fade-in delay-75">
-                  {model.totalPredictions} predictions · {model.winRate.toFixed(1)}% win rate
+                  {model.totalPredictions} {t('predictions')} · {model.winRate.toFixed(1)}% {t('win_rate')}
                 </p>
               </div>
             </div>
@@ -120,7 +122,7 @@ const ModelDetail = () => {
         
         {/* Prediction History */}
         <div>
-          <h2 className="text-2xl font-bold mb-6 animate-fade-in">Prediction History</h2>
+          <h2 className="text-2xl font-bold mb-6 animate-fade-in">{t('prediction_history')}</h2>
           <div className="space-y-4">
             {modelPredictions.map((prediction, index) => {
               const match = pastMatches.find(m => m.id === prediction.matchId);
@@ -139,12 +141,12 @@ const ModelDetail = () => {
                           {prediction.correct ? (
                             <>
                               <CheckCircle2 className="h-3 w-3" />
-                              Correct
+                              {t('correct')}
                             </>
                           ) : (
                             <>
                               <XCircle className="h-3 w-3" />
-                              Wrong
+                              {t('wrong')}
                             </>
                           )}
                         </Badge>
@@ -152,7 +154,7 @@ const ModelDetail = () => {
                       </div>
                       
                       <h3 className="text-lg font-bold mb-1">
-                        {match.homeTeam} vs {match.awayTeam}
+                        {match.homeTeam} {t('vs_text')} {match.awayTeam}
                       </h3>
                       
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -164,7 +166,7 @@ const ModelDetail = () => {
                     <div className="text-right">
                       <div className="flex items-center gap-2 justify-end mb-2">
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Confidence</span>
+                        <span className="text-sm text-muted-foreground">{t('confidence')}</span>
                         <span className="font-bold font-mono-data">{prediction.confidence}%</span>
                       </div>
                     </div>
@@ -172,7 +174,7 @@ const ModelDetail = () => {
                   
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">AI Prediction</p>
+                      <p className="text-xs text-muted-foreground mb-1">{t('ai_prediction')}</p>
                       <p 
                         className="font-bold"
                         style={{ color: `hsl(var(--${model.color}))` }}
@@ -182,7 +184,7 @@ const ModelDetail = () => {
                     </div>
                     
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Actual Result</p>
+                      <p className="text-xs text-muted-foreground mb-1">{t('actual_result')}</p>
                       <p className={`font-bold ${prediction.correct ? 'text-success' : 'text-destructive'}`}>
                         {getPredictionLabel(prediction.actualResult)}
                       </p>

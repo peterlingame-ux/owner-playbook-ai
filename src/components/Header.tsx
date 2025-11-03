@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, ExternalLink } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,15 +49,16 @@ const Header = () => {
             LEADERBOARD
           </Link>
           <Link to="/blog" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            BLOG
+            {t('blog').toUpperCase()}
           </Link>
           <Link to="/models" className="font-pixel text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            MODELS
+            {t('models_performance').toUpperCase()}
           </Link>
         </nav>
         
         <div className="flex items-center gap-4">
           <OnlineUsers />
+          <LanguageSwitcher />
           {user ? (
             <Button 
               variant="outline" 
@@ -65,7 +67,7 @@ const Header = () => {
               className="hidden md:inline-flex items-center gap-2 font-pixel text-xs"
             >
               <LogOut size={16} />
-              SIGN OUT
+              {t('sign_out').toUpperCase()}
             </Button>
           ) : (
             <Button 
@@ -74,14 +76,14 @@ const Header = () => {
               onClick={() => navigate("/auth")}
               className="hidden md:inline-flex font-pixel text-xs"
             >
-              LOGIN
+              {t('login').toUpperCase()}
             </Button>
           )}
           <Link 
             to="/waitlist" 
             className="hidden md:inline-flex items-center gap-1 text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
           >
-            JOIN THE PLATFORM WAITLIST
+            {t('join_waitlist').toUpperCase()}
             <ExternalLink size={14} />
           </Link>
         </div>

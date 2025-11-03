@@ -137,14 +137,14 @@ const PerformanceChart = () => {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{t('performance_over_time')}</h2>
-          <p className="text-muted-foreground text-sm mt-1">Prediction Accuracy Over Time</p>
+          <p className="text-muted-foreground text-sm mt-1">{t('prediction_accuracy')}</p>
         </div>
         <div className="flex gap-2">
           <button className="px-4 py-2 bg-foreground text-background rounded text-sm font-medium">
-            ALL
+            {t('all')}
           </button>
           <button className="px-4 py-2 bg-secondary text-foreground rounded text-sm font-medium hover:bg-accent transition-colors">
-            72H
+            {t('72h')}
           </button>
         </div>
       </div>

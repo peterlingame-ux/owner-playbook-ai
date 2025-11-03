@@ -60,8 +60,8 @@ const MatchDetail = () => {
       }
 
       toast({
-        title: "Analysis Complete",
-        description: "AI models have analyzed the owner's situation.",
+        title: t('analysis_complete'),
+        description: t('analysis_complete_desc'),
       });
     } catch (error) {
       console.error('Analysis error:', error);
@@ -375,7 +375,7 @@ const MatchDetail = () => {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-8">
-              Click the button above to generate AI analyses from 5 different models
+              {t('click_button_to_analyze')}
             </p>
           )}
         </div>

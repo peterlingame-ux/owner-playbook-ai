@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import ModelCard from "@/components/ModelCard";
 import { aiModels } from "@/data/mockData";
 
 const Models = () => {
+  const { t } = useTranslation();
   // Sort models by win rate
   const sortedModels = [...aiModels].sort((a, b) => b.winRate - a.winRate);
 
@@ -13,9 +14,9 @@ const Models = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-foreground">AI Models Performance</h1>
+          <h1 className="text-4xl font-bold mb-2 text-foreground">{t('models_performance')}</h1>
           <p className="text-muted-foreground">
-            Compare the performance of different AI models in sports predictions
+            {t('compare_performance')}
           </p>
         </div>
 
