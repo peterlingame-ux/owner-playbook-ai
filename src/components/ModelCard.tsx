@@ -150,6 +150,15 @@ const ModelCard = ({ model }: ModelCardProps) => {
               </p>
             </div>
           </div>
+          
+          {/* Money Change Badge */}
+          <div className={`px-3 py-1.5 rounded-full font-mono-data font-bold text-sm ${
+            model.winRate >= 60 ? 'bg-success/20 text-success' : 
+            model.winRate >= 50 ? 'bg-warning/20 text-warning' : 
+            'bg-destructive/20 text-destructive'
+          }`}>
+            {model.winRate >= 50 ? '+' : ''}{((model.winRate - 50) * 100).toFixed(0)}$
+          </div>
         </div>
         
         <div className="space-y-4">
