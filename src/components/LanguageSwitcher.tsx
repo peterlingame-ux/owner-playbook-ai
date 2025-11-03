@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Globe } from "lucide-react";
 import { useEffect } from "react";
-import flagUsa from "@/assets/flag-usa.png";
-import flagChina from "@/assets/flag-china.png";
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -28,11 +27,7 @@ const LanguageSwitcher = () => {
       onClick={toggleLanguage}
       className="gap-2 font-pixel text-xs"
     >
-      <img 
-        src={i18n.language === 'en' ? flagUsa : flagChina} 
-        alt={i18n.language === 'en' ? 'English' : 'Chinese'} 
-        className="h-4 w-6 object-cover rounded-sm"
-      />
+      <Globe className="h-4 w-4" />
       {i18n.language === 'en' ? '中文' : 'EN'}
     </Button>
   );
