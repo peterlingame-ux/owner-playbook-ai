@@ -36,9 +36,14 @@ const Header = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <h1 className="font-pixel text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
-            BOOSPORT ARENA
-          </h1>
+          <div className="flex flex-col">
+            <h1 className="font-pixel text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
+              BOOSPORT ARENA
+            </h1>
+            <p className="text-[8px] sm:text-[10px] text-muted-foreground tracking-wide">
+              5AI综合专业分析，提高胜率
+            </p>
+          </div>
         </Link>
         
         <nav className="flex items-center gap-3 sm:gap-6 md:gap-8">
