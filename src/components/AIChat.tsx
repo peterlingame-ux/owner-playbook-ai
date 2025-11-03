@@ -25,7 +25,7 @@ const AIChat = () => {
     setTimeout(() => {
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "I can help you analyze team owner data, compare AI predictions, and provide insights on upcoming matches. What would you like to know?"
+        content: t('chat_ai_response')
       }]);
     }, 1000);
   };
@@ -37,7 +37,7 @@ const AIChat = () => {
           <Bot className="text-primary" size={24} />
           <h2 className="text-xl font-bold">{t('ai_assistant')}</h2>
         </div>
-        <p className="text-xs text-muted-foreground ml-8">5AI综合专业分析，大幅度提高胜率</p>
+        <p className="text-xs text-muted-foreground ml-8">{t('ai_assistant_subtitle')}</p>
       </div>
       
       <div className="h-[200px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg">
