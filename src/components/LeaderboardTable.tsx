@@ -83,73 +83,100 @@ const LeaderboardTable = () => {
   return (
     <div className="space-y-6">
       {/* Leaderboard Table */}
-      <Card>
-        <CardContent className="p-6">
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-16">{t('rank')}</TableHead>
-                      <TableHead>{t('model')}</TableHead>
-                      <TableHead className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {t('win_rate')} <ArrowDown className="h-3 w-3" />
+              <TableHeader>
+                <TableRow className="border-border/50 hover:bg-transparent">
+                  <TableHead className="w-16 py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('rank')}</TableHead>
+                  <TableHead className="py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('model')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">
+                    <div className="flex items-center justify-end gap-1">
+                      {t('win_rate')} <ArrowDown className="h-3 w-3" />
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('predictions')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('correct')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('current_streak')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('avg_confidence')}</TableHead>
+                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('matches')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {enhancedModels.map((model, index) => (
+                  <TableRow 
+                    key={model.id}
+                    className="border-border/30 hover:bg-accent/30 transition-colors group"
+                  >
+                    <TableCell className="py-5">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/50 font-bold text-sm group-hover:bg-muted transition-colors">
+                        {index + 1}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-background/50 p-1.5 flex items-center justify-center border border-border/50">
+                          <img src={getModelIcon(model.id)} alt={model.name} className="w-full h-full object-contain" />
                         </div>
-                      </TableHead>
-                      <TableHead className="text-right">{t('predictions')}</TableHead>
-                      <TableHead className="text-right">{t('correct')}</TableHead>
-                      <TableHead className="text-right">{t('wrong')}</TableHead>
-                      <TableHead className="text-right">{t('current_streak')}</TableHead>
-                      <TableHead className="text-right">{t('best_streak')}</TableHead>
-                      <TableHead className="text-right">{t('worst_streak')}</TableHead>
-                      <TableHead className="text-right">{t('avg_confidence')}</TableHead>
-                      <TableHead className="text-right">{t('matches')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {enhancedModels.map((model, index) => (
-                      <TableRow key={model.id}>
-                        <TableCell className="font-bold">{index + 1}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <img src={getModelIcon(model.id)} alt={model.name} className="h-5 w-5" />
-                            <span className="font-medium">{model.displayName}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data font-bold text-primary">
-                          {model.winRate.toFixed(1)}%
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data">
-                          {model.totalPredictions}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data text-success font-bold">
-                          {model.correctPredictions}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data text-destructive font-bold">
-                          {model.wrongPredictions}
-                        </TableCell>
-                        <TableCell className={`text-right font-mono-data font-bold ${model.currentStreak > 0 ? 'text-success' : model.currentStreak < 0 ? 'text-destructive' : ''}`}>
-                          {model.currentStreak > 0 ? '+' : ''}{model.currentStreak}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data text-success">
-                          +{model.bestStreak}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data text-destructive">
-                          {model.worstStreak}
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data">
-                          {model.avgConfidence}%
-                        </TableCell>
-                        <TableCell className="text-right font-mono-data text-muted-foreground">
-                          {model.totalPredictions}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                        <span className="font-semibold text-base">{model.displayName}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data font-bold text-lg" style={{ color: `hsl(var(--${model.color}))` }}>
+                        {model.winRate.toFixed(1)}%
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-muted-foreground">
+                        {model.totalPredictions}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-success font-semibold text-base">
+                        {model.correctPredictions}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-destructive font-semibold text-base">
+                        {model.wrongPredictions}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className={`font-mono-data font-semibold text-base ${model.currentStreak > 0 ? 'text-success' : model.currentStreak < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        {model.currentStreak > 0 ? '+' : ''}{model.currentStreak}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-success/80">
+                        +{model.bestStreak}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-destructive/80">
+                        {model.worstStreak}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-foreground">
+                        {model.avgConfidence}%
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right py-5">
+                      <span className="font-mono-data text-muted-foreground">
+                        {model.totalPredictions}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
           {/* Bottom Section: Winning Model + Bar Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
