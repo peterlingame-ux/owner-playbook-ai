@@ -72,19 +72,19 @@ const LeaderboardTable = () => {
   const getColorTint = (modelId: string) => {
     switch(modelId) {
       case 'deepseek':
-        return 'from-blue-600/80 to-blue-900/80';
+        return 'from-[hsl(217,91%,65%)]/80 to-[hsl(217,91%,45%)]/80';
       case 'gpt5':
-        return 'from-red-600/80 to-red-900/80';
+        return 'from-[hsl(0,0%,35%)]/80 to-[hsl(0,0%,20%)]/80';
       case 'claude':
-        return 'from-orange-600/80 to-orange-900/80';
+        return 'from-[hsl(14,92%,68%)]/80 to-[hsl(14,92%,50%)]/80';
       case 'gemini':
-        return 'from-purple-600/80 to-purple-900/80';
+        return 'from-[hsl(250,75%,68%)]/80 to-[hsl(250,75%,50%)]/80';
       case 'grok':
-        return 'from-green-600/80 to-green-900/80';
+        return 'from-[hsl(158,68%,60%)]/80 to-[hsl(158,68%,45%)]/80';
       case 'mystery':
-        return 'from-yellow-600/80 to-yellow-900/80';
+        return 'from-[hsl(45,100%,55%)]/80 to-[hsl(45,100%,45%)]/80';
       default:
-        return 'from-blue-600/80 to-blue-900/80';
+        return 'from-[hsl(217,91%,65%)]/80 to-[hsl(217,91%,45%)]/80';
     }
   };
 
