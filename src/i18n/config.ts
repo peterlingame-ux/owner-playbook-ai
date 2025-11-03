@@ -209,7 +209,9 @@ const resources = {
       "signin_success": "Sign In Successful!",
       "welcome_back": "Welcome back",
       "copy_trade": "Copy Trade",
-      "coming_soon": "Coming Soon"
+      "coming_soon": "Coming Soon",
+      "copy_trade_unavailable": "Copy Trade Feature Not Yet Available",
+      "copy_trade_unavailable_desc": "The one-click copy trade feature is coming soon. Stay tuned for updates!"
     }
   },
   zh: {
@@ -419,7 +421,9 @@ const resources = {
       "signin_success": "登录成功！",
       "welcome_back": "欢迎回来",
       "copy_trade": "一键跟单",
-      "coming_soon": "即将开放"
+      "coming_soon": "即将开放",
+      "copy_trade_unavailable": "一键跟单功能暂未开放",
+      "copy_trade_unavailable_desc": "一键跟单功能即将上线，敬请期待！"
     }
   }
 };

@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, TrendingUp, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
 import authBg from "@/assets/auth-football-bg.jpg";
 
@@ -86,6 +87,19 @@ const ModelDetail = () => {
               </div>
             </div>
           </div>
+        </div>
+        
+        {/* Coming Soon Alert */}
+        <div className="container mx-auto px-4 py-6">
+          <Alert className="bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/50 animate-fade-in backdrop-blur-md">
+            <Info className="h-5 w-5 text-primary animate-pulse" />
+            <AlertTitle className="text-primary font-bold text-lg">
+              {t('copy_trade_unavailable')}
+            </AlertTitle>
+            <AlertDescription className="text-foreground/90">
+              {t('copy_trade_unavailable_desc')}
+            </AlertDescription>
+          </Alert>
         </div>
         
         {/* Stats Section */}
