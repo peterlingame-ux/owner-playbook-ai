@@ -1,7 +1,8 @@
 import { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useLoader } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
+import earthTexture from '@/assets/earth-texture.jpg';
 
 interface ViewerDot {
   position: [number, number, number];
@@ -11,6 +12,9 @@ interface ViewerDot {
 const Globe3D = () => {
   const globeRef = useRef<THREE.Mesh>(null);
   const dotsGroupRef = useRef<THREE.Group>(null);
+  
+  // Load earth texture
+  const texture = useLoader(THREE.TextureLoader, earthTexture);
 
   // Generate random viewer locations on sphere surface
   const viewerDots = useMemo(() => {
@@ -54,23 +58,12 @@ const Globe3D = () => {
 
   return (
     <>
-      {/* Globe - Ocean base */}
+      {/* Globe with real earth texture */}
       <Sphere ref={globeRef} args={[2, 64, 64]}>
         <meshStandardMaterial
-          color="#1e40af"
+          map={texture}
           metalness={0.1}
-          roughness={0.7}
-        />
-      </Sphere>
-      
-      {/* Land masses - simplified as another sphere with lower opacity */}
-      <Sphere args={[2.01, 64, 64]}>
-        <meshStandardMaterial
-          color="#22c55e"
-          transparent
-          opacity={0.4}
-          metalness={0.0}
-          roughness={0.9}
+          roughness={0.8}
         />
       </Sphere>
 
