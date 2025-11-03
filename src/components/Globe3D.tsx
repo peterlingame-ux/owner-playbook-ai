@@ -54,14 +54,23 @@ const Globe3D = () => {
 
   return (
     <>
-      {/* Globe */}
+      {/* Globe - Ocean base */}
       <Sphere ref={globeRef} args={[2, 64, 64]}>
         <meshStandardMaterial
-          color="#1a1a2e"
-          wireframe={true}
-          wireframeLinewidth={1}
-          emissive="#0f3460"
-          emissiveIntensity={0.2}
+          color="#1e40af"
+          metalness={0.1}
+          roughness={0.7}
+        />
+      </Sphere>
+      
+      {/* Land masses - simplified as another sphere with lower opacity */}
+      <Sphere args={[2.01, 64, 64]}>
+        <meshStandardMaterial
+          color="#22c55e"
+          transparent
+          opacity={0.4}
+          metalness={0.0}
+          roughness={0.9}
         />
       </Sphere>
 
