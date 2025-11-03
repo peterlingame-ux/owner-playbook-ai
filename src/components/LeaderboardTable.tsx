@@ -103,7 +103,6 @@ const LeaderboardTable = () => {
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
                   <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('avg_confidence')}</TableHead>
-                  <TableHead className="text-right py-4 text-muted-foreground font-semibold text-xs tracking-wider uppercase">{t('matches')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -163,11 +162,6 @@ const LeaderboardTable = () => {
                     <TableCell className="text-right py-5">
                       <span className="font-mono-data text-foreground">
                         {model.avgConfidence}%
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right py-5">
-                      <span className="font-mono-data text-muted-foreground">
-                        {model.totalPredictions}
                       </span>
                     </TableCell>
                   </TableRow>
