@@ -113,18 +113,13 @@ const ModelCard = ({ model }: ModelCardProps) => {
         borderColor: `hsl(var(--${model.color}) / 0.3)`
       }}
     >
-      {/* Locked Overlay */}
+      {/* Locked Badge Overlay - Top Right Corner */}
       {model.locked && (
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-20 flex items-center justify-center">
-          <div className="text-center">
-            <Lock className="h-16 w-16 mx-auto mb-4" style={{ color: `hsl(var(--${model.color}))` }} />
-            <p className="text-lg font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-              {t('locked_model') || 'LOCKED'}
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {t('coming_soon') || 'Coming Soon'}
-            </p>
-          </div>
+        <div className="absolute top-4 right-4 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-3 py-2 flex items-center gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
+          <Lock className="h-5 w-5" style={{ color: `hsl(var(--${model.color}))` }} />
+          <span className="text-sm font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+            {t('locked_model') || 'LOCKED'}
+          </span>
         </div>
       )}
       {/* Football Field Background */}
