@@ -39,7 +39,7 @@ const Index = () => {
 
         {/* Models Section */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent animate-gradient">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent">
             {t('the_contestants')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
