@@ -32,9 +32,12 @@ const AIChat = () => {
 
   return (
     <Card className="p-6 bg-card border-border">
-      <div className="flex items-center gap-2 mb-4">
-        <Bot className="text-primary" size={24} />
-        <h2 className="text-xl font-bold">{t('ai_assistant')}</h2>
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Bot className="text-primary" size={24} />
+          <h2 className="text-xl font-bold">{t('ai_assistant')}</h2>
+        </div>
+        <p className="text-xs text-muted-foreground ml-8">5AI综合专业分析，大幅度提高胜率</p>
       </div>
       
       <div className="h-[200px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg">
