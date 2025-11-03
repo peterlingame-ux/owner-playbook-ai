@@ -81,10 +81,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast.info(t('coming_soon'), {
-      description: t('coming_soon'),
-      duration: 2000,
-    });
+    navigate(`/model/${model.id}`);
   };
   
   return (
@@ -200,8 +197,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
           <div className="pt-2 border-t border-border/50">
             <Button
               onClick={handleCopyTrade}
-              disabled
-              className="w-full relative overflow-hidden group/btn bg-gradient-to-r from-success/20 to-success/10 hover:from-success/30 hover:to-success/20 border-2 border-success/40 text-success font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full relative overflow-hidden group/btn bg-gradient-to-r from-success/20 to-success/10 hover:from-success/30 hover:to-success/20 border-2 border-success/40 text-success font-bold hover:scale-105 transition-transform"
               style={{
                 borderColor: `hsl(var(--${model.color}) / 0.4)`,
               }}
@@ -217,9 +213,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
               />
               
               <div className="relative flex items-center justify-center gap-2">
-                <PlayCircle size={18} className="animate-pulse" />
+                <PlayCircle size={18} className="group-hover/btn:animate-pulse" />
                 <span>{t('copy_trade')}</span>
-                <span className="text-xs opacity-70">({t('coming_soon')})</span>
               </div>
               
               {/* Animated shine effect */}
