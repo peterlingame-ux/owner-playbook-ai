@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import MatchCenter from "@/components/MatchCenter";
+import ChatBot from "@/components/ChatBot";
 import FloatingChat from "@/components/FloatingChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
@@ -26,8 +26,10 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             <PerformanceChart />
-            {/* Match Center - Integrated Schedule and Chat */}
-            <MatchCenter />
+            {/* HUNSOCCER ChatBot */}
+            <div className="h-[600px]">
+              <ChatBot />
+            </div>
           </div>
           <div className="lg:col-span-1 space-y-3">
             {/* Models Section */}
