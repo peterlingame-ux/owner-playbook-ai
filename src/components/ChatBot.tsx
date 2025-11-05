@@ -70,10 +70,10 @@ const ChatBot = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col bg-gradient-to-br from-card/95 via-card to-card/90 border-2 border-primary/40 shadow-2xl backdrop-blur-sm relative overflow-hidden">
-      {/* Background Image */}
+    <Card className="h-full flex flex-col relative overflow-hidden border-2 border-primary/40 shadow-2xl bg-card">
+      {/* Football Field Background */}
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `url(${chatbotBg})`,
           backgroundSize: 'cover',
@@ -81,32 +81,56 @@ const ChatBot = () => {
           backgroundRepeat: 'no-repeat'
         }}
       />
-      {/* Gradient Overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/80 to-background/90" />
+      
+      {/* Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-info/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/98 via-background/90 to-background/95" />
+      
+      {/* Diagonal Accent Lines */}
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--primary)) 10px, hsl(var(--primary)) 11px)',
+      }} />
       
       {/* Header */}
-      <div className="relative z-10 p-5 border-b-2 border-primary/30 bg-gradient-to-r from-primary/15 via-primary/10 to-info/10 backdrop-blur-sm">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-xl blur-md animate-pulse" />
-            <div className="relative h-14 w-14 rounded-xl bg-gradient-to-br from-background via-background/95 to-background/90 flex items-center justify-center shadow-2xl ring-4 ring-primary/20 p-1">
-              <img src={robotIcon} alt="HUNSOCCER ROBOT" className="w-full h-full object-contain" />
-              <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-warning animate-pulse" />
+      <div className="relative z-10 p-4 border-b-2 border-primary/30 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            {/* Glow Effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-info to-primary rounded-lg blur-xl opacity-60 group-hover:opacity-80 transition-opacity animate-pulse" style={{ animationDuration: '2s' }} />
+            
+            {/* Icon Container */}
+            <div className="relative h-16 w-16 rounded-lg bg-gradient-to-br from-background via-card to-background border-2 border-primary/40 flex items-center justify-center p-2 shadow-2xl transform transition-transform group-hover:scale-110">
+              <img src={robotIcon} alt="HUNSOCCER ROBOT" className="w-full h-full object-contain filter brightness-110" />
             </div>
+            
+            {/* Corner Accents */}
+            <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-primary rounded-tl" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-info rounded-tr" />
+            <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-info rounded-bl" />
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-primary rounded-br" />
           </div>
+          
           <div className="flex-1">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-primary via-foreground to-info bg-clip-text text-transparent flex items-center gap-2">
-              {t('ai_assistant')}
-              <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5 font-medium">{t('ai_assistant_subtitle')}</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-mono">
+                {t('ai_assistant')}
+              </h2>
+              <div className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-success animate-pulse shadow-lg shadow-success/50" />
+                <span className="text-xs text-success font-bold">ONLINE</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-primary" />
+              {t('ai_assistant_subtitle')}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <ScrollArea className="relative z-10 flex-1 p-6" ref={scrollRef}>
-        <div className="space-y-5">
+      <ScrollArea className="relative z-10 flex-1 p-5" ref={scrollRef}>
+        <div className="space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -115,22 +139,22 @@ const ChatBot = () => {
               }`}
             >
               {message.role === "assistant" && (
-                <div className="relative flex-shrink-0">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-full blur-sm opacity-50" />
-                  <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-primary via-primary/90 to-info flex items-center justify-center ring-2 ring-primary/30">
-                    <Bot className="h-5 w-5 text-primary-foreground" />
+                <div className="relative flex-shrink-0 group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-lg blur-sm opacity-40 group-hover:opacity-60 transition-opacity" />
+                  <div className="relative h-10 w-10 rounded-lg bg-gradient-to-br from-background via-card to-background border-2 border-primary/30 flex items-center justify-center p-1.5 shadow-lg">
+                    <img src={robotIcon} alt="AI" className="w-full h-full object-contain" />
                   </div>
                 </div>
               )}
               <div
-                className={`max-w-[75%] rounded-2xl px-5 py-3.5 shadow-lg transition-all hover:shadow-xl ${
+                className={`max-w-[70%] rounded-xl px-4 py-3 shadow-lg backdrop-blur-sm transition-all hover:shadow-xl ${
                   message.role === "user"
-                    ? "bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground"
-                    : "bg-gradient-to-br from-muted via-muted/95 to-muted/90 border border-border/50"
+                    ? "bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground border-2 border-primary/30"
+                    : "bg-gradient-to-br from-card via-card/95 to-card/90 border-2 border-border/50"
                 }`}
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
-                <p className="text-xs opacity-60 mt-2 font-mono">
+                <p className="text-xs opacity-60 mt-2 font-mono text-right">
                   {message.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -139,8 +163,8 @@ const ChatBot = () => {
               </div>
               {message.role === "user" && (
                 <div className="relative flex-shrink-0">
-                  <div className="absolute inset-0 bg-gradient-to-br from-info to-success rounded-full blur-sm opacity-50" />
-                  <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-info via-info/90 to-success flex items-center justify-center ring-2 ring-info/30">
+                  <div className="absolute inset-0 bg-gradient-to-br from-info to-success rounded-lg blur-sm opacity-40" />
+                  <div className="relative h-10 w-10 rounded-lg bg-gradient-to-br from-info via-info/90 to-success flex items-center justify-center shadow-lg border-2 border-info/30">
                     <User className="h-5 w-5 text-primary-foreground" />
                   </div>
                 </div>
@@ -150,20 +174,20 @@ const ChatBot = () => {
           {isLoading && (
             <div className="flex gap-3 justify-start animate-fade-in">
               <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-full blur-sm opacity-50" />
-                <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-primary via-primary/90 to-info flex items-center justify-center ring-2 ring-primary/30">
-                  <Bot className="h-5 w-5 text-primary-foreground" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-lg blur-sm opacity-40" />
+                <div className="relative h-10 w-10 rounded-lg bg-gradient-to-br from-background via-card to-background border-2 border-primary/30 flex items-center justify-center p-1.5 shadow-lg">
+                  <img src={robotIcon} alt="AI" className="w-full h-full object-contain animate-pulse" />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-muted via-muted/95 to-muted/90 rounded-2xl px-5 py-3.5 shadow-lg border border-border/50">
+              <div className="bg-gradient-to-br from-card via-card/95 to-card/90 rounded-xl px-4 py-3 shadow-lg border-2 border-border/50 backdrop-blur-sm">
                 <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" />
+                  <div className="w-2 h-2 rounded-full bg-primary/70 animate-bounce" />
                   <div
-                    className="w-2 h-2 rounded-full bg-primary/60 animate-bounce"
+                    className="w-2 h-2 rounded-full bg-primary/70 animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   />
                   <div
-                    className="w-2 h-2 rounded-full bg-primary/60 animate-bounce"
+                    className="w-2 h-2 rounded-full bg-primary/70 animate-bounce"
                     style={{ animationDelay: "0.4s" }}
                   />
                 </div>
@@ -174,27 +198,33 @@ const ChatBot = () => {
       </ScrollArea>
 
       {/* Input */}
-      <div className="relative z-10 p-5 border-t-2 border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-info/10 backdrop-blur-sm">
+      <div className="relative z-10 p-4 border-t-2 border-primary/30 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent backdrop-blur-sm">
         <div className="flex gap-3">
-          <div className="flex-1 relative">
+          <div className="flex-1 relative group">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={t('chat_placeholder')}
-              className="w-full bg-background/80 backdrop-blur-sm border-2 border-primary/40 focus:border-primary/60 rounded-xl px-4 py-6 text-base shadow-lg transition-all focus:shadow-xl"
+              className="w-full bg-background/90 backdrop-blur-sm border-2 border-primary/40 focus:border-primary rounded-lg px-4 py-5 text-sm shadow-lg transition-all focus:shadow-xl group-hover:border-primary/60"
               disabled={isLoading}
             />
-            <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/40" />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary/50 group-hover:text-primary transition-colors" />
+            </div>
           </div>
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="bg-gradient-to-r from-primary via-primary/90 to-info hover:from-primary/90 hover:via-primary/80 hover:to-info/90 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all h-auto py-3 hover:scale-105"
+            className="bg-gradient-to-r from-primary via-primary/90 to-info hover:from-primary/90 hover:via-primary/80 hover:to-info/90 rounded-lg px-5 shadow-lg hover:shadow-xl transition-all h-auto py-3 hover:scale-105 border-2 border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="h-5 w-5" />
           </Button>
         </div>
+        
+        {/* Tech Corner Accents */}
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary/30 rounded-bl-lg" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-info/30 rounded-br-lg" />
       </div>
     </Card>
   );
