@@ -12,7 +12,6 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import deepseekCardBg from "@/assets/deepseek-card-bg.png";
 import grokCardBg from "@/assets/grok-card-bg.png";
-import gptCardBg from "@/assets/gpt-card-bg.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -209,20 +208,6 @@ const ActiveAIBets = () => {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center top',
                     backgroundPositionY: '-20px'
-                  }}
-                />
-              )}
-              
-              {/* Background Image for GPT5 */}
-              {aiModel.id === 'gpt5' && (
-                <div 
-                  className="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${gptCardBg})`,
-                    backgroundSize: '150%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    backgroundPositionY: '120px'
                   }}
                 />
               )}
