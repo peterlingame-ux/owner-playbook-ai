@@ -10,6 +10,7 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import deepseekCardBg from "@/assets/deepseek-card-bg.png";
+import grokCardBg from "@/assets/grok-card-bg.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -132,6 +133,19 @@ const ActiveAIBets = () => {
                   className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${deepseekCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px'
+                  }}
+                />
+              )}
+              
+              {/* Background Image for Grok */}
+              {aiModel.id === 'grok' && (
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${grokCardBg})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center top',
                     backgroundPositionY: '-20px'
