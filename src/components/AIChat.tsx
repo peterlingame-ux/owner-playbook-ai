@@ -32,7 +32,7 @@ const AIChat = () => {
   };
 
   return (
-    <Card className="p-6 bg-card border-border relative overflow-hidden min-h-[400px]">
+    <Card className="p-4 bg-card border-border relative overflow-hidden h-full">
       {/* Background Image */}
       <div 
         className="absolute inset-0 z-0 opacity-25"
@@ -52,7 +52,7 @@ const AIChat = () => {
         <p className="text-xs text-muted-foreground ml-8">{t('ai_assistant_subtitle')}</p>
       </div>
       
-      <div className="h-[250px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg relative z-10 backdrop-blur-sm">
+      <div className="h-[300px] overflow-y-auto mb-4 space-y-4 p-4 bg-secondary/30 rounded-lg relative z-10 backdrop-blur-sm">
         {messages.map((msg, index) => (
           <div
             key={index}
