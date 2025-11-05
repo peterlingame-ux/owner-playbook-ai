@@ -189,6 +189,26 @@ const ActiveAIBets = () => {
                 <MatchCountdown match={bet.match} />
               </div>
 
+              {/* Analysis Labels - Top Right */}
+              <div className="absolute top-3 right-3 z-20">
+                <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent backdrop-blur-sm rounded-lg px-3 py-2 border border-primary/30 shadow-lg">
+                  <div className="text-[9px] leading-relaxed font-semibold text-primary space-y-0.5">
+                    <div className="flex items-center gap-1">
+                      <span className="text-warning">●</span>
+                      <span>HUNSOCCER老板视角分析</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-info">●</span>
+                      <span>球队技术面拆解</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-success">●</span>
+                      <span>异常实时赔率监控</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Background Image for DeepSeek */}
               {aiModel.id === 'deepseek' && (
                 <div 
