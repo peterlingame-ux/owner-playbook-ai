@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import boosportLogo from "@/assets/boosport-logo-pixel.png";
+import hunsoccerLogo from "@/assets/hunsoccer-logo.png";
 
 const Header = () => {
   const { t } = useTranslation();
@@ -36,9 +36,11 @@ const Header = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <h1 className="font-pixel text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
-            BOOSPORT ARENA
-          </h1>
+          <img 
+            src={hunsoccerLogo} 
+            alt="HUNSOCCER ALPHA" 
+            className="h-8 md:h-10 w-auto object-contain"
+          />
         </Link>
         
         <nav className="flex items-center gap-3 sm:gap-6 md:gap-8">
