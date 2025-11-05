@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import SmartAssistant from "@/components/SmartAssistant";
+import AIChat from "@/components/AIChat";
+import MatchSchedule from "@/components/MatchSchedule";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import ActivePredictions from "@/components/ActivePredictions";
@@ -29,8 +30,11 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             <PerformanceChart />
-            {/* Smart Assistant - Combined Chat and Schedule */}
-            <SmartAssistant />
+            {/* AI Chat and Match Schedule - Split in Half */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <AIChat />
+              <MatchSchedule />
+            </div>
           </div>
           <div className="lg:col-span-1 space-y-3">
             {/* Models Section */}
