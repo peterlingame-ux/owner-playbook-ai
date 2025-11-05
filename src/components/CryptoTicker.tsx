@@ -19,7 +19,7 @@ const CryptoTicker = () => {
       url: "https://www.ea.com/sports"
     },
     { 
-      name: "开云体育", 
+      name: "KAIYUN", 
       tagline: "亚洲领先体育平台",
       logo: sponsorKaiyun,
       url: "https://www.kaiyun.com"
