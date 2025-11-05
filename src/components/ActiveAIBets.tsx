@@ -204,85 +204,70 @@ const ActiveAIBets = () => {
 
               {/* Background Image for DeepSeek */}
               {aiModel.id === 'deepseek' && (
-                <>
-                  <div 
-                    className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                    style={{
-                      backgroundImage: `url(${deepseekCardBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      backgroundPositionY: '-20px'
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[hsl(var(--deepseek))] opacity-30" />
-                </>
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${deepseekCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px'
+                  }}
+                />
               )}
               
               {/* Background Image for Grok */}
               {aiModel.id === 'grok' && (
-                <>
-                  <div 
-                    className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                    style={{
-                      backgroundImage: `url(${grokCardBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      backgroundPositionY: '-20px'
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[hsl(var(--grok))] opacity-30" />
-                </>
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${grokCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px'
+                  }}
+                />
               )}
               
               {/* Background Image for GPT5 */}
               {aiModel.id === 'gpt5' && (
-                <>
-                  <div 
-                    className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                    style={{
-                      backgroundImage: `url(${gpt5CardBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      backgroundPositionY: '-20px',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[hsl(var(--gpt))] opacity-30" />
-                </>
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${gpt5CardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
               )}
               
               {/* Background Image for Claude */}
               {aiModel.id === 'claude' && (
-                <>
-                  <div 
-                    className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                    style={{
-                      backgroundImage: `url(${claudeCardBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      backgroundPositionY: '-20px',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[hsl(var(--claude))] opacity-30" />
-                </>
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${claudeCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
               )}
               
               {/* Background Image for Gemini */}
               {aiModel.id === 'gemini' && (
-                <>
-                  <div 
-                    className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                    style={{
-                      backgroundImage: `url(${geminiCardBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      backgroundPositionY: '-20px',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[hsl(var(--gemini))] opacity-30" />
-                </>
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${geminiCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
               )}
               
               {/* Diagonal Stripe Background */}
