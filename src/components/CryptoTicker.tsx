@@ -65,8 +65,6 @@ const CryptoTicker = () => {
               <TrendingUp size={20} className="text-primary flex-shrink-0" />
             )}
             <span className="font-bold text-xl text-foreground tracking-wide">{sponsor.name}</span>
-            <span className="text-muted-foreground text-base">|</span>
-            <span className="text-muted-foreground text-base italic">{sponsor.tagline}</span>
             <ExternalLink size={16} className="text-muted-foreground opacity-0 group-hover/item:opacity-100 transition-opacity" />
           </a>
         ))}
