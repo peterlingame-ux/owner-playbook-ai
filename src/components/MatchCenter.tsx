@@ -71,9 +71,9 @@ const MatchCenter = () => {
     }, [match, type]);
 
     return (
-      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30">
-        <Timer className="w-3 h-3 text-primary animate-pulse" />
-        <span className="text-xs font-semibold text-primary">{timeLeft}</span>
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary via-primary/90 to-primary/80 border-2 border-primary/50 shadow-lg shadow-primary/30 backdrop-blur-sm">
+        <Timer className="w-3.5 h-3.5 text-primary-foreground animate-pulse" />
+        <span className="text-xs font-bold text-primary-foreground whitespace-nowrap">{timeLeft}</span>
       </div>
     );
   };
@@ -87,12 +87,12 @@ const MatchCenter = () => {
       <div className="relative p-4">
         {/* Countdown Timer - Top Left */}
         {(type === 'live' || type === 'upcoming') && (
-          <div className="absolute top-3 left-3 z-10">
+          <div className="mb-2">
             <CountdownTimer match={match} type={type} />
           </div>
         )}
         
-        <div className="flex items-center justify-between mb-3 mt-8">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             {type === 'live' && (
               <div className="relative">
