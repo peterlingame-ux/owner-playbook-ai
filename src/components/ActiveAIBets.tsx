@@ -36,13 +36,18 @@ const generateBetAmount = (aiId: string, confidence: number) => {
   return Math.round(base + variance);
 };
 
-// Countdown Timer Component
+// Countdown Timer Component with Match Time
 const MatchCountdown = ({ match }: { match: any }) => {
   const { t } = useTranslation();
   const [countdown, setCountdown] = useState("");
+  const [matchTime, setMatchTime] = useState("");
 
   useEffect(() => {
     if (match.status === "live") {
+      // For live matches, show the current minute
+      if (match.currentMinute) {
+        setMatchTime(`${match.currentMinute}'`);
+      }
       setCountdown(t('in_progress'));
       return;
     }
@@ -78,17 +83,22 @@ const MatchCountdown = ({ match }: { match: any }) => {
   }, [match, t]);
 
   return (
-    <Badge 
-      variant={match.status === "live" ? "default" : "secondary"}
-      className={`text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 ${
-        match.status === "live" 
-          ? "bg-success/20 text-success border-success/50 animate-pulse" 
-          : "bg-primary/20 text-primary border-primary/50"
-      }`}
-    >
-      <Clock className="h-3 w-3" />
-      {countdown}
-    </Badge>
+    <div className="flex flex-col items-center gap-1">
+      <Badge 
+        variant={match.status === "live" ? "default" : "secondary"}
+        className={`text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 ${
+          match.status === "live" 
+            ? "bg-success/20 text-success border-success/50 animate-pulse" 
+            : "bg-primary/20 text-primary border-primary/50"
+        }`}
+      >
+        <Clock className="h-3 w-3" />
+        {countdown}
+      </Badge>
+      {match.status === "live" && matchTime && (
+        <span className="text-xs font-bold text-success font-mono-data">{matchTime}</span>
+      )}
+    </div>
   );
 };
 
@@ -264,7 +274,7 @@ const ActiveAIBets = () => {
                     {bet.match.league}
                   </Badge>
                   
-                  {/* Teams with Logos */}
+                  {/* Teams with Logos and Live Score */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-1">
                       {bet.match.homeLogo ? (
@@ -282,7 +292,22 @@ const ActiveAIBets = () => {
                       </p>
                     </div>
                     
-                    <span className="text-xs text-muted-foreground font-bold px-2">VS</span>
+                    {/* Live Score - Only show for live matches */}
+                    {bet.match.status === "live" ? (
+                      <div className="flex flex-col items-center gap-0.5 px-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
+                          <span className="text-xs text-muted-foreground">-</span>
+                          <span className="text-lg font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
+                        </div>
+                        <span className="text-[9px] text-success font-bold uppercase">LIVE</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-0.5 px-3">
+                        <span className="text-xs text-muted-foreground font-bold">VS</span>
+                        <span className="text-[9px] text-muted-foreground">{bet.match.time}</span>
+                      </div>
+                    )}
                     
                     <div className="flex items-center gap-2 flex-1 justify-end">
                       <p className="font-bold text-xs leading-tight flex-1 text-right">
