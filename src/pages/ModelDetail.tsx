@@ -18,6 +18,17 @@ const ModelDetail = () => {
     .filter(p => p.aiModel === modelId)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // 按时间排序
   
+  // 先定义计算盈利的函数
+  const calculateProfit = (prediction: any) => {
+    if (prediction.correct) {
+      // 赢了：盈利 = 下注金额 × (赔率 - 1)
+      return prediction.betAmount * (prediction.odds - 1);
+    } else {
+      // 输了：亏损 = -下注金额
+      return -prediction.betAmount;
+    }
+  };
+  
   // 计算钱包余额变化
   const INITIAL_BALANCE = 10000;
   const predictionsWithBalance = modelPredictions.map((prediction, index) => {
@@ -43,16 +54,6 @@ const ModelDetail = () => {
       </div>
     );
   }
-  
-  const calculateProfit = (prediction: any) => {
-    if (prediction.correct) {
-      // 赢了：盈利 = 下注金额 × (赔率 - 1)
-      return prediction.betAmount * (prediction.odds - 1);
-    } else {
-      // 输了：亏损 = -下注金额
-      return -prediction.betAmount;
-    }
-  };
 
   const getBetTypeLabel = (betType: string) => {
     switch(betType) {
