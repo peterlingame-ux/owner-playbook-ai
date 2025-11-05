@@ -27,13 +27,22 @@ const MatchCenter = () => {
     >
       {/* AI Prediction Badge - Top Right Corner */}
       {hasPredictions && (
-        <Badge 
-          variant="default" 
-          className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg z-10 animate-pulse"
-        >
-          <Sparkles className="w-3 h-3 mr-1" />
-          AI
-        </Badge>
+        <div className="absolute -top-2 -right-2 z-10">
+          <div className="relative">
+            {/* Glow Effect */}
+            <div className="absolute inset-0 bg-primary/30 blur-lg animate-pulse" />
+            {/* Main Badge */}
+            <Badge 
+              variant="default" 
+              className="relative bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground shadow-xl border-2 border-primary/50 font-pixel text-[10px] tracking-wider px-2 py-0.5"
+            >
+              <Sparkles className="w-3 h-3 mr-0.5 animate-pulse" />
+              AI
+            </Badge>
+            {/* Corner Accent */}
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-success rounded-full animate-ping" />
+          </div>
+        </div>
       )}
 
       {/* Header */}
