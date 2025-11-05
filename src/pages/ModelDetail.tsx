@@ -14,7 +14,22 @@ const ModelDetail = () => {
   const navigate = useNavigate();
   
   const model = aiModels.find(m => m.id === modelId);
-  const modelPredictions = predictionHistory.filter(p => p.aiModel === modelId);
+  const modelPredictions = predictionHistory
+    .filter(p => p.aiModel === modelId)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // 按时间排序
+  
+  // 计算钱包余额变化
+  const INITIAL_BALANCE = 10000;
+  const predictionsWithBalance = modelPredictions.map((prediction, index) => {
+    const previousBalance = index === 0 ? INITIAL_BALANCE : predictionsWithBalance[index - 1].balance;
+    const profit = calculateProfit(prediction);
+    const balance = previousBalance + profit;
+    return { ...prediction, balance };
+  });
+  
+  const currentBalance = predictionsWithBalance.length > 0 
+    ? predictionsWithBalance[predictionsWithBalance.length - 1].balance 
+    : INITIAL_BALANCE;
   
   if (!model) {
     return (
@@ -138,7 +153,19 @@ const ModelDetail = () => {
         
         {/* Stats Section */}
         <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+          <Card className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in">
+            <p className="text-sm text-muted-foreground mb-2">{t('current_balance')}</p>
+            <p className={`text-3xl font-bold font-mono-data ${
+              currentBalance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'
+            }`}>
+              ${currentBalance.toFixed(2)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {currentBalance >= INITIAL_BALANCE ? '+' : ''}{((currentBalance - INITIAL_BALANCE) / INITIAL_BALANCE * 100).toFixed(1)}%
+            </p>
+          </Card>
+          
           <Card className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in">
             <p className="text-sm text-muted-foreground mb-2">Win Rate</p>
             <p className="text-3xl font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
