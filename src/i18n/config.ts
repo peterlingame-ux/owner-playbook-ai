@@ -220,7 +220,9 @@ const resources = {
       "locked_model_message": "This model is locked. Stay tuned for access!",
       "active_ai_predictions": "ACTIVE AI PREDICTIONS",
       "prediction": "Prediction",
-      "current_score": "Current Score"
+      "current_score": "Current Score",
+      "bet_amount": "Bet Amount",
+      "balance": "Balance"
     }
   },
   zh: {
@@ -441,7 +443,9 @@ const resources = {
       "locked_model_message": "该模型已锁定，敬请期待开放！",
       "active_ai_predictions": "AI实时投注",
       "prediction": "预测",
-      "current_score": "当前比分"
+      "current_score": "当前比分",
+      "bet_amount": "投注金额",
+      "balance": "账户余额"
     }
   }
 };

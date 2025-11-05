@@ -94,30 +94,44 @@ const ActiveAIBets = () => {
             >
               <div className="flex items-start gap-3">
                 {/* AI Avatar */}
-                <Avatar className="h-12 w-12 ring-2 ring-primary/20">
+                <Avatar className="h-14 w-14 ring-2 ring-primary/20">
                   <AvatarImage src={AI_ICONS[bet.aiId]} alt={aiModel.displayName} />
                   <AvatarFallback>{aiModel.name[0]}</AvatarFallback>
                 </Avatar>
 
-                <div className="flex-1 space-y-2">
-                  {/* AI Name & Win Rate */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-sm">{aiModel.displayName}</p>
-                      <p className="text-xs text-muted-foreground">
+                <div className="flex-1 space-y-3">
+                  {/* AI Name & Financial Info */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-sm">{aiModel.displayName}</p>
+                      <Badge variant="secondary" className="text-xs">
                         {t('win_rate')}: {aiModel.winRate.toFixed(1)}%
-                      </p>
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="font-mono-data">
-                      ${bet.betAmount.toLocaleString()}
-                    </Badge>
+                    
+                    {/* Investment & Balance - Highlighted */}
+                    <div className="grid grid-cols-2 gap-2 p-2 bg-primary/5 rounded-md border border-primary/10">
+                      <div>
+                        <p className="text-xs text-muted-foreground">{t('bet_amount')}</p>
+                        <p className="font-mono-data font-bold text-primary">
+                          ${bet.betAmount.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">{t('balance')}</p>
+                        <p className="font-mono-data font-bold text-success">
+                          {aiModel.currentValue}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Match Info */}
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">{bet.match.league}</span>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="font-medium">
+                  <div className="flex items-center gap-2 text-sm pt-2 border-t border-border/50">
+                    <Badge variant="outline" className="text-xs">
+                      {bet.match.league}
+                    </Badge>
+                    <span className="font-medium truncate">
                       {bet.match.homeTeam} vs {bet.match.awayTeam}
                     </span>
                   </div>
@@ -128,8 +142,8 @@ const ActiveAIBets = () => {
                     <span className="text-sm font-semibold">
                       {t('prediction')}: {getPredictionText(bet.prediction, bet.match)}
                     </span>
-                    <Badge variant="secondary" className="text-xs">
-                      {bet.confidence}% {t('confidence')}
+                    <Badge variant="secondary" className="text-xs ml-auto">
+                      {bet.confidence}%
                     </Badge>
                   </div>
 
@@ -137,11 +151,11 @@ const ActiveAIBets = () => {
                   {bet.match.homeScore !== undefined && bet.match.awayScore !== undefined && (
                     <div className="flex items-center gap-2 pt-2 border-t border-border/50">
                       <span className="text-xs text-muted-foreground">{t('current_score')}:</span>
-                      <span className="font-mono-data font-bold text-sm">
+                      <span className="font-mono-data font-bold text-sm text-primary">
                         {bet.match.homeScore} - {bet.match.awayScore}
                       </span>
                       {bet.match.currentMinute && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs ml-auto">
                           {bet.match.currentMinute}'
                         </Badge>
                       )}
