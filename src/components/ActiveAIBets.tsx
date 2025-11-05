@@ -216,25 +216,6 @@ const ActiveAIBets = () => {
                     </Badge>
                   </div>
                 </div>
-
-                {/* Current Score */}
-                {bet.match.homeScore !== undefined && bet.match.awayScore !== undefined && (
-                  <div className="pt-3 border-t-2 border-primary/20">
-                    <p className="text-xs text-muted-foreground text-center mb-2 uppercase tracking-wide">
-                      {t('current_score')}
-                    </p>
-                    <div className="flex items-center justify-center gap-3">
-                      <span className="font-mono-data font-bold text-2xl text-primary bg-background/50 px-4 py-2 rounded-lg">
-                        {bet.match.homeScore} - {bet.match.awayScore}
-                      </span>
-                      {bet.match.currentMinute && (
-                        <Badge variant="outline" className="text-xs font-bold animate-pulse">
-                          {bet.match.currentMinute}'
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Corner Accent */}
