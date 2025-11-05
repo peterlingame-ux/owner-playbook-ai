@@ -12,6 +12,9 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import deepseekCardBg from "@/assets/deepseek-card-bg.png";
 import grokCardBg from "@/assets/grok-card-bg.png";
+import gpt5CardBg from "@/assets/gpt5-card-bg.png";
+import claudeCardBg from "@/assets/claude-card-bg.png";
+import geminiCardBg from "@/assets/gemini-card-bg.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -221,6 +224,48 @@ const ActiveAIBets = () => {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center top',
                     backgroundPositionY: '-20px'
+                  }}
+                />
+              )}
+              
+              {/* Background Image for GPT5 */}
+              {aiModel.id === 'gpt5' && (
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${gpt5CardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
+              )}
+              
+              {/* Background Image for Claude */}
+              {aiModel.id === 'claude' && (
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${claudeCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
+              )}
+              
+              {/* Background Image for Gemini */}
+              {aiModel.id === 'gemini' && (
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${geminiCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
                   }}
                 />
               )}
