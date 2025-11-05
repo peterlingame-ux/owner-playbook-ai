@@ -31,13 +31,13 @@ const Index = () => {
               <ChatBot />
             </div>
           </div>
-          <div className="lg:col-span-1 space-y-3">
+          <div className="lg:col-span-1 space-y-4">
             {/* Models Section */}
             <div>
-              <h2 className="text-lg font-bold mb-3 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-pixel">
+              <h2 className="text-lg font-bold mb-4 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-pixel">
                 {t('the_contestants')}
               </h2>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-4">
                 {sortedModels.slice(1).map((model) => (
                   <ModelCard 
                     key={model.id} 
