@@ -9,6 +9,7 @@ import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
+import deepseekCardBg from "@/assets/deepseek-card-bg.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -125,6 +126,18 @@ const ActiveAIBets = () => {
               key={aiModel.id}
               className="relative rounded-2xl p-6 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105"
             >
+              {/* Background Image for DeepSeek */}
+              {aiModel.id === 'deepseek' && (
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${deepseekCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                />
+              )}
+              
               {/* Diagonal Stripe Background */}
               <div className="absolute inset-0 opacity-5">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary via-transparent to-transparent" />
