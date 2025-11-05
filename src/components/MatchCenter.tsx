@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Clock, CheckCircle2, Sparkles } from "lucide-react";
-import { upcomingMatches, pastMatches, matchPredictions } from "@/data/mockData";
+import { Activity, Clock, CheckCircle2 } from "lucide-react";
+import { upcomingMatches, pastMatches } from "@/data/mockData";
 import { Match } from "@/types/prediction";
 import { useNavigate } from "react-router-dom";
 
@@ -16,35 +16,11 @@ const MatchCenter = () => {
   const upcoming = upcomingMatches.filter(m => m.status === 'upcoming');
   const finished = pastMatches;
 
-  const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => {
-    // Check if this match has AI predictions
-    const hasPredictions = matchPredictions[match.id] && matchPredictions[match.id].length > 0;
-    
-    return (
+  const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => (
     <Card 
-      className="p-3 hover:bg-accent/50 transition-colors cursor-pointer border relative"
+      className="p-3 hover:bg-accent/50 transition-colors cursor-pointer border"
       onClick={() => navigate(`/match/${match.id}`)}
     >
-      {/* AI Prediction Badge - Top Right Corner */}
-      {hasPredictions && (
-        <div className="absolute -top-2 -right-2 z-10">
-          <div className="relative">
-            {/* Glow Effect */}
-            <div className="absolute inset-0 bg-primary/30 blur-lg animate-pulse" />
-            {/* Main Badge */}
-            <Badge 
-              variant="default" 
-              className="relative bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground shadow-xl border-2 border-primary/50 font-pixel text-[10px] tracking-wider px-2 py-0.5"
-            >
-              <Sparkles className="w-3 h-3 mr-0.5 animate-pulse" />
-              AI
-            </Badge>
-            {/* Corner Accent */}
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-success rounded-full animate-ping" />
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs text-muted-foreground font-semibold">{match.league}</span>
@@ -137,7 +113,6 @@ const MatchCenter = () => {
       )}
     </Card>
   );
-};
 
   return (
     <Card className="h-[600px] flex flex-col border-border">
