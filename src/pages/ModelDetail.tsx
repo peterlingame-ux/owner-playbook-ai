@@ -207,209 +207,195 @@ const ModelDetail = () => {
               return (
                 <Card 
                   key={prediction.id} 
-                  className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in"
+                  className="overflow-hidden bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm border border-border/50 hover-scale transition-all animate-fade-in shadow-lg"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  {/* 顶部状态栏 */}
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/50">
-                    <div className="flex items-center gap-3">
-                      <Badge variant={prediction.correct ? "default" : "destructive"} className="gap-1">
+                  {/* 顶部赛事信息栏 */}
+                  <div className="px-6 py-3 bg-gradient-to-r from-muted/80 to-muted/50 border-b border-border/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                          {match.league}
+                        </span>
+                        <span className="text-xs text-muted-foreground">•</span>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          {prediction.date}
+                        </span>
+                        <span className="text-xs text-muted-foreground">•</span>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          {match.time}
+                        </span>
+                      </div>
+                      
+                      <Badge variant={prediction.correct ? "default" : "destructive"} className="gap-1.5 px-3">
                         {prediction.correct ? (
                           <>
-                            <CheckCircle2 className="h-3 w-3" />
-                            {t('correct')}
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            <span className="font-semibold">{t('correct')}</span>
                           </>
                         ) : (
                           <>
-                            <XCircle className="h-3 w-3" />
-                            {t('wrong')}
+                            <XCircle className="h-3.5 w-3.5" />
+                            <span className="font-semibold">{t('wrong')}</span>
                           </>
                         )}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">{match.league}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{t('confidence')}:</span>
-                        <span className="font-bold font-mono-data text-lg">{prediction.confidence}%</span>
-                      </div>
-                      
-                      <div className="text-right pl-4 border-l border-border/50">
-                        <p className="text-xs text-muted-foreground mb-1">{t('balance')}</p>
-                        <p className={`text-lg font-bold font-mono-data ${
-                          prediction.balance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'
-                        }`}>
-                          ${prediction.balance.toFixed(2)}
-                        </p>
-                      </div>
                     </div>
                   </div>
-                  
-                  {/* 比赛信息与队徽 - 专业设计 */}
-                  <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 border border-accent/20">
-                    {/* 日期和时间 */}
-                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-accent/20">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold">
-                          {prediction.date}
-                        </div>
-                        <div className="px-3 py-1 rounded-full bg-muted text-foreground font-semibold">
-                          {match.time}
-                        </div>
-                      </div>
-                      <div className="text-sm font-medium text-muted-foreground">
-                        {match.league}
-                      </div>
-                    </div>
-                    
-                    {/* 球队对阵 */}
-                    <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+
+                  {/* 比赛主体 */}
+                  <div className="p-6">
+                    {/* 球队对阵区域 */}
+                    <div className="grid grid-cols-[1fr_auto_1fr] gap-6 mb-6">
                       {/* 主队 */}
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         {match.homeLogo && (
-                          <div className="w-14 h-14 rounded-lg bg-card/80 p-2 flex items-center justify-center shadow-sm">
+                          <div className="w-16 h-16 rounded-xl bg-background/50 p-3 flex items-center justify-center ring-1 ring-border/30">
                             <img src={match.homeLogo} alt={match.homeTeam} className="w-full h-full object-contain" />
                           </div>
                         )}
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold text-foreground leading-tight">
+                          <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                            {t('home_team')}
+                          </div>
+                          <h3 className="text-xl font-bold text-foreground leading-tight">
                             {match.homeTeam}
                           </h3>
-                          <p className="text-xs text-muted-foreground mt-1">{t('home_team')}</p>
                         </div>
                       </div>
                       
-                      {/* VS 和比分 */}
-                      <div className="flex flex-col items-center justify-center min-w-[120px]">
+                      {/* 比分中心 */}
+                      <div className="flex flex-col items-center justify-center min-w-[140px]">
                         {match.homeScore !== undefined && match.awayScore !== undefined ? (
-                          <>
-                            <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">
+                          <div className="text-center">
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2 font-medium">
                               {t('final_score')}
                             </div>
-                            <div className="flex items-center gap-3 px-6 py-3 rounded-lg bg-card/50 border-2 border-primary/30">
-                              <span className="text-3xl font-bold font-mono-data text-primary">
+                            <div className="flex items-center gap-4 px-8 py-4 rounded-xl bg-background/80 ring-1 ring-border/50">
+                              <span className="text-4xl font-black font-mono-data text-foreground">
                                 {match.homeScore}
                               </span>
-                              <span className="text-2xl font-bold text-muted-foreground">:</span>
-                              <span className="text-3xl font-bold font-mono-data text-primary">
+                              <span className="text-2xl font-bold text-muted-foreground/50">-</span>
+                              <span className="text-4xl font-black font-mono-data text-foreground">
                                 {match.awayScore}
                               </span>
                             </div>
-                          </>
+                          </div>
                         ) : (
-                          <div className="text-2xl font-bold text-muted-foreground">
-                            {t('vs_text')}
+                          <div className="px-8 py-4 rounded-xl bg-background/80 ring-1 ring-border/50">
+                            <span className="text-2xl font-bold text-muted-foreground">VS</span>
                           </div>
                         )}
                       </div>
                       
                       {/* 客队 */}
-                      <div className="flex items-center gap-3 justify-end">
+                      <div className="flex items-center gap-4 justify-end">
                         <div className="flex-1 text-right">
-                          <h3 className="text-lg font-bold text-foreground leading-tight">
+                          <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                            {t('away_team')}
+                          </div>
+                          <h3 className="text-xl font-bold text-foreground leading-tight">
                             {match.awayTeam}
                           </h3>
-                          <p className="text-xs text-muted-foreground mt-1">{t('away_team')}</p>
                         </div>
                         {match.awayLogo && (
-                          <div className="w-14 h-14 rounded-lg bg-card/80 p-2 flex items-center justify-center shadow-sm">
+                          <div className="w-16 h-16 rounded-xl bg-background/50 p-3 flex items-center justify-center ring-1 ring-border/30">
                             <img src={match.awayLogo} alt={match.awayTeam} className="w-full h-full object-contain" />
                           </div>
                         )}
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* 投注详情 */}
-                  <div className="mb-4 p-4 rounded-lg bg-accent/20 border border-accent/30">
-                    <div className="grid grid-cols-2 gap-4 mb-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Target className="h-4 w-4 text-primary" />
-                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                            {t('bet_type')}
-                          </span>
+
+                    {/* 投注信息区 */}
+                    <div className="grid grid-cols-3 gap-4 mb-4 p-4 rounded-lg bg-background/50 ring-1 ring-border/30">
+                      <div className="text-center">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                          {t('bet_type')}
                         </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-lg font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-                            {getBetTypeLabel(prediction.betType)}
-                          </span>
-                          {getBetTypeDetails(prediction) && (
-                            <span className="text-sm font-medium text-foreground/80">
-                              ({getBetTypeDetails(prediction)})
-                            </span>
-                          )}
+                        <div className="font-bold text-foreground text-sm">
+                          {getBetTypeLabel(prediction.betType)}
+                        </div>
+                        {getBetTypeDetails(prediction) && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {getBetTypeDetails(prediction)}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="text-center border-x border-border/30">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                          {t('odds')}
+                        </div>
+                        <div className="font-black text-foreground text-sm font-mono-data">
+                          {prediction.odds.toFixed(2)}
                         </div>
                       </div>
                       
-                      <div className="text-right space-y-1">
-                        <div className="flex items-center gap-2 justify-end">
-                          <DollarSign className="h-4 w-4 text-warning" />
-                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                            {t('odds')}
-                          </span>
+                      <div className="text-center">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                          {t('confidence')}
                         </div>
-                        <span className="text-lg font-bold font-mono-data text-warning">
-                          {prediction.odds.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-3 border-t border-accent/40">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                            {t('bet_amount')}
-                          </span>
-                          <div className="text-lg font-bold font-mono-data">
-                            ${prediction.betAmount}
-                          </div>
-                        </div>
-                        
-                        <div className="text-right space-y-1">
-                          <div className="flex items-center gap-2 justify-end">
-                            {calculateProfit(prediction) >= 0 ? (
-                              <TrendingUp className="h-4 w-4 text-success" />
-                            ) : (
-                              <TrendingDown className="h-4 w-4 text-destructive" />
-                            )}
-                            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                              {calculateProfit(prediction) >= 0 ? t('profit') : t('loss')}
-                            </span>
-                          </div>
-                          <div className={`text-lg font-bold font-mono-data ${
-                            calculateProfit(prediction) >= 0 ? 'text-success' : 'text-destructive'
-                          }`}>
-                            {calculateProfit(prediction) >= 0 ? '+' : ''}${calculateProfit(prediction).toFixed(2)}
-                          </div>
+                        <div className="font-black text-foreground text-sm font-mono-data">
+                          {prediction.confidence}%
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* 预测结果对比 */}
-                  <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border">
-                    <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                        {t('ai_prediction')}
-                      </p>
-                      <p 
-                        className="text-lg font-bold"
-                        style={{ color: `hsl(var(--${model.color}))` }}
-                      >
-                        {getPredictionLabel(prediction.prediction)}
-                      </p>
+
+                    {/* 财务信息 */}
+                    <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-muted/30">
+                      <div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                          {t('bet_amount')}
+                        </div>
+                        <div className="font-bold text-foreground font-mono-data">
+                          ${prediction.betAmount}
+                        </div>
+                      </div>
+                      
+                      <div className="border-x border-border/30">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                          {calculateProfit(prediction) >= 0 ? t('profit') : t('loss')}
+                        </div>
+                        <div className={`font-bold font-mono-data ${
+                          calculateProfit(prediction) >= 0 ? 'text-success' : 'text-destructive'
+                        }`}>
+                          {calculateProfit(prediction) >= 0 ? '+' : ''}${calculateProfit(prediction).toFixed(2)}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                          {t('balance')}
+                        </div>
+                        <div className={`font-bold font-mono-data ${
+                          prediction.balance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'
+                        }`}>
+                          ${prediction.balance.toFixed(2)}
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                        {t('actual_result')}
-                      </p>
-                      <p className={`text-lg font-bold ${prediction.correct ? 'text-success' : 'text-destructive'}`}>
-                        {getPredictionLabel(prediction.actualResult)}
-                      </p>
+
+                    {/* 预测对比 */}
+                    <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border/30">
+                      <div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
+                          {t('ai_prediction')}
+                        </div>
+                        <div className="font-bold text-foreground" style={{ color: `hsl(var(--${model.color}))` }}>
+                          {getPredictionLabel(prediction.prediction)}
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
+                          {t('actual_result')}
+                        </div>
+                        <div className={`font-bold ${
+                          prediction.correct ? 'text-success' : 'text-destructive'
+                        }`}>
+                          {getPredictionLabel(prediction.actualResult)}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Card>
