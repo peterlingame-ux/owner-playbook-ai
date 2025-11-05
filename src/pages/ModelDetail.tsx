@@ -200,7 +200,7 @@ const ModelDetail = () => {
         <div>
           <h2 className="text-2xl font-bold mb-6 animate-fade-in">{t('prediction_history')}</h2>
           <div className="space-y-4">
-            {modelPredictions.map((prediction, index) => {
+            {predictionsWithBalance.map((prediction, index) => {
               const match = pastMatches.find(m => m.id === prediction.matchId);
               if (!match) return null;
               
@@ -229,29 +229,96 @@ const ModelDetail = () => {
                       <span className="text-sm text-muted-foreground">{match.league}</span>
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">{t('confidence')}:</span>
-                      <span className="font-bold font-mono-data text-lg">{prediction.confidence}%</span>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">{t('confidence')}:</span>
+                        <span className="font-bold font-mono-data text-lg">{prediction.confidence}%</span>
+                      </div>
+                      
+                      <div className="text-right pl-4 border-l border-border/50">
+                        <p className="text-xs text-muted-foreground mb-1">{t('balance')}</p>
+                        <p className={`text-lg font-bold font-mono-data ${
+                          prediction.balance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'
+                        }`}>
+                          ${prediction.balance.toFixed(2)}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   
-                  {/* 比赛信息 */}
-                  <div className="mb-4">
-                    <h3 className="text-xl font-bold mb-2">
-                      {match.homeTeam} {t('vs_text')} {match.awayTeam}
-                    </h3>
+                  {/* 比赛信息与队徽 - 专业设计 */}
+                  <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 border border-accent/20">
+                    {/* 日期和时间 */}
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-accent/20">
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold">
+                          {prediction.date}
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-muted text-foreground font-semibold">
+                          {match.time}
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-muted-foreground">
+                        {match.league}
+                      </div>
+                    </div>
                     
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{prediction.date}</span>
-                      <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                      <span>{match.time}</span>
-                      {match.homeScore !== undefined && match.awayScore !== undefined && (
-                        <>
-                          <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                          <span className="font-bold text-foreground">{match.homeScore} - {match.awayScore}</span>
-                        </>
-                      )}
+                    {/* 球队对阵 */}
+                    <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                      {/* 主队 */}
+                      <div className="flex items-center gap-3">
+                        {match.homeLogo && (
+                          <div className="w-14 h-14 rounded-lg bg-card/80 p-2 flex items-center justify-center shadow-sm">
+                            <img src={match.homeLogo} alt={match.homeTeam} className="w-full h-full object-contain" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-foreground leading-tight">
+                            {match.homeTeam}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-1">{t('home_team')}</p>
+                        </div>
+                      </div>
+                      
+                      {/* VS 和比分 */}
+                      <div className="flex flex-col items-center justify-center min-w-[120px]">
+                        {match.homeScore !== undefined && match.awayScore !== undefined ? (
+                          <>
+                            <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">
+                              {t('final_score')}
+                            </div>
+                            <div className="flex items-center gap-3 px-6 py-3 rounded-lg bg-card/50 border-2 border-primary/30">
+                              <span className="text-3xl font-bold font-mono-data text-primary">
+                                {match.homeScore}
+                              </span>
+                              <span className="text-2xl font-bold text-muted-foreground">:</span>
+                              <span className="text-3xl font-bold font-mono-data text-primary">
+                                {match.awayScore}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-2xl font-bold text-muted-foreground">
+                            {t('vs_text')}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* 客队 */}
+                      <div className="flex items-center gap-3 justify-end">
+                        <div className="flex-1 text-right">
+                          <h3 className="text-lg font-bold text-foreground leading-tight">
+                            {match.awayTeam}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-1">{t('away_team')}</p>
+                        </div>
+                        {match.awayLogo && (
+                          <div className="w-14 h-14 rounded-lg bg-card/80 p-2 flex items-center justify-center shadow-sm">
+                            <img src={match.awayLogo} alt={match.awayTeam} className="w-full h-full object-contain" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
