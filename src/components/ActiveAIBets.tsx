@@ -214,7 +214,7 @@ const ActiveAIBets = () => {
                       backgroundPositionY: '-20px'
                     }}
                   />
-                  <div className="absolute inset-0 bg-[hsl(var(--deepseek))] opacity-10" />
+                  <div className="absolute inset-0 bg-[hsl(var(--deepseek))] opacity-30" />
                 </>
               )}
               
@@ -230,7 +230,7 @@ const ActiveAIBets = () => {
                       backgroundPositionY: '-20px'
                     }}
                   />
-                  <div className="absolute inset-0 bg-[hsl(var(--grok))] opacity-10" />
+                  <div className="absolute inset-0 bg-[hsl(var(--grok))] opacity-30" />
                 </>
               )}
               
@@ -247,7 +247,7 @@ const ActiveAIBets = () => {
                       backgroundRepeat: 'no-repeat'
                     }}
                   />
-                  <div className="absolute inset-0 bg-[hsl(var(--gpt))] opacity-10" />
+                  <div className="absolute inset-0 bg-[hsl(var(--gpt))] opacity-30" />
                 </>
               )}
               
@@ -264,7 +264,7 @@ const ActiveAIBets = () => {
                       backgroundRepeat: 'no-repeat'
                     }}
                   />
-                  <div className="absolute inset-0 bg-[hsl(var(--claude))] opacity-10" />
+                  <div className="absolute inset-0 bg-[hsl(var(--claude))] opacity-30" />
                 </>
               )}
               
@@ -281,7 +281,7 @@ const ActiveAIBets = () => {
                       backgroundRepeat: 'no-repeat'
                     }}
                   />
-                  <div className="absolute inset-0 bg-[hsl(var(--gemini))] opacity-10" />
+                  <div className="absolute inset-0 bg-[hsl(var(--gemini))] opacity-30" />
                 </>
               )}
               
