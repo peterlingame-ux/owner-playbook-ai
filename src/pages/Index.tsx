@@ -32,11 +32,10 @@ const Index = () => {
             <PerformanceChart />
             {/* AI Chat Section below performance chart */}
             <AIChat />
-            {/* Active AI Bets */}
-            <ActiveAIBets />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col space-y-4 sm:space-y-6">
             <LiveMatches />
+            <ActiveAIBets />
           </div>
         </div>
 
