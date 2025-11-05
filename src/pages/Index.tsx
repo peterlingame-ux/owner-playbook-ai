@@ -6,7 +6,7 @@ import ModelCard from "@/components/ModelCard";
 import ChatBot from "@/components/ChatBot";
 import FloatingChat from "@/components/FloatingChat";
 import CryptoTicker from "@/components/CryptoTicker";
-import ActivePredictions from "@/components/ActivePredictions";
+import ActiveAIBets from "@/components/ActiveAIBets";
 import { aiModels } from "@/data/mockData";
 
 const Index = () => {
@@ -56,9 +56,9 @@ const Index = () => {
           </div>
         </div>
 
-        {/* AI Predictions - Full Width Section */}
+        {/* AI Betting Cards - Full Width Section */}
         <div id="match-predictions" className="mb-6 sm:mb-8 scroll-mt-20">
-          <ActivePredictions />
+          <ActiveAIBets />
         </div>
       </div>
       
