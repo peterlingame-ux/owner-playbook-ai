@@ -169,8 +169,10 @@ const ActiveAIBets = () => {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-6 px-2">
-        <h2 className="text-2xl font-bold">{t('active_ai_predictions')}</h2>
+      <div className="flex flex-col items-center justify-center mb-6 px-2 gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold font-pixel tracking-wider text-center text-white">
+          MATCH PREDICTIONS
+        </h2>
         <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse text-sm px-3 py-1">
           {t('live')}
         </Badge>
