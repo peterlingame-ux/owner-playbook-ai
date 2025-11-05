@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Sparkles } from "lucide-react";
+import chatbotBg from "@/assets/chatbot-bg.png";
 
 interface Message {
   id: string;
@@ -69,10 +70,18 @@ const ChatBot = () => {
 
   return (
     <Card className="h-full flex flex-col bg-gradient-to-br from-card/95 via-card to-card/90 border-2 border-primary/40 shadow-2xl backdrop-blur-sm relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-info/5 animate-pulse" style={{ animationDuration: '3s' }} />
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-info/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `url(${chatbotBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      {/* Gradient Overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/80 to-background/90" />
       
       {/* Header */}
       <div className="relative z-10 p-5 border-b-2 border-primary/30 bg-gradient-to-r from-primary/15 via-primary/10 to-info/10 backdrop-blur-sm">
