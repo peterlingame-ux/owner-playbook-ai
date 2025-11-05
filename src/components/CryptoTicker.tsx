@@ -43,29 +43,29 @@ const CryptoTicker = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-y border-primary/30 overflow-hidden">
-      <div className="flex items-center gap-12 animate-scroll whitespace-nowrap py-3">
+    <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-y border-primary/30 overflow-hidden group">
+      <div className="flex items-center gap-12 animate-scroll whitespace-nowrap py-4 group-hover:[animation-play-state:paused]">
         {[...sportsSponsors, ...sportsSponsors, ...sportsSponsors].map((sponsor, index) => (
           <a 
             key={index}
             href={sponsor.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-6 hover:opacity-80 transition-opacity cursor-pointer group"
+            className="flex items-center gap-4 px-6 hover:opacity-80 transition-all cursor-pointer group/item hover:scale-105"
           >
             {sponsor.logo ? (
               <img 
                 src={sponsor.logo} 
                 alt={sponsor.name}
-                className="h-8 w-auto object-contain flex-shrink-0"
+                className="h-12 w-auto object-contain flex-shrink-0"
               />
             ) : (
-              <TrendingUp size={16} className="text-primary flex-shrink-0" />
+              <TrendingUp size={20} className="text-primary flex-shrink-0" />
             )}
-            <span className="font-bold text-lg text-foreground tracking-wide">{sponsor.name}</span>
-            <span className="text-muted-foreground text-sm">|</span>
-            <span className="text-muted-foreground text-sm italic">{sponsor.tagline}</span>
-            <ExternalLink size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="font-bold text-xl text-foreground tracking-wide">{sponsor.name}</span>
+            <span className="text-muted-foreground text-base">|</span>
+            <span className="text-muted-foreground text-base italic">{sponsor.tagline}</span>
+            <ExternalLink size={16} className="text-muted-foreground opacity-0 group-hover/item:opacity-100 transition-opacity" />
           </a>
         ))}
       </div>
