@@ -132,7 +132,7 @@ const resources = {
       "click_analyze_to_see_predictions": "Click the 'Analyze with AI' buttons above to generate match predictions from 5 different AI models.",
       
       // Additional translations
-      "blog": "Blog",
+      "blog": "BLOG",
       "or_use_email": "OR USE EMAIL",
       "email": "EMAIL",
       "password": "PASSWORD",
@@ -383,7 +383,7 @@ const resources = {
       "click_analyze_to_see_predictions": "点击上方的\"AI 分析\"按钮，让5个不同的AI模型生成比赛预测。",
       
       // Additional translations
-      "blog": "博客",
+      "blog": "BLOG",
       "or_use_email": "或使用邮箱",
       "email": "邮箱",
       "password": "密码",
