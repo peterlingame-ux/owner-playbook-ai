@@ -1,6 +1,6 @@
 import { TrendingUp, ExternalLink } from "lucide-react";
 import sponsorKaiyun from "@/assets/sponsor-kaiyun.png";
-import sponsorEA from "@/assets/sponsor-ea-sports.png";
+import sponsorEA from "@/assets/sponsor-ea-sports.jpg";
 import sponsorSportyBet from "@/assets/sponsor-sportybet.png";
 import sponsorBet365 from "@/assets/bet365-logo.png";
 
