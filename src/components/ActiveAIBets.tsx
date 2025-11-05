@@ -39,15 +39,8 @@ const ActiveAIBets = () => {
   // Get live matches
   const liveMatches = upcomingMatches.filter(m => m.status === "live");
   
-  // Get all active bets (only from first 5 AIs, excluding mystery)
-  const activeBets = liveMatches.flatMap(match => {
-    const predictions = matchPredictions[match.id] || [];
-    return predictions.map(pred => ({
-      match,
-      ...pred,
-      betAmount: generateBetAmount(pred.aiId, pred.confidence)
-    }));
-  });
+  // Get first 5 AI models (exclude mystery)
+  const activeAIs = aiModels.filter(ai => ai.id !== "mystery").slice(0, 5);
 
   const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
     switch(betType) {
@@ -85,6 +78,19 @@ const ActiveAIBets = () => {
     return aiModels.find(ai => ai.id === aiId);
   };
 
+  if (liveMatches.length === 0) {
+    return (
+      <Card className="p-6 bg-card border-border">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold">{t('active_ai_predictions')}</h2>
+        </div>
+        <p className="text-sm text-muted-foreground text-center py-8">
+          {t('no_active_predictions')}
+        </p>
+      </Card>
+    );
+  }
+
   return (
     <Card className="p-6 bg-card border-border">
       <div className="flex items-center justify-between mb-6">
@@ -94,20 +100,35 @@ const ActiveAIBets = () => {
         </Badge>
       </div>
 
-      <div className="space-y-3 max-h-[500px] overflow-y-auto">
-        {activeBets.map((bet, index) => {
-          const aiModel = getAIModel(bet.aiId);
-          if (!aiModel) return null;
+      <div className="space-y-4 max-h-[600px] overflow-y-auto">
+        {activeAIs.map((aiModel) => {
+          // Find this AI's bets in live matches
+          const aiBets = liveMatches.flatMap(match => {
+            const predictions = matchPredictions[match.id] || [];
+            const aiPrediction = predictions.find(p => p.aiId === aiModel.id);
+            if (!aiPrediction) return [];
+            return [{
+              match,
+              ...aiPrediction,
+              betAmount: generateBetAmount(aiModel.id, aiPrediction.confidence)
+            }];
+          });
+
+          // If no bets, skip this AI
+          if (aiBets.length === 0) return null;
+
+          // Use the first bet for display
+          const bet = aiBets[0];
 
           return (
             <div 
-              key={`${bet.match.id}-${bet.aiId}-${index}`}
+              key={aiModel.id}
               className="relative rounded-lg border border-border p-4 bg-background/50 hover:bg-background/80 transition-all duration-300"
             >
               <div className="flex items-start gap-3">
                 {/* AI Avatar */}
                 <Avatar className="h-14 w-14 ring-2 ring-primary/20">
-                  <AvatarImage src={AI_ICONS[bet.aiId]} alt={aiModel.displayName} />
+                  <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} />
                   <AvatarFallback>{aiModel.name[0]}</AvatarFallback>
                 </Avatar>
 
