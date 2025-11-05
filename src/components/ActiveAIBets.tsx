@@ -257,7 +257,7 @@ const ActiveAIBets = () => {
                       {getPredictionText(bet.prediction, bet.match)}
                     </span>
                     <Badge variant="secondary" className="text-xs font-bold">
-                      {bet.confidence}%
+                      {bet.confidence}% {t('confidence')}
                     </Badge>
                   </div>
                 </div>
