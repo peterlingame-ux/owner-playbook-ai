@@ -153,21 +153,21 @@ const PerformanceChart = () => {
       <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
         <div className="flex items-center justify-center gap-6 flex-wrap">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-deepseek animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
               HUNSOCCER Owner's Perspective Analysis
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-gpt animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
               Team Technical Breakdown
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-claude animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
               Abnormal Real-time Odds Monitoring
             </span>
