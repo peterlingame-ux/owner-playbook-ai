@@ -240,35 +240,44 @@ export const upcomingMatches: Match[] = [
   }
 ];
 
-// AI predictions for each match - all 5 AIs predict every match
-export const matchPredictions: Record<string, Array<{ aiId: string; prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW"; confidence: number }>> = {
+// AI predictions for each match - all 5 AIs predict every match with detailed betting info
+export const matchPredictions: Record<string, Array<{ 
+  aiId: string; 
+  prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW"; 
+  confidence: number;
+  betType: "moneyline" | "handicap" | "over_under";
+  handicapLine?: number;
+  overUnderLine?: number;
+  overUnderPick?: "over" | "under";
+  odds: number;
+}>> = {
   "m1": [
-    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 68 },
-    { aiId: "gpt5", prediction: "AWAY_WIN", confidence: 55 },
-    { aiId: "claude", prediction: "HOME_WIN", confidence: 62 },
-    { aiId: "gemini", prediction: "DRAW", confidence: 45 },
-    { aiId: "grok", prediction: "HOME_WIN", confidence: 71 },
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 68, betType: "handicap", handicapLine: -1.5, odds: 1.92 },
+    { aiId: "gpt5", prediction: "AWAY_WIN", confidence: 55, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 2.05 },
+    { aiId: "claude", prediction: "HOME_WIN", confidence: 62, betType: "moneyline", odds: 1.75 },
+    { aiId: "gemini", prediction: "DRAW", confidence: 45, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.88 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 71, betType: "handicap", handicapLine: -0.5, odds: 2.10 },
   ],
   "m2": [
-    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 72 },
-    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 64 },
-    { aiId: "claude", prediction: "AWAY_WIN", confidence: 58 },
-    { aiId: "gemini", prediction: "HOME_WIN", confidence: 69 },
-    { aiId: "grok", prediction: "HOME_WIN", confidence: 65 },
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 72, betType: "handicap", handicapLine: -1, odds: 1.95 },
+    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 64, betType: "moneyline", odds: 1.68 },
+    { aiId: "claude", prediction: "AWAY_WIN", confidence: 58, betType: "handicap", handicapLine: 1, odds: 2.15 },
+    { aiId: "gemini", prediction: "HOME_WIN", confidence: 69, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 1.98 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 65, betType: "handicap", handicapLine: -0.5, odds: 1.85 },
   ],
   "m3": [
-    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 61 },
-    { aiId: "gpt5", prediction: "DRAW", confidence: 51 },
-    { aiId: "claude", prediction: "AWAY_WIN", confidence: 59 },
-    { aiId: "gemini", prediction: "HOME_WIN", confidence: 63 },
-    { aiId: "grok", prediction: "HOME_WIN", confidence: 67 },
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 61, betType: "moneyline", odds: 1.72 },
+    { aiId: "gpt5", prediction: "DRAW", confidence: 51, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.90 },
+    { aiId: "claude", prediction: "AWAY_WIN", confidence: 59, betType: "handicap", handicapLine: 0.5, odds: 2.08 },
+    { aiId: "gemini", prediction: "HOME_WIN", confidence: 63, betType: "handicap", handicapLine: -1, odds: 2.12 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 67, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 2.00 },
   ],
   "m4": [
-    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 76 },
-    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 61 },
-    { aiId: "claude", prediction: "HOME_WIN", confidence: 70 },
-    { aiId: "gemini", prediction: "DRAW", confidence: 48 },
-    { aiId: "grok", prediction: "HOME_WIN", confidence: 73 },
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 76, betType: "handicap", handicapLine: -1.5, odds: 2.05 },
+    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 61, betType: "moneyline", odds: 1.65 },
+    { aiId: "claude", prediction: "HOME_WIN", confidence: 70, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 1.95 },
+    { aiId: "gemini", prediction: "DRAW", confidence: 48, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.85 },
+    { aiId: "grok", prediction: "HOME_WIN", confidence: 73, betType: "handicap", handicapLine: -1, odds: 1.88 },
   ],
 };
 

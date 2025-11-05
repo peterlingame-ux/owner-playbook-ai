@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
-import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { TrendingUp, ArrowRight } from "lucide-react";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -44,12 +44,24 @@ const ActiveAIBets = () => {
     const predictions = matchPredictions[match.id] || [];
     return predictions.map(pred => ({
       match,
-      aiId: pred.aiId,
-      prediction: pred.prediction,
-      confidence: pred.confidence,
+      ...pred,
       betAmount: generateBetAmount(pred.aiId, pred.confidence)
     }));
   });
+
+  const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
+    switch(betType) {
+      case "moneyline":
+        return t('moneyline_bet');
+      case "handicap":
+        const sign = (handicapLine || 0) >= 0 ? '+' : '';
+        return `${t('handicap_bet')} (${sign}${handicapLine})`;
+      case "over_under":
+        return `${t('over_under_bet')} ${overUnderLine} (${overUnderPick === 'over' ? t('over') : t('under')})`;
+      default:
+        return "";
+    }
+  };
 
   const getPredictionIcon = (prediction: string) => {
     switch(prediction) {
@@ -136,15 +148,26 @@ const ActiveAIBets = () => {
                     </span>
                   </div>
 
-                  {/* Prediction */}
-                  <div className="flex items-center gap-2">
-                    {getPredictionIcon(bet.prediction)}
-                    <span className="text-sm font-semibold">
-                      {t('prediction')}: {getPredictionText(bet.prediction, bet.match)}
-                    </span>
-                    <Badge variant="secondary" className="text-xs ml-auto">
-                      {bet.confidence}%
-                    </Badge>
+                  {/* Bet Type & Prediction Details */}
+                  <div className="space-y-2 pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs font-semibold bg-info/10 text-info border-info/30">
+                        {getBetTypeText(bet.betType, bet.prediction, bet.handicapLine, bet.overUnderLine, bet.overUnderPick)}
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs font-mono-data">
+                        @{bet.odds.toFixed(2)}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {getPredictionIcon(bet.prediction)}
+                      <span className="text-sm font-semibold">
+                        {t('prediction')}: {getPredictionText(bet.prediction, bet.match)}
+                      </span>
+                      <Badge variant="secondary" className="text-xs ml-auto">
+                        {bet.confidence}%
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* Current Score */}

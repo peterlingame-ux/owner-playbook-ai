@@ -88,6 +88,10 @@ export interface Prediction {
   confidence: number;
   analysis: string;
   timestamp: string;
+  betType?: "moneyline" | "handicap" | "over_under";
+  handicapLine?: number;
+  overUnderLine?: number;
+  odds?: number;
 }
 
 export interface PredictionHistory {

@@ -222,7 +222,12 @@ const resources = {
       "prediction": "Prediction",
       "current_score": "Current Score",
       "bet_amount": "Bet Amount",
-      "balance": "Balance"
+      "balance": "Balance",
+      "moneyline_bet": "Moneyline",
+      "handicap_bet": "Handicap",
+      "over_under_bet": "Over/Under",
+      "over": "Over",
+      "under": "Under"
     }
   },
   zh: {
@@ -445,7 +450,12 @@ const resources = {
       "prediction": "预测",
       "current_score": "当前比分",
       "bet_amount": "投注金额",
-      "balance": "账户余额"
+      "balance": "账户余额",
+      "moneyline_bet": "独赢盘",
+      "handicap_bet": "让分盘",
+      "over_under_bet": "大小球",
+      "over": "大球",
+      "under": "小球"
     }
   }
 };
