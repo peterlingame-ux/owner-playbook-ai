@@ -125,7 +125,7 @@ const ActiveAIBets = () => {
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-2xl p-6 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105"
+              className="relative rounded-xl p-3 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-[1.02]"
             >
               {/* Background Image for DeepSeek */}
               {aiModel.id === 'deepseek' && (
@@ -166,74 +166,74 @@ const ActiveAIBets = () => {
               <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
               
               {/* Content */}
-              <div className="relative z-10 space-y-4">
+              <div className="relative z-10 space-y-2">
                 {/* Header with Avatar - Centered */}
-                <div className="flex flex-col items-center gap-3 pb-3 border-b-2 border-primary/20">
-                  <Avatar className="h-20 w-20 ring-4 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
+                <div className="flex flex-col items-center gap-1.5 pb-2 border-b border-primary/20">
+                  <Avatar className="h-12 w-12 ring-2 ring-primary/40 shadow-lg group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
-                    <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
+                    <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="text-center">
-                    <p className="font-bold text-lg bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
+                    <p className="font-bold text-xs bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent leading-tight">
                       {aiModel.displayName}
                     </p>
                   </div>
                 </div>
 
                 {/* Financial Stats */}
-                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
+                <div className="grid grid-cols-2 gap-1.5 p-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20 shadow-inner">
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('bet_amount')}</p>
-                    <p className="font-mono-data font-bold text-base text-primary">
+                    <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wide">{t('bet_amount')}</p>
+                    <p className="font-mono-data font-bold text-xs text-primary">
                       ${bet.betAmount.toLocaleString()}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('balance')}</p>
-                    <p className="font-mono-data font-bold text-base text-success">
+                    <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wide">{t('balance')}</p>
+                    <p className="font-mono-data font-bold text-xs text-success">
                       {aiModel.currentValue}
                     </p>
                   </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
-                <div className="space-y-2 py-2">
-                  <Badge variant="outline" className="text-xs w-full justify-center">
+                <div className="space-y-1 py-1">
+                  <Badge variant="outline" className="text-[10px] w-full justify-center py-0.5 h-auto">
                     {bet.match.league}
                   </Badge>
                   
                   {/* Teams with Logos */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1 flex-1 min-w-0">
                       {bet.match.homeLogo ? (
-                        <Avatar className="h-8 w-8 ring-1 ring-border">
+                        <Avatar className="h-6 w-6 ring-1 ring-border shrink-0">
                           <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
-                          <AvatarFallback><Shield size={14} /></AvatarFallback>
+                          <AvatarFallback><Shield size={10} /></AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                          <Shield size={14} className="text-muted-foreground" />
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield size={10} className="text-muted-foreground" />
                         </div>
                       )}
-                      <p className="font-bold text-xs leading-tight flex-1 text-left">
+                      <p className="font-bold text-[10px] leading-tight truncate">
                         {bet.match.homeTeam}
                       </p>
                     </div>
                     
-                    <span className="text-xs text-muted-foreground font-bold px-2">VS</span>
+                    <span className="text-[10px] text-muted-foreground font-bold px-1 shrink-0">VS</span>
                     
-                    <div className="flex items-center gap-2 flex-1 justify-end">
-                      <p className="font-bold text-xs leading-tight flex-1 text-right">
+                    <div className="flex items-center gap-1 flex-1 justify-end min-w-0">
+                      <p className="font-bold text-[10px] leading-tight truncate text-right">
                         {bet.match.awayTeam}
                       </p>
                       {bet.match.awayLogo ? (
-                        <Avatar className="h-8 w-8 ring-1 ring-border">
+                        <Avatar className="h-6 w-6 ring-1 ring-border shrink-0">
                           <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
-                          <AvatarFallback><Shield size={14} /></AvatarFallback>
+                          <AvatarFallback><Shield size={10} /></AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                          <Shield size={14} className="text-muted-foreground" />
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield size={10} className="text-muted-foreground" />
                         </div>
                       )}
                     </div>
@@ -241,31 +241,31 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Bet Details */}
-                <div className="space-y-2 pt-3 border-t-2 border-primary/20">
-                  <div className="flex items-center justify-center gap-2">
-                    <Badge variant="outline" className="text-xs font-bold bg-info/15 text-info border-info/40">
+                <div className="space-y-1.5 pt-2 border-t border-primary/20">
+                  <div className="flex items-center justify-center gap-1 flex-wrap">
+                    <Badge variant="outline" className="text-[10px] font-bold bg-info/15 text-info border-info/40 py-0.5 h-auto leading-tight">
                       {getBetTypeText(bet.betType, bet.prediction, bet.handicapLine, bet.overUnderLine, bet.overUnderPick)}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs font-mono-data font-bold">
+                    <Badge variant="secondary" className="text-[10px] font-mono-data font-bold py-0.5 h-auto">
                       @{bet.odds.toFixed(2)}
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 bg-background/50 rounded-lg p-2">
+                  <div className="flex items-center justify-center gap-1.5 bg-background/50 rounded-md p-1.5 flex-wrap">
                     {getPredictionIcon(bet.prediction)}
-                    <span className="text-sm font-bold">
+                    <span className="text-[11px] font-bold truncate max-w-[80px]">
                       {getPredictionText(bet.prediction, bet.match)}
                     </span>
-                    <Badge variant="secondary" className="text-xs font-bold">
-                      {bet.confidence}% {t('confidence')}
+                    <Badge variant="secondary" className="text-[10px] font-bold py-0.5 h-auto whitespace-nowrap">
+                      {bet.confidence}%
                     </Badge>
                   </div>
                 </div>
               </div>
 
               {/* Corner Accent */}
-              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-3xl" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-primary/20 to-transparent rounded-tr-3xl" />
+              <div className="absolute top-0 right-0 w-8 h-8 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-2xl" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 bg-gradient-to-tr from-primary/20 to-transparent rounded-tr-2xl" />
             </div>
           );
         })}
