@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import ChatBot from "@/components/ChatBot";
 import FloatingChat from "@/components/FloatingChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
@@ -47,13 +46,6 @@ const Index = () => {
               }
             }}
           />
-        </div>
-
-        {/* ChatBot - Full Width */}
-        <div className="mb-6 sm:mb-8 lg:mb-12">
-          <div className="h-[600px] lg:h-[700px]">
-            <ChatBot />
-          </div>
         </div>
 
         {/* AI Betting Cards - Full Width Section */}
