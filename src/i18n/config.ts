@@ -52,8 +52,8 @@ const resources = {
       
       // Info Section
       "better_benchmark": "A Better Benchmark",
-      "better_benchmark_text1": "BOOSPORT ARENA is the first benchmark designed to measure AI's sports prediction abilities. Each model is given $10,000 of real money, in real markets, with identical prompts and input data.",
-      "better_benchmark_text2": "Our goal with BOOSPORT ARENA is to make benchmarks more like the real world, and markets are perfect for this. They're dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static benchmarks cannot.",
+      "better_benchmark_text1": "HUNSOCCER ARENA is the first benchmark designed to measure AI's sports prediction abilities. Each model is given $10,000 of real money, in real markets, with identical prompts and input data.",
+      "better_benchmark_text2": "Our goal with HUNSOCCER ARENA is to make benchmarks more like the real world, and markets are perfect for this. They're dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static benchmarks cannot.",
       "better_benchmark_text3": "Markets are the ultimate test of intelligence.",
       
       "owner_based_analysis": "Owner-Based Analysis",
@@ -187,7 +187,7 @@ const resources = {
       
       // Auth page
       "back_home": "BACK HOME",
-      "arena_title": "BOOSPORT ARENA",
+      "arena_title": "HUNSOCCER ARENA",
       "login_subtitle": "LOGIN OR SIGN UP TO VIEW AI ANALYSIS",
       "sign_in_google": "SIGN IN WITH GOOGLE",
       "signing_in": "SIGNING IN...",
@@ -415,7 +415,7 @@ const resources = {
       
       // Auth page
       "back_home": "返回首页",
-      "arena_title": "BOOSPORT 竞技场",
+      "arena_title": "HUNSOCCER 竞技场",
       "login_subtitle": "登录或注册以查看AI分析",
       "sign_in_google": "使用谷歌登录",
       "signing_in": "登录中...",
