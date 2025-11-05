@@ -287,7 +287,7 @@ const resources = {
       "performance": "表现",
       
       // Model Cards
-      "the_contestants": "参赛模型",
+      "the_contestants": "参赛选手",
       "view_details": "查看详情",
       "total_predictions": "总预测次数",
       
