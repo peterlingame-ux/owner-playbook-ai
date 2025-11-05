@@ -8,6 +8,7 @@ import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import ActivePredictions from "@/components/ActivePredictions";
+import ActiveAIBets from "@/components/ActiveAIBets";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -31,6 +32,8 @@ const Index = () => {
             <PerformanceChart />
             {/* AI Chat Section below performance chart */}
             <AIChat />
+            {/* Active AI Bets */}
+            <ActiveAIBets />
           </div>
           <div className="flex flex-col">
             <LiveMatches />
