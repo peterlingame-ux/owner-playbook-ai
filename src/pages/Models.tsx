@@ -12,20 +12,28 @@ const Models = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-foreground">{t('models_performance')}</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {t('compare_performance')}
-          </p>
+      <main className="container mx-auto px-4 py-8 max-w-xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-foreground font-pixel tracking-wider">{t('models_performance')}</h1>
+          <div className="w-full h-px bg-border mb-8"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {sortedModels.map((model) => (
-            <ModelCard
+        <div className="space-y-3">
+          {sortedModels.slice(1).map((model) => (
+            <div
               key={model.id}
-              model={model}
-            />
+              className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors cursor-pointer rounded-lg border border-transparent hover:border-border"
+              onClick={() => window.location.href = `/model/${model.id}`}
+            >
+              <img 
+                src={model.icon} 
+                alt={model.name}
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-lg font-medium text-foreground font-mono tracking-wide">
+                {model.name}
+              </span>
+            </div>
           ))}
         </div>
       </main>

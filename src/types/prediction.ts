@@ -123,4 +123,5 @@ export interface AIModel {
   change: string;
   changePercent: number;
   locked?: boolean;
+  icon?: string;
 }

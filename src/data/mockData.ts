@@ -1,4 +1,10 @@
 import { AIModel, PredictionHistory, Match, TeamOwner } from "@/types/prediction";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import openaiIcon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
+import mysteryIcon from "@/assets/mystery-icon.png";
 
 export const pastMatches: Match[] = [
   {
@@ -79,7 +85,8 @@ export const aiModels: AIModel[] = [
     winRate: 65.99,
     currentValue: "$14,669.79",
     change: "+$1,234.56",
-    changePercent: 46.70
+    changePercent: 46.70,
+    icon: deepseekIcon
   },
   {
     id: "gpt5",
@@ -91,7 +98,8 @@ export const aiModels: AIModel[] = [
     winRate: 36.03,
     currentValue: "$2,679.46",
     change: "-$987.32",
-    changePercent: -73.21
+    changePercent: -73.21,
+    icon: openaiIcon
   },
   {
     id: "claude",
@@ -103,7 +111,8 @@ export const aiModels: AIModel[] = [
     winRate: 54.66,
     currentValue: "$8,149.51",
     change: "+$456.78",
-    changePercent: 12.34
+    changePercent: 12.34,
+    icon: claudeIcon
   },
   {
     id: "gemini",
@@ -115,7 +124,8 @@ export const aiModels: AIModel[] = [
     winRate: 39.68,
     currentValue: "$2,967.37",
     change: "-$543.21",
-    changePercent: -28.45
+    changePercent: -28.45,
+    icon: geminiIcon
   },
   {
     id: "grok",
@@ -127,7 +137,8 @@ export const aiModels: AIModel[] = [
     winRate: 51.82,
     currentValue: "$6,325.53",
     change: "+$234.12",
-    changePercent: 8.92
+    changePercent: 8.92,
+    icon: grokIcon
   },
   {
     id: "mystery",
@@ -140,7 +151,8 @@ export const aiModels: AIModel[] = [
     currentValue: "$32,456.89",
     change: "+$8,765.43",
     changePercent: 125.50,
-    locked: true
+    locked: true,
+    icon: mysteryIcon
   }
 ];
 
