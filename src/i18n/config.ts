@@ -250,7 +250,13 @@ const resources = {
       "over": "Over",
       "under": "Under",
       "top_performer": "Top Performer",
-      "all_models": "All Models"
+      "all_models": "All Models",
+      "all_matches": "All Matches",
+      "today": "Today",
+      "later": "Later",
+      "no_matches": "No matches available",
+      "detailed_view": "Detailed View",
+      "compact_view": "Compact View"
     }
   },
   zh: {
@@ -501,7 +507,13 @@ const resources = {
       "over": "大球",
       "under": "小球",
       "top_performer": "最佳表现者",
-      "all_models": "所有模型"
+      "all_models": "所有模型",
+      "all_matches": "全部比赛",
+      "today": "今日",
+      "later": "稍后",
+      "no_matches": "暂无比赛",
+      "detailed_view": "详细视图",
+      "compact_view": "紧凑视图"
     }
   }
 };
