@@ -32,9 +32,13 @@ const Index = () => {
             {/* AI Chat Section below performance chart */}
             <AIChat />
           </div>
-          <div className="flex flex-col">
-            <ActiveAIBets />
+          <div className="lg:col-span-1">
           </div>
+        </div>
+
+        {/* AI Betting Cards - Full Width Section */}
+        <div className="mb-6 sm:mb-8">
+          <ActiveAIBets />
         </div>
 
         {/* Models Section */}
