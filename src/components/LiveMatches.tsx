@@ -16,7 +16,7 @@ import weatherSnowy from "@/assets/weather-snowy.jpg";
 const LiveMatches = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   
   const getMatchPeriodText = (period?: string) => {
     switch(period) {
