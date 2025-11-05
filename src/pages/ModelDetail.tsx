@@ -148,58 +148,64 @@ const ModelDetail = () => {
                   className="p-6 bg-card/90 backdrop-blur-md border-primary/20 hover-scale transition-all animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Badge variant={prediction.correct ? "default" : "destructive"} className="gap-1">
-                          {prediction.correct ? (
-                            <>
-                              <CheckCircle2 className="h-3 w-3" />
-                              {t('correct')}
-                            </>
-                          ) : (
-                            <>
-                              <XCircle className="h-3 w-3" />
-                              {t('wrong')}
-                            </>
-                          )}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">{match.league}</span>
-                      </div>
-                      
-                      <h3 className="text-lg font-bold mb-1">
-                        {match.homeTeam} {t('vs_text')} {match.awayTeam}
-                      </h3>
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{prediction.date}</span>
-                        <span>{match.time}</span>
-                      </div>
+                  {/* 顶部状态栏 */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={prediction.correct ? "default" : "destructive"} className="gap-1">
+                        {prediction.correct ? (
+                          <>
+                            <CheckCircle2 className="h-3 w-3" />
+                            {t('correct')}
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-3 w-3" />
+                            {t('wrong')}
+                          </>
+                        )}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">{match.league}</span>
                     </div>
                     
-                    <div className="text-right">
-                      <div className="flex items-center gap-2 justify-end mb-2">
-                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{t('confidence')}</span>
-                        <span className="font-bold font-mono-data">{prediction.confidence}%</span>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{t('confidence')}:</span>
+                      <span className="font-bold font-mono-data text-lg">{prediction.confidence}%</span>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">{t('ai_prediction')}</p>
+                  {/* 比赛信息 */}
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold mb-2">
+                      {match.homeTeam} {t('vs_text')} {match.awayTeam}
+                    </h3>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{prediction.date}</span>
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                      <span>{match.time}</span>
+                    </div>
+                  </div>
+                  
+                  {/* 预测结果对比 */}
+                  <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border">
+                    <div className="space-y-1">
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                        {t('ai_prediction')}
+                      </p>
                       <p 
-                        className="font-bold"
+                        className="text-lg font-bold"
                         style={{ color: `hsl(var(--${model.color}))` }}
                       >
                         {getPredictionLabel(prediction.prediction)}
                       </p>
                     </div>
                     
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">{t('actual_result')}</p>
-                      <p className={`font-bold ${prediction.correct ? 'text-success' : 'text-destructive'}`}>
+                    <div className="space-y-1">
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                        {t('actual_result')}
+                      </p>
+                      <p className={`text-lg font-bold ${prediction.correct ? 'text-success' : 'text-destructive'}`}>
                         {getPredictionLabel(prediction.actualResult)}
                       </p>
                     </div>
