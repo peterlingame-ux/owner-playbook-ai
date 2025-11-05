@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import LiveMatches from "@/components/LiveMatches";
 import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
@@ -33,8 +32,7 @@ const Index = () => {
             {/* AI Chat Section below performance chart */}
             <AIChat />
           </div>
-          <div className="flex flex-col space-y-4 sm:space-y-6">
-            <LiveMatches />
+          <div className="flex flex-col">
             <ActiveAIBets />
           </div>
         </div>
