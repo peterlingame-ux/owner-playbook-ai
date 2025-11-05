@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, Minimize2, Maximize2, Activity } from "lucide-react";
 import MatchCenter from "./MatchCenter";
-import footballIcon from "@/assets/football-icon.png";
 
 const FloatingChat = () => {
   const { t } = useTranslation();
@@ -17,15 +16,27 @@ const FloatingChat = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-transparent hover:bg-transparent border-0 p-0 group"
+          className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary hover:bg-primary/90 border-2 border-border group"
           size="icon"
           aria-label="Open Match Schedule"
         >
-          <img 
-            src={footballIcon} 
-            alt="Football" 
-            className="w-full h-full object-contain"
-          />
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-primary-foreground"
+          >
+            {/* Soccer ball icon */}
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <path d="M12 2 L12 6 L15.5 8.5 L14 13 L12 12" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+            <path d="M12 2 L8.5 4.5 L5 6.5 L7 11 L12 12" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+            <path d="M12 22 L12 18 L8.5 15.5 L10 11 L12 12" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+            <path d="M12 22 L15.5 19.5 L19 17.5 L17 13 L12 12" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+            <path d="M22 12 L18 12 L15.5 8.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+            <path d="M2 12 L6 12 L8.5 15.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+          </svg>
         </Button>
       )}
 
