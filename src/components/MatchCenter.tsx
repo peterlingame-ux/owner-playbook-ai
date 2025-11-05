@@ -23,7 +23,7 @@ const MatchCenter = () => {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-muted-foreground">{match.league}</span>
+        <span className="text-xs text-muted-foreground font-semibold">{match.league}</span>
         
         {type === 'live' && (
           <Badge variant="destructive" className="text-xs">
@@ -50,7 +50,7 @@ const MatchCenter = () => {
             <img 
               src={match.homeLogo} 
               alt={match.homeTeam} 
-              className="w-6 h-6 rounded-full object-cover" 
+              className="w-7 h-7 object-contain" 
             />
             <span className="text-sm font-medium truncate">{match.homeTeam}</span>
           </div>
@@ -65,7 +65,7 @@ const MatchCenter = () => {
             <img 
               src={match.awayLogo} 
               alt={match.awayTeam} 
-              className="w-6 h-6 rounded-full object-cover" 
+              className="w-7 h-7 object-contain" 
             />
             <span className="text-sm font-medium truncate">{match.awayTeam}</span>
           </div>
@@ -74,6 +74,43 @@ const MatchCenter = () => {
           )}
         </div>
       </div>
+
+      {/* Match Statistics - Only for live and finished matches */}
+      {(type === 'live' || type === 'finished') && (
+        <div className="mt-3 pt-3 border-t border-border">
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            {/* Corners */}
+            <div className="flex flex-col items-center">
+              <span className="text-muted-foreground mb-1">⚽ {t('corners')}</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold">{match.homeCorners || 0}</span>
+                <span className="text-muted-foreground">-</span>
+                <span className="font-bold">{match.awayCorners || 0}</span>
+              </div>
+            </div>
+            
+            {/* Yellow Cards */}
+            <div className="flex flex-col items-center">
+              <span className="text-muted-foreground mb-1">🟨 {t('yellow_cards')}</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold">{match.homeYellowCards || 0}</span>
+                <span className="text-muted-foreground">-</span>
+                <span className="font-bold">{match.awayYellowCards || 0}</span>
+              </div>
+            </div>
+            
+            {/* Red Cards */}
+            <div className="flex flex-col items-center">
+              <span className="text-muted-foreground mb-1">🟥 {t('red_cards')}</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-destructive">{match.homeRedCards || 0}</span>
+                <span className="text-muted-foreground">-</span>
+                <span className="font-bold text-destructive">{match.awayRedCards || 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 

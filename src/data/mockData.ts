@@ -18,7 +18,13 @@ export const pastMatches: Match[] = [
     league: "Premier League",
     status: "finished",
     homeScore: 3,
-    awayScore: 1
+    awayScore: 1,
+    homeCorners: 8,
+    awayCorners: 4,
+    homeYellowCards: 2,
+    awayYellowCards: 3,
+    homeRedCards: 0,
+    awayRedCards: 0
   },
   {
     id: "past2",
@@ -31,7 +37,13 @@ export const pastMatches: Match[] = [
     league: "La Liga",
     status: "finished",
     homeScore: 2,
-    awayScore: 0
+    awayScore: 0,
+    homeCorners: 6,
+    awayCorners: 3,
+    homeYellowCards: 1,
+    awayYellowCards: 4,
+    homeRedCards: 0,
+    awayRedCards: 1
   },
   {
     id: "past3",
@@ -44,7 +56,13 @@ export const pastMatches: Match[] = [
     league: "Bundesliga",
     status: "finished",
     homeScore: 1,
-    awayScore: 1
+    awayScore: 1,
+    homeCorners: 5,
+    awayCorners: 5,
+    homeYellowCards: 3,
+    awayYellowCards: 2,
+    homeRedCards: 0,
+    awayRedCards: 0
   },
   {
     id: "past4",
@@ -57,7 +75,13 @@ export const pastMatches: Match[] = [
     league: "Ligue 1",
     status: "finished",
     homeScore: 4,
-    awayScore: 2
+    awayScore: 2,
+    homeCorners: 10,
+    awayCorners: 6,
+    homeYellowCards: 2,
+    awayYellowCards: 3,
+    homeRedCards: 0,
+    awayRedCards: 0
   },
   {
     id: "past5",
@@ -70,7 +94,13 @@ export const pastMatches: Match[] = [
     league: "Serie A",
     status: "finished",
     homeScore: 0,
-    awayScore: 2
+    awayScore: 2,
+    homeCorners: 4,
+    awayCorners: 7,
+    homeYellowCards: 4,
+    awayYellowCards: 1,
+    homeRedCards: 1,
+    awayRedCards: 0
   }
 ];
 
