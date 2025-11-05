@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
-import { TrendingUp, ArrowRight } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield } from "lucide-react";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -196,14 +196,48 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
-                {/* Match Info */}
+                {/* Match Info with Team Logos */}
                 <div className="space-y-2 py-2">
                   <Badge variant="outline" className="text-xs w-full justify-center">
                     {bet.match.league}
                   </Badge>
-                  <p className="font-bold text-sm text-center leading-tight">
-                    {bet.match.homeTeam}<br/>vs<br/>{bet.match.awayTeam}
-                  </p>
+                  
+                  {/* Teams with Logos */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-1">
+                      {bet.match.homeLogo ? (
+                        <Avatar className="h-8 w-8 ring-1 ring-border">
+                          <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
+                          <AvatarFallback><Shield size={14} /></AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                          <Shield size={14} className="text-muted-foreground" />
+                        </div>
+                      )}
+                      <p className="font-bold text-xs leading-tight flex-1 text-left">
+                        {bet.match.homeTeam}
+                      </p>
+                    </div>
+                    
+                    <span className="text-xs text-muted-foreground font-bold px-2">VS</span>
+                    
+                    <div className="flex items-center gap-2 flex-1 justify-end">
+                      <p className="font-bold text-xs leading-tight flex-1 text-right">
+                        {bet.match.awayTeam}
+                      </p>
+                      {bet.match.awayLogo ? (
+                        <Avatar className="h-8 w-8 ring-1 ring-border">
+                          <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
+                          <AvatarFallback><Shield size={14} /></AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                          <Shield size={14} className="text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bet Details */}
