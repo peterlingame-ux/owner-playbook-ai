@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Sparkles } from "lucide-react";
 import chatbotBg from "@/assets/chatbot-bg.png";
+import robotIcon from "@/assets/hunsoccer-robot-icon.png";
 
 interface Message {
   id: string;
@@ -87,9 +88,9 @@ const ChatBot = () => {
       <div className="relative z-10 p-5 border-b-2 border-primary/30 bg-gradient-to-r from-primary/15 via-primary/10 to-info/10 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-full blur-md animate-pulse" />
-            <div className="relative h-14 w-14 rounded-full bg-gradient-to-br from-primary via-primary/80 to-info flex items-center justify-center shadow-2xl ring-4 ring-primary/20">
-              <Bot className="h-7 w-7 text-primary-foreground" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-xl blur-md animate-pulse" />
+            <div className="relative h-14 w-14 rounded-xl bg-gradient-to-br from-background via-background/95 to-background/90 flex items-center justify-center shadow-2xl ring-4 ring-primary/20 p-1">
+              <img src={robotIcon} alt="HUNSOCCER ROBOT" className="w-full h-full object-contain" />
               <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-warning animate-pulse" />
             </div>
           </div>
