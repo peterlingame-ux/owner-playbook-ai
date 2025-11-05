@@ -3,7 +3,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -33,6 +34,62 @@ const generateBetAmount = (aiId: string, confidence: number) => {
   const base = baseAmounts[aiId] || 1000;
   const variance = (confidence / 100) * base * 0.5;
   return Math.round(base + variance);
+};
+
+// Countdown Timer Component
+const MatchCountdown = ({ match }: { match: any }) => {
+  const { t } = useTranslation();
+  const [countdown, setCountdown] = useState("");
+
+  useEffect(() => {
+    if (match.status === "live") {
+      setCountdown(t('in_progress'));
+      return;
+    }
+
+    const calculateCountdown = () => {
+      const matchDateTime = new Date(`${match.date}T${match.time}`);
+      const now = new Date();
+      const diff = matchDateTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setCountdown(t('in_progress'));
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (hours > 24) {
+        const days = Math.floor(hours / 24);
+        setCountdown(`${days}${t('days')} ${hours % 24}${t('hours')}`);
+      } else if (hours > 0) {
+        setCountdown(`${hours}${t('hours')} ${minutes}${t('minutes')}`);
+      } else {
+        setCountdown(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      }
+    };
+
+    calculateCountdown();
+    const interval = setInterval(calculateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [match, t]);
+
+  return (
+    <Badge 
+      variant={match.status === "live" ? "default" : "secondary"}
+      className={`text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 ${
+        match.status === "live" 
+          ? "bg-success/20 text-success border-success/50 animate-pulse" 
+          : "bg-primary/20 text-primary border-primary/50"
+      }`}
+    >
+      <Clock className="h-3 w-3" />
+      {countdown}
+    </Badge>
+  );
 };
 
 const ActiveAIBets = () => {
@@ -127,6 +184,11 @@ const ActiveAIBets = () => {
               key={aiModel.id}
               className="relative rounded-2xl p-6 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105"
             >
+              {/* Countdown Timer - Top Left */}
+              <div className="absolute top-3 left-3 z-20">
+                <MatchCountdown match={bet.match} />
+              </div>
+
               {/* Background Image for DeepSeek */}
               {aiModel.id === 'deepseek' && (
                 <div 
