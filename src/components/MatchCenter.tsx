@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Clock, CheckCircle2 } from "lucide-react";
-import { upcomingMatches, pastMatches } from "@/data/mockData";
+import { Activity, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { upcomingMatches, pastMatches, matchPredictions } from "@/data/mockData";
 import { Match } from "@/types/prediction";
 import { useNavigate } from "react-router-dom";
 
@@ -16,11 +16,26 @@ const MatchCenter = () => {
   const upcoming = upcomingMatches.filter(m => m.status === 'upcoming');
   const finished = pastMatches;
 
-  const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => (
+  const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => {
+    // Check if this match has AI predictions
+    const hasPredictions = matchPredictions[match.id] && matchPredictions[match.id].length > 0;
+    
+    return (
     <Card 
-      className="p-3 hover:bg-accent/50 transition-colors cursor-pointer border"
+      className="p-3 hover:bg-accent/50 transition-colors cursor-pointer border relative"
       onClick={() => navigate(`/match/${match.id}`)}
     >
+      {/* AI Prediction Badge - Top Right Corner */}
+      {hasPredictions && (
+        <Badge 
+          variant="default" 
+          className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg z-10 animate-pulse"
+        >
+          <Sparkles className="w-3 h-3 mr-1" />
+          AI
+        </Badge>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs text-muted-foreground font-semibold">{match.league}</span>
@@ -113,6 +128,7 @@ const MatchCenter = () => {
       )}
     </Card>
   );
+};
 
   return (
     <Card className="h-[600px] flex flex-col border-border">
