@@ -219,9 +219,10 @@ const ActiveAIBets = () => {
                   className="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${gptCardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '80px'
+                    backgroundSize: '150%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    backgroundPositionY: '120px'
                   }}
                 />
               )}
