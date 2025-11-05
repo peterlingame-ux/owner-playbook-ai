@@ -148,6 +148,32 @@ const PerformanceChart = () => {
           </button>
         </div>
       </div>
+
+      {/* Analysis Dimensions Banner */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
+        <div className="flex items-center justify-center gap-6 flex-wrap">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-deepseek animate-pulse" />
+            <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+              HUNSOCCER老板视角分析
+            </span>
+          </div>
+          <div className="hidden sm:block w-px h-6 bg-border" />
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-gpt animate-pulse" />
+            <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+              球队技术面拆解
+            </span>
+          </div>
+          <div className="hidden sm:block w-px h-6 bg-border" />
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-claude animate-pulse" />
+            <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+              异常实时赔率监控
+            </span>
+          </div>
+        </div>
+      </div>
       
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={data}>
