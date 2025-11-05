@@ -1,44 +1,20 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, MessageSquare, Activity, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { Activity, Clock, CheckCircle2 } from "lucide-react";
 import { upcomingMatches, pastMatches } from "@/data/mockData";
 import { Match } from "@/types/prediction";
 import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 const MatchCenter = () => {
   const { t } = useTranslation();
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
-    {
-      role: "assistant",
-      content: t('chat_welcome')
-    }
-  ]);
 
   // Split matches into live and upcoming
   const liveMatches = upcomingMatches.filter(m => m.status === 'live');
   const upcoming = upcomingMatches.filter(m => m.status === 'upcoming');
   const finished = pastMatches;
-
-  const handleSend = () => {
-    if (!message.trim()) return;
-    
-    setMessages(prev => [...prev, { role: "user", content: message }]);
-    setMessage("");
-    
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: t('chat_ai_response')
-      }]);
-    }, 1000);
-  };
 
   const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => (
     <Card className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover-scale cursor-pointer">
@@ -154,9 +130,7 @@ const MatchCenter = () => {
       />
       
       <Card className="relative overflow-hidden border-border/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 backdrop-blur-sm shadow-2xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 h-[600px]">
-          {/* Left: Match Schedule - 2/3 width */}
-          <div className="lg:col-span-2 border-r border-border/30 flex flex-col">
+        <div className="h-[600px] flex flex-col">
             <div className="relative p-5 border-b border-border/30 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-info/5 to-transparent" />
               <div className="relative flex items-center gap-3">
@@ -248,77 +222,7 @@ const MatchCenter = () => {
             </div>
           </Tabs>
         </div>
-
-        {/* Right: AI Chat - 1/3 width */}
-        <div className="lg:col-span-1 flex flex-col relative bg-gradient-to-b from-card to-card/50">
-          <div className="relative p-5 border-b border-border/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-info/10 via-info/5 to-transparent" />
-            <div className="relative flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-info/20 to-info/10 backdrop-blur-sm">
-                <Bot className="text-info" size={22} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    {t('ai_assistant')}
-                  </h3>
-                  <Sparkles className="w-3.5 h-3.5 text-info animate-pulse" />
-                </div>
-                <p className="text-xs text-muted-foreground">24/7 智能分析顾问</p>
-              </div>
-            </div>
-          </div>
-
-          <ScrollArea className="flex-1 p-4 relative">
-            <div className="space-y-3">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] p-3 rounded-xl shadow-sm ${
-                      msg.role === "user"
-                        ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground"
-                        : "bg-gradient-to-br from-secondary/80 to-secondary/60 backdrop-blur-sm border border-border/30"
-                    }`}
-                  >
-                    {msg.role === "assistant" && (
-                      <div className="flex items-center gap-2 mb-1">
-                        <Bot className="w-3.5 h-3.5 text-info" />
-                        <span className="text-xs font-semibold text-muted-foreground">AI分析师</span>
-                      </div>
-                    )}
-                    <p className={`text-sm leading-relaxed ${msg.role === "assistant" ? "text-foreground" : ""}`}>
-                      {msg.content}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-
-          <div className="p-4 border-t border-border/30 relative bg-card/50 backdrop-blur-sm">
-            <div className="flex gap-2">
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                placeholder={t('chat_placeholder')}
-                className="flex-1 bg-background/70 border-border/50 focus:border-info/50 placeholder:text-muted-foreground/50 transition-colors"
-              />
-              <Button 
-                onClick={handleSend} 
-                size="icon" 
-                className="flex-shrink-0 bg-gradient-to-br from-info to-info/80 hover:from-info/90 hover:to-info/70 shadow-lg hover:shadow-info/20 transition-all"
-              >
-                <Send size={18} />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
+      </Card>
     </div>
   );
 };

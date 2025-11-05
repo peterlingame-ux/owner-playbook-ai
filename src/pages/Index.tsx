@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
 import MatchCenter from "@/components/MatchCenter";
+import FloatingChat from "@/components/FloatingChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import ActivePredictions from "@/components/ActivePredictions";
@@ -71,6 +72,9 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Floating Chat */}
+      <FloatingChat />
     </div>
   );
 };
