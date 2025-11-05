@@ -92,7 +92,10 @@ const PerformanceChart = () => {
   };
 
   return (
-    <Card className="p-6 bg-card border-border relative overflow-hidden">
+    <Card 
+      className="p-6 bg-card border-border relative overflow-hidden"
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Football Stars Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-25">
@@ -209,6 +212,7 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="DeepSeek"
+            style={{ cursor: 'default', pointerEvents: 'none' }}
           />
           <Line 
             type="monotone" 
@@ -217,6 +221,7 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="GPT 5"
+            style={{ cursor: 'default', pointerEvents: 'none' }}
           />
           <Line 
             type="monotone" 
@@ -225,6 +230,7 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Claude"
+            style={{ cursor: 'default', pointerEvents: 'none' }}
           />
           <Line 
             type="monotone" 
@@ -233,6 +239,7 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Gemini"
+            style={{ cursor: 'default', pointerEvents: 'none' }}
           />
           <Line 
             type="monotone" 
@@ -241,6 +248,7 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Grok"
+            style={{ cursor: 'default', pointerEvents: 'none' }}
           />
         </LineChart>
       </ResponsiveContainer>
