@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
 import FloatingChat from "@/components/FloatingChat";
-import FloatingAIChat from "@/components/FloatingAIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import { aiModels } from "@/data/mockData";
@@ -55,11 +54,8 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Floating Match Schedule */}
+      {/* Floating Chat */}
       <FloatingChat />
-      
-      {/* Floating AI Chat */}
-      <FloatingAIChat />
     </div>
   );
 };
