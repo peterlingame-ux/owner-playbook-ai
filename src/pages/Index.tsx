@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import FloatingChat from "@/components/FloatingChat";
 import FloatingAIChat from "@/components/FloatingAIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
+import MatchCenter from "@/components/MatchCenter";
 import { aiModels } from "@/data/mockData";
 
 const Index = () => {
@@ -53,10 +53,17 @@ const Index = () => {
         <div id="match-predictions" className="mb-6 sm:mb-8 scroll-mt-20">
           <ActiveAIBets />
         </div>
+
+        {/* Match Schedule Section */}
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white font-pixel tracking-wider text-center">
+            {t('match_schedule')}
+          </h2>
+          <MatchCenter />
+        </div>
       </div>
       
-      {/* Floating Chat */}
-      <FloatingChat />
+      {/* Floating AI Chat */}
       <FloatingAIChat />
     </div>
   );
