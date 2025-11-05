@@ -8,7 +8,6 @@ import AIChat from "@/components/AIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import ActivePredictions from "@/components/ActivePredictions";
-import OwnerAnalysisFeature from "@/components/OwnerAnalysisFeature";
 import { aiModels } from "@/data/mockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -26,11 +25,6 @@ const Index = () => {
       <CryptoTicker />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
-        {/* Owner Analysis Feature */}
-        <div className="mb-6 sm:mb-8">
-          <OwnerAnalysisFeature />
-        </div>
-
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
