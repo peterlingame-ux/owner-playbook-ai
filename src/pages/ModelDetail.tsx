@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, CheckCircle2, XCircle, TrendingUp, Info, Target, DollarSign } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, TrendingUp, Info, Target, DollarSign, TrendingDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,16 @@ const ModelDetail = () => {
     );
   }
   
+  const calculateProfit = (prediction: any) => {
+    if (prediction.correct) {
+      // 赢了：盈利 = 下注金额 × (赔率 - 1)
+      return prediction.betAmount * (prediction.odds - 1);
+    } else {
+      // 输了：亏损 = -下注金额
+      return -prediction.betAmount;
+    }
+  };
+
   const getBetTypeLabel = (betType: string) => {
     switch(betType) {
       case "moneyline": return t('bet_type_moneyline');
@@ -218,8 +228,8 @@ const ModelDetail = () => {
                   </div>
                   
                   {/* 投注详情 */}
-                  <div className="mb-4 p-3 rounded-lg bg-accent/20 border border-accent/30">
-                    <div className="flex items-start justify-between">
+                  <div className="mb-4 p-4 rounded-lg bg-accent/20 border border-accent/30">
+                    <div className="grid grid-cols-2 gap-4 mb-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Target className="h-4 w-4 text-primary" />
@@ -241,14 +251,45 @@ const ModelDetail = () => {
                       
                       <div className="text-right space-y-1">
                         <div className="flex items-center gap-2 justify-end">
-                          <DollarSign className="h-4 w-4 text-success" />
+                          <DollarSign className="h-4 w-4 text-warning" />
                           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                             {t('odds')}
                           </span>
                         </div>
-                        <span className="text-lg font-bold font-mono-data text-success">
+                        <span className="text-lg font-bold font-mono-data text-warning">
                           {prediction.odds.toFixed(2)}
                         </span>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-accent/40">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                            {t('bet_amount')}
+                          </span>
+                          <div className="text-lg font-bold font-mono-data">
+                            ${prediction.betAmount}
+                          </div>
+                        </div>
+                        
+                        <div className="text-right space-y-1">
+                          <div className="flex items-center gap-2 justify-end">
+                            {calculateProfit(prediction) >= 0 ? (
+                              <TrendingUp className="h-4 w-4 text-success" />
+                            ) : (
+                              <TrendingDown className="h-4 w-4 text-destructive" />
+                            )}
+                            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                              {calculateProfit(prediction) >= 0 ? t('profit') : t('loss')}
+                            </span>
+                          </div>
+                          <div className={`text-lg font-bold font-mono-data ${
+                            calculateProfit(prediction) >= 0 ? 'text-success' : 'text-destructive'
+                          }`}>
+                            {calculateProfit(prediction) >= 0 ? '+' : ''}${calculateProfit(prediction).toFixed(2)}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

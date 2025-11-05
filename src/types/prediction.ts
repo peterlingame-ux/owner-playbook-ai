@@ -108,6 +108,7 @@ export interface PredictionHistory {
   overUnderLine?: number;
   overUnderPick?: "over" | "under";
   odds: number;
+  betAmount: number;
 }
 
 export interface AIModel {

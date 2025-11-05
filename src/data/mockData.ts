@@ -758,7 +758,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-28",
     betType: "handicap",
     handicapLine: -1.5,
-    odds: 1.92
+    odds: 1.92,
+    betAmount: 500
   },
   {
     id: "2",
@@ -772,7 +773,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 3.5,
     overUnderPick: "over",
-    odds: 2.05
+    odds: 2.05,
+    betAmount: 300
   },
   {
     id: "3",
@@ -784,7 +786,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 79,
     date: "2025-10-28",
     betType: "moneyline",
-    odds: 1.75
+    odds: 1.75,
+    betAmount: 450
   },
   {
     id: "4",
@@ -798,7 +801,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 2.5,
     overUnderPick: "under",
-    odds: 1.88
+    odds: 1.88,
+    betAmount: 350
   },
   {
     id: "5",
@@ -811,7 +815,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-28",
     betType: "handicap",
     handicapLine: -0.5,
-    odds: 2.10
+    odds: 2.10,
+    betAmount: 400
   },
   
   // Match 2 - Real Madrid vs Atletico Madrid (2-0)
@@ -826,7 +831,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-29",
     betType: "handicap",
     handicapLine: -1,
-    odds: 1.95
+    odds: 1.95,
+    betAmount: 600
   },
   {
     id: "7",
@@ -840,7 +846,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 2.5,
     overUnderPick: "under",
-    odds: 1.90
+    odds: 1.90,
+    betAmount: 250
   },
   {
     id: "8",
@@ -852,7 +859,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 85,
     date: "2025-10-29",
     betType: "moneyline",
-    odds: 1.68
+    odds: 1.68,
+    betAmount: 500
   },
   {
     id: "9",
@@ -866,7 +874,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 3.5,
     overUnderPick: "over",
-    odds: 1.98
+    odds: 1.98,
+    betAmount: 320
   },
   {
     id: "10",
@@ -879,7 +888,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-29",
     betType: "handicap",
     handicapLine: -0.5,
-    odds: 1.85
+    odds: 1.85,
+    betAmount: 450
   },
   
   // Match 3 - Bayern Munich vs RB Leipzig (1-1)
@@ -893,7 +903,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 78,
     date: "2025-10-30",
     betType: "moneyline",
-    odds: 1.72
+    odds: 1.72,
+    betAmount: 480
   },
   {
     id: "12",
@@ -907,7 +918,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 2.5,
     overUnderPick: "under",
-    odds: 1.90
+    odds: 1.90,
+    betAmount: 280
   },
   {
     id: "13",
@@ -919,7 +931,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 71,
     date: "2025-10-30",
     betType: "moneyline",
-    odds: 3.20
+    odds: 3.20,
+    betAmount: 350
   },
   {
     id: "14",
@@ -932,7 +945,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-30",
     betType: "handicap",
     handicapLine: -1,
-    odds: 2.12
+    odds: 2.12,
+    betAmount: 330
   },
   {
     id: "15",
@@ -946,7 +960,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 3.5,
     overUnderPick: "over",
-    odds: 2.00
+    odds: 2.00,
+    betAmount: 380
   },
   
   // Match 4 - PSG vs Lyon (4-2)
@@ -961,7 +976,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-31",
     betType: "handicap",
     handicapLine: -1.5,
-    odds: 2.05
+    odds: 2.05,
+    betAmount: 550
   },
   {
     id: "17",
@@ -973,7 +989,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 71,
     date: "2025-10-31",
     betType: "moneyline",
-    odds: 1.65
+    odds: 1.65,
+    betAmount: 320
   },
   {
     id: "18",
@@ -987,7 +1004,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 3.5,
     overUnderPick: "over",
-    odds: 1.95
+    odds: 1.95,
+    betAmount: 480
   },
   {
     id: "19",
@@ -1001,7 +1019,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 2.5,
     overUnderPick: "under",
-    odds: 1.85
+    odds: 1.85,
+    betAmount: 310
   },
   {
     id: "20",
@@ -1014,7 +1033,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-10-31",
     betType: "handicap",
     handicapLine: -1,
-    odds: 1.88
+    odds: 1.88,
+    betAmount: 420
   },
   
   // Match 5 - Inter Milan vs AC Milan (0-2)
@@ -1028,7 +1048,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 75,
     date: "2025-11-01",
     betType: "moneyline",
-    odds: 3.10
+    odds: 3.10,
+    betAmount: 400
   },
   {
     id: "22",
@@ -1042,7 +1063,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 2.5,
     overUnderPick: "over",
-    odds: 1.92
+    odds: 1.92,
+    betAmount: 290
   },
   {
     id: "23",
@@ -1055,7 +1077,8 @@ export const predictionHistory: PredictionHistory[] = [
     date: "2025-11-01",
     betType: "handicap",
     handicapLine: 0.5,
-    odds: 2.15
+    odds: 2.15,
+    betAmount: 430
   },
   {
     id: "24",
@@ -1067,7 +1090,8 @@ export const predictionHistory: PredictionHistory[] = [
     confidence: 70,
     date: "2025-11-01",
     betType: "moneyline",
-    odds: 1.88
+    odds: 1.88,
+    betAmount: 340
   },
   {
     id: "25",
@@ -1081,7 +1105,8 @@ export const predictionHistory: PredictionHistory[] = [
     betType: "over_under",
     overUnderLine: 2.5,
     overUnderPick: "under",
-    odds: 1.90
+    odds: 1.90,
+    betAmount: 360
   }
 ];
 
