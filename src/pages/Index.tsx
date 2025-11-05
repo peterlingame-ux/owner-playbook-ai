@@ -34,24 +34,26 @@ const Index = () => {
             <MatchCenter />
           </div>
           <div className="lg:col-span-1 space-y-3">
-            {/* AI Betting Cards */}
-            <ActiveAIBets />
+            {/* Models Section */}
+            <div>
+              <h2 className="text-lg font-bold mb-3 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-pixel">
+                {t('the_contestants')}
+              </h2>
+              <div className="grid grid-cols-1 gap-2">
+                {sortedModels.slice(1).map((model) => (
+                  <ModelCard 
+                    key={model.id} 
+                    model={model}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Models Section - Full Width Section */}
+        {/* AI Betting Cards - Full Width Section */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-lg font-bold mb-3 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-pixel">
-            {t('the_contestants')}
-          </h2>
-          <div className="grid grid-cols-1 gap-2">
-            {sortedModels.slice(1).map((model) => (
-              <ModelCard 
-                key={model.id} 
-                model={model}
-              />
-            ))}
-          </div>
+          <ActiveAIBets />
         </div>
 
         {/* Tabs Section */}
