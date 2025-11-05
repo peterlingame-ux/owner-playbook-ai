@@ -7,10 +7,10 @@ import sponsorBet365 from "@/assets/bet365-logo.png";
 const CryptoTicker = () => {
   const sportsSponsors = [
     { 
-      name: "开云体育", 
-      tagline: "亚洲领先体育平台",
-      logo: sponsorKaiyun,
-      url: "https://www.kaiyun.com"
+      name: "SPORTYBET", 
+      tagline: "Africa's Best Sports Betting Platform",
+      logo: sponsorSportyBet,
+      url: "https://www.sportybet.com"
     },
     { 
       name: "EA SPORTS", 
@@ -19,10 +19,10 @@ const CryptoTicker = () => {
       url: "https://www.ea.com/sports"
     },
     { 
-      name: "SPORTYBET", 
-      tagline: "Africa's Best Sports Betting Platform",
-      logo: sponsorSportyBet,
-      url: "https://www.sportybet.com"
+      name: "开云体育", 
+      tagline: "亚洲领先体育平台",
+      logo: sponsorKaiyun,
+      url: "https://www.kaiyun.com"
     },
     { 
       name: "BET365", 
