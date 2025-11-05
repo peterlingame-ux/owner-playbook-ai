@@ -38,7 +38,7 @@ const AIChat = () => {
         className="absolute inset-0 z-0 opacity-20"
         style={{
           backgroundImage: `url(${ownerAnalysisBg})`,
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
