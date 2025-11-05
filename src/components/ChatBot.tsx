@@ -70,7 +70,7 @@ const ChatBot = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col relative overflow-hidden border-2 border-primary bg-card shadow-xl">
+    <Card className="h-full flex flex-col relative overflow-hidden border-2 border-border bg-card shadow-xl">
       {/* Simple Background Pattern */}
       <div className="absolute inset-0 opacity-5" style={{
         backgroundImage: `url(${chatbotBg})`,
@@ -79,10 +79,10 @@ const ChatBot = () => {
       }} />
       
       {/* Header */}
-      <div className="relative z-10 p-4 border-b-2 border-primary bg-gradient-to-r from-primary/10 to-transparent">
+      <div className="relative z-10 p-4 border-b-2 border-border bg-gradient-to-r from-primary/10 to-transparent">
         <div className="flex items-center gap-3">
           {/* Logo */}
-          <div className="h-12 w-12 bg-background border-2 border-primary flex items-center justify-center p-1 shadow-lg">
+          <div className="h-12 w-12 bg-background border-2 border-border flex items-center justify-center p-1 shadow-lg">
             <img src={robotIcon} alt="HSL" className="w-full h-full object-contain pixelated" />
           </div>
           
@@ -109,7 +109,7 @@ const ChatBot = () => {
               }`}
             >
               {message.role === "assistant" && (
-                <div className="h-8 w-8 bg-background border-2 border-primary flex items-center justify-center flex-shrink-0 p-1">
+                <div className="h-8 w-8 bg-background border-2 border-border flex items-center justify-center flex-shrink-0 p-1">
                   <img src={robotIcon} alt="AI" className="w-full h-full object-contain pixelated" />
                 </div>
               )}
@@ -137,7 +137,7 @@ const ChatBot = () => {
           ))}
           {isLoading && (
             <div className="flex gap-2 justify-start animate-fade-in">
-              <div className="h-8 w-8 bg-background border-2 border-primary flex items-center justify-center p-1">
+              <div className="h-8 w-8 bg-background border-2 border-border flex items-center justify-center p-1">
                 <img src={robotIcon} alt="AI" className="w-full h-full object-contain pixelated animate-pulse" />
               </div>
               <div className="bg-card border-2 border-border px-3 py-2">
@@ -159,7 +159,7 @@ const ChatBot = () => {
       </ScrollArea>
 
       {/* Input */}
-      <div className="relative z-10 p-3 border-t-2 border-primary bg-gradient-to-r from-primary/10 to-transparent">
+      <div className="relative z-10 p-3 border-t-2 border-border bg-gradient-to-r from-primary/10 to-transparent">
         <div className="flex gap-2">
           <Input
             value={input}
@@ -172,7 +172,7 @@ const ChatBot = () => {
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="bg-primary hover:bg-primary/90 border-2 border-primary px-4 py-2 disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 border-2 border-border px-4 py-2 disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
           </Button>
