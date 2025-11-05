@@ -32,28 +32,27 @@ const Index = () => {
             {/* AI Chat Section below performance chart */}
             <AIChat />
           </div>
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+            {/* Models Section */}
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-pixel">
+                {t('the_contestants')}
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                {sortedModels.map((model) => (
+                  <ModelCard 
+                    key={model.id} 
+                    model={model}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* AI Betting Cards - Full Width Section */}
         <div className="mb-6 sm:mb-8">
           <ActiveAIBets />
-        </div>
-
-        {/* Models Section */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary via-info to-primary bg-clip-text text-transparent font-pixel">
-            {t('the_contestants')}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {sortedModels.map((model) => (
-              <ModelCard 
-                key={model.id} 
-                model={model}
-              />
-            ))}
-          </div>
         </div>
 
         {/* Tabs Section */}
