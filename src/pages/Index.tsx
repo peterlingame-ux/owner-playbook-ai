@@ -39,7 +39,14 @@ const Index = () => {
 
         {/* Performance Chart */}
         <div className="mb-6 sm:mb-8 lg:mb-12">
-          <PerformanceChart />
+          <PerformanceChart 
+            onChartClick={() => {
+              const element = document.getElementById('match-predictions');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+          />
         </div>
 
         {/* ChatBot - Full Width */}
@@ -50,7 +57,7 @@ const Index = () => {
         </div>
 
         {/* AI Betting Cards - Full Width Section */}
-        <div className="mb-6 sm:mb-8">
+        <div id="match-predictions" className="mb-6 sm:mb-8 scroll-mt-20">
           <ActiveAIBets />
         </div>
       </div>

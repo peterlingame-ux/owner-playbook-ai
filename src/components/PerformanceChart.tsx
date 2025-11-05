@@ -11,7 +11,11 @@ import ronaldoBg from "@/assets/ronaldo-bg.jpg";
 import messiBg from "@/assets/messi-bg.jpg";
 import mbappeBg from "@/assets/mbappe-bg.jpg";
 
-const PerformanceChart = () => {
+interface PerformanceChartProps {
+  onChartClick?: () => void;
+}
+
+const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   const { t } = useTranslation();
   const data = generateChartData();
 
@@ -91,11 +95,14 @@ const PerformanceChart = () => {
     );
   };
 
+  const handleLineClick = () => {
+    if (onChartClick) {
+      onChartClick();
+    }
+  };
+
   return (
-    <Card 
-      className="p-6 bg-card border-border relative overflow-hidden"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <Card className="p-6 bg-card border-border relative overflow-hidden">
       {/* Football Stars Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-25">
@@ -212,7 +219,8 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="DeepSeek"
-            style={{ cursor: 'default', pointerEvents: 'none' }}
+            onClick={handleLineClick}
+            style={{ cursor: 'pointer' }}
           />
           <Line 
             type="monotone" 
@@ -221,7 +229,8 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="GPT 5"
-            style={{ cursor: 'default', pointerEvents: 'none' }}
+            onClick={handleLineClick}
+            style={{ cursor: 'pointer' }}
           />
           <Line 
             type="monotone" 
@@ -230,7 +239,8 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Claude"
-            style={{ cursor: 'default', pointerEvents: 'none' }}
+            onClick={handleLineClick}
+            style={{ cursor: 'pointer' }}
           />
           <Line 
             type="monotone" 
@@ -239,7 +249,8 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Gemini"
-            style={{ cursor: 'default', pointerEvents: 'none' }}
+            onClick={handleLineClick}
+            style={{ cursor: 'pointer' }}
           />
           <Line 
             type="monotone" 
@@ -248,7 +259,8 @@ const PerformanceChart = () => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Grok"
-            style={{ cursor: 'default', pointerEvents: 'none' }}
+            onClick={handleLineClick}
+            style={{ cursor: 'pointer' }}
           />
         </LineChart>
       </ResponsiveContainer>
