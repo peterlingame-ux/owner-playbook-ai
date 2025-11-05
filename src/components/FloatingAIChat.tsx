@@ -14,7 +14,6 @@ interface Message {
 }
 
 const FloatingAIChat = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -69,32 +68,13 @@ const FloatingAIChat = () => {
   };
 
   return (
-    <>
-      {/* 浮动按钮 */}
-      {!isOpen && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 left-8 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-transparent hover:bg-transparent border-0 p-0"
-          size="icon"
-          aria-label="打开AI助手"
-        >
-          <img 
-            src={chatIcon} 
-            alt="AI助手" 
-            className="w-full h-full object-contain"
-          />
-        </Button>
-      )}
-
-      {/* 聊天窗口 */}
-      {isOpen && (
-        <Card 
-          className={`fixed z-50 shadow-2xl border-2 border-border bg-card/95 backdrop-blur-xl transition-all duration-300 animate-scale-in ${
-            isMinimized 
-              ? 'bottom-8 left-8 w-80 h-16' 
-              : 'bottom-8 left-8 w-[450px] h-[650px]'
-          }`}
-        >
+    <Card 
+      className={`fixed z-50 shadow-2xl border-2 border-border bg-card/95 backdrop-blur-xl transition-all duration-300 ${
+        isMinimized 
+          ? 'bottom-4 right-4 w-80 h-16' 
+          : 'bottom-4 right-4 w-[400px] h-[600px]'
+      }`}
+    >
           {/* 头部 */}
           <div className="relative p-3 border-b-2 border-border bg-gradient-to-r from-primary/10 to-transparent">
             <div className="flex items-center justify-between">
@@ -119,21 +99,13 @@ const FloatingAIChat = () => {
                 >
                   {isMinimized ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsOpen(false)}
-                  className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
-                >
-                  <X size={14} />
-                </Button>
               </div>
             </div>
           </div>
 
-          {/* 聊天内容 */}
-          {!isMinimized && (
-            <div className="flex flex-col h-[calc(650px-60px)]">
+        {/* 聊天内容 */}
+        {!isMinimized && (
+          <div className="flex flex-col h-[calc(600px-60px)]">
               <ScrollArea className="flex-1 p-4">
                 <div ref={scrollRef} className="space-y-4">
                   {messages.map((message) => (
@@ -193,12 +165,10 @@ const FloatingAIChat = () => {
                     <Send size={18} />
                   </Button>
                 </div>
-              </div>
             </div>
-          )}
-        </Card>
-      )}
-    </>
+          </div>
+        )}
+      </Card>
   );
 };
 
