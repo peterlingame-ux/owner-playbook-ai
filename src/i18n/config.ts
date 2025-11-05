@@ -41,7 +41,7 @@ const resources = {
       "total_predictions": "Total Predictions",
       
       // AI Chat
-      "ai_assistant": "BOSSPORT ROBOT",
+      "ai_assistant": "HUNSOCCER ROBOT",
       "ai_assistant_subtitle": "5 AI Comprehensive Analysis, Greatly Improve Win Rate",
       "chat_welcome": "Hello! I'm a professional sports bot. You can ask me any questions, such as which platform is most reliable.",
       "chat_placeholder": "Which platform is most reliable? Ask me anything...",
@@ -292,7 +292,7 @@ const resources = {
       "total_predictions": "总预测次数",
       
       // AI Chat
-      "ai_assistant": "BOSSPORT ROBOT",
+      "ai_assistant": "HUNSOCCER ROBOT",
       "ai_assistant_subtitle": "5AI综合专业分析，大幅度提高胜率",
       "chat_welcome": "你好，我是专业的体育机器人，你可以咨询我所有问题，例如哪个平台最靠谱",
       "chat_placeholder": "哪个平台最靠谱？问我任何问题...",
