@@ -144,11 +144,10 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       
       {/* Content */}
       <div className="relative z-10">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{t('performance_over_time')}</h2>
-          <p className="text-muted-foreground text-sm mt-1">{t('prediction_accuracy')}</p>
-        </div>
+      <div className="mb-6 flex flex-col items-center justify-center gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold font-pixel tracking-wider text-center text-white">
+          PERFORMANCE OVER TIME
+        </h2>
         <div className="flex gap-2">
           <button className="px-4 py-2 bg-foreground text-background rounded text-sm font-medium">
             {t('all')}
