@@ -3,6 +3,7 @@ import sponsorKaiyun from "@/assets/sponsor-kaiyun.png";
 import sponsorEA from "@/assets/sponsor-ea-sports.jpg";
 import sponsorSportyBet from "@/assets/sponsor-sportybet.png";
 import sponsorBet365 from "@/assets/bet365-logo.png";
+import sponsor1xbet from "@/assets/sponsor-1xbet.jpg";
 
 const CryptoTicker = () => {
   const sportsSponsors = [
@@ -33,6 +34,7 @@ const CryptoTicker = () => {
     { 
       name: "1XBET", 
       tagline: "Best Odds & Live Betting",
+      logo: sponsor1xbet,
       url: "https://www.1xbet.com"
     },
     { 
