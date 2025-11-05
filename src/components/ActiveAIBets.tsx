@@ -92,15 +92,15 @@ const ActiveAIBets = () => {
   }
 
   return (
-    <Card className="p-6 bg-card border-border">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">{t('active_ai_predictions')}</h2>
-        <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse">
+    <Card className="p-8 bg-card border-border">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-bold">{t('active_ai_predictions')}</h2>
+        <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse text-sm px-3 py-1">
           {t('live')}
         </Badge>
       </div>
 
-      <div className="space-y-4 max-h-[600px] overflow-y-auto">
+      <div className="space-y-6 max-h-[700px] overflow-y-auto">
         {activeAIs.map((aiModel) => {
           // Find this AI's bets in live matches
           const aiBets = liveMatches.flatMap(match => {
@@ -123,36 +123,36 @@ const ActiveAIBets = () => {
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-lg border border-border p-4 bg-background/50 hover:bg-background/80 transition-all duration-300"
+              className="relative rounded-xl border-2 border-border p-6 bg-background/50 hover:bg-background/80 transition-all duration-300 hover:border-primary/30"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-5">
                 {/* AI Avatar */}
-                <Avatar className="h-14 w-14 ring-2 ring-primary/20">
+                <Avatar className="h-20 w-20 ring-2 ring-primary/30 shadow-lg">
                   <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} />
-                  <AvatarFallback>{aiModel.name[0]}</AvatarFallback>
+                  <AvatarFallback className="text-lg">{aiModel.name[0]}</AvatarFallback>
                 </Avatar>
 
-                <div className="flex-1 space-y-3">
+                <div className="flex-1 space-y-4">
                   {/* AI Name & Financial Info */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <p className="font-bold text-sm">{aiModel.displayName}</p>
-                      <Badge variant="secondary" className="text-xs">
+                      <p className="font-bold text-lg">{aiModel.displayName}</p>
+                      <Badge variant="secondary" className="text-sm px-3 py-1">
                         {t('win_rate')}: {aiModel.winRate.toFixed(1)}%
                       </Badge>
                     </div>
                     
                     {/* Investment & Balance - Highlighted */}
-                    <div className="grid grid-cols-2 gap-2 p-2 bg-primary/5 rounded-md border border-primary/10">
+                    <div className="grid grid-cols-2 gap-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
                       <div>
-                        <p className="text-xs text-muted-foreground">{t('bet_amount')}</p>
-                        <p className="font-mono-data font-bold text-primary">
+                        <p className="text-sm text-muted-foreground mb-1">{t('bet_amount')}</p>
+                        <p className="font-mono-data font-bold text-lg text-primary">
                           ${bet.betAmount.toLocaleString()}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">{t('balance')}</p>
-                        <p className="font-mono-data font-bold text-success">
+                        <p className="text-sm text-muted-foreground mb-1">{t('balance')}</p>
+                        <p className="font-mono-data font-bold text-lg text-success">
                           {aiModel.currentValue}
                         </p>
                       </div>
@@ -160,32 +160,32 @@ const ActiveAIBets = () => {
                   </div>
 
                   {/* Match Info */}
-                  <div className="flex items-center gap-2 text-sm pt-2 border-t border-border/50">
-                    <Badge variant="outline" className="text-xs">
+                  <div className="flex items-center gap-3 text-base pt-3 border-t border-border/50">
+                    <Badge variant="outline" className="text-sm px-3 py-1">
                       {bet.match.league}
                     </Badge>
-                    <span className="font-medium truncate">
+                    <span className="font-semibold truncate">
                       {bet.match.homeTeam} vs {bet.match.awayTeam}
                     </span>
                   </div>
 
                   {/* Bet Type & Prediction Details */}
-                  <div className="space-y-2 pt-2 border-t border-border/50">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs font-semibold bg-info/10 text-info border-info/30">
+                  <div className="space-y-3 pt-3 border-t border-border/50">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Badge variant="outline" className="text-sm font-semibold bg-info/10 text-info border-info/30 px-3 py-1">
                         {getBetTypeText(bet.betType, bet.prediction, bet.handicapLine, bet.overUnderLine, bet.overUnderPick)}
                       </Badge>
-                      <Badge variant="secondary" className="text-xs font-mono-data">
+                      <Badge variant="secondary" className="text-sm font-mono-data px-3 py-1">
                         @{bet.odds.toFixed(2)}
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {getPredictionIcon(bet.prediction)}
-                      <span className="text-sm font-semibold">
+                      <span className="text-base font-semibold">
                         {t('prediction')}: {getPredictionText(bet.prediction, bet.match)}
                       </span>
-                      <Badge variant="secondary" className="text-xs ml-auto">
+                      <Badge variant="secondary" className="text-sm ml-auto px-3 py-1">
                         {bet.confidence}%
                       </Badge>
                     </div>
@@ -193,13 +193,13 @@ const ActiveAIBets = () => {
 
                   {/* Current Score */}
                   {bet.match.homeScore !== undefined && bet.match.awayScore !== undefined && (
-                    <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-                      <span className="text-xs text-muted-foreground">{t('current_score')}:</span>
-                      <span className="font-mono-data font-bold text-sm text-primary">
+                    <div className="flex items-center gap-3 pt-3 border-t border-border/50">
+                      <span className="text-sm text-muted-foreground">{t('current_score')}:</span>
+                      <span className="font-mono-data font-bold text-lg text-primary">
                         {bet.match.homeScore} - {bet.match.awayScore}
                       </span>
                       {bet.match.currentMinute && (
-                        <Badge variant="outline" className="text-xs ml-auto">
+                        <Badge variant="outline" className="text-sm ml-auto px-3 py-1">
                           {bet.match.currentMinute}'
                         </Badge>
                       )}
