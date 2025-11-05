@@ -102,7 +102,7 @@ const ActiveAIBets = () => {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {activeAIs.map((aiModel) => {
           // Find this AI's bets in live matches
           const aiBets = liveMatches.flatMap(match => {
