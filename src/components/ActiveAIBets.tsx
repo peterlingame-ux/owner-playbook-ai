@@ -177,9 +177,6 @@ const ActiveAIBets = () => {
                     <p className="font-bold text-lg bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
                       {aiModel.displayName}
                     </p>
-                    <Badge variant="secondary" className="text-xs mt-1.5 font-semibold">
-                      {t('win_rate')}: {aiModel.winRate.toFixed(1)}%
-                    </Badge>
                   </div>
                 </div>
 
