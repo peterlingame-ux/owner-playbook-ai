@@ -45,29 +45,40 @@ const CryptoTicker = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-y border-primary/30 overflow-hidden group">
-      <div className="flex items-center gap-16 animate-scroll whitespace-nowrap py-4 group-hover:[animation-play-state:paused]">
+    <div className="bg-card/50 border-y-2 border-border overflow-hidden group relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"></div>
+      <div className="flex items-center gap-8 animate-scroll whitespace-nowrap py-6 group-hover:[animation-play-state:paused] relative">
         {[...sportsSponsors, ...sportsSponsors, ...sportsSponsors].map((sponsor, index) => (
           <a 
             key={index}
             href={sponsor.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-4 min-w-[280px] justify-start hover:opacity-80 transition-all cursor-pointer group/item hover:scale-105"
+            className="flex flex-col items-center gap-3 min-w-[200px] px-6 py-4 rounded-lg bg-background/60 backdrop-blur-sm border-2 border-border hover:border-primary/50 transition-all duration-300 cursor-pointer group/item hover:scale-105 hover:shadow-lg hover:shadow-primary/10"
           >
-            <div className="w-16 h-12 flex items-center justify-center flex-shrink-0">
+            <div className="w-24 h-16 flex items-center justify-center">
               {sponsor.logo ? (
                 <img 
                   src={sponsor.logo} 
                   alt={sponsor.name}
-                  className="max-h-12 max-w-16 w-auto h-auto object-contain"
+                  className="max-h-16 max-w-24 w-auto h-auto object-contain filter brightness-90 group-hover/item:brightness-100 transition-all"
                 />
               ) : (
-                <TrendingUp size={20} className="text-primary" />
+                <TrendingUp size={28} className="text-primary" />
               )}
             </div>
-            <span className="font-bold text-xl text-foreground tracking-wide">{sponsor.name}</span>
-            <ExternalLink size={16} className="text-muted-foreground opacity-0 group-hover/item:opacity-100 transition-opacity ml-auto" />
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-bold text-sm text-foreground tracking-wider font-pixel">
+                {sponsor.name}
+              </span>
+              <span className="text-[10px] text-muted-foreground text-center line-clamp-1 font-mono">
+                {sponsor.tagline}
+              </span>
+            </div>
+            <ExternalLink 
+              size={14} 
+              className="text-primary/60 group-hover/item:text-primary transition-colors absolute top-2 right-2" 
+            />
           </a>
         ))}
       </div>
