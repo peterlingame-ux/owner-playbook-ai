@@ -79,17 +79,9 @@ const MatchCenter = () => {
 
   return (
     <Card className="h-[600px] flex flex-col border-border">
-      {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-bold">{t('match_schedule')}</h2>
-        </div>
-      </div>
-
       {/* Tabs */}
       <Tabs defaultValue="live" className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-3 m-3 mb-0">
+        <TabsList className="grid w-full grid-cols-3 m-3">
           <TabsTrigger value="live" className="text-xs">
             <Activity className="w-3 h-3 mr-1" />
             {t('live')} ({liveMatches.length})
