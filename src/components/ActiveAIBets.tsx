@@ -80,19 +80,19 @@ const ActiveAIBets = () => {
 
   if (liveMatches.length === 0) {
     return (
-      <Card className="p-6 bg-card border-border">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">{t('active_ai_predictions')}</h2>
+      <div className="p-8 bg-card">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold">{t('active_ai_predictions')}</h2>
         </div>
         <p className="text-sm text-muted-foreground text-center py-8">
           {t('no_active_predictions')}
         </p>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="p-8 bg-card border-border">
+    <div className="p-8 bg-card">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-bold">{t('active_ai_predictions')}</h2>
         <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse text-sm px-3 py-1">
@@ -100,7 +100,7 @@ const ActiveAIBets = () => {
         </Badge>
       </div>
 
-      <div className="space-y-6 max-h-[700px] overflow-y-auto">
+      <div className="space-y-6 overflow-y-auto">
         {activeAIs.map((aiModel) => {
           // Find this AI's bets in live matches
           const aiBets = liveMatches.flatMap(match => {
@@ -123,7 +123,7 @@ const ActiveAIBets = () => {
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-xl border-2 border-border p-6 bg-background/50 hover:bg-background/80 transition-all duration-300 hover:border-primary/30"
+              className="relative rounded-xl p-6 bg-card/80 hover:bg-card transition-all duration-300 shadow-sm hover:shadow-md"
             >
               <div className="flex items-start gap-5">
                 {/* AI Avatar */}
@@ -211,7 +211,7 @@ const ActiveAIBets = () => {
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };
 
