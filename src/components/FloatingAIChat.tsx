@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Minimize2, Maximize2, Send, MessageCircle } from "lucide-react";
-import chatIcon from "@/assets/chat-icon-new.png";
+import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
 
 interface Message {
   id: string;
@@ -19,7 +19,7 @@ const FloatingAIChat = () => {
     {
       id: "1",
       role: "assistant",
-      content: "您好！我是AI助手，有什么可以帮助您的吗？",
+      content: "您好！我是HUNSOCCER AI，有什么可以帮助您的吗？",
       timestamp: new Date(),
     },
   ]);
@@ -80,11 +80,15 @@ const FloatingAIChat = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-background border-2 border-border">
-                  <MessageCircle className="text-primary" size={18} />
+                  <img 
+                    src={hunsoccerAiIcon} 
+                    alt="HUNSOCCER AI" 
+                    className="w-[18px] h-[18px] object-contain"
+                  />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm font-pixel tracking-wider">
-                    AI 助手
+                    HUNSOCCER AI
                   </h3>
                   <p className="text-[10px] text-muted-foreground font-mono">在线咨询</p>
                 </div>
