@@ -14,7 +14,7 @@ interface Message {
 }
 
 const FloatingAIChat = () => {
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -68,13 +68,25 @@ const FloatingAIChat = () => {
   };
 
   return (
-    <Card 
-      className={`fixed z-50 shadow-2xl border-2 border-border bg-card/95 backdrop-blur-xl transition-all duration-300 ${
-        isMinimized 
-          ? 'bottom-4 right-4 w-80 h-16' 
-          : 'bottom-4 right-4 w-[400px] h-[600px]'
-      }`}
-    >
+    <>
+      {/* 最小化按钮 */}
+      {isMinimized && (
+        <button
+          onClick={() => setIsMinimized(false)}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-6 py-3 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-105"
+        >
+          <span className="text-lg font-semibold">Chat</span>
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+            <MessageCircle size={18} />
+          </div>
+        </button>
+      )}
+
+      {/* 聊天窗口 */}
+      {!isMinimized && (
+        <Card 
+          className="fixed bottom-6 right-6 w-[400px] h-[600px] z-50 shadow-2xl border-2 border-border bg-card/95 backdrop-blur-xl"
+        >
           {/* 头部 */}
           <div className="relative p-3 border-b-2 border-border bg-gradient-to-r from-primary/10 to-transparent">
             <div className="flex items-center justify-between">
@@ -98,17 +110,16 @@ const FloatingAIChat = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsMinimized(!isMinimized)}
+                  onClick={() => setIsMinimized(true)}
                   className="h-7 w-7 hover:bg-primary/10"
                 >
-                  {isMinimized ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
+                  <Minimize2 size={14} />
                 </Button>
               </div>
             </div>
           </div>
 
-        {/* 聊天内容 */}
-        {!isMinimized && (
+          {/* 聊天内容 */}
           <div className="flex flex-col h-[calc(600px-60px)]">
               <ScrollArea className="flex-1 p-4">
                 <div ref={scrollRef} className="space-y-4">
@@ -171,8 +182,9 @@ const FloatingAIChat = () => {
                 </div>
             </div>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
+    </>
   );
 };
 
