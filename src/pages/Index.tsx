@@ -27,7 +27,7 @@ const Index = () => {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             <PerformanceChart />
             {/* HUNSOCCER ChatBot */}
-            <div className="h-[600px]">
+            <div className="h-[500px]">
               <ChatBot />
             </div>
           </div>
