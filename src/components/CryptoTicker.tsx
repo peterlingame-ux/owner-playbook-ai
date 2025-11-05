@@ -2,6 +2,7 @@ import { TrendingUp, ExternalLink } from "lucide-react";
 import sponsorKaiyun from "@/assets/sponsor-kaiyun.png";
 import sponsorEA from "@/assets/sponsor-ea-sports.png";
 import sponsorSportyBet from "@/assets/sponsor-sportybet.png";
+import sponsorBet365 from "@/assets/bet365-logo.png";
 
 const CryptoTicker = () => {
   const sportsSponsors = [
@@ -26,6 +27,7 @@ const CryptoTicker = () => {
     { 
       name: "BET365", 
       tagline: "The World's Favourite Online Sports Betting Company",
+      logo: sponsorBet365,
       url: "https://www.bet365.com"
     },
     { 
