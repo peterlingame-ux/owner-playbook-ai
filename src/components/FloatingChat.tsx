@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, Minimize2, Maximize2, Activity } from "lucide-react";
 import MatchCenter from "./MatchCenter";
-import chatIcon from "@/assets/chat-icon.png";
+import chatIcon from "@/assets/chat-icon-new.png";
 
 const FloatingChat = () => {
   const { t } = useTranslation();
@@ -17,14 +17,14 @@ const FloatingChat = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary hover:bg-primary/90 border-2 border-border group"
+          className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-transparent hover:bg-transparent border-0 p-0"
           size="icon"
           aria-label="Open Match Schedule"
         >
           <img 
             src={chatIcon} 
             alt="Match Schedule" 
-            className="w-9 h-9 object-contain"
+            className="w-full h-full object-contain"
           />
         </Button>
       )}
