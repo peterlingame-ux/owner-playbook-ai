@@ -103,6 +103,11 @@ export interface PredictionHistory {
   correct: boolean;
   confidence: number;
   date: string;
+  betType: "moneyline" | "handicap" | "over_under";
+  handicapLine?: number;
+  overUnderLine?: number;
+  overUnderPick?: "over" | "under";
+  odds: number;
 }
 
 export interface AIModel {

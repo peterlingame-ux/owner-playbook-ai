@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, CheckCircle2, XCircle, TrendingUp, Info } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, TrendingUp, Info, Target, DollarSign } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,30 @@ const ModelDetail = () => {
       </div>
     );
   }
+  
+  const getBetTypeLabel = (betType: string) => {
+    switch(betType) {
+      case "moneyline": return t('bet_type_moneyline');
+      case "handicap": return t('bet_type_handicap');
+      case "over_under": return t('bet_type_over_under');
+      default: return betType;
+    }
+  };
+  
+  const getBetTypeDetails = (prediction: any) => {
+    if (prediction.betType === "handicap") {
+      const line = prediction.handicapLine || 0;
+      if (prediction.prediction === "HOME_WIN") {
+        return `${line > 0 ? '+' : ''}${line}`;
+      } else if (prediction.prediction === "AWAY_WIN") {
+        return `${line < 0 ? '+' : ''}${Math.abs(line)}`;
+      }
+      return `${line}`;
+    } else if (prediction.betType === "over_under") {
+      return `${prediction.overUnderPick === "over" ? t('over') : t('under')} ${prediction.overUnderLine}`;
+    }
+    return "";
+  };
   
   const getPredictionLabel = (prediction: string) => {
     switch(prediction) {
@@ -149,7 +173,7 @@ const ModelDetail = () => {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* 顶部状态栏 */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/50">
                     <div className="flex items-center gap-3">
                       <Badge variant={prediction.correct ? "default" : "destructive"} className="gap-1">
                         {prediction.correct ? (
@@ -184,6 +208,48 @@ const ModelDetail = () => {
                       <span>{prediction.date}</span>
                       <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                       <span>{match.time}</span>
+                      {match.homeScore !== undefined && match.awayScore !== undefined && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                          <span className="font-bold text-foreground">{match.homeScore} - {match.awayScore}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* 投注详情 */}
+                  <div className="mb-4 p-3 rounded-lg bg-accent/20 border border-accent/30">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Target className="h-4 w-4 text-primary" />
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                            {t('bet_type')}
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+                            {getBetTypeLabel(prediction.betType)}
+                          </span>
+                          {getBetTypeDetails(prediction) && (
+                            <span className="text-sm font-medium text-foreground/80">
+                              ({getBetTypeDetails(prediction)})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="text-right space-y-1">
+                        <div className="flex items-center gap-2 justify-end">
+                          <DollarSign className="h-4 w-4 text-success" />
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                            {t('odds')}
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold font-mono-data text-success">
+                          {prediction.odds.toFixed(2)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   
