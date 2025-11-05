@@ -2,10 +2,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTranslation } from "react-i18next";
 import { upcomingMatches } from "@/data/mockData";
-import { Calendar, Clock, Trophy, Radio, Sun, CloudRain, Cloud, Snowflake } from "lucide-react";
+import { Calendar, Clock, Trophy, Radio, Sun, CloudRain, Cloud, Snowflake, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import weatherSunny from "@/assets/weather-sunny.jpg";
 import weatherRainy from "@/assets/weather-rainy.jpg";
 import weatherCloudy from "@/assets/weather-cloudy.jpg";
@@ -14,6 +16,7 @@ import weatherSnowy from "@/assets/weather-snowy.jpg";
 const LiveMatches = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(true);
   
   const getMatchPeriodText = (period?: string) => {
     switch(period) {
@@ -72,14 +75,21 @@ const LiveMatches = () => {
   
   return (
     <Card className="p-6 bg-card border-border h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">{t('upcoming_matches')}</h2>
-        <Badge variant="outline" className="bg-success/20 text-success border-success/50">
-          {t('live')}
-        </Badge>
-      </div>
-      
-      <div className="space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100% - 60px)' }}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className="w-full">
+          <div className="flex items-center justify-between mb-6 hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold">{t('upcoming_matches')}</h2>
+              <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </div>
+            <Badge variant="outline" className="bg-success/20 text-success border-success/50">
+              {t('live')}
+            </Badge>
+          </div>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <div className="space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100% - 60px)' }}>
         {upcomingMatches.map((match) => (
           <div 
             key={match.id} 
@@ -240,7 +250,9 @@ const LiveMatches = () => {
             </div>
           </div>
         ))}
-      </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };
