@@ -28,7 +28,8 @@ const CryptoTicker = () => {
       name: "BET365", 
       tagline: "The World's Favourite Online Sports Betting Company",
       logo: sponsorBet365,
-      url: "https://www.bet365.com"
+      url: "https://www.bet365.com",
+      logoOnly: true
     },
     { 
       name: "1XBET", 
@@ -62,9 +63,13 @@ const CryptoTicker = () => {
             ) : (
               <TrendingUp size={16} className="text-primary flex-shrink-0" />
             )}
-            <span className="font-bold text-lg text-foreground tracking-wide">{sponsor.name}</span>
-            <span className="text-muted-foreground text-sm">|</span>
-            <span className="text-muted-foreground text-sm italic">{sponsor.tagline}</span>
+            {!sponsor.logoOnly && (
+              <>
+                <span className="font-bold text-lg text-foreground tracking-wide">{sponsor.name}</span>
+                <span className="text-muted-foreground text-sm">|</span>
+                <span className="text-muted-foreground text-sm italic">{sponsor.tagline}</span>
+              </>
+            )}
             <ExternalLink size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </a>
         ))}
