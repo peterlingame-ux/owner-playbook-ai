@@ -220,7 +220,7 @@ const ActiveAIBets = () => {
                   style={{
                     backgroundImage: `url(${gptCardBg})`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center center'
+                    backgroundPosition: 'center bottom'
                   }}
                 />
               )}
