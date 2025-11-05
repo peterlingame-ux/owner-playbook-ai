@@ -1,1 +1,4 @@
 project_id = "bxxcyngrwsnrcsozrzno"
+
+[functions.football-match-detail]
+verify_jwt = false
