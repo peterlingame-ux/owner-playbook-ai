@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield, Clock } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
@@ -114,6 +115,9 @@ const ActiveAIBets = () => {
   // Get first 5 AI models (exclude mystery)
   const activeAIs = aiModels.filter(ai => ai.id !== "mystery").slice(0, 5);
 
+  // State to track which match index is shown for each AI
+  const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
+
   const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
     switch(betType) {
       case "moneyline":
@@ -189,18 +193,66 @@ const ActiveAIBets = () => {
           // If no bets, skip this AI
           if (aiBets.length === 0) return null;
 
-          // Use the first bet for display
-          const bet = aiBets[0];
+          // Get current match index for this AI (default to 0)
+          const matchIndex = currentMatchIndex[aiModel.id] || 0;
+          const bet = aiBets[matchIndex];
+
+          // Handler to switch to next match
+          const nextMatch = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            setCurrentMatchIndex(prev => ({
+              ...prev,
+              [aiModel.id]: ((prev[aiModel.id] || 0) + 1) % aiBets.length
+            }));
+          };
+
+          // Handler to switch to previous match
+          const prevMatch = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            setCurrentMatchIndex(prev => ({
+              ...prev,
+              [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + aiBets.length) % aiBets.length
+            }));
+          };
 
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-2xl p-6 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105"
+              className="relative rounded-2xl p-6 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
+              onClick={nextMatch}
             >
               {/* Countdown Timer - Top Left */}
               <div className="absolute top-3 left-3 z-20">
                 <MatchCountdown match={bet.match} />
               </div>
+
+              {/* Match Counter - Top Right */}
+              {aiBets.length > 1 && (
+                <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 bg-background/80 hover:bg-background"
+                    onClick={prevMatch}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Badge 
+                    variant="secondary"
+                    className="text-xs font-bold px-3 py-1 bg-background/80"
+                  >
+                    {matchIndex + 1}/{aiBets.length}
+                  </Badge>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 bg-background/80 hover:bg-background"
+                    onClick={nextMatch}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
 
               {/* Background Image for DeepSeek */}
               {aiModel.id === 'deepseek' && (
