@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, Sparkles } from "lucide-react";
 
 interface Message {
   id: string;
@@ -68,46 +68,59 @@ const ChatBot = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col bg-gradient-to-br from-card via-card to-card/95 border-2 border-primary/30 shadow-2xl">
+    <Card className="h-full flex flex-col bg-gradient-to-br from-card/95 via-card to-card/90 border-2 border-primary/40 shadow-2xl backdrop-blur-sm relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-info/5 animate-pulse" style={{ animationDuration: '3s' }} />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-info/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+      
       {/* Header */}
-      <div className="p-4 border-b-2 border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center shadow-lg">
-            <Bot className="h-6 w-6 text-primary-foreground" />
+      <div className="relative z-10 p-5 border-b-2 border-primary/30 bg-gradient-to-r from-primary/15 via-primary/10 to-info/10 backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-full blur-md animate-pulse" />
+            <div className="relative h-14 w-14 rounded-full bg-gradient-to-br from-primary via-primary/80 to-info flex items-center justify-center shadow-2xl ring-4 ring-primary/20">
+              <Bot className="h-7 w-7 text-primary-foreground" />
+              <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-warning animate-pulse" />
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
+          <div className="flex-1">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-primary via-foreground to-info bg-clip-text text-transparent flex items-center gap-2">
               {t('ai_assistant')}
+              <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
             </h2>
-            <p className="text-xs text-muted-foreground">{t('ai_assistant_subtitle')}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 font-medium">{t('ai_assistant_subtitle')}</p>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="space-y-4">
+      <ScrollArea className="relative z-10 flex-1 p-6" ref={scrollRef}>
+        <div className="space-y-5">
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${
+              className={`flex gap-3 animate-fade-in ${
                 message.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
               {message.role === "assistant" && (
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center flex-shrink-0">
-                  <Bot className="h-4 w-4 text-primary-foreground" />
+                <div className="relative flex-shrink-0">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-full blur-sm opacity-50" />
+                  <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-primary via-primary/90 to-info flex items-center justify-center ring-2 ring-primary/30">
+                    <Bot className="h-5 w-5 text-primary-foreground" />
+                  </div>
                 </div>
               )}
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[75%] rounded-2xl px-5 py-3.5 shadow-lg transition-all hover:shadow-xl ${
                   message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                    ? "bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground"
+                    : "bg-gradient-to-br from-muted via-muted/95 to-muted/90 border border-border/50"
                 }`}
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
-                <p className="text-xs opacity-70 mt-1">
+                <p className="text-xs opacity-60 mt-2 font-mono">
                   {message.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -115,26 +128,32 @@ const ChatBot = () => {
                 </p>
               </div>
               {message.role === "user" && (
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-info to-info/50 flex items-center justify-center flex-shrink-0">
-                  <User className="h-4 w-4 text-primary-foreground" />
+                <div className="relative flex-shrink-0">
+                  <div className="absolute inset-0 bg-gradient-to-br from-info to-success rounded-full blur-sm opacity-50" />
+                  <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-info via-info/90 to-success flex items-center justify-center ring-2 ring-info/30">
+                    <User className="h-5 w-5 text-primary-foreground" />
+                  </div>
                 </div>
               )}
             </div>
           ))}
           {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center flex-shrink-0">
-                <Bot className="h-4 w-4 text-primary-foreground" />
+            <div className="flex gap-3 justify-start animate-fade-in">
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary to-info rounded-full blur-sm opacity-50" />
+                <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-primary via-primary/90 to-info flex items-center justify-center ring-2 ring-primary/30">
+                  <Bot className="h-5 w-5 text-primary-foreground" />
+                </div>
               </div>
-              <div className="bg-muted rounded-2xl px-4 py-3">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce" />
+              <div className="bg-gradient-to-br from-muted via-muted/95 to-muted/90 rounded-2xl px-5 py-3.5 shadow-lg border border-border/50">
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" />
                   <div
-                    className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce"
+                    className="w-2 h-2 rounded-full bg-primary/60 animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   />
                   <div
-                    className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce"
+                    className="w-2 h-2 rounded-full bg-primary/60 animate-bounce"
                     style={{ animationDelay: "0.4s" }}
                   />
                 </div>
@@ -145,22 +164,25 @@ const ChatBot = () => {
       </ScrollArea>
 
       {/* Input */}
-      <div className="p-4 border-t-2 border-primary/30 bg-gradient-to-r from-primary/5 via-transparent to-primary/5">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={t('chat_placeholder')}
-            className="flex-1 bg-background/50 border-primary/30 focus:border-primary"
-            disabled={isLoading}
-          />
+      <div className="relative z-10 p-5 border-t-2 border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-info/10 backdrop-blur-sm">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={t('chat_placeholder')}
+              className="w-full bg-background/80 backdrop-blur-sm border-2 border-primary/40 focus:border-primary/60 rounded-xl px-4 py-6 text-base shadow-lg transition-all focus:shadow-xl"
+              disabled={isLoading}
+            />
+            <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/40" />
+          </div>
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            className="bg-gradient-to-r from-primary via-primary/90 to-info hover:from-primary/90 hover:via-primary/80 hover:to-info/90 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all h-auto py-3 hover:scale-105"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-5 w-5" />
           </Button>
         </div>
       </div>
