@@ -107,7 +107,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <Card 
-      className="relative p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-3 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
       onClick={handleCardClick}
       style={{
         borderColor: `hsl(var(--${model.color}) / 0.3)`
@@ -115,9 +115,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
     >
       {/* Locked Badge Overlay - Center */}
       {model.locked && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-4 py-3 flex items-center gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
-          <Lock className="h-6 w-6" style={{ color: `hsl(var(--${model.color}))` }} />
-          <span className="text-base font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-3 py-2 flex items-center gap-1.5 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
+          <Lock className="h-4 w-4" style={{ color: `hsl(var(--${model.color}))` }} />
+          <span className="text-xs font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
             {t('locked_model') || 'LOCKED'}
           </span>
         </div>
@@ -156,10 +156,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
       
       {/* Content */}
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-2">
             <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center p-1.5 bg-card"
+              className="w-8 h-8 rounded-full flex items-center justify-center p-1 bg-card"
               style={{
                 border: `2px solid hsl(var(--${model.color}))`
               }}
@@ -171,34 +171,34 @@ const ModelCard = ({ model }: ModelCardProps) => {
               />
             </div>
             <div>
-              <h3 className="font-bold text-sm" style={{ color: `hsl(var(--${model.color}))` }}>
+              <h3 className="font-bold text-xs leading-tight" style={{ color: `hsl(var(--${model.color}))` }}>
                 {model.displayName}
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-[10px] text-muted-foreground">
                 {model.totalPredictions} {t('predictions')}
               </p>
             </div>
           </div>
           
           {/* Money Change Badge */}
-          <div className={`px-3 py-1.5 rounded-full font-mono-data font-bold text-sm ${
+          <div className={`px-2 py-0.5 rounded-full font-mono-data font-bold text-[10px] ${
             model.change.startsWith('+') ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
           }`}>
             {model.change}
           </div>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">{t('win_rate')}</span>
-              <span className="text-3xl font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-muted-foreground">{t('win_rate')}</span>
+              <span className="text-lg font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
                 {model.winRate.toFixed(1)}%
               </span>
             </div>
             
             {/* Win Rate Progress Bar */}
-            <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="relative h-1.5 bg-secondary rounded-full overflow-hidden">
               <div 
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
                 style={{
@@ -209,32 +209,32 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <div className="flex items-center justify-between pt-1.5 border-t border-border/50">
             <div>
-              <p className="text-xs text-muted-foreground">{t('correct')}</p>
-              <p className="text-lg font-bold font-mono-data text-success">
+              <p className="text-[9px] text-muted-foreground">{t('correct')}</p>
+              <p className="text-sm font-bold font-mono-data text-success">
                 {model.correctPredictions}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground">{t('total_predictions')}</p>
-              <p className="text-lg font-bold font-mono-data">
+              <p className="text-[9px] text-muted-foreground">{t('total_predictions')}</p>
+              <p className="text-sm font-bold font-mono-data">
                 {model.totalPredictions}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">{t('wrong')}</p>
-              <p className="text-lg font-bold font-mono-data text-destructive">
+              <p className="text-[9px] text-muted-foreground">{t('wrong')}</p>
+              <p className="text-sm font-bold font-mono-data text-destructive">
                 {model.totalPredictions - model.correctPredictions}
               </p>
             </div>
           </div>
           
           {/* Copy Trade Button */}
-          <div className="pt-2 border-t border-border/50">
+          <div className="pt-1.5 border-t border-border/50">
             <Button 
               onClick={handleCopyTrade}
-              className="w-full relative overflow-hidden group/btn border-2 font-bold hover:scale-105 transition-transform"
+              className="w-full h-7 relative overflow-hidden group/btn border font-bold text-[10px] hover:scale-105 transition-transform"
               style={{
                 background: `linear-gradient(to right, ${colorTint.color}20, ${colorTint.color}10)`,
                 borderColor: `${colorTint.color}`,
@@ -251,8 +251,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
                 }}
               />
               
-              <div className="relative flex items-center justify-center gap-2">
-                <PlayCircle size={18} className="group-hover/btn:animate-pulse" />
+              <div className="relative flex items-center justify-center gap-1">
+                <PlayCircle size={12} className="group-hover/btn:animate-pulse" />
                 <span>{t('copy_trade')}</span>
               </div>
               
