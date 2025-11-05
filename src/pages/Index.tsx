@@ -6,7 +6,6 @@ import ModelCard from "@/components/ModelCard";
 import MatchCenter from "@/components/MatchCenter";
 import FloatingChat from "@/components/FloatingChat";
 import CryptoTicker from "@/components/CryptoTicker";
-import LeaderboardTable from "@/components/LeaderboardTable";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import { aiModels } from "@/data/mockData";
 
@@ -51,12 +50,6 @@ const Index = () => {
         {/* AI Betting Cards - Full Width Section */}
         <div className="mb-6 sm:mb-8">
           <ActiveAIBets />
-        </div>
-
-        {/* Leaderboard Section */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl font-bold mb-4 sm:mb-6">{t('leaderboard')}</h2>
-          <LeaderboardTable />
         </div>
       </div>
       
