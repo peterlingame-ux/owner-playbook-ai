@@ -244,7 +244,9 @@ const resources = {
       "handicap_bet": "Handicap",
       "over_under_bet": "Over/Under",
       "over": "Over",
-      "under": "Under"
+      "under": "Under",
+      "analysis_loading": "Loading Professional Analysis",
+      "prediction_for": "prediction for"
     }
   },
   zh: {
@@ -489,7 +491,9 @@ const resources = {
       "handicap_bet": "让分盘",
       "over_under_bet": "大小球",
       "over": "大球",
-      "under": "小球"
+      "under": "小球",
+      "analysis_loading": "加载专业分析",
+      "prediction_for": "的预测"
     }
   }
 };

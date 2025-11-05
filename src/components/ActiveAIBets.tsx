@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, FileText } from "lucide-react";
+import { toast } from "sonner";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -263,6 +265,20 @@ const ActiveAIBets = () => {
                 </div>
               </div>
 
+              {/* Professional Analysis Button */}
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute top-2 right-2 h-8 w-8 rounded-full bg-primary/20 hover:bg-primary/40 backdrop-blur-sm border border-primary/30 hover:border-primary/60 transition-all z-20"
+                onClick={() => {
+                  toast.info(t('analysis_loading'), {
+                    description: `${t('analyzing')} ${aiModel.displayName} ${t('prediction_for')} ${bet.match.homeTeam} vs ${bet.match.awayTeam}`,
+                  });
+                }}
+              >
+                <FileText className="h-4 w-4 text-primary-foreground" />
+              </Button>
+              
               {/* Corner Accent */}
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-3xl" />
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-primary/20 to-transparent rounded-tr-3xl" />
