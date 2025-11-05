@@ -133,7 +133,8 @@ const ActiveAIBets = () => {
                   style={{
                     backgroundImage: `url(${deepseekCardBg})`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center'
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px'
                   }}
                 />
               )}
