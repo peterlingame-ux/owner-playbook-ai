@@ -369,17 +369,23 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
-                {/* Financial Stats */}
-                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('bet_amount')}</p>
-                    <p className="font-mono-data font-bold text-base text-primary">
+                {/* Financial Stats - Enhanced Professional Design */}
+                <div className="grid grid-cols-2 gap-4 p-4 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-xl border-2 border-primary/40 shadow-lg">
+                  <div className="text-center space-y-2 p-2 bg-background/50 rounded-lg border border-primary/20">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{t('bet_amount')}</p>
+                    </div>
+                    <p className="font-mono-data font-black text-3xl text-primary drop-shadow-[0_2px_8px_rgba(var(--primary-rgb),0.5)]">
                       ${bet.betAmount.toLocaleString()}
                     </p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('balance')}</p>
-                    <p className="font-mono-data font-bold text-base text-success">
+                  <div className="text-center space-y-2 p-2 bg-background/50 rounded-lg border border-success/20">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <Shield className="h-4 w-4 text-success" />
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{t('balance')}</p>
+                    </div>
+                    <p className="font-mono-data font-black text-2xl text-success drop-shadow-[0_2px_8px_rgba(34,197,94,0.5)]">
                       {aiModel.currentValue}
                     </p>
                   </div>
@@ -444,25 +450,45 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
-                {/* Bet Details */}
-                <div className="space-y-2 pt-3 border-t-2 border-primary/20">
+                {/* Bet Details - Enhanced Professional Design */}
+                <div className="space-y-3 pt-4 border-t-2 border-primary/30">
+                  {/* Bet Type and Odds */}
                   <div className="flex items-center justify-center gap-2">
-                    <Badge variant="outline" className="text-xs font-bold bg-info/15 text-info border-info/40">
+                    <Badge variant="outline" className="text-xs font-bold bg-info/20 text-info border-2 border-info/50 px-3 py-1">
                       {getBetTypeText(bet.betType, bet.prediction, bet.handicapLine, bet.overUnderLine, bet.overUnderPick)}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs font-mono-data font-bold">
+                    <Badge variant="secondary" className="text-sm font-mono-data font-black bg-warning/20 text-warning border-2 border-warning/50 px-3 py-1">
                       @{bet.odds.toFixed(2)}
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 bg-background/50 rounded-lg p-2">
-                    {getPredictionIcon(bet.prediction)}
-                    <span className="text-sm font-bold">
-                      {getPredictionText(bet.prediction, bet.match)}
-                    </span>
-                    <Badge variant="secondary" className="text-xs font-bold">
-                      {bet.confidence}% {t('confidence')}
-                    </Badge>
+                  {/* AI Prediction - Hero Section */}
+                  <div className="relative bg-gradient-to-br from-success/20 via-success/10 to-transparent rounded-xl p-4 border-2 border-success/40 shadow-lg overflow-hidden">
+                    {/* Animated background pulse */}
+                    <div className="absolute inset-0 bg-success/5 animate-pulse" />
+                    
+                    <div className="relative z-10 space-y-2">
+                      <div className="flex items-center justify-center">
+                        <Badge className="bg-success/30 text-success border-success/60 text-[10px] font-bold px-3 py-1 uppercase tracking-wider">
+                          🎯 AI PREDICTION
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center border-2 border-success/50">
+                          {getPredictionIcon(bet.prediction)}
+                        </div>
+                        <span className="text-2xl font-black text-success drop-shadow-[0_2px_10px_rgba(34,197,94,0.6)]">
+                          {getPredictionText(bet.prediction, bet.match)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-center">
+                        <Badge className="bg-background/80 border-2 border-success/40 text-success font-mono-data text-sm font-black px-4 py-1.5">
+                          {bet.confidence}% {t('confidence').toUpperCase()}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
