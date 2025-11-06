@@ -444,81 +444,83 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
-                {/* Bet Details */}
-                <div className="space-y-2 pt-3 border-t-2 border-primary/20">
-                  <div className="flex items-center justify-center gap-2">
-                    <Badge variant="outline" className="text-xs font-bold bg-info/15 text-info border-info/40">
+                {/* Professional Sportsbook Bet Slip */}
+                <div className="space-y-3 pt-3 border-t-2 border-primary/20">
+                  {/* Bet Type and Odds Header */}
+                  <div className="flex items-center justify-center gap-3">
+                    <Badge variant="outline" className="text-sm font-bold bg-primary/15 text-primary border-primary/40 px-4 py-1.5">
                       {getBetTypeText(bet.betType, bet.prediction, bet.handicapLine, bet.overUnderLine, bet.overUnderPick)}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs font-mono-data font-bold">
+                    <Badge variant="default" className="text-sm font-mono-data font-bold bg-foreground text-background px-4 py-1.5">
                       @{bet.odds.toFixed(2)}
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 bg-background/50 rounded-lg p-2">
+                  {/* Prediction with Confidence */}
+                  <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-3 border border-primary/20">
                     {getPredictionIcon(bet.prediction)}
-                    <span className="text-sm font-bold">
+                    <span className="text-base font-bold text-foreground">
                       {getPredictionText(bet.prediction, bet.match)}
                     </span>
-                    <Badge variant="secondary" className="text-xs font-bold">
+                    <Badge variant="secondary" className="text-xs font-bold ml-2">
                       {bet.confidence}% {t('confidence')}
                     </Badge>
                   </div>
 
-                  {/* Betting Slip Style - Professional Sportsbook Design */}
-                  <div className="bg-card border-2 border-border rounded-lg overflow-hidden shadow-lg">
+                  {/* Bet Slip Card - Dark Professional Style */}
+                  <div className="bg-card/50 backdrop-blur-sm rounded-xl overflow-hidden border-2 border-border shadow-2xl">
                     {/* Header */}
-                    <div className="bg-primary/10 px-3 py-2 border-b border-border">
-                      <p className="text-xs font-bold uppercase tracking-wide text-foreground/80">
+                    <div className="bg-muted/30 px-4 py-2.5 border-b border-border/50">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         {t('bet_slip')}
                       </p>
                     </div>
                     
-                    {/* Bet Details */}
-                    <div className="p-3 space-y-2">
-                      {/* Stake Row */}
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                    {/* Bet Details - Professional Layout */}
+                    <div className="p-4 space-y-3 bg-card/80">
+                      {/* Stake */}
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm text-muted-foreground font-medium">
                           {t('stake')}
                         </span>
-                        <span className="text-sm font-mono-data font-bold text-foreground">
+                        <span className="text-xl font-mono-data font-bold text-foreground">
                           ${bet.betAmount.toLocaleString()}
                         </span>
                       </div>
                       
-                      {/* Odds Row */}
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                      {/* Odds */}
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm text-muted-foreground font-medium">
                           {t('odds')}
                         </span>
-                        <span className="text-sm font-mono-data font-bold text-primary">
+                        <span className="text-xl font-mono-data font-bold text-foreground">
                           {bet.odds.toFixed(2)}
                         </span>
                       </div>
                       
-                      {/* Divider */}
-                      <div className="border-t border-dashed border-border my-2" />
+                      {/* Dashed Divider */}
+                      <div className="border-t border-dashed border-border/60 my-3" />
                       
-                      {/* Potential Return Row */}
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-xs font-bold uppercase tracking-wide text-foreground/90">
+                      {/* Potential Return */}
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm font-bold text-foreground/90">
                           {t('potential_return')}
                         </span>
-                        <span className="text-base font-mono-data font-bold text-foreground">
+                        <span className="text-xl font-mono-data font-bold text-foreground">
                           ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </span>
                       </div>
                       
-                      {/* Potential Profit Row - Highlighted */}
-                      <div className="bg-success/15 rounded-lg px-3 py-2 border border-success/30">
+                      {/* Net Profit - Highlighted in Green */}
+                      <div className="bg-success/15 rounded-xl px-4 py-3 border-2 border-success/40 mt-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-success" />
-                            <span className="text-xs font-bold uppercase tracking-wide text-success">
+                            <TrendingUp className="h-5 w-5 text-success" />
+                            <span className="text-sm font-bold text-success">
                               {t('potential_profit')}
                             </span>
                           </div>
-                          <span className="text-lg font-mono-data font-bold text-success">
+                          <span className="text-2xl font-mono-data font-bold text-success drop-shadow-[0_0_12px_rgba(34,197,94,0.6)]">
                             +${((bet.betAmount * bet.odds) - bet.betAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </span>
                         </div>
