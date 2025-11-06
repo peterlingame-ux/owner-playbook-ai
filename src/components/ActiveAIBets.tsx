@@ -401,7 +401,7 @@ const ActiveAIBets = () => {
                   </Avatar>
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">钱包余额</span>
-                    <Badge variant="outline" className={`text-sm font-mono-data font-bold px-3 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
+                    <Badge variant="outline" className="text-sm font-mono-data font-bold px-3 py-1 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
                       {aiModel.currentValue}
                     </Badge>
                   </div>
