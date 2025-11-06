@@ -481,14 +481,31 @@ const ActiveAIBets = () => {
                     <div className="p-3 space-y-2 bg-card/80">
                       {/* Bet Type and Odds */}
                       <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit flex items-center gap-1.5">
                             {bet.betType === "handicap" && (
                               <>
-                                {bet.prediction === "HOME_WIN" 
-                                  ? `${bet.match.homeTeam} ${bet.handicapLine}`
-                                  : `${bet.match.awayTeam} ${bet.handicapLine && bet.handicapLine < 0 ? '+' : ''}${-(bet.handicapLine || 0)}`
-                                }
+                                {bet.prediction === "HOME_WIN" ? (
+                                  <>
+                                    {bet.match.homeLogo && (
+                                      <Avatar className="h-4 w-4 ring-1 ring-primary/30">
+                                        <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
+                                        <AvatarFallback className="text-[8px]"><Shield size={8} /></AvatarFallback>
+                                      </Avatar>
+                                    )}
+                                    <span>{bet.match.homeTeam} {bet.handicapLine}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    {bet.match.awayLogo && (
+                                      <Avatar className="h-4 w-4 ring-1 ring-primary/30">
+                                        <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
+                                        <AvatarFallback className="text-[8px]"><Shield size={8} /></AvatarFallback>
+                                      </Avatar>
+                                    )}
+                                    <span>{bet.match.awayTeam} {bet.handicapLine && bet.handicapLine < 0 ? '+' : ''}{-(bet.handicapLine || 0)}</span>
+                                  </>
+                                )}
                               </>
                             )}
                             {bet.betType === "over_under" && (
@@ -519,9 +536,17 @@ const ActiveAIBets = () => {
                                   ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                   : "bg-card border-border/50"
                               }`}>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-medium truncate">{bet.match.homeTeam}</span>
-                                  <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[10px] font-mono-data ml-1 py-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <div className="flex items-center gap-1 flex-1 min-w-0">
+                                    {bet.match.homeLogo && (
+                                      <Avatar className="h-5 w-5 ring-1 ring-border shrink-0">
+                                        <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
+                                        <AvatarFallback className="text-[8px]"><Shield size={8} /></AvatarFallback>
+                                      </Avatar>
+                                    )}
+                                    <span className="text-[10px] font-medium truncate">{bet.match.homeTeam}</span>
+                                  </div>
+                                  <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[10px] font-mono-data py-0 shrink-0">
                                     {bet.handicapLine}
                                   </Badge>
                                 </div>
@@ -531,9 +556,17 @@ const ActiveAIBets = () => {
                                   ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                   : "bg-card border-border/50"
                               }`}>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-medium truncate">{bet.match.awayTeam}</span>
-                                  <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[10px] font-mono-data ml-1 py-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <div className="flex items-center gap-1 flex-1 min-w-0">
+                                    {bet.match.awayLogo && (
+                                      <Avatar className="h-5 w-5 ring-1 ring-border shrink-0">
+                                        <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
+                                        <AvatarFallback className="text-[8px]"><Shield size={8} /></AvatarFallback>
+                                      </Avatar>
+                                    )}
+                                    <span className="text-[10px] font-medium truncate">{bet.match.awayTeam}</span>
+                                  </div>
+                                  <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[10px] font-mono-data py-0 shrink-0">
                                     {-(bet.handicapLine || 0)}
                                   </Badge>
                                 </div>
