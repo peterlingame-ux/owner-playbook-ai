@@ -414,6 +414,16 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
+                {/* Account Balance - Clear Display */}
+                <div className={`p-3 bg-gradient-to-br ${getModelColor(aiModel.id).bg} rounded-lg border-2 ${getModelColor(aiModel.id).border} shadow-lg`}>
+                  <div className="text-center">
+                    <p className={`text-[10px] ${getModelColor(aiModel.id).text} mb-1 uppercase tracking-wider font-bold opacity-80`}>{t('balance')}</p>
+                    <p className={`font-mono-data font-bold text-xl ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
+                      {aiModel.currentValue}
+                    </p>
+                  </div>
+                </div>
+
                 {/* Match Info with Team Logos */}
                 <div className="space-y-1.5 py-1.5">
                   <Badge variant="outline" className="text-[10px] w-full justify-center py-0.5">
