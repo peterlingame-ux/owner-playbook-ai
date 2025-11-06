@@ -410,6 +410,21 @@ const ActiveAIBets = () => {
                       {aiModel.currentValue}
                     </Badge>
                   </div>
+                  <div className="flex flex-col items-center gap-0.5 pt-1">
+                    <span className="text-[9px] text-muted-foreground/80 font-medium uppercase tracking-wider">今日盈亏</span>
+                    <div className={`flex items-center gap-1 text-xs font-bold font-mono-data ${
+                      aiModel.change.startsWith('+') 
+                        ? 'text-success' 
+                        : aiModel.change.startsWith('-')
+                        ? 'text-destructive'
+                        : 'text-muted-foreground'
+                    }`}>
+                      <span>{aiModel.change}</span>
+                      <span className="text-[10px] opacity-80">
+                        ({aiModel.changePercent > 0 ? '+' : ''}{aiModel.changePercent.toFixed(2)}%)
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
