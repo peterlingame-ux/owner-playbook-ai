@@ -370,16 +370,16 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Financial Stats */}
-                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
+                <div className="grid grid-cols-2 gap-3 p-4 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl border-2 border-primary/40 shadow-lg">
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('bet_amount')}</p>
-                    <p className="font-mono-data font-bold text-base text-primary">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-bold">{t('bet_amount')}</p>
+                    <p className="font-mono-data font-bold text-2xl text-primary drop-shadow-lg">
                       ${bet.betAmount.toLocaleString()}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('balance')}</p>
-                    <p className="font-mono-data font-bold text-base text-success">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-bold">{t('balance')}</p>
+                    <p className="font-mono-data font-bold text-2xl text-success drop-shadow-lg">
                       {aiModel.currentValue}
                     </p>
                   </div>
@@ -455,12 +455,14 @@ const ActiveAIBets = () => {
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 bg-background/50 rounded-lg p-2">
-                    {getPredictionIcon(bet.prediction)}
-                    <span className="text-sm font-bold">
-                      {getPredictionText(bet.prediction, bet.match)}
-                    </span>
-                    <Badge variant="secondary" className="text-xs font-bold">
+                  <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-xl p-4 border-2 border-primary/40 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      {getPredictionIcon(bet.prediction)}
+                      <span className="text-xl font-bold text-foreground drop-shadow-md">
+                        {getPredictionText(bet.prediction, bet.match)}
+                      </span>
+                    </div>
+                    <Badge variant="secondary" className="text-sm font-bold px-3 py-1 bg-success/20 text-success border-success/50">
                       {bet.confidence}% {t('confidence')}
                     </Badge>
                   </div>
