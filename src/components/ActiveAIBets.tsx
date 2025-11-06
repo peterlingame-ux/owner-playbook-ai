@@ -369,23 +369,17 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
-                {/* Financial Stats - Professional Design */}
-                <div className="grid grid-cols-2 gap-4 p-5 bg-gradient-to-br from-background/95 via-primary/5 to-background/95 rounded-2xl border-2 border-primary/50 shadow-2xl backdrop-blur-sm">
-                  <div className="space-y-2 p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                      <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{t('bet_amount')}</p>
-                    </div>
-                    <p className="font-mono-data font-black text-3xl text-primary text-center drop-shadow-[0_2px_8px_rgba(var(--primary),0.5)] tracking-tight">
+                {/* Financial Stats */}
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('bet_amount')}</p>
+                    <p className="font-mono-data font-bold text-base text-primary">
                       ${bet.betAmount.toLocaleString()}
                     </p>
                   </div>
-                  <div className="space-y-2 p-3 rounded-xl bg-gradient-to-br from-success/20 to-success/5 border border-success/30">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <Shield className="h-3.5 w-3.5 text-success" />
-                      <p className="text-[10px] text-success font-bold uppercase tracking-widest">{t('balance')}</p>
-                    </div>
-                    <p className="font-mono-data font-black text-3xl text-success text-center drop-shadow-[0_2px_8px_rgba(34,197,94,0.5)] tracking-tight">
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('balance')}</p>
+                    <p className="font-mono-data font-bold text-base text-success">
                       {aiModel.currentValue}
                     </p>
                   </div>
@@ -450,39 +444,25 @@ const ActiveAIBets = () => {
                   </div>
                 </div>
 
-                {/* Bet Details - Professional Layout */}
-                <div className="space-y-3 pt-4 border-t-2 border-primary/30">
-                  {/* Bet Type and Odds */}
-                  <div className="flex items-center justify-between gap-3 px-2">
-                    <Badge variant="outline" className="text-xs font-bold bg-info/20 text-info border-info/50 px-3 py-1.5 uppercase tracking-wide">
+                {/* Bet Details */}
+                <div className="space-y-2 pt-3 border-t-2 border-primary/20">
+                  <div className="flex items-center justify-center gap-2">
+                    <Badge variant="outline" className="text-xs font-bold bg-info/15 text-info border-info/40">
                       {getBetTypeText(bet.betType, bet.prediction, bet.handicapLine, bet.overUnderLine, bet.overUnderPick)}
                     </Badge>
-                    <Badge variant="secondary" className="text-base font-mono-data font-black bg-warning/20 text-warning border-warning/50 px-3 py-1.5">
+                    <Badge variant="secondary" className="text-xs font-mono-data font-bold">
                       @{bet.odds.toFixed(2)}
                     </Badge>
                   </div>
                   
-                  {/* Prediction Result - Hero Section */}
-                  <div className="relative overflow-hidden rounded-2xl border-2 border-primary/50 bg-gradient-to-br from-primary/30 via-primary/10 to-primary/30 shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent animate-pulse" />
-                    <div className="relative p-5 space-y-3">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">AI PREDICTION</span>
-                      </div>
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="p-2 rounded-full bg-primary/20">
-                          {getPredictionIcon(bet.prediction)}
-                        </div>
-                        <span className="text-2xl font-black text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] tracking-tight">
-                          {getPredictionText(bet.prediction, bet.match)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <Badge variant="secondary" className="text-base font-black px-4 py-2 bg-success/30 text-success border-2 border-success/60 shadow-lg">
-                          {bet.confidence}% {t('confidence')}
-                        </Badge>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-center gap-2 bg-background/50 rounded-lg p-2">
+                    {getPredictionIcon(bet.prediction)}
+                    <span className="text-sm font-bold">
+                      {getPredictionText(bet.prediction, bet.match)}
+                    </span>
+                    <Badge variant="secondary" className="text-xs font-bold">
+                      {bet.confidence}% {t('confidence')}
+                    </Badge>
                   </div>
                 </div>
               </div>
