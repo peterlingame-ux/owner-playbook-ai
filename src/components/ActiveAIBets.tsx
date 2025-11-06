@@ -266,7 +266,7 @@ const ActiveAIBets = () => {
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-2xl p-6 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
+              className="relative rounded-xl p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
               onClick={nextMatch}
             >
               {/* Countdown Timer - Top Left */}
@@ -397,83 +397,83 @@ const ActiveAIBets = () => {
               <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
               
               {/* Content */}
-              <div className="relative z-10 space-y-4">
+              <div className="relative z-10 space-y-3">
                 {/* Header with Avatar - Centered */}
-                <div className="flex flex-col items-center gap-3 pb-3 border-b-2 border-primary/20">
-                  <Avatar className="h-20 w-20 ring-4 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
+                <div className="flex flex-col items-center gap-2 pb-2 border-b-2 border-primary/20">
+                  <Avatar className="h-14 w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
-                    <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
+                    <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="text-center">
-                    <p className="font-bold text-lg bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
+                    <p className="font-bold text-base bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
                       {aiModel.displayName}
                     </p>
                   </div>
                 </div>
 
                 {/* Financial Stats */}
-                <div className={`p-4 bg-gradient-to-br ${getModelColor(aiModel.id).bg} rounded-xl border-2 ${getModelColor(aiModel.id).border} shadow-lg`}>
+                <div className={`p-3 bg-gradient-to-br ${getModelColor(aiModel.id).bg} rounded-lg border-2 ${getModelColor(aiModel.id).border} shadow-lg`}>
                   <div className="text-center">
-                    <p className={`text-xs ${getModelColor(aiModel.id).text} mb-2 uppercase tracking-wider font-bold opacity-80`}>{t('balance')}</p>
-                    <p className={`font-mono-data font-bold text-2xl ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
+                    <p className={`text-[10px] ${getModelColor(aiModel.id).text} mb-1 uppercase tracking-wider font-bold opacity-80`}>{t('balance')}</p>
+                    <p className={`font-mono-data font-bold text-xl ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
                       {aiModel.currentValue}
                     </p>
                   </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
-                <div className="space-y-2 py-2">
-                  <Badge variant="outline" className="text-xs w-full justify-center">
+                <div className="space-y-1.5 py-1.5">
+                  <Badge variant="outline" className="text-[10px] w-full justify-center py-0.5">
                     {bet.match.league}
                   </Badge>
                   
                   {/* Teams with Logos and Live Score */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-1">
                       {bet.match.homeLogo ? (
-                        <Avatar className="h-8 w-8 ring-1 ring-border">
+                        <Avatar className="h-6 w-6 ring-1 ring-border">
                           <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
-                          <AvatarFallback><Shield size={14} /></AvatarFallback>
+                          <AvatarFallback><Shield size={10} /></AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                          <Shield size={14} className="text-muted-foreground" />
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
+                          <Shield size={10} className="text-muted-foreground" />
                         </div>
                       )}
-                      <p className="font-bold text-xs leading-tight flex-1 text-left">
+                      <p className="font-bold text-[11px] leading-tight flex-1 text-left">
                         {bet.match.homeTeam}
                       </p>
                     </div>
                     
                     {/* Live Score - Only show for live matches */}
                     {bet.match.status === "live" ? (
-                      <div className="flex flex-col items-center gap-0.5 px-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
-                          <span className="text-xs text-muted-foreground">-</span>
-                          <span className="text-lg font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
+                      <div className="flex flex-col items-center gap-0.5 px-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-base font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
+                          <span className="text-[10px] text-muted-foreground">-</span>
+                          <span className="text-base font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
                         </div>
-                        <span className="text-[9px] text-success font-bold uppercase">LIVE</span>
+                        <span className="text-[8px] text-success font-bold uppercase">LIVE</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-0.5 px-3">
-                        <span className="text-xs text-muted-foreground font-bold">VS</span>
-                        <span className="text-[9px] text-muted-foreground">{bet.match.time}</span>
+                      <div className="flex flex-col items-center gap-0.5 px-2">
+                        <span className="text-[10px] text-muted-foreground font-bold">VS</span>
+                        <span className="text-[8px] text-muted-foreground">{bet.match.time}</span>
                       </div>
                     )}
                     
-                    <div className="flex items-center gap-2 flex-1 justify-end">
-                      <p className="font-bold text-xs leading-tight flex-1 text-right">
+                    <div className="flex items-center gap-1.5 flex-1 justify-end">
+                      <p className="font-bold text-[11px] leading-tight flex-1 text-right">
                         {bet.match.awayTeam}
                       </p>
                       {bet.match.awayLogo ? (
-                        <Avatar className="h-8 w-8 ring-1 ring-border">
+                        <Avatar className="h-6 w-6 ring-1 ring-border">
                           <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
-                          <AvatarFallback><Shield size={14} /></AvatarFallback>
+                          <AvatarFallback><Shield size={10} /></AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                          <Shield size={14} className="text-muted-foreground" />
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
+                          <Shield size={10} className="text-muted-foreground" />
                         </div>
                       )}
                     </div>
@@ -481,24 +481,24 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Professional Sportsbook Bet Slip - Complete */}
-                <div className="space-y-0 pt-3 border-t-2 border-primary/20">
+                <div className="space-y-0 pt-2 border-t-2 border-primary/20">
                   {/* Bet Slip Card - Dark Professional Style */}
-                  <div className="bg-card/50 backdrop-blur-sm rounded-xl overflow-hidden border-2 border-border shadow-2xl">
+                  <div className="bg-card/50 backdrop-blur-sm rounded-lg overflow-hidden border-2 border-border shadow-2xl">
                     {/* Header */}
-                    <div className="bg-muted/30 px-4 py-2.5 border-b border-border/50">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <div className="bg-muted/30 px-3 py-1.5 border-b border-border/50">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {t('bet_slip')}
                       </p>
                     </div>
                     
                     {/* Bet Details - Professional Layout */}
-                    <div className="p-4 space-y-3 bg-card/80">
+                    <div className="p-3 space-y-2 bg-card/80">
                       {/* Bet Type and Odds */}
-                      <div className="flex items-center justify-between gap-3 pb-3 border-b border-border/50">
-                        <Badge variant="outline" className="text-sm font-bold bg-primary/15 text-primary border-primary/40 px-3 py-1.5 w-fit">
+                      <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
+                        <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit">
                           {bet.betType === "handicap" && (
                             <>
-                              {((bet.handicapLine || 0) >= 0 ? '+' : '')}{bet.handicapLine}
+                              {bet.handicapLine}
                             </>
                           )}
                           {bet.betType === "over_under" && (
@@ -506,42 +506,41 @@ const ActiveAIBets = () => {
                               {bet.overUnderLine} ({bet.overUnderPick === 'over' ? t('over') : t('under')})
                             </>
                           )}
-                          {bet.betType === "moneyline" && getPredictionText(bet.prediction, bet.match)}
                         </Badge>
-                        <Badge variant="default" className="text-sm font-mono-data font-bold bg-foreground text-background px-3 py-1.5">
+                        <Badge variant="default" className="text-[11px] font-mono-data font-bold bg-foreground text-background px-2 py-1">
                           @{bet.odds.toFixed(2)}
                         </Badge>
                       </div>
 
                       {/* Match Betting Lines */}
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         {bet.betType === "handicap" && (
-                          <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
-                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
+                          <div className="bg-muted/30 rounded-lg p-2 border border-border/50">
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1.5">
                               {t('handicap_bet')} {t('market')}
                             </p>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className={`p-2 rounded border-2 transition-all ${
+                            <div className="grid grid-cols-2 gap-1.5">
+                              <div className={`p-1.5 rounded border-2 transition-all ${
                                 bet.prediction === "HOME_WIN" 
                                   ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs font-medium truncate">{bet.match.homeTeam}</span>
-                                  <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-xs font-mono-data ml-1">
-                                    {((bet.handicapLine || 0) >= 0 ? '+' : '')}{bet.handicapLine}
+                                  <span className="text-[10px] font-medium truncate">{bet.match.homeTeam}</span>
+                                  <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[10px] font-mono-data ml-1 py-0">
+                                    {bet.handicapLine}
                                   </Badge>
                                 </div>
                               </div>
-                              <div className={`p-2 rounded border-2 transition-all ${
+                              <div className={`p-1.5 rounded border-2 transition-all ${
                                 bet.prediction === "AWAY_WIN" 
                                   ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs font-medium truncate">{bet.match.awayTeam}</span>
-                                  <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-xs font-mono-data ml-1">
-                                    {((bet.handicapLine || 0) <= 0 ? '+' : '')}{-(bet.handicapLine || 0)}
+                                  <span className="text-[10px] font-medium truncate">{bet.match.awayTeam}</span>
+                                  <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[10px] font-mono-data ml-1 py-0">
+                                    {-(bet.handicapLine || 0)}
                                   </Badge>
                                 </div>
                               </div>
@@ -550,75 +549,69 @@ const ActiveAIBets = () => {
                         )}
 
                         {bet.betType === "over_under" && (
-                          <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
-                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
+                          <div className="bg-muted/30 rounded-lg p-2 border border-border/50">
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1.5">
                               {t('over_under_bet')} {t('market')}
                             </p>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className={`p-2 rounded border-2 transition-all ${
+                            <div className="grid grid-cols-2 gap-1.5">
+                              <div className={`p-1.5 rounded border-2 transition-all ${
                                 bet.overUnderPick === "over" 
                                   ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs font-medium">{t('over')}</span>
-                                  <Badge variant={bet.overUnderPick === "over" ? "default" : "outline"} className="text-xs font-mono-data">
+                                  <span className="text-[10px] font-medium">{t('over')}</span>
+                                  <Badge variant={bet.overUnderPick === "over" ? "default" : "outline"} className="text-[10px] font-mono-data py-0">
                                     {bet.overUnderLine}
                                   </Badge>
                                 </div>
                               </div>
-                              <div className={`p-2 rounded border-2 transition-all ${
+                              <div className={`p-1.5 rounded border-2 transition-all ${
                                 bet.overUnderPick === "under" 
                                   ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs font-medium">{t('under')}</span>
-                                  <Badge variant={bet.overUnderPick === "under" ? "default" : "outline"} className="text-xs font-mono-data">
+                                  <span className="text-[10px] font-medium">{t('under')}</span>
+                                  <Badge variant={bet.overUnderPick === "under" ? "default" : "outline"} className="text-[10px] font-mono-data py-0">
                                     {bet.overUnderLine}
                                   </Badge>
                                 </div>
                               </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {bet.betType === "moneyline" && (
-                          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-3 border border-primary/30">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {getPredictionIcon(bet.prediction)}
-                                <span className="text-base font-bold text-foreground">
-                                  {getPredictionText(bet.prediction, bet.match)}
-                                </span>
-                              </div>
-                              <Badge variant="secondary" className="text-xs font-bold">
-                                {bet.confidence}% {t('confidence')}
-                              </Badge>
                             </div>
                           </div>
                         )}
                       </div>
 
                       {/* Financial Details */}
-                      <div className="space-y-2 pt-2">
+                      <div className="space-y-1.5 pt-1.5">
                         {/* Stake */}
-                        <div className="flex items-center justify-between py-2">
-                          <span className="text-sm text-muted-foreground font-medium">
+                        <div className="flex items-center justify-between py-1">
+                          <span className="text-[11px] text-muted-foreground font-medium">
                             {aiModel.displayName}本场下注金额
                           </span>
-                          <span className="text-xl font-mono-data font-bold text-foreground">
+                          <span className="text-base font-mono-data font-bold text-foreground">
                             ${bet.betAmount.toLocaleString()}
                           </span>
                         </div>
                         
-                        {/* Odds Display (redundant but common in sportsbooks) */}
-                        <div className="flex items-center justify-between py-2">
-                          <span className="text-sm text-muted-foreground font-medium">
+                        {/* Odds Display */}
+                        <div className="flex items-center justify-between py-1">
+                          <span className="text-[11px] text-muted-foreground font-medium">
                             {t('odds')}
                           </span>
-                          <span className="text-xl font-mono-data font-bold text-foreground">
+                          <span className="text-base font-mono-data font-bold text-foreground">
                             {bet.odds.toFixed(2)}
+                          </span>
+                        </div>
+                        
+                        {/* Potential Win */}
+                        <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 border border-success/30">
+                          <span className="text-[11px] text-success font-bold">
+                            当场可赢金额
+                          </span>
+                          <span className="text-base font-mono-data font-bold text-success">
+                            ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </span>
                         </div>
                       </div>
