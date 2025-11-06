@@ -56,7 +56,7 @@ const MatchCountdown = ({ match }: { match: any }) => {
       if (match.currentMinute) {
         setMatchTime(`${match.currentMinute}'`);
       }
-      setCountdown(t('in_progress'));
+      setCountdown("当前预测中");
       return;
     }
 
@@ -66,7 +66,7 @@ const MatchCountdown = ({ match }: { match: any }) => {
       const diff = matchDateTime.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setCountdown(t('in_progress'));
+        setCountdown("当前预测中");
         return;
       }
 
