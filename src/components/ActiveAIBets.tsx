@@ -115,8 +115,8 @@ const ActiveAIBets = () => {
   // Get live matches
   const liveMatches = upcomingMatches.filter(m => m.status === "live");
   
-  // Get first 5 AI models (exclude mystery)
-  const activeAIs = aiModels.filter(ai => ai.id !== "mystery").slice(0, 5);
+  // Get AI models (exclude locked ones like mystery and boospot)
+  const activeAIs = aiModels.filter(ai => !ai.locked);
 
   // State to track which match index is shown for each AI
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
