@@ -494,7 +494,7 @@ const ActiveAIBets = () => {
                             )}
                           </Badge>
                           <Badge variant="secondary" className={`text-xs font-bold px-2 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
-                            {bet.confidence}%
+                            {bet.confidence}% 置信度
                           </Badge>
                         </div>
                         <Badge variant="default" className="text-[11px] font-mono-data font-bold bg-foreground text-background px-2 py-1">
