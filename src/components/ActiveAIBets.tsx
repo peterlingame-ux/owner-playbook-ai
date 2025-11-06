@@ -406,6 +406,13 @@ const ActiveAIBets = () => {
                   </Avatar>
                 </div>
 
+                {/* Confidence Badge */}
+                <div className="flex justify-center">
+                  <Badge variant="secondary" className={`text-xs font-bold px-3 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
+                    {bet.confidence}% {t('confidence')}
+                  </Badge>
+                </div>
+
                 {/* Match Info with Team Logos */}
                 <div className="space-y-1.5 py-1.5">
                   <Badge variant="outline" className="text-[10px] w-full justify-center py-0.5">
@@ -598,16 +605,6 @@ const ActiveAIBets = () => {
                           <span className="text-base font-mono-data font-bold text-success">
                             ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </span>
-                        </div>
-                        
-                        {/* Confidence */}
-                        <div className="flex items-center justify-between py-1">
-                          <span className="text-[11px] text-muted-foreground font-medium">
-                            {t('confidence')}
-                          </span>
-                          <Badge variant="secondary" className={`text-xs font-bold px-2 py-0.5 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border ${getModelColor(aiModel.id).border}`}>
-                            {bet.confidence}%
-                          </Badge>
                         </div>
                       </div>
                     </div>
