@@ -485,7 +485,10 @@ const ActiveAIBets = () => {
                           <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit">
                             {bet.betType === "handicap" && (
                               <>
-                                {bet.handicapLine}
+                                {bet.prediction === "HOME_WIN" 
+                                  ? `${bet.match.homeTeam} ${bet.handicapLine}`
+                                  : `${bet.match.awayTeam} ${bet.handicapLine && bet.handicapLine < 0 ? '+' : ''}${-(bet.handicapLine || 0)}`
+                                }
                               </>
                             )}
                             {bet.betType === "over_under" && (
