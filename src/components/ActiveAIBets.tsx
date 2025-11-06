@@ -563,7 +563,7 @@ const ActiveAIBets = () => {
                         {/* Stake */}
                         <div className="flex items-center justify-between py-2">
                           <span className="text-sm text-muted-foreground font-medium">
-                            {t('stake')}
+                            {aiModel.displayName}本场下注金额
                           </span>
                           <span className="text-xl font-mono-data font-bold text-foreground">
                             ${bet.betAmount.toLocaleString()}
