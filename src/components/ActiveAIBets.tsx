@@ -398,30 +398,19 @@ const ActiveAIBets = () => {
               
               {/* Content */}
               <div className="relative z-10 space-y-3">
-                {/* Header with Avatar - Centered */}
+                {/* Header with Avatar Only */}
                 <div className="flex flex-col items-center gap-2 pb-2 border-b-2 border-primary/20">
                   <Avatar className="h-14 w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
                     <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
-                  <div className="text-center flex items-center gap-2">
-                    <p className="font-bold text-base bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
-                      {aiModel.displayName}
-                    </p>
-                    <span className={`font-mono-data font-bold text-sm ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
-                      {aiModel.currentValue}
-                    </span>
-                  </div>
                 </div>
 
-                {/* Account Balance - Clear Display */}
-                <div className={`p-3 bg-gradient-to-br ${getModelColor(aiModel.id).bg} rounded-lg border-2 ${getModelColor(aiModel.id).border} shadow-lg`}>
-                  <div className="text-center">
-                    <p className={`text-[10px] ${getModelColor(aiModel.id).text} mb-1 uppercase tracking-wider font-bold opacity-80`}>{t('balance')}</p>
-                    <p className={`font-mono-data font-bold text-xl ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
-                      {aiModel.currentValue}
-                    </p>
-                  </div>
+                {/* Confidence Badge */}
+                <div className="flex justify-center">
+                  <Badge variant="secondary" className={`text-xs font-bold px-3 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
+                    {bet.confidence}% {t('confidence')}
+                  </Badge>
                 </div>
 
                 {/* Match Info with Team Logos */}
