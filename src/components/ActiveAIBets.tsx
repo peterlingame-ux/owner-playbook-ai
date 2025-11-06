@@ -215,11 +215,11 @@ const ActiveAIBets = () => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col items-center justify-center mb-6 px-2 gap-3">
-        <h2 className="text-xl sm:text-2xl font-bold font-pixel tracking-wider text-center text-white">
+      <div className="flex flex-col items-center justify-center mb-4 sm:mb-6 px-2 gap-2 sm:gap-3">
+        <h2 className="text-sm sm:text-xl md:text-2xl font-bold font-pixel tracking-wider text-center text-white">
           MATCH PREDICTIONS
         </h2>
-        <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse text-sm px-3 py-1">
+        <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse text-[10px] sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1">
           {t('live')}
         </Badge>
       </div>
@@ -393,73 +393,73 @@ const ActiveAIBets = () => {
               
               {/* Content */}
               <div className="relative z-10 space-y-2 sm:space-y-3">
-                {/* Header with Avatar and Balance */}
-                <div className="flex flex-col items-center gap-1.5 sm:gap-2 pb-1.5 sm:pb-2 border-b-2 border-primary/20">
-                  <Avatar className="h-10 w-10 sm:h-14 sm:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
+                 {/* Header with Avatar and Balance */}
+                <div className="flex flex-col items-center gap-1 sm:gap-1.5 pb-1 sm:pb-1.5 border-b-2 border-primary/20">
+                  <Avatar className="h-8 w-8 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
-                    <AvatarFallback className="text-sm sm:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
+                    <AvatarFallback className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col items-center gap-0.5 sm:gap-1">
-                    <span className="text-[9px] sm:text-[10px] text-muted-foreground font-medium uppercase tracking-wider">钱包余额</span>
-                    <Badge variant="outline" className="text-xs sm:text-sm font-mono-data font-bold px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">钱包余额</span>
+                    <Badge variant="outline" className="text-[10px] sm:text-xs font-mono-data font-bold px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
                       {aiModel.currentValue}
                     </Badge>
                   </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
-                <div className="space-y-1 sm:space-y-1.5 py-1 sm:py-1.5">
-                  <Badge variant="outline" className="text-[9px] sm:text-[10px] w-full justify-center py-0.5">
+                <div className="space-y-0.5 sm:space-y-1 py-0.5 sm:py-1">
+                  <Badge variant="outline" className="text-[8px] sm:text-[9px] w-full justify-center py-0.5">
                     {bet.match.league}
                   </Badge>
                   
                   {/* Teams with Logos and Live Score */}
-                  <div className="flex items-center justify-between gap-1 sm:gap-1.5">
-                    <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-0.5 sm:gap-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
                       {bet.match.homeLogo ? (
-                        <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-1 ring-border shrink-0">
+                        <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
                           <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
-                          <AvatarFallback><Shield className="h-2 w-2 sm:h-2.5 sm:w-2.5" /></AvatarFallback>
+                          <AvatarFallback><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-muted-foreground" />
+                        <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-muted-foreground" />
                         </div>
                       )}
-                      <p className="font-bold text-[10px] sm:text-[11px] leading-tight flex-1 text-left truncate">
+                      <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-left truncate">
                         {bet.match.homeTeam}
                       </p>
                     </div>
                     
                     {/* Live Score - Only show for live matches */}
                     {bet.match.status === "live" ? (
-                      <div className="flex flex-col items-center gap-0.5 px-1 sm:px-2 shrink-0">
-                        <div className="flex items-center gap-1 sm:gap-1.5">
-                          <span className="text-sm sm:text-base font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
-                          <span className="text-[9px] sm:text-[10px] text-muted-foreground">-</span>
-                          <span className="text-sm sm:text-base font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
+                      <div className="flex flex-col items-center gap-0.5 px-0.5 sm:px-1 shrink-0">
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <span className="text-[10px] sm:text-sm font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground">-</span>
+                          <span className="text-[10px] sm:text-sm font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
                         </div>
-                        <span className="text-[7px] sm:text-[8px] text-success font-bold uppercase">LIVE</span>
+                        <span className="text-[6px] sm:text-[7px] text-success font-bold uppercase">LIVE</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-0.5 px-1 sm:px-2 shrink-0">
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground font-bold">VS</span>
-                        <span className="text-[7px] sm:text-[8px] text-muted-foreground">{bet.match.time}</span>
+                      <div className="flex flex-col items-center gap-0.5 px-0.5 sm:px-1 shrink-0">
+                        <span className="text-[8px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+                        <span className="text-[6px] sm:text-[7px] text-muted-foreground">{bet.match.time}</span>
                       </div>
                     )}
                     
-                    <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0 justify-end">
-                      <p className="font-bold text-[10px] sm:text-[11px] leading-tight flex-1 text-right truncate">
+                    <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0 justify-end">
+                      <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-right truncate">
                         {bet.match.awayTeam}
                       </p>
                       {bet.match.awayLogo ? (
-                        <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-1 ring-border shrink-0">
+                        <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
                           <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
-                          <AvatarFallback><Shield className="h-2 w-2 sm:h-2.5 sm:w-2.5" /></AvatarFallback>
+                          <AvatarFallback><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-muted-foreground" />
+                        <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-muted-foreground" />
                         </div>
                       )}
                     </div>
@@ -467,17 +467,17 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Professional Sportsbook Bet Slip - Complete */}
-                <div className="space-y-0 pt-1.5 sm:pt-2 border-t-2 border-primary/20">
+                <div className="space-y-0 pt-1 sm:pt-1.5 border-t-2 border-primary/20">
                   {/* Bet Slip Card - Dark Professional Style */}
                   <div className="bg-card/50 backdrop-blur-sm rounded-lg overflow-hidden border-2 border-border shadow-2xl">
                     {/* Header with Status */}
-                    <div className="bg-muted/30 px-2 sm:px-3 py-1 sm:py-1.5 border-b border-border/50 flex items-center justify-between">
-                      <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <div className="bg-muted/30 px-1.5 sm:px-2 py-0.5 sm:py-1 border-b border-border/50 flex items-center justify-between">
+                      <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                         {t('bet_slip')}
                       </p>
                       <Badge 
                         variant={bet.confirmed ? "default" : "outline"}
-                        className={`text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 ${
+                        className={`text-[8px] sm:text-[9px] font-bold px-1 sm:px-1.5 py-0.5 ${
                           bet.confirmed 
                             ? "bg-success/20 text-success border-success/50" 
                             : "bg-destructive/20 text-destructive border-destructive/50"
@@ -488,11 +488,11 @@ const ActiveAIBets = () => {
                     </div>
                     
                     {/* Bet Details - Professional Layout */}
-                    <div className="p-2 sm:p-3 space-y-1.5 sm:space-y-2 bg-card/80">
+                    <div className="p-1.5 sm:p-2 space-y-1 sm:space-y-1.5 bg-card/80">
                       {/* Bet Type and Odds */}
-                      <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit flex items-center gap-1.5">
+                      <div className="flex items-center justify-between gap-1 sm:gap-2 pb-1 sm:pb-1.5 border-b border-border/50">
+                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                          <Badge variant="outline" className="text-[9px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-1.5 sm:px-2 py-0.5 sm:py-1 w-fit flex items-center gap-1">
                             {bet.betType === "handicap" && (
                               <>
                                 {bet.prediction === "HOME_WIN" ? (
@@ -524,11 +524,11 @@ const ActiveAIBets = () => {
                               </>
                             )}
                           </Badge>
-                          <Badge variant="secondary" className={`text-xs font-bold px-2 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
+                          <Badge variant="secondary" className={`text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
                             {bet.confidence}% 置信度
                           </Badge>
                         </div>
-                        <Badge variant="default" className="text-[11px] font-mono-data font-bold bg-foreground text-background px-2 py-1">
+                        <Badge variant="default" className="text-[9px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-1.5 sm:px-2 py-0.5">
                           @{bet.odds.toFixed(2)}
                         </Badge>
                       </div>
@@ -621,33 +621,33 @@ const ActiveAIBets = () => {
                       </div>
 
                       {/* Financial Details */}
-                      <div className="space-y-1 sm:space-y-1.5 pt-1 sm:pt-1.5">
+                      <div className="space-y-0.5 sm:space-y-1 pt-0.5 sm:pt-1">
                         {/* Stake */}
-                        <div className="flex items-center justify-between py-0.5 sm:py-1">
-                          <span className="text-[9px] sm:text-[11px] text-muted-foreground font-medium">
-                            {aiModel.displayName}本场下注金额
+                        <div className="flex items-center justify-between py-0.5">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium">
+                            {aiModel.displayName}本场下注
                           </span>
-                          <span className="text-sm sm:text-base font-mono-data font-bold text-foreground">
+                          <span className="text-[10px] sm:text-sm font-mono-data font-bold text-foreground">
                             ${bet.betAmount.toLocaleString()}
                           </span>
                         </div>
                         
                         {/* Odds Display */}
-                        <div className="flex items-center justify-between py-0.5 sm:py-1">
-                          <span className="text-[9px] sm:text-[11px] text-muted-foreground font-medium">
+                        <div className="flex items-center justify-between py-0.5">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium">
                             {t('odds')}
                           </span>
-                          <span className="text-sm sm:text-base font-mono-data font-bold text-foreground">
+                          <span className="text-[10px] sm:text-sm font-mono-data font-bold text-foreground">
                             {bet.odds.toFixed(2)}
                           </span>
                         </div>
                         
                         {/* Potential Win */}
-                        <div className="flex items-center justify-between py-0.5 sm:py-1 bg-success/10 rounded-lg px-1.5 sm:px-2 border border-success/30">
-                          <span className="text-[9px] sm:text-[11px] text-success font-bold">
-                            当场可赢金额
+                        <div className="flex items-center justify-between py-0.5 bg-success/10 rounded-lg px-1 sm:px-1.5 border border-success/30">
+                          <span className="text-[8px] sm:text-[9px] text-success font-bold">
+                            可赢金额
                           </span>
-                          <span className="text-sm sm:text-base font-mono-data font-bold text-success">
+                          <span className="text-[10px] sm:text-sm font-mono-data font-bold text-success">
                             ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </span>
                         </div>

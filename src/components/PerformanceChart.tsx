@@ -149,41 +149,41 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       
       {/* Content */}
       <div className="relative z-10">
-      <div className="mb-6 flex flex-col items-center justify-center gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold font-pixel tracking-wider text-center text-white">
+      <div className="mb-4 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
+        <h2 className="text-sm sm:text-xl md:text-2xl font-bold font-pixel tracking-wider text-center text-white">
           PERFORMANCE OVER TIME
         </h2>
-        <div className="flex gap-2">
-          <button className="px-4 py-2 bg-foreground text-background rounded text-sm font-medium">
+        <div className="flex gap-1.5 sm:gap-2">
+          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-[10px] sm:text-sm font-medium">
             {t('all')}
           </button>
-          <button className="px-4 py-2 bg-secondary text-foreground rounded text-sm font-medium hover:bg-accent transition-colors">
+          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-secondary text-foreground rounded text-[10px] sm:text-sm font-medium hover:bg-accent transition-colors">
             {t('72h')}
           </button>
         </div>
       </div>
 
       {/* Analysis Dimensions Banner */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
-        <div className="flex items-center justify-center gap-6 flex-wrap">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-              HUNSOCCER Owner's Perspective Analysis
+      <div className="mb-4 sm:mb-6 p-2 sm:p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
+        <div className="flex items-center justify-center gap-2 sm:gap-6 flex-wrap">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
+            <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+              Owner's Analysis
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-              Team Technical Breakdown
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
+            <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+              Tech Breakdown
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-              Abnormal Real-time Odds Monitoring
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
+            <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+              Odds Monitoring
             </span>
           </div>
         </div>

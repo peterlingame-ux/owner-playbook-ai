@@ -34,29 +34,29 @@ const Header = () => {
   
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <h1 className="font-pixel text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
-            HUNSOCCER ARENA
+          <h1 className="font-pixel text-[10px] sm:text-sm md:text-base text-foreground hover:text-primary transition-colors tracking-wider">
+            HUNSOCCER
           </h1>
         </Link>
         
-        <nav className="flex items-center gap-3 sm:gap-6 md:gap-8">
-          <Link to="/" className="font-pixel text-[10px] sm:text-xs text-foreground hover:text-primary transition-colors tracking-wider">
+        <nav className="flex items-center gap-1.5 sm:gap-3 md:gap-6">
+          <Link to="/" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-foreground hover:text-primary transition-colors tracking-wider">
             LIVE
           </Link>
-          <Link to="/leaderboard" className="font-pixel text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            LEADERBOARD
+          <Link to="/leaderboard" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
+            RANK
           </Link>
-          <Link to="/blog" className="font-pixel text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            {t('blog').toUpperCase()}
+          <Link to="/blog" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
+            BLOG
           </Link>
-          <Link to="/models" className="font-pixel text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            {t('models_performance').toUpperCase()}
+          <Link to="/models" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
+            MODELS
           </Link>
         </nav>
         
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
           <OnlineUsers />
           <LanguageSwitcher />
           {user ? (
@@ -64,26 +64,26 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="inline-flex items-center gap-1 sm:gap-2 font-pixel text-[10px] sm:text-xs px-2 sm:px-3"
+              className="inline-flex items-center gap-0.5 sm:gap-1 font-pixel text-[8px] sm:text-[10px] md:text-xs px-1.5 sm:px-2 md:px-3 h-7 sm:h-8"
             >
-              <LogOut size={14} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t('sign_out').toUpperCase()}</span>
+              <LogOut size={12} className="sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">OUT</span>
             </Button>
           ) : (
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/auth")}
-              className="inline-flex font-pixel text-[10px] sm:text-xs px-2 sm:px-3"
+              className="inline-flex font-pixel text-[8px] sm:text-[10px] md:text-xs px-1.5 sm:px-2 md:px-3 h-7 sm:h-8"
             >
-              {t('login').toUpperCase()}
+              LOGIN
             </Button>
           )}
           <Link 
             to="/waitlist" 
-            className="hidden sm:inline-flex items-center gap-1 text-[10px] sm:text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
+            className="hidden md:inline-flex items-center gap-1 text-[10px] sm:text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
           >
-            {t('join_waitlist').toUpperCase()}
+            WAITLIST
             <ExternalLink size={12} className="sm:w-3.5 sm:h-3.5" />
           </Link>
         </div>
