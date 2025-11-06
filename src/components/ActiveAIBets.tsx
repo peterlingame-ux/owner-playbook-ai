@@ -465,50 +465,65 @@ const ActiveAIBets = () => {
                     </Badge>
                   </div>
 
-                  {/* Expected Profit - Professional Design */}
-                  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-success/10 via-background to-success/5 border-2 border-success/40 shadow-lg">
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-success/0 via-success/10 to-success/0 opacity-50" />
+                  {/* Betting Slip Style - Professional Sportsbook Design */}
+                  <div className="bg-card border-2 border-border rounded-lg overflow-hidden shadow-lg">
+                    {/* Header */}
+                    <div className="bg-primary/10 px-3 py-2 border-b border-border">
+                      <p className="text-xs font-bold uppercase tracking-wide text-foreground/80">
+                        {t('bet_slip')}
+                      </p>
+                    </div>
                     
-                    {/* Content */}
-                    <div className="relative p-4 space-y-3">
-                      {/* Header */}
-                      <div className="flex items-center gap-2 pb-2 border-b border-success/20">
-                        <div className="p-1.5 rounded-lg bg-success/20 backdrop-blur-sm">
-                          <TrendingUp className="h-4 w-4 text-success" />
-                        </div>
-                        <span className="text-xs font-bold text-success/90 uppercase tracking-wider">
-                          {t('expected_profit')}
+                    {/* Bet Details */}
+                    <div className="p-3 space-y-2">
+                      {/* Stake Row */}
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                          {t('stake')}
+                        </span>
+                        <span className="text-sm font-mono-data font-bold text-foreground">
+                          ${bet.betAmount.toLocaleString()}
                         </span>
                       </div>
                       
-                      {/* Profit Amount */}
-                      <div className="flex items-baseline justify-between">
-                        <div className="space-y-1">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-mono-data font-bold text-success drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]">
-                              +${((bet.betAmount * bet.odds) - bet.betAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {/* Odds Row */}
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                          {t('odds')}
+                        </span>
+                        <span className="text-sm font-mono-data font-bold text-primary">
+                          {bet.odds.toFixed(2)}
+                        </span>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="border-t border-dashed border-border my-2" />
+                      
+                      {/* Potential Return Row */}
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-xs font-bold uppercase tracking-wide text-foreground/90">
+                          {t('potential_return')}
+                        </span>
+                        <span className="text-base font-mono-data font-bold text-foreground">
+                          ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </span>
+                      </div>
+                      
+                      {/* Potential Profit Row - Highlighted */}
+                      <div className="bg-success/15 rounded-lg px-3 py-2 border border-success/30">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-success" />
+                            <span className="text-xs font-bold uppercase tracking-wide text-success">
+                              {t('potential_profit')}
                             </span>
                           </div>
-                          <p className="text-[10px] text-success/60 font-medium">
-                            {t('total_return')}: ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                          </p>
-                        </div>
-                        
-                        {/* ROI Badge */}
-                        <div className="flex flex-col items-end gap-1">
-                          <div className="px-3 py-1 rounded-full bg-success/20 border border-success/40">
-                            <span className="text-xs font-mono-data font-bold text-success">
-                              +{(((bet.odds - 1) * 100).toFixed(0))}%
-                            </span>
-                          </div>
-                          <span className="text-[9px] text-success/60 uppercase tracking-wide">ROI</span>
+                          <span className="text-lg font-mono-data font-bold text-success">
+                            +${((bet.betAmount * bet.odds) - bet.betAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Corner accent */}
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-success/20 to-transparent rounded-bl-full" />
                   </div>
                 </div>
               </div>
