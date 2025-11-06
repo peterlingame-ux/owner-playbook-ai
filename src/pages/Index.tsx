@@ -27,7 +27,7 @@ const Index = () => {
           <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white font-pixel tracking-wider text-center">
             {t('the_contestants')}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {sortedModels.slice(1).map((model) => (
               <ModelCard 
                 key={model.id} 
