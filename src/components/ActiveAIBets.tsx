@@ -406,13 +406,6 @@ const ActiveAIBets = () => {
                   </Avatar>
                 </div>
 
-                {/* Confidence Badge */}
-                <div className="flex justify-center">
-                  <Badge variant="secondary" className={`text-xs font-bold px-3 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
-                    {bet.confidence}% {t('confidence')}
-                  </Badge>
-                </div>
-
                 {/* Match Info with Team Logos */}
                 <div className="space-y-1.5 py-1.5">
                   <Badge variant="outline" className="text-[10px] w-full justify-center py-0.5">
@@ -487,18 +480,23 @@ const ActiveAIBets = () => {
                     <div className="p-3 space-y-2 bg-card/80">
                       {/* Bet Type and Odds */}
                       <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
-                        <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit">
-                          {bet.betType === "handicap" && (
-                            <>
-                              {bet.handicapLine}
-                            </>
-                          )}
-                          {bet.betType === "over_under" && (
-                            <>
-                              {bet.overUnderLine} ({bet.overUnderPick === 'over' ? t('over') : t('under')})
-                            </>
-                          )}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[11px] font-bold bg-primary/15 text-primary border-primary/40 px-2 py-1 w-fit">
+                            {bet.betType === "handicap" && (
+                              <>
+                                {bet.handicapLine}
+                              </>
+                            )}
+                            {bet.betType === "over_under" && (
+                              <>
+                                {bet.overUnderLine} ({bet.overUnderPick === 'over' ? t('over') : t('under')})
+                              </>
+                            )}
+                          </Badge>
+                          <Badge variant="secondary" className={`text-xs font-bold px-2 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
+                            {bet.confidence}%
+                          </Badge>
+                        </div>
                         <Badge variant="default" className="text-[11px] font-mono-data font-bold bg-foreground text-background px-2 py-1">
                           @{bet.odds.toFixed(2)}
                         </Badge>
