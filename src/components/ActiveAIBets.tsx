@@ -269,11 +269,6 @@ const ActiveAIBets = () => {
               className="relative rounded-xl p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
               onClick={nextMatch}
             >
-              {/* Countdown Timer - Top Left */}
-              <div className="absolute top-3 left-3 z-20">
-                <MatchCountdown match={bet.match} />
-              </div>
-
               {/* Match Counter - Top Right */}
               {aiBets.length > 1 && (
                 <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
