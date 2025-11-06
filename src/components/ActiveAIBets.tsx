@@ -470,11 +470,21 @@ const ActiveAIBets = () => {
                 <div className="space-y-0 pt-2 border-t-2 border-primary/20">
                   {/* Bet Slip Card - Dark Professional Style */}
                   <div className="bg-card/50 backdrop-blur-sm rounded-lg overflow-hidden border-2 border-border shadow-2xl">
-                    {/* Header */}
-                    <div className="bg-muted/30 px-3 py-1.5 border-b border-border/50">
+                    {/* Header with Status */}
+                    <div className="bg-muted/30 px-3 py-1.5 border-b border-border/50 flex items-center justify-between">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {t('bet_slip')}
                       </p>
+                      <Badge 
+                        variant={bet.confirmed ? "default" : "outline"}
+                        className={`text-[10px] font-bold px-2 py-0.5 ${
+                          bet.confirmed 
+                            ? "bg-success/20 text-success border-success/50" 
+                            : "bg-warning/20 text-warning border-warning/50"
+                        }`}
+                      >
+                        {bet.confirmed ? "已确定" : "未确定"}
+                      </Badge>
                     </div>
                     
                     {/* Bet Details - Professional Layout */}
