@@ -5,6 +5,7 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 
 export const pastMatches: Match[] = [
   {
@@ -183,6 +184,19 @@ export const aiModels: AIModel[] = [
     changePercent: 125.50,
     locked: true,
     icon: mysteryIcon
+  },
+  {
+    id: "hunsoccermax",
+    name: "HUNSOCCER MAX",
+    displayName: "HUNSOCCER MAX",
+    color: "primary",
+    totalPredictions: 247,
+    correctPredictions: 195,
+    winRate: 78.95,
+    currentValue: "$24,789.32",
+    change: "+$5,432.10",
+    changePercent: 89.45,
+    icon: hunsoccerIcon
   }
 ];
 
@@ -309,6 +323,7 @@ export const matchPredictions: Record<string, Array<{
     { aiId: "claude", prediction: "HOME_WIN", confidence: 62, betType: "moneyline", odds: 1.75 },
     { aiId: "gemini", prediction: "DRAW", confidence: 45, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.88 },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 71, betType: "handicap", handicapLine: -0.5, odds: 2.10 },
+    { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 82, betType: "handicap", handicapLine: -1, odds: 1.88 },
   ],
   "m2": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 72, betType: "handicap", handicapLine: -1, odds: 1.95 },
@@ -316,6 +331,7 @@ export const matchPredictions: Record<string, Array<{
     { aiId: "claude", prediction: "AWAY_WIN", confidence: 58, betType: "handicap", handicapLine: 1, odds: 2.15 },
     { aiId: "gemini", prediction: "HOME_WIN", confidence: 69, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 1.98 },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 65, betType: "handicap", handicapLine: -0.5, odds: 1.85 },
+    { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 79, betType: "moneyline", odds: 1.72 },
   ],
   "m3": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 61, betType: "moneyline", odds: 1.72 },
@@ -323,6 +339,7 @@ export const matchPredictions: Record<string, Array<{
     { aiId: "claude", prediction: "AWAY_WIN", confidence: 59, betType: "handicap", handicapLine: 0.5, odds: 2.08 },
     { aiId: "gemini", prediction: "HOME_WIN", confidence: 63, betType: "handicap", handicapLine: -1, odds: 2.12 },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 67, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 2.00 },
+    { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 75, betType: "handicap", handicapLine: -0.5, odds: 1.95 },
   ],
   "m4": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 76, betType: "handicap", handicapLine: -1.5, odds: 2.05 },
@@ -330,6 +347,7 @@ export const matchPredictions: Record<string, Array<{
     { aiId: "claude", prediction: "HOME_WIN", confidence: 70, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 1.95 },
     { aiId: "gemini", prediction: "DRAW", confidence: 48, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.85 },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 73, betType: "handicap", handicapLine: -1, odds: 1.88 },
+    { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 84, betType: "handicap", handicapLine: -1.5, odds: 2.00 },
   ],
 };
 

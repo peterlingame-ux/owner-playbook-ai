@@ -11,6 +11,7 @@ import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 import deepseekCardBg from "@/assets/deepseek-card-bg.png";
 import grokCardBg from "@/assets/grok-card-bg.png";
 import gpt5CardBg from "@/assets/gpt5-card-bg.png";
@@ -23,6 +24,7 @@ const AI_ICONS: Record<string, string> = {
   claude: claudeIcon,
   gemini: geminiIcon,
   grok: grokIcon,
+  hunsoccermax: hunsoccerIcon,
 };
 
 // Generate random bet amounts for each AI
@@ -33,6 +35,7 @@ const generateBetAmount = (aiId: string, confidence: number) => {
     claude: 1200,
     gemini: 900,
     grok: 1100,
+    hunsoccermax: 2000,
   };
   
   const base = baseAmounts[aiId] || 1000;
