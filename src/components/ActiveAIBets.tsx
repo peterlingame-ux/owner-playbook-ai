@@ -484,17 +484,7 @@ const ActiveAIBets = () => {
 
                       {/* Financial Details */}
                       <div className="space-y-2 pt-2">
-                        {/* Stake */}
-                        <div className="flex items-center justify-between py-2">
-                          <span className="text-sm text-muted-foreground font-medium">
-                            {t('stake')}
-                          </span>
-                          <span className="text-xl font-mono-data font-bold text-foreground">
-                            ${bet.betAmount.toLocaleString()}
-                          </span>
-                        </div>
-                        
-                        {/* Odds Display (redundant but common in sportsbooks) */}
+                        {/* Odds Display */}
                         <div className="flex items-center justify-between py-2">
                           <span className="text-sm text-muted-foreground font-medium">
                             {t('odds')}
