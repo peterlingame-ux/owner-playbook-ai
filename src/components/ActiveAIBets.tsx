@@ -453,24 +453,19 @@ const ActiveAIBets = () => {
                     <div className="p-4 space-y-3 bg-card/80">
                       {/* Bet Type and Odds */}
                       <div className="flex items-center justify-between gap-3 pb-3 border-b border-border/50">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                            {bet.betType === "handicap" ? t('handicap_bet') : bet.betType === "over_under" ? t('over_under_bet') : t('moneyline_bet')}
-                          </span>
-                          <Badge variant="outline" className="text-sm font-bold bg-primary/15 text-primary border-primary/40 px-3 py-1.5 w-fit">
-                            {bet.betType === "handicap" && (
-                              <>
-                                {((bet.handicapLine || 0) >= 0 ? '+' : '')}{bet.handicapLine}
-                              </>
-                            )}
-                            {bet.betType === "over_under" && (
-                              <>
-                                {bet.overUnderLine} ({bet.overUnderPick === 'over' ? t('over') : t('under')})
-                              </>
-                            )}
-                            {bet.betType === "moneyline" && getPredictionText(bet.prediction, bet.match)}
-                          </Badge>
-                        </div>
+                        <Badge variant="outline" className="text-sm font-bold bg-primary/15 text-primary border-primary/40 px-3 py-1.5 w-fit">
+                          {bet.betType === "handicap" && (
+                            <>
+                              {((bet.handicapLine || 0) >= 0 ? '+' : '')}{bet.handicapLine}
+                            </>
+                          )}
+                          {bet.betType === "over_under" && (
+                            <>
+                              {bet.overUnderLine} ({bet.overUnderPick === 'over' ? t('over') : t('under')})
+                            </>
+                          )}
+                          {bet.betType === "moneyline" && getPredictionText(bet.prediction, bet.match)}
+                        </Badge>
                         <Badge variant="default" className="text-sm font-mono-data font-bold bg-foreground text-background px-3 py-1.5">
                           @{bet.odds.toFixed(2)}
                         </Badge>
