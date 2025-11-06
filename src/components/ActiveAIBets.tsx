@@ -17,6 +17,7 @@ import grokCardBg from "@/assets/grok-card-bg.png";
 import gpt5CardBg from "@/assets/gpt5-card-bg.png";
 import claudeCardBg from "@/assets/claude-card-bg.png";
 import geminiCardBg from "@/assets/gemini-card-bg.png";
+import hunsoccerMaxCardBg from "@/assets/hunsoccer-max-card-bg.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -319,6 +320,20 @@ const ActiveAIBets = () => {
                   className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${geminiCardBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundPositionY: '-20px',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
+              )}
+              
+              {/* Background Image for HUNSOCCER MAX */}
+              {aiModel.id === 'hunsoccermax' && (
+                <div 
+                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${hunsoccerMaxCardBg})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center top',
                     backgroundPositionY: '-20px',
