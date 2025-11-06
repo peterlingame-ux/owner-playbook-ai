@@ -269,21 +269,68 @@ const ActiveAIBets = () => {
               className="relative rounded-xl p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
               onClick={nextMatch}
             >
-              {/* Daily P&L - Top Left */}
+              {/* Daily P&L - Top Left - Trading Card Style */}
               <div className="absolute top-3 left-3 z-20">
-                <div className="flex flex-col items-start gap-0.5 bg-background/90 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-border/50">
-                  <span className="text-[9px] text-muted-foreground/80 font-medium uppercase tracking-wider">今日盈亏</span>
-                  <div className={`flex items-center gap-1 text-xs font-bold font-mono-data ${
-                    aiModel.change.startsWith('+') 
-                      ? 'text-success' 
-                      : aiModel.change.startsWith('-')
-                      ? 'text-destructive'
-                      : 'text-muted-foreground'
-                  }`}>
-                    <span>{aiModel.change}</span>
-                    <span className="text-[10px] opacity-80">
-                      ({aiModel.changePercent > 0 ? '+' : ''}{aiModel.changePercent.toFixed(2)}%)
-                    </span>
+                <div className={`relative overflow-hidden rounded-lg backdrop-blur-md border-2 ${
+                  aiModel.change.startsWith('+') 
+                    ? 'bg-gradient-to-br from-success/20 via-success/10 to-background/90 border-success/40' 
+                    : aiModel.change.startsWith('-')
+                    ? 'bg-gradient-to-br from-destructive/20 via-destructive/10 to-background/90 border-destructive/40'
+                    : 'bg-gradient-to-br from-muted/20 via-muted/10 to-background/90 border-muted/40'
+                } shadow-lg hover:shadow-xl transition-all duration-300 group/pnl`}>
+                  {/* Shine effect */}
+                  <div className={`absolute inset-0 opacity-0 group-hover/pnl:opacity-100 transition-opacity duration-500 ${
+                    aiModel.change.startsWith('+')
+                      ? 'bg-gradient-to-tr from-transparent via-success/20 to-transparent'
+                      : 'bg-gradient-to-tr from-transparent via-destructive/20 to-transparent'
+                  }`} />
+                  
+                  {/* Corner accent */}
+                  <div className={`absolute top-0 right-0 w-8 h-8 ${
+                    aiModel.change.startsWith('+')
+                      ? 'bg-gradient-to-bl from-success/30 to-transparent'
+                      : 'bg-gradient-to-bl from-destructive/30 to-transparent'
+                  }`} />
+                  
+                  <div className="relative px-3 py-2 min-w-[120px]">
+                    {/* Label with icon */}
+                    <div className="flex items-center gap-1 mb-1">
+                      <div className={`w-1 h-3 rounded-full ${
+                        aiModel.change.startsWith('+')
+                          ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.6)]'
+                          : 'bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.6)]'
+                      }`} />
+                      <span className="text-[9px] text-foreground/80 font-bold uppercase tracking-widest">
+                        今日盈亏
+                      </span>
+                    </div>
+                    
+                    {/* Amount - Large and bold */}
+                    <div className={`text-base font-black font-mono-data tracking-tight mb-0.5 ${
+                      aiModel.change.startsWith('+') 
+                        ? 'text-success drop-shadow-[0_0_6px_rgba(34,197,94,0.4)]' 
+                        : aiModel.change.startsWith('-')
+                        ? 'text-destructive drop-shadow-[0_0_6px_rgba(239,68,68,0.4)]'
+                        : 'text-muted-foreground'
+                    }`}>
+                      {aiModel.change}
+                    </div>
+                    
+                    {/* Percentage - Secondary info */}
+                    <div className="flex items-center gap-1">
+                      <div className={`text-[10px] font-bold font-mono-data px-1.5 py-0.5 rounded ${
+                        aiModel.change.startsWith('+')
+                          ? 'bg-success/20 text-success/90'
+                          : 'bg-destructive/20 text-destructive/90'
+                      }`}>
+                        {aiModel.changePercent > 0 ? '+' : ''}{aiModel.changePercent.toFixed(2)}%
+                      </div>
+                      <TrendingUp className={`h-3 w-3 ${
+                        aiModel.change.startsWith('+')
+                          ? 'text-success animate-pulse'
+                          : 'text-destructive rotate-180 animate-pulse'
+                      }`} />
+                    </div>
                   </div>
                 </div>
               </div>
