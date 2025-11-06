@@ -269,9 +269,23 @@ const ActiveAIBets = () => {
               className="relative rounded-xl p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
               onClick={nextMatch}
             >
-              {/* Countdown Timer - Top Left */}
+              {/* Daily P&L - Top Left */}
               <div className="absolute top-3 left-3 z-20">
-                <MatchCountdown match={bet.match} />
+                <div className="flex flex-col items-start gap-0.5 bg-background/90 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-border/50">
+                  <span className="text-[9px] text-muted-foreground/80 font-medium uppercase tracking-wider">今日盈亏</span>
+                  <div className={`flex items-center gap-1 text-xs font-bold font-mono-data ${
+                    aiModel.change.startsWith('+') 
+                      ? 'text-success' 
+                      : aiModel.change.startsWith('-')
+                      ? 'text-destructive'
+                      : 'text-muted-foreground'
+                  }`}>
+                    <span>{aiModel.change}</span>
+                    <span className="text-[10px] opacity-80">
+                      ({aiModel.changePercent > 0 ? '+' : ''}{aiModel.changePercent.toFixed(2)}%)
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Match Counter - Top Right */}
@@ -409,21 +423,6 @@ const ActiveAIBets = () => {
                     <Badge variant="outline" className={`text-sm font-mono-data font-bold px-3 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
                       {aiModel.currentValue}
                     </Badge>
-                  </div>
-                  <div className="flex flex-col items-center gap-0.5 pt-1">
-                    <span className="text-[9px] text-muted-foreground/80 font-medium uppercase tracking-wider">今日盈亏</span>
-                    <div className={`flex items-center gap-1 text-xs font-bold font-mono-data ${
-                      aiModel.change.startsWith('+') 
-                        ? 'text-success' 
-                        : aiModel.change.startsWith('-')
-                        ? 'text-destructive'
-                        : 'text-muted-foreground'
-                    }`}>
-                      <span>{aiModel.change}</span>
-                      <span className="text-[10px] opacity-80">
-                        ({aiModel.changePercent > 0 ? '+' : ''}{aiModel.changePercent.toFixed(2)}%)
-                      </span>
-                    </div>
                   </div>
                 </div>
 
