@@ -370,13 +370,7 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Financial Stats */}
-                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('bet_amount')}</p>
-                    <p className="font-mono-data font-bold text-base text-primary">
-                      ${bet.betAmount.toLocaleString()}
-                    </p>
-                  </div>
+                <div className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
                   <div className="text-center">
                     <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('balance')}</p>
                     <p className="font-mono-data font-bold text-base text-success">
