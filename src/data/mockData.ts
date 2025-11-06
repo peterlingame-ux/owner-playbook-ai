@@ -1195,7 +1195,8 @@ export const generateChartData = () => {
       gpt5: Math.max(20, Math.min(45, startWinRate - 15 + Math.random() * 10 - 5 - (i * 0.1))),
       claude: Math.max(35, Math.min(60, startWinRate + 5 + Math.random() * 10 - 5)),
       gemini: Math.max(25, Math.min(50, startWinRate - 10 + Math.random() * 10 - 5 - (i * 0.05))),
-      grok: Math.max(30, Math.min(60, startWinRate + 2 + Math.random() * 10 - 5 + (i * 0.05)))
+      grok: Math.max(30, Math.min(60, startWinRate + 2 + Math.random() * 10 - 5 + (i * 0.05))),
+      hunsoccermax: Math.max(50, Math.min(85, startWinRate + 25 + Math.random() * 10 - 5 + (i * 0.15)))
     });
   }
   

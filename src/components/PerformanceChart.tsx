@@ -7,6 +7,7 @@ import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 import ronaldoBg from "@/assets/ronaldo-bg.jpg";
 import messiBg from "@/assets/messi-bg.jpg";
 import mbappeBg from "@/assets/mbappe-bg.jpg";
@@ -43,6 +44,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       case 'grok':
         iconSrc = grokIcon;
         break;
+      case 'hunsoccermax':
+        iconSrc = hunsoccerIcon;
+        break;
       default:
         return null;
     }
@@ -73,6 +77,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         case 'claude': return claudeIcon;
         case 'gemini': return geminiIcon;
         case 'grok': return grokIcon;
+        case 'hunsoccermax': return hunsoccerIcon;
         default: return null;
       }
     };
@@ -258,6 +263,16 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             strokeWidth={2}
             dot={<CustomDot />}
             name="Grok"
+            onClick={handleLineClick}
+            style={{ cursor: 'pointer' }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="hunsoccermax" 
+            stroke="hsl(var(--primary))" 
+            strokeWidth={3}
+            dot={<CustomDot />}
+            name="HUNSOCCER MAX"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
           />
