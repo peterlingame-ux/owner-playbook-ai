@@ -398,12 +398,18 @@ const ActiveAIBets = () => {
               
               {/* Content */}
               <div className="relative z-10 space-y-3">
-                {/* Header with Avatar Only */}
+                {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-2 pb-2 border-b-2 border-primary/20">
                   <Avatar className="h-14 w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
                     <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">钱包余额</span>
+                    <Badge variant="outline" className={`text-sm font-mono-data font-bold px-3 py-1 ${getModelColor(aiModel.id).text} bg-gradient-to-r ${getModelColor(aiModel.id).bg} border-2 ${getModelColor(aiModel.id).border}`}>
+                      {aiModel.currentValue}
+                    </Badge>
+                  </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
