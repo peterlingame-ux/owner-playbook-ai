@@ -501,12 +501,6 @@ const ActiveAIBets = () => {
                                     {((bet.handicapLine || 0) >= 0 ? '+' : '')}{bet.handicapLine}
                                   </Badge>
                                 </div>
-                                {bet.prediction === "HOME_WIN" && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <TrendingUp className="h-3 w-3 text-primary" />
-                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
-                                  </div>
-                                )}
                               </div>
                               <div className={`p-2 rounded border-2 transition-all ${
                                 bet.prediction === "AWAY_WIN" 
@@ -519,12 +513,6 @@ const ActiveAIBets = () => {
                                     {((bet.handicapLine || 0) <= 0 ? '+' : '')}{-(bet.handicapLine || 0)}
                                   </Badge>
                                 </div>
-                                {bet.prediction === "AWAY_WIN" && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <TrendingUp className="h-3 w-3 text-primary" />
-                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -547,12 +535,6 @@ const ActiveAIBets = () => {
                                     {bet.overUnderLine}
                                   </Badge>
                                 </div>
-                                {bet.overUnderPick === "over" && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <TrendingUp className="h-3 w-3 text-primary" />
-                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
-                                  </div>
-                                )}
                               </div>
                               <div className={`p-2 rounded border-2 transition-all ${
                                 bet.overUnderPick === "under" 
@@ -565,12 +547,6 @@ const ActiveAIBets = () => {
                                     {bet.overUnderLine}
                                   </Badge>
                                 </div>
-                                {bet.overUnderPick === "under" && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <TrendingUp className="h-3 w-3 text-primary" />
-                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </div>
