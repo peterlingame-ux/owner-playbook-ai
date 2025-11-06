@@ -370,10 +370,10 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Financial Stats */}
-                <div className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 shadow-inner">
+                <div className="p-4 bg-gradient-to-br from-amber-500/20 to-yellow-500/10 rounded-xl border-2 border-amber-500/40 shadow-lg">
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">{t('balance')}</p>
-                    <p className="font-mono-data font-bold text-base text-success">
+                    <p className="text-xs text-amber-300 mb-2 uppercase tracking-wider font-bold">{t('balance')}</p>
+                    <p className="font-mono-data font-bold text-2xl text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
                       {aiModel.currentValue}
                     </p>
                   </div>
