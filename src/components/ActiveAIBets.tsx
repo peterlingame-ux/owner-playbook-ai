@@ -464,6 +464,22 @@ const ActiveAIBets = () => {
                       {bet.confidence}% {t('confidence')}
                     </Badge>
                   </div>
+
+                  {/* Expected Profit */}
+                  <div className="flex items-center justify-between gap-2 bg-gradient-to-r from-success/20 via-success/10 to-success/20 rounded-lg p-3 border-2 border-success/30">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-success" />
+                      <span className="text-xs font-bold text-success uppercase tracking-wide">{t('expected_profit')}</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-mono-data font-bold text-success drop-shadow-lg">
+                        +${((bet.betAmount * bet.odds) - bet.betAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </p>
+                      <p className="text-[10px] text-success/70 font-mono-data">
+                        (${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })} {t('total_return')})
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
