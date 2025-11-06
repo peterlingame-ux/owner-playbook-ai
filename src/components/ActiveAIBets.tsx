@@ -158,6 +158,48 @@ const ActiveAIBets = () => {
     return aiModels.find(ai => ai.id === aiId);
   };
 
+  const getModelColor = (aiId: string) => {
+    const colorMap: Record<string, { bg: string; border: string; text: string; glow: string }> = {
+      deepseek: { 
+        bg: "from-blue-500/20 to-blue-600/10", 
+        border: "border-blue-500/40", 
+        text: "text-blue-400",
+        glow: "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+      },
+      gpt5: { 
+        bg: "from-emerald-500/20 to-green-500/10", 
+        border: "border-emerald-500/40", 
+        text: "text-emerald-400",
+        glow: "drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+      },
+      claude: { 
+        bg: "from-purple-500/20 to-violet-500/10", 
+        border: "border-purple-500/40", 
+        text: "text-purple-400",
+        glow: "drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
+      },
+      gemini: { 
+        bg: "from-cyan-500/20 to-sky-500/10", 
+        border: "border-cyan-500/40", 
+        text: "text-cyan-400",
+        glow: "drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]"
+      },
+      grok: { 
+        bg: "from-orange-500/20 to-amber-500/10", 
+        border: "border-orange-500/40", 
+        text: "text-orange-400",
+        glow: "drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]"
+      },
+      hunsoccermax: { 
+        bg: "from-red-500/20 to-rose-500/10", 
+        border: "border-red-500/40", 
+        text: "text-red-400",
+        glow: "drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+      },
+    };
+    return colorMap[aiId] || colorMap.deepseek;
+  };
+
   if (liveMatches.length === 0) {
     return (
       <div className="w-full">
@@ -370,10 +412,10 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Financial Stats */}
-                <div className="p-4 bg-gradient-to-br from-amber-500/20 to-yellow-500/10 rounded-xl border-2 border-amber-500/40 shadow-lg">
+                <div className={`p-4 bg-gradient-to-br ${getModelColor(aiModel.id).bg} rounded-xl border-2 ${getModelColor(aiModel.id).border} shadow-lg`}>
                   <div className="text-center">
-                    <p className="text-xs text-amber-300 mb-2 uppercase tracking-wider font-bold">{t('balance')}</p>
-                    <p className="font-mono-data font-bold text-2xl text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
+                    <p className={`text-xs ${getModelColor(aiModel.id).text} mb-2 uppercase tracking-wider font-bold opacity-80`}>{t('balance')}</p>
+                    <p className={`font-mono-data font-bold text-2xl ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
                       {aiModel.currentValue}
                     </p>
                   </div>
@@ -578,34 +620,6 @@ const ActiveAIBets = () => {
                           <span className="text-xl font-mono-data font-bold text-foreground">
                             {bet.odds.toFixed(2)}
                           </span>
-                        </div>
-                        
-                        {/* Dashed Divider */}
-                        <div className="border-t border-dashed border-border/60 my-3" />
-                        
-                        {/* Potential Return */}
-                        <div className="flex items-center justify-between py-2">
-                          <span className="text-sm font-bold text-foreground/90">
-                            {t('potential_return')}
-                          </span>
-                          <span className="text-xl font-mono-data font-bold text-foreground">
-                            ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                          </span>
-                        </div>
-                        
-                        {/* Net Profit - Highlighted in Green */}
-                        <div className="bg-success/15 rounded-xl px-4 py-3 border-2 border-success/40 mt-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <TrendingUp className="h-5 w-5 text-success" />
-                              <span className="text-sm font-bold text-success">
-                                {t('potential_profit')}
-                              </span>
-                            </div>
-                            <span className="text-2xl font-mono-data font-bold text-success drop-shadow-[0_0_12px_rgba(34,197,94,0.6)]">
-                              +${((bet.betAmount * bet.odds) - bet.betAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                            </span>
-                          </div>
                         </div>
                       </div>
                     </div>
