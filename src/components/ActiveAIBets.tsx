@@ -567,43 +567,6 @@ const ActiveAIBets = () => {
                             </div>
                           </div>
                         )}
-
-                        {/* AI Final Pick Summary */}
-                        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-xl p-4 border-2 border-primary/50 shadow-lg mt-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <TrendingUp className="h-5 w-5 text-primary" />
-                              <span className="text-xs text-primary font-bold uppercase tracking-wider">AI {t('pick')}</span>
-                            </div>
-                            <Badge variant="secondary" className="text-xs font-bold">
-                              {bet.confidence}% {t('confidence')}
-                            </Badge>
-                          </div>
-                          <div className="mt-2">
-                            <p className="text-xl font-bold text-foreground">
-                              {bet.betType === "handicap" && (
-                                <>
-                                  {bet.prediction === "HOME_WIN" ? bet.match.homeTeam : bet.match.awayTeam}
-                                  {" "}
-                                  <span className="text-primary">
-                                    {bet.prediction === "HOME_WIN" 
-                                      ? `${((bet.handicapLine || 0) >= 0 ? '+' : '')}${bet.handicapLine}`
-                                      : `${((bet.handicapLine || 0) <= 0 ? '+' : '')}${-(bet.handicapLine || 0)}`
-                                    }
-                                  </span>
-                                </>
-                              )}
-                              {bet.betType === "over_under" && (
-                                <>
-                                  <span className="text-primary">{bet.overUnderLine}</span>
-                                  {" "}
-                                  {bet.overUnderPick === "over" ? t('over') : t('under')}
-                                </>
-                              )}
-                              {bet.betType === "moneyline" && getPredictionText(bet.prediction, bet.match)}
-                            </p>
-                          </div>
-                        </div>
                       </div>
 
                       {/* Financial Details */}
