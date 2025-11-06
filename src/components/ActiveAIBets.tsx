@@ -404,20 +404,13 @@ const ActiveAIBets = () => {
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
                     <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
-                  <div className="text-center">
+                  <div className="text-center flex items-center gap-2">
                     <p className="font-bold text-base bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
                       {aiModel.displayName}
                     </p>
-                  </div>
-                </div>
-
-                {/* Financial Stats */}
-                <div className={`p-3 bg-gradient-to-br ${getModelColor(aiModel.id).bg} rounded-lg border-2 ${getModelColor(aiModel.id).border} shadow-lg`}>
-                  <div className="text-center">
-                    <p className={`text-[10px] ${getModelColor(aiModel.id).text} mb-1 uppercase tracking-wider font-bold opacity-80`}>{t('balance')}</p>
-                    <p className={`font-mono-data font-bold text-xl ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
+                    <span className={`font-mono-data font-bold text-sm ${getModelColor(aiModel.id).text} ${getModelColor(aiModel.id).glow}`}>
                       {aiModel.currentValue}
-                    </p>
+                    </span>
                   </div>
                 </div>
 
