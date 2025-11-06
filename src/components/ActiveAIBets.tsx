@@ -482,19 +482,124 @@ const ActiveAIBets = () => {
                         </Badge>
                       </div>
 
-                      {/* AI Prediction Selection */}
-                      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-3 border border-primary/30">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {getPredictionIcon(bet.prediction)}
-                            <span className="text-base font-bold text-foreground">
-                              {getPredictionText(bet.prediction, bet.match)}
-                            </span>
+                      {/* Match Betting Lines */}
+                      <div className="space-y-2">
+                        {bet.betType === "handicap" && (
+                          <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
+                              {t('handicap_bet')} {t('market')}
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className={`p-2 rounded border-2 transition-all ${
+                                bet.prediction === "HOME_WIN" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  : "bg-card border-border/50"
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium truncate">{bet.match.homeTeam}</span>
+                                  <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-xs font-mono-data ml-1">
+                                    {((bet.handicapLine || 0) >= 0 ? '+' : '')}{bet.handicapLine}
+                                  </Badge>
+                                </div>
+                                {bet.prediction === "HOME_WIN" && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="h-3 w-3 text-primary" />
+                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className={`p-2 rounded border-2 transition-all ${
+                                bet.prediction === "AWAY_WIN" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  : "bg-card border-border/50"
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium truncate">{bet.match.awayTeam}</span>
+                                  <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-xs font-mono-data ml-1">
+                                    {((bet.handicapLine || 0) <= 0 ? '+' : '')}{-(bet.handicapLine || 0)}
+                                  </Badge>
+                                </div>
+                                {bet.prediction === "AWAY_WIN" && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="h-3 w-3 text-primary" />
+                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <Badge variant="secondary" className="text-xs font-bold">
-                            {bet.confidence}% {t('confidence')}
-                          </Badge>
-                        </div>
+                        )}
+
+                        {bet.betType === "over_under" && (
+                          <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
+                              {t('over_under_bet')} {t('market')}
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className={`p-2 rounded border-2 transition-all ${
+                                bet.overUnderPick === "over" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  : "bg-card border-border/50"
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium">{t('over')}</span>
+                                  <Badge variant={bet.overUnderPick === "over" ? "default" : "outline"} className="text-xs font-mono-data">
+                                    {bet.overUnderLine}
+                                  </Badge>
+                                </div>
+                                {bet.overUnderPick === "over" && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="h-3 w-3 text-primary" />
+                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className={`p-2 rounded border-2 transition-all ${
+                                bet.overUnderPick === "under" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  : "bg-card border-border/50"
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium">{t('under')}</span>
+                                  <Badge variant={bet.overUnderPick === "under" ? "default" : "outline"} className="text-xs font-mono-data">
+                                    {bet.overUnderLine}
+                                  </Badge>
+                                </div>
+                                {bet.overUnderPick === "under" && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="h-3 w-3 text-primary" />
+                                    <span className="text-[10px] font-bold text-primary uppercase">AI {t('pick')}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {bet.betType === "moneyline" && (
+                          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-3 border border-primary/30">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {getPredictionIcon(bet.prediction)}
+                                <span className="text-base font-bold text-foreground">
+                                  {getPredictionText(bet.prediction, bet.match)}
+                                </span>
+                              </div>
+                              <Badge variant="secondary" className="text-xs font-bold">
+                                {bet.confidence}% {t('confidence')}
+                              </Badge>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Confidence Badge for handicap and over_under */}
+                        {(bet.betType === "handicap" || bet.betType === "over_under") && (
+                          <div className="flex justify-end">
+                            <Badge variant="secondary" className="text-xs font-bold">
+                              {bet.confidence}% {t('confidence')}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
 
                       {/* Financial Details */}
