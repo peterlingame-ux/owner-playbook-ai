@@ -480,7 +480,7 @@ const ActiveAIBets = () => {
                         className={`text-[10px] font-bold px-2 py-0.5 ${
                           bet.confirmed 
                             ? "bg-success/20 text-success border-success/50" 
-                            : "bg-warning/20 text-warning border-warning/50"
+                            : "bg-destructive/20 text-destructive border-destructive/50"
                         }`}
                       >
                         {bet.confirmed ? "已确定" : "未确定"}
