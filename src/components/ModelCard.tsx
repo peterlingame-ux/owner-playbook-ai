@@ -17,6 +17,7 @@ import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
 import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
 import footballFieldBg from "@/assets/football-field-bg.jpg";
 
@@ -62,6 +63,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         return starMbappe;
       case 'mystery':
         return expertMystery;
+      case 'hunsoccermax':
+        return starHunsoccer;
       default:
         return starRonaldo;
     }
