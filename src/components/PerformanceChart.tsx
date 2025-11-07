@@ -151,7 +151,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       <div className="relative z-10">
       <div className="mb-4 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
         <h2 className="text-sm sm:text-xl md:text-2xl font-bold font-pixel tracking-wider text-center text-white">
-          PERFORMANCE OVER TIME
+          {t('performance_over_time')}
         </h2>
         <div className="flex gap-1.5 sm:gap-2">
           <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-[10px] sm:text-sm font-medium">
@@ -169,21 +169,21 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
             <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-              Owner's Analysis
+              {t('owners_analysis')}
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
             <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-              Tech Breakdown
+              {t('tech_breakdown')}
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
             <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-              Odds Monitoring
+              {t('odds_monitoring')}
             </span>
           </div>
         </div>

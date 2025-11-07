@@ -260,7 +260,10 @@ const resources = {
       "under": "Under",
       "top_performer": "Top Performer",
       "all_models": "All Models",
-      "wallet_balance": "Wallet Balance"
+      "wallet_balance": "Wallet Balance",
+      "owners_analysis": "Owner's Analysis",
+      "tech_breakdown": "Tech Breakdown",
+      "odds_monitoring": "Odds Monitoring"
     }
   },
   zh: {
@@ -521,7 +524,10 @@ const resources = {
       "under": "小球",
       "top_performer": "最佳表现者",
       "all_models": "所有模型",
-      "wallet_balance": "钱包余额"
+      "wallet_balance": "钱包余额",
+      "owners_analysis": "老板分析",
+      "tech_breakdown": "技术拆解",
+      "odds_monitoring": "赔率监控"
     }
   }
 };
