@@ -625,7 +625,7 @@ const ActiveAIBets = () => {
                         {/* Stake */}
                         <div className="flex items-center justify-between py-0.5">
                           <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium">
-                            {aiModel.displayName}本场下注
+                            {t('bet_amount')}
                           </span>
                           <span className="text-[10px] sm:text-sm font-mono-data font-bold text-foreground">
                             ${bet.betAmount.toLocaleString()}
@@ -645,7 +645,7 @@ const ActiveAIBets = () => {
                         {/* Potential Win */}
                         <div className="flex items-center justify-between py-0.5 bg-success/10 rounded-lg px-1 sm:px-1.5 border border-success/30">
                           <span className="text-[8px] sm:text-[9px] text-success font-bold">
-                            可赢金额
+                            {t('potential_return')}
                           </span>
                           <span className="text-[10px] sm:text-sm font-mono-data font-bold text-success">
                             ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
