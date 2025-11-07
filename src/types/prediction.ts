@@ -11,6 +11,8 @@ export interface Match {
   id: string;
   homeTeam: string;
   awayTeam: string;
+  homeTeamZh?: string;
+  awayTeamZh?: string;
   date: string;
   time: string;
   league: string;

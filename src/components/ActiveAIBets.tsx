@@ -111,7 +111,7 @@ const MatchCountdown = ({ match }: { match: any }) => {
 };
 
 const ActiveAIBets = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   // Get live matches
   const liveMatches = upcomingMatches.filter(m => m.status === "live");
@@ -121,6 +121,16 @@ const ActiveAIBets = () => {
 
   // State to track which match index is shown for each AI
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
+
+  // Helper function to get team name based on language
+  const getTeamName = (match: any, team: 'home' | 'away') => {
+    if (i18n.language === 'zh') {
+      return team === 'home' 
+        ? (match.homeTeamZh || match.homeTeam)
+        : (match.awayTeamZh || match.awayTeam);
+    }
+    return team === 'home' ? match.homeTeam : match.awayTeam;
+  };
 
   const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
     switch(betType) {
@@ -147,8 +157,8 @@ const ActiveAIBets = () => {
 
   const getPredictionText = (prediction: string, match: any) => {
     switch(prediction) {
-      case "HOME_WIN": return match.homeTeam;
-      case "AWAY_WIN": return match.awayTeam;
+      case "HOME_WIN": return getTeamName(match, 'home');
+      case "AWAY_WIN": return getTeamName(match, 'away');
       case "DRAW": return t('draw');
       default: return "";
     }
@@ -427,7 +437,7 @@ const ActiveAIBets = () => {
                         </div>
                       )}
                       <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-left truncate">
-                        {bet.match.homeTeam}
+                        {getTeamName(bet.match, 'home')}
                       </p>
                     </div>
                     
@@ -450,7 +460,7 @@ const ActiveAIBets = () => {
                     
                     <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0 justify-end">
                       <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-right truncate">
-                        {bet.match.awayTeam}
+                        {getTeamName(bet.match, 'away')}
                       </p>
                       {bet.match.awayLogo ? (
                         <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
@@ -554,7 +564,7 @@ const ActiveAIBets = () => {
                                         <AvatarFallback className="text-[6px]"><Shield className="h-1.5 w-1.5" /></AvatarFallback>
                                       </Avatar>
                                     )}
-                                    <span className="text-[8px] sm:text-[9px] font-medium truncate">{bet.match.homeTeam}</span>
+                                    <span className="text-[8px] sm:text-[9px] font-medium truncate">{getTeamName(bet.match, 'home')}</span>
                                   </div>
                                   <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1 shrink-0">
                                     {bet.handicapLine}
@@ -574,7 +584,7 @@ const ActiveAIBets = () => {
                                         <AvatarFallback className="text-[6px]"><Shield className="h-1.5 w-1.5" /></AvatarFallback>
                                       </Avatar>
                                     )}
-                                    <span className="text-[8px] sm:text-[9px] font-medium truncate">{bet.match.awayTeam}</span>
+                                    <span className="text-[8px] sm:text-[9px] font-medium truncate">{getTeamName(bet.match, 'away')}</span>
                                   </div>
                                   <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1 shrink-0">
                                     {-(bet.handicapLine || 0)}

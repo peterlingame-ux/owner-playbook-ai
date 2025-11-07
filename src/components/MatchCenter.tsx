@@ -9,12 +9,22 @@ import { Match } from "@/types/prediction";
 import { useNavigate } from "react-router-dom";
 
 const MatchCenter = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const liveMatches = upcomingMatches.filter(m => m.status === 'live');
   const upcoming = upcomingMatches.filter(m => m.status === 'upcoming');
   const finished = pastMatches;
+
+  // Helper function to get team name based on language
+  const getTeamName = (match: Match, team: 'home' | 'away') => {
+    if (i18n.language === 'zh') {
+      return team === 'home' 
+        ? (match.homeTeamZh || match.homeTeam)
+        : (match.awayTeamZh || match.awayTeam);
+    }
+    return team === 'home' ? match.homeTeam : match.awayTeam;
+  };
 
   const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => (
     <Card 
@@ -52,7 +62,7 @@ const MatchCenter = () => {
               alt={match.homeTeam} 
               className="w-7 h-7 object-contain" 
             />
-            <span className="text-sm font-medium truncate">{match.homeTeam}</span>
+            <span className="text-sm font-medium truncate">{getTeamName(match, 'home')}</span>
           </div>
           {(type === 'live' || type === 'finished') && (
             <span className="text-lg font-bold ml-2">{match.homeScore}</span>
@@ -67,7 +77,7 @@ const MatchCenter = () => {
               alt={match.awayTeam} 
               className="w-7 h-7 object-contain" 
             />
-            <span className="text-sm font-medium truncate">{match.awayTeam}</span>
+            <span className="text-sm font-medium truncate">{getTeamName(match, 'away')}</span>
           </div>
           {(type === 'live' || type === 'finished') && (
             <span className="text-lg font-bold ml-2">{match.awayScore}</span>

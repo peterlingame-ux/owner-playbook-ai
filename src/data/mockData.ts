@@ -11,7 +11,9 @@ export const pastMatches: Match[] = [
   {
     id: "past1",
     homeTeam: "Manchester City",
+    homeTeamZh: "曼彻斯特城",
     awayTeam: "Arsenal",
+    awayTeamZh: "阿森纳",
     homeLogo: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=100&h=100&fit=crop",
     awayLogo: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=100&h=100&fit=crop",
     date: "2025-10-28",
@@ -30,7 +32,9 @@ export const pastMatches: Match[] = [
   {
     id: "past2",
     homeTeam: "Real Madrid",
+    homeTeamZh: "皇家马德里",
     awayTeam: "Atletico Madrid",
+    awayTeamZh: "马德里竞技",
     homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
     awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
     date: "2025-10-29",
@@ -49,7 +53,9 @@ export const pastMatches: Match[] = [
   {
     id: "past3",
     homeTeam: "Bayern Munich",
+    homeTeamZh: "拜仁慕尼黑",
     awayTeam: "RB Leipzig",
+    awayTeamZh: "莱比锡红牛",
     homeLogo: "https://images.unsplash.com/photo-1511204579483-781ef8490a69?w=100&h=100&fit=crop",
     awayLogo: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=100&h=100&fit=crop",
     date: "2025-10-30",
@@ -68,7 +74,9 @@ export const pastMatches: Match[] = [
   {
     id: "past4",
     homeTeam: "PSG",
+    homeTeamZh: "巴黎圣日耳曼",
     awayTeam: "Lyon",
+    awayTeamZh: "里昂",
     homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
     awayLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
     date: "2025-10-31",
@@ -87,7 +95,9 @@ export const pastMatches: Match[] = [
   {
     id: "past5",
     homeTeam: "Inter Milan",
+    homeTeamZh: "国际米兰",
     awayTeam: "AC Milan",
+    awayTeamZh: "AC米兰",
     homeLogo: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=100&h=100&fit=crop",
     awayLogo: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=100&h=100&fit=crop",
     date: "2025-11-01",
@@ -204,7 +214,9 @@ export const upcomingMatches: Match[] = [
   {
     id: "m1",
     homeTeam: "Manchester United",
+    homeTeamZh: "曼彻斯特联",
     awayTeam: "Liverpool",
+    awayTeamZh: "利物浦",
     date: "2025-11-05",
     time: "20:00",
     league: "Premier League",
@@ -245,7 +257,9 @@ export const upcomingMatches: Match[] = [
   {
     id: "m2",
     homeTeam: "Real Madrid",
+    homeTeamZh: "皇家马德里",
     awayTeam: "Barcelona",
+    awayTeamZh: "巴塞罗那",
     date: "2025-11-06",
     time: "21:00",
     league: "La Liga",
@@ -264,7 +278,9 @@ export const upcomingMatches: Match[] = [
   {
     id: "m3",
     homeTeam: "Bayern Munich",
+    homeTeamZh: "拜仁慕尼黑",
     awayTeam: "Borussia Dortmund",
+    awayTeamZh: "多特蒙德",
     date: "2025-11-07",
     time: "18:30",
     league: "Bundesliga",
@@ -288,7 +304,9 @@ export const upcomingMatches: Match[] = [
   {
     id: "m4",
     homeTeam: "PSG",
+    homeTeamZh: "巴黎圣日耳曼",
     awayTeam: "Marseille",
+    awayTeamZh: "马赛",
     date: "2025-11-08",
     time: "21:00",
     league: "Ligue 1",
