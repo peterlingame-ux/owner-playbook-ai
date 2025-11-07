@@ -127,7 +127,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       )}
       {/* Star Player Background */}
       <div 
-        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
+        className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
         style={{
           backgroundImage: `url(${getExpertImage(model.id)})`,
           backgroundSize: 'cover',
@@ -135,8 +135,16 @@ const ModelCard = ({ model }: ModelCardProps) => {
         }}
       />
       
-      {/* Subtle Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
+      {/* AI Brand Color Overlay */}
+      <div 
+        className="absolute inset-0 mix-blend-multiply opacity-40 group-hover:opacity-50 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(circle at 30% 50%, ${colorTint.color}60, transparent 70%)`
+        }}
+      />
+      
+      {/* Gradient Overlay for Content Readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-card/95 via-card/60 to-card/30" />
       
       {/* Content */}
       <div className="relative z-10">
