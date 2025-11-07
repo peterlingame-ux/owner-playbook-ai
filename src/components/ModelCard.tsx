@@ -233,7 +233,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          {/* Copy Trade Button */}
+          {/* Follow Model Button */}
           <div className="pt-1.5 sm:pt-2 border-t border-border/50">
             <Button 
               onClick={handleCopyTrade}
