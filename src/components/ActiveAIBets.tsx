@@ -413,56 +413,61 @@ const ActiveAIBets = () => {
                     {bet.match.league}
                   </Badge>
                   
-                  {/* Teams with Logos and Live Score */}
-                  <div className="flex items-center justify-between gap-0.5 sm:gap-1">
-                    <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
-                      {bet.match.homeLogo ? (
-                        <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
-                          <AvatarFallback><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
-                        </Avatar>
-                      ) : (
-                        <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-muted-foreground" />
-                        </div>
-                      )}
-                      <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-left truncate">
-                        {bet.match.homeTeam}
-                      </p>
+                  {/* Teams with Logos and Live Score - Football Style */}
+                  <div className="space-y-1">
+                    {/* Teams Row */}
+                    <div className="flex items-center justify-between gap-1">
+                      {/* Home Team */}
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        {bet.match.homeLogo ? (
+                          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                            <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
+                            <AvatarFallback><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-muted-foreground" />
+                          </div>
+                        )}
+                        <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-left truncate">
+                          {bet.match.homeTeam}
+                        </p>
+                      </div>
+                      
+                      {/* Away Team */}
+                      <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+                        <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-right truncate">
+                          {bet.match.awayTeam}
+                        </p>
+                        {bet.match.awayLogo ? (
+                          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                            <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
+                            <AvatarFallback><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
-                    {/* Live Score - Only show for live matches */}
+                    {/* Score Row - Football Standard Format */}
                     {bet.match.status === "live" ? (
-                      <div className="flex flex-col items-center gap-0.5 px-0.5 sm:px-1 shrink-0">
-                        <div className="flex items-center gap-0.5 sm:gap-1">
-                          <span className="text-[10px] sm:text-sm font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
-                          <span className="text-[8px] sm:text-[9px] text-muted-foreground">-</span>
-                          <span className="text-[10px] sm:text-sm font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
-                        </div>
-                        <span className="text-[6px] sm:text-[7px] text-success font-bold uppercase">LIVE</span>
+                      <div className="flex items-center justify-center gap-1 bg-success/10 rounded-md py-1 px-2 border border-success/30">
+                        <span className="text-sm sm:text-base font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
+                        <span className="text-xs sm:text-sm text-success font-bold">:</span>
+                        <span className="text-sm sm:text-base font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
+                        <Badge variant="default" className="ml-1 text-[7px] sm:text-[8px] bg-success text-background border-0 px-1.5 py-0 animate-pulse">
+                          LIVE
+                        </Badge>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-0.5 px-0.5 sm:px-1 shrink-0">
-                        <span className="text-[8px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-                        <span className="text-[6px] sm:text-[7px] text-muted-foreground">{bet.match.time}</span>
+                      <div className="flex items-center justify-center gap-1 bg-muted/30 rounded-md py-1 px-2 border border-border/50">
+                        <span className="text-xs sm:text-sm text-muted-foreground font-bold">VS</span>
+                        <span className="text-[8px] sm:text-[9px] text-muted-foreground ml-1">{bet.match.time}</span>
                       </div>
                     )}
-                    
-                    <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0 justify-end">
-                      <p className="font-bold text-[9px] sm:text-[10px] leading-tight flex-1 text-right truncate">
-                        {bet.match.awayTeam}
-                      </p>
-                      {bet.match.awayLogo ? (
-                        <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
-                          <AvatarFallback><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
-                        </Avatar>
-                      ) : (
-                        <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
 
