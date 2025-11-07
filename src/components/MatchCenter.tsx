@@ -26,6 +26,14 @@ const MatchCenter = () => {
     return team === 'home' ? match.homeTeam : match.awayTeam;
   };
 
+  // Helper function to get league name based on language
+  const getLeagueName = (match: Match) => {
+    if (i18n.language === 'zh') {
+      return match.leagueZh || match.league;
+    }
+    return match.league;
+  };
+
   const MatchCard = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => (
     <Card 
       className="p-3 hover:bg-accent/50 transition-colors cursor-pointer border"
@@ -33,7 +41,7 @@ const MatchCenter = () => {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-muted-foreground font-semibold">{match.league}</span>
+        <span className="text-xs text-muted-foreground font-semibold">{getLeagueName(match)}</span>
         
         {type === 'live' && (
           <Badge variant="destructive" className="text-xs">

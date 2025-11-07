@@ -16,6 +16,7 @@ export interface Match {
   date: string;
   time: string;
   league: string;
+  leagueZh?: string;
   leagueLogo?: string;
   homeLogo?: string;
   awayLogo?: string;

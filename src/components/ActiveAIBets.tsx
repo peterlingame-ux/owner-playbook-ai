@@ -132,6 +132,14 @@ const ActiveAIBets = () => {
     return team === 'home' ? match.homeTeam : match.awayTeam;
   };
 
+  // Helper function to get league name based on language
+  const getLeagueName = (match: any) => {
+    if (i18n.language === 'zh') {
+      return match.leagueZh || match.league;
+    }
+    return match.league;
+  };
+
   const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
     switch(betType) {
       case "moneyline":
@@ -420,7 +428,7 @@ const ActiveAIBets = () => {
                 {/* Match Info with Team Logos */}
                 <div className="space-y-0.5 sm:space-y-1 py-0.5 sm:py-1">
                   <Badge variant="outline" className="text-[8px] sm:text-[9px] w-full justify-center py-0.5">
-                    {bet.match.league}
+                    {getLeagueName(bet.match)}
                   </Badge>
                   
                   {/* Teams with Logos and Live Score */}
