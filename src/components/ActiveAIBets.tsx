@@ -56,7 +56,7 @@ const MatchCountdown = ({ match }: { match: any }) => {
       if (match.currentMinute) {
         setMatchTime(`${match.currentMinute}'`);
       }
-      setCountdown("当前预测中");
+      setCountdown(t('in_progress'));
       return;
     }
 
@@ -66,7 +66,7 @@ const MatchCountdown = ({ match }: { match: any }) => {
       const diff = matchDateTime.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setCountdown("当前预测中");
+        setCountdown(t('in_progress'));
         return;
       }
 
@@ -400,7 +400,7 @@ const ActiveAIBets = () => {
                     <AvatarFallback className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">钱包余额</span>
+                    <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
                     <Badge variant="outline" className="text-[10px] sm:text-xs font-mono-data font-bold px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
                       {aiModel.currentValue}
                     </Badge>
@@ -525,7 +525,7 @@ const ActiveAIBets = () => {
                             )}
                           </Badge>
                           <Badge variant="secondary" className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 bg-secondary/80 text-foreground border-2 border-border">
-                            {bet.confidence}% 置信度
+                            {bet.confidence}% {t('confidence')}
                           </Badge>
                         </div>
                         <Badge variant="default" className="text-[9px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-1.5 sm:px-2 py-0.5">

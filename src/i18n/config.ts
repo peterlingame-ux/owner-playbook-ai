@@ -259,7 +259,8 @@ const resources = {
       "over": "Over",
       "under": "Under",
       "top_performer": "Top Performer",
-      "all_models": "All Models"
+      "all_models": "All Models",
+      "wallet_balance": "Wallet Balance"
     }
   },
   zh: {
@@ -519,7 +520,8 @@ const resources = {
       "over": "大球",
       "under": "小球",
       "top_performer": "最佳表现者",
-      "all_models": "所有模型"
+      "all_models": "所有模型",
+      "wallet_balance": "钱包余额"
     }
   }
 };
