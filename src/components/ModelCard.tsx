@@ -125,30 +125,18 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </span>
         </div>
       )}
-      {/* Football Field Background */}
+      {/* Star Player Background */}
       <div 
-        className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
+        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
         style={{
-          backgroundImage: `url(${footballFieldBg})`,
+          backgroundImage: `url(${getExpertImage(model.id)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       />
       
-      {/* Expert Background Image with Color Tint */}
-      <div 
-        className="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity duration-300"
-        style={{
-          backgroundImage: `url(${getExpertImage(model.id)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: `grayscale(20%) sepia(80%) hue-rotate(${colorTint.hue}) saturate(150%)`
-        }}
-      />
-      
-      
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent" />
+      {/* Subtle Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
       
       {/* Content */}
       <div className="relative z-10">
