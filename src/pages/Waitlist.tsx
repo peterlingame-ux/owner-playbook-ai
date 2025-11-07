@@ -132,7 +132,7 @@ const Waitlist = () => {
               {errors.contactMethod && <p className="text-destructive text-sm mt-1 text-left">{errors.contactMethod}</p>}
             </div>
 
-            <Button type="submit" className="h-12 sm:h-13 md:h-14 px-6 sm:px-8 text-sm sm:text-base font-medium">
+            <Button type="submit" variant="default" className="h-12 sm:h-13 md:h-14 px-6 sm:px-8 text-sm sm:text-base font-medium bg-primary text-primary-foreground hover:bg-primary/90">
               JOIN
             </Button>
           </form>
