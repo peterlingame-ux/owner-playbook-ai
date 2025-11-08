@@ -413,7 +413,25 @@ const ActiveAIBets = () => {
               {/* Content */}
               <div className="relative z-10 space-y-1 sm:space-y-2 md:space-y-3">
                  {/* Header with Avatar and Balance */}
-                <div className="flex flex-col items-center gap-1 sm:gap-1.5 pb-1 sm:pb-1.5 border-b-2 border-primary/20">
+                <div className="flex flex-col items-center gap-1 sm:gap-1.5 pb-1 sm:pb-1.5 border-b-2 border-primary/20 relative">
+                  {/* Analysis Button - Left Side */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="absolute left-1 top-1 sm:left-2 sm:top-2 h-auto px-1.5 sm:px-2 py-1 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toast({
+                        title: "分析功能即将上线",
+                        description: "查看分析功能正在开发中，敬请期待！"
+                      });
+                    }}
+                    title="查看分析"
+                  >
+                    <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
+                    <span className="text-[8px] sm:text-[9px] font-bold text-primary">查看分析</span>
+                  </Button>
+                  
                   <Avatar className="h-8 w-8 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
                     <AvatarFallback className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
@@ -427,24 +445,7 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Match Info with Team Logos */}
-                <div className="space-y-0.5 sm:space-y-1 py-0.5 sm:py-1 relative">
-                  {/* Analysis Button - Top Left */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="absolute -top-1 -left-1 sm:-top-1.5 sm:-left-1.5 h-6 w-6 sm:h-7 sm:w-7 p-0 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toast({
-                        title: "分析功能即将上线",
-                        description: "查看分析功能正在开发中，敬请期待！"
-                      });
-                    }}
-                    title="查看分析"
-                  >
-                    <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary group-hover/analyze:scale-110 transition-transform" />
-                  </Button>
-                  
+                <div className="space-y-0.5 sm:space-y-1 py-0.5 sm:py-1">
                   <Badge variant="outline" className="text-[8px] sm:text-[9px] w-full justify-center py-0.5">
                     {getLeagueName(bet.match)}
                   </Badge>
