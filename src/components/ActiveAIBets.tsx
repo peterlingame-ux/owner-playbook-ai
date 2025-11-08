@@ -411,12 +411,18 @@ const ActiveAIBets = () => {
               
               {/* Content */}
               <div className="relative z-10 space-y-1 sm:space-y-2 md:space-y-3">
-                 {/* Header with Avatar */}
+                 {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1 sm:gap-1.5 pb-1 sm:pb-1.5 border-b-2 border-primary/20">
                   <Avatar className="h-8 w-8 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
                     <AvatarFallback className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
                   </Avatar>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
+                    <Badge variant="outline" className="text-[10px] sm:text-xs font-mono-data font-bold px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
+                      {aiModel.currentValue}
+                    </Badge>
+                  </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
@@ -630,6 +636,39 @@ const ActiveAIBets = () => {
                             </div>
                           </div>
                         )}
+                      </div>
+
+                      {/* Financial Details */}
+                      <div className="space-y-0.5 sm:space-y-1 pt-0.5 sm:pt-1">
+                        {/* Stake */}
+                        <div className="flex items-center justify-between py-0.5">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium">
+                            {t('bet_amount')}
+                          </span>
+                          <span className="text-[10px] sm:text-sm font-mono-data font-bold text-foreground">
+                            ${bet.betAmount.toLocaleString()}
+                          </span>
+                        </div>
+                        
+                        {/* Odds Display */}
+                        <div className="flex items-center justify-between py-0.5">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium">
+                            {t('odds')}
+                          </span>
+                          <span className="text-[10px] sm:text-sm font-mono-data font-bold text-foreground">
+                            {bet.odds.toFixed(2)}
+                          </span>
+                        </div>
+                        
+                        {/* Potential Win */}
+                        <div className="flex items-center justify-between py-0.5 bg-success/10 rounded-lg px-1 sm:px-1.5 border border-success/30">
+                          <span className="text-[8px] sm:text-[9px] text-success font-bold">
+                            {t('potential_return')}
+                          </span>
+                          <span className="text-[10px] sm:text-sm font-mono-data font-bold text-success">
+                            ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
