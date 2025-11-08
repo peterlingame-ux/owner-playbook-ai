@@ -1,21 +1,22 @@
-import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
-import Header from "@/components/Header";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Calendar, Clock, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Star, ChevronDown, ChevronRight, Calendar, Search } from "lucide-react";
 import { FixtureResponse } from "@/types/footballApi";
 
-const Models = () => {
+export default function Models() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [liveMatches, setLiveMatches] = useState<FixtureResponse[]>([]);
-  const [upcomingMatches, setUpcomingMatches] = useState<FixtureResponse[]>([]);
+  const [fixtures, setFixtures] = useState<FixtureResponse[]>([]);
+  const [expandedLeagues, setExpandedLeagues] = useState<Set<number>>(new Set());
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     fetchFixtures();
@@ -23,234 +24,204 @@ const Models = () => {
 
   const fetchFixtures = async () => {
     try {
-      setLoading(true);
-
-      // 获取正在进行的比赛
-      const { data: liveData, error: liveError } = await supabase.functions.invoke('football-fixtures', {
-        body: { status: 'live' }
+      const { data, error } = await supabase.functions.invoke('football-fixtures', {
+        body: { status: 'all' }
       });
 
-      if (liveError) {
-        console.error('Error fetching live fixtures:', liveError);
-      } else if (liveData?.response) {
-        setLiveMatches(liveData.response.slice(0, 20));
+      if (error) throw error;
+      if (data?.response) {
+        setFixtures(data.response);
       }
-
-      // 获取即将到来的比赛（英超）
-      const { data: upcomingData, error: upcomingError } = await supabase.functions.invoke('football-fixtures', {
-        body: { league: '39', season: '2024' }
-      });
-
-      if (upcomingError) {
-        console.error('Error fetching upcoming fixtures:', upcomingError);
-      } else if (upcomingData?.response) {
-        setUpcomingMatches(upcomingData.response.slice(0, 30));
-      }
-
     } catch (error) {
-      console.error('Error in fetchFixtures:', error);
+      console.error('Error fetching fixtures:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    if (i18n.language === 'zh') {
-      return date.toLocaleDateString('zh-CN', { 
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+  const toggleLeague = (leagueId: number) => {
+    const newExpanded = new Set(expandedLeagues);
+    if (newExpanded.has(leagueId)) {
+      newExpanded.delete(leagueId);
+    } else {
+      newExpanded.add(leagueId);
     }
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    setExpandedLeagues(newExpanded);
   };
 
-  const getStatusBadge = (status: string, elapsed: number | null) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'LIVE':
+      case 'TBD':
+      case 'NS':
+        return 'text-muted-foreground';
       case '1H':
       case '2H':
-        return (
-          <Badge variant="default" className="bg-success/20 text-success border-success/50 animate-pulse">
-            {elapsed ? `${elapsed}'` : 'LIVE'}
-          </Badge>
-        );
       case 'HT':
-        return (
-          <Badge variant="secondary" className="bg-warning/20 text-warning border-warning/50">
-            {t('half_time')}
-          </Badge>
-        );
+      case 'LIVE':
+        return 'text-green-500';
       case 'FT':
-        return (
-          <Badge variant="outline" className="bg-muted/50">
-            {t('finished')}
-          </Badge>
-        );
-      case 'NS':
-      case 'TBD':
-        return (
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/50">
-            {t('upcoming')}
-          </Badge>
-        );
+      case 'AET':
+      case 'PEN':
+        return 'text-green-500';
+      case 'PST':
+      case 'CANC':
+      case 'ABD':
+        return 'text-red-500';
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return 'text-muted-foreground';
     }
   };
 
-  const handleMatchClick = (fixtureId: number) => {
-    navigate(`/match/${fixtureId}`);
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' });
   };
 
-  const renderMatchTable = (matches: FixtureResponse[], showStatus: boolean = true) => {
-    if (matches.length === 0) {
-      return (
-        <TableRow>
-          <TableCell colSpan={7} className="text-center py-12">
-            <p className="text-muted-foreground">{t('no_upcoming_matches')}</p>
-          </TableCell>
-        </TableRow>
-      );
+  const groupByLeague = (fixtures: FixtureResponse[]) => {
+    const grouped = new Map<number, { league: any; fixtures: FixtureResponse[] }>();
+    
+    fixtures.forEach(fixture => {
+      const leagueId = fixture.league.id;
+      if (!grouped.has(leagueId)) {
+        grouped.set(leagueId, {
+          league: fixture.league,
+          fixtures: []
+        });
+      }
+      grouped.get(leagueId)!.fixtures.push(fixture);
+    });
+
+    return Array.from(grouped.values());
+  };
+
+  const filterFixtures = (fixtures: FixtureResponse[]) => {
+    switch (activeTab) {
+      case 'live':
+        return fixtures.filter(f => ['1H', '2H', 'HT', 'LIVE'].includes(f.fixture.status.short));
+      case 'finished':
+        return fixtures.filter(f => ['FT', 'AET', 'PEN'].includes(f.fixture.status.short));
+      case 'scheduled':
+        return fixtures.filter(f => ['TBD', 'NS'].includes(f.fixture.status.short));
+      default:
+        return fixtures;
     }
-
-    return matches.map((match) => (
-      <TableRow 
-        key={match.fixture.id}
-        className="hover:bg-accent/50 cursor-pointer transition-colors"
-        onClick={() => handleMatchClick(match.fixture.id)}
-      >
-        <TableCell className="font-medium text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            {showStatus && getStatusBadge(match.fixture.status.short, match.fixture.status.elapsed)}
-            <span className="hidden sm:inline text-muted-foreground">
-              {formatDate(match.fixture.date)}
-            </span>
-          </div>
-        </TableCell>
-        <TableCell>
-          <div className="text-xs text-muted-foreground">
-            {match.league.name}
-          </div>
-        </TableCell>
-        <TableCell>
-          <div className="flex items-center gap-2">
-            <img src={match.teams.home.logo} alt="" className="w-6 h-6" />
-            <span className="text-sm font-medium">{match.teams.home.name}</span>
-          </div>
-        </TableCell>
-        <TableCell className="text-center">
-          <div className="flex items-center justify-center gap-2">
-            {match.goals.home !== null && match.goals.away !== null ? (
-              <>
-                <span className="text-lg font-bold font-mono-data">{match.goals.home}</span>
-                <span className="text-muted-foreground">-</span>
-                <span className="text-lg font-bold font-mono-data">{match.goals.away}</span>
-              </>
-            ) : (
-              <span className="text-sm text-muted-foreground">VS</span>
-            )}
-          </div>
-        </TableCell>
-        <TableCell>
-          <div className="flex items-center gap-2 justify-end">
-            <span className="text-sm font-medium">{match.teams.away.name}</span>
-            <img src={match.teams.away.logo} alt="" className="w-6 h-6" />
-          </div>
-        </TableCell>
-        <TableCell className="text-xs text-muted-foreground hidden lg:table-cell">
-          {match.fixture.venue.name && (
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              {match.fixture.venue.name}
-            </div>
-          )}
-        </TableCell>
-      </TableRow>
-    ));
   };
+
+  const filteredFixtures = filterFixtures(fixtures);
+  const groupedFixtures = groupByLeague(filteredFixtures);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-foreground flex items-center gap-2">
-            <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
-            {t('match_schedule')}
-          </h1>
-          <div className="w-full h-px bg-border"></div>
-        </div>
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex items-center justify-between mb-4">
+              <TabsList className="bg-muted/50">
+                <TabsTrigger value="all" className="text-sm">ALL</TabsTrigger>
+                <TabsTrigger value="live" className="text-sm text-green-500">LIVE</TabsTrigger>
+                <TabsTrigger value="finished" className="text-sm">FINISHED</TabsTrigger>
+                <TabsTrigger value="scheduled" className="text-sm">SCHEDULED</TabsTrigger>
+              </TabsList>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  1 OCT.
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <Tabs defaultValue="live" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="live" className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                {t('live')} ({liveMatches.length})
-              </TabsTrigger>
-              <TabsTrigger value="upcoming" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {t('upcoming')} ({upcomingMatches.length})
-              </TabsTrigger>
-            </TabsList>
+            <div className="space-y-3">
+              {loading ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">{t('loading')}</p>
+                </Card>
+              ) : groupedFixtures.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No matches available</p>
+                </Card>
+              ) : (
+                groupedFixtures.map(({ league, fixtures: leagueFixtures }) => (
+                  <Card key={league.id} className="overflow-hidden bg-card/50 backdrop-blur">
+                    <div
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted/50 transition-colors border-b border-border/50"
+                      onClick={() => toggleLeague(league.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Star className="h-4 w-4 text-muted-foreground" />
+                        {league.flag && (
+                          <img src={league.flag} alt="" className="h-4 w-6 object-cover" />
+                        )}
+                        <span className="font-medium text-sm">
+                          {league.country}: {league.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
+                          Standings
+                        </Button>
+                        {expandedLeagues.has(league.id) ? (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    </div>
 
-            <TabsContent value="live">
-              <Card className="border-border/50">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[140px]">{t('time')}</TableHead>
-                      <TableHead className="w-[120px]">{t('league')}</TableHead>
-                      <TableHead>{t('home_team')}</TableHead>
-                      <TableHead className="text-center w-[100px]">{t('score')}</TableHead>
-                      <TableHead className="text-right">{t('away_team')}</TableHead>
-                      <TableHead className="hidden lg:table-cell">{t('venue')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {renderMatchTable(liveMatches, true)}
-                  </TableBody>
-                </Table>
-              </Card>
-            </TabsContent>
+                    {expandedLeagues.has(league.id) && (
+                      <div className="divide-y divide-border/50">
+                        {leagueFixtures.map((fixture) => (
+                          <div
+                            key={fixture.fixture.id}
+                            className="flex items-center gap-4 p-3 hover:bg-muted/30 transition-colors cursor-pointer"
+                            onClick={() => navigate(`/match/${fixture.fixture.id}`)}
+                          >
+                            <div className="w-12 text-center">
+                              <span className={`text-xs font-medium ${getStatusColor(fixture.fixture.status.short)}`}>
+                                {fixture.fixture.status.short === 'NS' ? formatTime(fixture.fixture.date) : fixture.fixture.status.short}
+                              </span>
+                            </div>
 
-            <TabsContent value="upcoming">
-              <Card className="border-border/50">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[140px]">{t('time')}</TableHead>
-                      <TableHead className="w-[120px]">{t('league')}</TableHead>
-                      <TableHead>{t('home_team')}</TableHead>
-                      <TableHead className="text-center w-[100px]">{t('score')}</TableHead>
-                      <TableHead className="text-right">{t('away_team')}</TableHead>
-                      <TableHead className="hidden lg:table-cell">{t('venue')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {renderMatchTable(upcomingMatches, true)}
-                  </TableBody>
-                </Table>
-              </Card>
-            </TabsContent>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <img src={fixture.teams.home.logo} alt="" className="h-5 w-5" />
+                                  <span className="text-sm">{fixture.teams.home.name}</span>
+                                </div>
+                                <span className="text-sm font-semibold min-w-[20px] text-center">
+                                  {fixture.goals.home ?? '-'}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <img src={fixture.teams.away.logo} alt="" className="h-5 w-5" />
+                                  <span className="text-sm">{fixture.teams.away.name}</span>
+                                </div>
+                                <span className="text-sm font-semibold min-w-[20px] text-center">
+                                  {fixture.goals.away ?? '-'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {fixture.fixture.status.short !== 'NS' && fixture.fixture.status.elapsed && (
+                              <div className="text-xs text-muted-foreground">
+                                ({fixture.fixture.status.elapsed}')
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+                ))
+              )}
+            </div>
           </Tabs>
-        )}
+        </div>
       </main>
     </div>
   );
-};
-
-export default Models;
+}
