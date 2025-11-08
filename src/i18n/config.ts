@@ -543,7 +543,7 @@ const resources = {
       "copy_trade_unavailable_desc": "模型跟单功能即将上线，敬请期待！",
       "locked_model": "已锁定",
       "locked_model_message": "该模型已锁定，敬请期待开放！",
-      "active_ai_predictions": "赛事预测",
+      "active_ai_predictions": "AI模型赛事预测",
       "prediction": "预测",
       "current_score": "当前比分",
       "bet_amount": "投注金额",
