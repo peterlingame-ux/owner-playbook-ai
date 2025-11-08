@@ -43,16 +43,16 @@ const Header = () => {
         
         <nav className="flex items-center gap-1.5 sm:gap-3 md:gap-6">
           <Link to="/" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-foreground hover:text-primary transition-colors tracking-wider">
-            LIVE
+            {t('nav_live')}
           </Link>
           <Link to="/leaderboard" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            RANK
+            {t('nav_rank')}
           </Link>
           <Link to="/blog" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            BLOG
+            {t('nav_blog')}
           </Link>
           <Link to="/models" className="font-pixel text-[8px] sm:text-[10px] md:text-xs text-muted-foreground hover:text-foreground transition-colors tracking-wider">
-            MODELS
+            {t('nav_models')}
           </Link>
         </nav>
         

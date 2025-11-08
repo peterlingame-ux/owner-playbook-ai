@@ -7,6 +7,10 @@ const resources = {
       // Header
       "online_users": "ONLINE USERS",
       "users_watching": "users watching now",
+      "nav_live": "LIVE",
+      "nav_rank": "RANK",
+      "nav_blog": "BLOG",
+      "nav_models": "MODELS",
       
       // Stats
       "highest_win_rate": "HIGHEST WIN RATE",
@@ -298,6 +302,10 @@ const resources = {
       // Header
       "online_users": "在线用户",
       "users_watching": "位用户正在观看",
+      "nav_live": "直播",
+      "nav_rank": "排行榜",
+      "nav_blog": "介绍",
+      "nav_models": "模型",
       
       // Stats
       "highest_win_rate": "最高胜率",
