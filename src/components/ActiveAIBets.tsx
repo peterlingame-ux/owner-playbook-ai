@@ -427,7 +427,24 @@ const ActiveAIBets = () => {
                 </div>
 
                 {/* Match Info with Team Logos */}
-                <div className="space-y-0.5 sm:space-y-1 py-0.5 sm:py-1">
+                <div className="space-y-0.5 sm:space-y-1 py-0.5 sm:py-1 relative">
+                  {/* Analysis Button - Top Left */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="absolute -top-1 -left-1 sm:-top-1.5 sm:-left-1.5 h-6 w-6 sm:h-7 sm:w-7 p-0 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toast({
+                        title: "分析功能即将上线",
+                        description: "查看分析功能正在开发中，敬请期待！"
+                      });
+                    }}
+                    title="查看分析"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary group-hover/analyze:scale-110 transition-transform" />
+                  </Button>
+                  
                   <Badge variant="outline" className="text-[8px] sm:text-[9px] w-full justify-center py-0.5">
                     {getLeagueName(bet.match)}
                   </Badge>
@@ -435,21 +452,6 @@ const ActiveAIBets = () => {
                   {/* Teams with Logos and Live Score */}
                   <div className="flex items-center justify-between gap-0.5 sm:gap-1">
                     <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-5 w-5 sm:h-6 sm:w-6 p-0 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary shrink-0 group/analyze"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toast({
-                            title: "分析功能即将上线",
-                            description: "查看分析功能正在开发中，敬请期待！"
-                          });
-                        }}
-                        title="查看分析"
-                      >
-                        <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
-                      </Button>
                       {bet.match.homeLogo ? (
                         <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
                           <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
