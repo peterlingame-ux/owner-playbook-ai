@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.match-analysis]
 verify_jwt = false
+
+[functions.football-fixtures]
+verify_jwt = false

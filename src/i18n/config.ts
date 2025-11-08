@@ -10,7 +10,7 @@ const resources = {
       "nav_live": "LIVE",
       "nav_rank": "RANK",
       "nav_blog": "BLOG",
-      "nav_models": "MODELS",
+      "nav_models": "SCHEDULE",
       
       // Stats
       "highest_win_rate": "HIGHEST WIN RATE",
@@ -134,6 +134,7 @@ const resources = {
       "upcoming_match": "Upcoming",
       "prediction_summary": "Prediction Summary",
       "click_analyze_to_see_predictions": "Click the 'Analyze with AI' buttons above to generate match predictions from 5 different AI models.",
+      "venue": "Venue",
       
       // Additional translations
       "blog": "BLOG",
@@ -305,7 +306,7 @@ const resources = {
       "nav_live": "直播",
       "nav_rank": "排行榜",
       "nav_blog": "介绍",
-      "nav_models": "模型",
+      "nav_models": "赛程表",
       
       // Stats
       "highest_win_rate": "最高胜率",
@@ -429,6 +430,7 @@ const resources = {
       "upcoming_match": "即将开始",
       "prediction_summary": "预测汇总",
       "click_analyze_to_see_predictions": "点击上方的\"AI 分析\"按钮，让5个不同的AI模型生成比赛预测。",
+      "venue": "球场",
       
       // Additional translations
       "blog": "BLOG",
