@@ -300,7 +300,7 @@ const resources = {
       "performance": "表现",
       
       // Model Cards
-      "the_contestants": "参赛选手",
+      "the_contestants": "AI模型胜率",
       "view_details": "查看详情",
       "total_predictions": "总预测次数",
       

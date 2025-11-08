@@ -24,7 +24,7 @@ const Index = () => {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
         {/* Models Section */}
         <div className="mb-6 sm:mb-8 lg:mb-10">
-          <h2 className="text-base sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-6 text-foreground font-pixel tracking-wide sm:tracking-wider text-center uppercase px-4">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-6 text-foreground tracking-wide sm:tracking-wider text-center uppercase px-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontWeight: 700 }}>
             {t('the_contestants')}
           </h2>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-4">
