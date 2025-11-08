@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
 import { TrendingUp, TrendingDown, PlayCircle, Lock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 // AI Model Icons - Updated
@@ -27,7 +26,6 @@ interface ModelCardProps {
 
 const ModelCard = ({ model }: ModelCardProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const isPositive = model.changePercent > 0;
   
   const getModelIcon = (modelId: string) => {
@@ -93,19 +91,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (model.locked) {
-      toast.error(t('locked_model_message') || 'This model is locked. Stay tuned for access!');
-      return;
-    }
-    navigate(`/model/${model.id}`);
+    toast.info(t('copy_trade_unavailable_desc') || 'FOLLOW MODEL功能即将上线，敬请期待！');
   };
   
   const handleCardClick = () => {
-    if (model.locked) {
-      toast.info(t('locked_model_message') || 'This model is locked. Stay tuned for access!');
-      return;
-    }
-    navigate(`/model/${model.id}`);
+    toast.info(t('copy_trade_unavailable_desc') || 'FOLLOW MODEL功能即将上线，敬请期待！');
   };
   
   return (
