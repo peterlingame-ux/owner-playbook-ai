@@ -1,82 +1,33 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, Users, DollarSign } from "lucide-react";
+import { TrendingUp, Shield } from "lucide-react";
+import { Match } from "@/types/prediction";
 
 interface WhaleDataChartProps {
-  matchId: string;
+  match: Match;
 }
 
 // Mock data for betting distribution
 const generateBettingData = (matchId: string) => {
-  return [
-    { name: "home_win", value: 45, amount: "$1,250,000", color: "hsl(var(--success))" },
-    { name: "away_win", value: 30, amount: "$833,333", color: "hsl(var(--destructive))" },
-    { name: "draw", value: 25, amount: "$694,444", color: "hsl(var(--warning))" },
-  ];
+  return {
+    homeWin: { percentage: 45, amount: "$1.25M" },
+    draw: { percentage: 25, amount: "$694K" },
+    awayWin: { percentage: 30, amount: "$833K" },
+  };
 };
 
-const WhaleDataChart = ({ matchId }: WhaleDataChartProps) => {
-  const { t } = useTranslation();
-  const data = generateBettingData(matchId);
+const WhaleDataChart = ({ match }: WhaleDataChartProps) => {
+  const { t, i18n } = useTranslation();
+  const data = generateBettingData(match.id);
   
-  const totalAmount = data.reduce((sum, item) => {
-    const amount = parseFloat(item.amount.replace(/[$,]/g, ''));
-    return sum + amount;
-  }, 0);
-
-  const formatAmount = (value: string) => {
-    return value;
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-card border border-border rounded-lg p-3 shadow-xl">
-          <p className="text-sm font-bold text-foreground mb-1">
-            {t(payload[0].name)}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t('bet_amount')}: {payload[0].payload.amount}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t('percentage')}: {payload[0].value.toFixed(1)}%
-          </p>
-        </div>
-      );
+  const getTeamName = (team: 'home' | 'away') => {
+    if (i18n.language === 'zh') {
+      return team === 'home' 
+        ? (match.homeTeamZh || match.homeTeam)
+        : (match.awayTeamZh || match.awayTeam);
     }
-    return null;
-  };
-
-  const CustomLegend = ({ payload }: any) => {
-    return (
-      <div className="flex flex-col gap-2 mt-4">
-        {payload.map((entry: any, index: number) => (
-          <div 
-            key={`item-${index}`} 
-            className="flex items-center justify-between px-3 py-2 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-xs font-medium text-foreground">
-                {t(entry.value)}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-foreground">
-                {data[index].amount}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {entry.payload.value.toFixed(1)}%
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return team === 'home' ? match.homeTeam : match.awayTeam;
   };
 
   return (
@@ -84,10 +35,6 @@ const WhaleDataChart = ({ matchId }: WhaleDataChartProps) => {
       {/* Animated Background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-transparent to-transparent" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--primary)) 10px, hsl(var(--primary)) 11px)',
-          opacity: 0.1
-        }} />
       </div>
 
       {/* Content */}
@@ -109,55 +56,70 @@ const WhaleDataChart = ({ matchId }: WhaleDataChartProps) => {
           </div>
         </div>
 
-        {/* Total Amount Card */}
-        <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">{t('total_betting_volume')}</p>
-                <p className="text-lg font-bold text-foreground font-mono-data">
-                  ${(totalAmount / 1000000).toFixed(2)}M
-                </p>
+        {/* Energy Bars */}
+        <div className="space-y-4">
+          {/* Home Win */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-success" />
+                <span className="text-sm font-bold text-foreground">
+                  {getTeamName('home')}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-success">{data.homeWin.amount}</span>
+                <span className="text-xs text-muted-foreground">{data.homeWin.percentage}%</span>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-success">
-              <Users className="h-4 w-4" />
-              <span className="text-xs font-bold">2,847</span>
-            </div>
+            <Progress 
+              value={data.homeWin.percentage} 
+              className="h-3 bg-muted"
+              indicatorClassName="bg-gradient-to-r from-success to-success/80"
+            />
           </div>
-        </div>
 
-        {/* Chart */}
-        <ResponsiveContainer width="100%" height={200}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={80}
-              innerRadius={50}
-              fill="#8884d8"
-              dataKey="value"
-              animationBegin={0}
-              animationDuration={800}
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
+          {/* Draw */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-warning" />
+                <span className="text-sm font-bold text-foreground">
+                  {t('draw')}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-warning">{data.draw.amount}</span>
+                <span className="text-xs text-muted-foreground">{data.draw.percentage}%</span>
+              </div>
+            </div>
+            <Progress 
+              value={data.draw.percentage} 
+              className="h-3 bg-muted"
+              indicatorClassName="bg-gradient-to-r from-warning to-warning/80"
+            />
+          </div>
 
-        {/* Legend */}
-        <div className="mt-4">
-          <CustomLegend payload={data.map((item, index) => ({ 
-            value: item.name, 
-            color: item.color,
-            payload: data[index]
-          }))} />
+          {/* Away Win */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-destructive" />
+                <span className="text-sm font-bold text-foreground">
+                  {getTeamName('away')}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-destructive">{data.awayWin.amount}</span>
+                <span className="text-xs text-muted-foreground">{data.awayWin.percentage}%</span>
+              </div>
+            </div>
+            <Progress 
+              value={data.awayWin.percentage} 
+              className="h-3 bg-muted"
+              indicatorClassName="bg-gradient-to-r from-destructive to-destructive/80"
+            />
+          </div>
         </div>
 
         {/* Whale Alert */}

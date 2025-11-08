@@ -246,7 +246,7 @@ const ActiveAIBets = () => {
       {/* Whale Data Chart Section */}
       {liveMatches.length > 0 && (
         <div className="mb-6">
-          <WhaleDataChart matchId={liveMatches[0].id} />
+          <WhaleDataChart match={liveMatches[0]} />
         </div>
       )}
 
