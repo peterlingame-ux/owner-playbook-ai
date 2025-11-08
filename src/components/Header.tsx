@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, ExternalLink } from "lucide-react";
+import { LogOut } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -79,13 +79,6 @@ const Header = () => {
               LOGIN
             </Button>
           )}
-          <Link 
-            to="/waitlist" 
-            className="hidden md:inline-flex items-center gap-1 text-[10px] sm:text-xs font-pixel text-foreground hover:text-primary transition-colors underline underline-offset-4 tracking-wider"
-          >
-            WAITLIST
-            <ExternalLink size={12} className="sm:w-3.5 sm:h-3.5" />
-          </Link>
         </div>
       </div>
     </header>
