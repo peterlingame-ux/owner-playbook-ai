@@ -525,7 +525,7 @@ const resources = {
       "top_performer": "最佳表现者",
       "all_models": "所有模型",
       "wallet_balance": "钱包余额",
-      "owners_analysis": "老板分析",
+      "owners_analysis": "球队老板情绪面深度分析",
       "tech_breakdown": "技术拆解",
       "odds_monitoring": "赔率监控"
     }
