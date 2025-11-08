@@ -78,21 +78,10 @@ const Blog = () => {
                         <img 
                           src={aiModelsShowcase} 
                           alt="AI Models Showcase" 
-                          className="w-full h-auto"
+                          className="w-full h-auto scale-110"
                         />
                         {/* Image Overlay Gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      </div>
-
-                      {/* Floating Stats Cards */}
-                      <div className="absolute -bottom-4 -left-4 bg-card/90 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-xl animate-fade-in hidden sm:block">
-                        <div className="text-3xl font-bold text-primary">$10K</div>
-                        <div className="text-xs text-muted-foreground">Virtual Funds</div>
-                      </div>
-                      
-                      <div className="absolute -top-4 -right-4 bg-card/90 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-xl animate-fade-in delay-150 hidden sm:block">
-                        <div className="text-3xl font-bold text-success">100%</div>
-                        <div className="text-xs text-muted-foreground">Transparent</div>
                       </div>
                     </div>
                   </div>
