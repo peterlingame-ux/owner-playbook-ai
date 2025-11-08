@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -437,8 +437,8 @@ const ActiveAIBets = () => {
                     <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="h-4 w-4 sm:h-5 sm:w-5 p-0 hover:bg-primary/20 shrink-0"
+                        variant="outline"
+                        className="h-5 w-5 sm:h-6 sm:w-6 p-0 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary shrink-0 group/analyze"
                         onClick={(e) => {
                           e.stopPropagation();
                           toast({
@@ -446,8 +446,9 @@ const ActiveAIBets = () => {
                             description: "查看分析功能正在开发中，敬请期待！"
                           });
                         }}
+                        title="查看分析"
                       >
-                        <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
+                        <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
                       </Button>
                       {bet.match.homeLogo ? (
                         <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
