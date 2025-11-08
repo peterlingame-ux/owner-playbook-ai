@@ -72,6 +72,34 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+  }
+  
+  /* 中文排版优化 */
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  
+  p {
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+  }
+  
+  /* 优化小字号可读性 */
+  .text-xs {
+    letter-spacing: 0.03em;
+  }
+  
+  .text-sm {
+    letter-spacing: 0.025em;
+  }
+  
+  /* 优化按钮和标签 */
+  button, .badge {
+    letter-spacing: 0.04em;
   }
   
   .font-mono-data {
