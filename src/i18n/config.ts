@@ -267,9 +267,11 @@ const resources = {
       "whale_data": "Whale Data",
       "betting_distribution": "Global Betting Distribution",
       "total_betting_volume": "Total Betting Volume",
+      "total_bettors": "Total Bettors",
       "whale_alert": "Whale Alert",
       "whale_alert_desc": "Large bets detected in the last 5 minutes on home win",
-      "percentage": "Percentage"
+      "percentage": "Percentage",
+      "minutes_ago": "min ago"
     }
   },
   zh: {
@@ -537,9 +539,11 @@ const resources = {
       "whale_data": "巨鲸数据",
       "betting_distribution": "全网下注金额分布",
       "total_betting_volume": "总投注额",
+      "total_bettors": "总投注人数",
       "whale_alert": "巨鲸警报",
       "whale_alert_desc": "最近5分钟检测到主队获胜的大额投注",
-      "percentage": "占比"
+      "percentage": "占比",
+      "minutes_ago": "分钟前"
     }
   }
 };
