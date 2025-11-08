@@ -107,7 +107,6 @@ const LeaderboardTable = () => {
                   <TableHead className="text-center py-2.5 text-muted-foreground font-medium text-[10px] tracking-wider uppercase">{t('predictions')}</TableHead>
                   <TableHead className="text-center py-2.5 text-muted-foreground font-medium text-[10px] tracking-wider uppercase">{t('correct')}</TableHead>
                   <TableHead className="text-center py-2.5 text-muted-foreground font-medium text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
-                  <TableHead className="text-center py-2.5 text-muted-foreground font-medium text-[10px] tracking-wider uppercase">{t('current_streak')}</TableHead>
                   <TableHead className="text-center py-2.5 text-muted-foreground font-medium text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
                   <TableHead className="text-center py-2.5 text-muted-foreground font-medium text-[10px] tracking-wider uppercase">{t('avg_confidence')}</TableHead>
                 </TableRow>
@@ -149,11 +148,6 @@ const LeaderboardTable = () => {
                     <TableCell className="text-center py-3">
                       <span className="font-mono-data font-semibold text-sm text-foreground/50">
                         {model.locked ? '???' : model.wrongPredictions}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center py-3">
-                      <span className={`font-mono-data font-semibold text-sm ${model.currentStreak > 0 ? 'text-success' : model.currentStreak < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                        {model.locked ? '???' : (model.currentStreak > 0 ? '+' : '') + model.currentStreak}
                       </span>
                     </TableCell>
                     <TableCell className="text-center py-3">
