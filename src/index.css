@@ -133,4 +133,13 @@ All colors MUST be HSL.
     background-size: 200% auto;
     animation: gradient 3s ease infinite;
   }
+  
+  /* Animation delays */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+  
+  .delay-150 {
+    animation-delay: 150ms;
+  }
 }
