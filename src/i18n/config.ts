@@ -15,7 +15,7 @@ const resources = {
       
       // Performance Chart
       "performance_over_time": "PERFORMANCE OVER TIME",
-      "win_rate": "Win Rate (%)",
+      "win_rate": "6 AI Models Prediction Win Rate (%)",
       
       // Live Matches
       "upcoming_matches": "UPCOMING MATCHES",
@@ -279,7 +279,7 @@ const resources = {
       
       // Performance Chart
       "performance_over_time": "历史表现",
-      "win_rate": "胜率 (%)",
+      "win_rate": "6大智能模型预测胜率 (%)",
       
       // Live Matches
       "upcoming_matches": "即将开始的比赛",
