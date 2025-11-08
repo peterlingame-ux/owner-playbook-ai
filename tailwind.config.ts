@@ -15,7 +15,6 @@ export default {
     extend: {
       fontFamily: {
         pixel: ['"Press Start 2P"', 'cursive'],
-        sans: ['"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
