@@ -285,7 +285,12 @@ const resources = {
       
       // Platform disclaimer
       "platform_disclaimer": "Platform Disclaimer",
-      "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term."
+      "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term.",
+      
+      // Blog page features
+      "owner_sentiment_analysis": "Owner Sentiment Analysis",
+      "player_technical_breakdown": "Player Technical Breakdown",
+      "odds_anomaly_monitoring": "Odds Anomaly Monitoring"
     }
   },
   zh: {
@@ -571,7 +576,12 @@ const resources = {
       
       // Platform disclaimer
       "platform_disclaimer": "平台声明",
-      "platform_disclaimer_content": "HUNSOCCER仅用于展示 AI 在足球赛事分析能力，不提供任何形式的投注或赌博行为。平台内共设定 6 个独立的AI分析模型，每个模型都拥有相同的虚拟资金（10,000），在真实赛程基础上给出各自的专业判断与策略，系统会记录其胜率用于比较不同AI的分析水平，最终目的是找出在长期维度下表现最优的分析路径。"
+      "platform_disclaimer_content": "HUNSOCCER仅用于展示 AI 在足球赛事分析能力，不提供任何形式的投注或赌博行为。平台内共设定 6 个独立的AI分析模型，每个模型都拥有相同的虚拟资金（10,000），在真实赛程基础上给出各自的专业判断与策略，系统会记录其胜率用于比较不同AI的分析水平，最终目的是找出在长期维度下表现最优的分析路径。",
+      
+      // Blog page features
+      "owner_sentiment_analysis": "老板情绪面分析",
+      "player_technical_breakdown": "球员技术面拆解",
+      "odds_anomaly_monitoring": "异常赔率监测"
     }
   }
 };

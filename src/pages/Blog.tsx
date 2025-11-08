@@ -56,15 +56,15 @@ const Blog = () => {
                       <div className="flex flex-wrap gap-3 pt-4">
                         <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-background/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors">
                           <Sparkles className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium">6 AI Models</span>
+                          <span className="text-sm font-medium">{t('owner_sentiment_analysis')}</span>
                         </div>
                         <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-background/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors">
                           <TrendingUp className="w-4 h-4 text-success" />
-                          <span className="text-sm font-medium">Real-time Analysis</span>
+                          <span className="text-sm font-medium">{t('player_technical_breakdown')}</span>
                         </div>
                         <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-background/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors">
                           <Users className="w-4 h-4 text-accent" />
-                          <span className="text-sm font-medium">Virtual Trading</span>
+                          <span className="text-sm font-medium">{t('odds_anomaly_monitoring')}</span>
                         </div>
                       </div>
                     </div>
