@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import WhaleDataChart from "@/components/WhaleDataChart";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -241,6 +242,13 @@ const ActiveAIBets = () => {
           {t('live')}
         </Badge>
       </div>
+
+      {/* Whale Data Chart Section */}
+      {liveMatches.length > 0 && (
+        <div className="mb-6">
+          <WhaleDataChart matchId={liveMatches[0].id} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {activeAIs.map((aiModel) => {

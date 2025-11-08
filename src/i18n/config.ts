@@ -263,7 +263,13 @@ const resources = {
       "wallet_balance": "Wallet Balance",
       "owners_analysis": "Owner's Analysis",
       "tech_breakdown": "Tech Breakdown",
-      "odds_monitoring": "Odds Monitoring"
+      "odds_monitoring": "Odds Monitoring",
+      "whale_data": "Whale Data",
+      "betting_distribution": "Global Betting Distribution",
+      "total_betting_volume": "Total Betting Volume",
+      "whale_alert": "Whale Alert",
+      "whale_alert_desc": "Large bets detected in the last 5 minutes on home win",
+      "percentage": "Percentage"
     }
   },
   zh: {
@@ -527,7 +533,13 @@ const resources = {
       "wallet_balance": "钱包余额",
       "owners_analysis": "球队老板情绪面深度分析",
       "tech_breakdown": "球员技术面拆解",
-      "odds_monitoring": "异常赔率实时监测"
+      "odds_monitoring": "异常赔率实时监测",
+      "whale_data": "巨鲸数据",
+      "betting_distribution": "全网下注金额分布",
+      "total_betting_volume": "总投注额",
+      "whale_alert": "巨鲸警报",
+      "whale_alert_desc": "最近5分钟检测到主队获胜的大额投注",
+      "percentage": "占比"
     }
   }
 };
