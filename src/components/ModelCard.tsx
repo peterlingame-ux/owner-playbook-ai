@@ -166,9 +166,6 @@ const ModelCard = ({ model }: ModelCardProps) => {
               <h3 className="font-bold text-[10px] sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}>
                 {model.displayName}
               </h3>
-              <p className="text-[9px] sm:text-xs text-muted-foreground truncate">
-                {model.totalPredictions} {t('predictions')}
-              </p>
             </div>
           </div>
           
