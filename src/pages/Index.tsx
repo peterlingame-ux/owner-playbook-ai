@@ -28,7 +28,7 @@ const Index = () => {
             {t('the_contestants')}
           </h2>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-4">
-            {sortedModels.slice(1).map((model) => (
+            {sortedModels.map((model) => (
               <ModelCard 
                 key={model.id} 
                 model={model}
