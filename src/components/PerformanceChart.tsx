@@ -91,7 +91,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
               alt={entry.value}
               className="w-5 h-5 object-contain"
             />
-            <span className="text-sm font-medium" style={{ color: entry.color }}>
+            <span className="text-sm font-semibold tracking-wide" style={{ color: entry.color }}>
               {entry.value}
             </span>
           </div>
@@ -150,14 +150,14 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       {/* Content */}
       <div className="relative z-10">
       <div className="mb-4 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
-        <h2 className="text-sm sm:text-xl md:text-2xl font-bold font-pixel tracking-wider text-center text-white">
+        <h2 className="text-sm sm:text-xl md:text-2xl font-bold tracking-wider text-center text-foreground">
           {t('performance_over_time')}
         </h2>
         <div className="flex gap-1.5 sm:gap-2">
-          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-[10px] sm:text-sm font-medium">
+          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-[10px] sm:text-sm font-semibold tracking-wide">
             {t('all')}
           </button>
-          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-secondary text-foreground rounded text-[10px] sm:text-sm font-medium hover:bg-accent transition-colors">
+          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-secondary text-foreground rounded text-[10px] sm:text-sm font-semibold tracking-wide hover:bg-accent transition-colors">
             {t('72h')}
           </button>
         </div>
@@ -168,21 +168,21 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         <div className="flex items-center justify-center gap-2 sm:gap-6 flex-wrap">
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+            <span className="text-[9px] sm:text-sm font-semibold tracking-wide text-foreground">
               {t('owners_analysis')}
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+            <span className="text-[9px] sm:text-sm font-semibold tracking-wide text-foreground">
               {t('tech_breakdown')}
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[9px] sm:text-sm font-bold bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+            <span className="text-[9px] sm:text-sm font-semibold tracking-wide text-foreground">
               {t('odds_monitoring')}
             </span>
           </div>
@@ -197,6 +197,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             stroke="hsl(var(--muted-foreground))"
             fontSize={12}
             tickLine={false}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
           />
           <YAxis 
             stroke="hsl(var(--muted-foreground))"
@@ -204,12 +205,15 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             tickLine={false}
             domain={[0, 100]}
             tickFormatter={(value) => `${value}%`}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
           />
           <Tooltip 
             contentStyle={{
               backgroundColor: "hsl(var(--card))",
               border: "1px solid hsl(var(--border))",
-              borderRadius: "8px"
+              borderRadius: "8px",
+              fontFamily: 'JetBrains Mono, monospace',
+              fontWeight: 600
             }}
             formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
           />
