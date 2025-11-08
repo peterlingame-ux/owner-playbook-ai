@@ -526,7 +526,7 @@ const resources = {
       "all_models": "所有模型",
       "wallet_balance": "钱包余额",
       "owners_analysis": "球队老板情绪面深度分析",
-      "tech_breakdown": "技术拆解",
+      "tech_breakdown": "球员技术面拆解",
       "odds_monitoring": "赔率监控"
     }
   }
