@@ -278,7 +278,7 @@ const resources = {
       "correct_predictions": "次正确预测",
       
       // Performance Chart
-      "performance_over_time": "历史表现",
+      "performance_over_time": "AI模型胜率走势图",
       "win_rate": "胜率 (%)",
       
       // Live Matches
