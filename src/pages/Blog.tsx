@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import CryptoTicker from "@/components/CryptoTicker";
 import aiModelsShowcase from "@/assets/ai-models-showcase.png";
-import { Info } from "lucide-react";
+import { Shield, Sparkles, TrendingUp, Users } from "lucide-react";
 
 const Blog = () => {
   const { t } = useTranslation();
@@ -12,60 +12,94 @@ const Blog = () => {
       <Header />
       <CryptoTicker />
       
-      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 lg:py-12 max-w-7xl">
-        {/* Page Title with gradient */}
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent tracking-tight">
-            {t('blog')}
-          </h1>
-          <div className="w-20 sm:w-24 lg:w-32 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto rounded-full" />
+      {/* Hero Section with Image Background */}
+      <div className="relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+        <div className="absolute top-0 left-0 w-full h-full opacity-5">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent rounded-full blur-3xl animate-pulse delay-150" />
         </div>
-        
-        {/* Platform Disclaimer Section - Enhanced */}
-        <div className="relative mb-6 sm:mb-8 lg:mb-10">
-          {/* Background decoration */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-2xl blur-xl" />
-          
-          <div className="relative p-6 sm:p-8 lg:p-12 bg-card/80 backdrop-blur-sm border-2 border-border/50 rounded-2xl shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:border-primary/30">
-            {/* Icon decoration */}
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-6 opacity-10">
-              <Info className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 text-primary" />
-            </div>
-            
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
-              {/* Image section with enhanced styling */}
-              <div className="w-full lg:w-1/2 relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300" />
-                <div className="relative">
-                  <img 
-                    src={aiModelsShowcase} 
-                    alt="AI Models Showcase" 
-                    className="w-full h-auto rounded-xl shadow-2xl transform group-hover:scale-[1.02] transition-transform duration-300"
-                  />
-                </div>
-              </div>
+
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+          {/* Main Content Card */}
+          <div className="max-w-7xl mx-auto">
+            {/* Platform Disclaimer - Hero Style */}
+            <div className="relative">
+              {/* Glow Effect */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-3xl blur-2xl opacity-30 animate-pulse" />
               
-              {/* Content section */}
-              <div className="w-full lg:w-1/2 space-y-4 sm:space-y-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-1 h-8 sm:h-10 lg:h-12 bg-gradient-to-b from-primary to-accent rounded-full" />
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                    {t('platform_disclaimer')}
-                  </h2>
-                </div>
+              <div className="relative bg-gradient-to-br from-card/90 via-card/80 to-card/90 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl overflow-hidden">
+                {/* Top Accent Bar */}
+                <div className="h-1.5 bg-gradient-to-r from-primary via-accent to-primary" />
                 
-                <div className="pl-4 sm:pl-6 border-l-2 border-border/50">
-                  <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed sm:leading-loose">
-                    {t('platform_disclaimer_content')}
-                  </p>
+                <div className="p-8 sm:p-12 lg:p-16">
+                  <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                    {/* Left Content */}
+                    <div className="space-y-8 order-2 lg:order-1">
+                      {/* Icon Badge */}
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
+                        <Shield className="w-5 h-5 text-primary" />
+                        <span className="text-sm font-semibold text-primary tracking-wider">
+                          {t('platform_disclaimer')}
+                        </span>
+                      </div>
+
+                      {/* Main Text */}
+                      <div className="space-y-6">
+                        <p className="text-lg sm:text-xl lg:text-2xl text-foreground/90 leading-relaxed font-light">
+                          {t('platform_disclaimer_content')}
+                        </p>
+                      </div>
+
+                      {/* Feature Pills */}
+                      <div className="flex flex-wrap gap-3 pt-4">
+                        <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-background/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">6 AI Models</span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-background/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors">
+                          <TrendingUp className="w-4 h-4 text-success" />
+                          <span className="text-sm font-medium">Real-time Analysis</span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-background/50 border border-border/50 rounded-xl hover:border-primary/30 transition-colors">
+                          <Users className="w-4 h-4 text-accent" />
+                          <span className="text-sm font-medium">Virtual Trading</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Image */}
+                    <div className="order-1 lg:order-2 relative group">
+                      {/* Image Glow */}
+                      <div className="absolute -inset-2 bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      <div className="relative overflow-hidden rounded-2xl border-2 border-border/30 shadow-2xl transform group-hover:scale-[1.02] transition-transform duration-500">
+                        <img 
+                          src={aiModelsShowcase} 
+                          alt="AI Models Showcase" 
+                          className="w-full h-auto"
+                        />
+                        {/* Image Overlay Gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+
+                      {/* Floating Stats Cards */}
+                      <div className="absolute -bottom-4 -left-4 bg-card/90 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-xl animate-fade-in hidden sm:block">
+                        <div className="text-3xl font-bold text-primary">$10K</div>
+                        <div className="text-xs text-muted-foreground">Virtual Funds</div>
+                      </div>
+                      
+                      <div className="absolute -top-4 -right-4 bg-card/90 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-xl animate-fade-in delay-150 hidden sm:block">
+                        <div className="text-3xl font-bold text-success">100%</div>
+                        <div className="text-xs text-muted-foreground">Transparent</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
-                {/* Decorative accent */}
-                <div className="flex gap-2 pt-4">
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse delay-75" />
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse delay-150" />
-                </div>
+
+                {/* Bottom Accent */}
+                <div className="h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
               </div>
             </div>
           </div>
