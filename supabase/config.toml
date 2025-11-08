@@ -2,3 +2,6 @@ project_id = "bxxcyngrwsnrcsozrzno"
 
 [functions.football-match-detail]
 verify_jwt = false
+
+[functions.match-analysis]
+verify_jwt = false

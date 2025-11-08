@@ -7,6 +7,8 @@ import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { MatchAnalysisDialog } from "@/components/MatchAnalysisDialog";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -122,6 +124,89 @@ const ActiveAIBets = () => {
 
   // State to track which match index is shown for each AI
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
+  
+  // State for analysis dialog
+  const [analysisDialog, setAnalysisDialog] = useState({
+    open: false,
+    matchInfo: { homeTeam: '', awayTeam: '', league: '' },
+    analysis: null as string | null,
+    isLoading: false,
+  });
+
+  // Function to get match analysis
+  const getMatchAnalysis = async (match: any, bet: any, aiModel: any) => {
+    setAnalysisDialog({
+      open: true,
+      matchInfo: {
+        homeTeam: getTeamName(match, 'home'),
+        awayTeam: getTeamName(match, 'away'),
+        league: getLeagueName(match),
+      },
+      analysis: null,
+      isLoading: true,
+    });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('match-analysis', {
+        body: {
+          matchInfo: {
+            league: getLeagueName(match),
+            homeTeam: getTeamName(match, 'home'),
+            awayTeam: getTeamName(match, 'away'),
+            homeScore: match.homeScore || 0,
+            awayScore: match.awayScore || 0,
+            status: match.status,
+          },
+          betInfo: {
+            betType: bet.betType,
+            prediction: bet.prediction,
+            confidence: bet.confidence,
+            odds: bet.odds,
+            betAmount: bet.betAmount,
+            handicapLine: bet.handicapLine,
+            overUnderLine: bet.overUnderLine,
+            overUnderPick: bet.overUnderPick,
+          },
+          aiModel: aiModel.displayName,
+        },
+      });
+
+      if (error) {
+        console.error('Analysis error:', error);
+        toast({
+          title: "分析失败",
+          description: error.message || "无法获取AI分析，请稍后重试",
+          variant: "destructive",
+        });
+        setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      if (data?.error) {
+        toast({
+          title: "分析失败",
+          description: data.error,
+          variant: "destructive",
+        });
+        setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      setAnalysisDialog(prev => ({
+        ...prev,
+        analysis: data.analysis,
+        isLoading: false,
+      }));
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "分析失败",
+        description: "发生未知错误，请稍后重试",
+        variant: "destructive",
+      });
+      setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
+    }
+  };
 
   // Helper function to get team name based on language
   const getTeamName = (match: any, team: 'home' | 'away') => {
@@ -421,10 +506,7 @@ const ActiveAIBets = () => {
                     className="absolute left-1 top-1 sm:left-2 sm:top-2 h-auto px-1.5 sm:px-2 py-1 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toast({
-                        title: "分析功能即将上线",
-                        description: "查看分析功能正在开发中，敬请期待！"
-                      });
+                      getMatchAnalysis(bet.match, bet, aiModel);
                     }}
                     title="查看分析"
                   >
@@ -701,6 +783,14 @@ const ActiveAIBets = () => {
           );
         })}
       </div>
+      
+      <MatchAnalysisDialog
+        open={analysisDialog.open}
+        onOpenChange={(open) => setAnalysisDialog(prev => ({ ...prev, open }))}
+        analysis={analysisDialog.analysis}
+        isLoading={analysisDialog.isLoading}
+        matchInfo={analysisDialog.matchInfo}
+      />
     </div>
   );
 };
