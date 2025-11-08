@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -434,6 +435,20 @@ const ActiveAIBets = () => {
                   {/* Teams with Logos and Live Score */}
                   <div className="flex items-center justify-between gap-0.5 sm:gap-1">
                     <div className="flex items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-4 w-4 sm:h-5 sm:w-5 p-0 hover:bg-primary/20 shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toast({
+                            title: "分析功能即将上线",
+                            description: "查看分析功能正在开发中，敬请期待！"
+                          });
+                        }}
+                      >
+                        <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
+                      </Button>
                       {bet.match.homeLogo ? (
                         <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
                           <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
