@@ -281,7 +281,11 @@ const resources = {
       "whale_alert": "Whale Alert",
       "whale_alert_desc": "Large bets detected in the last 5 minutes on home win",
       "percentage": "Percentage",
-      "minutes_ago": "min ago"
+      "minutes_ago": "min ago",
+      
+      // Platform disclaimer
+      "platform_disclaimer": "Platform Disclaimer",
+      "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term."
     }
   },
   zh: {
@@ -563,7 +567,11 @@ const resources = {
       "whale_alert": "巨鲸警报",
       "whale_alert_desc": "最近5分钟检测到主队获胜的大额投注",
       "percentage": "占比",
-      "minutes_ago": "分钟前"
+      "minutes_ago": "分钟前",
+      
+      // Platform disclaimer
+      "platform_disclaimer": "平台声明",
+      "platform_disclaimer_content": "HUNSOCCER仅用于展示 AI 在足球赛事分析能力，不提供任何形式的投注或赌博行为。平台内共设定 6 个独立的AI分析模型，每个模型都拥有相同的虚拟资金（10,000），在真实赛程基础上给出各自的专业判断与策略，系统会记录其胜率用于比较不同AI的分析水平，最终目的是找出在长期维度下表现最优的分析路径。"
     }
   }
 };
