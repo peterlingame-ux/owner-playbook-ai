@@ -25,12 +25,19 @@ export default function Models() {
   const fetchFixtures = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('football-fixtures', {
-        body: { status: 'all' }
+        body: { 
+          league: '39',  // Premier League
+          season: '2024',
+          status: 'upcoming'
+        }
       });
 
       if (error) throw error;
       if (data?.response) {
         setFixtures(data.response);
+        // Auto-expand all leagues
+        const leagueIds = new Set<number>(data.response.map((f: FixtureResponse) => f.league.id));
+        setExpandedLeagues(leagueIds);
       }
     } catch (error) {
       console.error('Error fetching fixtures:', error);

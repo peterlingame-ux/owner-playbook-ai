@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { league = '39', season = '2024', status = 'all' } = await req.json();
+    const { league, season, status } = await req.json();
     
     const FOOTBALL_API_KEY = Deno.env.get('FOOTBALL_API_KEY');
     if (!FOOTBALL_API_KEY) {
@@ -28,13 +28,23 @@ serve(async (req) => {
       'x-rapidapi-host': 'v3.football.api-sports.io'
     };
 
-    // 构建API URL - 获取今天和未来的比赛
-    const today = new Date().toISOString().split('T')[0];
-    let url = `${API_BASE}/fixtures?league=${league}&season=${season}&from=${today}`;
+    let url = '';
     
-    // 如果需要获取正在进行的比赛
+    // 根据状态构建不同的 URL
     if (status === 'live') {
+      // 获取所有正在进行的比赛
       url = `${API_BASE}/fixtures?live=all`;
+    } else if (status === 'all' && !league) {
+      // 获取今天所有比赛
+      const today = new Date().toISOString().split('T')[0];
+      url = `${API_BASE}/fixtures?date=${today}`;
+    } else {
+      // 获取指定联赛的比赛（最近30天）
+      const today = new Date().toISOString().split('T')[0];
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      const to = futureDate.toISOString().split('T')[0];
+      url = `${API_BASE}/fixtures?league=${league || '39'}&season=${season || '2024'}&from=${today}&to=${to}`;
     }
 
     console.log('Fetching fixtures from:', url);
