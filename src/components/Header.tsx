@@ -48,7 +48,10 @@ const Header = () => {
           <Link to="/leaderboard" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_rank')}
           </Link>
-          <Link to="/blog" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden sm:inline`}>
+          <Link to="/history" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden sm:inline`}>
+            {t('nav_history')}
+          </Link>
+          <Link to="/blog" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden lg:inline`}>
             {t('nav_blog')}
           </Link>
           <Link to="/models" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden md:inline`}>

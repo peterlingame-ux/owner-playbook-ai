@@ -9,6 +9,7 @@ const resources = {
       "users_watching": "users watching now",
       "nav_live": "LIVE",
       "nav_rank": "RANK",
+      "nav_history": "HISTORY",
       "nav_blog": "BLOG",
       "nav_models": "SCHEDULE",
       
@@ -301,6 +302,16 @@ const resources = {
       "filters": "Filters",
       "no_predictions": "No predictions found",
       
+      // History page
+      "history_data": "Historical Data",
+      "total_profit": "Total Profit",
+      "period": "Period",
+      "all_time": "All Time",
+      "last_7_days": "Last 7 Days",
+      "last_30_days": "Last 30 Days",
+      "last_90_days": "Last 90 Days",
+      "no_history_data": "No historical data found",
+      
       // Platform disclaimer
       "platform_disclaimer": "Platform Disclaimer",
       "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term.",
@@ -318,6 +329,7 @@ const resources = {
       "users_watching": "位用户正在观看",
       "nav_live": "直播",
       "nav_rank": "排行榜",
+      "nav_history": "历史",
       "nav_blog": "介绍",
       "nav_models": "赛程表",
       
@@ -609,6 +621,16 @@ const resources = {
       "records": "条记录",
       "filters": "筛选",
       "no_predictions": "未找到预测记录",
+      
+      // History page
+      "history_data": "历史数据",
+      "total_profit": "总盈利",
+      "period": "时间段",
+      "all_time": "全部时间",
+      "last_7_days": "最近7天",
+      "last_30_days": "最近30天",
+      "last_90_days": "最近90天",
+      "no_history_data": "未找到历史数据",
       
       // Platform disclaimer
       "platform_disclaimer": "平台声明",
