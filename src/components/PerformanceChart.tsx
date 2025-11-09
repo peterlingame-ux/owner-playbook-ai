@@ -195,8 +195,16 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       </div>
       
       <ResponsiveContainer width="100%" height={300} className="sm:!h-[400px]">
-        <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+        <LineChart 
+          data={data} 
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+        >
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke="hsl(var(--border))" 
+            vertical={false}
+            className="animate-fade-in"
+          />
           <XAxis 
             dataKey="date" 
             stroke="hsl(var(--muted-foreground))"
@@ -229,6 +237,8 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
               padding: '8px 12px'
             }}
             formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
+            animationDuration={300}
+            animationEasing="ease-out"
           />
           <Legend 
             content={<CustomLegend />}
@@ -243,6 +253,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ r: 6 }}
+            animationDuration={2000}
+            animationEasing="ease-in-out"
+            animationBegin={0}
           />
           <Line 
             type="monotone" 
@@ -254,6 +267,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ r: 6 }}
+            animationDuration={2000}
+            animationEasing="ease-in-out"
+            animationBegin={200}
           />
           <Line 
             type="monotone" 
@@ -265,6 +281,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ r: 6 }}
+            animationDuration={2000}
+            animationEasing="ease-in-out"
+            animationBegin={400}
           />
           <Line 
             type="monotone" 
@@ -276,6 +295,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ r: 6 }}
+            animationDuration={2000}
+            animationEasing="ease-in-out"
+            animationBegin={600}
           />
           <Line 
             type="monotone" 
@@ -287,6 +309,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ r: 6 }}
+            animationDuration={2000}
+            animationEasing="ease-in-out"
+            animationBegin={800}
           />
           <Line 
             type="monotone" 
@@ -298,6 +323,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ r: 7 }}
+            animationDuration={2500}
+            animationEasing="ease-in-out"
+            animationBegin={1000}
           />
         </LineChart>
       </ResponsiveContainer>
