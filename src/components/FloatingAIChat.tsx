@@ -5,13 +5,48 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Minimize2, Maximize2, Send, MessageCircle } from "lucide-react";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
+import { useTypewriter } from "@/hooks/useTypewriter";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  isTyping?: boolean;
 }
+
+const MessageBubble = ({ message }: { message: Message }) => {
+  const { displayedText } = useTypewriter({
+    text: message.content,
+    speed: message.role === "assistant" && message.isTyping ? 30 : 0,
+  });
+
+  const content = message.role === "assistant" && message.isTyping ? displayedText : message.content;
+
+  return (
+    <div
+      className={`flex ${
+        message.role === "user" ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div
+        className={`max-w-[80%] rounded-lg p-3 ${
+          message.role === "user"
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted"
+        }`}
+      >
+        <p className="text-sm">{content}</p>
+        <p className="text-xs opacity-70 mt-1">
+          {message.timestamp.toLocaleTimeString("zh-CN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const FloatingAIChat = () => {
   const [isMinimized, setIsMinimized] = useState(true);
@@ -54,6 +89,7 @@ const FloatingAIChat = () => {
         role: "assistant",
         content: "感谢您的提问！这是一个模拟的AI回复。实际使用中，这里会连接到真实的AI服务。",
         timestamp: new Date(),
+        isTyping: true,
       };
       setMessages((prev) => [...prev, aiMessage]);
       setIsLoading(false);
@@ -129,28 +165,7 @@ const FloatingAIChat = () => {
               <ScrollArea className="flex-1 p-4">
                 <div ref={scrollRef} className="space-y-4">
                   {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${
-                        message.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-lg p-3 ${
-                          message.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
-                        <p className="text-sm">{message.content}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString("zh-CN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                      </div>
-                    </div>
+                    <MessageBubble key={message.id} message={message} />
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
