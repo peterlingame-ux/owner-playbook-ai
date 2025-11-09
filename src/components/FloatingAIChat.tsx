@@ -71,13 +71,20 @@ const FloatingAIChat = () => {
     <>
       {/* 最小化按钮 */}
       {isMinimized && (
-        <button
-          onClick={() => setIsMinimized(false)}
-          className="fixed bottom-6 right-[280px] sm:right-6 z-50 w-14 h-14 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center"
-          title="打开聊天"
-        >
-          <MessageCircle size={24} />
-        </button>
+        <div className="fixed bottom-6 right-[280px] sm:right-6 z-50">
+          {/* 脉冲圆环效果 */}
+          <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
+          <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
+          
+          {/* 主按钮 */}
+          <button
+            onClick={() => setIsMinimized(false)}
+            className="relative w-14 h-14 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+            title="打开聊天"
+          >
+            <MessageCircle size={24} />
+          </button>
+        </div>
       )}
 
       {/* 聊天窗口 */}
