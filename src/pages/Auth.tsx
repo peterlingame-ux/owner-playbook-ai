@@ -11,6 +11,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/boosport-logo-pixel.png";
+import authBg from "@/assets/auth-football-bg.jpg";
 
 const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的手机号码");
 const otpSchema = z.string().length(6, "验证码必须是6位数字");
@@ -138,13 +139,17 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* 装饰性浮动球体 */}
-      <div className="absolute top-10 left-10 w-32 h-32 bg-blue-200/30 rounded-full blur-3xl animate-float" />
-      <div className="absolute top-40 right-20 w-24 h-24 bg-purple-200/30 rounded-full blur-2xl animate-float-delayed" />
-      <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-pink-200/30 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-40 right-1/3 w-28 h-28 bg-cyan-200/30 rounded-full blur-2xl animate-float-delayed" />
-      <div className="absolute top-1/3 left-1/2 w-36 h-36 bg-teal-200/30 rounded-full blur-3xl animate-float" />
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+      {/* 足球主题背景 */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ 
+          backgroundImage: `url(${authBg})`,
+          opacity: 0.25
+        }}
+      />
+      {/* 渐变叠加层使背景更柔和 */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50/90 via-white/80 to-gray-100/90" />
 
       {/* 返回按钮 */}
       <Button
