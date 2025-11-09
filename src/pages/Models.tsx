@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, ChevronDown, ChevronRight, Calendar, Search } from "lucide-react";
+import { Star, ChevronDown, ChevronRight, Calendar, Search, ArrowLeft } from "lucide-react";
 
 // Mock data for template
 const mockFixtures = [
@@ -162,6 +162,16 @@ export default function Models() {
   const [expandedLeagues, setExpandedLeagues] = useState<Set<number>>(new Set([1, 2, 3, 4, 5, 6]));
   const [activeTab, setActiveTab] = useState("all");
   const [selectedMatch, setSelectedMatch] = useState<number | null>(8);
+  const [showDetail, setShowDetail] = useState(false);
+
+  const handleMatchClick = (matchId: number) => {
+    setSelectedMatch(matchId);
+    setShowDetail(true);
+  };
+
+  const handleBackToList = () => {
+    setShowDetail(false);
+  };
 
   const toggleLeague = (leagueId: number) => {
     const newExpanded = new Set(expandedLeagues);
@@ -185,7 +195,7 @@ export default function Models() {
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Left Side - Match List */}
-          <div>
+          <div className={`${showDetail ? 'hidden lg:block' : 'block'}`}>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex items-center justify-between mb-4">
                 <TabsList className="bg-muted/50">
@@ -241,7 +251,7 @@ export default function Models() {
                             className={`flex items-center gap-4 p-3 hover:bg-muted/30 transition-colors cursor-pointer ${
                               selectedMatch === match.id ? 'bg-muted/50' : ''
                             }`}
-                            onClick={() => setSelectedMatch(match.id)}
+                            onClick={() => handleMatchClick(match.id)}
                           >
                             <div className="w-12 text-center">
                               <span className={`text-xs font-medium ${getStatusColor(match.time)}`}>
@@ -280,8 +290,21 @@ export default function Models() {
           </div>
 
           {/* Right Side - Match Detail */}
-          <div>
+          <div className={`${!showDetail ? 'hidden lg:block' : 'block'}`}>
             <Card className="overflow-hidden sticky top-4">
+              {/* Mobile Back Button */}
+              <div className="lg:hidden p-4 border-b border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToList}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to matches
+                </Button>
+              </div>
+              
               {/* Match Header */}
               <div className="bg-gradient-to-b from-primary/10 to-background p-6 border-b border-border">
                 <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
