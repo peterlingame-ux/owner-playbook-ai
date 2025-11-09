@@ -8,10 +8,23 @@ import { upcomingMatches, pastMatches } from "@/data/mockData";
 import { Match } from "@/types/prediction";
 import { useNavigate } from "react-router-dom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useState } from "react";
+import { useLongPress } from "@/hooks/useLongPress";
+import { MatchContextMenu } from "@/components/MatchContextMenu";
+import { toast } from "sonner";
 
 const MatchCenter = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [contextMenu, setContextMenu] = useState<{
+    match: Match | null;
+    isOpen: boolean;
+    position: { x: number; y: number };
+  }>({
+    match: null,
+    isOpen: false,
+    position: { x: 0, y: 0 }
+  });
 
   const liveMatches = upcomingMatches.filter(m => m.status === 'live');
   const upcoming = upcomingMatches.filter(m => m.status === 'upcoming');
@@ -46,11 +59,28 @@ const MatchCenter = () => {
     }
   };
 
-  const MatchRow = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => (
-    <TableRow 
-      className="hover:bg-accent/30 cursor-pointer transition-colors border-b border-border/40"
-      onClick={() => navigate(`/match/${match.id}`)}
-    >
+  const MatchRow = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => {
+    const longPress = useLongPress({
+      onLongPress: (e) => {
+        e.preventDefault();
+        const rect = (e.target as HTMLElement).getBoundingClientRect();
+        setContextMenu({
+          match,
+          isOpen: true,
+          position: {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+          }
+        });
+      },
+      onClick: () => navigate(`/match/${match.id}`)
+    });
+
+    return (
+      <TableRow 
+        {...longPress.handlers}
+        className="hover:bg-accent/30 cursor-pointer transition-colors border-b border-border/40 touch-none select-none"
+      >
       {/* Status & Time */}
       <TableCell className="w-[70px] sm:w-[100px] py-2 sm:py-3 px-2">
         <div className="flex flex-col items-start gap-0.5 sm:gap-1">
@@ -171,10 +201,30 @@ const MatchCenter = () => {
         </div>
       </TableCell>
     </TableRow>
-  );
+    );
+  };
 
   return (
-    <Card className="h-[500px] sm:h-[600px] flex flex-col border-border/60 bg-card/95 backdrop-blur safe-area-padding">
+    <>
+      <MatchContextMenu
+        match={contextMenu.match}
+        isOpen={contextMenu.isOpen}
+        onClose={() => setContextMenu({ match: null, isOpen: false, position: { x: 0, y: 0 } })}
+        position={contextMenu.position}
+        onViewDetails={() => {
+          if (contextMenu.match) navigate(`/match/${contextMenu.match.id}`);
+        }}
+        onShare={() => {
+          toast.success(t('share_success') || '已复制分享链接');
+        }}
+        onSetReminder={() => {
+          toast.success(t('reminder_set') || '提醒设置成功');
+        }}
+        onAddFavorite={() => {
+          toast.success(t('favorite_added') || '已添加到收藏');
+        }}
+      />
+      <Card className="h-[500px] sm:h-[600px] flex flex-col border-border/60 bg-card/95 backdrop-blur safe-area-padding">
       {/* Tabs */}
       <Tabs defaultValue="live" className="flex-1 flex flex-col">
         <TabsList className="grid w-full grid-cols-3 m-2 sm:m-3 mb-0 bg-muted/50">
@@ -298,6 +348,7 @@ const MatchCenter = () => {
         </div>
       </Tabs>
     </Card>
+    </>
   );
 };
 

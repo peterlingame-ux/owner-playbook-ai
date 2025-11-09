@@ -2,12 +2,18 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
+import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Leaderboard = () => {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
   
   return (
     <div className="min-h-screen bg-background">
+      <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
       <CryptoTicker />
       

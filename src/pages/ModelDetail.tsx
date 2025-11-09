@@ -10,6 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
 import Header from "@/components/Header";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
+import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
+import { useIsMobile } from "@/hooks/use-mobile";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
@@ -24,6 +27,8 @@ const ModelDetail = () => {
   const navigate = useNavigate();
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterBetType, setFilterBetType] = useState<string>("all");
+  const isMobile = useIsMobile();
+  const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
   
   const model = aiModels.find(m => m.id === modelId);
   
@@ -106,6 +111,7 @@ const ModelDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">

@@ -106,9 +106,27 @@ All colors MUST be HSL.
   }
   
   /* 优化触摸响应 */
-  button, a, [role="button"] {
+  button, a, [role="button"], .cursor-pointer {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* 禁用文本选择（触摸交互时） */
+  .touch-none {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* 改善触摸目标大小 */
+  @media (max-width: 640px) {
+    button:not(.icon-only), 
+    a[role="button"]:not(.icon-only),
+    [role="button"]:not(.icon-only) {
+      min-height: 44px;
+    }
   }
   
   /* 优化输入框在 iOS 上的显示 */

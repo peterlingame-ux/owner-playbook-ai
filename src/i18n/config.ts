@@ -288,6 +288,19 @@ const resources = {
       "percentage": "Percentage",
       "minutes_ago": "min ago",
       
+      // Touch gesture actions
+      "share": "Share",
+      "set_reminder": "Set Reminder",
+      "add_favorite": "Add to Favorites",
+      "share_success": "Share link copied to clipboard",
+      "reminder_set": "Reminder set successfully",
+      "favorite_added": "Added to favorites",
+      "all_results": "All Results",
+      "all_types": "All Types",
+      "records": "Records",
+      "filters": "Filters",
+      "no_predictions": "No predictions found",
+      
       // Platform disclaimer
       "platform_disclaimer": "Platform Disclaimer",
       "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term.",
@@ -583,6 +596,19 @@ const resources = {
       "whale_alert_desc": "最近5分钟检测到主队获胜的大额投注",
       "percentage": "占比",
       "minutes_ago": "分钟前",
+      
+      // Touch gesture actions
+      "share": "分享",
+      "set_reminder": "设置提醒",
+      "add_favorite": "添加收藏",
+      "share_success": "已复制分享链接",
+      "reminder_set": "提醒设置成功",
+      "favorite_added": "已添加到收藏",
+      "all_results": "全部结果",
+      "all_types": "全部类型",
+      "records": "条记录",
+      "filters": "筛选",
+      "no_predictions": "未找到预测记录",
       
       // Platform disclaimer
       "platform_disclaimer": "平台声明",

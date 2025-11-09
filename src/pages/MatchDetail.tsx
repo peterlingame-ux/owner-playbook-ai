@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, User } from "lucide-react";
 import { MatchDetailData } from "@/types/footballApi";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
+import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function MatchDetail() {
   const { matchId } = useParams();
@@ -16,6 +19,8 @@ export default function MatchDetail() {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [matchData, setMatchData] = useState<MatchDetailData | null>(null);
+  const isMobile = useIsMobile();
+  const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
 
   useEffect(() => {
     if (matchId) {
@@ -121,6 +126,7 @@ export default function MatchDetail() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
         <Button
