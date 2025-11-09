@@ -56,9 +56,9 @@ const CryptoTicker = () => {
       <div className="container mx-auto px-4 mb-4">
         <div className="flex items-center justify-center gap-2 text-muted-foreground/60">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-border" />
-          <div className="flex items-center gap-2 text-xs tracking-widest uppercase">
+          <div className="flex items-center gap-2 text-xs tracking-widest">
             <Sparkles size={12} className="text-primary/40" />
-            <span>Official Partners</span>
+            <span>合作伙伴</span>
             <Sparkles size={12} className="text-primary/40" />
           </div>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-border" />
