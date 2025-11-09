@@ -84,74 +84,88 @@ export default function Models() {
             </div>
 
             {/* 比赛列表 */}
-            <div className="space-y-0">
-              {Object.entries(matchesByLeague).map(([league, matches]) => (
-                <div key={league} className="border-b border-gray-800">
-                  <div className="flex items-center justify-between px-3 py-2.5 bg-[#252525]">
-                    <div className="flex items-center gap-2.5">
-                      <Star className="h-3.5 w-3.5 text-gray-500" />
-                      <img src={matches[0].homeLogo} alt="" className="w-4 h-4" />
-                      <span className="text-[13px] text-gray-300 font-normal">{league}</span>
+            <div className="bg-[#2a2a2a]">
+              {Object.entries(matchesByLeague).map(([league, matches], leagueIdx) => (
+                <div key={league}>
+                  <div className="flex items-center justify-between px-3 py-2.5 bg-[#3a3a3a] hover:bg-[#404040] cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-gray-500" />
+                      <img src={matches[0].homeLogo} alt="" className="w-5 h-5" />
+                      <span className="text-sm text-white font-normal">{league}</span>
                     </div>
-                    <Button className="h-6 px-2 gap-1 bg-transparent hover:bg-gray-700 text-gray-400 text-[11px]">
-                      Standings
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-400">Standings</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                    </div>
                   </div>
                   
                   {matches.map((match, idx) => (
                     <div
                       key={match.id}
                       onClick={() => setSelectedMatch(match.id)}
-                      className={`px-3 py-2 cursor-pointer border-b border-gray-800 last:border-0 ${
-                        selectedMatch === match.id ? 'bg-gray-800/50' : 'hover:bg-gray-800/30'
+                      className={`px-3 py-2 cursor-pointer hover:bg-[#323232] ${
+                        selectedMatch === match.id ? 'bg-[#323232]' : ''
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 flex items-center justify-center">
-                          {match.status === "finished" && (
-                            <Badge className="bg-teal-600 text-white h-4 px-1.5 text-[10px] font-medium">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-11 flex items-center justify-center pt-1">
+                          {match.status === "finished" && idx < 2 && (
+                            <Badge className="bg-[#4a9b7f] hover:bg-[#4a9b7f] text-white text-[10px] font-semibold px-1.5 py-0 h-5">
                               FT
                             </Badge>
                           )}
-                          {idx === 2 && (
-                            <Badge className="bg-orange-600 text-white h-4 px-1.5 text-[10px] font-medium uppercase">
+                          {leagueIdx === 1 && (idx === 2 || idx === 4) && (
+                            <Badge className="bg-[#c17817] hover:bg-[#c17817] text-white text-[10px] font-semibold px-1.5 py-0 h-5">
                               POST
                             </Badge>
                           )}
                           {match.status === "upcoming" && (
-                            <span className="text-[12px] text-gray-400 font-medium">22:00</span>
+                            <span className="text-sm text-white font-normal">22:00</span>
                           )}
                         </div>
                         
-                        <div className="flex-1 space-y-1">
+                        <div className="flex-1 space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-1">
                               {match.homeLogo && (
-                                <img src={match.homeLogo} alt="" className="w-4 h-4" />
+                                <img src={match.homeLogo} alt="" className="w-[18px] h-[18px] object-contain" />
                               )}
-                              <span className="text-[13px] text-gray-200">{match.homeTeam}</span>
+                              <span className="text-sm text-white">{match.homeTeam}</span>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              {match.homeScore !== undefined && (
-                                <span className="text-[15px] font-bold text-white">{match.homeScore}</span>
+                            <div className="flex items-center gap-1">
+                              {match.homeScore !== undefined ? (
+                                <>
+                                  <span className="text-base font-bold text-white w-4 text-right">{match.homeScore}</span>
+                                  <span className="text-xs text-gray-500">(0)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-base font-bold text-white w-4 text-right">0</span>
+                                  <span className="text-xs text-gray-500">(0)</span>
+                                </>
                               )}
-                              <span className="text-[11px] text-gray-500">(0)</span>
                             </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-1">
                               {match.awayLogo && (
-                                <img src={match.awayLogo} alt="" className="w-4 h-4" />
+                                <img src={match.awayLogo} alt="" className="w-[18px] h-[18px] object-contain" />
                               )}
-                              <span className="text-[13px] text-gray-200">{match.awayTeam}</span>
+                              <span className="text-sm text-white">{match.awayTeam}</span>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              {match.awayScore !== undefined && (
-                                <span className="text-[15px] font-bold text-white">{match.awayScore}</span>
+                            <div className="flex items-center gap-1">
+                              {match.awayScore !== undefined ? (
+                                <>
+                                  <span className="text-base font-bold text-white w-4 text-right">{match.awayScore}</span>
+                                  <span className="text-xs text-gray-500">(1)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-base font-bold text-white w-4 text-right">0</span>
+                                  <span className="text-xs text-gray-500">(0)</span>
+                                </>
                               )}
-                              <span className="text-[11px] text-gray-500">(0)</span>
                             </div>
                           </div>
                         </div>
