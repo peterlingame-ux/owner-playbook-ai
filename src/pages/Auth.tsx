@@ -12,6 +12,13 @@ import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/hunnsoccer-alpha-logo.png";
 import authBg from "@/assets/auth-football-bg.jpg";
+import aiBluewhale from "@/assets/ai-icon-bluewhale.png";
+import aiGemini from "@/assets/ai-icon-gemini.png";
+import aiChatgpt from "@/assets/ai-icon-chatgpt.png";
+import aiClaude from "@/assets/ai-icon-claude.png";
+import aiGrok from "@/assets/ai-icon-grok.png";
+import aiHunnsoccer from "@/assets/ai-icon-hunnsoccer.png";
+import aiOpenai from "@/assets/ai-icon-openai.png";
 
 const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的手机号码");
 const otpSchema = z.string().length(6, "验证码必须是6位数字");
@@ -233,6 +240,20 @@ const Auth = () => {
                 >
                   忘记密码？
                 </button>
+                
+                {/* AI 模型图标 */}
+                <div className="pt-4 mt-4 border-t border-white/10">
+                  <p className="text-xs text-white/50 text-center mb-3">AI 预测模型</p>
+                  <div className="flex items-center justify-center gap-3 flex-wrap">
+                    <img src={aiBluewhale} alt="Bluewhale AI" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <img src={aiGemini} alt="Gemini" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <img src={aiChatgpt} alt="ChatGPT" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <img src={aiClaude} alt="Claude" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <img src={aiGrok} alt="Grok" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <img src={aiOpenai} alt="OpenAI" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <img src={aiHunnsoccer} alt="HunSoccer" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                  </div>
+                </div>
               </div>
             </form>
           ) : (
