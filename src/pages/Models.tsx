@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Calendar, Search, Star, ChevronDown, Globe } from "lucide-react";
 import Header from "@/components/Header";
+import Disclaimer from "@/components/Disclaimer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -340,6 +341,11 @@ export default function Models() {
               </Card>
             ) : null}
           </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="px-2 sm:px-4">
+          <Disclaimer />
         </div>
       </main>
     </div>

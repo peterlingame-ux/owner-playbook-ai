@@ -5,6 +5,7 @@ import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
+import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
 
 const Index = () => {
@@ -51,6 +52,9 @@ const Index = () => {
         <div id="match-predictions" className="mb-6 sm:mb-8 scroll-mt-20">
           <ActiveAIBets />
         </div>
+
+        {/* Disclaimer */}
+        <Disclaimer />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Disclaimer from "@/components/Disclaimer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -376,6 +377,9 @@ const History = () => {
             </Table>
           </div>
         </Card>
+
+        {/* Disclaimer */}
+        <Disclaimer />
       </div>
     </div>
   );
