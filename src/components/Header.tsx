@@ -77,44 +77,44 @@ const Header = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] sm:w-[400px]">
-              <nav className="flex flex-col gap-4 mt-8">
+              <nav className="flex flex-col gap-2 mt-6">
                 <Link 
                   to="/" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-foreground hover:text-primary transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
+                  className={`font-bold text-foreground hover:text-primary transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                 >
                   {t('nav_live')}
                 </Link>
                 <Link 
                   to="/leaderboard" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                 >
                   {t('nav_rank')}
                 </Link>
                 <Link 
                   to="/history" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                 >
                   {t('nav_history')}
                 </Link>
                 <Link 
                   to="/blog" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                 >
                   {t('nav_blog')}
                 </Link>
                 <Link 
                   to="/models" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                 >
                   {t('nav_models')}
                 </Link>
                 
-                <div className="mt-6 pt-4 border-t border-border">
+                <div className="mt-8 pt-6 border-t border-border">
                   {user ? (
                     <Button 
                       variant="outline" 
@@ -123,7 +123,7 @@ const Header = () => {
                         handleSignOut();
                         setMobileMenuOpen(false);
                       }}
-                      className={`w-full inline-flex items-center justify-center gap-2 text-base font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                      className={`w-full inline-flex items-center justify-center gap-2 h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                     >
                       <LogOut size={16} />
                       <span>OUT</span>
@@ -136,7 +136,7 @@ const Header = () => {
                         navigate("/auth");
                         setMobileMenuOpen(false);
                       }}
-                      className={`w-full text-base font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                      className={`w-full h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                     >
                       LOGIN
                     </Button>
