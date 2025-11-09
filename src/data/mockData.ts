@@ -6,6 +6,11 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+import flagBrazil from "@/assets/flag-brazil-real.jpg";
+import flagEngland from "@/assets/flag-england-real.jpg";
+import flagSpain from "@/assets/flag-spain-real.jpg";
+import flagGermany from "@/assets/flag-germany-real.jpg";
+import flagFrance from "@/assets/flag-france-real.jpg";
 
 export const pastMatches: Match[] = [
   {
@@ -14,8 +19,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "曼彻斯特城",
     awayTeam: "Arsenal",
     awayTeamZh: "阿森纳",
-    homeLogo: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=100&h=100&fit=crop",
+    homeLogo: flagEngland,
+    awayLogo: flagEngland,
     date: "2025-10-28",
     time: "15:00",
     league: "Premier League",
@@ -36,8 +41,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "皇家马德里",
     awayTeam: "Atletico Madrid",
     awayTeamZh: "马德里竞技",
-    homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
+    homeLogo: flagSpain,
+    awayLogo: flagSpain,
     date: "2025-10-29",
     time: "20:45",
     league: "La Liga",
@@ -58,8 +63,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "拜仁慕尼黑",
     awayTeam: "RB Leipzig",
     awayTeamZh: "莱比锡红牛",
-    homeLogo: "https://images.unsplash.com/photo-1511204579483-781ef8490a69?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=100&h=100&fit=crop",
+    homeLogo: flagGermany,
+    awayLogo: flagGermany,
     date: "2025-10-30",
     time: "18:30",
     league: "Bundesliga",
@@ -80,8 +85,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "巴黎圣日耳曼",
     awayTeam: "Lyon",
     awayTeamZh: "里昂",
-    homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
+    homeLogo: flagFrance,
+    awayLogo: flagFrance,
     date: "2025-10-31",
     time: "21:00",
     league: "Ligue 1",
@@ -102,8 +107,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "国际米兰",
     awayTeam: "AC Milan",
     awayTeamZh: "AC米兰",
-    homeLogo: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=100&h=100&fit=crop",
+    homeLogo: flagSpain,
+    awayLogo: flagSpain,
     date: "2025-11-01",
     time: "20:00",
     league: "Serie A",
