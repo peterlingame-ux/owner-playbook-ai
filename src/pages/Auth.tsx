@@ -145,11 +145,11 @@ const Auth = () => {
         className="absolute inset-0 bg-cover bg-center"
         style={{ 
           backgroundImage: `url(${authBg})`,
-          opacity: 0.25
+          opacity: 0.35
         }}
       />
       {/* 渐变叠加层使背景更柔和 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50/90 via-white/80 to-gray-100/90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-gray-50/50 to-white/70" />
 
       {/* 返回按钮 */}
       <Button
