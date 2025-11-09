@@ -27,16 +27,16 @@ export default function Models() {
     <div className="min-h-screen bg-[#1a1a1a]">
       <Header />
       
-      <main className="container mx-auto px-4 py-4">
+      <main className="container mx-auto px-2 sm:px-4 py-4 safe-area-padding">
         <div className="grid grid-cols-1 lg:grid-cols-[500px_1fr] gap-4">
           {/* 左侧 */}
           <div className="space-y-0">
             {/* 筛选栏 */}
-            <div className="flex items-center gap-2 mb-4 text-[13px]">
+            <div className="flex items-center gap-1 sm:gap-2 mb-4 text-[11px] sm:text-[13px] overflow-x-auto pb-2">
               <Button
                 size="sm"
                 onClick={() => setStatusFilter("all")}
-                className={`h-8 px-4 rounded-md font-medium ${
+                className={`h-7 sm:h-8 px-3 sm:px-4 rounded-md font-medium text-xs sm:text-sm whitespace-nowrap ${
                   statusFilter === "all" 
                     ? "bg-teal-500 text-black hover:bg-teal-500" 
                     : "bg-transparent text-gray-400 hover:text-white hover:bg-transparent"
@@ -47,38 +47,38 @@ export default function Models() {
               <Button
                 size="sm"
                 onClick={() => setStatusFilter("live")}
-                className="h-8 px-4 bg-transparent text-teal-400 hover:text-teal-300 hover:bg-transparent font-medium"
+                className="h-7 sm:h-8 px-3 sm:px-4 bg-transparent text-teal-400 hover:text-teal-300 hover:bg-transparent font-medium text-xs sm:text-sm whitespace-nowrap"
               >
                 LIVE
               </Button>
               <Button
                 size="sm"
                 onClick={() => setStatusFilter("finished")}
-                className="h-8 px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium"
+                className="h-7 sm:h-8 px-3 sm:px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium text-xs sm:text-sm whitespace-nowrap"
               >
                 FINISHED
               </Button>
               <Button
                 size="sm"
                 onClick={() => setStatusFilter("upcoming")}
-                className="h-8 px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium"
+                className="h-7 sm:h-8 px-3 sm:px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium text-xs sm:text-sm whitespace-nowrap"
               >
                 SCHEDULED
               </Button>
               
-              <div className="ml-auto flex items-center gap-1">
-                <Button size="icon" className="h-8 w-8 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <ChevronDown className="h-4 w-4 rotate-90" />
+              <div className="ml-auto flex items-center gap-1 flex-shrink-0">
+                <Button size="icon" className="h-7 w-7 sm:h-8 sm:w-8 bg-transparent hover:bg-gray-800 text-gray-400">
+                  <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 rotate-90" />
                 </Button>
-                <Button size="sm" className="h-8 px-3 gap-1.5 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span className="text-[13px]">1 OCT.</span>
+                <Button size="sm" className="h-7 sm:h-8 px-2 sm:px-3 gap-1 sm:gap-1.5 bg-transparent hover:bg-gray-800 text-gray-400">
+                  <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span className="text-[11px] sm:text-[13px] hidden sm:inline">1 OCT.</span>
                 </Button>
-                <Button size="icon" className="h-8 w-8 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <ChevronDown className="h-4 w-4 -rotate-90" />
+                <Button size="icon" className="h-7 w-7 sm:h-8 sm:w-8 bg-transparent hover:bg-gray-800 text-gray-400">
+                  <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 -rotate-90" />
                 </Button>
-                <Button size="icon" className="h-8 w-8 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <Search className="h-4 w-4" />
+                <Button size="icon" className="h-7 w-7 sm:h-8 sm:w-8 bg-transparent hover:bg-gray-800 text-gray-400">
+                  <Search className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
@@ -192,12 +192,12 @@ export default function Models() {
                 </div>
 
                 {/* 比分区域 */}
-                <div className="text-center py-8 px-6 bg-[#2a2a2a]">
-                  <p className="text-[13px] text-gray-400 mb-6">05.12.2022 • 20:00</p>
+                <div className="text-center py-4 sm:py-8 px-3 sm:px-6 bg-[#2a2a2a]">
+                  <p className="text-[11px] sm:text-[13px] text-gray-400 mb-4 sm:mb-6">05.12.2022 • 20:00</p>
                   
-                  <div className="flex items-center justify-center gap-20 mb-6">
-                    <div className="text-center">
-                      <div className="w-[150px] h-[100px] rounded-lg mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
+                  <div className="flex items-center justify-center gap-6 sm:gap-20 mb-4 sm:mb-6">
+                    <div className="text-center flex-shrink">
+                      <div className="w-20 h-16 sm:w-[150px] sm:h-[100px] rounded-lg mb-2 sm:mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
                         {selectedMatchData.homeLogo ? (
                           <img 
                             src={selectedMatchData.homeLogo} 
@@ -205,26 +205,26 @@ export default function Models() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="text-4xl">🏴</div>
+                          <div className="text-2xl sm:text-4xl">🏴</div>
                         )}
                       </div>
-                      <div className="flex items-center justify-center gap-2">
-                        <Star className="h-4 w-4 text-gray-400" />
-                        <span className="text-[15px] font-medium text-white">{selectedMatchData.homeTeam}</span>
+                      <div className="flex items-center justify-center gap-1 sm:gap-2">
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+                        <span className="text-xs sm:text-[15px] font-medium text-white">{selectedMatchData.homeTeam}</span>
                       </div>
                     </div>
                     
-                    <div className="text-center">
-                      <div className="text-[80px] font-bold text-white leading-none mb-3 tracking-tight">
+                    <div className="text-center flex-shrink-0">
+                      <div className="text-4xl sm:text-[80px] font-bold text-white leading-none mb-2 sm:mb-3 tracking-tight">
                         {selectedMatchData.homeScore} <span className="text-gray-700">-</span> {selectedMatchData.awayScore}
                       </div>
-                      <Badge className="bg-[#52b788] hover:bg-[#52b788] text-white text-[11px] uppercase font-bold px-5 py-1.5 tracking-wide">
+                      <Badge className="bg-[#52b788] hover:bg-[#52b788] text-white text-[9px] sm:text-[11px] uppercase font-bold px-3 sm:px-5 py-1 sm:py-1.5 tracking-wide">
                         FINISHED
                       </Badge>
                     </div>
                     
-                    <div className="text-center">
-                      <div className="w-[150px] h-[100px] rounded-lg mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
+                    <div className="text-center flex-shrink">
+                      <div className="w-20 h-16 sm:w-[150px] sm:h-[100px] rounded-lg mb-2 sm:mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
                         {selectedMatchData.awayLogo ? (
                           <img 
                             src={selectedMatchData.awayLogo} 
@@ -232,22 +232,22 @@ export default function Models() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="text-4xl">🏴</div>
+                          <div className="text-2xl sm:text-4xl">🏴</div>
                         )}
                       </div>
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="text-[15px] font-medium text-white">{selectedMatchData.awayTeam}</span>
-                        <Star className="h-4 w-4 text-gray-400" />
+                      <div className="flex items-center justify-center gap-1 sm:gap-2">
+                        <span className="text-xs sm:text-[15px] font-medium text-white">{selectedMatchData.awayTeam}</span>
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-10 text-[12px] text-gray-400 pt-4 border-t border-gray-700/50">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-gray-500">⚽</span> C. Turpin
+                  <div className="flex items-center justify-center gap-4 sm:gap-10 text-[10px] sm:text-[12px] text-gray-400 pt-3 sm:pt-4 border-t border-gray-700/50">
+                    <span className="flex items-center gap-1 sm:gap-1.5">
+                      <span className="text-gray-500">⚽</span> <span className="hidden sm:inline">C. Turpin</span>
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-gray-500">🏟️</span> Stadium 974
+                    <span className="flex items-center gap-1 sm:gap-1.5">
+                      <span className="text-gray-500">🏟️</span> <span className="hidden sm:inline">Stadium 974</span>
                     </span>
                   </div>
                 </div>
