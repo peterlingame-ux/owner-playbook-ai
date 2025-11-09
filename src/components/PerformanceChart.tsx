@@ -200,12 +200,12 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           <XAxis 
             dataKey="date" 
             stroke="hsl(var(--muted-foreground))"
-            fontSize={11}
+            fontSize={12}
             tickLine={false}
             style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
-            angle={-45}
-            textAnchor="end"
-            height={60}
+            angle={0}
+            textAnchor="middle"
+            height={40}
           />
           <YAxis 
             stroke="hsl(var(--muted-foreground))"

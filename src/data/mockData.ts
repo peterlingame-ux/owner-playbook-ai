@@ -1200,22 +1200,26 @@ export const predictionHistory: PredictionHistory[] = [
 ];
 
 export const generateChartData = () => {
-  const dataPoints = 50;
+  const dataPoints = 7; // Show last 7 days
   const startWinRate = 50; // Starting win rate around 50%
   const data = [];
   
   for (let i = 0; i < dataPoints; i++) {
     const date = new Date();
-    date.setDate(date.getDate() - (dataPoints - i));
+    date.setDate(date.getDate() - (dataPoints - i - 1));
+    
+    // Format date as MM-DD for cleaner display
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     
     data.push({
-      date: date.toISOString().split('T')[0],
-      deepseek: Math.max(30, Math.min(70, startWinRate + 15 + Math.random() * 10 - 5 + (i * 0.1))),
-      gpt5: Math.max(20, Math.min(45, startWinRate - 15 + Math.random() * 10 - 5 - (i * 0.1))),
-      claude: Math.max(35, Math.min(60, startWinRate + 5 + Math.random() * 10 - 5)),
-      gemini: Math.max(25, Math.min(50, startWinRate - 10 + Math.random() * 10 - 5 - (i * 0.05))),
-      grok: Math.max(30, Math.min(60, startWinRate + 2 + Math.random() * 10 - 5 + (i * 0.05))),
-      hunsoccermax: Math.max(50, Math.min(85, startWinRate + 25 + Math.random() * 10 - 5 + (i * 0.15)))
+      date: `${month}-${day}`,
+      deepseek: Math.max(30, Math.min(70, startWinRate + 15 + Math.random() * 10 - 5 + (i * 0.5))),
+      gpt5: Math.max(20, Math.min(45, startWinRate - 15 + Math.random() * 10 - 5 - (i * 0.3))),
+      claude: Math.max(35, Math.min(60, startWinRate + 5 + Math.random() * 10 - 5 + (i * 0.2))),
+      gemini: Math.max(25, Math.min(50, startWinRate - 10 + Math.random() * 10 - 5 - (i * 0.2))),
+      grok: Math.max(30, Math.min(60, startWinRate + 2 + Math.random() * 10 - 5 + (i * 0.3))),
+      hunsoccermax: Math.max(50, Math.min(85, startWinRate + 25 + Math.random() * 10 - 5 + (i * 0.6)))
     });
   }
   
