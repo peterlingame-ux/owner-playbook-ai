@@ -1,65 +1,51 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, ArrowLeft } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { ArrowLeft, Phone } from "lucide-react";
 import { z } from "zod";
 import authBg from "@/assets/auth-football-bg.jpg";
 
-const emailSchema = z.string().email("Please enter a valid email address");
-const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
-const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "Please enter a valid phone number");
+const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的手机号码");
+const otpSchema = z.string().length(6, "验证码必须是6位数字");
 
 const Auth = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [signupMethod, setSignupMethod] = useState<"email" | "phone">("email");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<"phone" | "otp">("phone");
+  const [countdown, setCountdown] = useState(0);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       navigate("/");
     }
   }, [user, navigate]);
 
-  const validateEmailForm = () => {
-    try {
-      emailSchema.parse(email);
-      passwordSchema.parse(password);
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast({
-          title: t('validation_failed'),
-          description: error.errors[0].message,
-          variant: "destructive",
-        });
-      }
-      return false;
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [countdown]);
 
-  const validatePhoneForm = () => {
+  const validatePhone = () => {
     try {
       phoneSchema.parse(phone);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: t('validation_failed'),
+          title: "验证失败",
           description: error.errors[0].message,
           variant: "destructive",
         });
@@ -68,45 +54,26 @@ const Auth = () => {
     }
   };
 
-  const handleEmailSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateEmailForm()) return;
-    
-    setLoading(true);
-
-    const redirectUrl = `${window.location.origin}/`;
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    });
-
-    setLoading(false);
-
-    if (error) {
-      toast({
-        title: t('sign_up_failed'),
-        description: error.message === "User already registered" 
-          ? t('email_registered') 
-          : error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: t('sign_up_success'),
-        description: t('check_email'),
-      });
+  const validateOtp = () => {
+    try {
+      otpSchema.parse(otp);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "验证失败",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      }
+      return false;
     }
   };
 
-  const handlePhoneSignUp = async (e: React.FormEvent) => {
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validatePhoneForm()) return;
+    if (!validatePhone()) return;
     
     setLoading(true);
 
@@ -118,301 +85,169 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: t('send_code_failed'),
+        title: "发送失败",
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: t('code_sent'),
-        description: t('check_sms'),
+        title: "验证码已发送",
+        description: "请查收短信验证码",
       });
+      setStep("otp");
+      setCountdown(60);
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
-
-    setLoading(false);
-
-    if (error) {
-      toast({
-        title: t('google_signin_failed'),
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateEmailForm()) return;
+    if (!validateOtp()) return;
     
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { error } = await supabase.auth.verifyOtp({
+      phone: `+86${phone}`,
+      token: otp,
+      type: 'sms',
     });
 
     setLoading(false);
 
     if (error) {
       toast({
-        title: t('signin_failed'),
-        description: error.message === "Invalid login credentials" 
-          ? t('invalid_credentials') 
-          : error.message === "Email not confirmed"
-          ? t('email_not_confirmed')
+        title: "验证失败",
+        description: error.message === "Token has expired or is invalid" 
+          ? "验证码已过期或无效" 
           : error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: t('signin_success'),
-        description: t('welcome_back'),
+        title: "登录成功",
+        description: "欢迎回来！",
       });
       navigate("/");
     }
   };
 
+  const handleBackToPhone = () => {
+    setStep("phone");
+    setOtp("");
+  };
+
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
-      {/* Background with overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${authBg})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-primary/30 backdrop-blur-sm" />
-      
-      {/* Animated football elements */}
-      <div className="absolute top-20 left-20 w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
-      <div className="absolute bottom-40 right-32 w-24 h-24 rounded-full bg-primary/10 animate-pulse delay-75" />
-      <div className="absolute top-1/3 right-20 w-12 h-12 rounded-full bg-accent/20 animate-pulse delay-150" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 backdrop-blur-sm" />
 
-      {/* Back button */}
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate("/")}
-        className="absolute top-8 left-8 text-white hover:text-primary transition-colors z-10 font-pixel text-xs"
+        onClick={() => step === "otp" ? handleBackToPhone() : navigate("/")}
+        className="absolute top-8 left-8 text-white/80 hover:text-white transition-colors z-10"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        {t('back_home')}
+        返回
       </Button>
 
-      {/* Main card */}
-      <Card className="w-full max-w-md relative z-10 bg-card/95 backdrop-blur-md border-primary/20 shadow-2xl animate-fade-in">
-        <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in font-pixel">
-            {t('arena_title')}
+      <Card className="w-full max-w-md relative z-10 bg-black/40 backdrop-blur-xl border-white/10 shadow-2xl">
+        <CardHeader className="text-center space-y-4 pb-8">
+          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center">
+            <Phone className="w-8 h-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-white">
+            {step === "phone" ? "手机号登录" : "输入验证码"}
           </CardTitle>
-          <CardDescription className="text-base font-pixel text-xs">
-            {t('login_subtitle')}
-          </CardDescription>
+          <p className="text-sm text-white/60">
+            {step === "phone" ? "请输入手机号码获取验证码" : `验证码已发送至 +86 ${phone}`}
+          </p>
         </CardHeader>
-        <CardContent className="animate-fade-in delay-75">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-              <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-pixel text-xs">
-                {t('login')}
-              </TabsTrigger>
-              <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-pixel text-xs">
-                {t('sign_up')}
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login" className="space-y-4 animate-fade-in">
-              {/* Google Login */}
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full hover-scale border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-pixel text-xs"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-              >
-                <Mail className="mr-2 h-4 w-4" />
-                {t('sign_in_google')}
-              </Button>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-primary/20" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground font-pixel">{t('or_use_email')}</span>
-                </div>
-              </div>
-
-              {/* Email Login */}
-              <form onSubmit={handleEmailSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="font-pixel text-xs">{t('email')}</Label>
+        <CardContent className="space-y-6">
+          {step === "phone" ? (
+            <form onSubmit={handleSendCode} className="space-y-6">
+              <div className="space-y-3">
+                <Label htmlFor="phone" className="text-white/80 text-sm">
+                  手机号码
+                </Label>
+                <div className="flex gap-3">
+                  <div className="flex items-center justify-center px-4 bg-white/5 border border-white/10 rounded-lg text-white/60">
+                    +86
+                  </div>
                   <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="phone"
+                    type="tel"
+                    placeholder="请输入手机号"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     required
-                    maxLength={255}
-                    className="border-primary/20 focus:border-primary transition-colors"
+                    maxLength={11}
+                    className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary focus:bg-white/10 transition-all"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="font-pixel text-xs">{t('password')}</Label>
-                  <Input
-                    id="login-password"
-                    type="password"
-                    placeholder="••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                    className="border-primary/20 focus:border-primary transition-colors"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
-                  disabled={loading}
-                >
-                  {loading ? t('signing_in') : t('sign_in')}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup" className="space-y-4 animate-fade-in">
-              {/* Google Signup */}
+              </div>
+
               <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full hover-scale border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-pixel text-xs"
-                onClick={handleGoogleSignIn}
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-medium rounded-lg transition-all hover:scale-[1.02]" 
                 disabled={loading}
               >
-                <Mail className="mr-2 h-4 w-4" />
-                SIGN UP WITH GOOGLE
+                {loading ? "发送中..." : "获取验证码"}
               </Button>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-primary/20" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground font-pixel">OR CHOOSE METHOD</span>
+              <p className="text-xs text-white/40 text-center leading-relaxed">
+                登录即表示同意用户协议和隐私政策
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="space-y-4">
+                <Label htmlFor="otp" className="text-white/80 text-sm block text-center">
+                  6位验证码
+                </Label>
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={otp}
+                    onChange={setOtp}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} className="bg-white/5 border-white/10 text-white text-lg" />
+                      <InputOTPSlot index={1} className="bg-white/5 border-white/10 text-white text-lg" />
+                      <InputOTPSlot index={2} className="bg-white/5 border-white/10 text-white text-lg" />
+                      <InputOTPSlot index={3} className="bg-white/5 border-white/10 text-white text-lg" />
+                      <InputOTPSlot index={4} className="bg-white/5 border-white/10 text-white text-lg" />
+                      <InputOTPSlot index={5} className="bg-white/5 border-white/10 text-white text-lg" />
+                    </InputOTPGroup>
+                  </InputOTP>
                 </div>
               </div>
 
-              {/* Signup Method Toggle */}
-              <div className="flex gap-2">
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-medium rounded-lg transition-all hover:scale-[1.02]" 
+                disabled={loading || otp.length !== 6}
+              >
+                {loading ? "验证中..." : "确认登录"}
+              </Button>
+
+              <div className="text-center">
                 <Button
                   type="button"
-                  variant={signupMethod === "email" ? "default" : "outline"}
-                  className="flex-1 hover-scale transition-all font-pixel text-xs"
-                  onClick={() => setSignupMethod("email")}
+                  variant="ghost"
+                  onClick={handleSendCode}
+                  disabled={countdown > 0}
+                  className="text-sm text-white/60 hover:text-white transition-colors"
                 >
-                  <Mail className="mr-2 h-4 w-4" />
-                  EMAIL
-                </Button>
-                <Button
-                  type="button"
-                  variant={signupMethod === "phone" ? "default" : "outline"}
-                  className="flex-1 hover-scale transition-all font-pixel text-xs"
-                  onClick={() => setSignupMethod("phone")}
-                >
-                  <Phone className="mr-2 h-4 w-4" />
-                  PHONE
+                  {countdown > 0 ? `重新发送 (${countdown}s)` : "重新发送验证码"}
                 </Button>
               </div>
-
-              {/* Email Signup Form */}
-              {signupMethod === "email" && (
-                <form onSubmit={handleEmailSignUp} className="space-y-4 animate-fade-in">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="font-pixel text-xs">EMAIL</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      maxLength={255}
-                      className="border-primary/20 focus:border-primary transition-colors"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="font-pixel text-xs">PASSWORD</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="At least 6 characters"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                      className="border-primary/20 focus:border-primary transition-colors"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
-                    disabled={loading}
-                  >
-                    {loading ? "SIGNING UP..." : "SIGN UP"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center font-pixel">
-                    CHECK YOUR EMAIL AFTER SIGNUP
-                  </p>
-                </form>
-              )}
-
-              {/* Phone Signup Form */}
-              {signupMethod === "phone" && (
-                <form onSubmit={handlePhoneSignUp} className="space-y-4 animate-fade-in">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone" className="font-pixel text-xs">PHONE NUMBER</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        className="w-20 border-primary/20"
-                        value="+86"
-                        disabled
-                      />
-                      <Input
-                        id="signup-phone"
-                        type="tel"
-                        placeholder="13800138000"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        required
-                        maxLength={11}
-                        className="border-primary/20 focus:border-primary transition-colors"
-                      />
-                    </div>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full hover-scale bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 font-pixel text-xs" 
-                    disabled={loading}
-                  >
-                    {loading ? "SENDING CODE..." : "GET CODE"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center font-pixel">
-                    WE WILL SEND YOU A CODE
-                  </p>
-                </form>
-              )}
-            </TabsContent>
-          </Tabs>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
