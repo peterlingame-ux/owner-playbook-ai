@@ -161,42 +161,42 @@ const History = () => {
 
         {/* 统计卡片 - 仅在选择特定模型时显示 */}
         {selectedModel && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-6">
             <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('total_predictions')}</p>
-              <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--primary))' }}>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('total_predictions')}</p>
+              <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--primary))' }}>
                 {totalPredictions}
               </p>
             </Card>
             
             <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('win_rate')}</p>
-              <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--success))' }}>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('win_rate')}</p>
+              <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--success))' }}>
                 <AnimatedWinRate 
                   value={parseFloat(winRate)}
-                  className="text-xl sm:text-3xl font-bold"
+                  className="text-lg sm:text-2xl lg:text-3xl font-bold"
                   style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : undefined}
                 />
               </p>
             </Card>
             
             <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('correct')}</p>
-              <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--success))' }}>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('correct')}</p>
+              <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--success))' }}>
                 {correctPredictions}
               </p>
             </Card>
             
             <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">ROI</p>
-              <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: totalProfit >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))' }}>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">ROI</p>
+              <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: totalProfit >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))' }}>
                 {Number(roi) >= 0 ? '+' : ''}{roi}%
               </p>
             </Card>
             
             <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm col-span-2 sm:col-span-1">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('current_balance')}</p>
-              <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--primary))' }}>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('current_balance')}</p>
+              <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--primary))' }}>
                 ${currentBalance.toFixed(0)}
               </p>
             </Card>
@@ -205,15 +205,15 @@ const History = () => {
 
         {/* 筛选器 */}
         <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+              <Filter className="h-4 w-4 text-muted-foreground" />
               <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
             </div>
             
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
               <Select value={filterModel} onValueChange={setFilterModel}>
-                <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder={t('model')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -225,7 +225,7 @@ const History = () => {
               </Select>
 
               <Select value={filterResult} onValueChange={setFilterResult}>
-                <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder={t('result')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -236,7 +236,7 @@ const History = () => {
               </Select>
 
               <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-                <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder={t('period')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,32 +248,43 @@ const History = () => {
               </Select>
             </div>
 
-            <div className="text-xs sm:text-sm text-muted-foreground sm:ml-auto">
-              {filteredHistory.length} {t('records')}
+            <div className="text-xs sm:text-sm text-muted-foreground pt-2 border-t border-border/50 flex items-center justify-between">
+              <span>{t('records')}:</span>
+              <span className="font-bold">{filteredHistory.length}</span>
             </div>
           </div>
         </Card>
 
         {/* 历史记录表格 */}
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* 滚动提示 - 仅移动端显示 */}
+          <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
             <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[70px] sm:w-[100px] text-[10px] sm:text-xs px-2">{t('date')}</TableHead>
-                  <TableHead className="text-[10px] sm:text-xs px-2">{t('match')}</TableHead>
-                  <TableHead className="text-[10px] sm:text-xs px-2">{t('model')}</TableHead>
-                  <TableHead className="hidden md:table-cell text-[10px] sm:text-xs px-2">{t('ai_prediction')}</TableHead>
-                  <TableHead className="hidden sm:table-cell text-[10px] sm:text-xs px-2">{t('bet_type')}</TableHead>
-                  <TableHead className="text-right text-[10px] sm:text-xs px-2">{t('odds')}</TableHead>
-                  <TableHead className="text-right text-[10px] sm:text-xs px-2">{t('profit')}</TableHead>
-                  <TableHead className="text-center text-[10px] sm:text-xs px-2">{t('result')}</TableHead>
+                  <TableHead className="w-[80px] sm:w-[100px] text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
+                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('match')}</TableHead>
+                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('model')}</TableHead>
+                  <TableHead className="hidden md:table-cell text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('ai_prediction')}</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
+                  <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('odds')}</TableHead>
+                  <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
+                  <TableHead className="text-center text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredHistory.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 sm:py-12 text-xs sm:text-sm text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
                       {t('no_history_data')}
                     </TableCell>
                   </TableRow>
@@ -291,36 +302,36 @@ const History = () => {
                         className="hover:bg-muted/50 cursor-pointer transition-colors"
                         onClick={() => navigate(`/match/${match.id}`)}
                       >
-                        <TableCell className="font-medium text-[10px] sm:text-xs px-2 py-2">
-                          <div className="truncate max-w-[60px] sm:max-w-none">
+                        <TableCell className="font-medium text-[11px] sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
+                          <div className="truncate min-w-[70px]">
                             {prediction.date}
                           </div>
                         </TableCell>
                         
-                        <TableCell className="px-2 py-2">
-                          <div className="flex items-center gap-1.5 sm:gap-2">
+                        <TableCell className="px-2 sm:px-4 py-3 sm:py-4">
+                          <div className="flex items-center gap-2 min-w-[180px]">
                             {match.homeLogo && (
                               <img 
                                 src={match.homeLogo} 
                                 alt={match.homeTeam}
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
                               />
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="text-[11px] sm:text-sm font-medium truncate">
+                              <div className="text-xs sm:text-sm font-medium truncate">
                                 {match.homeTeam} vs {match.awayTeam}
                               </div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">
+                              <div className="text-[10px] sm:text-xs text-muted-foreground font-mono">
                                 {match.homeScore} - {match.awayScore}
                               </div>
                             </div>
                           </div>
                         </TableCell>
                         
-                        <TableCell className="px-2 py-2">
+                        <TableCell className="px-2 sm:px-4 py-3 sm:py-4">
                           <div className="flex items-center justify-center">
                             <div 
-                              className="w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center p-1.5 bg-background/80 backdrop-blur-sm border"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center p-1.5 sm:p-2 bg-background/80 backdrop-blur-sm border-2"
                               style={{ borderColor: `hsl(var(--${model.color}))` }}
                             >
                               <img 
@@ -332,38 +343,38 @@ const History = () => {
                           </div>
                         </TableCell>
                         
-                        <TableCell className="hidden md:table-cell text-[11px] sm:text-sm font-medium px-2 py-2">
-                          <div className="truncate max-w-[100px]">
+                        <TableCell className="hidden md:table-cell text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
+                          <div className="truncate max-w-[120px]">
                             {getPredictionLabel(prediction.prediction, match)}
                           </div>
                         </TableCell>
                         
-                        <TableCell className="hidden sm:table-cell text-[11px] sm:text-sm px-2 py-2">
-                          <div className="truncate max-w-[120px]">
+                        <TableCell className="hidden sm:table-cell text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
+                          <div className="truncate max-w-[140px]">
                             {getBetTypeLabel(prediction.betType, prediction)}
                           </div>
                         </TableCell>
                         
-                        <TableCell className="text-right font-mono text-[11px] sm:text-sm px-2 py-2">
+                        <TableCell className="text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4">
                           {prediction.odds.toFixed(2)}
                         </TableCell>
                         
-                        <TableCell className={`text-right font-mono text-[11px] sm:text-sm font-bold px-2 py-2 ${
+                        <TableCell className={`text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4 ${
                           profit >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
                           {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
                         </TableCell>
                         
-                        <TableCell className="text-center px-2 py-2">
+                        <TableCell className="text-center px-2 sm:px-4 py-3 sm:py-4">
                           {prediction.correct ? (
-                            <Badge className="gap-0.5 sm:gap-1 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-1.5 sm:px-2">
-                              <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                            <Badge className="gap-1 sm:gap-1.5 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                               <span className="hidden xs:inline">{t('correct')}</span>
                               <span className="xs:hidden">✓</span>
                             </Badge>
                           ) : (
-                            <Badge variant="destructive" className="gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2">
-                              <XCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                            <Badge variant="destructive" className="gap-1 sm:gap-1.5 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
+                              <XCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                               <span className="hidden xs:inline">{t('wrong')}</span>
                               <span className="xs:hidden">✗</span>
                             </Badge>
