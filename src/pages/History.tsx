@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter, History as HistoryIcon } from "lucide-react";
+import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter } from "lucide-react";
 import { predictionHistory, pastMatches, aiModels } from "@/data/mockData";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
@@ -115,11 +115,6 @@ const History = () => {
       <Header />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
-        {/* 页面标题 */}
-        <div className="flex items-center gap-3 mb-4 sm:mb-6">
-          <HistoryIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-        </div>
-
         {/* 模型详情头部 - 当筛选特定模型时显示 */}
         {selectedModel && (
           <div 
