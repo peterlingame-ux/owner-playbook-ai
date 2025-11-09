@@ -244,14 +244,14 @@ const Auth = () => {
                 {/* AI 模型图标 */}
                 <div className="pt-4 mt-4 border-t border-white/10">
                   <p className="text-xs text-white/50 text-center mb-3">AI 预测模型</p>
-                  <div className="flex items-center justify-center gap-3 flex-wrap">
-                    <img src={aiBluewhale} alt="Bluewhale AI" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
-                    <img src={aiGemini} alt="Gemini" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
-                    <img src={aiChatgpt} alt="ChatGPT" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
-                    <img src={aiClaude} alt="Claude" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
-                    <img src={aiGrok} alt="Grok" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
-                    <img src={aiOpenai} alt="OpenAI" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
-                    <img src={aiHunnsoccer} alt="HunSoccer" className="h-8 w-8 object-contain opacity-80 hover:opacity-100 transition-opacity cursor-pointer" />
+                  <div className="flex items-center justify-center gap-4 flex-wrap">
+                    <img src={aiBluewhale} alt="Bluewhale AI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiGemini} alt="Gemini" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiChatgpt} alt="ChatGPT" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiClaude} alt="Claude" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiGrok} alt="Grok" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiOpenai} alt="OpenAI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiHunnsoccer} alt="HunSoccer" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                   </div>
                 </div>
               </div>
