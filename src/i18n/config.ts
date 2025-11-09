@@ -318,6 +318,7 @@ const resources = {
       "platform_disclaimer": "Platform Disclaimer",
       "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term.",
       "disclaimer_text": "HUNSOCCER All content is simulated analysis results, solely for AI technology research and match analysis demonstration. We do not provide or guide any form of betting or gambling activities.",
+      "sponsor_disclaimer": "The above are public sports data sources. This platform is only for AI analysis display and does not provide betting access.",
       
       // Blog page features
       "owner_sentiment_analysis": "Owner Sentiment Analysis",
@@ -641,6 +642,7 @@ const resources = {
       "platform_disclaimer": "平台声明",
       "platform_disclaimer_content": "HUNSOCCER仅用于展示 AI 在足球赛事分析能力，不提供任何形式的投注或赌博行为。平台内共设定 6 个独立的AI分析模型，每个模型都拥有相同的虚拟资金（10,000），在真实赛程基础上给出各自的专业判断与策略，系统会记录其胜率用于比较不同AI的分析水平，最终目的是找出在长期维度下表现最优的分析路径。",
       "disclaimer_text": "HUNSOCCER 所有内容均为模拟分析结果，仅供 AI 技术研究与赛事分析展示使用，不提供、不引导任何形式的投注或博彩活动。",
+      "sponsor_disclaimer": "上述为公开体育数据来源，本平台仅作AI分析展示，不提供投注入口",
       
       // Blog page features
       "owner_sentiment_analysis": "老板情绪面分析",

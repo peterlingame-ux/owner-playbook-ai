@@ -1,4 +1,5 @@
 import { TrendingUp, ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import sponsorKaiyun from "@/assets/sponsor-kaiyun.png";
 import sponsorEA from "@/assets/sponsor-ea-sports.jpg";
 import sponsorSportyBet from "@/assets/sponsor-sportybet.png";
@@ -6,6 +7,7 @@ import sponsorBet365 from "@/assets/bet365-logo.png";
 import sponsor1xbet from "@/assets/sponsor-1xbet.jpg";
 
 const CryptoTicker = () => {
+  const { t } = useTranslation();
   const sportsSponsors = [
     { 
       name: "SPORTYBET", 
@@ -109,6 +111,13 @@ const CryptoTicker = () => {
         {/* Fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+      </div>
+      
+      {/* Disclaimer Text */}
+      <div className="mt-3 text-center">
+        <p className="text-[10px] sm:text-xs text-muted-foreground/70">
+          {t('sponsor_disclaimer')}
+        </p>
       </div>
     </div>
   );
