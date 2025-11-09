@@ -48,9 +48,6 @@ const CryptoTicker = () => {
     <div className="relative overflow-hidden py-6 bg-gradient-to-b from-background via-card/20 to-background">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-      
-      {/* Top shine effect */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Sponsors scroll */}
       <div className="relative">
