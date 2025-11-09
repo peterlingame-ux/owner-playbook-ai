@@ -114,10 +114,13 @@ const CryptoTicker = () => {
       </div>
       
       {/* Disclaimer Text */}
-      <div className="mt-3 text-center">
-        <p className="text-[10px] sm:text-xs text-muted-foreground/70">
-          {t('sponsor_disclaimer')}
-        </p>
+      <div className="mt-4 px-4 flex justify-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/30">
+          <div className="w-1 h-1 rounded-full bg-primary/60 animate-pulse" />
+          <p className="text-[10px] sm:text-xs text-muted-foreground/80 font-medium">
+            {t('sponsor_disclaimer')}
+          </p>
+        </div>
       </div>
     </div>
   );
