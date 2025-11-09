@@ -42,16 +42,16 @@ const Header = () => {
         </Link>
         
         <nav className="flex items-center gap-3 sm:gap-5 md:gap-8">
-          <Link to="/" className="text-sm sm:text-base md:text-lg font-medium text-foreground hover:text-primary transition-colors">
+          <Link to="/" className={`text-sm sm:text-base md:text-lg font-medium text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
             {t('nav_live')}
           </Link>
-          <Link to="/leaderboard" className="text-sm sm:text-base md:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/leaderboard" className={`text-sm sm:text-base md:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
             {t('nav_rank')}
           </Link>
-          <Link to="/blog" className="text-sm sm:text-base md:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/blog" className={`text-sm sm:text-base md:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
             {t('nav_blog')}
           </Link>
-          <Link to="/models" className="text-sm sm:text-base md:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/models" className={`text-sm sm:text-base md:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
             {t('nav_models')}
           </Link>
         </nav>
@@ -64,7 +64,7 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="inline-flex items-center gap-1 text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9"
+              className={`inline-flex items-center gap-1 text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
             >
               <LogOut size={14} className="sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">OUT</span>
@@ -74,7 +74,7 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/auth")}
-              className="inline-flex text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9"
+              className={`inline-flex text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
             >
               LOGIN
             </Button>
