@@ -66,13 +66,13 @@ export default function MatchDetail() {
     const homePercent = (homeVal / total) * 100;
     
     return (
-      <div className="space-y-2">
-        <div className="flex justify-between items-center text-sm">
-          <span className="font-semibold">{homeVal}</span>
-          <span className="text-muted-foreground">{label}</span>
-          <span className="font-semibold">{awayVal}</span>
+      <div className="space-y-1.5 sm:space-y-2">
+        <div className="flex justify-between items-center text-xs sm:text-sm">
+          <span className="font-semibold min-w-[30px] sm:min-w-[40px] text-left">{homeVal}</span>
+          <span className="text-muted-foreground text-[10px] sm:text-xs text-center px-2">{label}</span>
+          <span className="font-semibold min-w-[30px] sm:min-w-[40px] text-right">{awayVal}</span>
         </div>
-        <div className="flex gap-1 h-2">
+        <div className="flex gap-0.5 sm:gap-1 h-1.5 sm:h-2">
           <div 
             className="bg-cyan-500 rounded-l" 
             style={{ width: `${homePercent}%` }}
@@ -122,66 +122,68 @@ export default function MatchDetail() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
         <Button
           variant="ghost"
           onClick={() => navigate('/models')}
-          className="mb-4"
+          className="mb-3 sm:mb-4 text-xs sm:text-sm h-8 sm:h-10"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+          <span className="hidden xs:inline">Back</span>
         </Button>
 
         <Card className="overflow-hidden">
           {/* Match Header */}
-          <div className="bg-gradient-to-b from-primary/10 to-background p-6 border-b border-border">
-            <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
-              {fixture.league.flag && (
-                <img src={fixture.league.flag} alt="" className="h-4 w-6 object-cover" />
-              )}
-              <span>{fixture.league.country}: {fixture.league.name}</span>
-              <span className="ml-4">{fixture.league.round}</span>
+          <div className="bg-gradient-to-b from-primary/10 to-background p-3 sm:p-6 border-b border-border">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-3 sm:mb-4 text-[10px] sm:text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {fixture.league.flag && (
+                  <img src={fixture.league.flag} alt="" className="h-3 w-5 sm:h-4 sm:w-6 object-cover" />
+                )}
+                <span className="text-center">{fixture.league.country}: {fixture.league.name}</span>
+              </div>
+              <span className="hidden sm:inline sm:ml-4">{fixture.league.round}</span>
             </div>
 
-            <div className="flex items-center justify-center gap-8 mb-4">
+            <div className="flex items-center justify-center gap-3 sm:gap-8 mb-3 sm:mb-4">
               {/* Home Team */}
-              <div className="flex flex-col items-center gap-2 flex-1 max-w-[200px]">
-                <img src={fixture.teams.home.logo} alt="" className="h-24 w-24 object-contain" />
-                <h2 className="text-xl font-bold text-center">{fixture.teams.home.name}</h2>
+              <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 max-w-[100px] sm:max-w-[200px]">
+                <img src={fixture.teams.home.logo} alt="" className="h-12 w-12 sm:h-24 sm:w-24 object-contain" />
+                <h2 className="text-xs sm:text-xl font-bold text-center line-clamp-2">{fixture.teams.home.name}</h2>
               </div>
 
               {/* Score */}
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-2">
+              <div className="text-center flex-shrink-0">
+                <div className="text-[9px] sm:text-sm text-muted-foreground mb-1 sm:mb-2 whitespace-nowrap px-2">
                   {formatDate(fixture.fixture.date)}
                 </div>
-                <div className="text-5xl font-bold mb-2">
+                <div className="text-3xl sm:text-5xl font-bold mb-1 sm:mb-2">
                   {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
                 </div>
-                <Badge className="bg-green-500/20 text-green-500 border-green-500/50">
+                <Badge className="bg-green-500/20 text-green-500 border-green-500/50 text-[9px] sm:text-xs px-1.5 sm:px-2.5">
                   {fixture.fixture.status.long}
                 </Badge>
               </div>
 
               {/* Away Team */}
-              <div className="flex flex-col items-center gap-2 flex-1 max-w-[200px]">
-                <img src={fixture.teams.away.logo} alt="" className="h-24 w-24 object-contain" />
-                <h2 className="text-xl font-bold text-center">{fixture.teams.away.name}</h2>
+              <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 max-w-[100px] sm:max-w-[200px]">
+                <img src={fixture.teams.away.logo} alt="" className="h-12 w-12 sm:h-24 sm:w-24 object-contain" />
+                <h2 className="text-xs sm:text-xl font-bold text-center line-clamp-2">{fixture.teams.away.name}</h2>
               </div>
             </div>
 
             {/* Venue Info */}
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-sm text-muted-foreground">
               {fixture.fixture.referee && (
                 <div className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  <span>{fixture.fixture.referee}</span>
+                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="truncate max-w-[150px] sm:max-w-none">{fixture.fixture.referee}</span>
                 </div>
               )}
               {fixture.fixture.venue.name && (
                 <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{fixture.fixture.venue.name}</span>
+                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="truncate max-w-[150px] sm:max-w-none">{fixture.fixture.venue.name}</span>
                 </div>
               )}
             </div>
@@ -189,67 +191,75 @@ export default function MatchDetail() {
 
           {/* Tabs */}
           <Tabs defaultValue="statistics" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
+            <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0 overflow-x-auto flex-nowrap">
               <TabsTrigger 
                 value="events" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
               >
-                EVENTS
+                <span className="hidden sm:inline">EVENTS</span>
+                <span className="sm:hidden">事件</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="statistics"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
               >
-                STATISTICS
+                <span className="hidden sm:inline">STATISTICS</span>
+                <span className="sm:hidden">统计</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="lineups"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
               >
-                LINEUPS
+                <span className="hidden sm:inline">LINEUPS</span>
+                <span className="sm:hidden">阵容</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="players"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
               >
-                PLAYERS
+                <span className="hidden sm:inline">PLAYERS</span>
+                <span className="sm:hidden">球员</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="events" className="p-6">
-              <p className="text-center text-muted-foreground">Events data coming soon</p>
+            <TabsContent value="events" className="p-3 sm:p-6">
+              <p className="text-center text-muted-foreground text-xs sm:text-sm">Events data coming soon</p>
             </TabsContent>
 
-            <TabsContent value="statistics" className="p-6">
+            <TabsContent value="statistics" className="p-3 sm:p-6">
               {homeStats && awayStats ? (
-                <div className="max-w-3xl mx-auto space-y-4">
+                <div className="max-w-3xl mx-auto space-y-3 sm:space-y-4">
                   {homeStats.statistics.map((stat, index) => {
                     const awayStat = awayStats.statistics[index];
-                    return renderStatBar(stat.value, awayStat?.value, stat.type);
+                    return (
+                      <div key={index}>
+                        {renderStatBar(stat.value, awayStat?.value, stat.type)}
+                      </div>
+                    );
                   })}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground">No statistics available</p>
+                <p className="text-center text-muted-foreground text-xs sm:text-sm">No statistics available</p>
               )}
             </TabsContent>
 
-            <TabsContent value="lineups" className="p-6">
+            <TabsContent value="lineups" className="p-3 sm:p-6">
               {lineups && lineups.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                   {lineups.map((lineup) => (
-                    <div key={lineup.team.id}>
-                      <div className="flex items-center gap-3 mb-4">
-                        <img src={lineup.team.logo} alt="" className="h-8 w-8" />
-                        <h3 className="font-bold">{lineup.team.name}</h3>
-                        <Badge variant="outline">{lineup.formation}</Badge>
+                    <div key={lineup.team.id} className="bg-muted/30 rounded-lg p-3 sm:p-4">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <img src={lineup.team.logo} alt="" className="h-6 w-6 sm:h-8 sm:w-8 object-contain" />
+                        <h3 className="font-bold text-sm sm:text-base truncate flex-1">{lineup.team.name}</h3>
+                        <Badge variant="outline" className="text-[10px] sm:text-xs">{lineup.formation}</Badge>
                       </div>
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-muted-foreground">Starting XI</h4>
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <h4 className="text-xs sm:text-sm font-semibold text-muted-foreground">Starting XI</h4>
                         {lineup.startXI.map((p) => (
-                          <div key={p.player.id} className="flex items-center gap-2 text-sm">
-                            <span className="w-6 text-center font-semibold">{p.player.number}</span>
-                            <span>{p.player.name}</span>
-                            <span className="text-muted-foreground ml-auto">{p.player.pos}</span>
+                          <div key={p.player.id} className="flex items-center gap-2 text-xs sm:text-sm bg-background/50 rounded px-2 py-1.5">
+                            <span className="w-5 sm:w-6 text-center font-semibold bg-primary/20 rounded px-1">{p.player.number}</span>
+                            <span className="flex-1 truncate">{p.player.name}</span>
+                            <span className="text-muted-foreground text-[10px] sm:text-xs">{p.player.pos}</span>
                           </div>
                         ))}
                       </div>
@@ -257,12 +267,12 @@ export default function MatchDetail() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground">No lineup data available</p>
+                <p className="text-center text-muted-foreground text-xs sm:text-sm">No lineup data available</p>
               )}
             </TabsContent>
 
-            <TabsContent value="players" className="p-6">
-              <p className="text-center text-muted-foreground">Player statistics coming soon</p>
+            <TabsContent value="players" className="p-3 sm:p-6">
+              <p className="text-center text-muted-foreground text-xs sm:text-sm">Player statistics coming soon</p>
             </TabsContent>
           </Tabs>
         </Card>
