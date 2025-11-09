@@ -401,7 +401,7 @@ const ActiveAIBets = () => {
               {/* Background Image for DeepSeek */}
               {aiModel.id === 'deepseek' && (
                 <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${deepseekCardBg})`,
                     backgroundSize: 'cover',
@@ -414,7 +414,7 @@ const ActiveAIBets = () => {
               {/* Background Image for Grok */}
               {aiModel.id === 'grok' && (
                 <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${grokCardBg})`,
                     backgroundSize: 'cover',
@@ -427,7 +427,7 @@ const ActiveAIBets = () => {
               {/* Background Image for GPT5 */}
               {aiModel.id === 'gpt5' && (
                 <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${gpt5CardBg})`,
                     backgroundSize: 'cover',
@@ -441,7 +441,7 @@ const ActiveAIBets = () => {
               {/* Background Image for Claude */}
               {aiModel.id === 'claude' && (
                 <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${claudeCardBg})`,
                     backgroundSize: 'cover',
@@ -455,7 +455,7 @@ const ActiveAIBets = () => {
               {/* Background Image for Gemini */}
               {aiModel.id === 'gemini' && (
                 <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${geminiCardBg})`,
                     backgroundSize: 'cover',
@@ -469,7 +469,7 @@ const ActiveAIBets = () => {
               {/* Background Image for HUNSOCCER MAX */}
               {aiModel.id === 'hunsoccermax' && (
                 <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
                   style={{
                     backgroundImage: `url(${hunsoccerMaxCardBg})`,
                     backgroundSize: 'cover',
@@ -585,9 +585,9 @@ const ActiveAIBets = () => {
                 {/* Professional Sportsbook Bet Slip - Complete */}
                 <div className="space-y-0 pt-1.5 sm:pt-1.5 border-t-2 border-primary/20">
                   {/* Bet Slip Card - Dark Professional Style */}
-                  <div className="bg-card/50 backdrop-blur-sm rounded-lg overflow-hidden border-2 border-border shadow-2xl">
+                  <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-2xl">
                     {/* Header with Status */}
-                    <div className="bg-muted/30 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/50 flex items-center justify-between">
+                    <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
                       <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                         {t('bet_slip')}
                       </p>
@@ -604,7 +604,7 @@ const ActiveAIBets = () => {
                     </div>
                     
                     {/* Bet Details - Professional Layout */}
-                    <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/80">
+                    <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
                       {/* Bet Type and Odds */}
                       <div className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-1.5 border-b border-border/50">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -652,7 +652,7 @@ const ActiveAIBets = () => {
                       {/* Match Betting Lines */}
                       <div className="space-y-1 sm:space-y-1.5">
                         {bet.betType === "handicap" && (
-                          <div className="bg-muted/30 rounded-lg p-1 sm:p-1.5 border border-border/50">
+                          <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
                             <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
                               {t('handicap_bet')}
                             </p>
@@ -702,7 +702,7 @@ const ActiveAIBets = () => {
                         )}
 
                         {bet.betType === "over_under" && (
-                          <div className="bg-muted/30 rounded-lg p-1 sm:p-1.5 border border-border/50">
+                          <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
                             <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
                               {t('over_under_bet')}
                             </p>
