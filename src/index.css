@@ -38,12 +38,12 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* AI Model Colors - Optimized for better distinction */
-    --deepseek: 210 100% 65%;
-    --gpt: 142 86% 55%;
-    --claude: 270 95% 70%;
-    --gemini: 33 100% 65%;
-    --grok: 186 85% 60%;
+    /* AI Model Colors */
+    --deepseek: 217 91% 60%;
+    --gpt: 0 0% 25%;
+    --claude: 14 90% 63%;
+    --gemini: 250 71% 63%;
+    --grok: 158 64% 52%;
     --mystery: 45 100% 51%;
     
     /* Chart Colors */

@@ -264,8 +264,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="deepseek" 
             stroke="hsl(var(--deepseek))" 
-            strokeWidth={3.5}
-            strokeDasharray="0"
+            strokeWidth={3}
             dot={<CustomDot />}
             name="DeepSeek"
             onClick={handleLineClick}
@@ -285,8 +284,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="gpt5" 
             stroke="hsl(var(--gpt))" 
-            strokeWidth={3.5}
-            strokeDasharray="8 4"
+            strokeWidth={3}
             dot={<CustomDot />}
             name="GPT 5"
             onClick={handleLineClick}
@@ -306,8 +304,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="claude" 
             stroke="hsl(var(--claude))" 
-            strokeWidth={3.5}
-            strokeDasharray="0"
+            strokeWidth={3}
             dot={<CustomDot />}
             name="Claude"
             onClick={handleLineClick}
@@ -327,8 +324,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="gemini" 
             stroke="hsl(var(--gemini))" 
-            strokeWidth={3.5}
-            strokeDasharray="4 4"
+            strokeWidth={3}
             dot={<CustomDot />}
             name="Gemini"
             onClick={handleLineClick}
@@ -348,8 +344,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="grok" 
             stroke="hsl(var(--grok))" 
-            strokeWidth={3.5}
-            strokeDasharray="0"
+            strokeWidth={3}
             dot={<CustomDot />}
             name="Grok"
             onClick={handleLineClick}
@@ -369,8 +364,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="hunsoccermax" 
             stroke="hsl(var(--primary))" 
-            strokeWidth={5}
-            strokeDasharray="0"
+            strokeWidth={4}
             dot={<CustomDot />}
             name="HUNSOCCER MAX"
             onClick={handleLineClick}
