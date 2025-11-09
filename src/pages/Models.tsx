@@ -180,9 +180,9 @@ export default function Models() {
           {/* 右侧 */}
           <div className="lg:sticky lg:top-4 h-fit">
             {selectedMatchData ? (
-              <Card className="p-6 bg-[#252525] border-gray-800">
+              <Card className="p-0 bg-[#252525] border-gray-800 overflow-hidden">
                 {/* 头部 */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between px-6 py-4 bg-[#2a2a2a]">
                   <div className="flex items-center gap-2">
                     <Star className="h-4 w-4 text-gray-500" />
                     <Globe className="h-4 w-4 text-teal-400" />
@@ -191,14 +191,14 @@ export default function Models() {
                   <span className="text-[13px] text-gray-400">Round of 16</span>
                 </div>
 
-                {/* 比分 */}
-                <div className="text-center mb-8">
-                  <p className="text-[12px] text-gray-400 mb-8">05.12.2022 • 20:00</p>
+                {/* 比分区域 */}
+                <div className="text-center py-8 px-6">
+                  <p className="text-[13px] text-gray-400 mb-8">05.12.2022 • 20:00</p>
                   
-                  <div className="flex items-center justify-center gap-24 mb-6">
+                  <div className="flex items-center justify-center gap-16 mb-8">
                     <div className="text-center">
                       {selectedMatchData.homeLogo && (
-                        <div className="w-40 h-40 rounded-xl mb-3 mx-auto overflow-hidden">
+                        <div className="w-[140px] h-[95px] rounded-lg mb-4 mx-auto overflow-hidden border border-gray-700">
                           <img 
                             src={selectedMatchData.homeLogo} 
                             alt=""
@@ -207,23 +207,23 @@ export default function Models() {
                         </div>
                       )}
                       <div className="flex items-center justify-center gap-2">
-                        <Star className="h-4 w-4 text-teal-400" />
-                        <span className="text-[15px] font-bold text-white">{selectedMatchData.homeTeam}</span>
+                        <Star className="h-4 w-4 text-gray-500" />
+                        <span className="text-[16px] font-medium text-white">{selectedMatchData.homeTeam}</span>
                       </div>
                     </div>
                     
                     <div className="text-center">
-                      <div className="text-[90px] font-bold text-white leading-none mb-3">
-                        {selectedMatchData.homeScore} - {selectedMatchData.awayScore}
+                      <div className="text-[72px] font-bold text-white leading-none mb-4">
+                        {selectedMatchData.homeScore} <span className="text-gray-600">-</span> {selectedMatchData.awayScore}
                       </div>
-                      <Badge className="bg-teal-600/30 text-teal-400 border-teal-600/50 text-[11px] uppercase px-3 py-1">
+                      <Badge className="bg-[#4a9b7f] hover:bg-[#4a9b7f] text-white text-[11px] uppercase font-semibold px-4 py-1.5">
                         Finished
                       </Badge>
                     </div>
                     
                     <div className="text-center">
                       {selectedMatchData.awayLogo && (
-                        <div className="w-40 h-40 rounded-xl mb-3 mx-auto overflow-hidden">
+                        <div className="w-[140px] h-[95px] rounded-lg mb-4 mx-auto overflow-hidden border border-gray-700">
                           <img 
                             src={selectedMatchData.awayLogo} 
                             alt=""
@@ -232,48 +232,52 @@ export default function Models() {
                         </div>
                       )}
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-[15px] font-bold text-white">{selectedMatchData.awayTeam}</span>
+                        <span className="text-[16px] font-medium text-white">{selectedMatchData.awayTeam}</span>
                         <Star className="h-4 w-4 text-gray-500" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-8 text-[12px] text-gray-400">
-                    <span>👤 C. Turpin</span>
-                    <span>🏟️ Stadium 974</span>
+                  <div className="flex items-center justify-center gap-8 text-[13px] text-gray-400">
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-gray-500">⚽</span> C. Turpin
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-gray-500">🏟️</span> Stadium 974
+                    </span>
                   </div>
                 </div>
 
                 {/* 标签页 */}
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6 pb-6">
                   <TabsList className="w-full grid grid-cols-4 bg-transparent border-b border-gray-700 rounded-none h-auto p-0">
                     <TabsTrigger 
                       value="events"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
                     >
                       ≡ EVENTS
                     </TabsTrigger>
                     <TabsTrigger 
                       value="statistics"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
                     >
                       ▤ STATISTICS
                     </TabsTrigger>
                     <TabsTrigger 
                       value="lineups"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
                     >
                       ≡ LINEUPS
                     </TabsTrigger>
                     <TabsTrigger 
                       value="players"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
                     >
                       👥 PLAYERS
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="statistics" className="mt-6 space-y-4">
+                  <TabsContent value="statistics" className="mt-6 space-y-4 px-2">
                     {[
                       { home: 9, label: "Shots on Goal", away: 6 },
                       { home: 7, label: "Shots off Goal", away: 2 },
