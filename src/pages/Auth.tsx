@@ -17,7 +17,7 @@ import aiGemini from "@/assets/ai-icon-gemini.png";
 import aiChatgpt from "@/assets/ai-icon-chatgpt.png";
 import aiClaude from "@/assets/ai-icon-claude.png";
 import aiGrok from "@/assets/ai-icon-grok.png";
-import aiHunnsoccer from "@/assets/ai-icon-hunnsoccer.png";
+import aiHunsoccer from "@/assets/ai-icon-hunsoccer.png";
 import aiOpenai from "@/assets/ai-icon-openai.png";
 
 const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的手机号码");
@@ -251,7 +251,7 @@ const Auth = () => {
                     <img src={aiClaude} alt="Claude" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiGrok} alt="Grok" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiOpenai} alt="OpenAI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
-                    <img src={aiHunnsoccer} alt="HunSoccer" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiHunsoccer} alt="HunSoccer" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                   </div>
                 </div>
               </div>

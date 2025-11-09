@@ -37,7 +37,7 @@ const Header = () => {
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
         <Link to="/" className="flex items-center gap-2 flex-shrink-0">
           <h1 className="font-pixel text-[10px] sm:text-base md:text-lg text-foreground hover:text-primary transition-colors tracking-wider leading-tight">
-            HUNNSOCCER ALPHA
+            HUNSOCCER ALPHA
           </h1>
         </Link>
         
