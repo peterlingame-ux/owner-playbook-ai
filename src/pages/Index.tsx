@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import FloatingAIChat from "@/components/FloatingAIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import { aiModels } from "@/data/mockData";
@@ -53,9 +52,6 @@ const Index = () => {
           <ActiveAIBets />
         </div>
       </div>
-      
-      {/* Floating AI Chat */}
-      <FloatingAIChat />
     </div>
   );
 };
