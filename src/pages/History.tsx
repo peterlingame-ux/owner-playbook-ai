@@ -118,7 +118,6 @@ const History = () => {
         {/* 页面标题 */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <HistoryIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t('history_data')}</h1>
         </div>
 
         {/* 模型详情头部 - 当筛选特定模型时显示 */}
