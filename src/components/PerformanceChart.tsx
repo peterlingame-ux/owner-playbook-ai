@@ -51,16 +51,21 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         return null;
     }
     
+    // Responsive sizing - larger on mobile for better touch targets
+    const radius = window.innerWidth < 768 ? 20 : 24;
+    const iconSize = window.innerWidth < 768 ? 30 : 36;
+    const iconOffset = iconSize / 2;
+    
     return (
       <g>
-        <circle cx={cx} cy={cy} r={24} fill="hsl(var(--background))" stroke={stroke} strokeWidth={3} />
+        <circle cx={cx} cy={cy} r={radius} fill="hsl(var(--background))" stroke={stroke} strokeWidth={3} />
         <image 
-          x={cx - 18} 
-          y={cy - 18} 
-          width={36} 
-          height={36} 
+          x={cx - iconOffset} 
+          y={cy - iconOffset} 
+          width={iconSize} 
+          height={iconSize} 
           href={iconSrc}
-          style={{ clipPath: 'circle(16px)' }}
+          style={{ clipPath: `circle(${iconOffset - 4}px)` }}
         />
       </g>
     );
@@ -83,15 +88,15 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
     };
     
     return (
-      <div className="flex flex-wrap justify-center items-center gap-6 pt-6">
+      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 pt-4 sm:pt-6">
         {payload.map((entry: any, index: number) => (
-          <div key={`item-${index}`} className="flex items-center gap-2">
+          <div key={`item-${index}`} className="flex items-center gap-1.5 sm:gap-2">
             <img 
               src={getIcon(entry.dataKey)} 
               alt={entry.value}
-              className="w-5 h-5 object-contain"
+              className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
             />
-            <span className="text-sm font-semibold tracking-wide" style={{ color: entry.color }}>
+            <span className="text-xs sm:text-sm font-semibold tracking-wide" style={{ color: entry.color }}>
               {entry.value}
             </span>
           </div>
@@ -107,7 +112,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   };
 
   return (
-    <Card className="p-6 bg-card border-border relative overflow-hidden">
+    <Card className="p-3 sm:p-6 bg-card border-border relative overflow-hidden">
       {/* Football Stars Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-25">
@@ -149,63 +154,67 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       
       {/* Content */}
       <div className="relative z-10">
-      <div className="mb-4 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
-        <h2 className="text-sm sm:text-xl md:text-2xl font-bold tracking-wider text-center text-foreground">
+      <div className="mb-3 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
+        <h2 className="text-base sm:text-xl md:text-2xl font-bold tracking-wider text-center text-foreground">
           {t('performance_over_time')}
         </h2>
-        <div className="flex gap-1.5 sm:gap-2">
-          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-[10px] sm:text-sm font-semibold tracking-wide">
+        <div className="flex gap-2 sm:gap-2">
+          <button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-xs sm:text-sm font-semibold tracking-wide">
             {t('all')}
           </button>
-          <button className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-secondary text-foreground rounded text-[10px] sm:text-sm font-semibold tracking-wide hover:bg-accent transition-colors">
+          <button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-secondary text-foreground rounded text-xs sm:text-sm font-semibold tracking-wide hover:bg-accent transition-colors">
             {t('72h')}
           </button>
         </div>
       </div>
 
       {/* Analysis Dimensions Banner */}
-      <div className="mb-4 sm:mb-6 p-2 sm:p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
+      <div className="mb-3 sm:mb-6 p-2 sm:p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
         <div className="flex items-center justify-center gap-2 sm:gap-6 flex-wrap">
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[9px] sm:text-sm font-semibold tracking-wide text-foreground">
+            <span className="text-[10px] sm:text-sm font-semibold tracking-wide text-foreground">
               {t('owners_analysis')}
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[9px] sm:text-sm font-semibold tracking-wide text-foreground">
+            <span className="text-[10px] sm:text-sm font-semibold tracking-wide text-foreground">
               {t('tech_breakdown')}
             </span>
           </div>
           <div className="hidden sm:block w-px h-6 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[9px] sm:text-sm font-semibold tracking-wide text-foreground">
+            <span className="text-[10px] sm:text-sm font-semibold tracking-wide text-foreground">
               {t('odds_monitoring')}
             </span>
           </div>
         </div>
       </div>
       
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={data}>
+      <ResponsiveContainer width="100%" height={300} className="sm:!h-[400px]">
+        <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
           <XAxis 
             dataKey="date" 
             stroke="hsl(var(--muted-foreground))"
-            fontSize={12}
+            fontSize={11}
             tickLine={false}
             style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
+            angle={-45}
+            textAnchor="end"
+            height={60}
           />
           <YAxis 
             stroke="hsl(var(--muted-foreground))"
-            fontSize={12}
+            fontSize={11}
             tickLine={false}
             domain={[0, 100]}
             tickFormatter={(value) => `${value}%`}
             style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
+            width={40}
           />
           <Tooltip 
             contentStyle={{
@@ -213,7 +222,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
               border: "1px solid hsl(var(--border))",
               borderRadius: "8px",
               fontFamily: 'JetBrains Mono, monospace',
-              fontWeight: 600
+              fontWeight: 600,
+              fontSize: '12px',
+              padding: '8px 12px'
             }}
             formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
           />
@@ -224,61 +235,67 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="deepseek" 
             stroke="hsl(var(--deepseek))" 
-            strokeWidth={2}
+            strokeWidth={3}
             dot={<CustomDot />}
             name="DeepSeek"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
+            activeDot={{ r: 6 }}
           />
           <Line 
             type="monotone" 
             dataKey="gpt5" 
             stroke="hsl(var(--gpt))" 
-            strokeWidth={2}
+            strokeWidth={3}
             dot={<CustomDot />}
             name="GPT 5"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
+            activeDot={{ r: 6 }}
           />
           <Line 
             type="monotone" 
             dataKey="claude" 
             stroke="hsl(var(--claude))" 
-            strokeWidth={2}
+            strokeWidth={3}
             dot={<CustomDot />}
             name="Claude"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
+            activeDot={{ r: 6 }}
           />
           <Line 
             type="monotone" 
             dataKey="gemini" 
             stroke="hsl(var(--gemini))" 
-            strokeWidth={2}
+            strokeWidth={3}
             dot={<CustomDot />}
             name="Gemini"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
+            activeDot={{ r: 6 }}
           />
           <Line 
             type="monotone" 
             dataKey="grok" 
             stroke="hsl(var(--grok))" 
-            strokeWidth={2}
+            strokeWidth={3}
             dot={<CustomDot />}
             name="Grok"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
+            activeDot={{ r: 6 }}
           />
           <Line 
             type="monotone" 
             dataKey="hunsoccermax" 
             stroke="hsl(var(--primary))" 
-            strokeWidth={3}
+            strokeWidth={4}
             dot={<CustomDot />}
             name="HUNSOCCER MAX"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
+            activeDot={{ r: 7 }}
           />
         </LineChart>
       </ResponsiveContainer>
