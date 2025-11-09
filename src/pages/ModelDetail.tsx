@@ -78,6 +78,15 @@ const ModelDetail = () => {
     }
   };
 
+  const getPredictionLabel = (prediction: string, match: any) => {
+    switch(prediction) {
+      case "HOME_WIN": return match.homeTeam;
+      case "AWAY_WIN": return match.awayTeam;
+      case "DRAW": return t('draw') || '平局';
+      default: return prediction;
+    }
+  };
+
   const getModelBackground = (modelId: string) => {
     switch(modelId) {
       case "deepseek": return starRonaldo;
@@ -223,7 +232,7 @@ const ModelDetail = () => {
               <TableRow>
                 <TableHead className="w-[100px]">{t('date')}</TableHead>
                 <TableHead>{t('match')}</TableHead>
-                <TableHead>{t('league')}</TableHead>
+                <TableHead>{t('ai_prediction') || 'AI预测'}</TableHead>
                 <TableHead>{t('bet_type')}</TableHead>
                 <TableHead className="text-right">{t('odds')}</TableHead>
                 <TableHead className="text-right">{t('bet_amount')}</TableHead>
@@ -255,17 +264,22 @@ const ModelDetail = () => {
                         {prediction.date}
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">
+                        <div className="text-sm font-medium">
                           {match.homeTeam} vs {match.awayTeam}
                         </div>
-                        {match.homeScore !== undefined && (
-                          <div className="text-xs text-muted-foreground">
-                            {match.homeScore} - {match.awayScore}
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          {match.homeScore !== undefined && (
+                            <span className="text-xs text-muted-foreground">
+                              {match.homeScore} - {match.awayScore}
+                            </span>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            • {match.league}
+                          </span>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {match.league}
+                      <TableCell className="text-sm font-medium">
+                        {getPredictionLabel(prediction.prediction, match)}
                       </TableCell>
                       <TableCell className="text-xs">
                         {getBetTypeLabel(prediction.betType)}
