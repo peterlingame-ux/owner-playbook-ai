@@ -211,10 +211,12 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             stroke="hsl(var(--muted-foreground))"
             fontSize={11}
             tickLine={false}
-            domain={[0, 100]}
+            domain={['auto', 'auto']}
             tickFormatter={(value) => `${value}%`}
             style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
             width={40}
+            allowDataOverflow={false}
+            padding={{ top: 20, bottom: 20 }}
           />
           <Tooltip 
             contentStyle={{
