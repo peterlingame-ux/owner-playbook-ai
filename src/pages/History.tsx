@@ -13,6 +13,7 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
+import CryptoTicker from "@/components/CryptoTicker";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
@@ -115,6 +116,11 @@ const History = () => {
       <Header />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
+        {/* 赞助商滚动展示 */}
+        <div className="mb-4 sm:mb-6">
+          <CryptoTicker />
+        </div>
+
         {/* 模型详情头部 - 当筛选特定模型时显示 */}
         {selectedModel && (
           <div 
