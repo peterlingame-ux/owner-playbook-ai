@@ -9,13 +9,13 @@ const FloatingChatButton = ({ onClick }: FloatingChatButtonProps) => {
   return (
     <Button
       onClick={onClick}
-      className="fixed bottom-4 right-2 h-11 w-11 rounded-full shadow-lg hover:scale-105 transition-transform z-50 bg-primary hover:bg-primary/90"
+      className="fixed bottom-6 right-4 sm:right-6 h-10 w-10 rounded-full shadow-lg hover:scale-105 transition-transform z-50 bg-primary hover:bg-primary/90"
       size="icon"
       aria-label="Open AI Chat"
     >
       <svg
-        width="20"
-        height="20"
+        width="18"
+        height="18"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
