@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, PlayCircle, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 // AI Model Icons - Updated
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
@@ -29,6 +30,12 @@ const ModelCard = ({ model }: ModelCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = model.changePercent > 0;
+  
+  // 动画效果：从较低的值开始动画到实际值
+  const animatedWinRate = useCountAnimation(model.winRate, { 
+    duration: 1500,
+    startValue: Math.max(0, model.winRate - 15) // 从当前值减15%开始
+  });
   
   const getModelIcon = (modelId: string) => {
     switch(modelId) {
@@ -173,8 +180,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
           <div>
             <div className="flex items-center justify-between mb-1 sm:mb-1.5">
               <span className="text-[9px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
-              <span className="text-lg sm:text-2xl font-bold font-mono-data" style={{ color: `hsl(var(--${model.color}))` }}>
-                {model.winRate.toFixed(1)}%
+              <span className="text-lg sm:text-2xl font-bold font-mono-data transition-all" style={{ color: `hsl(var(--${model.color}))` }}>
+                {animatedWinRate.toFixed(1)}%
               </span>
             </div>
             
@@ -183,7 +190,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               <div 
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
                 style={{
-                  width: `${model.winRate}%`,
+                  width: `${animatedWinRate}%`,
                   backgroundColor: `hsl(var(--${model.color}))`
                 }}
               />

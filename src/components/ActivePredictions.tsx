@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, Equal, Lock } from "lucide-react";
 import { aiModels, upcomingMatches, matchPredictions } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
+import { AnimatedWinRate } from "./AnimatedWinRate";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -147,7 +148,12 @@ const ActivePredictions = () => {
                             </div>
                             <div className="flex justify-between">
                               <span>{t('win_rate')}:</span>
-                              <span className="font-bold text-foreground">{aiModel.winRate.toFixed(1)}%</span>
+                              <span className="font-bold text-foreground">
+                                <AnimatedWinRate 
+                                  value={aiModel.winRate}
+                                  className="font-bold text-foreground"
+                                />
+                              </span>
                             </div>
                           </div>
                         </div>

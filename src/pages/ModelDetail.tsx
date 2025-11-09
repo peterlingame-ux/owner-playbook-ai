@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
 import Header from "@/components/Header";
+import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
@@ -158,7 +159,11 @@ const ModelDetail = () => {
           <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-xs text-muted-foreground mb-2">{t('win_rate')}</p>
             <p className="text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-              {model.winRate.toFixed(1)}%
+              <AnimatedWinRate 
+                value={model.winRate}
+                className="text-3xl font-bold"
+                style={{ color: `hsl(var(--${model.color}))` }}
+              />
             </p>
           </Card>
           

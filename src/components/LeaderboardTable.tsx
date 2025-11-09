@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
@@ -11,6 +12,7 @@ import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
 import mysteryIcon from "@/assets/mystery-icon.png";
+import { AnimatedWinRate } from "./AnimatedWinRate";
 
 const LeaderboardTable = () => {
   const { t } = useTranslation();
@@ -131,9 +133,11 @@ const LeaderboardTable = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-center py-3">
-                      <span className="font-mono-data font-bold text-base" style={{ color: `hsl(var(--${model.color}))` }}>
-                        {model.winRate.toFixed(1)}%
-                      </span>
+                      <AnimatedWinRate 
+                        value={model.winRate}
+                        className="font-mono-data font-bold text-base"
+                        style={{ color: `hsl(var(--${model.color}))` }}
+                      />
                     </TableCell>
                     <TableCell className="text-center py-3">
                       <span className="font-mono-data text-sm text-muted-foreground">
@@ -195,7 +199,10 @@ const LeaderboardTable = () => {
                   <div>
                     <p className="text-sm text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
                     <p className="text-2xl font-bold font-mono-data text-white">
-                      {winningModel.winRate.toFixed(1)}%
+                      <AnimatedWinRate 
+                        value={winningModel.winRate}
+                        className="text-2xl font-bold font-mono-data text-white"
+                      />
                     </p>
                   </div>
                   
@@ -251,7 +258,10 @@ const LeaderboardTable = () => {
                     return (
                       <div key={model.id} className="flex-1 flex flex-col items-center gap-2">
                         <div className="text-sm font-mono-data font-bold mb-2">
-                          {model.winRate.toFixed(1)}%
+                          <AnimatedWinRate 
+                            value={model.winRate}
+                            className="text-sm font-mono-data font-bold"
+                          />
                         </div>
                         <div 
                           className="w-full rounded-t-lg relative flex items-end justify-center pb-4 transition-all duration-300 hover:opacity-80 shadow-lg"
