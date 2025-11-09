@@ -192,53 +192,57 @@ export default function Models() {
                 </div>
 
                 {/* 比分区域 */}
-                <div className="text-center py-8 px-6">
-                  <p className="text-[13px] text-gray-400 mb-8">05.12.2022 • 20:00</p>
+                <div className="text-center py-8 px-6 bg-[#2a2a2a]">
+                  <p className="text-[13px] text-gray-400 mb-6">05.12.2022 • 20:00</p>
                   
-                  <div className="flex items-center justify-center gap-16 mb-8">
+                  <div className="flex items-center justify-center gap-20 mb-6">
                     <div className="text-center">
-                      {selectedMatchData.homeLogo && (
-                        <div className="w-[140px] h-[95px] rounded-lg mb-4 mx-auto overflow-hidden border border-gray-700">
+                      <div className="w-[150px] h-[100px] rounded-lg mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
+                        {selectedMatchData.homeLogo ? (
                           <img 
                             src={selectedMatchData.homeLogo} 
                             alt=""
                             className="w-full h-full object-cover"
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-4xl">🏴</div>
+                        )}
+                      </div>
                       <div className="flex items-center justify-center gap-2">
-                        <Star className="h-4 w-4 text-gray-500" />
-                        <span className="text-[16px] font-medium text-white">{selectedMatchData.homeTeam}</span>
+                        <Star className="h-4 w-4 text-gray-400" />
+                        <span className="text-[15px] font-medium text-white">{selectedMatchData.homeTeam}</span>
                       </div>
                     </div>
                     
                     <div className="text-center">
-                      <div className="text-[72px] font-bold text-white leading-none mb-4">
-                        {selectedMatchData.homeScore} <span className="text-gray-600">-</span> {selectedMatchData.awayScore}
+                      <div className="text-[80px] font-bold text-white leading-none mb-3 tracking-tight">
+                        {selectedMatchData.homeScore} <span className="text-gray-700">-</span> {selectedMatchData.awayScore}
                       </div>
-                      <Badge className="bg-[#4a9b7f] hover:bg-[#4a9b7f] text-white text-[11px] uppercase font-semibold px-4 py-1.5">
-                        Finished
+                      <Badge className="bg-[#52b788] hover:bg-[#52b788] text-white text-[11px] uppercase font-bold px-5 py-1.5 tracking-wide">
+                        FINISHED
                       </Badge>
                     </div>
                     
                     <div className="text-center">
-                      {selectedMatchData.awayLogo && (
-                        <div className="w-[140px] h-[95px] rounded-lg mb-4 mx-auto overflow-hidden border border-gray-700">
+                      <div className="w-[150px] h-[100px] rounded-lg mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
+                        {selectedMatchData.awayLogo ? (
                           <img 
                             src={selectedMatchData.awayLogo} 
                             alt=""
                             className="w-full h-full object-cover"
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-4xl">🏴</div>
+                        )}
+                      </div>
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-[16px] font-medium text-white">{selectedMatchData.awayTeam}</span>
-                        <Star className="h-4 w-4 text-gray-500" />
+                        <span className="text-[15px] font-medium text-white">{selectedMatchData.awayTeam}</span>
+                        <Star className="h-4 w-4 text-gray-400" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-8 text-[13px] text-gray-400">
+                  <div className="flex items-center justify-center gap-10 text-[12px] text-gray-400 pt-4 border-t border-gray-700/50">
                     <span className="flex items-center gap-1.5">
                       <span className="text-gray-500">⚽</span> C. Turpin
                     </span>
@@ -249,8 +253,8 @@ export default function Models() {
                 </div>
 
                 {/* 标签页 */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6 pb-6">
-                  <TabsList className="w-full grid grid-cols-4 bg-transparent border-b border-gray-700 rounded-none h-auto p-0">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-[#1e1e1e]">
+                  <TabsList className="w-full grid grid-cols-4 bg-transparent border-b border-gray-700 rounded-none h-auto p-0 px-6">
                     <TabsTrigger 
                       value="events"
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
@@ -277,7 +281,7 @@ export default function Models() {
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="statistics" className="mt-6 space-y-4 px-2">
+                  <TabsContent value="statistics" className="mt-0 space-y-4 px-8 py-6">
                     {[
                       { home: 9, label: "Shots on Goal", away: 6 },
                       { home: 7, label: "Shots off Goal", away: 2 },
@@ -321,15 +325,15 @@ export default function Models() {
                     })}
                   </TabsContent>
 
-                  <TabsContent value="events" className="mt-6 py-12 text-center text-gray-500 text-sm">
+                  <TabsContent value="events" className="mt-0 px-8 py-12 text-center text-gray-500 text-sm">
                     No events data
                   </TabsContent>
 
-                  <TabsContent value="lineups" className="mt-6 py-12 text-center text-gray-500 text-sm">
+                  <TabsContent value="lineups" className="mt-0 px-8 py-12 text-center text-gray-500 text-sm">
                     No lineups data
                   </TabsContent>
 
-                  <TabsContent value="players" className="mt-6 py-12 text-center text-gray-500 text-sm">
+                  <TabsContent value="players" className="mt-0 px-8 py-12 text-center text-gray-500 text-sm">
                     No players data
                   </TabsContent>
                 </Tabs>
