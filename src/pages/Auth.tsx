@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
-import logo from "@/assets/hunnsoccer-logo-dark.png";
+import logo from "@/assets/hunnsoccer-alpha-logo.png";
 import authBg from "@/assets/auth-football-bg.jpg";
 import aiBluewhale from "@/assets/ai-icon-bluewhale.png";
 import aiGemini from "@/assets/ai-icon-gemini.png";
