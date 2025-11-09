@@ -11,6 +11,22 @@ import flagEngland from "@/assets/flag-england-real.jpg";
 import flagSpain from "@/assets/flag-spain-real.jpg";
 import flagGermany from "@/assets/flag-germany-real.jpg";
 import flagFrance from "@/assets/flag-france-real.jpg";
+// Team logos
+import teamManCity from "@/assets/team-manchester-city.png";
+import teamArsenal from "@/assets/team-arsenal.png";
+import teamManUnited from "@/assets/team-manchester-united.png";
+import teamLiverpool from "@/assets/team-liverpool.png";
+import teamRealMadrid from "@/assets/team-real-madrid.png";
+import teamBarcelona from "@/assets/team-barcelona.png";
+import teamAtletico from "@/assets/team-atletico.png";
+import teamBayern from "@/assets/team-bayern.png";
+import teamDortmund from "@/assets/team-dortmund.png";
+import teamLeipzig from "@/assets/team-leipzig.png";
+import teamPSG from "@/assets/team-psg.png";
+import teamMarseille from "@/assets/team-marseille.png";
+import teamLyon from "@/assets/team-lyon.png";
+import teamInter from "@/assets/team-inter.png";
+import teamACMilan from "@/assets/team-acmilan.png";
 
 export const pastMatches: Match[] = [
   {
@@ -19,8 +35,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "曼彻斯特城",
     awayTeam: "Arsenal",
     awayTeamZh: "阿森纳",
-    homeLogo: flagEngland,
-    awayLogo: flagEngland,
+    homeLogo: teamManCity,
+    awayLogo: teamArsenal,
     date: "2025-10-28",
     time: "15:00",
     league: "Premier League",
@@ -41,8 +57,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "皇家马德里",
     awayTeam: "Atletico Madrid",
     awayTeamZh: "马德里竞技",
-    homeLogo: flagSpain,
-    awayLogo: flagSpain,
+    homeLogo: teamRealMadrid,
+    awayLogo: teamAtletico,
     date: "2025-10-29",
     time: "20:45",
     league: "La Liga",
@@ -63,8 +79,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "拜仁慕尼黑",
     awayTeam: "RB Leipzig",
     awayTeamZh: "莱比锡红牛",
-    homeLogo: flagGermany,
-    awayLogo: flagGermany,
+    homeLogo: teamBayern,
+    awayLogo: teamLeipzig,
     date: "2025-10-30",
     time: "18:30",
     league: "Bundesliga",
@@ -85,8 +101,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "巴黎圣日耳曼",
     awayTeam: "Lyon",
     awayTeamZh: "里昂",
-    homeLogo: flagFrance,
-    awayLogo: flagFrance,
+    homeLogo: teamPSG,
+    awayLogo: teamLyon,
     date: "2025-10-31",
     time: "21:00",
     league: "Ligue 1",
@@ -107,8 +123,8 @@ export const pastMatches: Match[] = [
     homeTeamZh: "国际米兰",
     awayTeam: "AC Milan",
     awayTeamZh: "AC米兰",
-    homeLogo: flagSpain,
-    awayLogo: flagSpain,
+    homeLogo: teamInter,
+    awayLogo: teamACMilan,
     date: "2025-11-01",
     time: "20:00",
     league: "Serie A",
@@ -218,8 +234,8 @@ export const upcomingMatches: Match[] = [
     league: "Premier League",
     leagueZh: "英格兰超级联赛",
     leagueLogo: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=100&h=100&fit=crop",
-    homeLogo: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=100&h=100&fit=crop",
+    homeLogo: teamManUnited,
+    awayLogo: teamLiverpool,
     status: "live",
     homeScore: 2,
     awayScore: 1,
@@ -262,8 +278,8 @@ export const upcomingMatches: Match[] = [
     league: "La Liga",
     leagueZh: "西班牙甲级联赛",
     leagueLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
-    homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
+    homeLogo: teamRealMadrid,
+    awayLogo: teamBarcelona,
     status: "upcoming",
     homeYellowCards: 0,
     awayYellowCards: 0,
@@ -284,8 +300,8 @@ export const upcomingMatches: Match[] = [
     league: "Bundesliga",
     leagueZh: "德国甲级联赛",
     leagueLogo: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=100&h=100&fit=crop",
-    homeLogo: "https://images.unsplash.com/photo-1511204579483-781ef8490a69?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=100&h=100&fit=crop",
+    homeLogo: teamBayern,
+    awayLogo: teamDortmund,
     status: "live",
     homeScore: 1,
     awayScore: 1,
@@ -311,8 +327,8 @@ export const upcomingMatches: Match[] = [
     league: "Ligue 1",
     leagueZh: "法国甲级联赛",
     leagueLogo: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=100&h=100&fit=crop",
-    homeLogo: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=100&h=100&fit=crop",
-    awayLogo: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=100&h=100&fit=crop",
+    homeLogo: teamPSG,
+    awayLogo: teamMarseille,
     status: "upcoming",
     homeYellowCards: 0,
     awayYellowCards: 0,
