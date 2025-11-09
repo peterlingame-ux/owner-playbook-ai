@@ -317,13 +317,18 @@ const History = () => {
                         </TableCell>
                         
                         <TableCell className="px-2 py-2">
-                          <Badge 
-                            variant="outline" 
-                            className="text-[10px] sm:text-xs"
-                            style={{ borderColor: `hsl(var(--${model.color}))`, color: `hsl(var(--${model.color}))` }}
-                          >
-                            {model.displayName}
-                          </Badge>
+                          <div className="flex items-center justify-center">
+                            <div 
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center p-1.5 sm:p-2 bg-background/80 backdrop-blur-sm border"
+                              style={{ borderColor: `hsl(var(--${model.color}))` }}
+                            >
+                              <img 
+                                src={`/src/assets/${model.id}-icon.png`}
+                                alt={model.displayName}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
                         </TableCell>
                         
                         <TableCell className="hidden md:table-cell text-[11px] sm:text-sm font-medium px-2 py-2">
