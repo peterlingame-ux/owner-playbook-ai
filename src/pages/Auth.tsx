@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
-import logo from "@/assets/hunnsoccer-logo.png";
+import logo from "@/assets/hunnsoccer-alpha-logo.png";
 import authBg from "@/assets/auth-football-bg.jpg";
 
 const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的手机号码");
