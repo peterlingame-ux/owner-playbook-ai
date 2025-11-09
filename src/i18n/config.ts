@@ -7,11 +7,11 @@ const resources = {
       // Header
       "online_users": "ONLINE USERS",
       "users_watching": "users watching now",
-      "nav_live": "LIVE",
-      "nav_rank": "RANK",
-      "nav_history": "HISTORY",
-      "nav_blog": "BLOG",
-      "nav_models": "SCHEDULE",
+      "nav_live": "LIVE DATA",
+      "nav_rank": "AI RANK",
+      "nav_history": "MODEL BACKTEST",
+      "nav_blog": "ABOUT",
+      "nav_models": "MATCHES",
       
       // Stats
       "highest_win_rate": "HIGHEST WIN RATE",
@@ -329,11 +329,11 @@ const resources = {
       // Header
       "online_users": "在线用户",
       "users_watching": "位用户正在观看",
-      "nav_live": "直播",
-      "nav_rank": "排行榜",
-      "nav_history": "历史",
-      "nav_blog": "介绍",
-      "nav_models": "赛程表",
+      "nav_live": "直播数据",
+      "nav_rank": "AI排行榜",
+      "nav_history": "模型回测",
+      "nav_blog": "系统说明",
+      "nav_models": "赛事中心",
       
       // Stats
       "highest_win_rate": "最高胜率",
