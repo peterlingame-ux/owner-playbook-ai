@@ -285,12 +285,12 @@ const ModelDetail = () => {
                         {prediction.correct ? (
                           <Badge variant="default" className="gap-1">
                             <CheckCircle2 className="h-3 w-3" />
-                            {t('win')}
+                            {t('correct')}
                           </Badge>
                         ) : (
                           <Badge variant="destructive" className="gap-1">
                             <XCircle className="h-3 w-3" />
-                            {t('loss')}
+                            {t('wrong')}
                           </Badge>
                         )}
                       </TableCell>
