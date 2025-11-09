@@ -367,8 +367,11 @@ const ActiveAIBets = () => {
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-xl p-3 sm:p-3 md:p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
+              className="relative rounded-xl p-3 sm:p-3 md:p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer animate-fade-in"
               onClick={nextMatch}
+              style={{
+                animationDelay: `${activeAIs.indexOf(aiModel) * 100}ms`
+              }}
             >
               {/* Match Counter - Top Right */}
               {aiBets.length > 1 && (
@@ -493,7 +496,10 @@ const ActiveAIBets = () => {
               <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
               
               {/* Content */}
-              <div className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3">
+              <div 
+                key={`${aiModel.id}-${matchIndex}`}
+                className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3 animate-fade-in"
+              >
                  {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-primary/20 relative">
                   {/* Analysis Button - Left Side */}
@@ -511,21 +517,21 @@ const ActiveAIBets = () => {
                     <span className="text-[9px] sm:text-[9px] font-bold text-primary">查看分析</span>
                   </Button>
                   
-                  <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
-                    <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
-                    <AvatarFallback className="text-sm sm:text-sm md:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
-                    <Badge variant="outline" className="text-xs sm:text-xs font-mono-data font-bold px-2 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
-                      {aiModel.currentValue}
-                    </Badge>
-                  </div>
+                   <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all duration-300 group-hover:scale-110">
+                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
+                     <AvatarFallback className="text-sm sm:text-sm md:text-lg font-bold bg-gradient-to-br from-primary to-primary/50">{aiModel.name[0]}</AvatarFallback>
+                   </Avatar>
+                   <div className="flex flex-col items-center gap-0.5">
+                     <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
+                     <Badge variant="outline" className="text-xs sm:text-xs font-mono-data font-bold px-2 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground transition-all duration-300 group-hover:scale-105 group-hover:border-primary/40">
+                       {aiModel.currentValue}
+                     </Badge>
+                   </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
                 <div className="space-y-1 sm:space-y-1 py-1 sm:py-1">
-                  <Badge variant="outline" className="text-[9px] sm:text-[9px] w-full justify-center py-1">
+                  <Badge variant="outline" className="text-[9px] sm:text-[9px] w-full justify-center py-1 transition-all duration-300 hover:bg-primary/10">
                     {getLeagueName(bet.match)}
                   </Badge>
                   
@@ -549,11 +555,11 @@ const ActiveAIBets = () => {
                     
                     {/* Live Score - Only show for live matches */}
                     {bet.match.status === "live" ? (
-                      <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
+                      <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0 animate-pulse">
                         <div className="flex items-center gap-1 sm:gap-1">
-                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
+                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success transition-all duration-500">{bet.match.homeScore || 0}</span>
                           <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
-                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
+                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success transition-all duration-500">{bet.match.awayScore || 0}</span>
                         </div>
                         <span className="text-[7px] sm:text-[7px] text-success font-bold uppercase">LIVE</span>
                       </div>
@@ -608,7 +614,7 @@ const ActiveAIBets = () => {
                       {/* Bet Type and Odds */}
                       <div className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-1.5 border-b border-border/50">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1 w-fit flex items-center gap-1">
+                          <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1 w-fit flex items-center gap-1 transition-all duration-300 hover:bg-primary/25 hover:scale-105">
                             {bet.betType === "handicap" && (
                               <>
                                 {bet.prediction === "HOME_WIN" ? (
@@ -640,11 +646,11 @@ const ActiveAIBets = () => {
                               </span>
                             )}
                           </Badge>
-                          <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
+                          <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border transition-all duration-300 hover:scale-105">
                             {bet.confidence}% {t('confidence')}
                           </Badge>
                         </div>
-                        <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
+                        <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1 transition-all duration-300 hover:scale-110">
                           @{bet.odds.toFixed(2)}
                         </Badge>
                       </div>
@@ -657,9 +663,9 @@ const ActiveAIBets = () => {
                               {t('handicap_bet')}
                             </p>
                             <div className="grid grid-cols-2 gap-1">
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all duration-300 hover:scale-105 ${
                                 bet.prediction === "HOME_WIN" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30 animate-pulse" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between gap-0.5">
@@ -677,9 +683,9 @@ const ActiveAIBets = () => {
                                   </Badge>
                                 </div>
                               </div>
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all duration-300 hover:scale-105 ${
                                 bet.prediction === "AWAY_WIN" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30 animate-pulse" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between gap-0.5">
@@ -707,9 +713,9 @@ const ActiveAIBets = () => {
                               {t('over_under_bet')}
                             </p>
                             <div className="grid grid-cols-2 gap-1">
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all duration-300 hover:scale-105 ${
                                 bet.overUnderPick === "over" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30 animate-pulse" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between">
@@ -719,9 +725,9 @@ const ActiveAIBets = () => {
                                   </Badge>
                                 </div>
                               </div>
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all duration-300 hover:scale-105 ${
                                 bet.overUnderPick === "under" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30 animate-pulse" 
                                   : "bg-card border-border/50"
                               }`}>
                                 <div className="flex items-center justify-between">
@@ -739,31 +745,31 @@ const ActiveAIBets = () => {
                       {/* Financial Details */}
                       <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1">
                         {/* Stake */}
-                        <div className="flex items-center justify-between py-1">
+                        <div className="flex items-center justify-between py-1 transition-all duration-300 hover:bg-muted/20 hover:px-2 rounded">
                           <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
                             {t('bet_amount')}
                           </span>
-                          <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                          <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground transition-all duration-300">
                             ${bet.betAmount.toLocaleString()}
                           </span>
                         </div>
                         
                         {/* Odds Display */}
-                        <div className="flex items-center justify-between py-1">
+                        <div className="flex items-center justify-between py-1 transition-all duration-300 hover:bg-muted/20 hover:px-2 rounded">
                           <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
                             {t('odds')}
                           </span>
-                          <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                          <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground transition-all duration-300">
                             {bet.odds.toFixed(2)}
                           </span>
                         </div>
                         
                         {/* Potential Win */}
-                        <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
+                        <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30 transition-all duration-300 hover:bg-success/20 hover:scale-[1.02] hover:shadow-lg hover:shadow-success/20">
                           <span className="text-[9px] sm:text-[9px] text-success font-bold">
                             {t('potential_return')}
                           </span>
-                          <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
+                          <span className="text-xs sm:text-sm font-mono-data font-bold text-success transition-all duration-300">
                             ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </span>
                         </div>
@@ -774,8 +780,8 @@ const ActiveAIBets = () => {
               </div>
 
               {/* Corner Accent */}
-              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-3xl" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-primary/20 to-transparent rounded-tr-3xl" />
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-3xl transition-all duration-500 group-hover:from-primary/30" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-primary/20 to-transparent rounded-tr-3xl transition-all duration-500 group-hover:from-primary/30" />
             </div>
           );
         })}
