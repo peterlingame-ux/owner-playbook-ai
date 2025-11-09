@@ -1,12 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
@@ -14,6 +16,7 @@ const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -42,46 +45,132 @@ const Header = () => {
           </h1>
         </Link>
         
-        <nav className="flex items-center gap-1.5 sm:gap-3 md:gap-5 flex-shrink min-w-0">
-          <Link to="/" className={`text-[11px] sm:text-base md:text-lg font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
+        {/* Desktop Navigation */}
+        <nav className="hidden sm:flex items-center gap-3 md:gap-5 flex-shrink min-w-0">
+          <Link to="/" className={`text-base md:text-lg font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_live')}
           </Link>
-          <Link to="/leaderboard" className={`text-[11px] sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
+          <Link to="/leaderboard" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_rank')}
           </Link>
-          <Link to="/history" className={`text-[11px] sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden sm:inline`}>
+          <Link to="/history" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_history')}
           </Link>
-          <Link to="/blog" className={`text-[11px] sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden lg:inline`}>
+          <Link to="/blog" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden lg:inline`}>
             {t('nav_blog')}
           </Link>
-          <Link to="/models" className={`text-[11px] sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden md:inline`}>
+          <Link to="/models" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_models')}
           </Link>
         </nav>
         
         <div className="flex items-center gap-0.5 sm:gap-1.5 md:gap-2 flex-shrink-0">
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="sm:hidden h-7 w-7 p-0"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[400px]">
+              <nav className="flex flex-col gap-4 mt-8">
+                <Link 
+                  to="/" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-lg font-bold text-foreground hover:text-primary transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                >
+                  {t('nav_live')}
+                </Link>
+                <Link 
+                  to="/leaderboard" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                >
+                  {t('nav_rank')}
+                </Link>
+                <Link 
+                  to="/history" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                >
+                  {t('nav_history')}
+                </Link>
+                <Link 
+                  to="/blog" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                >
+                  {t('nav_blog')}
+                </Link>
+                <Link 
+                  to="/models" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                >
+                  {t('nav_models')}
+                </Link>
+                
+                <div className="mt-6 pt-4 border-t border-border">
+                  {user ? (
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      onClick={() => {
+                        handleSignOut();
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full inline-flex items-center justify-center gap-2 text-base font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                    >
+                      <LogOut size={16} />
+                      <span>OUT</span>
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      onClick={() => {
+                        navigate("/auth");
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full text-base font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                    >
+                      LOGIN
+                    </Button>
+                  )}
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
+          
           <LanguageSwitcher />
-          {user ? (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSignOut}
-              className={`inline-flex items-center gap-1 text-[10px] sm:text-base px-1.5 sm:px-3 h-7 sm:h-9 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
-            >
-              <LogOut size={12} className="sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">OUT</span>
-            </Button>
-          ) : (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigate("/auth")}
-              className={`inline-flex text-[10px] sm:text-base px-1.5 sm:px-3 h-7 sm:h-9 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
-            >
-              LOGIN
-            </Button>
-          )}
+          
+          {/* Desktop Auth Buttons */}
+          <div className="hidden sm:flex items-center gap-1.5">
+            {user ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSignOut}
+                className={`inline-flex items-center gap-1 text-base px-3 h-9 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+              >
+                <LogOut size={16} />
+                <span>OUT</span>
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate("/auth")}
+                className={`inline-flex text-base px-3 h-9 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+              >
+                LOGIN
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
