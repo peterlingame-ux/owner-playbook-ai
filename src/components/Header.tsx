@@ -42,19 +42,19 @@ const Header = () => {
         </Link>
         
         <nav className="flex items-center gap-2 sm:gap-5 md:gap-8 flex-shrink">
-          <Link to="/" className={`text-xs sm:text-base md:text-lg font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-sm sm:text-lg md:text-xl'} whitespace-nowrap`}>
+          <Link to="/" className={`text-sm sm:text-lg md:text-xl font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_live')}
           </Link>
-          <Link to="/leaderboard" className={`text-xs sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-sm sm:text-lg md:text-xl'} whitespace-nowrap`}>
+          <Link to="/leaderboard" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_rank')}
           </Link>
-          <Link to="/history" className={`text-xs sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-sm sm:text-lg md:text-xl'} whitespace-nowrap hidden sm:inline`}>
+          <Link to="/history" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden sm:inline`}>
             {t('nav_history')}
           </Link>
-          <Link to="/blog" className={`text-xs sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-sm sm:text-lg md:text-xl'} whitespace-nowrap hidden lg:inline`}>
+          <Link to="/blog" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden lg:inline`}>
             {t('nav_blog')}
           </Link>
-          <Link to="/models" className={`text-xs sm:text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-sm sm:text-lg md:text-xl'} whitespace-nowrap hidden md:inline`}>
+          <Link to="/models" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden md:inline`}>
             {t('nav_models')}
           </Link>
         </nav>
@@ -67,7 +67,7 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className={`inline-flex items-center gap-1 px-2 sm:px-4 h-8 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-xs sm:text-base' : 'text-xs sm:text-lg'}`}
+              className={`inline-flex items-center gap-1 text-xs sm:text-lg px-2 sm:px-4 h-8 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
             >
               <LogOut size={14} className="sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">OUT</span>
@@ -77,7 +77,7 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/auth")}
-              className={`inline-flex px-2 sm:px-4 h-8 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-xs sm:text-base' : 'text-xs sm:text-lg'}`}
+              className={`inline-flex text-xs sm:text-lg px-2 sm:px-4 h-8 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
             >
               LOGIN
             </Button>
