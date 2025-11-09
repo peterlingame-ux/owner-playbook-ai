@@ -169,9 +169,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
           
           {/* Money Change Badge */}
-          <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <span className="text-[8px] sm:text-[9px] text-muted-foreground">{t('simulated_profit')}</span>
-            <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-mono-data font-bold text-[10px] sm:text-xs ${
+          <div className="flex flex-col items-center gap-1 shrink-0">
+            <span className="text-[8px] sm:text-[9px] text-muted-foreground whitespace-nowrap">{t('simulated_profit')}</span>
+            <div className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-mono-data font-bold text-[10px] sm:text-xs ${
               model.change.startsWith('+') ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
             }`}>
               {model.change}
