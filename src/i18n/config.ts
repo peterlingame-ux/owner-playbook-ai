@@ -592,7 +592,7 @@ const resources = {
       "expected_profit": "预期收益",
       "total_return": "总回报",
       "moneyline_bet": "独赢盘",
-      "handicap_bet": "让分盘",
+      "handicap_bet": "让球指数",
       "over_under_bet": "大小球",
       "over": "大球",
       "under": "小球",
