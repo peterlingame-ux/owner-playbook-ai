@@ -267,18 +267,44 @@ const ModelDetail = () => {
                         {prediction.date}
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm font-medium">
-                          {match.homeTeam} vs {match.awayTeam}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          {match.homeScore !== undefined && (
-                            <span className="text-xs text-muted-foreground">
-                              {match.homeScore} - {match.awayScore}
-                            </span>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            • {match.league}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 flex-1">
+                            {match.homeLogo && (
+                              <img 
+                                src={match.homeLogo} 
+                                alt={match.homeTeam}
+                                className="w-6 h-6 object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <div className="flex-1">
+                              <div className="text-sm font-medium">
+                                {match.homeTeam} vs {match.awayTeam}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                {match.homeScore !== undefined && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {match.homeScore} - {match.awayScore}
+                                  </span>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  • {match.league}
+                                </span>
+                              </div>
+                            </div>
+                            {match.awayLogo && (
+                              <img 
+                                src={match.awayLogo} 
+                                alt={match.awayTeam}
+                                className="w-6 h-6 object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-sm font-medium">
