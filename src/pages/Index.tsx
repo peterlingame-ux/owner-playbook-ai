@@ -6,7 +6,6 @@ import ModelCard from "@/components/ModelCard";
 import FloatingAIChat from "@/components/FloatingAIChat";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
-import MatchCenter from "@/components/MatchCenter";
 import { aiModels } from "@/data/mockData";
 
 const Index = () => {
@@ -52,14 +51,6 @@ const Index = () => {
         {/* AI Betting Cards */}
         <div id="match-predictions" className="mb-6 sm:mb-8 scroll-mt-20">
           <ActiveAIBets />
-        </div>
-
-        {/* Match Schedule Section */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-base sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-6 text-foreground font-pixel tracking-wide sm:tracking-wider text-center uppercase px-4">
-            {t('match_schedule')}
-          </h2>
-          <MatchCenter />
         </div>
       </div>
       
