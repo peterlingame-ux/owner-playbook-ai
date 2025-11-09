@@ -69,11 +69,14 @@ const ModelDetail = () => {
   const currentBalance = INITIAL_BALANCE + totalProfit;
   const roi = ((totalProfit / INITIAL_BALANCE) * 100).toFixed(1);
 
-  const getBetTypeLabel = (betType: string) => {
+  const getBetTypeLabel = (betType: string, prediction: any) => {
     switch(betType) {
       case "moneyline": return t('bet_type_moneyline');
-      case "handicap": return t('bet_type_handicap');
-      case "over_under": return t('bet_type_over_under');
+      case "handicap": 
+        return `${t('bet_type_handicap')} ${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+      case "over_under": 
+        const overUnder = prediction.overUnderPick === 'over' ? t('over') || '大' : t('under') || '小';
+        return `${t('bet_type_over_under')} ${prediction.overUnderLine} ${overUnder}`;
       default: return betType;
     }
   };
@@ -281,8 +284,8 @@ const ModelDetail = () => {
                       <TableCell className="text-sm font-medium">
                         {getPredictionLabel(prediction.prediction, match)}
                       </TableCell>
-                      <TableCell className="text-xs">
-                        {getBetTypeLabel(prediction.betType)}
+                      <TableCell className="text-sm">
+                        {getBetTypeLabel(prediction.betType, prediction)}
                       </TableCell>
                       <TableCell className="text-right font-mono text-sm">
                         {prediction.odds.toFixed(2)}
