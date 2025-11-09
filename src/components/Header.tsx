@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui/sheet";
 import { useState } from "react";
 import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
@@ -76,7 +76,8 @@ const Header = () => {
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] sm:w-[400px]">
+            <SheetOverlay className="bg-black/60 backdrop-blur-sm animate-fade-in" />
+            <SheetContent side="right" className="w-[280px] sm:w-[400px] animate-slide-in-right">
               <nav className="flex flex-col gap-2 mt-6">
                 <Link 
                   to="/" 
