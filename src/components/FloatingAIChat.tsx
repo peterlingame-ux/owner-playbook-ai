@@ -73,12 +73,10 @@ const FloatingAIChat = () => {
       {isMinimized && (
         <button
           onClick={() => setIsMinimized(false)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-6 py-3 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-105"
+          className="fixed bottom-6 right-[280px] sm:right-6 z-50 w-10 h-10 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center"
+          title="打开聊天"
         >
-          <span className="text-lg font-semibold">Chat</span>
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-            <MessageCircle size={18} />
-          </div>
+          <MessageCircle size={18} />
         </button>
       )}
 
