@@ -54,7 +54,7 @@ const FloatingAIChat = () => {
     {
       id: "1",
       role: "assistant",
-      content: "您好！我是HUNSOCCER AI，有什么可以帮助您的吗？",
+      content: "您好！我是HUNSOCCER AI，你可以咨询我任何问题，例如哪个赞助商最佳",
       timestamp: new Date(),
     },
   ]);
