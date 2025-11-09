@@ -19,7 +19,7 @@ const resources = {
       "correct_predictions": "correct predictions",
       
       // Performance Chart
-      "performance_over_time": "PERFORMANCE OVER TIME",
+      "performance_over_time": "AI FOOTBALL MATCH WIN RATE TRENDS",
       "win_rate": "Win Rate (%)",
       
       // Live Matches
@@ -343,7 +343,7 @@ const resources = {
       "correct_predictions": "次正确预测",
       
       // Performance Chart
-      "performance_over_time": "AI模型胜率走势图",
+      "performance_over_time": "AI足球赛事胜率走势",
       "win_rate": "胜率 (%)",
       
       // Live Matches
