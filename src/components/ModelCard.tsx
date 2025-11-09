@@ -109,7 +109,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <Card 
-      className="relative p-3 sm:p-5 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
       onClick={handleCardClick}
       style={{
         borderColor: `hsl(var(--${model.color}) / 0.3)`
@@ -147,10 +147,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
       
       {/* Content */}
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-2 sm:mb-3">
-          <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+        <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div 
-              className="w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center p-1 sm:p-1.5 bg-card shrink-0"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center p-1.5 sm:p-2 bg-card shrink-0"
               style={{
                 border: `2px solid hsl(var(--${model.color}))`
               }}
@@ -162,31 +162,31 @@ const ModelCard = ({ model }: ModelCardProps) => {
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-[10px] sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}>
+              <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}>
                 {model.displayName}
               </h3>
             </div>
           </div>
           
           {/* Money Change Badge */}
-          <div className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full font-mono-data font-bold text-[9px] sm:text-xs shrink-0 ${
+          <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-mono-data font-bold text-[10px] sm:text-xs shrink-0 ${
             model.change.startsWith('+') ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
           }`}>
             {model.change}
           </div>
         </div>
         
-        <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-2.5 sm:space-y-3">
           <div>
-            <div className="flex items-center justify-between mb-1 sm:mb-1.5">
-              <span className="text-[9px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
-              <span className="text-lg sm:text-2xl font-bold font-mono-data transition-all" style={{ color: `hsl(var(--${model.color}))` }}>
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
+              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all" style={{ color: `hsl(var(--${model.color}))` }}>
                 {animatedWinRate.toFixed(1)}%
               </span>
             </div>
             
             {/* Win Rate Progress Bar */}
-            <div className="relative h-1.5 sm:h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="relative h-2 sm:h-2.5 bg-secondary rounded-full overflow-hidden">
               <div 
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
                 style={{
@@ -197,32 +197,32 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-1.5 sm:pt-2 border-t border-border/50">
+          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/50 gap-2">
             <div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground">{t('correct')}</p>
-              <p className="text-xs sm:text-base font-bold font-mono-data text-success">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
+              <p className="text-sm sm:text-base font-bold font-mono-data text-success">
                 {model.correctPredictions}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground">{t('total_predictions')}</p>
-              <p className="text-xs sm:text-base font-bold font-mono-data">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
+              <p className="text-sm sm:text-base font-bold font-mono-data">
                 {model.totalPredictions}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground">{t('wrong')}</p>
-              <p className="text-xs sm:text-base font-bold font-mono-data text-destructive">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
+              <p className="text-sm sm:text-base font-bold font-mono-data text-destructive">
                 {model.totalPredictions - model.correctPredictions}
               </p>
             </div>
           </div>
           
           {/* Follow Model Button */}
-          <div className="pt-1.5 sm:pt-2 border-t border-border/50">
+          <div className="pt-2 sm:pt-2.5 border-t border-border/50">
             <Button 
               onClick={handleCopyTrade}
-              className="w-full h-8 sm:h-10 relative overflow-hidden group/btn border font-bold text-[9px] sm:text-xs hover:scale-105 transition-transform"
+              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
               style={{
                 background: `linear-gradient(to right, ${colorTint.color}20, ${colorTint.color}10)`,
                 borderColor: `${colorTint.color}`,
@@ -239,8 +239,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
                 }}
               />
               
-              <div className="relative flex items-center justify-center gap-1 sm:gap-1.5">
-                <PlayCircle size={12} className="sm:w-[14px] sm:h-[14px] group-hover/btn:animate-pulse" />
+              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
+                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px] group-hover/btn:animate-pulse" />
                 <span>{t('copy_trade')}</span>
               </div>
               

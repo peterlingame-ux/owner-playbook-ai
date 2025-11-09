@@ -26,7 +26,7 @@ const Index = () => {
           <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-6 text-foreground tracking-wide sm:tracking-wider text-center uppercase px-2 sm:px-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-tight" style={{ fontWeight: 700 }}>
             {t('the_contestants')}
           </h2>
-          <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
             {sortedModels.map((model) => (
               <ModelCard 
                 key={model.id} 
