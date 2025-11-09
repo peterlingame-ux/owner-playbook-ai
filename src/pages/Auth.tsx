@@ -139,31 +139,28 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
-      {/* 足球主题背景 */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ 
-          backgroundImage: `url(${authBg})`,
-          opacity: 0.35
-        }}
-      />
-      {/* 渐变叠加层使背景更柔和 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-gray-50/50 to-white/70" />
+    <div 
+      className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden bg-cover bg-center"
+      style={{ 
+        backgroundImage: `url(${authBg})`
+      }}
+    >
+      {/* 深色叠加层 */}
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* 返回按钮 */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => step === "otp" ? handleBackToPhone() : navigate("/")}
-        className="absolute top-8 left-8 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all z-10"
+        className="absolute top-8 left-8 text-white/80 hover:text-white hover:bg-white/10 transition-all z-10"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         返回
       </Button>
 
-      {/* 主卡片 */}
-      <Card className="w-full max-w-md relative z-10 bg-white/80 backdrop-blur-xl border-0 shadow-2xl shadow-gray-300/50">
+      {/* 主卡片 - 透明玻璃效果 */}
+      <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20">
         <CardHeader className="text-center space-y-6 pb-6 pt-12">
           {/* Logo */}
           <div className="flex justify-center">
@@ -171,10 +168,10 @@ const Auth = () => {
           </div>
           
           <div className="space-y-2">
-            <CardTitle className="text-3xl font-bold text-gray-800">
+            <CardTitle className="text-3xl font-bold text-white">
               {step === "phone" ? (isSignUp ? "注册账号" : "登录账号") : "输入验证码"}
             </CardTitle>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-white/70">
               {step === "phone" 
                 ? "请输入手机号码获取验证码" 
                 : `验证码已发送至 +86 ${phone}`}
@@ -186,11 +183,11 @@ const Auth = () => {
           {step === "phone" ? (
             <form onSubmit={handleSendCode} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-gray-700 text-sm font-medium">
+                <Label htmlFor="phone" className="text-white/90 text-sm font-medium">
                   手机号码
                 </Label>
                 <div className="flex gap-2">
-                  <div className="flex items-center justify-center px-4 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 font-medium">
+                  <div className="flex items-center justify-center px-4 bg-white/10 border border-white/20 rounded-lg text-white font-medium">
                     +86
                   </div>
                   <Input
@@ -201,14 +198,14 @@ const Auth = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={11}
-                    className="flex-1 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-teal-500 rounded-lg"
+                    className="flex-1 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
 
               {/* reCAPTCHA 占位 */}
-              <div className="flex items-center justify-center p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <p className="text-xs text-gray-500">验证码验证已启用</p>
+              <div className="flex items-center justify-center p-4 bg-white/5 border border-white/20 rounded-lg">
+                <p className="text-xs text-white/60">验证码验证已启用</p>
               </div>
 
               <Button 
@@ -220,19 +217,19 @@ const Auth = () => {
               </Button>
 
               <div className="text-center space-y-2">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-white/70">
                   {isSignUp ? "已有账号？" : "还没有账号？"}{" "}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(!isSignUp)}
-                    className="text-teal-600 hover:text-teal-700 font-medium"
+                    className="text-teal-400 hover:text-teal-300 font-medium"
                   >
                     {isSignUp ? "立即登录" : "立即注册！"}
                   </button>
                 </p>
                 <button
                   type="button"
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-white/60 hover:text-white/80"
                 >
                   忘记密码？
                 </button>
@@ -241,7 +238,7 @@ const Auth = () => {
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div className="space-y-4">
-                <Label htmlFor="otp" className="text-gray-700 text-sm font-medium block text-center">
+                <Label htmlFor="otp" className="text-white/90 text-sm font-medium block text-center">
                   请输入 6 位验证码
                 </Label>
                 <div className="flex justify-center">
@@ -251,12 +248,12 @@ const Auth = () => {
                     onChange={setOtp}
                   >
                     <InputOTPGroup className="gap-2">
-                      <InputOTPSlot index={0} className="w-12 h-14 bg-gray-50 border-gray-200 text-gray-900 text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={1} className="w-12 h-14 bg-gray-50 border-gray-200 text-gray-900 text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={2} className="w-12 h-14 bg-gray-50 border-gray-200 text-gray-900 text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={3} className="w-12 h-14 bg-gray-50 border-gray-200 text-gray-900 text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={4} className="w-12 h-14 bg-gray-50 border-gray-200 text-gray-900 text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={5} className="w-12 h-14 bg-gray-50 border-gray-200 text-gray-900 text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={0} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={1} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={2} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={3} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={4} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={5} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
@@ -276,7 +273,7 @@ const Auth = () => {
                   variant="ghost"
                   onClick={handleSendCode}
                   disabled={countdown > 0}
-                  className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  className="text-sm text-white/70 hover:text-white hover:bg-white/10"
                 >
                   {countdown > 0 ? `${countdown}s 后重新发送` : "重新发送验证码"}
                 </Button>
