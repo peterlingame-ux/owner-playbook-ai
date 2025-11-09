@@ -9,12 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
 import Header from "@/components/Header";
-import expertClaude from "@/assets/expert-claude.jpg";
-import expertDeepseek from "@/assets/expert-deepseek.jpg";
-import expertGemini from "@/assets/expert-gemini.jpg";
-import expertGpt5 from "@/assets/expert-gpt5.jpg";
-import expertGrok from "@/assets/expert-grok.jpg";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMessi from "@/assets/star-messi.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 const ModelDetail = () => {
   const { t } = useTranslation();
@@ -79,13 +80,14 @@ const ModelDetail = () => {
 
   const getModelBackground = (modelId: string) => {
     switch(modelId) {
-      case "claude": return expertClaude;
-      case "deepseek": return expertDeepseek;
-      case "gemini": return expertGemini;
-      case "openai": return expertGpt5;
-      case "grok": return expertGrok;
+      case "deepseek": return starRonaldo;
+      case "gpt5": return starNeymar;
+      case "claude": return starMessi;
+      case "gemini": return starHaaland;
+      case "grok": return starMbappe;
       case "mystery": return expertMystery;
-      default: return expertMystery;
+      case "hunsoccermax": return starHunsoccer;
+      default: return starRonaldo;
     }
   };
 
