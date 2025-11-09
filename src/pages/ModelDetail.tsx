@@ -164,28 +164,28 @@ const ModelDetail = () => {
           
           <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-xs text-muted-foreground mb-2">{t('correct')}</p>
-            <p className="text-3xl font-bold text-success">
+            <p className="text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               {model.correctPredictions}
             </p>
           </Card>
           
           <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-xs text-muted-foreground mb-2">{t('wrong')}</p>
-            <p className="text-3xl font-bold text-destructive">
+            <p className="text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               {model.totalPredictions - model.correctPredictions}
             </p>
           </Card>
           
           <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-xs text-muted-foreground mb-2">ROI</p>
-            <p className={`text-3xl font-bold ${Number(roi) >= 0 ? 'text-success' : 'text-destructive'}`}>
+            <p className="text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               {Number(roi) >= 0 ? '+' : ''}{roi}%
             </p>
           </Card>
           
           <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-xs text-muted-foreground mb-2">{t('current_balance')}</p>
-            <p className={`text-3xl font-bold ${currentBalance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'}`}>
+            <p className="text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               ${currentBalance.toFixed(0)}
             </p>
           </Card>
