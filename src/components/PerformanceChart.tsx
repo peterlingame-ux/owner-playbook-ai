@@ -229,16 +229,33 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           <Tooltip 
             contentStyle={{
               backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
+              border: "2px solid hsl(var(--primary))",
+              borderRadius: "12px",
               fontFamily: 'JetBrains Mono, monospace',
               fontWeight: 600,
-              fontSize: '12px',
-              padding: '8px 12px'
+              fontSize: '13px',
+              padding: '12px 16px',
+              boxShadow: '0 10px 40px -10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.2)',
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
+            labelStyle={{
+              color: "hsl(var(--foreground))",
+              fontWeight: 700,
+              marginBottom: '8px',
+              fontSize: '12px'
+            }}
+            formatter={(value: number, name: string) => [
+              <span style={{ 
+                color: 'hsl(var(--primary))', 
+                fontWeight: 700,
+                fontSize: '14px'
+              }}>
+                {value.toFixed(1)}%
+              </span>, 
+              <span style={{ color: 'hsl(var(--muted-foreground))' }}>{name}</span>
+            ]}
             animationDuration={300}
             animationEasing="ease-out"
+            cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 2, strokeDasharray: '5 5' }}
           />
           <Legend 
             content={<CustomLegend />}
@@ -252,7 +269,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             name="DeepSeek"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
-            activeDot={{ r: 6 }}
+            activeDot={{ 
+              r: 8, 
+              fill: 'hsl(var(--deepseek))',
+              stroke: 'hsl(var(--background))',
+              strokeWidth: 3,
+              filter: 'drop-shadow(0 0 8px hsl(var(--deepseek)))'
+            }}
             animationDuration={2000}
             animationEasing="ease-in-out"
             animationBegin={0}
@@ -266,7 +289,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             name="GPT 5"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
-            activeDot={{ r: 6 }}
+            activeDot={{ 
+              r: 8, 
+              fill: 'hsl(var(--gpt))',
+              stroke: 'hsl(var(--background))',
+              strokeWidth: 3,
+              filter: 'drop-shadow(0 0 8px hsl(var(--gpt)))'
+            }}
             animationDuration={2000}
             animationEasing="ease-in-out"
             animationBegin={200}
@@ -280,7 +309,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             name="Claude"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
-            activeDot={{ r: 6 }}
+            activeDot={{ 
+              r: 8, 
+              fill: 'hsl(var(--claude))',
+              stroke: 'hsl(var(--background))',
+              strokeWidth: 3,
+              filter: 'drop-shadow(0 0 8px hsl(var(--claude)))'
+            }}
             animationDuration={2000}
             animationEasing="ease-in-out"
             animationBegin={400}
@@ -294,7 +329,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             name="Gemini"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
-            activeDot={{ r: 6 }}
+            activeDot={{ 
+              r: 8, 
+              fill: 'hsl(var(--gemini))',
+              stroke: 'hsl(var(--background))',
+              strokeWidth: 3,
+              filter: 'drop-shadow(0 0 8px hsl(var(--gemini)))'
+            }}
             animationDuration={2000}
             animationEasing="ease-in-out"
             animationBegin={600}
@@ -308,7 +349,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             name="Grok"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
-            activeDot={{ r: 6 }}
+            activeDot={{ 
+              r: 8, 
+              fill: 'hsl(var(--grok))',
+              stroke: 'hsl(var(--background))',
+              strokeWidth: 3,
+              filter: 'drop-shadow(0 0 8px hsl(var(--grok)))'
+            }}
             animationDuration={2000}
             animationEasing="ease-in-out"
             animationBegin={800}
@@ -322,7 +369,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             name="HUNSOCCER MAX"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
-            activeDot={{ r: 7 }}
+            activeDot={{ 
+              r: 10, 
+              fill: 'hsl(var(--primary))',
+              stroke: 'hsl(var(--background))',
+              strokeWidth: 4,
+              filter: 'drop-shadow(0 0 12px hsl(var(--primary)))'
+            }}
             animationDuration={2500}
             animationEasing="ease-in-out"
             animationBegin={1000}
