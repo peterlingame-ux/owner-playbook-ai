@@ -24,232 +24,236 @@ export default function Models() {
   const selectedMatchData = pastMatches.find(m => m.id === selectedMatch);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#1a1a1a]">
       <Header />
       
       <main className="container mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-[480px_1fr] gap-4">
-          {/* 左侧列表 */}
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[500px_1fr] gap-4">
+          {/* 左侧 */}
+          <div className="space-y-0">
             {/* 筛选栏 */}
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2 mb-4 text-[13px]">
               <Button
-                variant={statusFilter === "all" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setStatusFilter("all")}
-                className={`h-9 px-5 ${statusFilter === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`h-8 px-4 rounded-md font-medium ${
+                  statusFilter === "all" 
+                    ? "bg-teal-500 text-black hover:bg-teal-500" 
+                    : "bg-transparent text-gray-400 hover:text-white hover:bg-transparent"
+                }`}
               >
                 ALL
               </Button>
               <Button
-                variant="ghost"
                 size="sm"
                 onClick={() => setStatusFilter("live")}
-                className="h-9 px-4 text-primary hover:text-primary"
+                className="h-8 px-4 bg-transparent text-teal-400 hover:text-teal-300 hover:bg-transparent font-medium"
               >
                 LIVE
               </Button>
               <Button
-                variant="ghost"
                 size="sm"
                 onClick={() => setStatusFilter("finished")}
-                className="h-9 px-4 text-muted-foreground hover:text-foreground"
+                className="h-8 px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium"
               >
                 FINISHED
               </Button>
               <Button
-                variant="ghost"
                 size="sm"
                 onClick={() => setStatusFilter("upcoming")}
-                className="h-9 px-4 text-muted-foreground hover:text-foreground"
+                className="h-8 px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium"
               >
                 SCHEDULED
               </Button>
               
-              <div className="ml-auto flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+              <div className="ml-auto flex items-center gap-1">
+                <Button size="icon" className="h-8 w-8 bg-transparent hover:bg-gray-800 text-gray-400">
                   <ChevronDown className="h-4 w-4 rotate-90" />
                 </Button>
-                <Button variant="ghost" size="sm" className="h-9 px-3 gap-1">
-                  <Calendar className="h-4 w-4" />
-                  1 OCT.
+                <Button size="sm" className="h-8 px-3 gap-1.5 bg-transparent hover:bg-gray-800 text-gray-400">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span className="text-[13px]">1 OCT.</span>
                 </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Button size="icon" className="h-8 w-8 bg-transparent hover:bg-gray-800 text-gray-400">
                   <ChevronDown className="h-4 w-4 -rotate-90" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Button size="icon" className="h-8 w-8 bg-transparent hover:bg-gray-800 text-gray-400">
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             {/* 比赛列表 */}
-            <div className="space-y-3">
+            <div className="space-y-0">
               {Object.entries(matchesByLeague).map(([league, matches]) => (
-                <Card key={league} className="p-0 bg-card border-border/40">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">{league}</span>
+                <div key={league} className="border-b border-gray-800">
+                  <div className="flex items-center justify-between px-3 py-2.5 bg-[#252525]">
+                    <div className="flex items-center gap-2.5">
+                      <Star className="h-3.5 w-3.5 text-gray-500" />
+                      <img src={matches[0].homeLogo} alt="" className="w-4 h-4" />
+                      <span className="text-[13px] text-gray-300 font-normal">{league}</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-muted-foreground">
+                    <Button className="h-6 px-2 gap-1 bg-transparent hover:bg-gray-700 text-gray-400 text-[11px]">
                       Standings
                       <ChevronDown className="h-3 w-3" />
                     </Button>
                   </div>
                   
-                  <div className="divide-y divide-border/40">
-                    {matches.map((match) => (
-                      <div
-                        key={match.id}
-                        onClick={() => setSelectedMatch(match.id)}
-                        className={`px-4 py-2 cursor-pointer transition-colors ${
-                          selectedMatch === match.id ? 'bg-primary/5' : 'hover:bg-muted/30'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 flex flex-col items-center justify-center">
-                            {match.status === "finished" && (
-                              <Badge className="bg-success text-success-foreground h-5 px-2 text-[10px] font-medium">
-                                FT
-                              </Badge>
-                            )}
-                            {match.status === "upcoming" && (
-                              <span className="text-xs font-medium">{match.time}</span>
-                            )}
+                  {matches.map((match, idx) => (
+                    <div
+                      key={match.id}
+                      onClick={() => setSelectedMatch(match.id)}
+                      className={`px-3 py-2 cursor-pointer border-b border-gray-800 last:border-0 ${
+                        selectedMatch === match.id ? 'bg-gray-800/50' : 'hover:bg-gray-800/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 flex items-center justify-center">
+                          {match.status === "finished" && (
+                            <Badge className="bg-teal-600 text-white h-4 px-1.5 text-[10px] font-medium">
+                              FT
+                            </Badge>
+                          )}
+                          {idx === 2 && (
+                            <Badge className="bg-orange-600 text-white h-4 px-1.5 text-[10px] font-medium uppercase">
+                              POST
+                            </Badge>
+                          )}
+                          {match.status === "upcoming" && (
+                            <span className="text-[12px] text-gray-400 font-medium">22:00</span>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {match.homeLogo && (
+                                <img src={match.homeLogo} alt="" className="w-4 h-4" />
+                              )}
+                              <span className="text-[13px] text-gray-200">{match.homeTeam}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              {match.homeScore !== undefined && (
+                                <span className="text-[15px] font-bold text-white">{match.homeScore}</span>
+                              )}
+                              <span className="text-[11px] text-gray-500">(0)</span>
+                            </div>
                           </div>
                           
-                          <div className="flex-1 space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 flex-1">
-                                {match.homeLogo && (
-                                  <img src={match.homeLogo} alt="" className="w-4 h-4 object-contain" />
-                                )}
-                                <span className="text-sm">{match.homeTeam}</span>
-                              </div>
-                              {match.homeScore !== undefined && (
-                                <span className="text-sm font-bold w-8 text-right">{match.homeScore}</span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {match.awayLogo && (
+                                <img src={match.awayLogo} alt="" className="w-4 h-4" />
                               )}
-                              <span className="text-xs text-muted-foreground ml-1">(0)</span>
+                              <span className="text-[13px] text-gray-200">{match.awayTeam}</span>
                             </div>
-                            
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 flex-1">
-                                {match.awayLogo && (
-                                  <img src={match.awayLogo} alt="" className="w-4 h-4 object-contain" />
-                                )}
-                                <span className="text-sm">{match.awayTeam}</span>
-                              </div>
+                            <div className="flex items-center gap-1.5">
                               {match.awayScore !== undefined && (
-                                <span className="text-sm font-bold w-8 text-right">{match.awayScore}</span>
+                                <span className="text-[15px] font-bold text-white">{match.awayScore}</span>
                               )}
-                              <span className="text-xs text-muted-foreground ml-1">(0)</span>
+                              <span className="text-[11px] text-gray-500">(0)</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </Card>
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
 
-          {/* 右侧详情 */}
+          {/* 右侧 */}
           <div className="lg:sticky lg:top-4 h-fit">
             {selectedMatchData ? (
-              <Card className="p-6 bg-card border-border/40">
+              <Card className="p-6 bg-[#252525] border-gray-800">
                 {/* 头部 */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-muted-foreground" />
-                    <Globe className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">World : World Cup</span>
+                    <Star className="h-4 w-4 text-gray-500" />
+                    <Globe className="h-4 w-4 text-teal-400" />
+                    <span className="text-[13px] text-gray-300">World : World Cup</span>
                   </div>
-                  <span className="text-sm text-muted-foreground">Round of 16</span>
+                  <span className="text-[13px] text-gray-400">Round of 16</span>
                 </div>
 
-                {/* 比分展示 */}
-                <div className="text-center mb-6">
-                  <p className="text-xs text-muted-foreground mb-6">
-                    {selectedMatchData.date} • {selectedMatchData.time}
-                  </p>
+                {/* 比分 */}
+                <div className="text-center mb-8">
+                  <p className="text-[12px] text-gray-400 mb-8">05.12.2022 • 20:00</p>
                   
-                  <div className="flex items-center justify-center gap-20 mb-6">
+                  <div className="flex items-center justify-center gap-24 mb-6">
                     <div className="text-center">
                       {selectedMatchData.homeLogo && (
-                        <div className="w-36 h-36 rounded-xl overflow-hidden mx-auto mb-3 bg-card border">
+                        <div className="w-40 h-40 rounded-xl mb-3 mx-auto overflow-hidden">
                           <img 
                             src={selectedMatchData.homeLogo} 
-                            alt={selectedMatchData.homeTeam}
+                            alt=""
                             className="w-full h-full object-cover"
                           />
                         </div>
                       )}
                       <div className="flex items-center justify-center gap-2">
-                        <Star className="h-4 w-4 text-muted-foreground" />
-                        <p className="font-bold text-lg">{selectedMatchData.homeTeam}</p>
+                        <Star className="h-4 w-4 text-teal-400" />
+                        <span className="text-[15px] font-bold text-white">{selectedMatchData.homeTeam}</span>
                       </div>
                     </div>
                     
                     <div className="text-center">
-                      <div className="text-8xl font-bold mb-2">
+                      <div className="text-[90px] font-bold text-white leading-none mb-3">
                         {selectedMatchData.homeScore} - {selectedMatchData.awayScore}
                       </div>
-                      {selectedMatchData.status === "finished" && (
-                        <Badge className="bg-success/20 text-success border-success/50 text-xs uppercase">
-                          Finished
-                        </Badge>
-                      )}
+                      <Badge className="bg-teal-600/30 text-teal-400 border-teal-600/50 text-[11px] uppercase px-3 py-1">
+                        Finished
+                      </Badge>
                     </div>
                     
                     <div className="text-center">
                       {selectedMatchData.awayLogo && (
-                        <div className="w-36 h-36 rounded-xl overflow-hidden mx-auto mb-3 bg-card border">
+                        <div className="w-40 h-40 rounded-xl mb-3 mx-auto overflow-hidden">
                           <img 
                             src={selectedMatchData.awayLogo} 
-                            alt={selectedMatchData.awayTeam}
+                            alt=""
                             className="w-full h-full object-cover"
                           />
                         </div>
                       )}
                       <div className="flex items-center justify-center gap-2">
-                        <p className="font-bold text-lg">{selectedMatchData.awayTeam}</p>
-                        <Star className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-[15px] font-bold text-white">{selectedMatchData.awayTeam}</span>
+                        <Star className="h-4 w-4 text-gray-500" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+                  <div className="flex items-center justify-center gap-8 text-[12px] text-gray-400">
                     <span>👤 C. Turpin</span>
                     <span>🏟️ Stadium 974</span>
                   </div>
                 </div>
 
                 {/* 标签页 */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-                  <TabsList className="w-full grid grid-cols-4 bg-transparent border-b rounded-none h-auto p-0">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="w-full grid grid-cols-4 bg-transparent border-b border-gray-700 rounded-none h-auto p-0">
                     <TabsTrigger 
-                      value="events" 
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary py-3"
+                      value="events"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
                     >
-                      ☰ EVENTS
+                      ≡ EVENTS
                     </TabsTrigger>
                     <TabsTrigger 
                       value="statistics"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary py-3"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
                     >
-                      📊 STATISTICS
+                      ▤ STATISTICS
                     </TabsTrigger>
                     <TabsTrigger 
                       value="lineups"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary py-3"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
                     >
-                      ⚽ LINEUPS
+                      ≡ LINEUPS
                     </TabsTrigger>
                     <TabsTrigger 
                       value="players"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary py-3"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase"
                     >
                       👥 PLAYERS
                     </TabsTrigger>
@@ -279,18 +283,18 @@ export default function Models() {
                       
                       return (
                         <div key={index}>
-                          <div className="flex justify-between items-center mb-1.5">
-                            <span className="text-sm font-semibold w-12 text-left">{stat.home}</span>
-                            <span className="text-sm text-muted-foreground">{stat.label}</span>
-                            <span className="text-sm font-semibold w-12 text-right">{stat.away}</span>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-[14px] font-bold text-white w-12 text-left">{stat.home}</span>
+                            <span className="text-[13px] text-gray-400">{stat.label}</span>
+                            <span className="text-[14px] font-bold text-white w-12 text-right">{stat.away}</span>
                           </div>
-                          <div className="flex h-1.5 rounded-full overflow-hidden bg-muted">
+                          <div className="flex h-1.5 rounded-full overflow-hidden">
                             <div 
-                              className="bg-primary" 
+                              className="bg-teal-500" 
                               style={{ width: `${homePercent}%` }}
                             />
                             <div 
-                              className="bg-warning" 
+                              className="bg-orange-500" 
                               style={{ width: `${awayPercent}%` }}
                             />
                           </div>
@@ -299,24 +303,20 @@ export default function Models() {
                     })}
                   </TabsContent>
 
-                  <TabsContent value="events" className="mt-6 py-8 text-center text-muted-foreground">
-                    Event timeline
+                  <TabsContent value="events" className="mt-6 py-12 text-center text-gray-500 text-sm">
+                    No events data
                   </TabsContent>
 
-                  <TabsContent value="lineups" className="mt-6 py-8 text-center text-muted-foreground">
-                    Team lineups
+                  <TabsContent value="lineups" className="mt-6 py-12 text-center text-gray-500 text-sm">
+                    No lineups data
                   </TabsContent>
 
-                  <TabsContent value="players" className="mt-6 py-8 text-center text-muted-foreground">
-                    Player statistics
+                  <TabsContent value="players" className="mt-6 py-12 text-center text-gray-500 text-sm">
+                    No players data
                   </TabsContent>
                 </Tabs>
               </Card>
-            ) : (
-              <Card className="p-12 text-center">
-                <p className="text-muted-foreground">Select a match</p>
-              </Card>
-            )}
+            ) : null}
           </div>
         </div>
       </main>
