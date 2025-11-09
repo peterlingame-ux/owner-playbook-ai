@@ -74,6 +74,48 @@ All colors MUST be HSL.
     @apply bg-background text-foreground font-sans antialiased;
     line-height: 1.7;
     letter-spacing: 0.02em;
+    overflow-x: hidden;
+    /* iOS 优化：防止橡皮筋效果 */
+    overscroll-behavior-y: none;
+    /* 优化字体渲染 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* iOS 安全区域适配 */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+  }
+  
+  /* 防止 iOS 缩放和文字大小调整 */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* 优化图片显示，防止变形 */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* 优化触摸响应 */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* 优化输入框在 iOS 上的显示 */
+  input, textarea, select {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: var(--radius);
   }
   
   /* 中文排版优化 */
@@ -141,5 +183,31 @@ All colors MUST be HSL.
   
   .delay-150 {
     animation-delay: 150ms;
+  }
+  
+  /* iOS 移动端优化 */
+  @media (max-width: 640px) {
+    /* 确保最小字体大小，防止 iOS 自动缩放 */
+    body {
+      font-size: 16px;
+    }
+    
+    /* 优化容器内边距，适配小屏幕 */
+    .container {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
+    
+    /* 优化头部，适配刘海屏 */
+    header {
+      padding-top: max(8px, env(safe-area-inset-top));
+    }
+  }
+  
+  /* 优化 iPhone SE 等小屏设备 */
+  @media (max-width: 375px) {
+    body {
+      font-size: 15px;
+    }
   }
 }

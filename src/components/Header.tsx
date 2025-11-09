@@ -33,30 +33,30 @@ const Header = () => {
   };
   
   return (
-    <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <h1 className="font-pixel text-xs sm:text-base md:text-lg text-foreground hover:text-primary transition-colors tracking-wider">
+    <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 safe-area-top">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <h1 className="font-pixel text-[10px] sm:text-base md:text-lg text-foreground hover:text-primary transition-colors tracking-wider leading-tight">
             HUNNSOCCER ALPHA
           </h1>
         </Link>
         
-        <nav className="flex items-center gap-3 sm:gap-5 md:gap-8">
-          <Link to="/" className={`text-base sm:text-lg md:text-xl font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
+        <nav className="flex items-center gap-2 sm:gap-5 md:gap-8 flex-shrink">
+          <Link to="/" className={`text-sm sm:text-lg md:text-xl font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_live')}
           </Link>
-          <Link to="/leaderboard" className={`text-base sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
+          <Link to="/leaderboard" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
             {t('nav_rank')}
           </Link>
-          <Link to="/blog" className={`text-base sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
+          <Link to="/blog" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden sm:inline`}>
             {t('nav_blog')}
           </Link>
-          <Link to="/models" className={`text-base sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}>
+          <Link to="/models" className={`text-sm sm:text-lg md:text-xl font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden md:inline`}>
             {t('nav_models')}
           </Link>
         </nav>
         
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
           <OnlineUsers />
           <LanguageSwitcher />
           {user ? (
@@ -64,9 +64,9 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className={`inline-flex items-center gap-1 text-base sm:text-lg px-3 sm:px-4 h-9 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+              className={`inline-flex items-center gap-1 text-xs sm:text-lg px-2 sm:px-4 h-8 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
             >
-              <LogOut size={16} className="sm:w-5 sm:h-5" />
+              <LogOut size={14} className="sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">OUT</span>
             </Button>
           ) : (
@@ -74,7 +74,7 @@ const Header = () => {
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/auth")}
-              className={`inline-flex text-base sm:text-lg px-3 sm:px-4 h-9 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+              className={`inline-flex text-xs sm:text-lg px-2 sm:px-4 h-8 sm:h-10 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
             >
               LOGIN
             </Button>
