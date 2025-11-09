@@ -31,11 +31,11 @@ const OnlineUsers = () => {
       <HoverCardTrigger asChild>
         <Badge 
           variant="outline" 
-          className="bg-success/10 text-success border-success/30 px-4 py-2 gap-2 animate-pulse cursor-pointer hover:bg-success/20 transition-colors"
+          className="bg-success/10 text-success border-success/30 px-1.5 sm:px-3 py-1 sm:py-1.5 gap-1 sm:gap-2 animate-pulse cursor-pointer hover:bg-success/20 transition-colors hidden xs:flex"
         >
-          <Users className="h-4 w-4" />
-          <span className="font-bold font-mono-data">{onlineCount.toLocaleString()}</span>
-          <span className="text-xs">{t('users_watching')}</span>
+          <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="font-bold font-mono-data text-[10px] sm:text-sm">{onlineCount.toLocaleString()}</span>
+          <span className="text-[9px] sm:text-xs hidden sm:inline">{t('users_watching')}</span>
         </Badge>
       </HoverCardTrigger>
       <HoverCardContent className="w-auto p-0 border-0 bg-transparent shadow-2xl">
