@@ -13,6 +13,13 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMessi from "@/assets/star-messi.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
+import expertMystery from "@/assets/expert-mystery.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 const History = () => {
   const { t, i18n } = useTranslation();
@@ -60,7 +67,26 @@ const History = () => {
     return -prediction.betAmount;
   };
 
+  const INITIAL_BALANCE = 10000;
   const totalProfit = filteredHistory.reduce((sum, p) => sum + calculateProfit(p), 0);
+  const currentBalance = INITIAL_BALANCE + totalProfit;
+  const roi = totalPredictions > 0 ? ((totalProfit / INITIAL_BALANCE) * 100).toFixed(1) : "0.0";
+
+  // 获取选中的模型信息
+  const selectedModel = filterModel !== "all" ? aiModels.find(m => m.id === filterModel) : null;
+
+  const getModelBackground = (modelId: string) => {
+    switch(modelId) {
+      case "deepseek": return starRonaldo;
+      case "gpt5": return starNeymar;
+      case "claude": return starMessi;
+      case "gemini": return starHaaland;
+      case "grok": return starMbappe;
+      case "mystery": return expertMystery;
+      case "hunsoccermax": return starHunsoccer;
+      default: return starRonaldo;
+    }
+  };
 
   const getBetTypeLabel = (betType: string, prediction: any) => {
     switch(betType) {
@@ -95,32 +121,81 @@ const History = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t('history_data')}</h1>
         </div>
 
+        {/* 模型详情头部 - 当筛选特定模型时显示 */}
+        {selectedModel && (
+          <div 
+            className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-6"
+            style={{
+              backgroundImage: `url(${getModelBackground(selectedModel.id)})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/90 to-background/70" />
+            <div className="relative flex items-center gap-3 sm:gap-6 p-4 sm:p-8">
+              <div 
+                className="w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 bg-background/80 backdrop-blur-sm border-2 flex-shrink-0"
+                style={{ borderColor: `hsl(var(--${selectedModel.color}))` }}
+              >
+                <img 
+                  src={`/src/assets/${selectedModel.id}-icon.png`}
+                  alt={selectedModel.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 
+                  className="text-xl sm:text-4xl font-bold mb-0.5 sm:mb-1 truncate"
+                  style={{ color: `hsl(var(--${selectedModel.color}))` }}
+                >
+                  {selectedModel.displayName}
+                </h2>
+                <p className="text-muted-foreground text-xs sm:text-lg">
+                  {totalPredictions} {t('predictions')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 统计卡片 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('total_predictions')}</p>
-            <p className="text-xl sm:text-3xl font-bold text-primary">{totalPredictions}</p>
+            <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--primary))' }}>
+              {totalPredictions}
+            </p>
           </Card>
           
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('win_rate')}</p>
-            <p className="text-xl sm:text-3xl font-bold text-success">
+            <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--success))' }}>
               <AnimatedWinRate 
                 value={parseFloat(winRate)}
                 className="text-xl sm:text-3xl font-bold"
+                style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : undefined}
               />
             </p>
           </Card>
           
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('correct')}</p>
-            <p className="text-xl sm:text-3xl font-bold text-success">{correctPredictions}</p>
+            <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--success))' }}>
+              {correctPredictions}
+            </p>
           </Card>
           
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('total_profit')}</p>
-            <p className={`text-xl sm:text-3xl font-bold ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(0)}
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">ROI</p>
+            <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: totalProfit >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))' }}>
+              {Number(roi) >= 0 ? '+' : ''}{roi}%
+            </p>
+          </Card>
+          
+          <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm col-span-2 sm:col-span-1">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('current_balance')}</p>
+            <p className="text-xl sm:text-3xl font-bold" style={selectedModel ? { color: `hsl(var(--${selectedModel.color}))` } : { color: 'hsl(var(--primary))' }}>
+              ${currentBalance.toFixed(0)}
             </p>
           </Card>
         </div>
