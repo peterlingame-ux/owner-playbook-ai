@@ -9,6 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
 import Header from "@/components/Header";
+import expertClaude from "@/assets/expert-claude.jpg";
+import expertDeepseek from "@/assets/expert-deepseek.jpg";
+import expertGemini from "@/assets/expert-gemini.jpg";
+import expertGpt5 from "@/assets/expert-gpt5.jpg";
+import expertGrok from "@/assets/expert-grok.jpg";
+import expertMystery from "@/assets/expert-mystery.jpg";
 
 const ModelDetail = () => {
   const { t } = useTranslation();
@@ -71,6 +77,18 @@ const ModelDetail = () => {
     }
   };
 
+  const getModelBackground = (modelId: string) => {
+    switch(modelId) {
+      case "claude": return expertClaude;
+      case "deepseek": return expertDeepseek;
+      case "gemini": return expertGemini;
+      case "openai": return expertGpt5;
+      case "grok": return expertGrok;
+      case "mystery": return expertMystery;
+      default: return expertMystery;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -86,64 +104,74 @@ const ModelDetail = () => {
           {t('back_to_models')}
         </Button>
 
-        {/* 模型信息头部 */}
-        <div className="flex items-center gap-4 mb-8">
-          <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center p-2 bg-background"
-            style={{ border: `2px solid hsl(var(--${model.color}))` }}
-          >
-            <img 
-              src={`/src/assets/${model.id}-icon.png`}
-              alt={model.name}
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div>
-            <h1 
-              className="text-3xl font-bold"
-              style={{ color: `hsl(var(--${model.color}))` }}
+        {/* 模型信息头部 - 带背景 */}
+        <div 
+          className="relative rounded-2xl overflow-hidden mb-8"
+          style={{
+            backgroundImage: `url(${getModelBackground(modelId!)})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/60" />
+          <div className="relative flex items-center gap-6 p-8">
+            <div 
+              className="w-20 h-20 rounded-full flex items-center justify-center p-3 bg-background/80 backdrop-blur-sm border-2"
+              style={{ borderColor: `hsl(var(--${model.color}))` }}
             >
-              {model.displayName}
-            </h1>
-            <p className="text-muted-foreground">
-              {model.totalPredictions} {t('predictions')}
-            </p>
+              <img 
+                src={`/src/assets/${model.id}-icon.png`}
+                alt={model.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <h1 
+                className="text-4xl font-bold mb-1"
+                style={{ color: `hsl(var(--${model.color}))` }}
+              >
+                {model.displayName}
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                {model.totalPredictions} {t('predictions')}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* 统计卡片 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
-            <p className="text-2xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+          <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground mb-2">{t('win_rate')}</p>
+            <p className="text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               {model.winRate.toFixed(1)}%
             </p>
           </Card>
           
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">{t('correct')}</p>
-            <p className="text-2xl font-bold text-success">
+          <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground mb-2">{t('correct')}</p>
+            <p className="text-3xl font-bold text-success">
               {model.correctPredictions}
             </p>
           </Card>
           
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">{t('wrong')}</p>
-            <p className="text-2xl font-bold text-destructive">
+          <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground mb-2">{t('wrong')}</p>
+            <p className="text-3xl font-bold text-destructive">
               {model.totalPredictions - model.correctPredictions}
             </p>
           </Card>
           
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">ROI</p>
-            <p className={`text-2xl font-bold ${Number(roi) >= 0 ? 'text-success' : 'text-destructive'}`}>
+          <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground mb-2">ROI</p>
+            <p className={`text-3xl font-bold ${Number(roi) >= 0 ? 'text-success' : 'text-destructive'}`}>
               {Number(roi) >= 0 ? '+' : ''}{roi}%
             </p>
           </Card>
           
-          <Card className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">{t('current_balance')}</p>
-            <p className={`text-2xl font-bold ${currentBalance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'}`}>
+          <Card className="p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground mb-2">{t('current_balance')}</p>
+            <p className={`text-3xl font-bold ${currentBalance >= INITIAL_BALANCE ? 'text-success' : 'text-destructive'}`}>
               ${currentBalance.toFixed(0)}
             </p>
           </Card>
