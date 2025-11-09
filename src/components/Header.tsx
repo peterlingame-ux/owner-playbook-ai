@@ -47,19 +47,19 @@ const Header = () => {
         
         {/* Desktop Navigation */}
         <nav className="hidden sm:flex items-center gap-3 md:gap-5 flex-shrink min-w-0">
-          <Link to="/" className={`text-base md:text-lg font-bold text-foreground hover:text-primary transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
+          <Link to="/" className={`font-bold text-foreground hover:text-primary transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
             {t('nav_live')}
           </Link>
-          <Link to="/leaderboard" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
+          <Link to="/leaderboard" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
             {t('nav_rank')}
           </Link>
-          <Link to="/history" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
+          <Link to="/history" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
             {t('nav_history')}
           </Link>
-          <Link to="/blog" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap hidden lg:inline`}>
+          <Link to="/blog" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap hidden lg:inline ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
             {t('nav_blog')}
           </Link>
-          <Link to="/models" className={`text-base md:text-lg font-bold text-muted-foreground hover:text-foreground transition-colors ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''} whitespace-nowrap`}>
+          <Link to="/models" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
             {t('nav_models')}
           </Link>
         </nav>
@@ -81,35 +81,35 @@ const Header = () => {
                 <Link 
                   to="/" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-lg font-bold text-foreground hover:text-primary transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                  className={`font-bold text-foreground hover:text-primary transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
                 >
                   {t('nav_live')}
                 </Link>
                 <Link 
                   to="/leaderboard" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
                 >
                   {t('nav_rank')}
                 </Link>
                 <Link 
                   to="/history" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
                 >
                   {t('nav_history')}
                 </Link>
                 <Link 
                   to="/blog" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
                 >
                   {t('nav_blog')}
                 </Link>
                 <Link 
                   to="/models" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-lg font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-base' : 'text-lg'}`}
                 >
                   {t('nav_models')}
                 </Link>
