@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,9 +18,15 @@ import aiChatgpt from "@/assets/ai-icon-chatgpt.png";
 import aiClaude from "@/assets/ai-icon-claude.png";
 import aiGrok from "@/assets/ai-icon-grok.png";
 import aiHunsoccer from "@/assets/ai-icon-hunsoccer.png";
-import aiOpenai from "@/assets/ai-icon-openai.png";
 
-const phoneSchema = z.string().regex(/^1[3-9]\d{9}$/, "请输入有效的手机号码");
+const countryCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\+?\d{1,4}$/, "请输入有效的国际区号");
+const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{5,15}$/, "请输入有效的手机号码");
 const otpSchema = z.string().length(6, "验证码必须是6位数字");
 
 const Auth = () => {
@@ -28,6 +34,7 @@ const Auth = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState("+852");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -46,6 +53,27 @@ const Auth = () => {
       return () => clearTimeout(timer);
     }
   }, [countdown]);
+
+  const normalizedCountryCode = useMemo(
+    () => (countryCode.startsWith("+") ? countryCode : `+${countryCode}`),
+    [countryCode],
+  );
+
+  const validateCountryCode = () => {
+    try {
+      countryCodeSchema.parse(countryCode);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "验证失败",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      }
+      return false;
+    }
+  };
 
   const validatePhone = () => {
     try {
@@ -81,13 +109,12 @@ const Auth = () => {
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validatePhone()) return;
-    
+    if (!validateCountryCode() || !validatePhone()) return;
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithOtp({
-      phone: `+86${phone}`,
+      phone: `${normalizedCountryCode}${phone}`,
     });
 
     setLoading(false);
@@ -110,13 +137,12 @@ const Auth = () => {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateOtp()) return;
-    
+    if (!validateCountryCode() || !validateOtp()) return;
+
     setLoading(true);
 
     const { error } = await supabase.auth.verifyOtp({
-      phone: `+86${phone}`,
+      phone: `${normalizedCountryCode}${phone}`,
       token: otp,
       type: 'sms',
     });
@@ -181,7 +207,7 @@ const Auth = () => {
             <p className="text-sm text-white/70">
               {step === "phone" 
                 ? "请输入手机号码获取验证码" 
-                : `验证码已发送至 +86 ${phone}`}
+                : `验证码已发送至 ${normalizedCountryCode} ${phone}`}
             </p>
           </div>
         </CardHeader>
@@ -194,9 +220,17 @@ const Auth = () => {
                   手机号码
                 </Label>
                 <div className="flex gap-2">
-                  <div className="flex items-center justify-center px-4 bg-white/10 border border-white/20 rounded-lg text-white font-medium">
-                    +86
-                  </div>
+                  <Input
+                    id="countryCode"
+                    type="text"
+                    inputMode="tel"
+                    placeholder="+852"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    required
+                    maxLength={5}
+                    className="w-24 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                  />
                   <Input
                     id="phone"
                     type="tel"
@@ -211,9 +245,9 @@ const Auth = () => {
               </div>
 
               {/* reCAPTCHA 占位 */}
-              <div className="flex items-center justify-center p-4 bg-white/5 border border-white/20 rounded-lg">
+              {/* <div className="flex items-center justify-center p-4 bg-white/5 border border-white/20 rounded-lg">
                 <p className="text-xs text-white/60">验证码验证已启用</p>
-              </div>
+              </div> */}
 
               <Button 
                 type="submit" 
@@ -250,7 +284,6 @@ const Auth = () => {
                     <img src={aiChatgpt} alt="ChatGPT" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiClaude} alt="Claude" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiGrok} alt="Grok" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
-                    <img src={aiOpenai} alt="OpenAI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiHunsoccer} alt="HunSoccer" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                   </div>
                 </div>
