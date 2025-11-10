@@ -8,6 +8,63 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 60%;
+
+    --radius: 0.5rem;
+
+    /* AI Model Colors */
+    --deepseek: 217 91% 60%;
+    --gpt: 0 0% 25%;
+    --claude: 14 90% 63%;
+    --gemini: 250 71% 63%;
+    --grok: 158 64% 52%;
+    --mystery: 45 100% 51%;
+    
+    /* Chart Colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 14 90% 63%;
+    --chart-4: 250 71% 63%;
+    --chart-5: 158 64% 52%;
+    
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(250 71% 63%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(158 64% 52%));
+    --gradient-chart: linear-gradient(180deg, hsl(217 91% 60% / 0.2), hsl(0 0% 100% / 0));
+  }
+
+  .dark {
     --background: 0 0% 7%;
     --foreground: 0 0% 98%;
 
@@ -36,31 +93,6 @@ All colors MUST be HSL.
     --input: 0 0% 20%;
     --ring: 0 0% 40%;
 
-    --radius: 0.5rem;
-
-    /* AI Model Colors */
-    --deepseek: 217 91% 60%;
-    --gpt: 0 0% 25%;
-    --claude: 14 90% 63%;
-    --gemini: 250 71% 63%;
-    --grok: 158 64% 52%;
-    --mystery: 45 100% 51%;
-    
-    /* Chart Colors */
-    --chart-1: 217 91% 60%;
-    --chart-2: 0 0% 40%;
-    --chart-3: 14 90% 63%;
-    --chart-4: 250 71% 63%;
-    --chart-5: 158 64% 52%;
-    
-    /* Status Colors */
-    --success: 142 76% 36%;
-    --warning: 38 92% 50%;
-    --info: 199 89% 48%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(250 71% 63%));
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(158 64% 52%));
     --gradient-chart: linear-gradient(180deg, hsl(217 91% 60% / 0.2), hsl(0 0% 7% / 0));
   }
 }
