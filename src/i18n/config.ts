@@ -505,7 +505,7 @@ const resources = {
       "bet_type_moneyline": "独赢",
       "bet_type_handicap": "让球",
       "bet_type_over_under": "进球指数",
-      "profit": "盈利",
+      "profit": "收益率",
       "simulated_profit": "模拟收益",
       "loss": "亏损",
       "page_not_found": "哎呀！页面未找到",
@@ -629,7 +629,7 @@ const resources = {
       
       // History page
       "history_data": "历史数据",
-      "total_profit": "总盈利",
+      "total_profit": "总收益率",
       "period": "时间段",
       "all_time": "全部时间",
       "last_7_days": "最近7天",
