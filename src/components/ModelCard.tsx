@@ -225,11 +225,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
           <div className="pt-2 sm:pt-2.5 border-t border-border/50">
             <Button 
               onClick={handleCopyTrade}
-              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
+              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform text-foreground"
               style={{
                 background: `linear-gradient(to right, ${colorTint.color}20, ${colorTint.color}10)`,
                 borderColor: `${colorTint.color}`,
-                color: colorTint.color,
               }}
             >
               {/* Football field pattern overlay */}
