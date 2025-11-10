@@ -173,7 +173,7 @@ const Auth = () => {
 
   return (
     <div 
-      className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden bg-cover bg-center"
+      className="min-h-screen relative flex items-start justify-center px-4 pb-10 pt-44 overflow-hidden bg-cover bg-center"
       style={{ 
         backgroundImage: `url(${authBg})`
       }}
@@ -196,8 +196,12 @@ const Auth = () => {
       <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20">
         <CardHeader className="text-center space-y-6 pb-6 pt-12">
           {/* Logo */}
-          <div className="flex justify-center">
-            <img src={logo} alt="Logo" className="h-32 w-auto object-contain" />
+          <div className="flex justify-center h-32 overflow-visible">
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-full w-auto object-contain scale-[2] origin-center"
+            />
           </div>
           
           <div className="space-y-2">
@@ -281,7 +285,11 @@ const Auth = () => {
                   <div className="flex items-center justify-center gap-4 flex-wrap">
                     <img src={aiBluewhale} alt="Bluewhale AI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiGemini} alt="Gemini" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
-                    <img src={aiChatgpt} alt="ChatGPT" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img
+                      src={aiChatgpt}
+                      alt="ChatGPT"
+                      className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer bg-emerald-500/60 rounded-full p-1"
+                    />
                     <img src={aiClaude} alt="Claude" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiGrok} alt="Grok" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiHunsoccer} alt="HunSoccer" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
