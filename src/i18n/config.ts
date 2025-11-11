@@ -7,9 +7,9 @@ const resources = {
       // Header
       "online_users": "ONLINE USERS",
       "users_watching": "users watching now",
-      "nav_live": "LIVE DATA",
+      "nav_live": "LIVE",
       "nav_rank": "RANK",
-      "nav_history": "MODEL BACKTEST",
+      "nav_history": "HISTORY",
       "nav_blog": "ABOUT",
       "nav_models": "MATCHES",
       
