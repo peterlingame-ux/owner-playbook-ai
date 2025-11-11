@@ -258,7 +258,7 @@ const Auth = () => {
                 className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading}
               >
-                {loading ? "发送中..." : "登录"}
+                {loading ? "发送中..." :  (isSignUp ? "注册" : "登录")}
               </Button>
 
               <div className="text-center space-y-2">
