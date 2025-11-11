@@ -92,6 +92,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         return { hue: '0deg', color: 'hsl(0 0% 40%)' };
       case 'gpt5':
         return { hue: '150deg', color: 'hsl(158 64% 52%)' };
+      case 'hunsoccermax':
+        return { hue: '52deg', color: 'hsl(52 100% 55%)' };
       case 'mystery':
         return { hue: '45deg', color: 'hsl(45 100% 51%)' };
       default:
