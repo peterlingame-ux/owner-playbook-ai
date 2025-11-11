@@ -40,10 +40,10 @@ All colors MUST be HSL.
 
     /* AI Model Colors */
     --deepseek: 217 91% 60%;
-    --gpt: 0 0% 25%;
+    --gpt: 158 64% 52%;
     --claude: 14 90% 63%;
     --gemini: 250 71% 63%;
-    --grok: 158 64% 52%;
+    --grok: 0 0% 25%;
     --mystery: 45 100% 51%;
     
     /* Chart Colors */

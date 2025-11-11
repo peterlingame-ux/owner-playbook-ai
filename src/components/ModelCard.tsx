@@ -89,9 +89,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
       case 'gemini':
         return { hue: '260deg', color: 'hsl(250 71% 63%)' };
       case 'grok':
-        return { hue: '150deg', color: 'hsl(158 64% 52%)' };
-      case 'gpt5':
         return { hue: '0deg', color: 'hsl(0 0% 40%)' };
+      case 'gpt5':
+        return { hue: '150deg', color: 'hsl(158 64% 52%)' };
       case 'mystery':
         return { hue: '45deg', color: 'hsl(45 100% 51%)' };
       default:
@@ -100,6 +100,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
   };
   
   const colorTint = getColorTint(model.id);
+  const withOpacity = (color: string, opacity: number) =>
+    color.includes("/") ? color : color.replace(")", ` / ${opacity})`);
+  const buttonGradientStart = withOpacity(colorTint.color, 0.18);
+  const buttonGradientEnd = withOpacity(colorTint.color, 0.08);
+  const buttonBorderColor = withOpacity(colorTint.color, 0.3);
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -129,7 +134,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       )}
       {/* Star Player Background */}
       <div 
-        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
+        className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"
         style={{
           backgroundImage: `url(${getExpertImage(model.id)})`,
           backgroundSize: 'cover',
@@ -139,7 +144,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       
       {/* AI Brand Color Overlay */}
       <div 
-        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
+        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
         style={{
           background: `radial-gradient(circle at 30% 50%, ${colorTint.color}, transparent 70%)`
         }}
@@ -165,7 +170,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}>
+              {/* <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}> */}
+              <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: 'hsl(255 100% 100%)' }}>
                 {model.displayName}
               </h3>
             </div>
@@ -230,9 +236,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
               onClick={handleCopyTrade}
               className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
               style={{
-                background: `linear-gradient(to right, ${colorTint.color}20, ${colorTint.color}10)`,
-                borderColor: `${colorTint.color}`,
-                color: 'hsl(0 0% 0%)',
+                background: `linear-gradient(to right, ${buttonGradientStart}, ${buttonGradientEnd})`,
+                borderColor: buttonBorderColor,
+                color: 'hsl(255 100% 100%)',
               }}
             >
               {/* Football field pattern overlay */}

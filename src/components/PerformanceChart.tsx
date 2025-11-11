@@ -363,7 +363,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           <Line 
             type="monotone" 
             dataKey="hunsoccermax" 
-            stroke="hsl(var(--primary))" 
+            stroke="hsl(var(--mystery))" 
             strokeWidth={4}
             dot={<CustomDot />}
             name="HUNSOCCER MAX"
@@ -371,10 +371,10 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             style={{ cursor: 'pointer' }}
             activeDot={{ 
               r: 10, 
-              fill: 'hsl(var(--primary))',
+              fill: 'hsl(var(--mystery))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 4,
-              filter: 'drop-shadow(0 0 12px hsl(var(--primary)))'
+              filter: 'drop-shadow(0 0 12px hsl(var(--mystery)))'
             }}
             animationDuration={2500}
             animationEasing="ease-in-out"

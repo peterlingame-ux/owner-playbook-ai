@@ -211,7 +211,7 @@ export const aiModels: AIModel[] = [
     id: "hunsoccermax",
     name: "HUNSOCCER MAX",
     displayName: "HUNSOCCER MAX",
-    color: "primary",
+    color: "mystery",
     totalPredictions: 247,
     correctPredictions: 195,
     winRate: 78.95,
