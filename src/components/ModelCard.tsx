@@ -13,6 +13,7 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
@@ -51,6 +52,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         return grokIcon;
       case 'mystery':
         return mysteryIcon;
+      case 'hunsoccermax':
+        return hunsoccerIcon;
       default:
         return deepseekIcon;
     }

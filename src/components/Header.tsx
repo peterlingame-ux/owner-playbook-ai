@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, Sun, Moon } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
@@ -19,6 +19,16 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const languageClassDesktop = i18n.language === "en" ? "font-pixel tracking-wider text-sm md:text-base" : "text-base md:text-lg";
+  const languageClassMobile = i18n.language === "en" ? "font-pixel tracking-wider text-sm" : "text-base";
+  const getDesktopNavClass = (isActive: boolean) =>
+    `font-bold transition-colors whitespace-nowrap hover:text-primary ${languageClassDesktop} ${
+      isActive ? "text-foreground" : "text-muted-foreground"
+    }`;
+  const getMobileNavClass = (isActive: boolean) =>
+    `font-bold transition-colors py-3 px-2 border-b border-border hover:text-primary ${languageClassMobile} ${
+      isActive ? "text-foreground" : "text-muted-foreground"
+    }`;
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -49,21 +59,21 @@ const Header = () => {
         
         {/* Desktop Navigation */}
         <nav className="hidden sm:flex items-center gap-3 md:gap-5 flex-shrink min-w-0">
-          <Link to="/" className={`font-bold text-foreground hover:text-primary transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
+          <NavLink to="/" className={({ isActive }) => getDesktopNavClass(isActive)}>
             {t('nav_live')}
-          </Link>
-          <Link to="/leaderboard" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
+          </NavLink>
+          <NavLink to="/leaderboard" className={({ isActive }) => getDesktopNavClass(isActive)}>
             {t('nav_rank')}
-          </Link>
-          <Link to="/history" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
+          </NavLink>
+          <NavLink to="/history" className={({ isActive }) => getDesktopNavClass(isActive)}>
             {t('nav_history')}
-          </Link>
-          <Link to="/blog" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap hidden lg:inline ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
+          </NavLink>
+          <NavLink to="/blog" className={({ isActive }) => `${getDesktopNavClass(isActive)} hidden lg:inline`}>
             {t('nav_blog')}
-          </Link>
-          <Link to="/models" className={`font-bold text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm md:text-base' : 'text-base md:text-lg'}`}>
+          </NavLink>
+          <NavLink to="/models" className={({ isActive }) => getDesktopNavClass(isActive)}>
             {t('nav_models')}
-          </Link>
+          </NavLink>
         </nav>
         
         <div className="flex items-center gap-0.5 sm:gap-1.5 md:gap-2 flex-shrink-0">
@@ -81,41 +91,41 @@ const Header = () => {
             <SheetOverlay className="bg-black/60 backdrop-blur-sm animate-fade-in" />
             <SheetContent side="right" className="w-[280px] sm:w-[400px] animate-slide-in-right">
               <nav className="flex flex-col gap-2 mt-6">
-                <Link 
+                <NavLink 
                   to="/" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-foreground hover:text-primary transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                  className={({ isActive }) => getMobileNavClass(isActive)}
                 >
                   {t('nav_live')}
-                </Link>
-                <Link 
+                </NavLink>
+                <NavLink 
                   to="/leaderboard" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                  className={({ isActive }) => getMobileNavClass(isActive)}
                 >
                   {t('nav_rank')}
-                </Link>
-                <Link 
+                </NavLink>
+                <NavLink 
                   to="/history" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                  className={({ isActive }) => getMobileNavClass(isActive)}
                 >
                   {t('nav_history')}
-                </Link>
-                <Link 
+                </NavLink>
+                <NavLink 
                   to="/blog" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                  className={({ isActive }) => getMobileNavClass(isActive)}
                 >
                   {t('nav_blog')}
-                </Link>
-                <Link 
+                </NavLink>
+                <NavLink 
                   to="/models" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`font-bold text-muted-foreground hover:text-foreground transition-colors py-3 px-2 border-b border-border ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                  className={({ isActive }) => getMobileNavClass(isActive)}
                 >
                   {t('nav_models')}
-                </Link>
+                </NavLink>
                 
                 <div className="mt-8 pt-6 border-t border-border space-y-3">
                   <div className="flex items-center gap-2 justify-between">
