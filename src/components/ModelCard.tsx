@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
+import { useAuth } from "@/contexts/AuthContext";
 // AI Model Icons - Updated
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
@@ -29,6 +30,7 @@ interface ModelCardProps {
 
 const ModelCard = ({ model }: ModelCardProps) => {
   const { t } = useTranslation();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const isPositive = model.changePercent > 0;
   
@@ -114,6 +116,13 @@ const ModelCard = ({ model }: ModelCardProps) => {
   };
   
   const handleCardClick = () => {
+    if (!authLoading && !user) {
+      toast.warning(t("login_required"), {
+        description: t("login_prompt"),
+      });
+      navigate("/auth");
+      return;
+    }
     navigate(`/model/${model.id}`);
   };
   
