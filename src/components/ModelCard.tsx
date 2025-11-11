@@ -232,7 +232,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               style={{
                 background: `linear-gradient(to right, ${colorTint.color}20, ${colorTint.color}10)`,
                 borderColor: `${colorTint.color}`,
-                color: colorTint.color,
+                color: 'hsl(0 0% 0%)',
               }}
             >
               {/* Football field pattern overlay */}
