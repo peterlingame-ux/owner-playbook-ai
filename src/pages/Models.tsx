@@ -1,353 +1,451 @@
-import { useState } from "react";
-import { Calendar, Search, Star, ChevronDown, Globe } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
 import Disclaimer from "@/components/Disclaimer";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { pastMatches } from "@/data/mockData";
+import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { MatchDetailData, StatisticItem } from "@/types/footballApi";
+
+const WIDGET_SCRIPT_SRC = "https://widgets.api-sports.io/3.1.0/widgets.js";
+const DEFAULT_FOOTBALL_TEAM_ID = "33";
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "api-sports-widget": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
+}
+
+type APISportsWidgetElement = HTMLElement & {
+  connectedCallback?: () => void;
+};
 
 export default function Models() {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedMatch, setSelectedMatch] = useState<string>(pastMatches[0]?.id);
-  const [activeTab, setActiveTab] = useState("statistics");
+  const { t } = useTranslation("models");
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+  const [matchDetail, setMatchDetail] = useState<MatchDetailData | null>(null);
+  const [isTeamLoading, setIsTeamLoading] = useState(false);
+  const [teamError, setTeamError] = useState<string | null>(null);
+  const sport = "football";
 
-  const matchesByLeague = pastMatches.reduce((acc, match) => {
-    const league = match.league;
-    if (!acc[league]) {
-      acc[league] = [];
+  const configRef = useRef<APISportsWidgetElement | null>(null);
+  const gamesRef = useRef<APISportsWidgetElement | null>(null);
+  const gameRef = useRef<APISportsWidgetElement | null>(null);
+  const teamRef = useRef<APISportsWidgetElement | null>(null);
+  const apiKey = import.meta.env.VITE_API_SPORTS_KEY as string | undefined;
+
+  useEffect(() => {
+    if (document.querySelector(`script[src="${WIDGET_SCRIPT_SRC}"]`)) {
+      setScriptLoaded(true);
+      return;
     }
-    acc[league].push(match);
-    return acc;
-  }, {} as Record<string, typeof pastMatches>);
 
-  const selectedMatchData = pastMatches.find(m => m.id === selectedMatch);
+    const script = document.createElement("script");
+    script.src = WIDGET_SCRIPT_SRC;
+    script.type = "module";
+    script.crossOrigin = "anonymous";
+    script.onload = () => setScriptLoaded(true);
+    script.onerror = () => {
+      console.error("Failed to load API-SPORTS widget script.");
+    };
+    document.head.appendChild(script);
+  }, []);
 
-  return (
-    <div className="min-h-screen bg-[#1a1a1a]">
-      <Header />
-      
-      <main className="container mx-auto px-2 sm:px-4 py-4 safe-area-padding">
-        <div className="grid grid-cols-1 lg:grid-cols-[500px_1fr] gap-4">
-          {/* 左侧 */}
-          <div className="space-y-0">
-            {/* 筛选栏 */}
-            <div className="flex items-center gap-1 sm:gap-2 mb-4 text-[11px] sm:text-[13px] overflow-x-auto pb-2">
-              <Button
-                size="sm"
-                onClick={() => setStatusFilter("all")}
-                className={`h-7 sm:h-8 px-3 sm:px-4 rounded-md font-medium text-xs sm:text-sm whitespace-nowrap ${
-                  statusFilter === "all" 
-                    ? "bg-teal-500 text-black hover:bg-teal-500" 
-                    : "bg-transparent text-gray-400 hover:text-white hover:bg-transparent"
-                }`}
-              >
-                ALL
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => setStatusFilter("live")}
-                className="h-7 sm:h-8 px-3 sm:px-4 bg-transparent text-teal-400 hover:text-teal-300 hover:bg-transparent font-medium text-xs sm:text-sm whitespace-nowrap"
-              >
-                LIVE
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => setStatusFilter("finished")}
-                className="h-7 sm:h-8 px-3 sm:px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium text-xs sm:text-sm whitespace-nowrap"
-              >
-                FINISHED
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => setStatusFilter("upcoming")}
-                className="h-7 sm:h-8 px-3 sm:px-4 bg-transparent text-gray-400 hover:text-white hover:bg-transparent font-medium text-xs sm:text-sm whitespace-nowrap"
-              >
-                SCHEDULED
-              </Button>
-              
-              <div className="ml-auto flex items-center gap-1 flex-shrink-0">
-                <Button size="icon" className="h-7 w-7 sm:h-8 sm:w-8 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 rotate-90" />
-                </Button>
-                <Button size="sm" className="h-7 sm:h-8 px-2 sm:px-3 gap-1 sm:gap-1.5 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  <span className="text-[11px] sm:text-[13px] hidden sm:inline">1 OCT.</span>
-                </Button>
-                <Button size="icon" className="h-7 w-7 sm:h-8 sm:w-8 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 -rotate-90" />
-                </Button>
-                <Button size="icon" className="h-7 w-7 sm:h-8 sm:w-8 bg-transparent hover:bg-gray-800 text-gray-400">
-                  <Search className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
-              </div>
-            </div>
+  useEffect(() => {
+    if (!scriptLoaded || !apiKey) {
+      return;
+    }
 
-            {/* 比赛列表 */}
-            <div className="bg-[#2a2a2a]">
-              {Object.entries(matchesByLeague).map(([league, matches], leagueIdx) => (
-                <div key={league}>
-                  <div className="flex items-center justify-between px-3 py-2.5 bg-[#3a3a3a] hover:bg-[#404040] cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-gray-500" />
-                      <img src={matches[0].homeLogo} alt="" className="w-5 h-5" />
-                      <span className="text-sm text-white font-normal">{league}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-400">Standings</span>
-                      <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
-                    </div>
-                  </div>
-                  
-                  {matches.map((match, idx) => (
-                    <div
-                      key={match.id}
-                      onClick={() => setSelectedMatch(match.id)}
-                      className={`px-3 py-2 cursor-pointer hover:bg-[#323232] ${
-                        selectedMatch === match.id ? 'bg-[#323232]' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-2.5">
-                        <div className="w-11 flex items-center justify-center pt-1">
-                          {match.status === "finished" && idx < 2 && (
-                            <Badge className="bg-[#4a9b7f] hover:bg-[#4a9b7f] text-white text-[10px] font-semibold px-1.5 py-0 h-5">
-                              FT
-                            </Badge>
-                          )}
-                          {leagueIdx === 1 && (idx === 2 || idx === 4) && (
-                            <Badge className="bg-[#c17817] hover:bg-[#c17817] text-white text-[10px] font-semibold px-1.5 py-0 h-5">
-                              POST
-                            </Badge>
-                          )}
-                          {match.status === "upcoming" && (
-                            <span className="text-sm text-white font-normal">22:00</span>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 flex-1">
-                              {match.homeLogo && (
-                                <img src={match.homeLogo} alt="" className="w-[18px] h-[18px] object-contain" />
-                              )}
-                              <span className="text-sm text-white">{match.homeTeam}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              {match.homeScore !== undefined ? (
-                                <>
-                                  <span className="text-base font-bold text-white w-4 text-right">{match.homeScore}</span>
-                                  <span className="text-xs text-gray-500">(0)</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="text-base font-bold text-white w-4 text-right">0</span>
-                                  <span className="text-xs text-gray-500">(0)</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 flex-1">
-                              {match.awayLogo && (
-                                <img src={match.awayLogo} alt="" className="w-[18px] h-[18px] object-contain" />
-                              )}
-                              <span className="text-sm text-white">{match.awayTeam}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              {match.awayScore !== undefined ? (
-                                <>
-                                  <span className="text-base font-bold text-white w-4 text-right">{match.awayScore}</span>
-                                  <span className="text-xs text-gray-500">(1)</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="text-base font-bold text-white w-4 text-right">0</span>
-                                  <span className="text-xs text-gray-500">(0)</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+    const refreshWidget = (widget: APISportsWidgetElement | null) => {
+      if (!widget) return;
+      widget.innerHTML = "";
+      widget.setAttribute("data-sport", sport);
+      widget.connectedCallback?.();
+    };
+
+    if (configRef.current) {
+      configRef.current.setAttribute("data-key", apiKey);
+      configRef.current.setAttribute("data-sport", sport);
+      configRef.current.connectedCallback?.();
+    }
+
+    refreshWidget(gamesRef.current);
+    refreshWidget(gameRef.current);
+    refreshWidget(teamRef.current);
+
+    window.setTimeout(() => {
+      window.document.dispatchEvent(
+        new Event("DOMContentLoaded", { bubbles: true, cancelable: true })
+      );
+    }, 0);
+  }, [apiKey, scriptLoaded, sport]);
+
+  useEffect(() => {
+    if (!scriptLoaded) {
+      return;
+    }
+
+    const gamesElement = gamesRef.current;
+    if (!gamesElement) {
+      return;
+    }
+
+    const attributeCandidates = [
+      "data-fixture-id",
+      "data-game-id",
+      "data-fixture",
+      "data-id",
+      "data-match-id",
+    ];
+
+    const extractFixtureId = (element: HTMLElement | null): string | null => {
+      let current: HTMLElement | null = element;
+      while (current) {
+        for (const attribute of attributeCandidates) {
+          const value = current.getAttribute(attribute);
+          const trimmedValue = value?.trim();
+          if (trimmedValue) {
+            return trimmedValue;
+          }
+        }
+
+        const datasetEntries = Object.entries(current.dataset);
+        for (const [key, value] of datasetEntries) {
+          const trimmedValue = value?.trim();
+          if (
+            trimmedValue &&
+            ["fixture", "game", "match"].some((token) =>
+              key.toLowerCase().includes(token)
+            )
+          ) {
+            return trimmedValue;
+          }
+        }
+
+        current = current.parentElement;
+      }
+
+      return null;
+    };
+
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+
+      const fixtureId = extractFixtureId(target);
+      if (!fixtureId) return;
+
+      setSelectedGameId((prev) => (prev === fixtureId ? prev : fixtureId));
+    };
+
+    gamesElement.addEventListener("click", handleClick);
+
+    return () => {
+      gamesElement.removeEventListener("click", handleClick);
+    };
+  }, [scriptLoaded]);
+
+  useEffect(() => {
+    if (!scriptLoaded || !selectedGameId) {
+      if (!selectedGameId) {
+        setMatchDetail(null);
+      }
+      return;
+    }
+
+    const gameElement = gameRef.current;
+    if (!gameElement) {
+      return;
+    }
+
+    gameElement.setAttribute("data-game-id", selectedGameId);
+    gameElement.connectedCallback?.();
+  }, [scriptLoaded, selectedGameId]);
+
+  useEffect(() => {
+    if (!selectedGameId) {
+      setMatchDetail(null);
+      setTeamError(null);
+      return;
+    }
+
+    let isCancelled = false;
+    const fetchMatchDetail = async () => {
+      setIsTeamLoading(true);
+      setTeamError(null);
+      try {
+        const { data, error } = await supabase.functions.invoke<MatchDetailData>("football-match-detail", {
+          body: { fixtureId: selectedGameId },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (!isCancelled) {
+          setMatchDetail(data);
+        }
+      } catch (error) {
+        console.error("Failed to load match detail:", error);
+        if (!isCancelled) {
+          setTeamError(
+            t("models.teamInfoError", {
+              defaultValue: "加载球队信息时出现问题，请稍后重试。",
+            })
+          );
+          setMatchDetail(null);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsTeamLoading(false);
+        }
+      }
+    };
+
+    fetchMatchDetail();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedGameId, t]);
+
+  const formatStatValue = (value: StatisticItem["value"]) => {
+    if (value === null || value === undefined) return "--";
+    return typeof value === "number" ? value.toString() : value;
+  };
+
+  const renderTeamHighlights = () => {
+    if (!selectedGameId) {
+      return (
+        <p className="text-sm text-muted-foreground text-center py-6">
+          {t("models.selectTeamPrompt", {
+            defaultValue: "请选择上方球队以查看球队详情。",
+          })}
+        </p>
+      );
+    }
+
+    if (isTeamLoading) {
+      return (
+        <p className="text-sm text-muted-foreground text-center py-6">
+          {t("models.teamInfoLoading", { defaultValue: "正在加载球队信息..." })}
+        </p>
+      );
+    }
+
+    if (teamError) {
+      return (
+        <p className="text-sm text-destructive text-center py-6">{teamError}</p>
+      );
+    }
+
+    const fixture = matchDetail?.fixture;
+    if (!fixture) {
+      return (
+        <p className="text-sm text-muted-foreground text-center py-6">
+          {t("models.teamInfoEmpty", { defaultValue: "暂无法获取球队信息。" })}
+        </p>
+      );
+    }
+
+    const highlightKeys = [
+      {
+        key: "Ball Possession",
+        label: t("models.statPossession", { defaultValue: "控球率" }),
+      },
+      {
+        key: "Total Shots",
+        label: t("models.statTotalShots", { defaultValue: "射门次数" }),
+      },
+      {
+        key: "Shots on Goal",
+        label: t("models.statShotsOnGoal", { defaultValue: "射正次数" }),
+      },
+    ];
+
+    const { teams, goals, league } = fixture;
+    const homeStats = matchDetail?.statistics?.find(
+      (stat) => stat.team.id === teams.home.id
+    );
+    const awayStats = matchDetail?.statistics?.find(
+      (stat) => stat.team.id === teams.away.id
+    );
+
+    const renderStats = (stats: typeof homeStats) =>
+      highlightKeys.map(({ key, label }) => {
+        const stat = stats?.statistics.find((item) => item.type === key);
+        return (
+          <div key={key} className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{label}</span>
+            <span className="font-medium text-foreground">
+              {formatStatValue(stat?.value)}
+            </span>
           </div>
+        );
+      });
 
-          {/* 右侧 */}
-          <div className="lg:sticky lg:top-4 h-fit">
-            {selectedMatchData ? (
-              <Card className="p-0 bg-[#252525] border-gray-800 overflow-hidden">
-                {/* 头部 */}
-                <div className="flex items-center justify-between px-6 py-4 bg-[#2a2a2a]">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-gray-500" />
-                    <Globe className="h-4 w-4 text-teal-400" />
-                    <span className="text-[13px] text-gray-300">World : World Cup</span>
-                  </div>
-                  <span className="text-[13px] text-gray-400">Round of 16</span>
-                </div>
+    const leagueDescription = [
+      league.country,
+      league.name,
+      league.round,
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
-                {/* 比分区域 */}
-                <div className="text-center py-4 sm:py-8 px-3 sm:px-6 bg-[#2a2a2a]">
-                  <p className="text-[11px] sm:text-[13px] text-gray-400 mb-4 sm:mb-6">05.12.2022 • 20:00</p>
-                  
-                  <div className="flex items-center justify-center gap-6 sm:gap-20 mb-4 sm:mb-6">
-                    <div className="text-center flex-shrink">
-                      <div className="w-20 h-16 sm:w-[150px] sm:h-[100px] rounded-lg mb-2 sm:mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
-                        {selectedMatchData.homeLogo ? (
-                          <img 
-                            src={selectedMatchData.homeLogo} 
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-2xl sm:text-4xl">🏴</div>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-center gap-1 sm:gap-2">
-                        <Star className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                        <span className="text-xs sm:text-[15px] font-medium text-white">{selectedMatchData.homeTeam}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="text-center flex-shrink-0">
-                      <div className="text-4xl sm:text-[80px] font-bold text-white leading-none mb-2 sm:mb-3 tracking-tight">
-                        {selectedMatchData.homeScore} <span className="text-gray-700">-</span> {selectedMatchData.awayScore}
-                      </div>
-                      <Badge className="bg-[#52b788] hover:bg-[#52b788] text-white text-[9px] sm:text-[11px] uppercase font-bold px-3 sm:px-5 py-1 sm:py-1.5 tracking-wide">
-                        FINISHED
-                      </Badge>
-                    </div>
-                    
-                    <div className="text-center flex-shrink">
-                      <div className="w-20 h-16 sm:w-[150px] sm:h-[100px] rounded-lg mb-2 sm:mb-3 mx-auto overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center">
-                        {selectedMatchData.awayLogo ? (
-                          <img 
-                            src={selectedMatchData.awayLogo} 
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-2xl sm:text-4xl">🏴</div>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-center gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-[15px] font-medium text-white">{selectedMatchData.awayTeam}</span>
-                        <Star className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-4 sm:gap-10 text-[10px] sm:text-[12px] text-gray-400 pt-3 sm:pt-4 border-t border-gray-700/50">
-                    <span className="flex items-center gap-1 sm:gap-1.5">
-                      <span className="text-gray-500">⚽</span> <span className="hidden sm:inline">C. Turpin</span>
-                    </span>
-                    <span className="flex items-center gap-1 sm:gap-1.5">
-                      <span className="text-gray-500">🏟️</span> <span className="hidden sm:inline">Stadium 974</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* 标签页 */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-[#1e1e1e]">
-                  <TabsList className="w-full grid grid-cols-4 bg-transparent border-b border-gray-700 rounded-none h-auto p-0 px-6">
-                    <TabsTrigger 
-                      value="events"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
-                    >
-                      ≡ EVENTS
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="statistics"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
-                    >
-                      ▤ STATISTICS
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="lineups"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
-                    >
-                      ≡ LINEUPS
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="players"
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-teal-400 data-[state=active]:bg-transparent data-[state=active]:text-teal-400 text-gray-400 py-3 text-[12px] uppercase font-medium"
-                    >
-                      👥 PLAYERS
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="statistics" className="mt-0 space-y-4 px-8 py-6">
-                    {[
-                      { home: 9, label: "Shots on Goal", away: 6 },
-                      { home: 7, label: "Shots off Goal", away: 2 },
-                      { home: 18, label: "Total Shots", away: 8 },
-                      { home: 2, label: "Blocked Shots", away: 0 },
-                      { home: 14, label: "Shots insidebox", away: 4 },
-                      { home: 4, label: "Shots outsidebox", away: 4 },
-                      { home: 8, label: "Fouls", away: 13 },
-                      { home: 5, label: "Corner Kicks", away: 4 },
-                      { home: 0, label: "Offsides", away: 5 },
-                      { home: 53, label: "Ball Possession", away: 47 },
-                      { home: 0, label: "Yellow Cards", away: 1 },
-                      { home: 5, label: "Goalkeeper Saves", away: 5 },
-                      { home: 609, label: "Total passes", away: 530 },
-                      { home: 544, label: "Passes accurate", away: 458 },
-                      { home: 89, label: "Passes %", away: 86 },
-                    ].map((stat, index) => {
-                      const total = stat.home + stat.away;
-                      const homePercent = total > 0 ? (stat.home / total) * 100 : 50;
-                      const awayPercent = total > 0 ? (stat.away / total) * 100 : 50;
-                      
-                      return (
-                        <div key={index}>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-[14px] font-bold text-white w-12 text-left">{stat.home}</span>
-                            <span className="text-[13px] text-gray-400">{stat.label}</span>
-                            <span className="text-[14px] font-bold text-white w-12 text-right">{stat.away}</span>
-                          </div>
-                          <div className="flex h-1.5 rounded-full overflow-hidden">
-                            <div 
-                              className="bg-teal-500" 
-                              style={{ width: `${homePercent}%` }}
-                            />
-                            <div 
-                              className="bg-orange-500" 
-                              style={{ width: `${awayPercent}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </TabsContent>
-
-                  <TabsContent value="events" className="mt-0 px-8 py-12 text-center text-gray-500 text-sm">
-                    No events data
-                  </TabsContent>
-
-                  <TabsContent value="lineups" className="mt-0 px-8 py-12 text-center text-gray-500 text-sm">
-                    No lineups data
-                  </TabsContent>
-
-                  <TabsContent value="players" className="mt-0 px-8 py-12 text-center text-gray-500 text-sm">
-                    No players data
-                  </TabsContent>
-                </Tabs>
-              </Card>
-            ) : null}
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="text-sm text-muted-foreground">{leagueDescription}</div>
+          <div className="text-sm font-semibold">
+            {t("models.finalScoreLabel", { defaultValue: "全场比分" })}：
+            <span className="ml-2">
+              {goals.home ?? 0} - {goals.away ?? 0}
+            </span>
           </div>
         </div>
 
-        {/* Disclaimer */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[
+            { side: "home" as const, team: teams.home, stats: homeStats },
+            { side: "away" as const, team: teams.away, stats: awayStats },
+          ].map(({ side, team, stats }) => (
+            <div
+              key={team.id}
+              className="rounded-lg border border-border/60 bg-background/60 p-4 flex flex-col gap-3"
+            >
+              <div className="flex items-center gap-3">
+                {team.logo && (
+                  <img
+                    src={team.logo}
+                    alt={team.name}
+                    className="h-10 w-10 shrink-0 object-contain"
+                    onError={(event) => {
+                      event.currentTarget.style.visibility = "hidden";
+                    }}
+                  />
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold line-clamp-2">{team.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {side === "home"
+                      ? t("models.homeTeamLabel", { defaultValue: "主队" })
+                      : t("models.awayTeamLabel", { defaultValue: "客队" })}
+                  </p>
+                </div>
+                {team.winner !== null && (
+                  <span className="text-xs font-semibold text-primary">
+                    {team.winner
+                      ? t("models.teamWinner", { defaultValue: "胜" })
+                      : t("models.teamNotWinner", { defaultValue: "未胜" })}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2">{renderStats(stats)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const hasApiKey = Boolean(apiKey);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="container mx-auto px-2 sm:px-4 py-4 safe-area-padding">
+        {!hasApiKey ? (
+          <Card className="p-6 bg-muted/40 border-dashed border-muted-foreground/40 text-sm text-muted-foreground">
+            {t("models.apiKeyMissing", {
+              defaultValue:
+                "未检测到 API-Sports 密钥，请在环境变量 VITE_API_SPORTS_KEY 中配置以加载真实数据。",
+            })}
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            <Card className="p-0 bg-card border-border overflow-hidden">
+              
+              <div className="flex flex-col lg:grid lg:grid-cols-[minmax(360px,520px)_minmax(0,1fr)] gap-4 lg:gap-6 lg:items-stretch">
+                <div
+                  id="games-list"
+                  className="overflow-y-auto px-2 py-4 lg:max-h-[calc(100vh-180px)] w-full lg:max-w-[520px] lg:h-full"
+                >
+                  <api-sports-widget
+                    ref={gamesRef}
+                    data-type="games"
+                    data-sport={sport}
+                    data-theme="dark"
+                    data-show-error="true"
+                    data-show-logos="true"
+                  ></api-sports-widget>
+                </div>
+                <Card className="p-0 bg-muted/30 border-border overflow-hidden w-full lg:max-w-none lg:h-full flex flex-col">
+                  
+                  <div
+                    id="game-content"
+                    className="px-2 py-4 lg:max-h-[calc(100vh-180px)] overflow-y-auto flex-1"
+                  >
+                    <div className="card-body">
+                      <api-sports-widget
+                        ref={gameRef}
+                        data-type="game"
+                        data-sport={sport}
+                        data-theme="dark"
+                        data-show-error="true"
+                        data-game-id={selectedGameId ?? undefined}
+                      ></api-sports-widget>
+                      {!selectedGameId && (
+                        <p className="text-sm text-muted-foreground text-center py-8">
+                          {t("models.selectGamePrompt", {
+                            defaultValue: "请选择左侧比赛以查看详情。",
+                          })}
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      id="team-content"
+                      className="border-t border-border/60 px-2 sm:px-4 pb-6"
+                    >
+                      {renderTeamHighlights()}
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </Card>
+          </div>
+        )}
+
         <div className="px-2 sm:px-4">
           <Disclaimer />
         </div>
       </main>
+      {hasApiKey && (
+        <api-sports-widget
+          ref={configRef}
+          data-type="config"
+          data-sport={sport}
+          data-key={apiKey ?? ""}
+          data-lang="en"
+          data-theme="dark"
+          data-show-error="true"
+          data-show-logos="true"
+          data-refresh="20"
+          data-favorite="true"
+          data-player-trophies="true"
+          data-player-injuries="true"
+          data-team-squad="true"
+          data-team-statistics="true"
+          data-player-statistics="true"
+          data-tab="games"
+          data-game-tab="statistics"
+          data-target-player="modal"
+          data-target-league="#games-list"
+          data-target-team="#team-content"
+          data-target-game="#game-content .card-body"
+        ></api-sports-widget>
+      )}
     </div>
   );
 }
