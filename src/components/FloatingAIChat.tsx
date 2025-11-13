@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Minimize2, Maximize2, Send, MessageCircle } from "lucide-react";
+import { Minimize2, Send, MessageCircle } from "lucide-react";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
 import { useTypewriter } from "@/hooks/useTypewriter";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string;
@@ -13,15 +14,52 @@ interface Message {
   content: string;
   timestamp: Date;
   isTyping?: boolean;
+  translationKey?: string;
 }
 
+interface FaqItem {
+  id: string;
+  questionKey: string;
+  answerKey: string;
+}
+
+const FAQ_ITEMS: FaqItem[] = [
+  {
+    id: "faq-view-predictions",
+    questionKey: "floating_ai_chat.faq.view_predictions.question",
+    answerKey: "floating_ai_chat.faq.view_predictions.answer",
+  },
+  {
+    id: "faq-view-winrate",
+    questionKey: "floating_ai_chat.faq.view_winrate.question",
+    answerKey: "floating_ai_chat.faq.view_winrate.answer",
+  },
+  {
+    id: "faq-view-data",
+    questionKey: "floating_ai_chat.faq.view_data.question",
+    answerKey: "floating_ai_chat.faq.view_data.answer",
+  },
+  {
+    id: "faq-ai-models",
+    questionKey: "floating_ai_chat.faq.ai_models.question",
+    answerKey: "floating_ai_chat.faq.ai_models.answer",
+  },
+  {
+    id: "faq-contact",
+    questionKey: "floating_ai_chat.faq.contact.question",
+    answerKey: "floating_ai_chat.faq.contact.answer",
+  },
+];
+
 const MessageBubble = ({ message }: { message: Message }) => {
+  const { i18n } = useTranslation();
   const { displayedText } = useTypewriter({
     text: message.content,
     speed: message.role === "assistant" && message.isTyping ? 30 : 0,
   });
 
   const content = message.role === "assistant" && message.isTyping ? displayedText : message.content;
+  const locale = i18n.language === "zh" ? "zh-CN" : "en-US";
 
   return (
     <div
@@ -38,7 +76,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
       >
         <p className="text-sm">{content}</p>
         <p className="text-xs opacity-70 mt-1">
-          {message.timestamp.toLocaleTimeString("zh-CN", {
+          {message.timestamp.toLocaleTimeString(locale, {
             hour: "2-digit",
             minute: "2-digit",
           })}
@@ -49,74 +87,199 @@ const MessageBubble = ({ message }: { message: Message }) => {
 };
 
 const FloatingAIChat = () => {
+  const { t, i18n } = useTranslation();
   const [isMinimized, setIsMinimized] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: "您好！我是HUNSOCCER AI，你可以咨询我任何问题，例如哪个赞助商最佳",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const registerTimeout = (timeoutId: ReturnType<typeof setTimeout>) => {
+    timeoutsRef.current.push(timeoutId);
+  };
+
+  const clearPendingTimeouts = () => {
+    timeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+    timeoutsRef.current = [];
+  };
+
+  const createWelcomeMessage = () => ({
+    id: "welcome",
+    role: "assistant" as const,
+    content: t("floating_ai_chat.welcome"),
+    timestamp: new Date(),
+    translationKey: "floating_ai_chat.welcome" as const,
+  });
+
+  const scheduleTypingReset = (messageId: string, content: string) => {
+    const typingDuration = Math.min(6000, Math.max(1200, content.length * 20));
+    const timeoutId = setTimeout(() => {
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === messageId ? { ...message, isTyping: false } : message,
+        ),
+      );
+    }, typingDuration);
+
+    registerTimeout(timeoutId);
+  };
+
+  const addAssistantMessage = (content: string, translationKey?: string) => {
+    const messageId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const message: Message = {
+      id: messageId,
+      role: "assistant",
+      content,
+      timestamp: new Date(),
+      isTyping: true,
+      translationKey,
+    };
+
+    setMessages((prev) => [...prev, message]);
+    scheduleTypingReset(messageId, content);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearPendingTimeouts();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMinimized) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+    return;
+  }, [isMinimized]);
+
+  useEffect(() => {
+    setMessages((prev) => {
+      const translatedMessages = prev.map((message) =>
+        message.translationKey
+          ? {
+              ...message,
+              content: t(message.translationKey),
+            }
+          : message,
+      );
+
+      const welcomeContent = t("floating_ai_chat.welcome");
+      const existingWelcomeIndex = prev.findIndex((message) => message.id === "welcome");
+
+      if (existingWelcomeIndex !== -1) {
+        const updatedMessages = [...translatedMessages];
+        updatedMessages[existingWelcomeIndex] = {
+          ...updatedMessages[existingWelcomeIndex],
+          content: welcomeContent,
+          timestamp: new Date(),
+          translationKey: "floating_ai_chat.welcome",
+        };
+        return updatedMessages;
+      }
+
+      if (translatedMessages.length === 0) {
+        return [
+          createWelcomeMessage(),
+        ];
+      }
+
+      return translatedMessages;
+    });
+  }, [i18n.language, t]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = (
+    content: string,
+    presetResponse?: string,
+    options?: { resetInput?: boolean; messageKey?: string; responseKey?: string },
+  ) => {
+    if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content,
       timestamp: new Date(),
+      translationKey: options?.messageKey,
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+    if (options?.resetInput) {
+      setInput("");
+    }
     setIsLoading(true);
 
-    // 模拟AI响应
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "感谢您的提问！这是一个模拟的AI回复。实际使用中，这里会连接到真实的AI服务。",
-        timestamp: new Date(),
-        isTyping: true,
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+    const responseText = presetResponse ?? t("floating_ai_chat.demo_response");
+    const responseKey = options?.responseKey ?? (!presetResponse ? "floating_ai_chat.demo_response" : undefined);
+
+    const responseDelay = presetResponse ? 600 : 1000;
+    const responseTimeout = setTimeout(() => {
+      addAssistantMessage(responseText, responseKey);
       setIsLoading(false);
-    }, 1000);
+    }, responseDelay);
+
+    registerTimeout(responseTimeout);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      sendMessage(input, undefined, { resetInput: true });
     }
+  };
+
+  const handleSubmit = () => {
+    sendMessage(input, undefined, { resetInput: true });
+  };
+
+  const handleFaqSelect = (faq: FaqItem) => {
+    const question = t(faq.questionKey);
+    const answer = t(faq.answerKey);
+    sendMessage(question, answer, { messageKey: faq.questionKey, responseKey: faq.answerKey });
+  };
+
+  const handleOpenChat = () => {
+    clearPendingTimeouts();
+    setIsLoading(false);
+    setInput("");
+    setMessages([createWelcomeMessage()]);
+    setIsMinimized(false);
   };
 
   return (
     <>
+      {/* 遮罩层 */}
+      {!isMinimized && (
+        <div
+          className="fixed inset-0 z-40 bg-background/50 backdrop-blur-[1px]"
+          onClick={() => setIsMinimized(true)}
+        />
+      )}
+
       {/* 最小化按钮 */}
       {isMinimized && (
-        <div className="fixed bottom-6 right-[280px] sm:right-6 z-50">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
           {/* 脉冲圆环效果 */}
           <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
           <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
           
           {/* 主按钮 */}
           <button
-            onClick={() => setIsMinimized(false)}
+          onClick={handleOpenChat}
             className="relative w-14 h-14 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
-            title="打开聊天"
+            title={t("floating_ai_chat.open_chat_button")}
           >
             <MessageCircle size={24} />
           </button>
@@ -126,7 +289,7 @@ const FloatingAIChat = () => {
       {/* 聊天窗口 */}
       {!isMinimized && (
         <Card 
-          className="fixed bottom-6 right-6 w-[400px] h-[600px] z-50 shadow-2xl border-2 border-border bg-card/95 backdrop-blur-xl"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 shadow-2xl border-2 border-border bg-card/95 backdrop-blur-xl w-[calc(100vw-2rem)] sm:w-[400px] h-[min(75vh,620px)] sm:h-[600px] flex flex-col"
         >
           {/* 头部 */}
           <div className="relative p-3 border-b-2 border-border bg-gradient-to-r from-primary/10 to-transparent">
@@ -143,7 +306,9 @@ const FloatingAIChat = () => {
                   <h3 className="font-bold text-sm font-pixel tracking-wider">
                     HUNSOCCER AI
                   </h3>
-                  <p className="text-[10px] text-muted-foreground font-mono">在线咨询</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">
+                    {t("floating_ai_chat.status_online")}
+                  </p>
                 </div>
               </div>
               
@@ -161,11 +326,29 @@ const FloatingAIChat = () => {
           </div>
 
           {/* 聊天内容 */}
-          <div className="flex flex-col h-[calc(600px-60px)]">
-              <ScrollArea className="flex-1 p-4">
+          <div className="flex flex-col flex-1 min-h-0">
+              <ScrollArea className="flex-1 p-4 min-h-0">
                 <div ref={scrollRef} className="space-y-4">
-                  {messages.map((message) => (
-                    <MessageBubble key={message.id} message={message} />
+                  {messages.map((message, index) => (
+                    <div key={message.id} className="space-y-4">
+                      <MessageBubble message={message} />
+                      {index === 0 && (
+                          <div className="flex flex-col gap-2">
+                            {FAQ_ITEMS.map((faq) => (
+                              <Button
+                                key={faq.id}
+                                variant="outline"
+                                size="sm"
+                                className="justify-start h-auto whitespace-normal text-left py-2 px-3 text-xs leading-relaxed"
+                                onClick={() => handleFaqSelect(faq)}
+                                disabled={isLoading}
+                              >
+                                <span>{t(faq.questionKey)}</span>
+                              </Button>
+                            ))}
+                          </div>
+                      )}
+                    </div>
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
@@ -178,22 +361,23 @@ const FloatingAIChat = () => {
                       </div>
                     </div>
                   )}
+                  <div ref={bottomRef} />
                 </div>
               </ScrollArea>
 
               {/* 输入框 */}
-              <div className="p-4 border-t border-border">
+              <div className="p-3 sm:p-4 border-t border-border bg-card">
                 <div className="flex gap-2">
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="输入您的问题..."
+                    placeholder={t("floating_ai_chat.input_placeholder")}
                     className="flex-1"
                     disabled={isLoading}
                   />
                   <Button
-                    onClick={handleSend}
+                    onClick={handleSubmit}
                     disabled={!input.trim() || isLoading}
                     size="icon"
                   >

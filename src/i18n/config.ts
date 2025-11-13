@@ -51,6 +51,36 @@ const resources = {
       "chat_welcome": "Hello! I'm a professional sports bot. You can ask me any questions, such as which platform is most reliable.",
       "chat_placeholder": "Which platform is most reliable? Ask me anything...",
       "chat_ai_response": "I can help you analyze team owner data, compare AI predictions, and provide insights on upcoming matches. What would you like to know?",
+      "floating_ai_chat": {
+        "welcome": "Hello! I’m the HUNSOCCER AI assistant—feel free to ask about match insights, AI models, or data sources.",
+        "demo_response": "Thank you for your question! This chat is running in demo mode. In production we will connect live AI analysis services.",
+        "open_chat_button": "Open chat",
+        "status_online": "Online support",
+        "input_placeholder": "Type your football question...",
+        "faq_title": "FAQ",
+        "faq": {
+          "view_predictions": {
+            "question": "How to view AI match predictions?",
+            "answer": "On the homepage, under “AI Football Matches – Today’s Predictions,” each AI model is real and specializes in a different angle of analysis. Every model runs its own professional review and provides a result for today’s matches, which are randomly selected by AI. To view historical results, please log in to access them for free."
+          },
+          "view_winrate": {
+            "question": "How to view AI prediction win rates?",
+            "answer": "Visit the “AI Match Win-Rate Comparison” section on the homepage to review each AI’s total predictions, correct picks, incorrect picks, today’s simulated profit, and overall win rate. Tap the “AI Analysis” label on the top-left of the card to view that AI’s reasoning. Log in to read the full details for free."
+          },
+          "view_data": {
+            "question": "How to view football data?",
+            "answer": "HUNSOCCER partners with data providers such as EA SPORT and FOOTBALL LIVE. Log in to access the full spectrum of match data."
+          },
+          "ai_models": {
+            "question": "What do the six professional AI models specialize in?",
+            "answer": "1. DEEPSEEK focuses on “deep digging + comparisons,” breaking down structured data—head-to-head history, recent form, and home/away splits—to spotlight unique signals.\n2. GROK tracks “real-time intel,” monitoring breaking news, social buzz, sudden injuries, and instant odds movement to judge fresh impacts.\n3. ChatGPT offers “rule-based explanations + multi-angle breakdowns,” clarifying league formats, motivations, and styles before layering fundamentals.\n4. Gemini excels at “multi-source data fusion,” weighing schedule congestion, fitness, weather, travel, and odds history for balanced risk.\n5. Claude emphasizes “text understanding + strategy simulation,” reading interviews and predicted lineups to infer tactical adjustments.\n6. HUNSOCCER acts as the “final decision,” integrating all signals to evaluate match importance, abnormal markets, and recommendation strength without gambling guidance."
+          },
+          "contact": {
+            "question": "How to contact HUNSOCCER staff?",
+            "answer": "Please reach out via WECHAT: HUNSOCCER or WHATSAPP: HUNSOCCER to contact our staff."
+          }
+        }
+      },
       
       // Crypto Ticker
       "market_overview": "MARKET OVERVIEW",
@@ -375,6 +405,35 @@ const resources = {
       "chat_welcome": "您好！我是HUNSOCCER AI， 你可以咨询我任何问题，例如哪个平台信用度最高？",
       "chat_placeholder": "哪个平台最靠谱？问我任何问题...",
       "chat_ai_response": "我可以帮您分析球队老板数据，比较AI预测，并提供即将到来的比赛的见解。您想了解什么？",
+      "floating_ai_chat": {
+        "welcome": "您好！我是 HUNSOCCER AI 助手，很高兴为您解答赛事分析、AI 模型与数据来源相关问题。",
+        "demo_response": "感谢您的提问！当前为演示环境，正式版本将接入实时的 AI 分析服务。",
+        "open_chat_button": "打开聊天窗口",
+        "status_online": "在线咨询",
+        "input_placeholder": "请输入您的问题...",
+        "faq": {
+          "view_predictions": {
+            "question": "如何查看 AI 预测赛事情况？",
+            "answer": "在主页的「AI 足球赛事今日预测」板块里，每个 AI 都是真实训练且擅长不同分析角度的模型，会对当日赛事独立分析并给出结论，赛事由 AI 随机挑选。想看历史赛况，请登录后免费查看。"
+          },
+          "view_winrate": {
+            "question": "如何查看 AI 预测的胜率？",
+            "answer": "进入主页的「AI 赛事胜率对比」板块，可清晰看到各 AI 的预测次数、命中次数、失误次数、当日模拟收益以及预测胜率。卡片左上角的「AI 分析」可以查看该 AI 的分析理由，登录后免费解锁详情。"
+          },
+          "view_data": {
+            "question": "如何查看足球数据信息？",
+            "answer": "HUNSOCCER 已与 EA SPORT、FOOTBALL LIVE 等数据方合作，登录后即可查看更全面的赛事数据。"
+          },
+          "ai_models": {
+            "question": "六个专业 AI 模型的优势是什么？",
+            "answer": "1. DEEPSEEK：偏重「深挖 + 对比」，拆解历史交锋、球队状态、主客差异等结构化数据，找到本场独特信号。\n2. GROK：偏重「即时情报」，关注突发新闻、社媒风向、伤停与赔率异动，评估最新情报影响。\n3. ChatGPT：擅长「规则化说明 + 多角度解析」，梳理联赛制度、积分形势、球队动机与战术风格，再结合基本面分析。\n4. Gemini：偏重「多数据源融合」，综合赛程密度、体能、天气、旅程与盘口历史，提供均衡风险判断。\n5. Claude：侧重「文本理解 + 策略推演」，解读教练采访、赛前发布会、媒体阵容预测，推测战术调整。\n6. HUNSOCCER：负责「老板视角最终裁决」，整合所有信息，评估重视程度、盘口异常与推荐价值，仅展示 AI 分析能力。"
+          },
+          "contact": {
+            "question": "如何联系 HUNSOCCER 工作人员？",
+            "answer": "请添加微信：HUNSOCCER 或 WhatsApp：HUNSOCCER，与工作人员取得联系。"
+          }
+        }
+      },
       
       // Crypto Ticker
       "market_overview": "市场概览",
