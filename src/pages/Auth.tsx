@@ -18,6 +18,7 @@ import aiChatgpt from "@/assets/ai-icon-chatgpt.png";
 import aiClaude from "@/assets/ai-icon-claude.png";
 import aiGrok from "@/assets/ai-icon-grok.png";
 import aiHunsoccer from "@/assets/ai-icon-hunsoccer.png";
+import type { User } from "@supabase/supabase-js";
 
 const countryCodeSchema = z
   .string()
@@ -58,6 +59,33 @@ const Auth = () => {
     () => (countryCode.startsWith("+") ? countryCode : `+${countryCode}`),
     [countryCode],
   );
+
+  const syncUserProfile = async (user: User) => {
+    const formattedPhone = user.phone ?? `${normalizedCountryCode}${phone}`;
+
+    const { error: syncError } = await supabase.functions.invoke("sync-user", {
+      body: {
+        phoneNumber: formattedPhone,
+        displayName:
+          typeof user.user_metadata?.full_name === "string"
+            ? user.user_metadata.full_name
+            : undefined,
+        avatarUrl:
+          typeof user.user_metadata?.avatar_url === "string"
+            ? user.user_metadata.avatar_url
+            : undefined,
+        metadata: user.user_metadata ?? undefined,
+      },
+    });
+
+    if (syncError) {
+      toast({
+        title: "用户信息同步失败",
+        description: syncError.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const validateCountryCode = () => {
     try {
@@ -141,15 +169,14 @@ const Auth = () => {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       phone: `${normalizedCountryCode}${phone}`,
       token: otp,
       type: 'sms',
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       toast({
         title: "验证失败",
         description: error.message === "Token has expired or is invalid" 
@@ -158,6 +185,11 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
+      if (data?.user) {
+        await syncUserProfile(data.user);
+      }
+
+      setLoading(false);
       toast({
         title: "登录成功",
         description: "欢迎回来！",
