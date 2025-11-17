@@ -25,6 +25,12 @@ type FixtureLeague = {
   country: string;
 };
 
+type FixtureStatus = {
+  long: string;
+  short: string;
+  elapsed: number | null;
+};
+
 type FixtureData = {
   fixture: {
     id: number;
@@ -36,6 +42,7 @@ type FixtureData = {
       name: string | null;
       city: string | null;
     };
+    status: FixtureStatus;
   };
   league: FixtureLeague;
   teams: {
@@ -73,6 +80,7 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
   : undefined;
 
 const leagueLookup = buildLeagueLookup();
+const DEFAULT_TIMEZONE = "Asia/Shanghai";
 
 const buildLeagueKey = (value: string | null | undefined) =>
   value?.toLowerCase().trim() ?? "";
@@ -101,7 +109,7 @@ const findLeagueInfo = (
   return undefined;
 };
 
-const getTargetDate = (timezone = "Asia/Shanghai") => {
+const getTargetDate = (timezone = DEFAULT_TIMEZONE) => {
   const now = new Date();
   const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
@@ -123,13 +131,17 @@ const getTargetDate = (timezone = "Asia/Shanghai") => {
 
 const normalizeDate = (value: string) => value.slice(0, 10);
 
-const fetchFixturesByDate = async (date: string) => {
+const fetchFixturesByDate = async (
+  date: string,
+  timezone: string = DEFAULT_TIMEZONE,
+) => {
   if (!FOOTBALL_API_KEY) {
     throw new Error("FOOTBALL_API_KEY 未配置");
   }
 
   const url = new URL("https://v3.football.api-sports.io/fixtures");
   url.searchParams.set("date", date);
+  url.searchParams.set("timezone", timezone);
 
   const response = await fetch(url, {
     headers: {
@@ -152,13 +164,90 @@ const fetchFixturesByDate = async (date: string) => {
   return json.response;
 };
 
-const filterFixtures = (fixtures: FixtureData[]) => {
+const fetchFixturesByIds = async (
+  fixtureIds: number[],
+  timezone: string = DEFAULT_TIMEZONE,
+) => {
+  if (!FOOTBALL_API_KEY) {
+    throw new Error("FOOTBALL_API_KEY 未配置");
+  }
+
+  if (fixtureIds.length === 0) {
+    return [];
+  }
+
+  const results: FixtureData[] = [];
+
+  // API-Sports 支持 ids 参数（使用短横线分隔），这里做分批以防止 URL 过长
+  const chunkSize = 20;
+  for (let index = 0; index < fixtureIds.length; index += chunkSize) {
+    const chunk = fixtureIds.slice(index, index + chunkSize);
+    const url = new URL("https://v3.football.api-sports.io/fixtures");
+
+    if (chunk.length === 1) {
+      url.searchParams.set("id", chunk[0].toString());
+    } else {
+      url.searchParams.set("ids", chunk.join("-"));
+    }
+    url.searchParams.set("timezone", timezone);
+
+    const response = await fetch(url, {
+      headers: {
+        "x-rapidapi-key": FOOTBALL_API_KEY,
+        "x-rapidapi-host": "v3.football.api-sports.io",
+      },
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.error(
+        "[fetch-daily-matches] Football API error (by ids):",
+        response.status,
+        body,
+      );
+      throw new Error(`Football API 请求失败：${response.status}`);
+    }
+
+    const json = await response.json() as FixtureResponse;
+    results.push(...json.response);
+  }
+
+  return results;
+};
+
+const matchTargetDate = (
+  fixture: FixtureData,
+  timezone: string,
+  targetDate: string,
+) => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const localDate = formatter
+    .formatToParts(new Date(fixture.fixture.date))
+    .map((part) => part.value)
+    .join("")
+    .replace(/[^0-9]/g, "")
+    .replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
+
+  return localDate === targetDate;
+};
+
+const filterFixtures = (
+  fixtures: FixtureData[],
+  timezone: string,
+  targetDate: string,
+) => {
   const filtered: Array<FixtureData & { leagueInfo: LeagueInfo }> = [];
 
   for (const fixture of fixtures) {
     const { league } = fixture;
     const info = findLeagueInfo(league.name, league.country);
-    if (info) {
+    if (info && matchTargetDate(fixture, timezone, targetDate)) {
       filtered.push({ ...fixture, leagueInfo: info });
     }
   }
@@ -187,6 +276,9 @@ const upsertFixtures = async (
     kickoff_at: new Date(fixture.fixture.date).toISOString(),
     goals_home: fixture.goals.home,
     goals_away: fixture.goals.away,
+    status_long: fixture.fixture.status.long,
+    status_short: fixture.fixture.status.short,
+    status_elapsed: fixture.fixture.status.elapsed,
     raw: fixture,
   }));
 
@@ -199,26 +291,112 @@ const upsertFixtures = async (
   }
 };
 
+const COMPLETED_STATUSES = new Set(["FT", "AET", "PEN", "CANC", "ABD", "AWD", "WO"]);
+
+type ActiveFixtureMeta = {
+  fixture_id: number;
+  league_name: string | null;
+  league_country: string | null;
+  status_short: string | null;
+};
+
+const getActiveFixturesMeta = async (date: string) => {
+  if (!supabase) {
+    throw new Error("Supabase 客户端未初始化，无法查询数据");
+  }
+
+  const { data, error } = await supabase
+    .from("daily_matches")
+    .select("fixture_id, status_short, league_name, league_country")
+    .eq("date", date);
+
+  if (error) {
+    throw error;
+  }
+
+  return ((data ?? []) as ActiveFixtureMeta[]).filter((item) =>
+    !item.status_short || !COMPLETED_STATUSES.has(item.status_short)
+  );
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { date: customDate, timezone } = req.method === "POST"
+    const { date: customDate, timezone, mode } = req.method === "POST"
       ? await req.json().catch(() => ({}))
       : {};
+
+    const resolvedTimezone = typeof timezone === "string" && timezone.trim()
+      ? timezone.trim()
+      : DEFAULT_TIMEZONE;
 
     const targetDate = normalizeDate(
       customDate && typeof customDate === "string" && customDate.length >= 10
         ? customDate
-        : getTargetDate(timezone),
+        : getTargetDate(resolvedTimezone),
     );
 
     console.log("[fetch-daily-matches] fetching fixtures for date:", targetDate);
 
-    const fixtures = await fetchFixturesByDate(targetDate);
-    const filtered = filterFixtures(fixtures);
+    const isRefresh = mode === "refresh";
+
+    const fixtures = await (async () => {
+      if (!isRefresh) {
+        return await fetchFixturesByDate(targetDate, resolvedTimezone);
+      }
+
+      const activeMeta = await getActiveFixturesMeta(targetDate);
+      if (activeMeta.length === 0) {
+        console.log(
+          "[fetch-daily-matches] no active fixtures to refresh for date:",
+          targetDate,
+        );
+        return [];
+      }
+
+      const ids = activeMeta.map((item) => item.fixture_id);
+      console.log(
+        "[fetch-daily-matches] refreshing fixtures:",
+        ids.join(","),
+      );
+
+      const leagueInfoMap = new Map<number, LeagueInfo>();
+      for (const meta of activeMeta) {
+        if (meta.league_name) {
+          leagueInfoMap.set(meta.fixture_id, {
+            name: meta.league_name,
+            country: meta.league_country ?? undefined,
+          });
+        }
+      }
+
+      const fixturesById = await fetchFixturesByIds(ids, resolvedTimezone);
+
+      return fixturesById
+        .map((fixture) => {
+          const info = leagueInfoMap.get(fixture.fixture.id) ??
+            findLeagueInfo(fixture.league.name, fixture.league.country);
+
+          if (!info || !matchTargetDate(fixture, resolvedTimezone, targetDate)) {
+            return null;
+          }
+
+          return {
+            ...fixture,
+            leagueInfo: info,
+          };
+        })
+        .filter(
+          (item): item is FixtureData & { leagueInfo: LeagueInfo } => item !== null,
+        );
+    })();
+
+    const filtered = isRefresh
+      ? fixtures as Array<FixtureData & { leagueInfo: LeagueInfo }>
+      : filterFixtures(fixtures as FixtureData[], resolvedTimezone, targetDate);
     console.log(
       "[fetch-daily-matches] total fixtures:",
       fixtures.length,

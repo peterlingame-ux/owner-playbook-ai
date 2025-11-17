@@ -8,7 +8,7 @@ import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarCh
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MatchAnalysisDialog } from "@/components/MatchAnalysisDialog";
+import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -113,6 +113,20 @@ const MatchCountdown = ({ match }: { match: any }) => {
   );
 };
 
+type MatchAnalysisResult = {
+  analysis?: string;
+  analyses?: ModelAnalysis[];
+  error?: string;
+};
+
+type AnalysisDialogState = {
+  open: boolean;
+  matchInfo: { homeTeam: string; awayTeam: string; league: string };
+  analysis: string | null;
+  analyses: ModelAnalysis[];
+  isLoading: boolean;
+};
+
 const ActiveAIBets = () => {
   const { t, i18n } = useTranslation();
   
@@ -126,28 +140,30 @@ const ActiveAIBets = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
   
   // State for analysis dialog
-  const [analysisDialog, setAnalysisDialog] = useState({
+  const [analysisDialog, setAnalysisDialog] = useState<AnalysisDialogState>({
     open: false,
     matchInfo: { homeTeam: '', awayTeam: '', league: '' },
-    analysis: null as string | null,
+    analysis: null,
+    analyses: [],
     isLoading: false,
   });
 
   // Function to get match analysis
   const getMatchAnalysis = async (match: any, bet: any, aiModel: any) => {
-    setAnalysisDialog({
-      open: true,
-      matchInfo: {
-        homeTeam: getTeamName(match, 'home'),
-        awayTeam: getTeamName(match, 'away'),
-        league: getLeagueName(match),
-      },
-      analysis: null,
-      isLoading: true,
-    });
+      setAnalysisDialog({
+        open: true,
+        matchInfo: {
+          homeTeam: getTeamName(match, 'home'),
+          awayTeam: getTeamName(match, 'away'),
+          league: getLeagueName(match),
+        },
+        analysis: null,
+        analyses: [],
+        isLoading: true,
+      });
 
     try {
-      const { data, error } = await supabase.functions.invoke('match-analysis', {
+      const { data, error } = await supabase.functions.invoke<MatchAnalysisResult>('match-analysis', {
         body: {
           matchInfo: {
             league: getLeagueName(match),
@@ -192,9 +208,13 @@ const ActiveAIBets = () => {
         return;
       }
 
+      const analyses = data?.analyses ?? [];
+      const fallbackAnalysis = data?.analysis || analyses.find(item => item.analysis)?.analysis || null;
+
       setAnalysisDialog(prev => ({
         ...prev,
-        analysis: data.analysis,
+        analysis: fallbackAnalysis,
+        analyses,
         isLoading: false,
       }));
     } catch (error) {
@@ -785,6 +805,7 @@ const ActiveAIBets = () => {
         open={analysisDialog.open}
         onOpenChange={(open) => setAnalysisDialog(prev => ({ ...prev, open }))}
         analysis={analysisDialog.analysis}
+        analyses={analysisDialog.analyses}
         isLoading={analysisDialog.isLoading}
         matchInfo={analysisDialog.matchInfo}
       />
