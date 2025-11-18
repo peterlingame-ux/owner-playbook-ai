@@ -23,6 +23,7 @@ type FixtureLeague = {
   id: number;
   name: string;
   country: string;
+  logo?: string;
 };
 
 type FixtureStatus = {
@@ -269,10 +270,13 @@ const upsertFixtures = async (
     league_id: fixture.league.id,
     league_name: fixture.leagueInfo.name,
     league_country: fixture.leagueInfo.country ?? fixture.league.country ?? null,
+    league_logo: (fixture.league as any).logo || null, // 联赛 logo
     home_team_id: fixture.teams.home.id,
     home_team_name: fixture.teams.home.name,
+    home_logo: fixture.teams.home.logo || null, // 主队 logo
     away_team_id: fixture.teams.away.id,
     away_team_name: fixture.teams.away.name,
+    away_logo: fixture.teams.away.logo || null, // 客队 logo
     kickoff_at: new Date(fixture.fixture.date).toISOString(),
     goals_home: fixture.goals.home,
     goals_away: fixture.goals.away,

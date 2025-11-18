@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -9,12 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter } from "lucide-react";
-import { predictionHistory, pastMatches, aiModels } from "@/data/mockData";
+import { aiModels } from "@/data/mockData";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import CryptoTicker from "@/components/CryptoTicker";
+import { supabase } from "@/integrations/supabase/client";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
 import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
@@ -22,6 +23,35 @@ import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
 import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+
+// 类型定义
+type HistoryRecord = {
+  id: string;
+  matchId: string;
+  aiModel: string;
+  prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW";
+  actualResult?: "HOME_WIN" | "AWAY_WIN" | "DRAW";
+  correct: boolean;
+  confidence: number;
+  date: string;
+  betType: "moneyline" | "handicap" | "over_under";
+  handicapLine?: number;
+  overUnderLine?: number;
+  overUnderPick?: "over" | "under";
+  odds: number;
+  betAmount: number;
+  profit: number;
+  match?: {
+    id: string;
+    homeTeam: string;
+    awayTeam: string;
+    homeScore?: number;
+    awayScore?: number;
+    homeLogo?: string;
+    awayLogo?: string;
+    league?: string;
+  };
+};
 
 const History = () => {
   const { t, i18n } = useTranslation();
@@ -32,9 +62,144 @@ const History = () => {
   const [filterModel, setFilterModel] = useState<string>("all");
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
+  const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 从数据库获取历史数据
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setIsLoading(true);
+        
+        // 查询已结算的投注记录
+        const { data: positionsData, error: positionsError } = await supabase
+          .from('sim_positions' as any)
+          .select(`
+            id,
+            match_id,
+            ai_id,
+            status,
+            settled_at,
+            stake_amount,
+            odds,
+            metadata
+          `)
+          .eq('status', 'settled')
+          .not('settled_at', 'is', null)
+          .order('settled_at', { ascending: false });
+
+        if (positionsError) {
+          console.error('Error fetching positions:', positionsError);
+          setHistoryRecords([]);
+          return;
+        }
+
+        if (!positionsData || positionsData.length === 0) {
+          setHistoryRecords([]);
+          return;
+        }
+
+        // 获取所有唯一的 match_id
+        const matchIds = [...new Set(positionsData.map((p: any) => p.match_id).filter(Boolean))];
+        
+        // 查询比赛信息
+        let matchesMap = new Map();
+        if (matchIds.length > 0) {
+          const { data: matchesData, error: matchesError } = await supabase
+            .from('daily_matches' as any)
+            .select('*')
+            .in('fixture_id', matchIds);
+
+          if (!matchesError && matchesData) {
+            matchesData.forEach((match: any) => {
+              matchesMap.set(match.fixture_id, match);
+            });
+          }
+        }
+
+        // 转换数据格式
+        const records: HistoryRecord[] = positionsData.map((position: any) => {
+          const metadata = position.metadata || {};
+          const settlement = metadata.settlement || {};
+          const result = settlement.result; // 'win', 'loss', 'push', 'void'
+          
+          // 从 metadata 中提取预测信息
+          const prediction = metadata.prediction || 'HOME_WIN';
+          const betType = metadata.bet_type || 'moneyline';
+          const confidence = metadata.confidence || 0;
+          const handicapLine = metadata.handicap_line;
+          const overUnderLine = metadata.over_under_line;
+          const overUnderPick = metadata.over_under_pick;
+          
+          // 获取比赛信息
+          const match = position.match_id ? matchesMap.get(position.match_id) : null;
+          
+          // 计算实际结果（从比赛比分推断）
+          let actualResult: "HOME_WIN" | "AWAY_WIN" | "DRAW" | undefined;
+          if (match && match.goals_home !== null && match.goals_away !== null) {
+            if (match.goals_home > match.goals_away) {
+              actualResult = "HOME_WIN";
+            } else if (match.goals_away > match.goals_home) {
+              actualResult = "AWAY_WIN";
+            } else {
+              actualResult = "DRAW";
+            }
+          }
+          
+          // 判断是否正确（只考虑 win/loss，不考虑 push/void）
+          const correct = result === 'win';
+          
+          // 计算盈亏
+          const betAmount = position.stake_amount || 0;
+          const profit = correct ? betAmount * (position.odds - 1) : -betAmount;
+          
+          // 格式化日期
+          const settledDate = position.settled_at ? new Date(position.settled_at) : new Date();
+          const dateStr = settledDate.toISOString().split('T')[0];
+          
+          return {
+            id: position.id.toString(),
+            matchId: position.match_id?.toString() || '',
+            aiModel: position.ai_id || '',
+            prediction: prediction as "HOME_WIN" | "AWAY_WIN" | "DRAW",
+            actualResult,
+            correct,
+            confidence,
+            date: dateStr,
+            betType: betType as "moneyline" | "handicap" | "over_under",
+            handicapLine,
+            overUnderLine,
+            overUnderPick: overUnderPick as "over" | "under" | undefined,
+            odds: position.odds || 1,
+            betAmount,
+            profit,
+            match: match ? {
+              id: match.fixture_id?.toString() || '',
+              homeTeam: match.home_team_name || '',
+              awayTeam: match.away_team_name || '',
+              homeScore: match.goals_home,
+              awayScore: match.goals_away,
+              homeLogo: match.home_logo || undefined,
+              awayLogo: match.away_logo || undefined,
+              league: match.league_name || undefined,
+            } : undefined,
+          };
+        });
+
+        setHistoryRecords(records);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+        setHistoryRecords([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, []);
 
   // 过滤历史数据
-  let filteredHistory = [...predictionHistory].sort(
+  let filteredHistory = [...historyRecords].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -62,11 +227,8 @@ const History = () => {
   const correctPredictions = filteredHistory.filter(p => p.correct).length;
   const winRate = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(1) : "0.0";
   
-  const calculateProfit = (prediction: any) => {
-    if (prediction.correct) {
-      return prediction.betAmount * (prediction.odds - 1);
-    }
-    return -prediction.betAmount;
+  const calculateProfit = (prediction: HistoryRecord) => {
+    return prediction.profit;
   };
 
   const INITIAL_BALANCE = 10000;
@@ -90,19 +252,26 @@ const History = () => {
     }
   };
 
-  const getBetTypeLabel = (betType: string, prediction: any) => {
+  const getBetTypeLabel = (betType: string, prediction: HistoryRecord) => {
     switch(betType) {
       case "moneyline": return t('bet_type_moneyline');
       case "handicap": 
-        return `${t('bet_type_handicap')} ${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+        if (prediction.handicapLine !== undefined) {
+          return `${t('bet_type_handicap')} ${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+        }
+        return t('bet_type_handicap');
       case "over_under": 
-        const overUnder = prediction.overUnderPick === 'over' ? t('over') || '大' : t('under') || '小';
-        return `${t('bet_type_over_under')} ${prediction.overUnderLine} ${overUnder}`;
+        if (prediction.overUnderLine !== undefined && prediction.overUnderPick) {
+          const overUnder = prediction.overUnderPick === 'over' ? t('over') || '大' : t('under') || '小';
+          return `${t('bet_type_over_under')} ${prediction.overUnderLine} ${overUnder}`;
+        }
+        return t('bet_type_over_under');
       default: return betType;
     }
   };
 
-  const getPredictionLabel = (prediction: string, match: any) => {
+  const getPredictionLabel = (prediction: string, match: HistoryRecord['match']) => {
+    if (!match) return prediction;
     switch(prediction) {
       case "HOME_WIN": return match.homeTeam;
       case "AWAY_WIN": return match.awayTeam;
@@ -288,9 +457,15 @@ const History = () => {
                       {t('no_history_data')}
                     </TableCell>
                   </TableRow>
+                ) : isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
+                      {t('loading') || '加载中...'}
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   filteredHistory.map((prediction) => {
-                    const match = pastMatches.find(m => m.id === prediction.matchId);
+                    const match = prediction.match;
                     const model = aiModels.find(m => m.id === prediction.aiModel);
                     if (!match || !model) return null;
                     
@@ -322,7 +497,9 @@ const History = () => {
                                 {match.homeTeam} vs {match.awayTeam}
                               </div>
                               <div className="text-[10px] sm:text-xs text-muted-foreground font-mono">
-                                {match.homeScore} - {match.awayScore}
+                                {match.homeScore !== null && match.awayScore !== null 
+                                  ? `${match.homeScore} - ${match.awayScore}`
+                                  : '-'}
                               </div>
                             </div>
                           </div>

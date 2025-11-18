@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
@@ -7,13 +7,144 @@ import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import { AIModel } from "@/types/prediction";
 
 const Index = () => {
   const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
+  const [isLoadingModels, setIsLoadingModels] = useState(true);
+  
+  // 获取真实的胜率数据和模拟收益 - 使用 Realtime 订阅实现实时更新
+  useEffect(() => {
+    const fetchWinRates = async () => {
+      try {
+        setIsLoadingModels(true);
+        
+        const INITIAL_BALANCE = 10000; // 初始余额
+        
+        // 并行查询：胜率数据和余额数据
+        const [winRatesResult, balancesResult] = await Promise.all([
+          supabase.from('ai_win_rates_overall' as any).select('*'),
+          supabase.from('ai_balances' as any).select('*'),
+        ]);
+
+        // 处理胜率数据
+        const winRatesMap = new Map<string, { winRate: number; totalPredictions: number; correctPredictions: number }>();
+        if (!winRatesResult.error && winRatesResult.data) {
+          winRatesResult.data.forEach((item: any) => {
+            winRatesMap.set(item.ai_id, {
+              winRate: item.win_rate || 0,
+              totalPredictions: item.total_predictions || 0,
+              correctPredictions: item.correct_predictions || 0,
+            });
+          });
+        }
+
+        // 处理余额数据，计算模拟收益
+        const balancesMap = new Map<string, { currentValue: number; profit: number; changePercent: number }>();
+        if (!balancesResult.error && balancesResult.data) {
+          balancesResult.data.forEach((item: any) => {
+            const totalBalance = (item.available_balance || 0) + (item.locked_balance || 0);
+            const profit = totalBalance - INITIAL_BALANCE;
+            const changePercent = (profit / INITIAL_BALANCE) * 100;
+            
+            balancesMap.set(item.ai_id, {
+              currentValue: totalBalance,
+              profit,
+              changePercent,
+            });
+          });
+        }
+
+        // 更新每个模型的数据
+        const updatedModels = aiModels.map(model => {
+          const winRateData = winRatesMap.get(model.id);
+          const balanceData = balancesMap.get(model.id);
+          
+          // 计算模拟收益
+          const profit = balanceData?.profit ?? 0;
+          const changePercent = balanceData?.changePercent ?? 0;
+          const currentValue = balanceData?.currentValue ?? INITIAL_BALANCE;
+          
+          return {
+            ...model,
+            winRate: winRateData?.winRate ?? 0,
+            totalPredictions: winRateData?.totalPredictions ?? 0,
+            correctPredictions: winRateData?.correctPredictions ?? 0,
+            currentValue: `$${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            change: profit >= 0 ? `+$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            changePercent: Math.round(changePercent * 100) / 100,
+          };
+        });
+        
+        setModelsWithRealData(updatedModels);
+      } catch (error) {
+        console.error('Error fetching win rates:', error);
+        // 如果出错，显示0而不是默认数据
+        const INITIAL_BALANCE = 10000;
+        const zeroModels = aiModels.map(model => ({
+          ...model,
+          winRate: 0,
+          totalPredictions: 0,
+          correctPredictions: 0,
+          currentValue: `$${INITIAL_BALANCE.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          change: '$0.00',
+          changePercent: 0,
+        }));
+        setModelsWithRealData(zeroModels);
+      } finally {
+        setIsLoadingModels(false);
+      }
+    };
+
+    // 初始加载
+    fetchWinRates();
+
+    // 订阅 sim_positions 表的变化，当有投注结算时实时更新胜率
+    const positionsChannel = supabase
+      .channel('win-rates-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'sim_positions',
+          filter: 'status=eq.settled',
+        },
+        (payload) => {
+          console.log('Sim position settled, refreshing win rates:', payload);
+          fetchWinRates();
+        }
+      )
+      .subscribe();
+
+    // 订阅 ai_balances 表的变化，当余额变化时实时更新模拟收益
+    const balancesChannel = supabase
+      .channel('balances-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'ai_balances',
+        },
+        (payload) => {
+          console.log('AI balance changed, refreshing data:', payload);
+          fetchWinRates();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(positionsChannel);
+      supabase.removeChannel(balancesChannel);
+    };
+  }, []);
   
   // Sort models by win rate
-  const sortedModels = [...aiModels].sort((a, b) => b.winRate - a.winRate);
+  const sortedModels = [...modelsWithRealData].sort((a, b) => b.winRate - a.winRate);
 
   return (
     <div className="min-h-screen bg-background">

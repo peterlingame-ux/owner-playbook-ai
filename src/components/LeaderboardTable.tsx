@@ -13,28 +13,139 @@ import starNeymar from "@/assets/star-neymar.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { AIModel } from "@/types/prediction";
 
 const LeaderboardTable = () => {
   const { t } = useTranslation();
-  // Calculate additional stats for each model
-  const enhancedModels = aiModels.map(model => {
-    const wrongPredictions = model.totalPredictions - model.correctPredictions;
-    const currentStreak = Math.floor(Math.random() * 10) - 3; // -3 to 6
-    const bestStreak = Math.floor(Math.random() * 15) + 5; // 5 to 19
-    const worstStreak = -(Math.floor(Math.random() * 8) + 2); // -2 to -9
-    const accuracy = model.winRate;
-    const avgConfidence = (Math.random() * 30 + 60).toFixed(1); // 60-90%
-    
-    return {
-      ...model,
-      wrongPredictions,
-      currentStreak,
-      bestStreak,
-      worstStreak,
-      accuracy,
-      avgConfidence,
+  const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 获取真实的胜率数据和统计数据 - 使用 Realtime 订阅实现实时更新
+  useEffect(() => {
+    const fetchWinRates = async () => {
+      try {
+        setIsLoading(true);
+        
+        // 并行查询：胜率数据和统计数据
+        const [winRatesResult, statisticsResult] = await Promise.all([
+          supabase.from('ai_win_rates_overall' as any).select('*'),
+          supabase.from('ai_statistics' as any).select('*'),
+        ]);
+
+        if (winRatesResult.error) {
+          console.error('Error fetching win rates:', winRatesResult.error);
+        }
+        if (statisticsResult.error) {
+          console.error('Error fetching statistics:', statisticsResult.error);
+        }
+
+        // 将查询结果转换为 Map 以便快速查找
+        const winRatesMap = new Map<string, { winRate: number; totalPredictions: number; correctPredictions: number }>();
+        if (winRatesResult.data) {
+          winRatesResult.data.forEach((item: any) => {
+            winRatesMap.set(item.ai_id, {
+              winRate: item.win_rate || 0,
+              totalPredictions: item.total_predictions || 0,
+              correctPredictions: item.correct_predictions || 0,
+            });
+          });
+        }
+
+        const statisticsMap = new Map<string, { currentStreak: number; bestStreak: number; worstStreak: number; avgConfidence: number }>();
+        if (statisticsResult.data) {
+          statisticsResult.data.forEach((item: any) => {
+            statisticsMap.set(item.ai_id, {
+              currentStreak: item.current_streak || 0,
+              bestStreak: item.best_streak || 0,
+              worstStreak: item.worst_streak || 0,
+              avgConfidence: item.avg_confidence || 0,
+            });
+          });
+        }
+
+        // 更新每个模型的数据
+        const updatedModels = aiModels.map(model => {
+          const winRateData = winRatesMap.get(model.id);
+          const statsData = statisticsMap.get(model.id);
+          
+          const wrongPredictions = (winRateData?.totalPredictions || 0) - (winRateData?.correctPredictions || 0);
+          
+          return {
+            ...model,
+            winRate: winRateData?.winRate ?? 0,
+            totalPredictions: winRateData?.totalPredictions ?? 0,
+            correctPredictions: winRateData?.correctPredictions ?? 0,
+            wrongPredictions,
+            currentStreak: statsData?.currentStreak ?? 0,
+            bestStreak: statsData?.bestStreak ?? 0,
+            worstStreak: statsData?.worstStreak ?? 0,
+            accuracy: winRateData?.winRate || 0,
+            avgConfidence: statsData?.avgConfidence ? statsData.avgConfidence.toFixed(1) : '0',
+          };
+        });
+
+        setModelsWithRealData(updatedModels);
+      } catch (error) {
+        console.error('Error fetching win rates:', error);
+        // 如果出错，显示0而不是默认数据
+        const zeroModels = aiModels.map(model => ({
+          ...model,
+          winRate: 0,
+          totalPredictions: 0,
+          correctPredictions: 0,
+          wrongPredictions: 0,
+          currentStreak: 0,
+          bestStreak: 0,
+          worstStreak: 0,
+          accuracy: 0,
+          avgConfidence: '0',
+        }));
+        setModelsWithRealData(zeroModels);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }).sort((a, b) => b.winRate - a.winRate);
+
+    // 初始加载
+    fetchWinRates();
+
+    // 订阅 sim_positions 表的变化，当有投注结算时实时更新胜率
+    const positionsChannel = supabase
+      .channel('leaderboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'sim_positions',
+          filter: 'status=eq.settled',
+        },
+        (payload) => {
+          console.log('Sim position settled, refreshing leaderboard:', payload);
+          fetchWinRates();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(positionsChannel);
+    };
+  }, []);
+
+  // Calculate additional stats for each model
+  const enhancedModels = modelsWithRealData
+    .map(model => ({
+      ...model,
+      wrongPredictions: (model as any).wrongPredictions || (model.totalPredictions - model.correctPredictions),
+      currentStreak: (model as any).currentStreak || 0,
+      bestStreak: (model as any).bestStreak || 0,
+      worstStreak: (model as any).worstStreak || 0,
+      accuracy: (model as any).accuracy || model.winRate,
+      avgConfidence: (model as any).avgConfidence || '0',
+    }))
+    .sort((a, b) => b.winRate - a.winRate);
 
   const winningModel = enhancedModels[0];
 
@@ -249,40 +360,47 @@ const LeaderboardTable = () => {
               
               <CardContent className="p-4 sm:p-6 relative z-10">
                 <div className="flex items-end justify-between gap-2 sm:gap-4 h-[240px] sm:h-[320px]">
-                  {enhancedModels.map((model) => {
-                    const maxWinRate = Math.max(...enhancedModels.map(m => m.winRate));
-                    const minWinRate = Math.min(...enhancedModels.map(m => m.winRate));
+                  {(() => {
+                    // 固定基准：100% 胜率对应最大高度
+                    const maxHeight = 240; // 最大高度（px），对应容器高度
+                    const minHeight = 40; // 最小高度（px），确保即使胜率为0也可见
+                    const baseWinRate = 100; // 基准胜率（100%）
                     
-                    // Calculate height in pixels
-                    const heightPx = ((model.winRate - minWinRate) / (maxWinRate - minWinRate)) * 160 + 120;
-                    
-                    return (
-                      <div key={model.id} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2">
-                        <div className="text-[10px] sm:text-sm font-mono-data font-bold mb-1 sm:mb-2">
-                          <AnimatedWinRate 
-                            value={model.winRate}
-                            className="text-[10px] sm:text-sm font-mono-data font-bold"
-                          />
+                    return enhancedModels.map((model) => {
+                      // 基于胜率百分比直接计算高度
+                      // 100% 胜率对应 maxHeight，0% 对应 minHeight
+                      // 公式：height = (winRate / 100) * (maxHeight - minHeight) + minHeight
+                      const heightRatio = Math.min(model.winRate / baseWinRate, 1); // 限制最大为1（100%）
+                      const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
+                      
+                      return (
+                        <div key={model.id} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2">
+                          <div className="text-[10px] sm:text-sm font-mono-data font-bold mb-1 sm:mb-2">
+                            <AnimatedWinRate 
+                              value={model.winRate}
+                              className="text-[10px] sm:text-sm font-mono-data font-bold"
+                            />
+                          </div>
+                          <div 
+                            className="w-full rounded-t-lg relative flex items-end justify-center pb-2 sm:pb-4 transition-all duration-300 hover:opacity-80 shadow-lg"
+                            style={{ 
+                              height: `${heightPx}px`,
+                              backgroundColor: `hsl(var(--${model.color}))`,
+                            }}
+                          >
+                            <img 
+                              src={getModelIcon(model.id)} 
+                              alt={model.name}
+                              className="h-5 w-5 sm:h-8 sm:w-8 object-contain"
+                            />
+                          </div>
+                          <div className="text-[9px] sm:text-xs text-center font-medium text-muted-foreground truncate max-w-full px-1">
+                            {model.displayName.split(' ')[0]}...
+                          </div>
                         </div>
-                        <div 
-                          className="w-full rounded-t-lg relative flex items-end justify-center pb-2 sm:pb-4 transition-all duration-300 hover:opacity-80 shadow-lg"
-                          style={{ 
-                            height: `${heightPx}px`,
-                            backgroundColor: `hsl(var(--${model.color}))`,
-                          }}
-                        >
-                          <img 
-                            src={getModelIcon(model.id)} 
-                            alt={model.name}
-                            className="h-5 w-5 sm:h-8 sm:w-8 object-contain"
-                          />
-                        </div>
-                        <div className="text-[9px] sm:text-xs text-center font-medium text-muted-foreground truncate max-w-full px-1">
-                          {model.displayName.split(' ')[0]}...
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
               </CardContent>
             </Card>

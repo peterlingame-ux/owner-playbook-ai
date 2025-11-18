@@ -1,7 +1,8 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
-import { generateChartData } from "@/data/mockData";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -16,9 +17,168 @@ interface PerformanceChartProps {
   onChartClick?: () => void;
 }
 
+type ChartDataPoint = {
+  date: string;
+  deepseek: number;
+  gpt5: number;
+  claude: number;
+  gemini: number;
+  grok: number;
+  hunsoccermax: number;
+};
+
+// 生成全0的图表数据
+const generateZeroChartData = (days: number): ChartDataPoint[] => {
+  const data: ChartDataPoint[] = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - (days - i - 1));
+    data.push({
+      date: date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }),
+      deepseek: 0,
+      gpt5: 0,
+      claude: 0,
+      gemini: 0,
+      grok: 0,
+      hunsoccermax: 0,
+    });
+  }
+  return data;
+};
+
 const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   const { t } = useTranslation();
-  const data = generateChartData();
+  const [data, setData] = useState<ChartDataPoint[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<'all' | '72h'>('all');
+
+  // 获取胜率数据 - 使用 Realtime 订阅实现实时更新
+  useEffect(() => {
+    const fetchWinRates = async () => {
+      try {
+        setIsLoading(true);
+        
+        const days = timeRange === '72h' ? 3 : 30;
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        
+        // 直接从数据库视图查询每日胜率数据
+        const { data: dailyData, error: dailyError } = await supabase
+          .from('ai_win_rates_daily' as any)
+          .select('*')
+          .gte('settlement_date', cutoffDate.toISOString().split('T')[0])
+          .order('settlement_date', { ascending: true });
+
+        if (dailyError) {
+          console.error('Error fetching daily win rates:', dailyError);
+          const zeroData = generateZeroChartData(days);
+          setData(zeroData);
+          return;
+        }
+
+        // 生成日期范围
+        const dateRange: string[] = [];
+        for (let i = 0; i < days; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - (days - i - 1));
+          dateRange.push(date.toISOString().split('T')[0]);
+        }
+
+        // 按日期组织数据
+        const chartDataMap = new Map<string, ChartDataPoint>();
+        
+        // 初始化所有日期为0
+        dateRange.forEach(date => {
+          const dateKey = new Date(date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+          chartDataMap.set(date, {
+            date: dateKey,
+            deepseek: 0,
+            gpt5: 0,
+            claude: 0,
+            gemini: 0,
+            grok: 0,
+            hunsoccermax: 0,
+          });
+        });
+
+        // AI ID 映射
+        const aiIdMap: Record<string, keyof ChartDataPoint> = {
+          'deepseek': 'deepseek',
+          'gpt5': 'gpt5',
+          'claude': 'claude',
+          'gemini': 'gemini',
+          'grok': 'grok',
+          'hunsoccermax': 'hunsoccermax',
+        };
+
+        // 填充数据：对于每个日期，使用该日期及之前的所有数据的累计胜率
+        dateRange.forEach(currentDate => {
+          const dateKey = new Date(currentDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+          const entry = chartDataMap.get(currentDate)!;
+
+          // 对于每个AI，找到该日期及之前的最新累计胜率
+          ['deepseek', 'gpt5', 'claude', 'gemini', 'grok', 'hunsoccermax'].forEach(aiId => {
+            const relevantData = ((dailyData || []) as any[]).filter(
+              (d: any) => d.ai_id === aiId && d.settlement_date <= currentDate
+            );
+            
+            if (relevantData.length > 0) {
+              // 找到该日期之前最新的记录
+              const latest = relevantData[relevantData.length - 1] as any;
+              const key = aiIdMap[aiId] as keyof ChartDataPoint;
+              (entry as any)[key] = latest.win_rate || 0;
+            }
+          });
+        });
+
+        const chartData = Array.from(chartDataMap.values());
+        setData(chartData);
+      } catch (error) {
+        console.error('Error fetching win rates:', error);
+        const zeroData = generateZeroChartData(timeRange === '72h' ? 3 : 30);
+        setData(zeroData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // 初始加载
+    fetchWinRates();
+
+    // 订阅 sim_positions 表的变化，当有投注结算时实时更新
+    const channel = supabase
+      .channel('win-rates-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'sim_positions',
+          filter: 'status=eq.settled',
+        },
+        (payload) => {
+          console.log('Sim position settled, refreshing win rates:', payload);
+          fetchWinRates();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'sim_positions',
+        },
+        (payload) => {
+          // 新投注创建时也刷新（虽然胜率可能还没变化）
+          console.log('New sim position created:', payload);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [timeRange]);
 
   // Custom dot component with model icons
   const CustomDot = (props: any) => {
@@ -159,10 +319,24 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           {t('performance_over_time')}
         </h2>
         <div className="flex gap-2 sm:gap-2">
-          <button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-foreground text-background rounded text-xs sm:text-sm font-semibold tracking-wide">
+          <button 
+            onClick={() => setTimeRange('all')}
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-semibold tracking-wide transition-colors ${
+              timeRange === 'all' 
+                ? 'bg-foreground text-background' 
+                : 'bg-secondary text-foreground hover:bg-accent'
+            }`}
+          >
             {t('all')}
           </button>
-          <button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-secondary text-foreground rounded text-xs sm:text-sm font-semibold tracking-wide hover:bg-accent transition-colors">
+          <button 
+            onClick={() => setTimeRange('72h')}
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-semibold tracking-wide transition-colors ${
+              timeRange === '72h' 
+                ? 'bg-foreground text-background' 
+                : 'bg-secondary text-foreground hover:bg-accent'
+            }`}
+          >
             {t('72h')}
           </button>
         </div>
@@ -194,11 +368,20 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         </div>
       </div>
       
-      <ResponsiveContainer width="100%" height={300} className="sm:!h-[400px]">
-        <LineChart 
-          data={data} 
-          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-        >
+      {isLoading ? (
+        <div className="h-[300px] sm:h-[400px] flex items-center justify-center">
+          <div className="text-muted-foreground">{t('loading') || 'Loading...'}</div>
+        </div>
+      ) : data.length === 0 ? (
+        <div className="h-[300px] sm:h-[400px] flex items-center justify-center">
+          <div className="text-muted-foreground">{t('no_data') || '暂无数据'}</div>
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height={300} className="sm:!h-[400px]">
+          <LineChart 
+            data={data} 
+            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+          >
           <CartesianGrid 
             strokeDasharray="3 3" 
             stroke="hsl(var(--border))" 
@@ -382,6 +565,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           />
         </LineChart>
       </ResponsiveContainer>
+      )}
       </div>
     </Card>
   );

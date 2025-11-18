@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { aiModels, matchPredictions, upcomingMatches } from "@/data/mockData";
+import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -31,21 +31,6 @@ const AI_ICONS: Record<string, string> = {
   hunsoccermax: hunsoccerIcon,
 };
 
-// Generate random bet amounts for each AI
-const generateBetAmount = (aiId: string, confidence: number) => {
-  const baseAmounts: Record<string, number> = {
-    deepseek: 1500,
-    gpt5: 800,
-    claude: 1200,
-    gemini: 900,
-    grok: 1100,
-    hunsoccermax: 2000,
-  };
-  
-  const base = baseAmounts[aiId] || 1000;
-  const variance = (confidence / 100) * base * 0.5;
-  return Math.round(base + variance);
-};
 
 // Countdown Timer Component with Match Time
 const MatchCountdown = ({ match }: { match: any }) => {
@@ -127,14 +112,73 @@ type AnalysisDialogState = {
   isLoading: boolean;
 };
 
+type DailyMatch = {
+  fixture_id: number;
+  date: string;
+  kickoff_at: string;
+  league_name: string;
+  league_logo?: string | null;
+  home_team_name: string;
+  away_team_name: string;
+  goals_home: number | null;
+  goals_away: number | null;
+  status_short: string;
+  home_logo?: string | null;
+  away_logo?: string | null;
+};
+
+type AutoBet = {
+  id: number;
+  match_id: number | null;
+  ai_id: string | null;
+  ai_display_name: string;
+  bet_type: string;
+  prediction: string;
+  confidence: number;
+  odds: number;
+  stake_amount: number;
+  status: string;
+  inserted_at: string;
+  handicap_line?: number | null;
+  over_under_line?: number | null;
+  over_under_pick?: string | null;
+  analysis_reference_ids?: number[] | null;
+};
+
+type MatchAnalysis = {
+  id: number;
+  match_id: number | null;
+  ai_id: string | null;
+  provider_model_id?: string;
+  provider_model_name?: string;
+  model_identifier?: string;
+  analysis_text?: string;
+  analysis?: string; // 数据库可能返回 analysis 字段
+  created_at?: string;
+  inserted_at?: string;
+};
+
+type AIBalance = {
+  id: number;
+  ai_id: string | null;
+  ai_display_name: string;
+  available_balance: number;
+  locked_balance: number;
+  currency: string;
+};
+
 const ActiveAIBets = () => {
   const { t, i18n } = useTranslation();
   
-  // Get live matches
-  const liveMatches = upcomingMatches.filter(m => m.status === "live");
-  
   // Get AI models (exclude locked ones like mystery and boospot)
   const activeAIs = aiModels.filter(ai => !ai.locked);
+
+  // State for real data
+  const [matches, setMatches] = useState<DailyMatch[]>([]);
+  const [autoBets, setAutoBets] = useState<AutoBet[]>([]);
+  const [aiBalances, setAiBalances] = useState<Record<string, AIBalance>>({});
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // State to track which match index is shown for each AI
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
@@ -148,42 +192,203 @@ const ActiveAIBets = () => {
     isLoading: false,
   });
 
+  // Fetch real data from database
+  useEffect(() => {
+    const fetchData = async (isRefresh = false) => {
+      try {
+        if (isRefresh) {
+          setIsRefreshing(true);
+        } else {
+          setIsInitialLoading(true);
+        }
+        
+        const today = new Date().toISOString().split('T')[0];
+
+        // Fetch today's matches (live or upcoming)
+        const { data: matchesData, error: matchesError } = await supabase
+          .from('daily_matches' as any)
+          .select('*')
+          .eq('date', today)
+          .in('status_short', ['NS', 'LIVE', 'HT', '2H', 'ET', 'P', 'BREAK'])
+          .order('kickoff_at', { ascending: true });
+
+        if (matchesError) {
+          console.error('Error fetching matches:', matchesError);
+          if (!isRefresh) {
+            toast({
+              title: "加载失败",
+              description: "无法获取比赛数据",
+              variant: "destructive",
+            });
+          }
+        } else {
+          setMatches((matchesData || []) as unknown as DailyMatch[]);
+        }
+
+        // Fetch auto bets (pending status for active predictions)
+        const { data: betsData, error: betsError } = await supabase
+          .from('ai_auto_bets' as any)
+          .select('*')
+          .eq('status', 'pending')
+          .gte('inserted_at', `${today}T00:00:00Z`)
+          .order('inserted_at', { ascending: false });
+
+        if (betsError) {
+          console.error('Error fetching auto bets:', betsError);
+        } else {
+          setAutoBets((betsData || []) as unknown as AutoBet[]);
+        }
+
+        // Fetch AI balances
+        const { data: balancesData, error: balancesError } = await supabase
+          .from('ai_balances' as any)
+          .select('*');
+
+        if (balancesError) {
+          console.error('Error fetching balances:', balancesError);
+        } else {
+          const balancesMap: Record<string, AIBalance> = {};
+          ((balancesData || []) as unknown as AIBalance[]).forEach((balance) => {
+            if (balance.ai_id) {
+              balancesMap[balance.ai_id] = balance;
+            }
+          });
+          setAiBalances(balancesMap);
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        if (!isRefresh) {
+          toast({
+            title: "加载失败",
+            description: "发生未知错误",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (isRefresh) {
+          setIsRefreshing(false);
+        } else {
+          setIsInitialLoading(false);
+        }
+      }
+    };
+
+    fetchData(false);
+
+    // Refresh data every 30 seconds (silent refresh)
+    const interval = setInterval(() => fetchData(true), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Function to get match analysis
-  const getMatchAnalysis = async (match: any, bet: any, aiModel: any) => {
-      setAnalysisDialog({
-        open: true,
-        matchInfo: {
-          homeTeam: getTeamName(match, 'home'),
-          awayTeam: getTeamName(match, 'away'),
-          league: getLeagueName(match),
-        },
-        analysis: null,
-        analyses: [],
-        isLoading: true,
-      });
+  const getMatchAnalysis = async (match: any, bet: AutoBet | ReturnType<typeof convertBet>, aiModel: any) => {
+    setAnalysisDialog({
+      open: true,
+      matchInfo: {
+        homeTeam: getTeamName(match, 'home'),
+        awayTeam: getTeamName(match, 'away'),
+        league: getLeagueName(match),
+      },
+      analysis: null,
+      analyses: [],
+      isLoading: true,
+    });
 
     try {
+      // 首先尝试从数据库获取已存储的分析结果
+      let storedAnalyses: MatchAnalysis[] = [];
+      
+      // 获取原始 bet 数据（如果是 convertBet 的结果，需要从 autoBets 中找到原始数据）
+      const originalBet = 'match' in bet 
+        ? autoBets.find(b => 
+            b.match_id === match.fixture_id && 
+            b.ai_id === aiModel.id &&
+            ((b.bet_type === 'moneyline' && bet.betType === 'moneyline') ||
+             (b.bet_type === 'over_under' && bet.betType === 'over_under'))
+          )
+        : bet;
+      
+      if (originalBet && 'analysis_reference_ids' in originalBet && originalBet.analysis_reference_ids && originalBet.analysis_reference_ids.length > 0) {
+        // 通过 analysis_reference_ids 获取分析
+        const { data: analysisData, error: analysisError } = await supabase
+          .from('ai_match_analyses' as any)
+          .select('*')
+          .in('id', originalBet.analysis_reference_ids);
+        
+        if (!analysisError && analysisData) {
+          storedAnalyses = analysisData as unknown as MatchAnalysis[];
+        }
+      } else if (originalBet && 'match_id' in originalBet && originalBet.match_id && 'ai_id' in originalBet && originalBet.ai_id) {
+        // 如果没有 analysis_reference_ids，尝试通过 match_id 和 ai_id 查找
+        const { data: analysisData, error: analysisError } = await supabase
+          .from('ai_match_analyses' as any)
+          .select('*')
+          .eq('match_id', originalBet.match_id)
+          .eq('ai_id', originalBet.ai_id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (!analysisError && analysisData && analysisData.length > 0) {
+          storedAnalyses = analysisData as unknown as MatchAnalysis[];
+        }
+      }
+
+      // 如果找到了存储的分析，直接使用
+      if (storedAnalyses.length > 0) {
+        console.log('Found stored analyses:', storedAnalyses);
+        const analyses: ModelAnalysis[] = storedAnalyses.map((analysisItem) => {
+          const analysisText = analysisItem.analysis_text || analysisItem.analysis || '';
+          console.log('Processing analysis:', {
+            id: analysisItem.id,
+            provider_model_id: analysisItem.provider_model_id,
+            ai_id: analysisItem.ai_id,
+            hasAnalysisText: !!analysisItem.analysis_text,
+            hasAnalysis: !!analysisItem.analysis,
+            analysisTextLength: analysisText.length,
+          });
+          
+          return {
+            id: analysisItem.provider_model_id || analysisItem.ai_id || 'unknown',
+            displayName: aiModel.displayName,
+            model: analysisItem.provider_model_id || analysisItem.model_identifier || 'unknown',
+            analysis: analysisText,
+          };
+        });
+
+        console.log('Mapped analyses:', analyses);
+
+        setAnalysisDialog(prev => ({
+          ...prev,
+          analysis: analyses[0]?.analysis || null,
+          analyses,
+          isLoading: false,
+        }));
+        return;
+      }
+
+      // 如果没有找到存储的分析，调用 Edge Function 进行新分析
       const { data, error } = await supabase.functions.invoke<MatchAnalysisResult>('match-analysis', {
         body: {
           matchInfo: {
             league: getLeagueName(match),
             homeTeam: getTeamName(match, 'home'),
             awayTeam: getTeamName(match, 'away'),
-            homeScore: match.homeScore || 0,
-            awayScore: match.awayScore || 0,
-            status: match.status,
+            homeScore: match.goals_home || 0,
+            awayScore: match.goals_away || 0,
+            status: match.status_short || 'NS',
           },
           betInfo: {
-            betType: bet.betType,
-            prediction: bet.prediction,
-            confidence: bet.confidence,
-            odds: bet.odds,
-            betAmount: bet.betAmount,
-            handicapLine: bet.handicapLine,
-            overUnderLine: bet.overUnderLine,
-            overUnderPick: bet.overUnderPick,
+            betType: 'betType' in bet ? bet.betType : (bet as AutoBet).bet_type,
+            prediction: 'prediction' in bet ? bet.prediction : (bet as AutoBet).prediction,
+            confidence: 'confidence' in bet ? bet.confidence : (bet as AutoBet).confidence,
+            odds: 'odds' in bet ? bet.odds : (bet as AutoBet).odds,
+            betAmount: 'betAmount' in bet ? bet.betAmount : (bet as AutoBet).stake_amount,
+            handicapLine: 'handicapLine' in bet ? bet.handicapLine : (bet as AutoBet).handicap_line,
+            overUnderLine: 'overUnderLine' in bet ? bet.overUnderLine : (bet as AutoBet).over_under_line,
+            overUnderPick: 'overUnderPick' in bet ? bet.overUnderPick : (bet as AutoBet).over_under_pick,
           },
           aiModel: aiModel.displayName,
+          aiId: originalBet && 'ai_id' in originalBet ? originalBet.ai_id : aiModel.id,
         },
       });
 
@@ -229,21 +434,58 @@ const ActiveAIBets = () => {
   };
 
   // Helper function to get team name based on language
-  const getTeamName = (match: any, team: 'home' | 'away') => {
-    if (i18n.language === 'zh') {
-      return team === 'home' 
-        ? (match.homeTeamZh || match.homeTeam)
-        : (match.awayTeamZh || match.awayTeam);
+  const getTeamName = (match: DailyMatch | any, team: 'home' | 'away') => {
+    if ('home_team_name' in match) {
+      return team === 'home' ? match.home_team_name : match.away_team_name;
     }
     return team === 'home' ? match.homeTeam : match.awayTeam;
   };
 
   // Helper function to get league name based on language
-  const getLeagueName = (match: any) => {
-    if (i18n.language === 'zh') {
-      return match.leagueZh || match.league;
-    }
-    return match.league;
+  const getLeagueName = (match: DailyMatch | any) => {
+    return match.league_name || match.league;
+  };
+
+  // Convert database match to component format
+  const convertMatch = (match: DailyMatch) => {
+    const isLive = match.status_short === 'LIVE';
+    return {
+      id: `match_${match.fixture_id}`,
+      fixture_id: match.fixture_id,
+      date: match.date,
+      time: new Date(match.kickoff_at).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }),
+      league: match.league_name,
+      homeTeam: match.home_team_name,
+      awayTeam: match.away_team_name,
+      homeScore: match.goals_home ?? 0,
+      awayScore: match.goals_away ?? 0,
+      status: isLive ? 'live' : 'upcoming',
+      homeLogo: match.home_logo || undefined,
+      awayLogo: match.away_logo || undefined,
+      currentMinute: isLive ? 45 : undefined, // TODO: Get actual minute from API
+    };
+  };
+
+  // Convert database bet to component format
+  const convertBet = (bet: AutoBet, match: DailyMatch) => {
+    const matchData = convertMatch(match);
+    return {
+      match: matchData,
+      aiId: bet.ai_id || '',
+      betType: bet.bet_type,
+      prediction: bet.prediction,
+      confidence: bet.confidence,
+      odds: bet.odds,
+      betAmount: bet.stake_amount,
+      handicapLine: bet.handicap_line ?? undefined,
+      overUnderLine: bet.over_under_line ?? undefined,
+      overUnderPick: bet.over_under_pick ?? undefined,
+      confirmed: bet.status === 'pending',
+    };
   };
 
   const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
@@ -324,21 +566,36 @@ const ActiveAIBets = () => {
     return colorMap[aiId] || colorMap.deepseek;
   };
 
-  if (liveMatches.length === 0) {
+  // Get matches with bets (live or upcoming)
+  const matchesWithBets = matches.filter(match => 
+    autoBets.some(bet => bet.match_id === match.fixture_id)
+  );
+
+  // Only show loading state on initial load, not on refresh
+  if (isInitialLoading) {
     return (
       <div className="w-full">
         <div className="flex items-center justify-between mb-6 px-2">
           <h2 className="text-2xl font-bold">{t('active_ai_predictions')}</h2>
         </div>
         <p className="text-sm text-muted-foreground text-center py-8">
-          {t('no_active_predictions')}
+          加载中...
         </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {/* Subtle refresh indicator */}
+      {isRefreshing && (
+        <div className="absolute top-0 right-0 z-50">
+          <div className="h-1 w-16 bg-primary/30 rounded-full overflow-hidden">
+            <div className="h-full bg-primary animate-pulse" style={{ width: '100%' }} />
+          </div>
+        </div>
+      )}
+      
       <div className="flex flex-col items-center justify-center mb-4 sm:mb-6 px-2">
         <h2 className="text-sm sm:text-xl md:text-2xl font-bold text-center text-white">
           {t('active_ai_predictions')}
@@ -347,31 +604,43 @@ const ActiveAIBets = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
         {activeAIs.map((aiModel) => {
-          // Find this AI's bets in live matches
-          const aiBets = liveMatches.flatMap(match => {
-            const predictions = matchPredictions[match.id] || [];
-            const aiPrediction = predictions.find(p => p.aiId === aiModel.id);
-            if (!aiPrediction) return [];
-            return [{
-              match,
-              ...aiPrediction,
-              betAmount: generateBetAmount(aiModel.id, aiPrediction.confidence)
-            }];
+          // Find this AI's bets from database, grouped by match
+          const betsByMatch = new Map<number, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
+          
+          matchesWithBets.forEach(match => {
+            const matchBets = autoBets
+              .filter(b => b.match_id === match.fixture_id && b.ai_id === aiModel.id)
+              .map(bet => convertBet(bet, match));
+            
+            if (matchBets.length > 0) {
+              betsByMatch.set(match.fixture_id, { match, bets: matchBets });
+            }
           });
-
-          // If no bets, skip this AI
-          if (aiBets.length === 0) return null;
 
           // Get current match index for this AI (default to 0)
           const matchIndex = currentMatchIndex[aiModel.id] || 0;
-          const bet = aiBets[matchIndex];
+          const matchEntries = Array.from(betsByMatch.values());
+          const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
+          
+          // Separate bets by type: moneyline (胜负) and over_under (大小球)
+          const moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+          const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          
+          // For backward compatibility, use moneylineBet as the main bet
+          const bet = moneylineBet || overUnderBet;
+
+          // Get AI balance
+          const balance = aiBalances[aiModel.id];
+          const balanceValue = balance 
+            ? `$${(balance.available_balance + balance.locked_balance).toLocaleString()}`
+            : aiModel.currentValue;
 
           // Handler to switch to next match
           const nextMatch = (e: React.MouseEvent) => {
             e.stopPropagation();
             setCurrentMatchIndex(prev => ({
               ...prev,
-              [aiModel.id]: ((prev[aiModel.id] || 0) + 1) % aiBets.length
+              [aiModel.id]: ((prev[aiModel.id] || 0) + 1) % matchEntries.length
             }));
           };
 
@@ -380,7 +649,7 @@ const ActiveAIBets = () => {
             e.stopPropagation();
             setCurrentMatchIndex(prev => ({
               ...prev,
-              [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + aiBets.length) % aiBets.length
+              [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + matchEntries.length) % matchEntries.length
             }));
           };
 
@@ -391,7 +660,7 @@ const ActiveAIBets = () => {
               onClick={nextMatch}
             >
               {/* Match Counter - Top Right */}
-              {aiBets.length > 1 && (
+              {matchEntries.length > 1 && (
                 <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
                   <Button
                     size="sm"
@@ -405,7 +674,7 @@ const ActiveAIBets = () => {
                     variant="secondary"
                     className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80"
                   >
-                    {matchIndex + 1}/{aiBets.length}
+                    {matchIndex + 1}/{matchEntries.length}
                   </Badge>
                   <Button
                     size="sm"
@@ -415,6 +684,18 @@ const ActiveAIBets = () => {
                   >
                     <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   </Button>
+                </div>
+              )}
+
+              {/* No Bets Indicator */}
+              {matchEntries.length === 0 && (
+                <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
+                  <Badge 
+                    variant="outline"
+                    className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-muted/80 text-muted-foreground"
+                  >
+                    暂无下注
+                  </Badge>
                 </div>
               )}
 
@@ -517,19 +798,24 @@ const ActiveAIBets = () => {
                  {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-primary/20 relative">
                   {/* Analysis Button - Left Side */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="absolute left-0 top-0 sm:left-1 sm:top-1 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      getMatchAnalysis(bet.match, bet, aiModel);
-                    }}
-                    title="查看分析"
-                  >
-                    <BarChart3 className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
-                    <span className="text-[9px] sm:text-[9px] font-bold text-primary">查看分析</span>
-                  </Button>
+                  {(moneylineBet || overUnderBet) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="absolute left-0 top-0 sm:left-1 sm:top-1 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const betToShow = moneylineBet || overUnderBet;
+                        if (betToShow && currentMatchData) {
+                          getMatchAnalysis(convertMatch(currentMatchData.match), betToShow, aiModel);
+                        }
+                      }}
+                      title="查看分析"
+                    >
+                      <BarChart3 className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
+                      <span className="text-[9px] sm:text-[9px] font-bold text-primary">查看分析</span>
+                    </Button>
+                  )}
                   
                   <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
@@ -538,23 +824,24 @@ const ActiveAIBets = () => {
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
                     <Badge variant="outline" className="text-xs sm:text-xs font-mono-data font-bold px-2 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
-                      {aiModel.currentValue}
+                      {balanceValue}
                     </Badge>
                   </div>
                 </div>
 
                 {/* Match Info with Team Logos */}
-                <div className="space-y-1 sm:space-y-1 py-1 sm:py-1">
-                  <Badge variant="outline" className="text-[9px] sm:text-[9px] w-full justify-center py-1">
-                    {getLeagueName(bet.match)}
-                  </Badge>
+                {currentMatchData ? (
+                  <div className="space-y-1 sm:space-y-1 py-1 sm:py-1">
+                    <Badge variant="outline" className="text-[9px] sm:text-[9px] w-full justify-center py-1">
+                      {getLeagueName(currentMatchData.match)}
+                    </Badge>
                   
                   {/* Teams with Logos and Live Score */}
                   <div className="flex items-center justify-between gap-1 sm:gap-1">
                     <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
-                      {bet.match.homeLogo ? (
+                      {currentMatchData.match.home_logo ? (
                         <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
+                          <AvatarImage src={currentMatchData.match.home_logo} alt={currentMatchData.match.home_team_name} />
                           <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
                         </Avatar>
                       ) : (
@@ -563,34 +850,40 @@ const ActiveAIBets = () => {
                         </div>
                       )}
                       <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
-                        {getTeamName(bet.match, 'home')}
+                        {getTeamName(currentMatchData.match, 'home')}
                       </p>
                     </div>
                     
                     {/* Live Score - Only show for live matches */}
-                    {bet.match.status === "live" ? (
+                    {currentMatchData.match.status_short === "LIVE" ? (
                       <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
                         <div className="flex items-center gap-1 sm:gap-1">
-                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{bet.match.homeScore || 0}</span>
+                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{currentMatchData.match.goals_home || 0}</span>
                           <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
-                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{bet.match.awayScore || 0}</span>
+                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{currentMatchData.match.goals_away || 0}</span>
                         </div>
                         <span className="text-[7px] sm:text-[7px] text-success font-bold uppercase">LIVE</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
                         <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-                        <span className="text-[7px] sm:text-[7px] text-muted-foreground">{bet.match.time}</span>
+                        <span className="text-[7px] sm:text-[7px] text-muted-foreground">
+                          {new Date(currentMatchData.match.kickoff_at).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: false 
+                          })}
+                        </span>
                       </div>
                     )}
                     
                     <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
                       <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
-                        {getTeamName(bet.match, 'away')}
+                        {getTeamName(currentMatchData.match, 'away')}
                       </p>
-                      {bet.match.awayLogo ? (
+                      {currentMatchData.match.away_logo ? (
                         <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
+                          <AvatarImage src={currentMatchData.match.away_logo} alt={currentMatchData.match.away_team_name} />
                           <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
                         </Avatar>
                       ) : (
@@ -600,197 +893,175 @@ const ActiveAIBets = () => {
                       )}
                     </div>
                   </div>
-                </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 py-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {t('no_active_predictions')}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70">
+                      该 AI 暂无下注记录
+                    </p>
+                  </div>
+                )}
 
                 {/* Professional Sportsbook Bet Slip - Complete */}
-                <div className="space-y-0 pt-1.5 sm:pt-1.5 border-t-2 border-primary/20">
-                  {/* Bet Slip Card - Dark Professional Style */}
-                  <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-2xl">
-                    {/* Header with Status */}
-                    <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
-                      <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                        {t('bet_slip')}
-                      </p>
-                      <Badge 
-                        variant={bet.confirmed ? "default" : "outline"}
-                        className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
-                          bet.confirmed 
-                            ? "bg-success/20 text-success border-success/50" 
-                            : "bg-destructive/20 text-destructive border-destructive/50"
-                        }`}
-                      >
-                        {bet.confirmed ? "已确定" : "未确定"}
-                      </Badge>
-                    </div>
-                    
-                    {/* Bet Details - Professional Layout */}
-                    <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
-                      {/* Bet Type and Odds */}
-                      <div className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-1.5 border-b border-border/50">
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1 w-fit flex items-center gap-1">
-                            {bet.betType === "handicap" && (
-                              <>
-                                {bet.prediction === "HOME_WIN" ? (
-                                  <>
-                                    {bet.match.homeLogo && (
-                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-primary/30">
-                                        <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
-                                        <AvatarFallback className="text-[6px] sm:text-[8px]"><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
-                                      </Avatar>
-                                    )}
-                                    <span className="text-[9px] sm:text-[10px] truncate max-w-[80px]">{bet.match.homeTeam} {bet.handicapLine}</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    {bet.match.awayLogo && (
-                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-primary/30">
-                                        <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
-                                        <AvatarFallback className="text-[6px] sm:text-[8px]"><Shield className="h-1.5 w-1.5 sm:h-2 sm:w-2" /></AvatarFallback>
-                                      </Avatar>
-                                    )}
-                                    <span className="text-[9px] sm:text-[10px] truncate max-w-[80px]">{bet.match.awayTeam} {bet.handicapLine && bet.handicapLine < 0 ? '+' : ''}{-(bet.handicapLine || 0)}</span>
-                                  </>
-                                )}
-                              </>
-                            )}
-                            {bet.betType === "over_under" && (
-                              <span className="text-[9px] sm:text-[10px]">
-                                {bet.overUnderLine} ({bet.overUnderPick === 'over' ? t('over') : t('under')})
-                              </span>
-                            )}
-                          </Badge>
-                          <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
-                            {bet.confidence}% {t('confidence')}
-                          </Badge>
-                        </div>
-                        <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
-                          @{bet.odds.toFixed(2)}
+                {/* 上部分：胜负预测 */}
+                {moneylineBet && (
+                  <div className="space-y-2 pt-1.5 sm:pt-1.5 border-t-2 border-primary/20">
+                    <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
+                      {/* Header */}
+                      <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
+                        <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {t('moneyline_bet')} - {moneylineBet.prediction === 'HOME_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'home') : moneylineBet.prediction === 'AWAY_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'away') : t('draw')}
+                        </p>
+                        <Badge 
+                          variant={moneylineBet.confirmed ? "default" : "outline"}
+                          className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
+                            moneylineBet.confirmed 
+                              ? "bg-success/20 text-success border-success/50" 
+                              : "bg-destructive/20 text-destructive border-destructive/50"
+                          }`}
+                        >
+                          {moneylineBet.confirmed ? "已确定" : "未确定"}
                         </Badge>
                       </div>
-
-                      {/* Match Betting Lines */}
-                      <div className="space-y-1 sm:space-y-1.5">
-                        {bet.betType === "handicap" && (
-                          <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
-                            <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
-                              {t('handicap_bet')}
-                            </p>
-                            <div className="grid grid-cols-2 gap-1">
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                                bet.prediction === "HOME_WIN" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
-                                  : "bg-card border-border/50"
-                              }`}>
-                                <div className="flex items-center justify-between gap-0.5">
-                                  <div className="flex items-center gap-0.5 flex-1 min-w-0">
-                                    {bet.match.homeLogo && (
-                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
-                                        <AvatarImage src={bet.match.homeLogo} alt={bet.match.homeTeam} />
-                                        <AvatarFallback className="text-[6px]"><Shield className="h-1.5 w-1.5" /></AvatarFallback>
-                                      </Avatar>
-                                    )}
-                                    <span className="text-[8px] sm:text-[9px] font-medium truncate">{getTeamName(bet.match, 'home')}</span>
-                                  </div>
-                                  <Badge variant={bet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1 shrink-0">
-                                    {bet.handicapLine}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                                bet.prediction === "AWAY_WIN" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
-                                  : "bg-card border-border/50"
-                              }`}>
-                                <div className="flex items-center justify-between gap-0.5">
-                                  <div className="flex items-center gap-0.5 flex-1 min-w-0">
-                                    {bet.match.awayLogo && (
-                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
-                                        <AvatarImage src={bet.match.awayLogo} alt={bet.match.awayTeam} />
-                                        <AvatarFallback className="text-[6px]"><Shield className="h-1.5 w-1.5" /></AvatarFallback>
-                                      </Avatar>
-                                    )}
-                                    <span className="text-[8px] sm:text-[9px] font-medium truncate">{getTeamName(bet.match, 'away')}</span>
-                                  </div>
-                                  <Badge variant={bet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1 shrink-0">
-                                    {-(bet.handicapLine || 0)}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
+                      
+                      {/* Bet Details */}
+                      <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
+                        <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
+                              {moneylineBet.prediction === 'HOME_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'home') : 
+                               moneylineBet.prediction === 'AWAY_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'away') : 
+                               t('draw')}
+                            </Badge>
+                            <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
+                              {moneylineBet.confidence}% {t('confidence')}
+                            </Badge>
                           </div>
-                        )}
-
-                        {bet.betType === "over_under" && (
-                          <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
-                            <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
-                              {t('over_under_bet')}
-                            </p>
-                            <div className="grid grid-cols-2 gap-1">
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                                bet.overUnderPick === "over" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
-                                  : "bg-card border-border/50"
-                              }`}>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[8px] sm:text-[9px] font-medium">{t('over')}</span>
-                                  <Badge variant={bet.overUnderPick === "over" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1">
-                                    {bet.overUnderLine}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                                bet.overUnderPick === "under" 
-                                  ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
-                                  : "bg-card border-border/50"
-                              }`}>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[8px] sm:text-[9px] font-medium">{t('under')}</span>
-                                  <Badge variant={bet.overUnderPick === "under" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1">
-                                    {bet.overUnderLine}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Financial Details */}
-                      <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1">
-                        {/* Stake */}
-                        <div className="flex items-center justify-between py-1">
-                          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
-                            {t('bet_amount')}
-                          </span>
-                          <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                            ${bet.betAmount.toLocaleString()}
-                          </span>
+                          <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
+                            @{moneylineBet.odds.toFixed(2)}
+                          </Badge>
                         </div>
                         
-                        {/* Odds Display */}
-                        <div className="flex items-center justify-between py-1">
-                          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
-                            {t('odds')}
-                          </span>
-                          <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                            {bet.odds.toFixed(2)}
-                          </span>
-                        </div>
-                        
-                        {/* Potential Win */}
-                        <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
-                          <span className="text-[9px] sm:text-[9px] text-success font-bold">
-                            {t('potential_return')}
-                          </span>
-                          <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
-                            ${(bet.betAmount * bet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                          </span>
+                        {/* Financial Details */}
+                        <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1 border-t border-border/30">
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                              {t('bet_amount')}
+                            </span>
+                            <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                              ${moneylineBet.betAmount.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
+                            <span className="text-[9px] sm:text-[9px] text-success font-bold">
+                              {t('potential_return')}
+                            </span>
+                            <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
+                              ${(moneylineBet.betAmount * moneylineBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* 下部分：大小球预测 */}
+                {overUnderBet && (
+                  <div className={`space-y-2 ${moneylineBet ? 'pt-2' : 'pt-1.5 sm:pt-1.5 border-t-2 border-primary/20'}`}>
+                    <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
+                      {/* Header */}
+                      <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
+                        <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {t('over_under_bet')} - {overUnderBet.overUnderLine} ({overUnderBet.overUnderPick === 'over' ? t('over') : t('under')})
+                        </p>
+                        <Badge 
+                          variant={overUnderBet.confirmed ? "default" : "outline"}
+                          className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
+                            overUnderBet.confirmed 
+                              ? "bg-success/20 text-success border-success/50" 
+                              : "bg-destructive/20 text-destructive border-destructive/50"
+                          }`}
+                        >
+                          {overUnderBet.confirmed ? "已确定" : "未确定"}
+                        </Badge>
+                      </div>
+                      
+                      {/* Bet Details */}
+                      <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
+                        <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
+                              {overUnderBet.overUnderLine} ({overUnderBet.overUnderPick === 'over' ? t('over') : t('under')})
+                            </Badge>
+                            <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
+                              {overUnderBet.confidence}% {t('confidence')}
+                            </Badge>
+                          </div>
+                          <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
+                            @{overUnderBet.odds.toFixed(2)}
+                          </Badge>
+                        </div>
+                        
+                        {/* Over/Under Lines */}
+                        <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
+                          <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
+                            {t('over_under_bet')}
+                          </p>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              overUnderBet.overUnderPick === "over" 
+                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                : "bg-card border-border/50"
+                            }`}>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[8px] sm:text-[9px] font-medium">{t('over')}</span>
+                                <Badge variant={overUnderBet.overUnderPick === "over" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1">
+                                  {overUnderBet.overUnderLine}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              overUnderBet.overUnderPick === "under" 
+                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                : "bg-card border-border/50"
+                            }`}>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[8px] sm:text-[9px] font-medium">{t('under')}</span>
+                                <Badge variant={overUnderBet.overUnderPick === "under" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1">
+                                  {overUnderBet.overUnderLine}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Financial Details */}
+                        <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1 border-t border-border/30">
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                              {t('bet_amount')}
+                            </span>
+                            <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                              ${overUnderBet.betAmount.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
+                            <span className="text-[9px] sm:text-[9px] text-success font-bold">
+                              {t('potential_return')}
+                            </span>
+                            <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
+                              ${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Corner Accent */}
