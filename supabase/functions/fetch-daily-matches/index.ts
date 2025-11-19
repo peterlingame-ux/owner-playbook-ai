@@ -412,12 +412,81 @@ serve(async (req) => {
       await upsertFixtures(targetDate, filtered);
     }
 
+    // 如果是 refresh 模式且更新了比赛数据，自动触发结算
+    const responseData: {
+      date: string;
+      total: number;
+      filtered: number;
+      completedMatches?: number;
+      settlementTriggered?: boolean;
+    } = {
+      date: targetDate,
+      total: fixtures.length,
+      filtered: filtered.length,
+    };
+
+    if (isRefresh && filtered.length > 0) {
+      try {
+        // 检查是否有比赛状态变为已完成
+        const completedFixtures = filtered.filter((f) =>
+          COMPLETED_STATUSES.has(f.fixture.status.short)
+        );
+
+        if (completedFixtures.length > 0) {
+          const completedMatchIds = completedFixtures.map((f) => f.fixture.id);
+          console.log(
+            "[fetch-daily-matches] 检测到已完成比赛，触发自动结算:",
+            completedMatchIds.join(","),
+          );
+
+          // 调用结算函数（异步，不阻塞主流程）
+          const settleFunctionUrl = `${SUPABASE_URL}/functions/v1/settle-sim-positions`;
+          fetch(settleFunctionUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            body: JSON.stringify({
+              autoSettle: true,
+              matchIds: completedMatchIds,
+            }),
+          })
+            .then(async (response) => {
+              if (response.ok) {
+                const result = await response.json();
+                console.log(
+                  "[fetch-daily-matches] 自动结算完成:",
+                  result.outcomes?.length || 0,
+                  "个仓位",
+                );
+              } else {
+                const errorText = await response.text();
+                console.error(
+                  "[fetch-daily-matches] 自动结算失败:",
+                  response.status,
+                  errorText,
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("[fetch-daily-matches] 自动结算请求失败:", error);
+            });
+
+          responseData.completedMatches = completedMatchIds.length;
+          responseData.settlementTriggered = true;
+        }
+      } catch (error) {
+        console.error(
+          "[fetch-daily-matches] 触发自动结算时出错:",
+          error,
+        );
+        // 不抛出错误，避免影响主流程
+      }
+    }
+
     return new Response(
-      JSON.stringify({
-        date: targetDate,
-        total: fixtures.length,
-        filtered: filtered.length,
-      }),
+      JSON.stringify(responseData),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },

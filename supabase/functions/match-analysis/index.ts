@@ -22,6 +22,9 @@ const AI_BALANCES_TABLE = "ai_balances";
 const SIM_POSITIONS_TABLE = "sim_positions";
 const DAILY_MATCHES_TABLE = "daily_matches";
 
+// AI 虚拟资金初始值
+const INITIAL_AI_BALANCE = 10000;
+
 type ModelConfig = {
   id: string;
   displayName: string;
@@ -46,6 +49,27 @@ type BetInfo = {
   handicapLine?: number;
   overUnderLine?: number;
   overUnderPick?: string;
+};
+
+type AllPredictions = {
+  moneyline?: {
+    prediction: string;
+    confidence: number;
+    odds?: number;
+  };
+  overUnder?: {
+    prediction: string;
+    line: number;
+    confidence: number;
+    odds?: number;
+  };
+  handicap?: {
+    prediction: string;
+    line: number;
+    confidence: number;
+    odds?: number;
+  };
+  primaryBet?: BetInfo; // 主要投注（用于下注决策）
 };
 
 type StrategyConfig = {
@@ -136,7 +160,7 @@ const MODEL_CONFIGS: ModelConfig[] = [
   // {
   //   id: "hunsoccermax",
   //   displayName: "HUNSOCCER MAX",
-  //   model: "deepseek/deepseek-v3.1-terminus", // 使用 DeepSeek 作为基础模型，或根据实际情况配置
+  //   model: "qwen/qwen3-235b-a22b-2507", // 使用 DeepSeek 作为基础模型，或根据实际情况配置
   // },
 ];
 
@@ -148,11 +172,17 @@ const buildSystemPrompt = () => `你是一位专业的足球赛事分析专家�
 
 最后给出综合判断和投注建议。请用专业、简洁的语言，重点突出关键信息。`;
 
+type MarketOdds = {
+  overUnder?: Array<{ line: number; over: number; under: number }>;
+  handicap?: Array<{ line: number; home: number; away: number }>;
+};
+
 const buildUserPrompt = (
   matchInfo: MatchInfo,
   betInfo: BetInfo,
   aiModel: string,
   isDefaultBetInfo: boolean = false,
+  marketOdds?: MarketOdds,
 ) => {
   const basePrompt = `请分析以下比赛：
 
@@ -163,31 +193,60 @@ const buildUserPrompt = (
 - 当前比分：${matchInfo.homeScore ?? 0} - ${matchInfo.awayScore ?? 0}
 - 比赛状态：${matchInfo.status === "live" ? "进行中" : "即将开始"}`;
 
+  // 构建赔率信息部分
+  let oddsInfo = '';
+  if (marketOdds) {
+    oddsInfo = '\n\n**市场赔率信息**\n';
+    
+    if (marketOdds.overUnder && marketOdds.overUnder.length > 0) {
+      oddsInfo += '\n大小球赔率：\n';
+      marketOdds.overUnder.forEach(ou => {
+        oddsInfo += `- ${ou.line}球：大球 ${ou.over.toFixed(2)} | 小球 ${ou.under.toFixed(2)}\n`;
+      });
+    }
+    
+    if (marketOdds.handicap && marketOdds.handicap.length > 0) {
+      oddsInfo += '\n让球盘赔率：\n';
+      marketOdds.handicap.forEach(h => {
+        const lineStr = h.line > 0 ? `+${h.line}` : h.line.toString();
+        oddsInfo += `- ${lineStr}：主队 ${h.home.toFixed(2)} | 客队 ${h.away.toFixed(2)}\n`;
+      });
+    }
+  }
+
   if (isDefaultBetInfo) {
-    return `${basePrompt}
+    return `${basePrompt}${oddsInfo}
 
 请从老板层面、技术层面、赔率层面进行全面分析，并给出最终投注建议。
 
-IMPORTANT: 在分析的最后，请提供你的预测，格式如下（必须同时提供大小球和让球盘预测）：
+IMPORTANT: 在分析的最后，请提供你的预测，格式如下（必须同时提供输赢、大小球和让球盘预测）：
 
-1. 大小球预测：
+1. 输赢预测：
+PREDICTION_MONEYLINE: [HOME_WIN/AWAY_WIN/DRAW] [confidence 0-100]
+
+2. 大小球预测：
 PREDICTION_OVER_UNDER: [OVER/UNDER] [line 2.5/3.0/3.5等] [confidence 0-100]
+注意：请从上面提供的市场赔率中选择合适的 line 值，确保该 line 在市场赔率中存在。
 
-2. 让球盘预测：
+3. 让球盘预测：
 PREDICTION_HANDICAP: [HOME/AWAY] [line -1.5/-0.5/0.5/1.5等] [confidence 0-100]
+注意：请从上面提供的市场赔率中选择合适的 line 值，确保该 line 在市场赔率中存在。
 
 例如：
+PREDICTION_MONEYLINE: HOME_WIN 75
 PREDICTION_OVER_UNDER: OVER 2.5 68
 PREDICTION_HANDICAP: HOME 0.5 72
 
 或
+PREDICTION_MONEYLINE: AWAY_WIN 70
 PREDICTION_OVER_UNDER: UNDER 3.0 72
 PREDICTION_HANDICAP: AWAY -0.5 65
 
 注意：
 - 如果对某个投注类型没有信心（置信度低于50），可以不提供该预测
-- 大小球的 line 值应该是常见的盘口，如 2.5, 3.0, 3.5 等
-- 让球盘的 line 值应该是常见的盘口，如 -1.5, -0.5, 0.5, 1.5 等
+- 输赢预测：HOME_WIN 表示主队获胜，AWAY_WIN 表示客队获胜，DRAW 表示平局
+- 大小球的 line 值必须从上面提供的市场赔率中选择
+- 让球盘的 line 值必须从上面提供的市场赔率中选择
 - HOME 表示主队让球，AWAY 表示客队让球`;
   }
 
@@ -350,11 +409,18 @@ const persistAnalyses = async (
   matchInfo: MatchInfo,
   betInfo: BetInfo,
   analyses: ModelAnalysisResult[],
+  allPredictions?: AllPredictions, // 可选的完整预测信息
 ): Promise<StoredAnalysisResult[]> => {
   if (!supabase) {
     console.warn("[match-analysis] Supabase 客户端未配置，跳过写入");
     return analyses.map((item) => ({ id: null, modelId: item.id }));
   }
+
+  // 构建完整的 bet_snapshot，包含所有预测类型
+  const betSnapshot = allPredictions ? {
+    ...allPredictions,
+    primaryBet: betInfo, // 主要投注信息
+  } : betInfo; // 如果没有提供完整预测，则使用原来的 betInfo
 
   const rows = analyses.map((item) => ({
     match_id: matchId ?? null,
@@ -367,7 +433,7 @@ const persistAnalyses = async (
     error: item.error ?? null,
     latency_ms: item.latencyMs ?? null,
     match_snapshot: matchInfo,
-    bet_snapshot: betInfo,
+    bet_snapshot: betSnapshot,
   }));
 
   const { data, error } = await supabase
@@ -541,9 +607,10 @@ const analyzeWithSingleModel = async (
   betInfo: BetInfo,
   modelConfig: ModelConfig,
   isDefaultBetInfo: boolean = false,
+  marketOdds?: MarketOdds,
 ): Promise<ModelAnalysisResult> => {
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(matchInfo, betInfo, modelConfig.displayName, isDefaultBetInfo);
+  const userPrompt = buildUserPrompt(matchInfo, betInfo, modelConfig.displayName, isDefaultBetInfo, marketOdds);
   
   const startedAt = performance.now();
   try {
@@ -774,7 +841,7 @@ serve(async (req) => {
         .insert({
           ai_id: aiId,
           ai_display_name: aiDisplayName,
-          available_balance: 10000,
+          available_balance: INITIAL_AI_BALANCE,
           locked_balance: 0,
           currency: 'USD',
         })
@@ -833,8 +900,155 @@ serve(async (req) => {
         const todayBetsCount = await getTodayBetsCount(aiId);
         const strategy = resolveStrategy(body.strategy);
         
+        // 获取所有可用的市场赔率（用于AI分析）
+        const getAllMarketOdds = async (matchId: number | undefined): Promise<MarketOdds | null> => {
+          if (!matchId) return null;
+          
+          try {
+            const FOOTBALL_API_KEY = Deno.env.get("FOOTBALL_API_KEY");
+            if (!FOOTBALL_API_KEY) {
+              return null;
+            }
+
+            const url = `https://v3.football.api-sports.io/odds?fixture=${matchId}`;
+            const response = await fetch(url, {
+              headers: {
+                "x-rapidapi-key": FOOTBALL_API_KEY,
+                "x-rapidapi-host": "v3.football.api-sports.io",
+              },
+            });
+
+            if (!response.ok) {
+              return null;
+            }
+
+            const data = await response.json() as {
+              response?: Array<{
+                bookmakers?: Array<{
+                  bets?: Array<{
+                    id: number;
+                    name: string;
+                    values?: Array<{
+                      value: string;
+                      odd: string;
+                    }>;
+                  }>;
+                }>;
+              }>;
+            };
+
+            if (!data.response || data.response.length === 0) {
+              return null;
+            }
+
+            const firstBookmaker = data.response[0].bookmakers?.[0];
+            if (!firstBookmaker?.bets) {
+              return null;
+            }
+
+            const marketOdds: MarketOdds = {};
+
+            // 获取大小球赔率
+            const overUnderBet = firstBookmaker.bets.find(
+              (bet) => bet.name === "Goals Over/Under" || bet.id === 5
+            );
+
+            if (overUnderBet?.values) {
+              const overUnderMap = new Map<number, { over?: number; under?: number }>();
+              
+              for (const value of overUnderBet.values) {
+                const valueStr = value.value.toLowerCase().trim();
+                const odd = parseFloat(value.odd);
+                if (isNaN(odd) || odd <= 0) continue;
+
+                // 提取 line 值（如 "2.5", "Over 2.5", "Under 2.5"）
+                const lineMatch = valueStr.match(/(\d+\.?\d*)/);
+                if (!lineMatch) continue;
+                
+                const line = parseFloat(lineMatch[1]);
+                if (!overUnderMap.has(line)) {
+                  overUnderMap.set(line, {});
+                }
+                
+                const entry = overUnderMap.get(line)!;
+                if (valueStr.includes('over') || valueStr.startsWith('o')) {
+                  entry.over = odd;
+                } else if (valueStr.includes('under') || valueStr.startsWith('u')) {
+                  entry.under = odd;
+                }
+              }
+
+              // 转换为数组格式，只保留同时有 over 和 under 的
+              marketOdds.overUnder = Array.from(overUnderMap.entries())
+                .filter(([_, odds]) => odds.over && odds.under)
+                .map(([line, odds]) => ({
+                  line,
+                  over: odds.over!,
+                  under: odds.under!,
+                }))
+                .sort((a, b) => a.line - b.line);
+            }
+
+            // 获取让球盘赔率
+            const handicapBet = firstBookmaker.bets.find(
+              (bet) => bet.name === "Asian Handicap" || bet.id === 3
+            );
+
+            if (handicapBet?.values) {
+              const handicapMap = new Map<number, { home?: number; away?: number }>();
+              
+              for (const value of handicapBet.values) {
+                const valueStr = value.value.trim();
+                const odd = parseFloat(value.odd);
+                if (isNaN(odd) || odd <= 0) continue;
+
+                // 提取 line 值（如 "-1.5", "+0.5", "Home -1.5"）
+                const lineMatch = valueStr.match(/([+-]?\d+\.?\d*)/);
+                if (!lineMatch) continue;
+                
+                const line = parseFloat(lineMatch[1]);
+                if (!handicapMap.has(line)) {
+                  handicapMap.set(line, {});
+                }
+                
+                const entry = handicapMap.get(line)!;
+                if (valueStr.toLowerCase().includes('home') || (line < 0 && valueStr.startsWith('-'))) {
+                  entry.home = odd;
+                } else if (valueStr.toLowerCase().includes('away') || (line > 0 && valueStr.startsWith('+'))) {
+                  entry.away = odd;
+                }
+              }
+
+              // 转换为数组格式，只保留同时有 home 和 away 的
+              marketOdds.handicap = Array.from(handicapMap.entries())
+                .filter(([_, odds]) => odds.home && odds.away)
+                .map(([line, odds]) => ({
+                  line,
+                  home: odds.home!,
+                  away: odds.away!,
+                }))
+                .sort((a, b) => a.line - b.line);
+            }
+
+            return (marketOdds.overUnder && marketOdds.overUnder.length > 0) || 
+                   (marketOdds.handicap && marketOdds.handicap.length > 0)
+              ? marketOdds
+              : null;
+          } catch (error) {
+            console.error(`Error fetching market odds for match ${matchId}:`, error);
+            return null;
+          }
+        };
+
         // 获取比赛赔率数据（从 Football API 的 /odds 端点）
-        const getMatchOdds = async (matchId: number | undefined, prediction: string): Promise<number | null> => {
+        // 支持获取输赢、大小球和让球盘的真实赔率
+        const getMatchOdds = async (
+          matchId: number | undefined,
+          betType: string,
+          prediction: string,
+          line?: number,
+          overUnderPick?: string
+        ): Promise<number | null> => {
           if (!matchId) return null;
           
           try {
@@ -872,24 +1086,100 @@ serve(async (req) => {
               }>;
             };
 
-            // 提取主胜/平局/客胜赔率
-            if (data.response && data.response.length > 0) {
-              const firstBookmaker = data.response[0].bookmakers?.[0];
-              if (firstBookmaker?.bets) {
-                const moneylineBet = firstBookmaker.bets.find(
-                  (bet) => bet.name === "Match Winner" || bet.id === 1
-                );
+            if (!data.response || data.response.length === 0) {
+              return null;
+            }
 
-                if (moneylineBet?.values) {
-                  for (const value of moneylineBet.values) {
+            const firstBookmaker = data.response[0].bookmakers?.[0];
+            if (!firstBookmaker?.bets) {
+              return null;
+            }
+
+            // 根据 betType 获取不同类型的赔率
+            if (betType === 'moneyline') {
+              // 提取主胜/平局/客胜赔率
+              const moneylineBet = firstBookmaker.bets.find(
+                (bet) => bet.name === "Match Winner" || bet.id === 1
+              );
+
+              if (moneylineBet?.values) {
+                for (const value of moneylineBet.values) {
+                  const odd = parseFloat(value.odd);
+                  if (isNaN(odd)) continue;
+
+                  if (prediction === "HOME_WIN" && (value.value === "Home" || value.value === "1")) {
+                    return odd;
+                  } else if (prediction === "DRAW" && (value.value === "Draw" || value.value === "X")) {
+                    return odd;
+                  } else if (prediction === "AWAY_WIN" && (value.value === "Away" || value.value === "2")) {
+                    return odd;
+                  }
+                }
+              }
+            } else if (betType === 'over_under' && line !== undefined && overUnderPick) {
+              // 提取大小球赔率
+              const overUnderBet = firstBookmaker.bets.find(
+                (bet) => bet.name === "Goals Over/Under" || bet.id === 5
+              );
+
+              if (overUnderBet?.values) {
+                // 查找匹配的 line 值（如 2.5, 3.0 等）
+                for (const value of overUnderBet.values) {
+                  // value.value 格式可能是 "2.5", "Over 2.5", "Under 2.5", "Over", "Under" 等
+                  const valueStr = value.value.toLowerCase().trim();
+                  const lineStr = line.toString();
+                  const isOver = overUnderPick.toLowerCase() === 'over';
+                  
+                  // 检查是否匹配 line 和 pick
+                  // 匹配逻辑：包含 line 值，且方向匹配
+                  const matchesLine = valueStr.includes(lineStr) || valueStr === lineStr;
+                  const matchesPick = isOver 
+                    ? (valueStr.includes('over') || valueStr.startsWith('o') || valueStr === 'o')
+                    : (valueStr.includes('under') || valueStr.startsWith('u') || valueStr === 'u');
+                  
+                  if (matchesLine && matchesPick) {
                     const odd = parseFloat(value.odd);
-                    if (isNaN(odd)) continue;
+                    if (!isNaN(odd) && odd > 0) {
+                      return odd;
+                    }
+                  }
+                }
+              }
+            } else if (betType === 'handicap' && line !== undefined) {
+              // 提取让球盘赔率
+              const handicapBet = firstBookmaker.bets.find(
+                (bet) => bet.name === "Asian Handicap" || bet.id === 3
+              );
 
-                    if (prediction === "HOME_WIN" && (value.value === "Home" || value.value === "1")) {
-                      return odd;
-                    } else if (prediction === "DRAW" && (value.value === "Draw" || value.value === "X")) {
-                      return odd;
-                    } else if (prediction === "AWAY_WIN" && (value.value === "Away" || value.value === "2")) {
+              if (handicapBet?.values) {
+                // 查找匹配的让球数和方向
+                for (const value of handicapBet.values) {
+                  const valueStr = value.value.trim();
+                  const lineStr = line.toString();
+                  const lineStrWithSign = line > 0 ? `+${line}` : line.toString();
+                  
+                  // 检查是否匹配 line
+                  // value.value 格式可能是 "-1.5", "+0.5", "Home -1.5", "Away +1.5", "-1.5 Home" 等
+                  const matchesLine = valueStr.includes(lineStr) || 
+                                     valueStr.includes(lineStrWithSign) || 
+                                     valueStr === lineStr || 
+                                     valueStr === lineStrWithSign;
+                  
+                  if (!matchesLine) continue;
+                  
+                  // 检查方向匹配
+                  const isHome = prediction === "HOME";
+                  const matchesDirection = isHome
+                    ? (valueStr.toLowerCase().includes('home') || 
+                       (line < 0 && (valueStr.startsWith('-') || valueStr.includes(`-${Math.abs(line)}`))) ||
+                       (line === 0 && valueStr.toLowerCase().includes('home')))
+                    : (valueStr.toLowerCase().includes('away') || 
+                       (line > 0 && (valueStr.startsWith('+') || valueStr.includes(`+${line}`))) ||
+                       (line === 0 && valueStr.toLowerCase().includes('away')));
+                  
+                  if (matchesDirection) {
+                    const odd = parseFloat(value.odd);
+                    if (!isNaN(odd) && odd > 0) {
                       return odd;
                     }
                   }
@@ -908,6 +1198,9 @@ serve(async (req) => {
           const matchInfo = match.matchInfo;
           const defaultBetInfo = generateDefaultBetInfo('OVER', 50);
           
+          // 在分析之前，先获取市场赔率
+          const marketOdds = await getAllMarketOdds(match.matchId);
+          
           // 调用当前 AI 模型进行分析（只调用自己的模型）
           const analysis = await analyzeWithSingleModel(
             OPENROUTER_API_KEY,
@@ -915,10 +1208,14 @@ serve(async (req) => {
             defaultBetInfo,
             modelConfig,
             true, // 使用默认 betInfo，让 AI 自己生成预测
+            marketOdds || undefined, // 传递市场赔率信息
           );
 
           const analyses = [analysis]; // 包装成数组以保持兼容性
           const successfulAnalysis = analysis.analysis && !analysis.error ? analysis : null;
+          
+          // 保存 marketOdds 以便后续使用
+          const savedMarketOdds = marketOdds;
           
           if (!successfulAnalysis) {
             // 保存失败的分析记录
@@ -955,6 +1252,16 @@ serve(async (req) => {
             };
           }
           
+          // 解析输赢预测
+          const moneylineMatch = analysisText.match(/PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s*(\d+)/i);
+          let moneylinePick: string | undefined;
+          let moneylineConfidence: number | undefined;
+
+          if (moneylineMatch) {
+            moneylinePick = moneylineMatch[1].toUpperCase();
+            moneylineConfidence = parseInt(moneylineMatch[2]);
+          }
+
           // 解析大小球预测
           const overUnderMatch = analysisText.match(/PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s*([\d.]+)\s*(\d+)/i);
           let overUnderPick: string | undefined;
@@ -979,32 +1286,100 @@ serve(async (req) => {
             handicapConfidence = parseInt(handicapMatch[3]);
           }
 
-          // 保存分析记录（包含大小球和让球盘预测）
+          // 保存分析记录（包含输赢、大小球和让球盘预测）
+          // 从已获取的市场赔率中查找真实赔率
+          
+          // 获取输赢真实赔率（仍需要调用API，因为marketOdds中没有输赢赔率）
+          const moneylineRealOdds = moneylinePick
+            ? await getMatchOdds(match.matchId, 'moneyline', moneylinePick)
+            : null;
+
+          const moneylineBetInfo: BetInfo | null = moneylinePick && moneylineConfidence
+            ? {
+                betType: 'moneyline',
+                prediction: moneylinePick, // HOME_WIN, AWAY_WIN, 或 DRAW
+                confidence: moneylineConfidence,
+                odds: moneylineRealOdds || 1.9, // 使用真实赔率，如果获取失败则使用默认值
+                betAmount: 0,
+              }
+            : null;
+
+          // 从市场赔率中获取大小球真实赔率
+          let overUnderRealOdds: number | null = null;
+          if (overUnderPick && overUnderLine && savedMarketOdds?.overUnder) {
+            const matchedOdds = savedMarketOdds.overUnder.find(ou => Math.abs(ou.line - overUnderLine) < 0.01);
+            if (matchedOdds) {
+              overUnderRealOdds = overUnderPick.toUpperCase() === 'OVER' ? matchedOdds.over : matchedOdds.under;
+            }
+          }
+          
+          // 如果从市场赔率中没找到，尝试从API获取
+          if (!overUnderRealOdds && overUnderPick && overUnderLine) {
+            overUnderRealOdds = await getMatchOdds(match.matchId, 'over_under', overUnderPick, overUnderLine, overUnderPick.toLowerCase());
+          }
+
           const overUnderBetInfo: BetInfo | null = overUnderPick && overUnderLine && overUnderConfidence
             ? {
                 betType: 'over_under',
                 prediction: overUnderPick,
                 confidence: overUnderConfidence,
-                odds: 1.9, // 默认大小球赔率，后续可以从 API 获取
+                odds: overUnderRealOdds || 1.9, // 使用真实赔率，如果获取失败则使用默认值
                 betAmount: 0,
                 overUnderLine,
                 overUnderPick: overUnderPick.toLowerCase(),
               }
             : null;
 
+          // 从市场赔率中获取让球盘真实赔率
+          let handicapRealOdds: number | null = null;
+          if (handicapPick && handicapLine !== undefined && savedMarketOdds?.handicap) {
+            const matchedOdds = savedMarketOdds.handicap.find(h => Math.abs(h.line - handicapLine) < 0.01);
+            if (matchedOdds) {
+              handicapRealOdds = handicapPick.toUpperCase() === 'HOME' ? matchedOdds.home : matchedOdds.away;
+            }
+          }
+          
+          // 如果从市场赔率中没找到，尝试从API获取
+          if (!handicapRealOdds && handicapPick && handicapLine !== undefined) {
+            handicapRealOdds = await getMatchOdds(match.matchId, 'handicap', handicapPick, handicapLine);
+          }
+
           const handicapBetInfo: BetInfo | null = handicapPick && handicapLine !== undefined && handicapConfidence
             ? {
                 betType: 'handicap',
                 prediction: handicapPick, // HOME 或 AWAY
                 confidence: handicapConfidence,
-                odds: 1.9, // 默认让球盘赔率，后续可以从 API 获取
+                odds: handicapRealOdds || 1.9, // 使用真实赔率，如果获取失败则使用默认值
                 betAmount: 0,
                 handicapLine,
               }
             : null;
 
-          // 保存分析记录（使用大小球或让球盘作为主要记录，优先使用大小球）
+          // 保存分析记录（使用大小球或让球盘作为主要记录，优先级：大小球 > 让球盘，投注时不考虑输赢）
           const finalBetInfo: BetInfo = overUnderBetInfo || handicapBetInfo || defaultBetInfo;
+          
+          // 构建完整的预测信息，包含所有三种预测类型
+          const allPredictions: AllPredictions = {
+            moneyline: moneylineBetInfo ? {
+              prediction: moneylineBetInfo.prediction,
+              confidence: moneylineBetInfo.confidence,
+              odds: moneylineBetInfo.odds,
+            } : undefined,
+            overUnder: overUnderBetInfo ? {
+              prediction: overUnderBetInfo.overUnderPick || overUnderBetInfo.prediction,
+              line: overUnderBetInfo.overUnderLine!,
+              confidence: overUnderBetInfo.confidence,
+              odds: overUnderBetInfo.odds,
+            } : undefined,
+            handicap: handicapBetInfo ? {
+              prediction: handicapBetInfo.prediction,
+              line: handicapBetInfo.handicapLine!,
+              confidence: handicapBetInfo.confidence,
+              odds: handicapBetInfo.odds,
+            } : undefined,
+            primaryBet: finalBetInfo,
+          };
+          
           const analysisRefs = await persistAnalyses(
             match.matchId,
             aiId,
@@ -1012,13 +1387,15 @@ serve(async (req) => {
             matchInfo,
             finalBetInfo,
             analyses,
+            allPredictions, // 传递完整的预测信息
           );
 
           return {
             match,
             analyses,
             analysisRefs,
-            // 大小球和让球盘预测
+            // 输赢、大小球和让球盘预测
+            moneylineBetInfo,
             overUnderBetInfo,
             handicapBetInfo,
           };
@@ -1027,14 +1404,15 @@ serve(async (req) => {
         // 等待所有分析完成
         const matchAnalyses = await Promise.all(analysisPromises);
 
-        // 第二步：为每场比赛选择置信度最高的一个投注（大小球或让球盘）
+        // 第二步：为每场比赛选择置信度最高的一个投注（只考虑大小球或让球盘，不考虑输赢预测）
+        // 注意：虽然AI会预测输赢（moneyline），但在投注决策时不使用输赢预测
         const allBetsToConsider: Array<{
           match: MatchRequest;
           betInfo: BetInfo;
           analysisRefs: StoredAnalysisResult[];
         }> = [];
 
-        // 对每场比赛，选择置信度更高的投注
+        // 对每场比赛，选择置信度更高的投注（只比较大小球和让球盘，不考虑输赢）
         for (const matchAnalysis of matchAnalyses) {
           const overUnderConfidence = matchAnalysis.overUnderBetInfo?.confidence ?? 0;
           const handicapConfidence = matchAnalysis.handicapBetInfo?.confidence ?? 0;
@@ -1126,23 +1504,51 @@ serve(async (req) => {
           
           if (!latestBalance) continue;
           
-          // 获取真实赔率（如果可用）
-          let realOdds: number | null = null;
-          if (betToPlace.betInfo.betType === 'over_under') {
-            // 大小球赔率可以从 API 获取，这里暂时使用默认值
-            realOdds = betToPlace.betInfo.odds || 1.9;
-          } else if (betToPlace.betInfo.betType === 'handicap') {
-            // 让球盘赔率可以从 API 获取，这里暂时使用默认值
-            realOdds = betToPlace.betInfo.odds || 1.9;
-          }
+          // 获取真实赔率（优先使用数据库中已保存的赔率）
+          let finalOdds: number;
           
-          // 根据置信度计算合理的赔率（如果真实赔率不可用）
-          const calculatedOdds = realOdds || Math.max(1.1, Math.min(3.0, 3.0 - ((betToPlace.betInfo.confidence || 50) / 100) * 2.0));
+          // 优先使用数据库中已保存的赔率（从分析阶段获取并保存的）
+          const savedOdds = betToPlace.betInfo.odds;
+          const isDefaultOdds = savedOdds === 1.9; // 如果是默认值，说明之前可能没有成功获取真实赔率
+          
+          if (savedOdds && !isDefaultOdds && savedOdds > 0) {
+            // 使用数据库中已保存的真实赔率
+            finalOdds = savedOdds;
+          } else {
+            // 如果数据库中没有有效赔率，尝试从 API 获取最新赔率
+            let apiOdds: number | null = null;
+            if (betToPlace.betInfo.betType === 'over_under') {
+              apiOdds = await getMatchOdds(
+                betToPlace.match.matchId,
+                'over_under',
+                betToPlace.betInfo.overUnderPick || betToPlace.betInfo.prediction,
+                betToPlace.betInfo.overUnderLine,
+                betToPlace.betInfo.overUnderPick
+              );
+            } else if (betToPlace.betInfo.betType === 'handicap') {
+              apiOdds = await getMatchOdds(
+                betToPlace.match.matchId,
+                'handicap',
+                betToPlace.betInfo.prediction,
+                betToPlace.betInfo.handicapLine
+              );
+            }
+            
+            // 优先使用 API 获取的赔率，如果失败则使用已保存的赔率，最后才使用计算值
+            if (apiOdds && apiOdds > 0) {
+              finalOdds = apiOdds;
+            } else if (savedOdds && savedOdds > 0) {
+              finalOdds = savedOdds;
+            } else {
+              // 根据置信度计算合理的赔率（作为最后的后备方案）
+              finalOdds = Math.max(1.1, Math.min(3.0, 3.0 - ((betToPlace.betInfo.confidence || 50) / 100) * 2.0));
+            }
+          }
           
           // 更新 betInfo 的赔率
           const finalBetInfo: BetInfo = {
             ...betToPlace.betInfo,
-            odds: calculatedOdds,
+            odds: finalOdds,
           };
           
           // 检查余额

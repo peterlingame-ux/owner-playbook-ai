@@ -22,8 +22,17 @@ type SettlementItem = {
 };
 
 type SettlementRequest = {
-  settlements: SettlementItem[];
+  settlements?: SettlementItem[];
   dryRun?: boolean;
+  autoSettle?: boolean; // 自动结算模式
+  matchIds?: number[]; // 可选：指定要结算的比赛ID
+};
+
+type MatchResult = {
+  fixture_id: number;
+  goals_home: number | null;
+  goals_away: number | null;
+  status_short: string | null;
 };
 
 type PositionRow = {
@@ -65,6 +74,9 @@ const SIM_POSITIONS_TABLE = "sim_positions";
 const AI_BALANCES_TABLE = "ai_balances";
 const AI_BALANCE_LEDGER_TABLE = "ai_balance_ledger";
 const AUTO_BET_TABLE = "ai_auto_bets";
+const DAILY_MATCHES_TABLE = "daily_matches";
+
+const COMPLETED_STATUSES = new Set(["FT", "AET", "PEN", "CANC", "ABD", "AWD", "WO"]);
 
 const VALID_RESULTS: SettlementResult[] = [
   "win",
@@ -249,6 +261,215 @@ const fetchBalances = async (aiIds: (string | null)[]) => {
   return data as BalanceRow[];
 };
 
+// 查询所有状态为 open 的仓位
+const fetchOpenPositions = async (matchIds?: number[]) => {
+  if (!supabase) {
+    throw new Error("Supabase client not initialized");
+  }
+
+  let query = supabase
+    .from(SIM_POSITIONS_TABLE)
+    .select("*")
+    .eq("status", "open");
+
+  if (matchIds && matchIds.length > 0) {
+    query = query.in("match_id", matchIds);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return (data || []) as PositionRow[];
+};
+
+// 查询已完成的比赛
+const fetchCompletedMatches = async (matchIds: number[]) => {
+  if (!supabase) {
+    throw new Error("Supabase client not initialized");
+  }
+
+  if (matchIds.length === 0) {
+    return [] as MatchResult[];
+  }
+
+  const { data, error } = await supabase
+    .from(DAILY_MATCHES_TABLE)
+    .select("fixture_id, goals_home, goals_away, status_short")
+    .in("fixture_id", matchIds)
+    .in("status_short", Array.from(COMPLETED_STATUSES));
+
+  if (error) {
+    throw error;
+  }
+
+  return (data || []) as MatchResult[];
+};
+
+// 根据投注类型和比赛结果计算输赢
+const calculateBetResult = (
+  position: PositionRow,
+  matchResult: MatchResult,
+): SettlementResult => {
+  const metadata = position.metadata as Record<string, unknown> | null;
+  const betType = position.bet_type;
+  const prediction = position.prediction;
+
+  const homeScore = matchResult.goals_home ?? 0;
+  const awayScore = matchResult.goals_away ?? 0;
+  const totalGoals = homeScore + awayScore;
+
+  // 如果比赛被取消或无效，返回 void
+  if (matchResult.status_short === "CANC" || matchResult.status_short === "ABD") {
+    return "void";
+  }
+
+  if (betType === "handicap") {
+    const handicapLine = metadata?.handicapLine as number | undefined;
+    if (handicapLine === undefined) {
+      console.warn(`[settle-sim-positions] 仓位 ${position.id} 缺少 handicapLine`);
+      return "void";
+    }
+
+    if (prediction === "HOME") {
+      // 主队让球：主队得分 + 让球数 > 客队得分
+      const adjustedHomeScore = homeScore + handicapLine;
+      if (adjustedHomeScore > awayScore) {
+        return "win";
+      } else if (adjustedHomeScore < awayScore) {
+        return "loss";
+      } else {
+        return "push";
+      }
+    } else if (prediction === "AWAY") {
+      // 客队让球：客队得分 + 让球数 > 主队得分
+      const adjustedAwayScore = awayScore + handicapLine;
+      if (adjustedAwayScore > homeScore) {
+        return "win";
+      } else if (adjustedAwayScore < homeScore) {
+        return "loss";
+      } else {
+        return "push";
+      }
+    }
+  } else if (betType === "over_under") {
+    const overUnderLine = metadata?.overUnderLine as number | undefined;
+    const overUnderPick = metadata?.overUnderPick as string | undefined;
+
+    if (overUnderLine === undefined || !overUnderPick) {
+      console.warn(`[settle-sim-positions] 仓位 ${position.id} 缺少 overUnderLine 或 overUnderPick`);
+      return "void";
+    }
+
+    const pick = overUnderPick.toLowerCase();
+    if (pick === "over") {
+      if (totalGoals > overUnderLine) {
+        return "win";
+      } else if (totalGoals < overUnderLine) {
+        return "loss";
+      } else {
+        return "push";
+      }
+    } else if (pick === "under") {
+      if (totalGoals < overUnderLine) {
+        return "win";
+      } else if (totalGoals > overUnderLine) {
+        return "loss";
+      } else {
+        return "push";
+      }
+    }
+  } else if (betType === "moneyline") {
+    // 输赢投注
+    if (prediction === "HOME_WIN") {
+      return homeScore > awayScore ? "win" : "loss";
+    } else if (prediction === "AWAY_WIN") {
+      return awayScore > homeScore ? "win" : "loss";
+    } else if (prediction === "DRAW") {
+      return homeScore === awayScore ? "win" : "loss";
+    }
+  }
+
+  console.warn(`[settle-sim-positions] 无法计算仓位 ${position.id} 的结果，betType: ${betType}, prediction: ${prediction}`);
+  return "void";
+};
+
+// 自动结算功能
+const autoSettlePositions = async (matchIds?: number[]) => {
+  if (!supabase) {
+    throw new Error("Supabase 服务未配置，无法自动结算");
+  }
+
+  // 1. 查询所有状态为 open 的仓位
+  const openPositions = await fetchOpenPositions(matchIds);
+  
+  if (openPositions.length === 0) {
+    return {
+      settlements: [],
+      message: "没有需要结算的仓位",
+    };
+  }
+
+  // 2. 获取所有相关的 match_id
+  const matchIdsToCheck = Array.from(
+    new Set(
+      openPositions
+        .map((p) => p.match_id)
+        .filter((id): id is number => id !== null),
+    ),
+  );
+
+  if (matchIdsToCheck.length === 0) {
+    return {
+      settlements: [],
+      message: "没有有效的比赛ID",
+    };
+  }
+
+  // 3. 查询已完成的比赛
+  const completedMatches = await fetchCompletedMatches(matchIdsToCheck);
+  const matchMap = new Map<number, MatchResult>();
+  completedMatches.forEach((match) => {
+    matchMap.set(match.fixture_id, match);
+  });
+
+  // 4. 为每个仓位计算结算结果
+  const settlements: SettlementItem[] = [];
+
+  for (const position of openPositions) {
+    if (!position.match_id) {
+      continue;
+    }
+
+    const matchResult = matchMap.get(position.match_id);
+    if (!matchResult) {
+      // 比赛尚未完成，跳过
+      continue;
+    }
+
+    const result = calculateBetResult(position, matchResult);
+    const homeScore = matchResult.goals_home ?? 0;
+    const awayScore = matchResult.goals_away ?? 0;
+
+    settlements.push({
+      positionId: position.id,
+      result,
+      notes: `自动结算：${position.bet_type} - ${position.prediction}`,
+      score: {
+        home: homeScore,
+        away: awayScore,
+      },
+    });
+  }
+
+  return {
+    settlements,
+    message: `找到 ${settlements.length} 个需要结算的仓位`,
+  };
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -260,6 +481,26 @@ serve(async (req) => {
     }
 
     const body = await req.json() as SettlementRequest;
+    
+    // 自动结算模式
+    if (body.autoSettle) {
+      const autoSettleResult = await autoSettlePositions(body.matchIds);
+      
+      if (autoSettleResult.settlements.length === 0) {
+        return new Response(
+          JSON.stringify({
+            message: autoSettleResult.message,
+            settlements: [],
+            outcomes: [],
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      // 使用自动生成的结算数据继续处理
+      body.settlements = autoSettleResult.settlements;
+    }
+
     if (!Array.isArray(body.settlements) || body.settlements.length === 0) {
       return new Response(
         JSON.stringify({ error: "缺少 settlements 数据" }),
@@ -312,7 +553,14 @@ serve(async (req) => {
       }
     });
 
-    const outcomes = [];
+    const outcomes: Array<{
+      positionId: number;
+      status: string;
+      reason?: string;
+      payout?: number;
+      pnl?: number;
+      error?: unknown;
+    }> = [];
 
     for (const settlement of body.settlements) {
       const position = positionMap.get(settlement.positionId)!;

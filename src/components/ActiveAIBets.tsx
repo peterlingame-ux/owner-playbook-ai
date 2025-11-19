@@ -31,6 +31,76 @@ const AI_ICONS: Record<string, string> = {
   hunsoccermax: hunsoccerIcon,
 };
 
+// 比赛时间显示组件（进行时间或倒计时）
+const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
+  const [timeDisplay, setTimeDisplay] = useState<string>('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const status = match.status_short;
+      
+      // 如果比赛已开赛（不是 NS），显示进行时间
+      if (status !== 'NS') {
+        switch (status) {
+          case 'HT':
+            setTimeDisplay('HT');
+            return;
+          case '2H':
+            setTimeDisplay('2H');
+            return;
+          case 'ET':
+            setTimeDisplay('ET');
+            return;
+          case 'P':
+            setTimeDisplay('PEN');
+            return;
+          case 'BREAK':
+            setTimeDisplay('BREAK');
+            return;
+          case 'LIVE':
+            // LIVE 状态显示进行分钟数
+            const elapsed = match.status_elapsed;
+            setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : 'LIVE');
+            return;
+          default:
+            setTimeDisplay(status);
+            return;
+        }
+      }
+      
+      // 如果未开赛，显示倒计时（时分秒格式）
+      const kickoffTime = new Date(match.kickoff_at);
+      const now = new Date();
+      const diff = kickoffTime.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setTimeDisplay('即将开始');
+        return;
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      // 显示时分秒格式：HH:MM:SS
+      setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    
+    return () => clearInterval(interval);
+  }, [match.status_short, match.status_elapsed, match.kickoff_at]);
+
+  return (
+    <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
+      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+      <span className="text-[7px] sm:text-[7px] text-muted-foreground">
+        {timeDisplay}
+      </span>
+    </div>
+  );
+};
 
 // Countdown Timer Component with Match Time
 const MatchCountdown = ({ match }: { match: any }) => {
@@ -123,6 +193,7 @@ type DailyMatch = {
   goals_home: number | null;
   goals_away: number | null;
   status_short: string;
+  status_elapsed?: number | null;
   home_logo?: string | null;
   away_logo?: string | null;
 };
@@ -177,6 +248,7 @@ const ActiveAIBets = () => {
   const [matches, setMatches] = useState<DailyMatch[]>([]);
   const [autoBets, setAutoBets] = useState<AutoBet[]>([]);
   const [aiBalances, setAiBalances] = useState<Record<string, AIBalance>>({});
+  const [moneylinePredictions, setMoneylinePredictions] = useState<Record<string, { prediction: string; confidence: number; odds: number }>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -237,6 +309,36 @@ const ActiveAIBets = () => {
           console.error('Error fetching auto bets:', betsError);
         } else {
           setAutoBets((betsData || []) as unknown as AutoBet[]);
+          
+          // 获取所有投注的分析记录，提取输赢预测
+          const betsWithAnalysis = (betsData || []) as unknown as AutoBet[];
+          const analysisIds = betsWithAnalysis
+            .filter(b => b.analysis_reference_ids && b.analysis_reference_ids.length > 0)
+            .flatMap(b => b.analysis_reference_ids || []);
+          
+          if (analysisIds.length > 0) {
+            const { data: analysesData } = await supabase
+              .from('ai_match_analyses' as any)
+              .select('id, match_id, ai_id, bet_snapshot')
+              .in('id', analysisIds);
+            
+            if (analysesData) {
+              const predictionsMap: Record<string, { prediction: string; confidence: number; odds: number }> = {};
+              
+              analysesData.forEach((analysis: any) => {
+                if (analysis.bet_snapshot && analysis.bet_snapshot.moneyline) {
+                  const key = `${analysis.match_id}_${analysis.ai_id}`;
+                  predictionsMap[key] = {
+                    prediction: analysis.bet_snapshot.moneyline.prediction,
+                    confidence: analysis.bet_snapshot.moneyline.confidence || 0,
+                    odds: analysis.bet_snapshot.moneyline.odds || 1.9,
+                  };
+                }
+              });
+              
+              setMoneylinePredictions(predictionsMap);
+            }
+          }
         }
 
         // Fetch AI balances
@@ -280,8 +382,13 @@ const ActiveAIBets = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Function to get match analysis
-  const getMatchAnalysis = async (match: any, bet: AutoBet | ReturnType<typeof convertBet>, aiModel: any) => {
+  // Function to get match analysis directly from ai_match_analyses table
+  const getMatchAnalysisFromDB = async (
+    matchId: number,
+    aiId: string,
+    match: any,
+    aiModel: any
+  ) => {
     setAnalysisDialog({
       open: true,
       matchInfo: {
@@ -295,137 +402,55 @@ const ActiveAIBets = () => {
     });
 
     try {
-      // 首先尝试从数据库获取已存储的分析结果
-      let storedAnalyses: MatchAnalysis[] = [];
-      
-      // 获取原始 bet 数据（如果是 convertBet 的结果，需要从 autoBets 中找到原始数据）
-      const originalBet = 'match' in bet 
-        ? autoBets.find(b => 
-            b.match_id === match.fixture_id && 
-            b.ai_id === aiModel.id &&
-            ((b.bet_type === 'moneyline' && bet.betType === 'moneyline') ||
-             (b.bet_type === 'over_under' && bet.betType === 'over_under'))
-          )
-        : bet;
-      
-      if (originalBet && 'analysis_reference_ids' in originalBet && originalBet.analysis_reference_ids && originalBet.analysis_reference_ids.length > 0) {
-        // 通过 analysis_reference_ids 获取分析
-        const { data: analysisData, error: analysisError } = await supabase
-          .from('ai_match_analyses' as any)
-          .select('*')
-          .in('id', originalBet.analysis_reference_ids);
-        
-        if (!analysisError && analysisData) {
-          storedAnalyses = analysisData as unknown as MatchAnalysis[];
-        }
-      } else if (originalBet && 'match_id' in originalBet && originalBet.match_id && 'ai_id' in originalBet && originalBet.ai_id) {
-        // 如果没有 analysis_reference_ids，尝试通过 match_id 和 ai_id 查找
-        const { data: analysisData, error: analysisError } = await supabase
-          .from('ai_match_analyses' as any)
-          .select('*')
-          .eq('match_id', originalBet.match_id)
-          .eq('ai_id', originalBet.ai_id)
-          .order('created_at', { ascending: false })
-          .limit(1);
-        
-        if (!analysisError && analysisData && analysisData.length > 0) {
-          storedAnalyses = analysisData as unknown as MatchAnalysis[];
-        }
-      }
+      // 直接从 ai_match_analyses 表获取分析数据
+      const { data: analysisData, error: analysisError } = await supabase
+        .from('ai_match_analyses' as any)
+        .select('*')
+        .eq('match_id', matchId)
+        .eq('ai_id', aiId)
+        .order('inserted_at', { ascending: false });
 
-      // 如果找到了存储的分析，直接使用
-      if (storedAnalyses.length > 0) {
-        console.log('Found stored analyses:', storedAnalyses);
-        const analyses: ModelAnalysis[] = storedAnalyses.map((analysisItem) => {
-          const analysisText = analysisItem.analysis_text || analysisItem.analysis || '';
-          console.log('Processing analysis:', {
-            id: analysisItem.id,
-            provider_model_id: analysisItem.provider_model_id,
-            ai_id: analysisItem.ai_id,
-            hasAnalysisText: !!analysisItem.analysis_text,
-            hasAnalysis: !!analysisItem.analysis,
-            analysisTextLength: analysisText.length,
-          });
-          
-          return {
-            id: analysisItem.provider_model_id || analysisItem.ai_id || 'unknown',
-            displayName: aiModel.displayName,
-            model: analysisItem.provider_model_id || analysisItem.model_identifier || 'unknown',
-            analysis: analysisText,
-          };
+      if (analysisError) {
+        toast({
+          title: "获取分析失败",
+          description: analysisError.message || "无法从数据库获取分析数据",
+          variant: "destructive",
         });
-
-        console.log('Mapped analyses:', analyses);
-
-        setAnalysisDialog(prev => ({
-          ...prev,
-          analysis: analyses[0]?.analysis || null,
-          analyses,
-          isLoading: false,
-        }));
+        setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
         return;
       }
 
-      // 如果没有找到存储的分析，调用 Edge Function 进行新分析
-      const { data, error } = await supabase.functions.invoke<MatchAnalysisResult>('match-analysis', {
-        body: {
-          matchInfo: {
-            league: getLeagueName(match),
-            homeTeam: getTeamName(match, 'home'),
-            awayTeam: getTeamName(match, 'away'),
-            homeScore: match.goals_home || 0,
-            awayScore: match.goals_away || 0,
-            status: match.status_short || 'NS',
-          },
-          betInfo: {
-            betType: 'betType' in bet ? bet.betType : (bet as AutoBet).bet_type,
-            prediction: 'prediction' in bet ? bet.prediction : (bet as AutoBet).prediction,
-            confidence: 'confidence' in bet ? bet.confidence : (bet as AutoBet).confidence,
-            odds: 'odds' in bet ? bet.odds : (bet as AutoBet).odds,
-            betAmount: 'betAmount' in bet ? bet.betAmount : (bet as AutoBet).stake_amount,
-            handicapLine: 'handicapLine' in bet ? bet.handicapLine : (bet as AutoBet).handicap_line,
-            overUnderLine: 'overUnderLine' in bet ? bet.overUnderLine : (bet as AutoBet).over_under_line,
-            overUnderPick: 'overUnderPick' in bet ? bet.overUnderPick : (bet as AutoBet).over_under_pick,
-          },
-          aiModel: aiModel.displayName,
-          aiId: originalBet && 'ai_id' in originalBet ? originalBet.ai_id : aiModel.id,
-        },
+      if (!analysisData || analysisData.length === 0) {
+        toast({
+          title: "未找到分析",
+          description: "该比赛暂无AI分析数据",
+          variant: "default",
+        });
+        setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      // 转换分析数据格式
+      const analyses: ModelAnalysis[] = (analysisData as unknown as MatchAnalysis[]).map((analysisItem) => {
+        const analysisText = analysisItem.analysis_text || analysisItem.analysis || '';
+        
+        return {
+          id: analysisItem.provider_model_id || analysisItem.ai_id || 'unknown',
+          displayName: aiModel.displayName,
+          model: analysisItem.provider_model_id || analysisItem.model_identifier || 'unknown',
+          analysis: analysisText,
+        };
       });
-
-      if (error) {
-        console.error('Analysis error:', error);
-        toast({
-          title: "分析失败",
-          description: error.message || "无法获取AI分析，请稍后重试",
-          variant: "destructive",
-        });
-        setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-
-      if (data?.error) {
-        toast({
-          title: "分析失败",
-          description: data.error,
-          variant: "destructive",
-        });
-        setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-
-      const analyses = data?.analyses ?? [];
-      const fallbackAnalysis = data?.analysis || analyses.find(item => item.analysis)?.analysis || null;
 
       setAnalysisDialog(prev => ({
         ...prev,
-        analysis: fallbackAnalysis,
+        analysis: analyses[0]?.analysis || null,
         analyses,
         isLoading: false,
       }));
     } catch (error) {
-      console.error('Unexpected error:', error);
       toast({
-        title: "分析失败",
+        title: "获取分析失败",
         description: "发生未知错误，请稍后重试",
         variant: "destructive",
       });
@@ -622,12 +647,35 @@ const ActiveAIBets = () => {
           const matchEntries = Array.from(betsByMatch.values());
           const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
           
-          // Separate bets by type: moneyline (胜负) and over_under (大小球)
-          const moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+          // Separate bets by type: moneyline (胜负), handicap (让球), and over_under (大小球)
+          let moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+          const handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
           const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
           
+          // 如果没有 moneylineBet，从 moneylinePredictions 状态中获取输赢预测
+          if (!moneylineBet && currentMatchData && currentMatchData.match) {
+            const predictionKey = `${currentMatchData.match.fixture_id}_${aiModel.id}`;
+            const moneylinePrediction = moneylinePredictions[predictionKey];
+            
+            if (moneylinePrediction) {
+              moneylineBet = {
+                match: currentMatchData.bets[0]?.match || convertMatch(currentMatchData.match),
+                aiId: aiModel.id,
+                betType: 'moneyline',
+                prediction: moneylinePrediction.prediction,
+                confidence: moneylinePrediction.confidence,
+                odds: moneylinePrediction.odds,
+                betAmount: 0,
+                handicapLine: undefined,
+                overUnderLine: undefined,
+                overUnderPick: undefined,
+                confirmed: false,
+              };
+            }
+          }
+          
           // For backward compatibility, use moneylineBet as the main bet
-          const bet = moneylineBet || overUnderBet;
+          const bet = moneylineBet || handicapBet || overUnderBet;
 
           // Get AI balance
           const balance = aiBalances[aiModel.id];
@@ -798,16 +846,21 @@ const ActiveAIBets = () => {
                  {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-primary/20 relative">
                   {/* Analysis Button - Left Side */}
-                  {(moneylineBet || overUnderBet) && (
+                  {(moneylineBet || handicapBet || overUnderBet) && (
                     <Button
                       size="sm"
                       variant="outline"
                       className="absolute left-0 top-0 sm:left-1 sm:top-1 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const betToShow = moneylineBet || overUnderBet;
-                        if (betToShow && currentMatchData) {
-                          getMatchAnalysis(convertMatch(currentMatchData.match), betToShow, aiModel);
+                        if (currentMatchData) {
+                          // 直接从 ai_match_analyses 表获取分析数据
+                          getMatchAnalysisFromDB(
+                            currentMatchData.match.fixture_id,
+                            aiModel.id,
+                            convertMatch(currentMatchData.match),
+                            aiModel
+                          );
                         }
                       }}
                       title="查看分析"
@@ -865,16 +918,7 @@ const ActiveAIBets = () => {
                         <span className="text-[7px] sm:text-[7px] text-success font-bold uppercase">LIVE</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
-                        <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-                        <span className="text-[7px] sm:text-[7px] text-muted-foreground">
-                          {new Date(currentMatchData.match.kickoff_at).toLocaleTimeString('en-US', { 
-                            hour: '2-digit', 
-                            minute: '2-digit',
-                            hour12: false 
-                          })}
-                        </span>
-                      </div>
+                      <MatchTimeDisplay match={currentMatchData.match} />
                     )}
                     
                     <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
@@ -906,24 +950,24 @@ const ActiveAIBets = () => {
                 )}
 
                 {/* Professional Sportsbook Bet Slip - Complete */}
-                {/* 上部分：胜负预测 */}
-                {moneylineBet && (
+                {/* 下部分：让球预测 */}
+                {handicapBet && (
                   <div className="space-y-2 pt-1.5 sm:pt-1.5 border-t-2 border-primary/20">
                     <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
                       {/* Header */}
                       <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
                         <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                          {t('moneyline_bet')} - {moneylineBet.prediction === 'HOME_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'home') : moneylineBet.prediction === 'AWAY_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'away') : t('draw')}
+                          {t('handicap_bet')}
                         </p>
                         <Badge 
-                          variant={moneylineBet.confirmed ? "default" : "outline"}
+                          variant={handicapBet.confirmed ? "default" : "outline"}
                           className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
-                            moneylineBet.confirmed 
+                            handicapBet.confirmed 
                               ? "bg-success/20 text-success border-success/50" 
                               : "bg-destructive/20 text-destructive border-destructive/50"
                           }`}
                         >
-                          {moneylineBet.confirmed ? "已确定" : "未确定"}
+                          {handicapBet.confirmed ? "已确定" : "未确定"}
                         </Badge>
                       </div>
                       
@@ -931,18 +975,92 @@ const ActiveAIBets = () => {
                       <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
                         <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
-                              {moneylineBet.prediction === 'HOME_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'home') : 
-                               moneylineBet.prediction === 'AWAY_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'away') : 
-                               t('draw')}
-                            </Badge>
+                            <div className="flex items-center gap-1">
+                              {handicapBet.prediction === 'HOME_WIN' && currentMatchData?.match.home_logo ? (
+                                <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border">
+                                  <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
+                                  <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
+                                </Avatar>
+                              ) : handicapBet.prediction === 'AWAY_WIN' && currentMatchData?.match.away_logo ? (
+                                <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border">
+                                  <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
+                                  <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
+                                </Avatar>
+                              ) : null}
+                              <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
+                                {handicapBet.prediction === 'HOME_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'home') : 
+                                 handicapBet.prediction === 'AWAY_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'away') : 
+                                 t('draw')}
+                              </Badge>
+                              {handicapBet.handicapLine !== undefined && (
+                                <Badge variant="default" className="text-[9px] sm:text-[9px] font-mono-data font-bold bg-foreground/20 text-foreground border-foreground/30 px-1.5 sm:px-1.5 py-0.5">
+                                  {handicapBet.handicapLine > 0 ? '+' : ''}{handicapBet.handicapLine}
+                                </Badge>
+                              )}
+                            </div>
                             <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
-                              {moneylineBet.confidence}% {t('confidence')}
+                              {handicapBet.confidence}% {t('confidence')}
                             </Badge>
                           </div>
                           <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
-                            @{moneylineBet.odds.toFixed(2)}
+                            @{handicapBet.odds.toFixed(2)}
                           </Badge>
+                        </div>
+                        
+                        {/* Handicap Selection */}
+                        <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
+                          <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
+                            {t('handicap_bet')}
+                          </p>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              handicapBet.prediction === "HOME_WIN" 
+                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                : "bg-card border-border/50"
+                            }`}>
+                              <div className="flex items-center gap-1">
+                                {currentMatchData?.match.home_logo ? (
+                                  <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border">
+                                    <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
+                                    <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
+                                  </Avatar>
+                                ) : null}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(convertMatch(currentMatchData!.match), 'home')}</p>
+                                </div>
+                                {handicapBet.handicapLine !== undefined && (
+                                  <Badge variant={handicapBet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1">
+                                    {handicapBet.handicapLine > 0 ? `+${handicapBet.handicapLine}` : `${handicapBet.handicapLine}`}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                              handicapBet.prediction === "AWAY_WIN" 
+                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                : "bg-card border-border/50"
+                            }`}>
+                              <div className="flex items-center gap-1">
+                                {currentMatchData?.match.away_logo ? (
+                                  <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border">
+                                    <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
+                                    <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
+                                  </Avatar>
+                                ) : null}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(convertMatch(currentMatchData!.match), 'away')}</p>
+                                </div>
+                                {handicapBet.handicapLine !== undefined && (
+                                  <Badge variant={handicapBet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1">
+                                    {(() => {
+                                      const awayLine = -handicapBet.handicapLine;
+                                      return awayLine > 0 ? `+${awayLine}` : `${awayLine}`;
+                                    })()}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         
                         {/* Financial Details */}
@@ -952,7 +1070,15 @@ const ActiveAIBets = () => {
                               {t('bet_amount')}
                             </span>
                             <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                              ${moneylineBet.betAmount.toLocaleString()}
+                              ${handicapBet.betAmount.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                              {t('odds')}
+                            </span>
+                            <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                              {handicapBet.odds.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
@@ -960,7 +1086,7 @@ const ActiveAIBets = () => {
                               {t('potential_return')}
                             </span>
                             <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
-                              ${(moneylineBet.betAmount * moneylineBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                              ${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </span>
                           </div>
                         </div>
@@ -971,12 +1097,12 @@ const ActiveAIBets = () => {
 
                 {/* 下部分：大小球预测 */}
                 {overUnderBet && (
-                  <div className={`space-y-2 ${moneylineBet ? 'pt-2' : 'pt-1.5 sm:pt-1.5 border-t-2 border-primary/20'}`}>
+                  <div className={`space-y-2 ${handicapBet ? 'pt-2' : 'pt-1.5 sm:pt-1.5 border-t-2 border-primary/20'}`}>
                     <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
                       {/* Header */}
                       <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
                         <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                          {t('over_under_bet')} - {overUnderBet.overUnderLine} ({overUnderBet.overUnderPick === 'over' ? t('over') : t('under')})
+                          {t('bet_slip')}
                         </p>
                         <Badge 
                           variant={overUnderBet.confirmed ? "default" : "outline"}
@@ -1012,30 +1138,62 @@ const ActiveAIBets = () => {
                             {t('over_under_bet')}
                           </p>
                           <div className="grid grid-cols-2 gap-1">
-                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                              overUnderBet.overUnderPick === "over" 
-                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
-                                : "bg-card border-border/50"
-                            }`}>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[8px] sm:text-[9px] font-medium">{t('over')}</span>
-                                <Badge variant={overUnderBet.overUnderPick === "over" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1">
-                                  {overUnderBet.overUnderLine}
-                                </Badge>
-                              </div>
-                            </div>
-                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                              overUnderBet.overUnderPick === "under" 
-                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
-                                : "bg-card border-border/50"
-                            }`}>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[8px] sm:text-[9px] font-medium">{t('under')}</span>
-                                <Badge variant={overUnderBet.overUnderPick === "under" ? "default" : "outline"} className="text-[8px] sm:text-[9px] font-mono-data py-0 px-1">
-                                  {overUnderBet.overUnderLine}
-                                </Badge>
-                              </div>
-                            </div>
+                            {/* 大球选项 - 显示主队名称，根据输赢预测决定是否选中 */}
+                            {(() => {
+                              // 根据输赢预测决定是否选中：HOME_WIN 选中大球（主队），DRAW 则都不亮
+                              const isSelected = moneylineBet?.prediction === 'HOME_WIN';
+                              
+                              return (
+                                <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                                  isSelected
+                                    ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                    : "bg-card border-border/50"
+                                }`}>
+                                  <div className="flex items-center gap-1">
+                                    {currentMatchData?.match.home_logo ? (
+                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
+                                        <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
+                                        <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
+                                      </Avatar>
+                                    ) : null}
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(currentMatchData!.match, 'home')}</p>
+                                    </div>
+                                    <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
+                                      {overUnderBet.overUnderLine}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                            {/* 小球选项 - 显示客队名称，根据输赢预测决定是否选中 */}
+                            {(() => {
+                              // 根据输赢预测决定是否选中：AWAY_WIN 选中小球（客队），DRAW 则都不亮
+                              const isSelected = moneylineBet?.prediction === 'AWAY_WIN';
+                              
+                              return (
+                                <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                                  isSelected
+                                    ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
+                                    : "bg-card border-border/50"
+                                }`}>
+                                  <div className="flex items-center gap-1">
+                                    {currentMatchData?.match.away_logo ? (
+                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
+                                        <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
+                                        <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
+                                      </Avatar>
+                                    ) : null}
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(currentMatchData!.match, 'away')}</p>
+                                    </div>
+                                    <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
+                                      {overUnderBet.overUnderLine}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                         
@@ -1047,6 +1205,14 @@ const ActiveAIBets = () => {
                             </span>
                             <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
                               ${overUnderBet.betAmount.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                              {t('odds')}
+                            </span>
+                            <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                              {overUnderBet.odds.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">

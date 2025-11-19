@@ -7,7 +7,7 @@ export type LeagueDictionary = Record<string, LeagueMeta>;
 
 export const MATCH_LEAGUE_MAP: LeagueDictionary = {
   "世界杯欧洲预选赛": {
-    english: ["World Cup - Qualification Europe"],
+    english: ["WC Qualification Europe"],
   },
   "欧洲足球锦标赛": {
     english: ["Euro Championship"],
@@ -49,25 +49,25 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["Primeira Liga"],
   },
   "葡萄牙甲级联赛": {
-    english: ["Liga Portugal 2"],
+    english: ["Segunda Liga"],
   },
   "葡萄牙乙级联赛": {
     english: ["Liga 3"],
   },
   "德国甲级联赛": {
-    english: ["Bundesliga 1", "Bundesliga"],
+    english: ["Bundesliga"],
   },
   "德国乙级联赛": {
-    english: ["Bundesliga 2", "2. Bundesliga"],
+    english: ["2. Bundesliga"],
   },
   "德国杯": {
     english: ["DFB Pokal"],
   },
   "西班牙甲级联赛": {
-    english: ["La Liga", "Spain - Primera Division"],
+    english: ["La Liga"],
   },
   "西班牙乙级联赛": {
-    english: ["Segunda Division"],
+    english: ["La Liga 2"],
   },
   "法国甲级联赛": {
     english: ["Ligue 1"],
@@ -79,39 +79,34 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["Coupe de France"],
   },
   "冰岛超级联赛": {
-    english: ["Úrvalsdeild", "Iceland - Premier"],
+    english: ["Úrvalsdeild"],
   },
   "苏格兰超级联赛": {
     english: ["Premiership"],
-    country: "Scotland",
   },
   "俄罗斯超级联赛": {
     english: ["Premier League"],
-    country: "Russia",
   },
   "比利时甲级联赛": {
     english: ["Jupiler Pro League"],
   },
   "乌克兰超级联赛": {
     english: ["Premier League"],
-    country: "Ukraine",
   },
   "土耳其超级联赛": {
     english: ["Süper Lig"],
   },
   "土耳其杯": {
-    english: ["Turkish Cup", "Cup"],
-    country: "Turkey",
+    english: ["Turkish Cup"],
   },
   "荷兰甲级联赛": {
     english: ["Eredivisie"],
   },
   "荷兰乙级联赛": {
-    english: ["Eerste Divisie", "Keuken Kampioen Divisie"],
+    english: ["Eerste Divisie"],
   },
   "奥地利甲级联赛": {
     english: ["Bundesliga"],
-    country: "Austria",
   },
   "瑞士甲级联赛": {
     english: ["Challenge League"],
@@ -120,10 +115,10 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["Super League"],
   },
   "丹麦超级联赛": {
-    english: ["Superliga", "Denmark - Superliga"],
+    english: ["Superliga"],
   },
   "丹麦甲级联赛": {
-    english: ["1st Division", "1. Division"],
+    english: ["1st Division"],
   },
   "瑞典超级联赛": {
     english: ["Allsvenskan"],
@@ -136,22 +131,21 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
   },
   "爱尔兰超级联赛": {
     english: ["Premier Division"],
-    country: "Ireland",
   },
   "希腊超级联赛": {
-    english: ["Super League 1", "Super League Greece"],
+    english: ["Super League 1"],
   },
   "芬兰超级联赛": {
     english: ["Veikkausliiga"],
   },
   "芬兰甲级联赛": {
-    english: ["Ykkonen", "Finland - Ykkonen"],
+    english: ["Ykkonen"],
   },
   "挪威超级联赛": {
     english: ["Eliteserien"],
   },
   "罗马尼亚甲级联赛": {
-    english: ["Liga I", "Romania - Liga I"],
+    english: ["Liga I"],
   },
   "以色列超级联赛": {
     english: ["Ligat Ha'al"],
@@ -163,18 +157,16 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["AFC Champions League"],
   },
   "世界杯亚洲区预选赛": {
-    english: ["World Cup Qualification Asia"],
+    english: ["WC Qualification Asia"],
   },
   "中国足球超级联赛": {
     english: ["Super League"],
-    country: "China",
   },
   "中国足球甲级联赛": {
     english: ["League One"],
-    country: "China",
   },
   "江苏省城市足球联赛": {
-    english: ["Jiangsu City FOOTBALL LEAGUE"],
+    english: ["Jiangsu City Football League"],
   },
   "日本甲级联赛": {
     english: ["J1 League"],
@@ -183,10 +175,10 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["J2 League"],
   },
   "日本足球联赛": {
-    english: ["Japan Football League", "Japan - Japan Football League"],
+    english: ["Japan Football League"],
   },
   "澳大利亚足球超级联赛": {
-    english: ["A-League", "Australia - A-League"],
+    english: ["A-League"],
   },
   "韩国职业甲级联赛K1": {
     english: ["K League 1"],
@@ -195,28 +187,28 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["K League 2"],
   },
   "沙特阿拉伯超级联赛": {
-    english: ["Pro League", "Saudi Arabia - Pro League"],
+    english: ["Pro League"],
   },
   "阿联酋超级联赛": {
-    english: ["UAE - Pro League", "United Arab Emirates - Pro League"],
+    english: ["UAE Pro League"],
   },
   "阿根廷甲级联赛": {
     english: ["Liga Profesional Argentina"],
   },
   "智利甲级联赛": {
-    english: ["Primera División", "Chile - Primera División"],
+    english: ["Primera División"],
   },
   "巴西甲级联赛": {
-    english: ["Serie A", "Brazil - Serie A"],
+    english: ["Serie A"],
   },
   "美国职业大联盟联赛": {
-    english: ["Major League Soccer", "USA - Major League Soccer"],
+    english: ["Major League Soccer"],
   },
   "墨西哥超级联赛": {
-    english: ["Liga MX", "Mexico - Liga MX"],
+    english: ["Liga MX"],
   },
   "埃及超级联赛": {
-    english: ["Egypt - Premier League"],
+    english: ["Premier League"],
   },
 };
 
