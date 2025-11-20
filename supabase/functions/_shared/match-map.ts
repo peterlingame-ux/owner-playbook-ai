@@ -6,9 +6,9 @@ export interface LeagueMeta {
 export type LeagueDictionary = Record<string, LeagueMeta>;
 
 export const MATCH_LEAGUE_MAP: LeagueDictionary = {
-  "世界杯欧洲预选赛": {
-    english: ["WC Qualification Europe"],
-  },
+  // "世界杯欧洲预选赛": {
+  //   english: ["WC Qualification Europe"],有问题
+  // },
   "欧洲足球锦标赛": {
     english: ["Euro Championship"],
   },
@@ -31,10 +31,10 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["Premier League"],
   },
   "英格兰冠军联赛": {
-    english: ["Championship"],
+    english: ["Championship"], 40
   },
   "英格兰乙级联赛": {
-    english: ["League One"],
+    english: ["League Two"],42
   },
   "意大利甲级联赛": {
     english: ["Serie A"],
@@ -67,7 +67,7 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["La Liga"],
   },
   "西班牙乙级联赛": {
-    english: ["La Liga 2"],
+    english: ["Segunda División"],141
   },
   "法国甲级联赛": {
     english: ["Ligue 1"],
@@ -85,19 +85,19 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["Premiership"],
   },
   "俄罗斯超级联赛": {
-    english: ["Premier League"],
+    english: ["Premier League"],235
   },
   "比利时甲级联赛": {
     english: ["Jupiler Pro League"],
   },
   "乌克兰超级联赛": {
-    english: ["Premier League"],
+    english: ["Premier League"],333
   },
   "土耳其超级联赛": {
     english: ["Süper Lig"],
   },
-  "土耳其杯": {
-    english: ["Turkish Cup"],
+  "土耳其甲级联赛": {
+    english: ["1. Lig"],204
   },
   "荷兰甲级联赛": {
     english: ["Eredivisie"],
@@ -108,9 +108,9 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
   "奥地利甲级联赛": {
     english: ["Bundesliga"],
   },
-  "瑞士甲级联赛": {
-    english: ["Challenge League"],
-  },
+  // "瑞士甲级联赛": {
+  //   english: ["Challenge League"],有问题
+  // },
   "瑞士超级联赛": {
     english: ["Super League"],
   },
@@ -118,7 +118,7 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
     english: ["Superliga"],
   },
   "丹麦甲级联赛": {
-    english: ["1st Division"],
+    english: ["1. Division"],120
   },
   "瑞典超级联赛": {
     english: ["Allsvenskan"],
@@ -138,14 +138,14 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
   "芬兰超级联赛": {
     english: ["Veikkausliiga"],
   },
-  "芬兰甲级联赛": {
-    english: ["Ykkonen"],
-  },
+  // "芬兰甲级联赛": {
+  //   english: ["Ykkonen"],有问题
+  // },
   "挪威超级联赛": {
     english: ["Eliteserien"],
   },
   "罗马尼亚甲级联赛": {
-    english: ["Liga I"],
+    english: ["Liga I"],283
   },
   "以色列超级联赛": {
     english: ["Ligat Ha'al"],
@@ -156,18 +156,18 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
   "亚足联冠军联赛": {
     english: ["AFC Champions League"],
   },
-  "世界杯亚洲区预选赛": {
-    english: ["WC Qualification Asia"],
-  },
+  // "世界杯亚洲区预选赛": {
+  //   english: ["WC Qualification Asia"],有问题
+  // },
   "中国足球超级联赛": {
     english: ["Super League"],
   },
   "中国足球甲级联赛": {
     english: ["League One"],
   },
-  "江苏省城市足球联赛": {
-    english: ["Jiangsu City Football League"],
-  },
+  // "江苏省城市足球联赛": {
+  //   english: ["Jiangsu City Football League"],有问题
+  // },
   "日本甲级联赛": {
     english: ["J1 League"],
   },
@@ -189,9 +189,9 @@ export const MATCH_LEAGUE_MAP: LeagueDictionary = {
   "沙特阿拉伯超级联赛": {
     english: ["Pro League"],
   },
-  "阿联酋超级联赛": {
-    english: ["UAE Pro League"],
-  },
+  // "阿联酋超级联赛": {
+  //   english: ["UAE Pro League"],有问题
+  // },
   "阿根廷甲级联赛": {
     english: ["Liga Profesional Argentina"],
   },
