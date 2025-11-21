@@ -1051,7 +1051,7 @@ const ActiveAIBets = () => {
                             </Badge>
                           </div>
                           <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
-                            @{handicapBet.odds.toFixed(2)}
+                            @{Math.max(0, handicapBet.odds - 1).toFixed(2)}
                           </Badge>
                         </div>
                         
@@ -1126,7 +1126,7 @@ const ActiveAIBets = () => {
                               {t('odds')}
                             </span>
                             <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                              {handicapBet.odds.toFixed(2)}
+                              {Math.max(0, handicapBet.odds - 1).toFixed(2)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
@@ -1176,7 +1176,7 @@ const ActiveAIBets = () => {
                             </Badge>
                           </div>
                           <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
-                            @{overUnderBet.odds.toFixed(2)}
+                            @{Math.max(0, overUnderBet.odds - 1).toFixed(2)}
                           </Badge>
                         </div>
                         
@@ -1260,7 +1260,7 @@ const ActiveAIBets = () => {
                               {t('odds')}
                             </span>
                             <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                              {overUnderBet.odds.toFixed(2)}
+                              {Math.max(0, overUnderBet.odds - 1).toFixed(2)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">

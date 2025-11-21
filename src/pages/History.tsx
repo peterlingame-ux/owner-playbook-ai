@@ -23,6 +23,12 @@ import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
 import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import gpt5Icon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 
 // 类型定义
 type HistoryRecord = {
@@ -51,6 +57,16 @@ type HistoryRecord = {
     awayLogo?: string;
     league?: string;
   };
+};
+
+// AI 图标映射
+const AI_ICONS: Record<string, string> = {
+  deepseek: deepseekIcon,
+  gpt5: gpt5Icon,
+  claude: claudeIcon,
+  gemini: geminiIcon,
+  grok: grokIcon,
+  hunsoccermax: hunsoccerIcon,
 };
 
 const History = () => {
@@ -82,6 +98,7 @@ const History = () => {
             settled_at,
             stake_amount,
             odds,
+            bet_type,
             metadata
           `)
           .eq('status', 'settled')
@@ -123,13 +140,16 @@ const History = () => {
           const settlement = metadata.settlement || {};
           const result = settlement.result; // 'win', 'loss', 'push', 'void'
           
+          // 从表的 bet_type 列读取，如果不存在则从 metadata 读取（向后兼容）
+          const betType = position.bet_type || metadata.bet_type || metadata.betType || 'moneyline';
+          
           // 从 metadata 中提取预测信息
-          const prediction = metadata.prediction || 'HOME_WIN';
-          const betType = metadata.bet_type || 'moneyline';
+          const prediction = metadata.prediction || position.prediction || 'HOME_WIN';
           const confidence = metadata.confidence || 0;
-          const handicapLine = metadata.handicap_line;
-          const overUnderLine = metadata.over_under_line;
-          const overUnderPick = metadata.over_under_pick;
+          // metadata 中可能使用驼峰命名，需要兼容两种格式
+          const handicapLine = metadata.handicap_line ?? metadata.handicapLine;
+          const overUnderLine = metadata.over_under_line ?? metadata.overUnderLine;
+          const overUnderPick = metadata.over_under_pick ?? metadata.overUnderPick;
           
           // 获取比赛信息
           const match = position.match_id ? matchesMap.get(position.match_id) : null;
@@ -252,31 +272,75 @@ const History = () => {
     }
   };
 
-  const getBetTypeLabel = (betType: string, prediction: HistoryRecord) => {
+  const getBetTypeLabel = (betType: string, prediction: HistoryRecord, match?: HistoryRecord['match']) => {
     switch(betType) {
-      case "moneyline": return t('bet_type_moneyline');
+      case "moneyline": 
+        return t('bet_type_moneyline') || 'Moneyline';
       case "handicap": 
+        // 显示让球线和让球方，比如 "主队名 -1.5" 或 "客队名 +0.5"
         if (prediction.handicapLine !== undefined) {
-          return `${t('bet_type_handicap')} ${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+          const lineStr = `${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+          // 根据 prediction 判断是哪个球队让球
+          // "HOME" 或 "HOME_WIN" 表示主队让球（通常 handicapLine 为负数）
+          // "AWAY" 或 "AWAY_WIN" 表示客队让球（通常 handicapLine 为正数）
+          const predStr = prediction.prediction as string;
+          if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
+            // 主队让球
+            const teamName = match?.homeTeam || 'Home';
+            return `${teamName} ${lineStr}`;
+          } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
+            // 客队让球
+            const teamName = match?.awayTeam || 'Away';
+            return `${teamName} ${lineStr}`;
+          } else {
+            // 如果无法从 prediction 判断，根据 handicapLine 的正负判断
+            // 负数通常是主队让球，正数通常是客队让球
+            if (prediction.handicapLine < 0 && match) {
+              return `${match.homeTeam} ${lineStr}`;
+            } else if (prediction.handicapLine > 0 && match) {
+              return `${match.awayTeam} ${lineStr}`;
+            }
+            // 兜底：只显示数值
+            return lineStr;
+          }
         }
-        return t('bet_type_handicap');
+        return t('bet_type_handicap') || 'Handicap';
       case "over_under": 
+        // 显示大小球具体投注，比如 "3.5 Under"
         if (prediction.overUnderLine !== undefined && prediction.overUnderPick) {
-          const overUnder = prediction.overUnderPick === 'over' ? t('over') || '大' : t('under') || '小';
-          return `${t('bet_type_over_under')} ${prediction.overUnderLine} ${overUnder}`;
+          const overUnder = prediction.overUnderPick === 'over' ? t('over') || 'Over' : t('under') || 'Under';
+          return `${prediction.overUnderLine} ${overUnder}`;
         }
-        return t('bet_type_over_under');
+        return t('bet_type_over_under') || 'Over/Under';
       default: return betType;
     }
   };
 
-  const getPredictionLabel = (prediction: string, match: HistoryRecord['match']) => {
-    if (!match) return prediction;
-    switch(prediction) {
+  const getPredictionLabel = (prediction: HistoryRecord, match: HistoryRecord['match']) => {
+    // 根据 bet_type 决定显示内容
+    if (prediction.betType === 'over_under') {
+      // 对于大小球，显示投注类型名称
+      return t('bet_type_over_under') || 'Over/Under';
+    } else if (prediction.betType === 'handicap') {
+      // 对于让球，显示投注类型名称
+      return t('bet_type_handicap') || 'Handicap';
+    } else if (prediction.betType === 'moneyline') {
+      // 对于独赢，显示队伍名称或平局
+      if (!match) return prediction.prediction;
+      switch(prediction.prediction) {
+        case "HOME_WIN": return match.homeTeam;
+        case "AWAY_WIN": return match.awayTeam;
+        case "DRAW": return t('draw') || '平局';
+        default: return prediction.prediction;
+      }
+    }
+    // 默认情况
+    if (!match) return prediction.prediction;
+    switch(prediction.prediction) {
       case "HOME_WIN": return match.homeTeam;
       case "AWAY_WIN": return match.awayTeam;
       case "DRAW": return t('draw') || '平局';
-      default: return prediction;
+      default: return prediction.prediction;
     }
   };
 
@@ -308,7 +372,7 @@ const History = () => {
                 style={{ borderColor: `hsl(var(--${selectedModel.color}))` }}
               >
                 <img 
-                  src={`/src/assets/${selectedModel.id}-icon.png`}
+                  src={AI_ICONS[selectedModel.id] || deepseekIcon}
                   alt={selectedModel.name}
                   className="w-full h-full object-contain"
                 />
@@ -512,7 +576,7 @@ const History = () => {
                               style={{ borderColor: `hsl(var(--${model.color}))` }}
                             >
                               <img 
-                                src={`/src/assets/${model.id}-icon.png`}
+                                src={AI_ICONS[model.id] || deepseekIcon}
                                 alt={model.displayName}
                                 className="w-full h-full object-contain"
                               />
@@ -522,18 +586,18 @@ const History = () => {
                         
                         <TableCell className="hidden md:table-cell text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
                           <div className="truncate max-w-[120px]">
-                            {getPredictionLabel(prediction.prediction, match)}
+                            {getPredictionLabel(prediction, match)}
                           </div>
                         </TableCell>
                         
                         <TableCell className="hidden sm:table-cell text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
                           <div className="truncate max-w-[140px]">
-                            {getBetTypeLabel(prediction.betType, prediction)}
+                            {getBetTypeLabel(prediction.betType, prediction, match)}
                           </div>
                         </TableCell>
                         
                         <TableCell className="text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4">
-                          {prediction.odds.toFixed(2)}
+                          {Math.max(0, prediction.odds - 1).toFixed(2)}
                         </TableCell>
                         
                         <TableCell className={`text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4 ${

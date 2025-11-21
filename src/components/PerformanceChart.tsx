@@ -27,12 +27,15 @@ type ChartDataPoint = {
   hunsoccermax: number;
 };
 
-// 生成全0的图表数据
+// 生成全0的图表数据（从 11/21 开始）
 const generateZeroChartData = (days: number): ChartDataPoint[] => {
   const data: ChartDataPoint[] = [];
+  const startDate = new Date('2025-11-21');
+  startDate.setHours(0, 0, 0, 0);
+  
   for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - (days - i - 1));
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + i);
     data.push({
       date: date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }),
       deepseek: 0,
@@ -58,29 +61,38 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       try {
         setIsLoading(true);
         
-        const days = timeRange === '72h' ? 3 : 30;
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - days);
+        // 设置起始日期为 2025-11-21
+        const startDate = new Date('2025-11-21');
+        startDate.setHours(0, 0, 0, 0);
+        
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        
+        // 计算从起始日期到今天的天数
+        const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        
+        // 如果选择 72h，只显示最近3天（从起始日期算起）
+        const daysToShow = timeRange === '72h' ? Math.min(3, days) : days;
         
         // 直接从数据库视图查询每日胜率数据
         const { data: dailyData, error: dailyError } = await supabase
           .from('ai_win_rates_daily' as any)
           .select('*')
-          .gte('settlement_date', cutoffDate.toISOString().split('T')[0])
+          .gte('settlement_date', startDate.toISOString().split('T')[0])
           .order('settlement_date', { ascending: true });
 
         if (dailyError) {
           console.error('Error fetching daily win rates:', dailyError);
-          const zeroData = generateZeroChartData(days);
+          const zeroData = generateZeroChartData(daysToShow);
           setData(zeroData);
           return;
         }
 
-        // 生成日期范围
+        // 生成日期范围：从 11/21 开始
         const dateRange: string[] = [];
-        for (let i = 0; i < days; i++) {
-          const date = new Date();
-          date.setDate(date.getDate() - (days - i - 1));
+        for (let i = 0; i < daysToShow; i++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + i);
           dateRange.push(date.toISOString().split('T')[0]);
         }
 
@@ -135,7 +147,13 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         setData(chartData);
       } catch (error) {
         console.error('Error fetching win rates:', error);
-        const zeroData = generateZeroChartData(timeRange === '72h' ? 3 : 30);
+        // 计算默认天数：从 11/21 到今天
+        const startDate = new Date('2025-11-21');
+        startDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const daysToShow = timeRange === '72h' ? Math.min(3, days) : days;
+        const zeroData = generateZeroChartData(daysToShow);
         setData(zeroData);
       } finally {
         setIsLoading(false);

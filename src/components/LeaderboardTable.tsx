@@ -10,8 +10,15 @@ import starMessi from "@/assets/star-messi.jpg";
 import starHaaland from "@/assets/star-haaland.jpg";
 import starMbappe from "@/assets/star-mbappe.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 import expertMystery from "@/assets/expert-mystery.jpg";
 import mysteryIcon from "@/assets/mystery-icon.png";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import gpt5Icon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -151,16 +158,17 @@ const LeaderboardTable = () => {
 
   const getModelIcon = (modelId: string) => {
     const icons: Record<string, string> = {
-      'deepseek': '/src/assets/deepseek-icon.png',
-      'qwen': '/src/assets/deepseek-icon.png',
-      'claude': '/src/assets/claude-icon.png',
-      'grok': '/src/assets/grok-icon.png',
-      'gemini': '/src/assets/gemini-icon.png',
-      'gpt': '/src/assets/openai-icon.png',
-      'gpt5': '/src/assets/openai-icon.png',
+      'deepseek': deepseekIcon,
+      'qwen': deepseekIcon,
+      'claude': claudeIcon,
+      'grok': grokIcon,
+      'gemini': geminiIcon,
+      'gpt': gpt5Icon,
+      'gpt5': gpt5Icon,
+      'hunsoccermax': hunsoccerIcon,
       'mystery': mysteryIcon,
     };
-    return icons[modelId] || icons.gpt;
+    return icons[modelId] || gpt5Icon;
   };
 
   const getExpertImage = (modelId: string) => {
@@ -177,6 +185,8 @@ const LeaderboardTable = () => {
         return starMbappe;
       case 'mystery':
         return expertMystery;
+      case 'hunsoccermax':
+        return starHunsoccer;
       default:
         return starRonaldo;
     }
@@ -196,6 +206,8 @@ const LeaderboardTable = () => {
         return 'from-[hsl(158,68%,60%)]/80 to-[hsl(158,68%,45%)]/80';
       case 'mystery':
         return 'from-[hsl(45,100%,55%)]/80 to-[hsl(45,100%,45%)]/80';
+      case 'hunsoccermax':
+        return 'from-[hsl(38,92%,50%)]/80 to-[hsl(38,92%,40%)]/80';
       default:
         return 'from-[hsl(217,91%,65%)]/80 to-[hsl(217,91%,45%)]/80';
     }

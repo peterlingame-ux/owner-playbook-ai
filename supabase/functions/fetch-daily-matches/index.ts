@@ -315,7 +315,7 @@ const upsertFixtures = async (
     date,
     fixture_id: fixture.fixture.id,
     league_id: fixture.league.id,
-    league_name: fixture.leagueInfo.name,
+    league_name: fixture.league.name, // 使用英文名
     league_country: fixture.leagueInfo.country ?? fixture.league.country ?? null,
     league_logo: (fixture.league as any).logo || null, // 联赛 logo
     home_team_id: fixture.teams.home.id,

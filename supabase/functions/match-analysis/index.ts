@@ -145,23 +145,23 @@ const MODEL_CONFIGS: ModelConfig[] = [
     displayName: "DeepSeek Terminus",
     model: "deepseek/deepseek-v3.1-terminus",
   },
-  // { id: "gpt5", displayName: "OpenAI GPT-5", model: "openai/gpt-5" },
-  // {
-  //   id: "claude",
-  //   displayName: "Claude 4.5 Sonnet",
-  //   model: "anthropic/claude-sonnet-4.5",
-  // },
-  // { id: "grok", displayName: "xAI Grok 4", model: "x-ai/grok-4" },
-  // {
-  //   id: "gemini",
-  //   displayName: "Gemini 2.5 Pro",
-  //   model: "google/gemini-2.5-pro",
-  // },
-  // {
-  //   id: "hunsoccermax",
-  //   displayName: "HUNSOCCER MAX",
-  //   model: "qwen/qwen3-235b-a22b-2507", // 使用 DeepSeek 作为基础模型，或根据实际情况配置
-  // },
+  { id: "gpt5", displayName: "OpenAI GPT-5", model: "openai/gpt-5" },
+  {
+    id: "claude",
+    displayName: "Claude 4.5 Sonnet",
+    model: "anthropic/claude-sonnet-4.5",
+  },
+  { id: "grok", displayName: "xAI Grok 4", model: "x-ai/grok-4" },
+  {
+    id: "gemini",
+    displayName: "Gemini 2.5 Pro",
+    model: "google/gemini-2.5-pro",
+  },
+  {
+    id: "hunsoccermax",
+    displayName: "HUNSOCCER MAX",
+    model: "qwen/qwen3-235b-a22b-2507", // 使用 DeepSeek 作为基础模型，或根据实际情况配置
+  },
 ];
 
 const buildSystemPrompt = () => `你是一位专业的足球赛事分析专家。请从以下三个维度进行深度分析：
