@@ -174,6 +174,8 @@ const Header = () => {
             </SheetContent>
           </Sheet>
           
+          <OnlineUsers />
+          
           <Button
             variant="ghost"
             size="icon"

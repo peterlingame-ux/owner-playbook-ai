@@ -31,9 +31,15 @@ const OnlineUsers = () => {
       <HoverCardTrigger asChild>
         <Badge 
           variant="outline" 
-          className="bg-success/10 text-success border-success/30 px-1.5 sm:px-3 py-1 sm:py-1.5 gap-1 sm:gap-2 animate-pulse cursor-pointer hover:bg-success/20 transition-colors hidden xs:flex"
+          className="bg-success/10 text-success border-success/30 px-1.5 sm:px-3 py-1 sm:py-1.5 gap-1 sm:gap-2 cursor-pointer hover:bg-success/20 transition-colors flex items-center min-w-0 flex-shrink-0"
         >
-          <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+          <div className="relative w-2 h-2 flex-shrink-0 mr-0.5">
+            <div className="absolute top-0 left-0 w-2 h-2 rounded-full bg-green-500 animate-pulse" style={{
+              boxShadow: '0 0 8px rgba(34, 197, 94, 0.8)'
+            }} />
+            <div className="absolute top-0 left-0 w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75" />
+          </div>
+          <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
           <span className="font-bold font-mono-data text-[10px] sm:text-sm">{onlineCount.toLocaleString()}</span>
           <span className="text-[9px] sm:text-xs hidden sm:inline">{t('users_watching')}</span>
         </Badge>
