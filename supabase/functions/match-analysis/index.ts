@@ -991,7 +991,7 @@ serve(async (req) => {
 
             // 获取让球盘赔率
             const handicapBet = firstBookmaker.bets.find(
-              (bet) => bet.name === "Asian Handicap" || bet.id === 3
+              (bet) => bet.name === "Asian Handicap" || bet.id === 4
             );
 
             if (handicapBet?.values) {
@@ -1002,7 +1002,8 @@ serve(async (req) => {
                 const odd = parseFloat(value.odd);
                 if (isNaN(odd) || odd <= 0) continue;
 
-                // 提取 line 值（如 "-1.5", "+0.5", "Home -1.5"）
+                // 提取 line 值（如 "-1.5", "+0.5", "Home -1", "Away -1.5"）
+                // 格式可能是 "Home -1", "Away -1", "Home -1.5", "Away -1.5" 等
                 const lineMatch = valueStr.match(/([+-]?\d+\.?\d*)/);
                 if (!lineMatch) continue;
                 
@@ -1012,9 +1013,12 @@ serve(async (req) => {
                 }
                 
                 const entry = handicapMap.get(line)!;
-                if (valueStr.toLowerCase().includes('home') || (line < 0 && valueStr.startsWith('-'))) {
+                const valueLower = valueStr.toLowerCase();
+                
+                // 根据 "Home" 或 "Away" 关键字判断方向
+                if (valueLower.includes('home')) {
                   entry.home = odd;
-                } else if (valueStr.toLowerCase().includes('away') || (line > 0 && valueStr.startsWith('+'))) {
+                } else if (valueLower.includes('away')) {
                   entry.away = odd;
                 }
               }
@@ -1148,34 +1152,34 @@ serve(async (req) => {
             } else if (betType === 'handicap' && line !== undefined) {
               // 提取让球盘赔率
               const handicapBet = firstBookmaker.bets.find(
-                (bet) => bet.name === "Asian Handicap" || bet.id === 3
+                (bet) => bet.name === "Asian Handicap" || bet.id === 4
               );
 
               if (handicapBet?.values) {
                 // 查找匹配的让球数和方向
+                // value 格式： "Home -1", "Away -1", "Home -1.5", "Away +1", "Home +0.5" 等
                 for (const value of handicapBet.values) {
                   const valueStr = value.value.trim();
-                  const lineStr = line.toString();
-                  const lineStrWithSign = line > 0 ? `+${line}` : line.toString();
+                  const valueLower = valueStr.toLowerCase();
                   
-                  // 检查是否匹配 line
-                  // value.value 格式可能是 "-1.5", "+0.5", "Home -1.5", "Away +1.5", "-1.5 Home" 等
-                  const matchesLine = valueStr.includes(lineStr) || 
-                                     valueStr.includes(lineStrWithSign) || 
-                                     valueStr === lineStr || 
-                                     valueStr === lineStrWithSign;
+                  // 提取 value 中的 line 值和方向
+                  const lineMatch = valueStr.match(/([+-]?\d+\.?\d*)/);
+                  if (!lineMatch) continue;
                   
-                  if (!matchesLine) continue;
+                  const valueLine = parseFloat(lineMatch[1]);
+                  
+                  // 检查 line 是否匹配（精确匹配，需要考虑符号）
+                  if (valueLine !== line) {
+                    continue;
+                  }
                   
                   // 检查方向匹配
                   const isHome = prediction === "HOME";
-                  const matchesDirection = isHome
-                    ? (valueStr.toLowerCase().includes('home') || 
-                       (line < 0 && (valueStr.startsWith('-') || valueStr.includes(`-${Math.abs(line)}`))) ||
-                       (line === 0 && valueStr.toLowerCase().includes('home')))
-                    : (valueStr.toLowerCase().includes('away') || 
-                       (line > 0 && (valueStr.startsWith('+') || valueStr.includes(`+${line}`))) ||
-                       (line === 0 && valueStr.toLowerCase().includes('away')));
+                  const hasHome = valueLower.includes('home');
+                  const hasAway = valueLower.includes('away');
+                  
+                  // 根据预测方向匹配
+                  const matchesDirection = isHome ? hasHome : hasAway;
                   
                   if (matchesDirection) {
                     const odd = parseFloat(value.odd);

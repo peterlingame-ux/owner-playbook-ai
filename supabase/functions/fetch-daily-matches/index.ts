@@ -6,6 +6,8 @@ import {
   type LeagueInfo,
 } from "../_shared/match-map.ts";
 
+type LeagueLookup = ReturnType<typeof buildLeagueLookup>;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -80,7 +82,10 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
   : undefined;
 
-const leagueLookup = buildLeagueLookup();
+const leagueLookupMap = buildLeagueLookup();
+const leagueLookup = leagueLookupMap.nameLookup;
+const leagueIdLookup = leagueLookupMap.idLookup;
+const englishNameLookup = leagueLookupMap.englishNameLookup;
 const DEFAULT_TIMEZONE = "Asia/Shanghai";
 
 const buildLeagueKey = (value: string | null | undefined) =>
@@ -89,21 +94,62 @@ const buildLeagueKey = (value: string | null | undefined) =>
 const findLeagueInfo = (
   name: string | null | undefined,
   country?: string | null,
+  leagueId?: number | null,
 ): LeagueInfo | undefined => {
-  const key = buildLeagueKey(name);
-  if (!key) {
+  // 如果同时提供了ID和名称，只匹配英文名和ID（不匹配中文名）
+  if (leagueId != null && name) {
+    const nameKey = buildLeagueKey(name);
+    
+    if (!nameKey) {
+      return undefined;
+    }
+    
+    // 只通过英文名查找表查找（不包括中文名），然后验证ID是否匹配
+    const matchByEnglishName = englishNameLookup.get(nameKey);
+    if (matchByEnglishName && matchByEnglishName.id === leagueId) {
+      // 英文名和ID都匹配
+      return matchByEnglishName;
+    }
+    
+    // 尝试国家+英文名的组合，然后验证ID
+    if (country) {
+      const combinedKey = buildLeagueKey(`${country} - ${name}`);
+      if (combinedKey) {
+        const combinedMatch = englishNameLookup.get(combinedKey);
+        if (combinedMatch && combinedMatch.id === leagueId) {
+          return combinedMatch;
+        }
+      }
+    }
+    
+    // 英文名和ID不匹配，返回undefined（不检查中文名）
     return undefined;
   }
 
-  const match = leagueLookup.get(key);
-  if (match) {
-    return match;
+  // 只提供了ID，通过ID查找
+  if (leagueId != null && !name) {
+    return leagueIdLookup.get(leagueId);
   }
 
-  if (country) {
-    const combinedKey = buildLeagueKey(`${country} - ${name}`);
-    if (combinedKey) {
-      return leagueLookup.get(combinedKey);
+  // 只提供了名称，通过全量查找表查找（可以匹配中文名或英文名）
+  if (name && leagueId == null) {
+    const key = buildLeagueKey(name);
+    if (!key) {
+      return undefined;
+    }
+
+    // 匹配名称（可以是中文名或英文名）
+    const match = leagueLookup.get(key);
+    if (match) {
+      return match;
+    }
+
+    // 尝试国家+名称的组合（用于区分同名的不同联赛）
+    if (country) {
+      const combinedKey = buildLeagueKey(`${country} - ${name}`);
+      if (combinedKey) {
+        return leagueLookup.get(combinedKey);
+      }
     }
   }
 
@@ -247,7 +293,8 @@ const filterFixtures = (
 
   for (const fixture of fixtures) {
     const { league } = fixture;
-    const info = findLeagueInfo(league.name, league.country);
+    // 只匹配英文名和ID（不匹配中文名）
+    const info = findLeagueInfo(league.name, league.country, league.id);
     if (info && matchTargetDate(fixture, timezone, targetDate)) {
       filtered.push({ ...fixture, leagueInfo: info });
     }
@@ -367,12 +414,38 @@ serve(async (req) => {
         ids.join(","),
       );
 
+      // 从数据库中获取联赛ID，用于更准确的匹配
       const leagueInfoMap = new Map<number, LeagueInfo>();
+      const leagueIdMap = new Map<number, number>();
+
+      if (supabase) {
+        const { data: leagueData, error: leagueError } = await supabase
+          .from("daily_matches")
+          .select("fixture_id, league_id, league_name, league_country")
+          .eq("date", targetDate)
+          .in("fixture_id", ids);
+
+        if (leagueError) {
+          console.warn("[fetch-daily-matches] 获取联赛ID失败:", leagueError);
+        }
+
+        // 构建联赛ID映射
+        if (leagueData) {
+          for (const item of leagueData) {
+            if (item.league_id) {
+              leagueIdMap.set(item.fixture_id, item.league_id);
+            }
+          }
+        }
+      }
+
       for (const meta of activeMeta) {
         if (meta.league_name) {
+          const leagueId = leagueIdMap.get(meta.fixture_id);
           leagueInfoMap.set(meta.fixture_id, {
             name: meta.league_name,
             country: meta.league_country ?? undefined,
+            id: leagueId ?? undefined,
           });
         }
       }
@@ -381,10 +454,21 @@ serve(async (req) => {
 
       return fixturesById
         .map((fixture) => {
-          const info = leagueInfoMap.get(fixture.fixture.id) ??
-            findLeagueInfo(fixture.league.name, fixture.league.country);
-
+          // 只匹配英文名和ID（不匹配中文名）
+          const info = findLeagueInfo(fixture.league.name, fixture.league.country, fixture.league.id);
+          
+          // 如果找不到匹配的联赛信息，或者日期不匹配，则过滤掉
           if (!info || !matchTargetDate(fixture, resolvedTimezone, targetDate)) {
+            return null;
+          }
+
+          // 验证ID是否匹配（如果保存的联赛信息中有ID，必须匹配）
+          const savedInfo = leagueInfoMap.get(fixture.fixture.id);
+          if (savedInfo?.id && fixture.league.id && savedInfo.id !== fixture.league.id) {
+            // ID不匹配，过滤掉
+            console.warn(
+              `[fetch-daily-matches] 联赛ID不匹配: fixture_id=${fixture.fixture.id}, 保存的ID=${savedInfo.id}, API返回的ID=${fixture.league.id}`,
+            );
             return null;
           }
 

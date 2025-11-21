@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
@@ -186,9 +186,12 @@ type DailyMatch = {
   fixture_id: number;
   date: string;
   kickoff_at: string;
+  league_id?: number | null;
   league_name: string;
   league_logo?: string | null;
+  home_team_id?: number | null;
   home_team_name: string;
+  away_team_id?: number | null;
   away_team_name: string;
   goals_home: number | null;
   goals_away: number | null;
@@ -251,6 +254,9 @@ const ActiveAIBets = () => {
   const [moneylinePredictions, setMoneylinePredictions] = useState<Record<string, { prediction: string; confidence: number; odds: number }>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Track if this is the first mount to avoid showing loading on language change
+  const isFirstMount = useRef(true);
+  const prevLanguage = useRef(i18n.language);
 
   // State to track which match index is shown for each AI
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
@@ -264,7 +270,7 @@ const ActiveAIBets = () => {
     isLoading: false,
   });
 
-  // Fetch real data from database
+  // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
     const fetchData = async (isRefresh = false) => {
       try {
@@ -294,7 +300,8 @@ const ActiveAIBets = () => {
             });
           }
         } else {
-          setMatches((matchesData || []) as unknown as DailyMatch[]);
+          const matchesList = (matchesData || []) as unknown as DailyMatch[];
+          setMatches(matchesList);
         }
 
         // Fetch auto bets (pending status for active predictions)
@@ -315,7 +322,7 @@ const ActiveAIBets = () => {
           const analysisIds = betsWithAnalysis
             .filter(b => b.analysis_reference_ids && b.analysis_reference_ids.length > 0)
             .flatMap(b => b.analysis_reference_ids || []);
-          
+
           if (analysisIds.length > 0) {
             const { data: analysesData } = await supabase
               .from('ai_match_analyses' as any)
@@ -375,12 +382,22 @@ const ActiveAIBets = () => {
       }
     };
 
-    fetchData(false);
+    // Only fetch data on initial mount
+    if (isFirstMount.current) {
+      fetchData(false);
+      isFirstMount.current = false;
+    }
 
     // Refresh data every 30 seconds (silent refresh)
     const interval = setInterval(() => fetchData(true), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, []); // Only run on mount, not on language change
+
+  // Update language ref when language changes (for getTeamName/getLeagueName to react)
+  useEffect(() => {
+    prevLanguage.current = i18n.language;
+    // No need to fetch data, just let component re-render with new translations
+  }, [i18n.language]);
 
   // Function to get match analysis directly from ai_match_analyses table
   const getMatchAnalysisFromDB = async (
@@ -460,15 +477,46 @@ const ActiveAIBets = () => {
 
   // Helper function to get team name based on language
   const getTeamName = (match: DailyMatch | any, team: 'home' | 'away') => {
-    if ('home_team_name' in match) {
-      return team === 'home' ? match.home_team_name : match.away_team_name;
+    // Get original team name from match data
+    const originalName = ('home_team_name' in match)
+      ? (team === 'home' ? match.home_team_name : match.away_team_name)
+      : (team === 'home' ? match.homeTeam : match.awayTeam);
+    
+    if (!originalName) {
+      return '';
     }
-    return team === 'home' ? match.homeTeam : match.awayTeam;
+    
+    // If Chinese language, try to get translation from i18n
+    if (i18n.language === 'zh') {
+      const translatedName = t(`teams.${originalName}`, originalName);
+      // If translation key exists in resources, it will return the translated value
+      // Otherwise, it returns the original name as fallback
+      return translatedName;
+    }
+    
+    // Return original name for English
+    return originalName;
   };
 
   // Helper function to get league name based on language
   const getLeagueName = (match: DailyMatch | any) => {
-    return match.league_name || match.league;
+    // Get original league name from match data
+    const originalName = match.league_name || match.league;
+    
+    if (!originalName) {
+      return '';
+    }
+    
+    // If Chinese language, try to get translation from i18n
+    if (i18n.language === 'zh') {
+      const translatedName = t(`leagues.${originalName}`, originalName);
+      // If translation key exists in resources, it will return the translated value
+      // Otherwise, it returns the original name as fallback
+      return translatedName;
+    }
+    
+    // Return original name for English
+    return originalName;
   };
 
   // Convert database match to component format
@@ -742,7 +790,7 @@ const ActiveAIBets = () => {
                     variant="outline"
                     className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-muted/80 text-muted-foreground"
                   >
-                    暂无下注
+                    {t('no_bets')}
                   </Badge>
                 </div>
               )}
@@ -894,7 +942,7 @@ const ActiveAIBets = () => {
                     <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
                       {currentMatchData.match.home_logo ? (
                         <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={currentMatchData.match.home_logo} alt={currentMatchData.match.home_team_name} />
+                          <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
                           <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
                         </Avatar>
                       ) : (
@@ -927,7 +975,7 @@ const ActiveAIBets = () => {
                       </p>
                       {currentMatchData.match.away_logo ? (
                         <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={currentMatchData.match.away_logo} alt={currentMatchData.match.away_team_name} />
+                          <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
                           <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
                         </Avatar>
                       ) : (
@@ -944,7 +992,7 @@ const ActiveAIBets = () => {
                       {t('no_active_predictions')}
                     </p>
                     <p className="text-xs text-muted-foreground/70">
-                      该 AI 暂无下注记录
+                      {t('no_bets_for_ai')}
                     </p>
                   </div>
                 )}

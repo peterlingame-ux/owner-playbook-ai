@@ -22,7 +22,7 @@ type APISportsWidgetElement = HTMLElement & {
 };
 
 export default function Models() {
-  const { t } = useTranslation("models");
+  const { t } = useTranslation();
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [matchDetail, setMatchDetail] = useState<MatchDetailData | null>(null);
@@ -220,9 +220,7 @@ export default function Models() {
     if (!selectedGameId) {
       return (
         <p className="text-sm text-muted-foreground text-center py-6">
-          {t("models.selectTeamPrompt", {
-            defaultValue: "请选择上方球队以查看球队详情。",
-          })}
+          {t("models.selectTeamPrompt")}
         </p>
       );
     }
@@ -398,9 +396,7 @@ export default function Models() {
                       ></api-sports-widget>
                       {!selectedGameId && (
                         <p className="text-sm text-muted-foreground text-center py-8">
-                          {t("models.selectGamePrompt", {
-                            defaultValue: "请选择左侧比赛以查看详情。",
-                          })}
+                          {t("models.selectGamePrompt")}
                         </p>
                       )}
                     </div>

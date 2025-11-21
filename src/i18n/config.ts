@@ -1,5 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { teamsZh } from './teams-zh';
+import { leaguesZh } from './leagues-zh';
 
 const resources = {
   en: {
@@ -162,6 +164,10 @@ const resources = {
       "home_handicap": "Home Handicap",
       "away_handicap": "Away Handicap",
       "no_active_predictions": "No active predictions at the moment",
+      "no_bets_for_ai": "This AI has no betting records at the moment",
+      "no_bets": "No bets",
+      "models.selectTeamPrompt": "Please select a team above to view team details.",
+      "models.selectGamePrompt": "Please select a match on the left to view details.",
       "upcoming_match": "Upcoming",
       "prediction_summary": "Prediction Summary",
       "click_analyze_to_see_predictions": "Click the 'Analyze with AI' buttons above to generate match predictions from 5 different AI models.",
@@ -353,7 +359,11 @@ const resources = {
       // Blog page features
       "owner_sentiment_analysis": "Owner Sentiment Analysis",
       "player_technical_breakdown": "Player Technical Breakdown",
-      "odds_anomaly_monitoring": "Odds Anomaly Monitoring"
+      "odds_anomaly_monitoring": "Odds Anomaly Monitoring",
+      
+      // Teams and Leagues translations (empty for English, use original names)
+      "teams": {} as Record<string, string>,
+      "leagues": {} as Record<string, string>
     }
   },
   zh: {
@@ -515,6 +525,10 @@ const resources = {
       "home_handicap": "主队让球",
       "away_handicap": "客队让球",
       "no_active_predictions": "当前没有活跃的预测",
+      "no_bets_for_ai": "该 AI 暂无下注记录",
+      "no_bets": "暂无下注",
+      "models.selectTeamPrompt": "请选择上方球队以查看球队详情。",
+      "models.selectGamePrompt": "请选择左侧比赛以查看详情。",
       "upcoming_match": "即将开始",
       "prediction_summary": "预测汇总",
       "click_analyze_to_see_predictions": "点击上方的\"AI 分析\"按钮，让5个不同的AI模型生成比赛预测。",
@@ -706,10 +720,18 @@ const resources = {
       // Blog page features
       "owner_sentiment_analysis": "老板情绪面分析",
       "player_technical_breakdown": "球员技术面拆解",
-      "odds_anomaly_monitoring": "异常赔率监测"
+      "odds_anomaly_monitoring": "异常赔率监测",
+      
+      // Teams and Leagues translations (generated from CSV)
+      "teams": teamsZh,
+      "leagues": leaguesZh
     }
   }
 };
+
+// Import teams and leagues translations
+// Teams translations will be loaded dynamically or from a separate file
+// Leagues translations will be loaded dynamically or from a separate file
 
 const savedLanguage = localStorage.getItem('language') || 'en';
 
