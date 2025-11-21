@@ -272,6 +272,23 @@ const History = () => {
     }
   };
 
+  // Helper function to get team name based on language
+  const getTeamName = (match: HistoryRecord['match'], team: 'home' | 'away') => {
+    if (!match) return '';
+    
+    const originalName = team === 'home' ? match.homeTeam : match.awayTeam;
+    if (!originalName) return '';
+    
+    // If Chinese language, try to get translation from i18n
+    if (i18n.language === 'zh') {
+      const translatedName = t(`teams.${originalName}`, originalName);
+      return translatedName;
+    }
+    
+    // Return original name for English
+    return originalName;
+  };
+
   const getBetTypeLabel = (betType: string, prediction: HistoryRecord, match?: HistoryRecord['match']) => {
     switch(betType) {
       case "moneyline": 
@@ -286,19 +303,19 @@ const History = () => {
           const predStr = prediction.prediction as string;
           if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
             // 主队让球
-            const teamName = match?.homeTeam || 'Home';
+            const teamName = match ? getTeamName(match, 'home') : t('home') || 'Home';
             return `${teamName} ${lineStr}`;
           } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
             // 客队让球
-            const teamName = match?.awayTeam || 'Away';
+            const teamName = match ? getTeamName(match, 'away') : t('away') || 'Away';
             return `${teamName} ${lineStr}`;
           } else {
             // 如果无法从 prediction 判断，根据 handicapLine 的正负判断
             // 负数通常是主队让球，正数通常是客队让球
             if (prediction.handicapLine < 0 && match) {
-              return `${match.homeTeam} ${lineStr}`;
+              return `${getTeamName(match, 'home')} ${lineStr}`;
             } else if (prediction.handicapLine > 0 && match) {
-              return `${match.awayTeam} ${lineStr}`;
+              return `${getTeamName(match, 'away')} ${lineStr}`;
             }
             // 兜底：只显示数值
             return lineStr;
@@ -328,8 +345,8 @@ const History = () => {
       // 对于独赢，显示队伍名称或平局
       if (!match) return prediction.prediction;
       switch(prediction.prediction) {
-        case "HOME_WIN": return match.homeTeam;
-        case "AWAY_WIN": return match.awayTeam;
+        case "HOME_WIN": return getTeamName(match, 'home');
+        case "AWAY_WIN": return getTeamName(match, 'away');
         case "DRAW": return t('draw') || '平局';
         default: return prediction.prediction;
       }
@@ -337,8 +354,8 @@ const History = () => {
     // 默认情况
     if (!match) return prediction.prediction;
     switch(prediction.prediction) {
-      case "HOME_WIN": return match.homeTeam;
-      case "AWAY_WIN": return match.awayTeam;
+      case "HOME_WIN": return getTeamName(match, 'home');
+      case "AWAY_WIN": return getTeamName(match, 'away');
       case "DRAW": return t('draw') || '平局';
       default: return prediction.prediction;
     }
@@ -552,13 +569,13 @@ const History = () => {
                             {match.homeLogo && (
                               <img 
                                 src={match.homeLogo} 
-                                alt={match.homeTeam}
+                                alt={getTeamName(match, 'home')}
                                 className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
                               />
                             )}
                             <div className="flex-1 min-w-0">
                               <div className="text-xs sm:text-sm font-medium truncate">
-                                {match.homeTeam} vs {match.awayTeam}
+                                {getTeamName(match, 'home')} {t('vs_text') || 'vs'} {getTeamName(match, 'away')}
                               </div>
                               <div className="text-[10px] sm:text-xs text-muted-foreground font-mono">
                                 {match.homeScore !== null && match.awayScore !== null 

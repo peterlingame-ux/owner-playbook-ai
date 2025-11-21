@@ -167,7 +167,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       {/* Content */}
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
             <div 
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center p-1.5 sm:p-2 bg-card shrink-0"
               style={{
@@ -180,9 +180,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 text-center sm:text-left">
               {/* <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}> */}
-              <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: 'hsl(255 100% 100%)' }}>
+              <h3 className="font-bold text-xs sm:text-sm leading-tight" style={{ color: 'hsl(255 100% 100%)' }}>
                 {model.displayName}
               </h3>
             </div>

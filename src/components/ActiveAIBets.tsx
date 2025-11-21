@@ -33,7 +33,10 @@ const AI_ICONS: Record<string, string> = {
 
 // 比赛时间显示组件（进行时间或倒计时）
 const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
+  const { t } = useTranslation();
   const [timeDisplay, setTimeDisplay] = useState<string>('');
+  const [showCountdown, setShowCountdown] = useState<boolean>(false);
+  const [isLive, setIsLive] = useState<boolean>(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -41,6 +44,8 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       
       // 如果比赛已开赛（不是 NS），显示进行时间
       if (status !== 'NS') {
+        setShowCountdown(false);
+        setIsLive(status === 'LIVE');
         switch (status) {
           case 'HT':
             setTimeDisplay('HT');
@@ -69,12 +74,14 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       }
       
       // 如果未开赛，显示倒计时（时分秒格式）
+      setIsLive(false);
+      setShowCountdown(true);
       const kickoffTime = new Date(match.kickoff_at);
       const now = new Date();
       const diff = kickoffTime.getTime() - now.getTime();
       
       if (diff <= 0) {
-        setTimeDisplay('即将开始');
+        setTimeDisplay(t('starting_soon') || '即将开始');
         return;
       }
       
@@ -90,14 +97,39 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
     const interval = setInterval(updateTime, 1000);
     
     return () => clearInterval(interval);
-  }, [match.status_short, match.status_elapsed, match.kickoff_at]);
+  }, [match.status_short, match.status_elapsed, match.kickoff_at, t]);
+
+  const homeScore = match.goals_home ?? 0;
+  const awayScore = match.goals_away ?? 0;
 
   return (
     <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
-      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-      <span className="text-[7px] sm:text-[7px] text-muted-foreground">
-        {timeDisplay}
-      </span>
+      {isLive ? (
+        <>
+          {/* 比赛进行中：显示比分 */}
+          <div className="flex items-center gap-1 sm:gap-1">
+            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{homeScore}</span>
+            <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
+            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{awayScore}</span>
+          </div>
+          {/* 显示进行时间 */}
+          <span className="text-[7px] sm:text-[7px] text-success font-bold font-mono uppercase">
+            {timeDisplay}
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+          {showCountdown && (
+            <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
+              {t('until_match_starts') || '距离比赛开始'}
+            </span>
+          )}
+          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
+            {timeDisplay}
+          </span>
+        </>
+      )}
     </div>
   );
 };
@@ -937,54 +969,43 @@ const ActiveAIBets = () => {
                       {getLeagueName(currentMatchData.match)}
                     </Badge>
                   
-                  {/* Teams with Logos and Live Score */}
-                  <div className="flex items-center justify-between gap-1 sm:gap-1">
-                    <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
-                      {currentMatchData.match.home_logo ? (
-                        <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                          <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
-                        </Avatar>
-                      ) : (
-                        <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
-                        </div>
-                      )}
-                      <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
-                        {getTeamName(currentMatchData.match, 'home')}
-                      </p>
-                    </div>
-                    
-                    {/* Live Score - Only show for live matches */}
-                    {currentMatchData.match.status_short === "LIVE" ? (
-                      <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
-                        <div className="flex items-center gap-1 sm:gap-1">
-                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{currentMatchData.match.goals_home || 0}</span>
-                          <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
-                          <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{currentMatchData.match.goals_away || 0}</span>
-                        </div>
-                        <span className="text-[7px] sm:text-[7px] text-success font-bold uppercase">LIVE</span>
+                    {/* Teams with Logos */}
+                    <div className="flex items-center justify-between gap-1 sm:gap-1 px-1">
+                      <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
+                        {currentMatchData.match.home_logo ? (
+                          <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                            <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
+                            <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                          </div>
+                        )}
+                        <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
+                          {getTeamName(currentMatchData.match, 'home')}
+                        </p>
                       </div>
-                    ) : (
+                      
+                      {/* Match Time Display - Shows countdown or live score */}
                       <MatchTimeDisplay match={currentMatchData.match} />
-                    )}
-                    
-                    <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
-                      <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
-                        {getTeamName(currentMatchData.match, 'away')}
-                      </p>
-                      {currentMatchData.match.away_logo ? (
-                        <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                          <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                          <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
-                        </Avatar>
-                      ) : (
-                        <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
-                        </div>
-                      )}
+                      
+                      <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
+                        <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
+                          {getTeamName(currentMatchData.match, 'away')}
+                        </p>
+                        {currentMatchData.match.away_logo ? (
+                          <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                            <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
+                            <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
                   </div>
                 ) : (
                   <div className="space-y-2 py-4 text-center">
@@ -1005,7 +1026,7 @@ const ActiveAIBets = () => {
                       {/* Header */}
                       <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
                         <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                          {t('handicap_bet')}
+                          {t('bet_slip')}
                         </p>
                         <Badge 
                           variant={handicapBet.confirmed ? "default" : "outline"}
@@ -1023,29 +1044,18 @@ const ActiveAIBets = () => {
                       <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
                         <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                            <div className="flex items-center gap-1">
-                              {handicapBet.prediction === 'HOME_WIN' && currentMatchData?.match.home_logo ? (
-                                <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border">
-                                  <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                                  <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
-                                </Avatar>
-                              ) : handicapBet.prediction === 'AWAY_WIN' && currentMatchData?.match.away_logo ? (
-                                <Avatar className="h-4 w-4 sm:h-5 sm:w-5 ring-1 ring-border">
-                                  <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                                  <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
-                                </Avatar>
-                              ) : null}
-                              <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
-                                {handicapBet.prediction === 'HOME_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'home') : 
-                                 handicapBet.prediction === 'AWAY_WIN' ? getTeamName(convertMatch(currentMatchData!.match), 'away') : 
-                                 t('draw')}
-                              </Badge>
+                            <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
+                              {handicapBet.prediction === 'HOME_WIN' || handicapBet.prediction === 'HOME' 
+                                ? getTeamName(currentMatchData!.match, 'home')
+                                : handicapBet.prediction === 'AWAY_WIN' || handicapBet.prediction === 'AWAY' 
+                                ? getTeamName(currentMatchData!.match, 'away')
+                                : t('draw')}
                               {handicapBet.handicapLine !== undefined && (
-                                <Badge variant="default" className="text-[9px] sm:text-[9px] font-mono-data font-bold bg-foreground/20 text-foreground border-foreground/30 px-1.5 sm:px-1.5 py-0.5">
+                                <span className="ml-1 font-mono-data">
                                   {handicapBet.handicapLine > 0 ? '+' : ''}{handicapBet.handicapLine}
-                                </Badge>
+                                </span>
                               )}
-                            </div>
+                            </Badge>
                             <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
                               {handicapBet.confidence}% {t('confidence')}
                             </Badge>
@@ -1061,45 +1071,51 @@ const ActiveAIBets = () => {
                             {t('handicap_bet')}
                           </p>
                           <div className="grid grid-cols-2 gap-1">
-                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                              handicapBet.prediction === "HOME_WIN" 
+                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
+                              handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
                                 ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                 : "bg-card border-border/50"
                             }`}>
+                              {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                              )}
                               <div className="flex items-center gap-1">
                                 {currentMatchData?.match.home_logo ? (
-                                  <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border">
+                                  <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
                                     <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
                                     <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
                                   </Avatar>
                                 ) : null}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(convertMatch(currentMatchData!.match), 'home')}</p>
+                                  <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(currentMatchData!.match, 'home')}</p>
                                 </div>
                                 {handicapBet.handicapLine !== undefined && (
-                                  <Badge variant={handicapBet.prediction === "HOME_WIN" ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1">
+                                  <Badge variant={(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
                                     {handicapBet.handicapLine > 0 ? `+${handicapBet.handicapLine}` : `${handicapBet.handicapLine}`}
                                   </Badge>
                                 )}
                               </div>
                             </div>
-                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
-                              handicapBet.prediction === "AWAY_WIN" 
+                            <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
+                              handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
                                 ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                 : "bg-card border-border/50"
                             }`}>
+                              {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                              )}
                               <div className="flex items-center gap-1">
                                 {currentMatchData?.match.away_logo ? (
-                                  <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border">
+                                  <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
                                     <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
                                     <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
                                   </Avatar>
                                 ) : null}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(convertMatch(currentMatchData!.match), 'away')}</p>
+                                  <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(currentMatchData!.match, 'away')}</p>
                                 </div>
                                 {handicapBet.handicapLine !== undefined && (
-                                  <Badge variant={handicapBet.prediction === "AWAY_WIN" ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1">
+                                  <Badge variant={(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
                                     {(() => {
                                       const awayLine = -handicapBet.handicapLine;
                                       return awayLine > 0 ? `+${awayLine}` : `${awayLine}`;
@@ -1186,27 +1202,22 @@ const ActiveAIBets = () => {
                             {t('over_under_bet')}
                           </p>
                           <div className="grid grid-cols-2 gap-1">
-                            {/* 大球选项 - 显示主队名称，根据输赢预测决定是否选中 */}
+                            {/* 大球选项 - 根据实际的大小球预测高亮 */}
                             {(() => {
-                              // 根据输赢预测决定是否选中：HOME_WIN 选中大球（主队），DRAW 则都不亮
-                              const isSelected = moneylineBet?.prediction === 'HOME_WIN';
+                              // 根据实际的大小球预测决定是否选中
+                              const isSelected = overUnderBet.overUnderPick === 'over';
                               
                               return (
-                                <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                                <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
                                   isSelected
                                     ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                     : "bg-card border-border/50"
                                 }`}>
-                                  <div className="flex items-center gap-1">
-                                    {currentMatchData?.match.home_logo ? (
-                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
-                                        <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                                        <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
-                                      </Avatar>
-                                    ) : null}
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(currentMatchData!.match, 'home')}</p>
-                                    </div>
+                                  {isSelected && (
+                                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                  )}
+                                  <div className="flex items-center gap-1 justify-center">
+                                    <p className="text-[7px] sm:text-[8px] font-medium">{t('over')}</p>
                                     <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
                                       {overUnderBet.overUnderLine}
                                     </Badge>
@@ -1214,27 +1225,22 @@ const ActiveAIBets = () => {
                                 </div>
                               );
                             })()}
-                            {/* 小球选项 - 显示客队名称，根据输赢预测决定是否选中 */}
+                            {/* 小球选项 - 根据实际的大小球预测高亮 */}
                             {(() => {
-                              // 根据输赢预测决定是否选中：AWAY_WIN 选中小球（客队），DRAW 则都不亮
-                              const isSelected = moneylineBet?.prediction === 'AWAY_WIN';
+                              // 根据实际的大小球预测决定是否选中
+                              const isSelected = overUnderBet.overUnderPick === 'under';
                               
                               return (
-                                <div className={`p-1 sm:p-1.5 rounded border-2 transition-all ${
+                                <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
                                   isSelected
                                     ? "bg-primary/20 border-primary shadow-lg shadow-primary/30" 
                                     : "bg-card border-border/50"
                                 }`}>
-                                  <div className="flex items-center gap-1">
-                                    {currentMatchData?.match.away_logo ? (
-                                      <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
-                                        <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                                        <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
-                                      </Avatar>
-                                    ) : null}
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-[7px] sm:text-[8px] font-medium truncate">{getTeamName(currentMatchData!.match, 'away')}</p>
-                                    </div>
+                                  {isSelected && (
+                                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                  )}
+                                  <div className="flex items-center gap-1 justify-center">
+                                    <p className="text-[7px] sm:text-[8px] font-medium">{t('under')}</p>
                                     <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
                                       {overUnderBet.overUnderLine}
                                     </Badge>
