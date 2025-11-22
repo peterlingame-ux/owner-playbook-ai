@@ -55,14 +55,14 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
         if (shouldShowScore) {
           // 这些状态需要显示比分和时长
           const elapsed = match.status_elapsed;
-          switch (status) {
-            case 'HT':
+        switch (status) {
+          case 'HT':
               // 中场休息，显示 HT
-              setTimeDisplay('HT');
+            setTimeDisplay('HT');
               break;
             case '1H':
-            case '2H':
-            case 'ET':
+          case '2H':
+          case 'ET':
             case 'LIVE':
               // 显示进行分钟数
               setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
@@ -75,16 +75,16 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
           // 其他状态（如 P, BREAK 等）只显示状态文本
           setIsLive(false);
           switch (status) {
-            case 'P':
-              setTimeDisplay('PEN');
+          case 'P':
+            setTimeDisplay('PEN');
               break;
-            case 'BREAK':
-              setTimeDisplay('BREAK');
+          case 'BREAK':
+            setTimeDisplay('BREAK');
               break;
-            default:
-              setTimeDisplay(status);
+          default:
+            setTimeDisplay(status);
               break;
-          }
+        }
         }
         return;
       }
@@ -135,15 +135,15 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
         </>
       ) : (
         <>
-          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
           {showCountdown && (
             <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
               {t('until_match_starts') || '距离比赛开始'}
             </span>
           )}
           <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
-            {timeDisplay}
-          </span>
+        {timeDisplay}
+      </span>
         </>
       )}
     </div>
@@ -1000,41 +1000,41 @@ const ActiveAIBets = () => {
                   
                     {/* Teams with Logos */}
                     <div className="flex items-center justify-between gap-1 sm:gap-1 px-1">
-                      <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
-                        {currentMatchData.match.home_logo ? (
-                          <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                            <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                            <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                            <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
-                          </div>
-                        )}
-                        <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
-                          {getTeamName(currentMatchData.match, 'home')}
-                        </p>
-                      </div>
-                      
+                    <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
+                      {currentMatchData.match.home_logo ? (
+                        <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                          <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
+                          <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                        </div>
+                      )}
+                      <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
+                        {getTeamName(currentMatchData.match, 'home')}
+                      </p>
+                    </div>
+                    
                       {/* Match Time Display - Shows countdown or live score */}
                       <MatchTimeDisplay match={currentMatchData.match} />
-                      
-                      <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
-                        <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
-                          {getTeamName(currentMatchData.match, 'away')}
-                        </p>
-                        {currentMatchData.match.away_logo ? (
-                          <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                            <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                            <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                            <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
+                    
+                    <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
+                      <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
+                        {getTeamName(currentMatchData.match, 'away')}
+                      </p>
+                      {currentMatchData.match.away_logo ? (
+                        <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                          <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
+                          <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
+                  </div>
                   </div>
                 ) : (
                   <div className="space-y-2 py-4 text-center">
@@ -1073,7 +1073,7 @@ const ActiveAIBets = () => {
                       <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
                         <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
+                              <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-primary/15 text-primary border-primary/40 px-2 sm:px-2 py-1 sm:py-1">
                               {handicapBet.prediction === 'HOME_WIN' || handicapBet.prediction === 'HOME' 
                                 ? getTeamName(currentMatchData!.match, 'home')
                                 : handicapBet.prediction === 'AWAY_WIN' || handicapBet.prediction === 'AWAY' 

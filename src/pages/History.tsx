@@ -551,23 +551,36 @@ const History = () => {
                         </TableCell>
                         
                         <TableCell className="px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="flex items-center gap-2 min-w-[180px]">
-                            {match.homeLogo && (
-                              <img 
-                                src={match.homeLogo} 
-                                alt={getTeamName(match, 'home')}
-                                className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs sm:text-sm font-medium truncate">
-                                {getTeamName(match, 'home')} {t('vs_text') || 'vs'} {getTeamName(match, 'away')}
-                              </div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground font-mono">
-                                {match.homeScore !== null && match.awayScore !== null 
-                                  ? `${match.homeScore} - ${match.awayScore}`
-                                  : '-'}
-                              </div>
+                          <div className="flex flex-col gap-1 min-w-[180px]">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              {match.homeLogo && (
+                                <img 
+                                  src={match.homeLogo} 
+                                  alt={getTeamName(match, 'home')}
+                                  className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+                                />
+                              )}
+                              <span className="text-xs sm:text-sm font-medium truncate">{getTeamName(match, 'home')}</span>
+                              <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">{t('vs_text') || 'vs'}</span>
+                              <span className="text-xs sm:text-sm font-medium truncate">{getTeamName(match, 'away')}</span>
+                              {match.awayLogo && (
+                                <img 
+                                  src={match.awayLogo} 
+                                  alt={getTeamName(match, 'away')}
+                                  className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+                                />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground font-mono">
+                              {match.homeScore !== null && match.awayScore !== null ? (
+                                <>
+                                  <span>{match.homeScore}</span>
+                                  <span>-</span>
+                                  <span>{match.awayScore}</span>
+                                </>
+                              ) : (
+                                <span>-</span>
+                              )}
                             </div>
                           </div>
                         </TableCell>
