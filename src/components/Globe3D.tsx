@@ -2,7 +2,8 @@ import { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
-import earthTexture from '@/assets/earth-texture.jpg';
+// Using high-quality NASA Blue Marble Earth texture
+const EARTH_TEXTURE_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg';
 
 interface ViewerDot {
   position: [number, number, number];
@@ -10,11 +11,11 @@ interface ViewerDot {
 }
 
 const Globe3D = () => {
-  const globeRef = useRef<THREE.Mesh>(null);
+  const globeGroupRef = useRef<THREE.Group>(null);
   const dotsGroupRef = useRef<THREE.Group>(null);
   
-  // Load earth texture
-  const texture = useLoader(THREE.TextureLoader, earthTexture);
+  // Load high-quality earth texture with atmosphere
+  const texture = useLoader(THREE.TextureLoader, EARTH_TEXTURE_URL);
 
   // Generate random viewer locations on sphere surface
   const viewerDots = useMemo(() => {
@@ -41,10 +42,13 @@ const Globe3D = () => {
     return dots;
   }, []);
 
-  // Auto-rotate globe
+  // Auto-rotate globe and dots together
   useFrame((state) => {
-    if (globeRef.current) {
-      globeRef.current.rotation.y += 0.002;
+    const rotationSpeed = 0.002;
+    
+    // Rotate the entire group (globe + dots) together
+    if (globeGroupRef.current) {
+      globeGroupRef.current.rotation.y += rotationSpeed;
     }
     
     // Animate dots pulsing
@@ -58,40 +62,70 @@ const Globe3D = () => {
 
   return (
     <>
-      {/* Globe with real earth texture */}
-      <Sphere ref={globeRef} args={[2, 64, 64]}>
-        <meshStandardMaterial
-          map={texture}
-          metalness={0.1}
-          roughness={0.8}
-        />
-      </Sphere>
+      {/* Group containing globe and dots - rotates together */}
+      <group ref={globeGroupRef}>
+        {/* Globe with high-quality earth texture */}
+        <Sphere args={[2, 128, 128]}>
+          <meshStandardMaterial
+            map={texture}
+            metalness={0.0}
+            roughness={0.7}
+            emissive={new THREE.Color(0x222222)}
+            emissiveIntensity={0.1}
+          />
+        </Sphere>
+        
+        {/* Atmospheric glow effect */}
+        <Sphere args={[2.02, 64, 64]}>
+          <meshBasicMaterial
+            color={0x87ceeb}
+            transparent
+            opacity={0.15}
+            side={THREE.BackSide}
+          />
+        </Sphere>
 
-      {/* Viewer dots */}
-      <group ref={dotsGroupRef}>
-        {viewerDots.map((dot, index) => (
-          <mesh key={index} position={dot.position}>
-            <sphereGeometry args={[0.04, 16, 16]} />
-            <meshBasicMaterial color="#ef4444" />
-            {/* Glow effect */}
-            <mesh scale={1.5}>
+        {/* Viewer dots - fixed on globe surface */}
+        <group ref={dotsGroupRef}>
+          {viewerDots.map((dot, index) => (
+            <mesh key={index} position={dot.position}>
               <sphereGeometry args={[0.04, 16, 16]} />
-              <meshBasicMaterial
-                color="#ef4444"
-                transparent
-                opacity={0.3}
-              />
+              <meshBasicMaterial color="#ef4444" />
+              {/* Glow effect */}
+              <mesh scale={1.5}>
+                <sphereGeometry args={[0.04, 16, 16]} />
+                <meshBasicMaterial
+                  color="#ef4444"
+                  transparent
+                  opacity={0.3}
+                />
+              </mesh>
             </mesh>
-          </mesh>
-        ))}
+          ))}
+        </group>
       </group>
 
-      {/* Ambient light */}
-      <ambientLight intensity={0.3} />
+      {/* Ambient light - increased for better visibility */}
+      <ambientLight intensity={0.8} />
       
-      {/* Directional light */}
-      <directionalLight position={[5, 5, 5]} intensity={0.8} />
-      <directionalLight position={[-5, -5, -5]} intensity={0.3} />
+      {/* Main directional light (sun) - brighter */}
+      <directionalLight 
+        position={[5, 3, 5]} 
+        intensity={2.0}
+        castShadow={false}
+      />
+      
+      {/* Fill light from opposite side */}
+      <directionalLight 
+        position={[-3, -2, -3]} 
+        intensity={0.8}
+      />
+      
+      {/* Additional point light for brightness */}
+      <pointLight position={[5, 5, 5]} intensity={1.0} distance={15} />
+      
+      {/* Extra point light for even illumination */}
+      <pointLight position={[-5, -5, -5]} intensity={0.6} distance={15} />
     </>
   );
 };

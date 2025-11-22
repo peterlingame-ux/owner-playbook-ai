@@ -13,13 +13,7 @@ import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
-import starRonaldo from "@/assets/star-ronaldo.jpg";
-import starMessi from "@/assets/star-messi.jpg";
-import starHaaland from "@/assets/star-haaland.jpg";
-import starMbappe from "@/assets/star-mbappe.jpg";
-import starNeymar from "@/assets/star-neymar.jpg";
-import expertMystery from "@/assets/expert-mystery.jpg";
-import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+import iconGreencourt from "@/assets/icon_greencourt.jpg";
 
 const ModelDetail = () => {
   const { t } = useTranslation();
@@ -97,16 +91,8 @@ const ModelDetail = () => {
   };
 
   const getModelBackground = (modelId: string) => {
-    switch(modelId) {
-      case "deepseek": return starRonaldo;
-      case "gpt5": return starNeymar;
-      case "claude": return starMessi;
-      case "gemini": return starHaaland;
-      case "grok": return starMbappe;
-      case "mystery": return expertMystery;
-      case "hunsoccermax": return starHunsoccer;
-      default: return starRonaldo;
-    }
+    // 统一使用绿色球场背景图
+    return iconGreencourt;
   };
 
   return (

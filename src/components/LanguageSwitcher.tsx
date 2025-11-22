@@ -33,7 +33,7 @@ const LanguageSwitcher = () => {
         alt={i18n.language === 'en' ? 'USA Flag' : 'China Flag'}
         className="h-4 w-6 object-cover rounded-sm"
       />
-      {i18n.language === 'en' ? '中文' : 'EN'}
+      {i18n.language === 'en' ? 'EN' : '中文'}
     </Button>
   );
 };

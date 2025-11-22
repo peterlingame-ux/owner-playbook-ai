@@ -42,35 +42,51 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
     const updateTime = () => {
       const status = match.status_short;
       
+      // 需要显示比分和时长的状态：LIVE, 1H, HT, 2H, ET
+      const showScoreAndTimeStatuses = ['LIVE', '1H', 'HT', '2H', 'ET'];
+      
       // 如果比赛已开赛（不是 NS），显示进行时间
       if (status !== 'NS') {
         setShowCountdown(false);
-        setIsLive(status === 'LIVE');
-        switch (status) {
-          case 'HT':
-            setTimeDisplay('HT');
-            return;
-          case '2H':
-            setTimeDisplay('2H');
-            return;
-          case 'ET':
-            setTimeDisplay('ET');
-            return;
-          case 'P':
-            setTimeDisplay('PEN');
-            return;
-          case 'BREAK':
-            setTimeDisplay('BREAK');
-            return;
-          case 'LIVE':
-            // LIVE 状态显示进行分钟数
-            const elapsed = match.status_elapsed;
-            setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : 'LIVE');
-            return;
-          default:
-            setTimeDisplay(status);
-            return;
+        // 判断是否需要显示比分和时长
+        const shouldShowScore = showScoreAndTimeStatuses.includes(status);
+        setIsLive(shouldShowScore);
+        
+        if (shouldShowScore) {
+          // 这些状态需要显示比分和时长
+          const elapsed = match.status_elapsed;
+          switch (status) {
+            case 'HT':
+              // 中场休息，显示 HT
+              setTimeDisplay('HT');
+              break;
+            case '1H':
+            case '2H':
+            case 'ET':
+            case 'LIVE':
+              // 显示进行分钟数
+              setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
+              break;
+            default:
+              setTimeDisplay(status);
+              break;
+          }
+        } else {
+          // 其他状态（如 P, BREAK 等）只显示状态文本
+          setIsLive(false);
+          switch (status) {
+            case 'P':
+              setTimeDisplay('PEN');
+              break;
+            case 'BREAK':
+              setTimeDisplay('BREAK');
+              break;
+            default:
+              setTimeDisplay(status);
+              break;
+          }
         }
+        return;
       }
       
       // 如果未开赛，显示倒计时（时分秒格式）
@@ -313,14 +329,26 @@ const ActiveAIBets = () => {
         }
         
         const today = new Date().toISOString().split('T')[0];
+        // 计算昨天的日期
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        
+        // Completed statuses that should be excluded (same as fetch-daily-matches)
+        const COMPLETED_STATUSES = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
 
-        // Fetch today's matches (live or upcoming)
+        // Fetch yesterday's and today's matches (live or upcoming) - exclude completed matches
+        // Use client-side filtering to avoid missing any active status values from API
         const { data: matchesData, error: matchesError } = await supabase
           .from('daily_matches' as any)
           .select('*')
-          .eq('date', today)
-          .in('status_short', ['NS', 'LIVE', 'HT', '2H', 'ET', 'P', 'BREAK'])
+          .in('date', [yesterdayStr, today])
           .order('kickoff_at', { ascending: true });
+        
+        // Filter out completed matches on client side (same logic as fetch-daily-matches)
+        const activeMatches = (matchesData || []).filter((match: any) => 
+          !match.status_short || !COMPLETED_STATUSES.includes(match.status_short)
+        );
 
         if (matchesError) {
           console.error('Error fetching matches:', matchesError);
@@ -332,16 +360,17 @@ const ActiveAIBets = () => {
             });
           }
         } else {
-          const matchesList = (matchesData || []) as unknown as DailyMatch[];
+          const matchesList = (activeMatches || []) as unknown as DailyMatch[];
           setMatches(matchesList);
         }
 
         // Fetch auto bets (pending status for active predictions)
+        // 包含昨天和今天的投注（因为要显示昨天和今天的比赛）
         const { data: betsData, error: betsError } = await supabase
           .from('ai_auto_bets' as any)
           .select('*')
           .eq('status', 'pending')
-          .gte('inserted_at', `${today}T00:00:00Z`)
+          .gte('inserted_at', `${yesterdayStr}T00:00:00Z`)
           .order('inserted_at', { ascending: false });
 
         if (betsError) {

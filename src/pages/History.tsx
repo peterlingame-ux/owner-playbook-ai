@@ -16,13 +16,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import CryptoTicker from "@/components/CryptoTicker";
 import { supabase } from "@/integrations/supabase/client";
-import starRonaldo from "@/assets/star-ronaldo.jpg";
-import starMessi from "@/assets/star-messi.jpg";
-import starHaaland from "@/assets/star-haaland.jpg";
-import starMbappe from "@/assets/star-mbappe.jpg";
-import starNeymar from "@/assets/star-neymar.jpg";
-import expertMystery from "@/assets/expert-mystery.jpg";
-import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+import iconGreencourt from "@/assets/icon_greencourt.jpg";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -260,16 +254,8 @@ const History = () => {
   const selectedModel = filterModel !== "all" ? aiModels.find(m => m.id === filterModel) : null;
 
   const getModelBackground = (modelId: string) => {
-    switch(modelId) {
-      case "deepseek": return starRonaldo;
-      case "gpt5": return starNeymar;
-      case "claude": return starMessi;
-      case "gemini": return starHaaland;
-      case "grok": return starMbappe;
-      case "mystery": return expertMystery;
-      case "hunsoccermax": return starHunsoccer;
-      default: return starRonaldo;
-    }
+    // 统一使用绿色球场背景图
+    return iconGreencourt;
   };
 
   // Helper function to get team name based on language
