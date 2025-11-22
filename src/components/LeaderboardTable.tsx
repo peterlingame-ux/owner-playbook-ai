@@ -218,6 +218,15 @@ const LeaderboardTable = () => {
       {/* Leaderboard Table */}
       <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
         <CardContent className="p-0">
+          {/* 滚动提示 - 仅移动端显示 */}
+          <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
+            </div>
+          </div>
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <Table className="min-w-[800px]">
