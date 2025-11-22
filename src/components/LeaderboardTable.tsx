@@ -380,7 +380,7 @@ const LeaderboardTable = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
               
               <CardContent className="p-4 sm:p-6 relative z-10">
-                <div className="flex items-end justify-between gap-2 sm:gap-4 h-[240px] sm:h-[320px]">
+                <div className="flex items-end gap-2 sm:gap-4 h-[240px] sm:h-[320px]">
                   {(() => {
                     // 固定基准：100% 胜率对应最大高度
                     const maxHeight = 240; // 最大高度（px），对应容器高度
@@ -395,7 +395,7 @@ const LeaderboardTable = () => {
                       const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
                       
                       return (
-                        <div key={model.id} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2">
+                        <div key={model.id} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
                           <div className="text-[10px] sm:text-sm font-mono-data font-bold mb-1 sm:mb-2">
                             <AnimatedWinRate 
                               value={model.winRate}
