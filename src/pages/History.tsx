@@ -510,8 +510,8 @@ const History = () => {
                   <TableHead className="w-[80px] sm:w-[100px] text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
                   <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('match')}</TableHead>
                   <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('model')}</TableHead>
-                  <TableHead className="hidden md:table-cell text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('ai_prediction')}</TableHead>
-                  <TableHead className="hidden sm:table-cell text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
+                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('ai_prediction')}</TableHead>
+                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
                   <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('odds')}</TableHead>
                   <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
                   <TableHead className="text-center text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
@@ -587,13 +587,13 @@ const History = () => {
                           </div>
                         </TableCell>
                         
-                        <TableCell className="hidden md:table-cell text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
+                        <TableCell className="text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
                           <div className="truncate max-w-[120px]">
                             {getPredictionLabel(prediction, match)}
                           </div>
                         </TableCell>
                         
-                        <TableCell className="hidden sm:table-cell text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
+                        <TableCell className="text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
                           <div className="truncate max-w-[140px]">
                             {getBetTypeLabel(prediction.betType, prediction, match)}
                           </div>

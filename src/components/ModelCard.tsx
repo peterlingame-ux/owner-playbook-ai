@@ -183,7 +183,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
             <div className="min-w-0 flex-1 text-center sm:text-left">
               {/* <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}> */}
               <h3 className="font-bold text-xs sm:text-sm leading-tight" style={{ color: 'hsl(255 100% 100%)' }}>
-                {model.displayName}
+                {model.displayName.split(' ')[0]}
               </h3>
             </div>
           </div>

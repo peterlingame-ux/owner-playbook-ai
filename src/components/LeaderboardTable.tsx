@@ -220,7 +220,7 @@ const LeaderboardTable = () => {
         <CardContent className="p-0">
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
-              <Table>
+              <Table className="min-w-[800px]">
                 <TableHeader>
                   <TableRow className="border-b border-border/50 hover:bg-transparent bg-muted/30">
                     <TableHead className="w-8 sm:w-12 py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase text-center">#</TableHead>
@@ -230,11 +230,11 @@ const LeaderboardTable = () => {
                         {t('win_rate')} <ArrowDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                       </div>
                     </TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase hidden sm:table-cell">{t('predictions')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase hidden md:table-cell">{t('correct')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase hidden md:table-cell">{t('wrong')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase hidden lg:table-cell">{t('best_streak')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase hidden lg:table-cell">{t('avg_confidence')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('predictions')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('correct')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('avg_confidence')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -263,27 +263,27 @@ const LeaderboardTable = () => {
                           style={{ color: `hsl(var(--${model.color}))` }}
                         />
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3 hidden sm:table-cell">
+                      <TableCell className="text-center py-2 sm:py-3">
                         <span className="font-mono-data text-xs sm:text-sm text-muted-foreground">
                           {model.locked ? '???' : model.totalPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3 hidden md:table-cell">
+                      <TableCell className="text-center py-2 sm:py-3">
                         <span className="font-mono-data font-semibold text-xs sm:text-sm text-foreground/90">
                           {model.locked ? '???' : model.correctPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3 hidden md:table-cell">
+                      <TableCell className="text-center py-2 sm:py-3">
                         <span className="font-mono-data font-semibold text-xs sm:text-sm text-foreground/50">
                           {model.locked ? '???' : model.wrongPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3 hidden lg:table-cell">
+                      <TableCell className="text-center py-2 sm:py-3">
                         <span className="font-mono-data text-xs sm:text-sm text-foreground/70">
                           {model.locked ? '???' : '+' + model.bestStreak}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3 hidden lg:table-cell">
+                      <TableCell className="text-center py-2 sm:py-3">
                         <span className="font-mono-data text-xs sm:text-sm text-foreground/80">
                           {model.locked ? '???' : model.avgConfidence + '%'}
                         </span>

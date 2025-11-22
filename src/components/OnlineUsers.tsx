@@ -10,11 +10,13 @@ const OnlineUsers = () => {
   const [onlineCount, setOnlineCount] = useState(1);
 
   useEffect(() => {
-    // Simulate online users count with random fluctuation
+    // Simulate online users count with random fluctuation (1000-5000)
     const updateOnlineCount = () => {
-      const baseCount = 1247;
-      const variation = Math.floor(Math.random() * 100) - 50;
-      setOnlineCount(baseCount + variation);
+      // 生成 1000 到 5000 之间的随机数
+      const min = 1000;
+      const max = 5000;
+      const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
+      setOnlineCount(randomCount);
     };
 
     // Initial update
@@ -41,7 +43,7 @@ const OnlineUsers = () => {
           </div>
           <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
           <span className="font-bold font-mono-data text-[10px] sm:text-sm">{onlineCount.toLocaleString()}</span>
-          <span className="text-[9px] sm:text-xs hidden sm:inline">{t('users_watching')}</span>
+          <span className="text-[9px] sm:text-xs">{t('users_watching')}</span>
         </Badge>
       </HoverCardTrigger>
       <HoverCardContent className="w-auto p-0 border-0 bg-transparent shadow-2xl">
