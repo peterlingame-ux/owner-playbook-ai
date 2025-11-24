@@ -57,8 +57,8 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
           const elapsed = match.status_elapsed;
         switch (status) {
           case 'HT':
-              // 中场休息，显示 HT
-            setTimeDisplay('HT');
+              // 中场休息，显示多语言的"半场"
+            setTimeDisplay(t('half_time') || '半场');
               break;
             case '1H':
           case '2H':
@@ -328,11 +328,21 @@ const ActiveAIBets = () => {
           setIsInitialLoading(true);
         }
         
-        const today = new Date().toISOString().split('T')[0];
-        // 计算昨天的日期
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        // 获取 UTC+8 时区的日期字符串（与数据库存储一致）
+        const getUTC8DateString = (date: Date): string => {
+          const formatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Shanghai', // UTC+8 时区
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          });
+          return formatter.format(date);
+        };
+        
+        const today = getUTC8DateString(new Date());
+        // 计算昨天的日期（UTC+8）
+        const yesterdayDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const yesterdayStr = getUTC8DateString(yesterdayDate);
         
         // Completed statuses that should be excluded (same as fetch-daily-matches)
         const COMPLETED_STATUSES = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];

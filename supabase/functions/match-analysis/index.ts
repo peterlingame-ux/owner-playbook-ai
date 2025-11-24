@@ -291,22 +291,50 @@ const resolveStrategy = (
 });
 
 // 获取当天的比赛
+// 获取 UTC+8 时区的日期字符串（YYYY-MM-DD）
+const getUTC8DateString = (date: Date): string => {
+  // 使用 Intl.DateTimeFormat 获取 UTC+8 时区的日期
+  // 格式化为 YYYY-MM-DD
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai', // UTC+8 时区
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  return formatter.format(date);
+};
+
 const getTodayMatches = async () => {
   if (!supabase) {
     throw new Error('Supabase client not configured');
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  // 获取今天和昨天的日期（使用 UTC+8 时区，与数据库存储一致）
+  const now = new Date();
+  const today = getUTC8DateString(now);
+  
+  // 计算昨天的日期（UTC+8）
+  // 先获取 UTC+8 的当前时间，然后减去 24 小时
+  const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = getUTC8DateString(yesterdayDate);
+  
+  console.log(`[getTodayMatches] 查询比赛: 昨天=${yesterdayStr}, 今天=${today}, status_short IN ['NS', 'LIVE', 'HT', '2H', 'ET', 'P', 'BREAK']`);
+  
   const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select('*')
-    .eq('date', today)
+    .in('date', [yesterdayStr, today])
     .in('status_short', ['NS', 'LIVE', 'HT', '2H', 'ET', 'P', 'BREAK'])
     .order('kickoff_at', { ascending: true });
 
   if (error) {
-    console.error('Error fetching today matches:', error);
+    console.error('[getTodayMatches] 查询失败:', error);
     throw error;
+  }
+
+  console.log(`[getTodayMatches] 查询成功: 找到 ${data?.length || 0} 场比赛`);
+  if (data && data.length > 0) {
+    console.log(`[getTodayMatches] 比赛详情: ${data.map((m: any) => `id=${m.fixture_id}, ${m.home_team_name} vs ${m.away_team_name}, status=${m.status_short}`).join('; ')}`);
   }
 
   return data || [];
@@ -328,18 +356,23 @@ const generateDefaultBetInfo = (prediction: string, confidence: number): BetInfo
 };
 
 const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: MatchRequest[]; error?: string }> => {
-  const today = new Date().toISOString().split('T')[0];
+  // 获取今天和昨天的日期（使用 UTC+8 时区，与数据库存储一致）
+  const now = new Date();
+  const today = getUTC8DateString(now);
+  // 计算昨天的日期（UTC+8）
+  const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = getUTC8DateString(yesterdayDate);
   
-  // 如果提供了 matches 数组，过滤出当天的比赛
+  // 如果提供了 matches 数组，过滤出昨天和今天的比赛
   if (Array.isArray(body.matches) && body.matches.length > 0) {
-    // 验证比赛是否是当天的（通过检查 matchId 是否在当天的比赛中）
+    // 验证比赛是否是昨天或今天的（通过检查 matchId 是否在昨天和今天的比赛中）
     if (supabase) {
       const matchIds = body.matches.map(m => m.matchId).filter(Boolean) as number[];
       if (matchIds.length > 0) {
         const { data: todayMatches } = await supabase
           .from(DAILY_MATCHES_TABLE)
           .select('fixture_id')
-          .eq('date', today)
+          .in('date', [yesterdayStr, today])
           .in('fixture_id', matchIds);
         
         const validMatchIds = new Set((todayMatches || []).map((m: any) => m.fixture_id));
@@ -348,7 +381,7 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
         if (filteredMatches.length === 0) {
           return {
             matches: [],
-            error: "提供的比赛不是当天的比赛，只分析当天的比赛数据"
+            error: "提供的比赛不是昨天或今天的比赛，只分析昨天和今天的比赛数据"
           };
         }
         
@@ -358,7 +391,7 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
     return { matches: body.matches };
   }
 
-  // 如果提供了 matchInfo 和 betInfo，验证是否是当天的比赛
+  // 如果提供了 matchInfo 和 betInfo，验证是否是昨天或今天的比赛
   if (body.matchInfo && body.betInfo) {
     if (body.matchId && supabase) {
       const { data: matchData } = await supabase
@@ -367,10 +400,10 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
         .eq('fixture_id', body.matchId)
         .single();
       
-      if (matchData && matchData.date !== today) {
+      if (matchData && matchData.date !== today && matchData.date !== yesterdayStr) {
         return {
           matches: [],
-          error: "提供的比赛不是当天的比赛，只分析当天的比赛数据"
+          error: "提供的比赛不是昨天或今天的比赛，只分析昨天和今天的比赛数据"
         };
       }
     }
@@ -391,15 +424,20 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
   }
 
   // 如果都没有提供，查询当天的比赛
+  console.log(`[normalizeMatchesPayload] 请求体为空，开始查询当天比赛`);
   try {
     const todayMatches = await getTodayMatches();
+    console.log(`[normalizeMatchesPayload] 查询到 ${todayMatches.length} 场当天比赛`);
     
     if (todayMatches.length === 0) {
+      console.log(`[normalizeMatchesPayload] 今天没有可用的比赛`);
       return {
         matches: [],
         error: "今天没有可用的比赛。请提供 matchInfo 和 betInfo，或提供 matches 数组。"
       };
     }
+
+    console.log(`[normalizeMatchesPayload] 比赛列表: ${todayMatches.map((m: any) => `fixture_id=${m.fixture_id}, ${m.home_team_name} vs ${m.away_team_name}, status=${m.status_short}`).join('; ')}`);
 
     // 为每场比赛生成默认的 MatchRequest
     const matches: MatchRequest[] = todayMatches.map((match) => {
@@ -457,11 +495,13 @@ const checkExistingAnalysis = async (
   aiId: string | undefined,
 ): Promise<StoredAnalysisResult[] | null> => {
   if (!supabase || !matchId || !aiId) {
+    console.log(`[checkExistingAnalysis] 跳过检查: matchId=${matchId}, aiId=${aiId}, supabase=${!!supabase}`);
     return null;
   }
 
   try {
     const today = new Date().toISOString().split('T')[0];
+    console.log(`[checkExistingAnalysis] 检查已有分析: matchId=${matchId}, aiId=${aiId}, today=${today}`);
     
     // 查询今天是否有该AI对该比赛的分析记录
     const { data, error } = await supabase
@@ -478,14 +518,21 @@ const checkExistingAnalysis = async (
       return null;
     }
 
+    console.log(`[checkExistingAnalysis] 查询结果: ${data?.length || 0} 条记录`);
+    if (data && data.length > 0) {
+      console.log(`[checkExistingAnalysis] 找到记录: id=${data[0].id}, 有分析=${!!data[0].analysis}, 分析长度=${data[0].analysis?.length || 0}`);
+    }
+
     if (data && data.length > 0 && data[0].analysis) {
       // 找到已有分析记录，返回引用
+      console.log(`[checkExistingAnalysis] 返回已有分析记录: id=${data[0].id}`);
       return [{
         id: data[0].id,
         modelId: data[0].provider_model_id || aiId,
       }];
     }
 
+    console.log(`[checkExistingAnalysis] 没有找到有效的已有分析记录`);
     return null;
   } catch (error) {
     console.error(`[checkExistingAnalysis] 检查失败:`, error);
@@ -527,16 +574,27 @@ const persistAnalyses = async (
     bet_snapshot: betSnapshot,
   }));
 
+  console.log(`[persistAnalyses] 准备保存分析记录: matchId=${matchId}, aiId=${aiId}, aiDisplayName=${aiDisplayName}, rows=${rows.length}`);
+  console.log(`[persistAnalyses] 分析结果: ${analyses.map(a => `${a.id}(${a.analysis ? '有分析' : '无分析'}, ${a.error ? '有错误' : '无错误'})`).join(', ')}`);
+
   const { data, error } = await supabase
     .from(ANALYSIS_TABLE)
     .insert(rows)
     .select("id, provider_model_id");
 
   if (error) {
-    console.error("[match-analysis] 写入分析表失败", error);
+    console.error("[persistAnalyses] 写入分析表失败", {
+      error,
+      matchId,
+      aiId,
+      aiDisplayName,
+      rowsCount: rows.length,
+      errorDetails: JSON.stringify(error),
+    });
     return analyses.map((item) => ({ id: null, modelId: item.id }));
   }
 
+  console.log(`[persistAnalyses] 成功保存分析记录: ${data?.length || 0} 条记录, IDs: ${data?.map(r => r.id).join(', ') || 'none'}`);
   return data?.map((row) => ({
     id: row.id,
     modelId: row.provider_model_id,
@@ -874,12 +932,26 @@ const analyzeBetWithModels = async (
 };
 
 serve(async (req) => {
+  console.log(`[match-analysis] ========== 函数被调用 ==========`);
+  console.log(`[match-analysis] 请求方法: ${req.method}`);
+  console.log(`[match-analysis] 请求URL: ${req.url}`);
+  
   if (req.method === "OPTIONS") {
+    console.log(`[match-analysis] OPTIONS 请求，返回 CORS 头`);
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const body: RequestBody = await req.json();
+    let body: RequestBody;
+    try {
+      body = await req.json();
+      console.log(`[match-analysis] 请求体解析成功: ${JSON.stringify(body).substring(0, 200)}...`);
+    } catch (jsonError) {
+      // 如果 JSON 解析失败，使用空对象（将自动查询当天比赛）
+      console.warn('[match-analysis] Failed to parse request body, using empty object:', jsonError);
+      body = {};
+    }
+
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
       return new Response(
@@ -891,8 +963,23 @@ serve(async (req) => {
       );
     }
 
+    console.log(`[match-analysis] 开始规范化请求体...`);
     const payloadResult = await normalizeMatchesPayload(body);
+    console.log(`[match-analysis] 规范化结果: matches数量=${payloadResult.matches?.length || 0}, error=${payloadResult.error || '无'}`);
+    
     if (payloadResult.error) {
+      // 如果是"今天没有可用的比赛"，返回 200 而不是 400（这是正常情况）
+      if (payloadResult.error.includes("今天没有可用的比赛")) {
+        return new Response(
+          JSON.stringify({ 
+            message: payloadResult.error,
+            analyses: [],
+            results: []
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ 
           error: payloadResult.error,
@@ -904,7 +991,13 @@ serve(async (req) => {
 
     const matchesPayload = payloadResult.matches;
     
+    console.log(`[match-analysis] 准备处理的比赛数量: ${matchesPayload.length}`);
+    if (matchesPayload.length > 0) {
+      console.log(`[match-analysis] 比赛列表: ${matchesPayload.map(m => `matchId=${m.matchId}, ${m.matchInfo.homeTeam} vs ${m.matchInfo.awayTeam}`).join('; ')}`);
+    }
+    
     if (matchesPayload.length === 0) {
+      console.log(`[match-analysis] 没有找到需要分析的比赛，返回空结果`);
       return new Response(
         JSON.stringify({ 
           message: "没有找到需要分析的比赛",
@@ -1298,17 +1391,21 @@ serve(async (req) => {
           return null; // 如果获取失败，返回 null 使用计算赔率
         };
 
+        console.log(`[${aiDisplayName}] 开始处理 ${matchesPayload.length} 场比赛`);
+        
         // 第一步：并行分析所有比赛（大幅提升性能）
         const analysisPromises = matchesPayload.map(async (match) => {
           const matchInfo = match.matchInfo;
           const defaultBetInfo = generateDefaultBetInfo('OVER', 50);
+          
+          console.log(`[${aiDisplayName}] 处理比赛 ${match.matchId}: ${matchInfo.homeTeam} vs ${matchInfo.awayTeam}`);
           
           // 检查是否已有分析记录
           const existingAnalysisRefs = await checkExistingAnalysis(match.matchId, aiId);
           
           if (existingAnalysisRefs && existingAnalysisRefs.length > 0) {
             // 已有分析记录，直接使用
-            console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 已有分析记录，跳过分析`);
+            console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 已有分析记录，跳过分析。已有记录ID: ${existingAnalysisRefs.map(r => r.id).join(', ')}`);
             
             // 从数据库获取已有的分析结果
             if (!supabase) {
@@ -1327,6 +1424,7 @@ serve(async (req) => {
             
             if (existingData && existingData.analysis) {
               // 构建已有的分析结果
+              console.log(`[${aiDisplayName}] 使用已有分析记录: id=${existingAnalysisRefs[0].id}, 分析长度=${existingData.analysis.length}`);
               const existingAnalysis: ModelAnalysisResult = {
                 ...modelConfig,
                 analysis: existingData.analysis,
@@ -1383,12 +1481,18 @@ serve(async (req) => {
                 overUnderBetInfo,
                 handicapBetInfo,
               };
+            } else {
+              // 已有记录但 analysis 为空，继续执行新分析
+              console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 已有记录但 analysis 为空，继续执行新分析`);
             }
           }
           
           // 没有已有分析，进行新分析
+          console.log(`[${aiDisplayName}] 开始分析比赛 ${match.matchId}: ${matchInfo.homeTeam} vs ${matchInfo.awayTeam}`);
+          
           // 在分析之前，先获取市场赔率
           const marketOdds = await getAllMarketOdds(match.matchId);
+          console.log(`[${aiDisplayName}] 市场赔率获取结果: ${marketOdds ? `大小球${marketOdds.overUnder?.length || 0}个, 让球盘${marketOdds.handicap?.length || 0}个` : '无'}`);
           
           // 调用当前 AI 模型进行分析（只调用自己的模型）
           const analysis = await analyzeWithSingleModel(
@@ -1402,6 +1506,8 @@ serve(async (req) => {
 
           const analyses = [analysis]; // 包装成数组以保持兼容性
           const successfulAnalysis = analysis.analysis && !analysis.error ? analysis : null;
+          
+          console.log(`[${aiDisplayName}] 分析完成: ${successfulAnalysis ? '成功' : '失败'}, 错误: ${analysis.error || '无'}, 分析长度: ${analysis.analysis?.length || 0}`);
           
           // 保存 marketOdds 以便后续使用
           const savedMarketOdds = marketOdds;
@@ -1585,6 +1691,7 @@ serve(async (req) => {
             primaryBet: finalBetInfo,
           };
           
+          console.log(`[${aiDisplayName}] 准备保存分析记录到数据库: matchId=${match.matchId}`);
           const analysisRefs = await persistAnalyses(
             match.matchId,
             aiId,
@@ -1594,6 +1701,7 @@ serve(async (req) => {
             analyses,
             allPredictions, // 传递完整的预测信息
           );
+          console.log(`[${aiDisplayName}] 分析记录保存完成: ${analysisRefs.length} 条引用, IDs: ${analysisRefs.map(r => r.id).join(', ') || 'none'}`);
 
           return {
             match,
@@ -1607,7 +1715,9 @@ serve(async (req) => {
         });
 
         // 等待所有分析完成
+        console.log(`[${aiDisplayName}] 等待所有比赛分析完成...`);
         const matchAnalyses = await Promise.all(analysisPromises);
+        console.log(`[${aiDisplayName}] 所有比赛分析完成，共 ${matchAnalyses.length} 场`);
 
         // 第二步：为每场比赛选择置信度最高的一个投注（只考虑大小球或让球盘，不考虑输赢预测）
         // 注意：虽然AI会预测输赢（moneyline），但在投注决策时不使用输赢预测
@@ -1821,15 +1931,21 @@ serve(async (req) => {
       }
     };
 
+    console.log(`[match-analysis] 开始并行处理 ${MODEL_CONFIGS.length} 个 AI 模型`);
+    
     // 并行处理所有 AI 模型（大幅提升性能）
     const allResults = await Promise.all(
       MODEL_CONFIGS.map(modelConfig => processAIModel(modelConfig))
     );
 
+    console.log(`[match-analysis] 所有 AI 模型处理完成，结果数量: ${allResults.map(r => r.length).join(', ')}`);
+
     // 展平结果数组
     for (const aiResults of allResults) {
       results.push(...aiResults);
     }
+    
+    console.log(`[match-analysis] 最终结果总数: ${results.length}`);
 
     const fallbackResult = results.find((item) => item.primaryAnalysis);
 
