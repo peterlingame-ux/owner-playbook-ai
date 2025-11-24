@@ -451,7 +451,58 @@ const ActiveAIBets = () => {
 
     // Refresh data every 30 seconds (silent refresh)
     const interval = setInterval(() => fetchData(true), 30000);
-    return () => clearInterval(interval);
+
+    // 订阅 daily_matches 表的变化，实时更新比赛状态、比分等
+    const matchesChannel = supabase
+      .channel('active-matches-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'daily_matches',
+        },
+        (payload) => {
+          console.log('Match updated, refreshing data:', payload);
+          fetchData(true);
+        }
+      )
+      .subscribe();
+
+    // 订阅 ai_auto_bets 表的变化，实时显示新投注和状态变化
+    const autoBetsChannel = supabase
+      .channel('auto-bets-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'ai_auto_bets',
+        },
+        (payload) => {
+          console.log('New auto bet inserted, refreshing data:', payload);
+          fetchData(true);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'ai_auto_bets',
+        },
+        (payload) => {
+          console.log('Auto bet updated, refreshing data:', payload);
+          fetchData(true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(matchesChannel);
+      supabase.removeChannel(autoBetsChannel);
+    };
   }, []); // Only run on mount, not on language change
 
   // Update language ref when language changes (for getTeamName/getLeagueName to react)
