@@ -176,6 +176,27 @@ const getTargetDate = (timezone = DEFAULT_TIMEZONE) => {
     );
 };
 
+// 获取昨天的日期（使用指定时区）
+const getYesterdayDate = (timezone = DEFAULT_TIMEZONE) => {
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  return formatter
+    .formatToParts(yesterday)
+    .map((part) => part.value)
+    .join("")
+    .replace(/[^0-9]/g, "")
+    .replace(
+      /^(\d{4})(\d{2})(\d{2})$/,
+      "$1-$2-$3",
+    );
+};
+
 const normalizeDate = (value: string) => value.slice(0, 10);
 
 const fetchFixturesByDate = async (
@@ -351,21 +372,21 @@ type ActiveFixtureMeta = {
   status_short: string | null;
 };
 
-const getActiveFixturesMeta = async (date: string) => {
+const getActiveFixturesMeta = async (dates: string[]) => {
   if (!supabase) {
     throw new Error("Supabase 客户端未初始化，无法查询数据");
   }
 
   const { data, error } = await supabase
     .from("daily_matches")
-    .select("fixture_id, status_short, league_name, league_country")
-    .eq("date", date);
+    .select("fixture_id, status_short, league_name, league_country, date")
+    .in("date", dates);
 
   if (error) {
     throw error;
   }
 
-  return ((data ?? []) as ActiveFixtureMeta[]).filter((item) =>
+  return ((data ?? []) as (ActiveFixtureMeta & { date: string })[]).filter((item) =>
     !item.status_short || !COMPLETED_STATUSES.has(item.status_short)
   );
 };
@@ -384,6 +405,8 @@ serve(async (req) => {
       ? timezone.trim()
       : DEFAULT_TIMEZONE;
 
+    console.log(`[fetch-daily-matches] 使用时区: ${resolvedTimezone} (UTC+8)`);
+
     const targetDate = normalizeDate(
       customDate && typeof customDate === "string" && customDate.length >= 10
         ? customDate
@@ -399,11 +422,19 @@ serve(async (req) => {
         return await fetchFixturesByDate(targetDate, resolvedTimezone);
       }
 
-      const activeMeta = await getActiveFixturesMeta(targetDate);
+      // Refresh 模式：同时刷新昨天和今天的比赛
+      const yesterdayDate = getYesterdayDate(resolvedTimezone);
+      const datesToRefresh = [yesterdayDate, targetDate];
+      console.log(
+        "[fetch-daily-matches] refreshing fixtures for dates:",
+        datesToRefresh.join(", "),
+      );
+
+      const activeMeta = await getActiveFixturesMeta(datesToRefresh);
       if (activeMeta.length === 0) {
         console.log(
-          "[fetch-daily-matches] no active fixtures to refresh for date:",
-          targetDate,
+          "[fetch-daily-matches] no active fixtures to refresh for dates:",
+          datesToRefresh.join(", "),
         );
         return [];
       }
@@ -414,31 +445,36 @@ serve(async (req) => {
         ids.join(","),
       );
 
-      // 从数据库中获取联赛ID，用于更准确的匹配
+      // 从数据库中获取联赛ID和日期，用于更准确的匹配
       const leagueInfoMap = new Map<number, LeagueInfo>();
       const leagueIdMap = new Map<number, number>();
+      const fixtureDateMap = new Map<number, string>(); // 保存每个 fixture_id 对应的日期
 
       if (supabase) {
         const { data: leagueData, error: leagueError } = await supabase
           .from("daily_matches")
-          .select("fixture_id, league_id, league_name, league_country")
-          .eq("date", targetDate)
+          .select("fixture_id, league_id, league_name, league_country, date")
+          .in("date", datesToRefresh)
           .in("fixture_id", ids);
 
         if (leagueError) {
           console.warn("[fetch-daily-matches] 获取联赛ID失败:", leagueError);
         }
 
-        // 构建联赛ID映射
+        // 构建联赛ID映射和日期映射
         if (leagueData) {
           for (const item of leagueData) {
             if (item.league_id) {
               leagueIdMap.set(item.fixture_id, item.league_id);
             }
+            if (item.date) {
+              fixtureDateMap.set(item.fixture_id, item.date);
+            }
           }
         }
       }
 
+      // 从 activeMeta 中获取日期信息
       for (const meta of activeMeta) {
         if (meta.league_name) {
           const leagueId = leagueIdMap.get(meta.fixture_id);
@@ -452,13 +488,31 @@ serve(async (req) => {
 
       const fixturesById = await fetchFixturesByIds(ids, resolvedTimezone);
 
+      // 创建日期格式化器
+      const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: resolvedTimezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+
       return fixturesById
         .map((fixture) => {
           // 只匹配英文名和ID（不匹配中文名）
           const info = findLeagueInfo(fixture.league.name, fixture.league.country, fixture.league.id);
           
-          // 如果找不到匹配的联赛信息，或者日期不匹配，则过滤掉
-          if (!info || !matchTargetDate(fixture, resolvedTimezone, targetDate)) {
+          // 获取保存的日期，如果找不到则使用 targetDate
+          const savedDate = fixtureDateMap.get(fixture.fixture.id) || targetDate;
+          
+          // 检查日期是否匹配（可以是昨天或今天）
+          const fixtureDate = formatter
+            .formatToParts(new Date(fixture.fixture.date))
+            .map((part) => part.value)
+            .join("")
+            .replace(/[^0-9]/g, "")
+            .replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
+          
+          if (!info || (fixtureDate !== yesterdayDate && fixtureDate !== targetDate)) {
             return null;
           }
 
@@ -475,15 +529,16 @@ serve(async (req) => {
           return {
             ...fixture,
             leagueInfo: info,
+            _savedDate: savedDate, // 保存原始日期，用于后续 upsert
           };
         })
         .filter(
-          (item): item is FixtureData & { leagueInfo: LeagueInfo } => item !== null,
+          (item): item is FixtureData & { leagueInfo: LeagueInfo; _savedDate: string } => item !== null,
         );
     })();
 
     const filtered = isRefresh
-      ? fixtures as Array<FixtureData & { leagueInfo: LeagueInfo }>
+      ? fixtures as Array<FixtureData & { leagueInfo: LeagueInfo; _savedDate?: string }>
       : filterFixtures(fixtures as FixtureData[], resolvedTimezone, targetDate);
     console.log(
       "[fetch-daily-matches] total fixtures:",
@@ -493,7 +548,27 @@ serve(async (req) => {
     );
 
     if (filtered.length > 0) {
-      await upsertFixtures(targetDate, filtered);
+      if (isRefresh) {
+        // Refresh 模式：按日期分组保存
+        const fixturesByDate = new Map<string, Array<FixtureData & { leagueInfo: LeagueInfo }>>();
+        for (const fixture of filtered) {
+          const fixtureWithDate = fixture as FixtureData & { leagueInfo: LeagueInfo; _savedDate?: string };
+          const date = fixtureWithDate._savedDate || targetDate;
+          if (!fixturesByDate.has(date)) {
+            fixturesByDate.set(date, []);
+          }
+          const { _savedDate, ...fixtureWithoutDate } = fixtureWithDate;
+          fixturesByDate.get(date)!.push(fixtureWithoutDate);
+        }
+        
+        // 分别保存每个日期的比赛
+        for (const [date, dateFixtures] of fixturesByDate.entries()) {
+          console.log(`[fetch-daily-matches] upserting ${dateFixtures.length} fixtures for date: ${date}`);
+          await upsertFixtures(date, dateFixtures);
+        }
+      } else {
+        await upsertFixtures(targetDate, filtered);
+      }
     }
 
     // 如果是 refresh 模式且更新了比赛数据，自动触发结算

@@ -1181,7 +1181,13 @@ const ActiveAIBets = () => {
                                 </div>
                                 {handicapBet.handicapLine !== undefined && (
                                   <Badge variant={(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
-                                    {handicapBet.handicapLine > 0 ? `+${handicapBet.handicapLine}` : `${handicapBet.handicapLine}`}
+                                    {(() => {
+                                      // 如果预测是主队，主队显示 handicapLine；如果预测是客队，主队显示 -handicapLine
+                                      const homeLine = (handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") 
+                                        ? handicapBet.handicapLine 
+                                        : -handicapBet.handicapLine;
+                                      return homeLine > 0 ? `+${homeLine}` : `${homeLine}`;
+                                    })()}
                                   </Badge>
                                 )}
                               </div>
@@ -1207,7 +1213,10 @@ const ActiveAIBets = () => {
                                 {handicapBet.handicapLine !== undefined && (
                                   <Badge variant={(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
                                     {(() => {
-                                      const awayLine = -handicapBet.handicapLine;
+                                      // 如果预测是客队，客队显示 handicapLine；如果预测是主队，客队显示 -handicapLine
+                                      const awayLine = (handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") 
+                                        ? handicapBet.handicapLine 
+                                        : -handicapBet.handicapLine;
                                       return awayLine > 0 ? `+${awayLine}` : `${awayLine}`;
                                     })()}
                                   </Badge>
