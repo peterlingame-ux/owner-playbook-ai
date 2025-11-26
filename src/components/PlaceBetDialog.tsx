@@ -610,48 +610,125 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
 
               {/* 球队实力对比雷达图 */}
               <Card className="p-4 bg-gradient-to-br from-primary/5 to-warning/5 border-primary/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <Target className="w-4 h-4 text-primary" />
-                  <h4 className="font-bold text-sm">球队实力对比</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-primary" />
+                    <h4 className="font-bold text-sm">球队实力对比</h4>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-primary"></div>
+                      <span className="text-muted-foreground">{selectedMatch?.home_team_name}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-warning"></div>
+                      <span className="text-muted-foreground">{selectedMatch?.away_team_name}</span>
+                    </div>
+                  </div>
                 </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RadarChart data={matchStats.team_stats.home.map((item, idx) => ({
-                    category: item.category,
-                    主队: item.value,
-                    客队: matchStats.team_stats.away[idx].value,
-                  }))}>
-                    <PolarGrid stroke="hsl(var(--border))" />
+
+                <ResponsiveContainer width="100%" height={350}>
+                  <RadarChart 
+                    data={matchStats.team_stats.home.map((item, idx) => ({
+                      category: item.category,
+                      主队: item.value,
+                      客队: matchStats.team_stats.away[idx].value,
+                    }))}
+                    margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
+                  >
+                    <PolarGrid 
+                      stroke="hsl(var(--border))" 
+                      strokeWidth={1.5}
+                      strokeDasharray="3 3"
+                    />
                     <PolarAngleAxis 
                       dataKey="category" 
-                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                      tick={{ 
+                        fill: 'hsl(var(--foreground))', 
+                        fontSize: 13,
+                        fontWeight: 600
+                      }}
                     />
                     <PolarRadiusAxis 
                       angle={90} 
                       domain={[0, 100]}
-                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                      tick={{ 
+                        fill: 'hsl(var(--muted-foreground))', 
+                        fontSize: 11,
+                        fontWeight: 500
+                      }}
+                      tickCount={6}
                     />
                     <Radar 
-                      name="主队" 
+                      name={selectedMatch?.home_team_name || "主队"}
                       dataKey="主队" 
                       stroke="hsl(var(--primary))" 
                       fill="hsl(var(--primary))" 
-                      fillOpacity={0.3}
+                      fillOpacity={0.25}
+                      strokeWidth={2.5}
                     />
                     <Radar 
-                      name="客队" 
+                      name={selectedMatch?.away_team_name || "客队"}
                       dataKey="客队" 
                       stroke="hsl(var(--warning))" 
                       fill="hsl(var(--warning))" 
-                      fillOpacity={0.3}
+                      fillOpacity={0.25}
+                      strokeWidth={2.5}
                     />
                     <Legend 
                       wrapperStyle={{ 
-                        fontSize: '12px',
-                        paddingTop: '10px'
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        paddingTop: '15px'
                       }}
+                      iconType="circle"
                     />
                   </RadarChart>
                 </ResponsiveContainer>
+
+                {/* 数据解读 */}
+                <div className="grid grid-cols-5 gap-2 mt-4 pt-4 border-t border-border">
+                  {matchStats.team_stats.home.map((item, idx) => {
+                    const homeValue = item.value;
+                    const awayValue = matchStats.team_stats.away[idx].value;
+                    const diff = homeValue - awayValue;
+                    const advantage = diff > 5 ? 'home' : diff < -5 ? 'away' : 'equal';
+                    
+                    return (
+                      <div key={idx} className="text-center">
+                        <p className="text-xs text-muted-foreground mb-1">{item.category}</p>
+                        <div className="flex items-center justify-center gap-1">
+                          <span className={`text-sm font-bold ${
+                            advantage === 'home' ? 'text-primary' : 
+                            advantage === 'away' ? 'text-warning' : 
+                            'text-muted-foreground'
+                          }`}>
+                            {homeValue}
+                          </span>
+                          <span className="text-xs text-muted-foreground">:</span>
+                          <span className={`text-sm font-bold ${
+                            advantage === 'away' ? 'text-warning' : 
+                            advantage === 'home' ? 'text-primary' : 
+                            'text-muted-foreground'
+                          }`}>
+                            {awayValue}
+                          </span>
+                        </div>
+                        {advantage !== 'equal' && (
+                          <Badge 
+                            className={`text-xs mt-1 ${
+                              advantage === 'home' 
+                                ? 'bg-primary/20 text-primary border-primary/30' 
+                                : 'bg-warning/20 text-warning border-warning/30'
+                            }`}
+                          >
+                            {advantage === 'home' ? '主优' : '客优'}
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </Card>
 
               {/* 核心球员数据 */}
