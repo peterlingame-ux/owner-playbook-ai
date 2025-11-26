@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, Target, Plus } from "lucide-react";
+import { TrendingUp, Target, Plus, Trophy, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -40,6 +40,17 @@ interface BetOption {
   line?: number;
 }
 
+interface MatchStats {
+  head_to_head: {
+    home_wins: number;
+    draws: number;
+    away_wins: number;
+    total_games: number;
+  };
+  home_form: string[]; // 近5场 W/D/L
+  away_form: string[];
+}
+
 interface PlaceBetDialogProps {
   onBetPlaced?: () => void;
 }
@@ -56,6 +67,7 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
   const [userBalance, setUserBalance] = useState<number>(10000);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -67,6 +79,7 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
   useEffect(() => {
     if (selectedMatch) {
       fetchAIPredictions(selectedMatch.fixture_id);
+      fetchMatchStats(selectedMatch.fixture_id);
       setSelectedBetOption(""); // 重置选择
     }
   }, [selectedMatch]);
@@ -263,6 +276,38 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
     }
   };
 
+  const fetchMatchStats = async (matchId: number) => {
+    try {
+      // 这里可以调用后端API获取真实数据
+      // 暂时使用模拟数据
+      const mockStats: MatchStats = {
+        head_to_head: {
+          home_wins: 5,
+          draws: 3,
+          away_wins: 2,
+          total_games: 10,
+        },
+        home_form: ['W', 'W', 'D', 'W', 'L'], // 最近5场：胜-胜-平-胜-负
+        away_form: ['W', 'L', 'W', 'W', 'D'],
+      };
+      setMatchStats(mockStats);
+    } catch (error) {
+      console.error('Error fetching match stats:', error);
+    }
+  };
+
+  const getFormColor = (result: string) => {
+    if (result === 'W') return 'bg-success text-success-foreground';
+    if (result === 'D') return 'bg-muted text-muted-foreground';
+    return 'bg-destructive text-destructive-foreground';
+  };
+
+  const getFormLabel = (result: string) => {
+    if (result === 'W') return '胜';
+    if (result === 'D') return '平';
+    return '负';
+  };
+
   const getBetTypeLabel = (): string => {
     if (selectedBetType === "handicap") return "让分盘";
     if (selectedBetType === "over_under") return "大小球";
@@ -442,6 +487,76 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
               </div>
             )}
           </div>
+
+          {/* 历史交锋和近期战绩 */}
+          {selectedMatch && matchStats && (
+            <div className="space-y-3">
+              <Label className="text-base font-bold">比赛数据分析</Label>
+              
+              {/* 历史交锋 */}
+              <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <h4 className="font-bold text-sm">历史交锋（近{matchStats.head_to_head.total_games}场）</h4>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-primary">{matchStats.head_to_head.home_wins}</div>
+                    <div className="text-xs text-muted-foreground">主队胜</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-muted-foreground">{matchStats.head_to_head.draws}</div>
+                    <div className="text-xs text-muted-foreground">平局</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-warning">{matchStats.head_to_head.away_wins}</div>
+                    <div className="text-xs text-muted-foreground">客队胜</div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 近期战绩 */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* 主队战绩 */}
+                <Card className="p-3 border-primary/20">
+                  <div className="flex items-center gap-1 mb-2">
+                    <TrendingUp className="w-3 h-3 text-primary" />
+                    <p className="text-xs font-bold">主队近况</p>
+                  </div>
+                  <div className="flex gap-1">
+                    {matchStats.home_form.map((result, idx) => (
+                      <Badge 
+                        key={idx} 
+                        className={`text-xs w-6 h-6 flex items-center justify-center ${getFormColor(result)}`}
+                      >
+                        {getFormLabel(result)}
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">← 最新</p>
+                </Card>
+
+                {/* 客队战绩 */}
+                <Card className="p-3 border-warning/20">
+                  <div className="flex items-center gap-1 mb-2">
+                    <TrendingDown className="w-3 h-3 text-warning" />
+                    <p className="text-xs font-bold">客队近况</p>
+                  </div>
+                  <div className="flex gap-1">
+                    {matchStats.away_form.map((result, idx) => (
+                      <Badge 
+                        key={idx} 
+                        className={`text-xs w-6 h-6 flex items-center justify-center ${getFormColor(result)}`}
+                      >
+                        {getFormLabel(result)}
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">← 最新</p>
+                </Card>
+              </div>
+            </div>
+          )}
 
           {/* 投注选项 */}
           {selectedMatch && aiPredictions.length > 0 && (
