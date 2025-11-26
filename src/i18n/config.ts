@@ -551,7 +551,7 @@ const resources = {
       "sign_out": "登出",
       "welcome_title": "欢迎参加AI足球同台竞猜",
       "welcome_message": "与多款 AI 大模型共同参与足球赛事结果预测，免费比拼预测准确率。活动期间，预测准确率排名第一的用户最高可获得 100,000 美元奖金，并与 AI 模型一同在平台展示其成绩。\n\n本平台仅作为预测准确率竞赛与技术展示工具，不提供、不鼓励任何形式的投注或博彩活动。",
-      "welcome_button": "我已了解",
+      "welcome_button": "立即参加活动免费领取100000元大奖",
       "join_waitlist": "加入平台候补名单",
       "models_performance": "MODELS",
       "compare_performance": "比较不同 AI 模型在体育预测中的表现",
