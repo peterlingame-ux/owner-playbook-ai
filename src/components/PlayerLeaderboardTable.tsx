@@ -255,95 +255,154 @@ const PlayerLeaderboardTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* 获胜玩家和前6名对比 */}
-      {!isLoading && allPlayers.length > 0 && winner && (
+      {/* 前三名玩家展示 */}
+      {!isLoading && allPlayers.length >= 3 && (
         <>
-          {/* 获胜玩家展示 - 参考AI排行榜样式 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* 获胜玩家卡片 */}
-            <Card className="relative overflow-hidden">
-              {/* 背景图片 */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${winner.avatarUrl})` }}
-              />
+          {/* 前三名人物卡 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            {allPlayers.slice(0, 3).map((player, index) => {
+              const rank = index + 1;
+              const getMedalConfig = () => {
+                switch(rank) {
+                  case 1:
+                    return {
+                      icon: Crown,
+                      color: 'from-yellow-400 via-yellow-500 to-amber-600',
+                      bgGradient: 'from-yellow-500/80 via-yellow-600/70 to-amber-700/80',
+                      borderColor: 'border-yellow-400/60',
+                      glowColor: 'shadow-[0_0_30px_rgba(251,191,36,0.5)]',
+                      label: '冠军'
+                    };
+                  case 2:
+                    return {
+                      icon: Trophy,
+                      color: 'from-gray-300 via-gray-400 to-gray-500',
+                      bgGradient: 'from-gray-400/70 via-gray-500/60 to-gray-600/70',
+                      borderColor: 'border-gray-300/60',
+                      glowColor: 'shadow-[0_0_30px_rgba(156,163,175,0.5)]',
+                      label: '亚军'
+                    };
+                  case 3:
+                    return {
+                      icon: Trophy,
+                      color: 'from-orange-400 via-amber-600 to-orange-700',
+                      bgGradient: 'from-orange-500/70 via-amber-600/60 to-orange-700/70',
+                      borderColor: 'border-orange-400/60',
+                      glowColor: 'shadow-[0_0_30px_rgba(251,146,60,0.5)]',
+                      label: '季军'
+                    };
+                  default:
+                    return {
+                      icon: Trophy,
+                      color: 'from-gray-400 to-gray-500',
+                      bgGradient: 'from-gray-500/50 to-gray-600/50',
+                      borderColor: 'border-gray-400/40',
+                      glowColor: '',
+                      label: ''
+                    };
+                }
+              };
               
-              {/* 金色渐变覆盖层 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/80 via-yellow-600/70 to-amber-700/80" />
+              const config = getMedalConfig();
+              const MedalIcon = config.icon;
               
-              {/* 深色渐变提高文字可读性 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
-              
-              <CardContent className="p-4 sm:p-6 relative z-10">
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <h3 className="text-xs sm:text-sm font-bold text-white/80 flex items-center gap-2">
-                    <Crown className="h-4 w-4" fill="white" />
-                    {t('winning_player').toUpperCase()}
-                  </h3>
-                  <Button
-                    size="sm"
-                    variant={followedPlayers.has(winner.id) ? "default" : "outline"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFollowToggle(winner.id, winner.displayName);
-                    }}
-                    className={`
-                      transition-all duration-300
-                      ${followedPlayers.has(winner.id) 
-                        ? 'bg-white/20 hover:bg-white/30 border-white/40 text-white' 
-                        : 'bg-white/10 hover:bg-white/20 border-white/30 text-white'
-                      }
-                    `}
-                  >
-                    <Heart 
-                      className={`h-4 w-4 transition-all ${followedPlayers.has(winner.id) ? 'fill-white' : ''}`}
-                    />
-                    <span className="ml-1.5 text-xs">
-                      {followedPlayers.has(winner.id) ? '已关注' : '关注'}
-                    </span>
-                  </Button>
-                </div>
-                <div 
-                  className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 cursor-pointer"
-                  onClick={() => navigate(`/player/${winner.id}`)}
-                >
-                  <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-white/50">
-                    <AvatarImage src={winner.avatarUrl} alt={winner.displayName} />
-                    <AvatarFallback>{winner.displayName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-lg sm:text-xl font-bold text-white">{winner.displayName}</span>
-                </div>
-                
-                <div className="space-y-3 sm:space-y-4">
-                  <div>
-                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
-                    <p className="text-xl sm:text-2xl font-bold font-mono-data text-white">
-                      <AnimatedWinRate 
-                        value={winner.winRate}
-                        className="text-xl sm:text-2xl font-bold font-mono-data text-white"
-                      />
-                    </p>
-                  </div>
+              return (
+                <Card key={player.id} className={`relative overflow-hidden ${config.glowColor} transition-all duration-300 hover:scale-105`}>
+                  {/* 背景图片 */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${player.avatarUrl})` }}
+                  />
                   
-                  <div>
-                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('correct_predictions_label').toUpperCase()}</p>
-                    <p className="text-lg sm:text-xl font-bold font-mono-data text-success">
-                      {winner.correctPredictions} / {winner.totalPredictions}
-                    </p>
-                  </div>
+                  {/* 渐变覆盖层 */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient}`} />
                   
-                  <div>
-                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('profit').toUpperCase()}</p>
-                    <p className="text-lg sm:text-xl font-bold font-mono-data text-white">
-                      +${winner.profit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  {/* 深色渐变提高文字可读性 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+                  
+                  <CardContent className="p-4 sm:p-6 relative z-10">
+                    {/* 顶部奖牌标签和关注按钮 */}
+                    <div className="flex items-start justify-between mb-3 sm:mb-4">
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${config.color} ${config.glowColor}`}>
+                        <MedalIcon className="h-4 w-4 text-white" fill="white" />
+                        <span className="text-xs font-bold text-white">{config.label}</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={followedPlayers.has(player.id) ? "default" : "outline"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFollowToggle(player.id, player.displayName);
+                        }}
+                        className={`
+                          transition-all duration-300
+                          ${followedPlayers.has(player.id) 
+                            ? 'bg-white/20 hover:bg-white/30 border-white/40 text-white' 
+                            : 'bg-white/10 hover:bg-white/20 border-white/30 text-white'
+                          }
+                        `}
+                      >
+                        <Heart 
+                          className={`h-4 w-4 transition-all ${followedPlayers.has(player.id) ? 'fill-white' : ''}`}
+                        />
+                      </Button>
+                    </div>
 
-            {/* 前6名玩家对比图 - 参考AI排行榜样式 */}
-            <Card className="lg:col-span-2 relative overflow-hidden">
+                    {/* 头像和名字 */}
+                    <div 
+                      className="flex flex-col items-center mb-4 sm:mb-6 cursor-pointer"
+                      onClick={() => navigate(`/player/${player.id}`)}
+                    >
+                      <div className={`relative mb-3`}>
+                        <Avatar className={`w-16 h-16 sm:w-20 sm:h-20 border-4 ${config.borderColor} ${config.glowColor}`}>
+                          <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                          <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {/* 奖牌徽章悬浮在头像上方 */}
+                        <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center ${config.glowColor} border-2 border-white`}>
+                          <span className="text-white font-bold text-sm">{rank}</span>
+                        </div>
+                      </div>
+                      <span className="text-lg sm:text-xl font-bold text-white text-center">{player.displayName}</span>
+                    </div>
+                    
+                    {/* 统计数据 */}
+                    <div className="space-y-3">
+                      <div className="text-center">
+                        <p className="text-xs text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
+                        <p className="text-2xl sm:text-3xl font-bold font-mono-data text-white">
+                          <AnimatedWinRate 
+                            value={player.winRate}
+                            className="text-2xl sm:text-3xl font-bold font-mono-data text-white"
+                          />
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 text-center">
+                        <div>
+                          <p className="text-xs text-white/70 mb-1">{t('predictions').toUpperCase()}</p>
+                          <p className="text-sm sm:text-base font-bold font-mono-data text-white">
+                            {player.correctPredictions}/{player.totalPredictions}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-xs text-white/70 mb-1">{t('profit').toUpperCase()}</p>
+                          <p className={`text-sm sm:text-base font-bold font-mono-data ${player.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {formatProfit(player.profit)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* 前6名玩家对比图 */}
+          {allPlayers.length > 3 && (
+            <Card className="relative overflow-hidden">
               {/* 草地纹理背景 */}
               <div 
                 className="absolute inset-0 opacity-20"
@@ -401,7 +460,7 @@ const PlayerLeaderboardTable = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-          </div>
+          )}
         </>
       )}
       <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
