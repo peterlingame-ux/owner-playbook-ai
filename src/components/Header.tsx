@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui
 import { useState } from "react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
 import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
@@ -19,6 +20,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showPredictions, setShowPredictions] = useState(false);
   const { theme, setTheme } = useTheme();
   const languageClassDesktop = i18n.language === "en" ? "font-pixel tracking-wider text-sm md:text-base" : "text-base md:text-lg";
   const languageClassMobile = i18n.language === "en" ? "font-pixel tracking-wider text-sm" : "text-base";
@@ -147,7 +149,13 @@ const Header = () => {
                   {user ? (
                     <>
                       <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
-                        <Avatar className="h-12 w-12">
+                        <Avatar 
+                          className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                          onClick={() => {
+                            setShowPredictions(true);
+                            setMobileMenuOpen(false);
+                          }}
+                        >
                           <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name || 'User'} />
                           <AvatarFallback className="text-lg bg-primary text-primary-foreground">
                             {userProfile?.display_name?.charAt(0) || 'U'}
@@ -214,7 +222,10 @@ const Header = () => {
           <div className="hidden sm:flex items-center gap-1.5">
             {user ? (
               <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate("/profile")}>
+                <Avatar 
+                  className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
+                  onClick={() => setShowPredictions(true)}
+                >
                   <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name || 'User'} />
                   <AvatarFallback className="text-xs bg-primary text-primary-foreground">
                     {userProfile?.display_name?.charAt(0) || 'U'}
@@ -245,6 +256,14 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {user && (
+        <UserPredictionsDialog 
+          open={showPredictions} 
+          onOpenChange={setShowPredictions}
+          userId={user.id}
+        />
+      )}
     </header>
   );
 };
