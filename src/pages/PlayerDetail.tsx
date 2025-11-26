@@ -230,6 +230,29 @@ const PlayerDetail = () => {
     return acc;
   }, []).reverse();
 
+  // 联赛胜率统计
+  const leagueStats = predictions.reduce((acc: any, pred) => {
+    const match = allMatches.find(m => m.id === pred.match_id);
+    if (match) {
+      const league = match.leagueZh || match.league;
+      if (!acc[league]) {
+        acc[league] = { total: 0, wins: 0 };
+      }
+      acc[league].total++;
+      if (pred.result === 'win') acc[league].wins++;
+    }
+    return acc;
+  }, {});
+
+  const leagueChartData = Object.entries(leagueStats)
+    .map(([league, stats]: [string, any]) => ({
+      league,
+      winRate: stats.total > 0 ? parseFloat(((stats.wins / stats.total) * 100).toFixed(1)) : 0,
+      total: stats.total,
+      wins: stats.wins
+    }))
+    .sort((a, b) => b.winRate - a.winRate);
+
   const COLORS = ['hsl(var(--success))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
   const getRankColor = (rank: number) => {
@@ -306,6 +329,58 @@ const PlayerDetail = () => {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* 联赛胜率对比 */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5" />
+              联赛胜率对比
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {leagueChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={leagueChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="league" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    style={{ fontSize: '11px' }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    style={{ fontSize: '12px' }}
+                    label={{ value: '胜率 (%)', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                    formatter={(value: number, name: string, props: any) => {
+                      const { payload } = props;
+                      return [`${value}% (${payload.wins}/${payload.total})`, '胜率'];
+                    }}
+                  />
+                  <Bar 
+                    dataKey="winRate" 
+                    fill={player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--primary))'}
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center py-10 text-sm text-muted-foreground">
+                暂无联赛数据
+              </div>
+            )}
           </CardContent>
         </Card>
 
