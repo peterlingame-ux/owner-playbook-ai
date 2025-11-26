@@ -14,39 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      users: {
-        Row: {
-          id: string
-          phone_number: string | null
-          email: string | null
-          display_name: string | null
-          avatar_url: string | null
-          metadata: Json | null
-          created_at: string
-          last_sign_in_at: string | null
-        }
-        Insert: {
-          id?: string
-          phone_number?: string | null
-          email?: string | null
-          display_name?: string | null
-          avatar_url?: string | null
-          metadata?: Json | null
-          created_at?: string
-          last_sign_in_at?: string | null
-        }
-        Update: {
-          id?: string
-          phone_number?: string | null
-          email?: string | null
-          display_name?: string | null
-          avatar_url?: string | null
-          metadata?: Json | null
-          created_at?: string
-          last_sign_in_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
