@@ -253,199 +253,234 @@ const MyPredictions = () => {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      {/* AI预测球星卡 */}
-      <div className="relative">
-        {/* 外层发光效果 */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-warning to-success rounded-3xl blur-2xl opacity-30 animate-pulse"></div>
+      {/* 用户预测球星卡 - 仿照AI模型卡设计 */}
+      <Card 
+        className="relative p-6 bg-card border-primary hover:border-opacity-50 transition-all overflow-hidden"
+        style={{
+          borderColor: 'hsl(var(--primary) / 0.3)',
+          borderWidth: '2px'
+        }}
+      >
+        {/* 用户头像背景 */}
+        <div 
+          className="absolute inset-0 opacity-10 transition-opacity duration-300"
+          style={{
+            backgroundImage: `url(${userProfile?.avatar_url})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
         
-        <Card className="relative border-4 border-gradient-to-br from-primary via-warning to-success rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-          {/* 顶部装饰带 */}
-          <div className="h-3 bg-gradient-to-r from-primary via-warning to-success"></div>
-          
-          {/* 背景图案 */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/30 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-warning/30 rounded-full blur-3xl"></div>
-          </div>
-          
-          <CardContent className="p-8 relative z-10">
-            {/* 卡片标题 */}
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-2 rounded-full border border-white/20">
-                <Target className="h-4 w-4 text-warning" />
-                <span className="text-white font-bold text-sm tracking-wider">AI PREDICTION MASTER</span>
-              </div>
-            </div>
-            
-            {/* 头像区域 */}
-            <div className="flex justify-center mb-6">
+        {/* 品牌色彩叠加层 */}
+        <div 
+          className="absolute inset-0 opacity-30 transition-opacity duration-300"
+          style={{
+            background: 'radial-gradient(circle at 30% 50%, hsl(var(--primary)), transparent 70%)'
+          }}
+        />
+        
+        {/* 渐变遮罩确保内容可读 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
+        
+        {/* 内容区域 */}
+        <div className="relative z-10">
+          {/* 顶部：头像和用户名 */}
+          <div className="flex items-start justify-between mb-4 gap-4">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
               <div className="relative">
-                {/* 头像外圈装饰 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-warning to-success rounded-full animate-spin-slow" style={{ padding: '3px' }}>
-                  <div className="w-full h-full bg-slate-900 rounded-full"></div>
-                </div>
+                <Avatar 
+                  className="h-20 w-20 border-4 shrink-0"
+                  style={{
+                    borderColor: 'hsl(var(--primary))'
+                  }}
+                >
+                  <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-warning text-white font-black">
+                    {userProfile?.display_name?.charAt(0) || '?'}
+                  </AvatarFallback>
+                </Avatar>
                 
-                {/* 头像容器 */}
-                <div className="relative">
-                  <Avatar className="h-40 w-40 border-8 border-slate-900 shadow-2xl ring-4 ring-white/20">
-                    <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
-                    <AvatarFallback className="text-5xl bg-gradient-to-br from-primary to-warning text-white font-black">
-                      {userProfile?.display_name?.charAt(0) || '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  {/* 编辑按钮 */}
-                  <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        size="icon" 
-                        className="absolute -bottom-3 -right-3 h-12 w-12 rounded-full bg-gradient-to-r from-primary to-warning shadow-lg hover:scale-110 transition-transform z-20 border-4 border-slate-900"
-                      >
-                        <Edit2 className="h-5 w-5" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>编辑个人资料</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-6 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="display-name">昵称</Label>
-                          <Input
-                            id="display-name"
-                            value={editDisplayName}
-                            onChange={(e) => setEditDisplayName(e.target.value)}
-                            placeholder="输入你的昵称"
-                            maxLength={20}
-                          />
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <Label>选择头像</Label>
-                          <div className="grid grid-cols-3 gap-3">
-                            {AVATAR_OPTIONS.map((avatar) => (
-                              <button
-                                key={avatar}
-                                onClick={() => setSelectedAvatar(avatar)}
-                                className={`
-                                  relative rounded-lg p-2 transition-all
-                                  ${selectedAvatar === avatar 
-                                    ? 'ring-2 ring-primary bg-primary/10' 
-                                    : 'hover:bg-muted border border-border'
-                                  }
-                                `}
-                              >
-                                <Avatar className="h-16 w-16 mx-auto">
-                                  <AvatarImage src={avatar} />
-                                </Avatar>
-                                {selectedAvatar === avatar && (
-                                  <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
-                                    <Check className="h-3 w-3 text-primary-foreground" />
-                                  </div>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                {/* 编辑按钮 */}
+                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="icon" 
+                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-primary shadow-lg hover:scale-110 transition-transform z-20"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>编辑个人资料</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-6 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="display-name">昵称</Label>
+                        <Input
+                          id="display-name"
+                          value={editDisplayName}
+                          onChange={(e) => setEditDisplayName(e.target.value)}
+                          placeholder="输入你的昵称"
+                          maxLength={20}
+                        />
                       </div>
                       
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => setIsEditDialogOpen(false)}
-                        >
-                          取消
-                        </Button>
-                        <Button
-                          className="flex-1"
-                          onClick={handleSaveProfile}
-                          disabled={isSaving || !editDisplayName.trim()}
-                        >
-                          {isSaving ? "保存中..." : "保存"}
-                        </Button>
+                      <div className="space-y-3">
+                        <Label>选择头像</Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {AVATAR_OPTIONS.map((avatar) => (
+                            <button
+                              key={avatar}
+                              onClick={() => setSelectedAvatar(avatar)}
+                              className={`
+                                relative rounded-lg p-2 transition-all
+                                ${selectedAvatar === avatar 
+                                  ? 'ring-2 ring-primary bg-primary/10' 
+                                  : 'hover:bg-muted border border-border'
+                                }
+                              `}
+                            >
+                              <Avatar className="h-16 w-16 mx-auto">
+                                <AvatarImage src={avatar} />
+                              </Avatar>
+                              {selectedAvatar === avatar && (
+                                <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                                  <Check className="h-3 w-3 text-primary-foreground" />
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-            </div>
-            
-            {/* 用户名和头衔 */}
-            <div className="text-center mb-8">
-              <h2 className="text-4xl font-black text-white mb-2 tracking-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-                {userProfile?.display_name}
-              </h2>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-warning/20 to-success/20 px-4 py-1.5 rounded-full border border-warning/30">
-                <Trophy className="h-4 w-4 text-warning" />
-                <span className="text-warning font-bold text-sm">预测精英</span>
-              </div>
-            </div>
-            
-            {/* 核心数据展示区 */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              {/* 胜率 */}
-              <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-4 border-2 border-primary/30 backdrop-blur-sm">
-                <div className="text-center">
-                  <div className="bg-primary/20 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <Trophy className="h-6 w-6 text-primary" />
-                  </div>
-                  <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">Win Rate</p>
-                  <AnimatedWinRate 
-                    value={stats?.winRate || 0}
-                    className="text-3xl font-black text-primary font-mono-data"
-                  />
-                </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => setIsEditDialogOpen(false)}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving || !editDisplayName.trim()}
+                      >
+                        {isSaving ? "保存中..." : "保存"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
               
-              {/* 总预测 */}
-              <div className="bg-gradient-to-br from-info/20 to-info/5 rounded-2xl p-4 border-2 border-info/30 backdrop-blur-sm">
-                <div className="text-center">
-                  <div className="bg-info/20 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp className="h-6 w-6 text-info" />
-                  </div>
-                  <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">Predictions</p>
-                  <p className="text-3xl font-black text-info font-mono-data">{stats?.totalPredictions || 0}</p>
-                </div>
-              </div>
-              
-              {/* 收益 */}
-              <div className={`bg-gradient-to-br ${stats?.profit && stats.profit >= 0 ? 'from-success/20 to-success/5 border-success/30' : 'from-destructive/20 to-destructive/5 border-destructive/30'} rounded-2xl p-4 border-2 backdrop-blur-sm`}>
-                <div className="text-center">
-                  <div className={`${stats?.profit && stats.profit >= 0 ? 'bg-success/20' : 'bg-destructive/20'} w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3`}>
-                    <DollarSign className={`h-6 w-6 ${stats?.profit && stats.profit >= 0 ? 'text-success' : 'text-destructive'}`} />
-                  </div>
-                  <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">Profit</p>
-                  <p className={`text-3xl font-black font-mono-data ${stats?.profit && stats.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {stats?.profit && stats.profit >= 0 ? '+' : ''}{stats?.profit?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 0}
-                  </p>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-lg leading-tight truncate text-white">
+                  {userProfile?.display_name}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Trophy className="h-3.5 w-3.5 text-warning" />
+                  <span className="text-xs text-muted-foreground">预测精英</span>
                 </div>
               </div>
             </div>
             
-            {/* 钱包余额 - 特殊展示 */}
-            <div className="relative bg-gradient-to-r from-warning/30 via-warning/20 to-success/30 rounded-2xl p-6 border-2 border-warning/40 backdrop-blur-sm overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-warning/10 rounded-full blur-2xl"></div>
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-warning/30 p-4 rounded-xl">
-                    <Wallet className="h-8 w-8 text-warning" />
-                  </div>
-                  <div>
-                    <p className="text-white/70 text-sm font-semibold mb-1 uppercase tracking-wide">Virtual Wallet</p>
-                    <p className="text-4xl font-black text-white font-mono-data">
-                      ${stats?.balance?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 10000}
-                    </p>
-                  </div>
-                </div>
+            {/* 收益徽章 */}
+            <div className="flex flex-col items-center gap-1 shrink-0">
+              <span className="text-[9px] text-muted-foreground whitespace-nowrap">模拟收益</span>
+              <div className={`px-3 py-1.5 rounded-full font-mono-data font-bold text-xs ${
+                (stats?.profit || 0) >= 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+              }`}>
+                {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 0}
               </div>
             </div>
-          </CardContent>
+          </div>
           
-          {/* 底部装饰带 */}
-          <div className="h-3 bg-gradient-to-r from-success via-warning to-primary"></div>
-        </Card>
-      </div>
+          <div className="space-y-3">
+            {/* 胜率显示 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground">胜率</span>
+                <span className="text-2xl font-bold font-mono-data text-primary">
+                  <AnimatedWinRate value={stats?.winRate || 0} />%
+                </span>
+              </div>
+              
+              {/* 胜率进度条 */}
+              <div className="relative h-2.5 bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 bg-primary"
+                  style={{
+                    width: `${stats?.winRate || 0}%`
+                  }}
+                />
+              </div>
+            </div>
+            
+            {/* 统计数据 */}
+            <div className="flex items-center justify-between pt-2.5 border-t border-border/50 gap-2">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-0.5">命中</p>
+                <p className="text-base font-bold font-mono-data text-success">
+                  {stats?.correctPredictions || 0}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-[10px] text-muted-foreground mb-0.5">总预测</p>
+                <p className="text-base font-bold font-mono-data">
+                  {stats?.totalPredictions || 0}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground mb-0.5">未中</p>
+                <p className="text-base font-bold font-mono-data text-destructive">
+                  {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
+                </p>
+              </div>
+            </div>
+            
+            {/* 钱包余额显示 */}
+            <div className="pt-2.5 border-t border-border/50">
+              <div className="bg-gradient-to-r from-warning/20 to-warning/10 rounded-lg p-4 border border-warning/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-warning/30 p-2.5 rounded-lg">
+                      <Wallet className="h-5 w-5 text-warning" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wide">虚拟钱包</p>
+                      <p className="text-2xl font-black text-white font-mono-data">
+                        ${stats?.balance?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 10000}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* 查看历史按钮 */}
+            <div className="pt-2.5 border-t border-border/50">
+              <Button 
+                onClick={() => navigate('/history')}
+                className="w-full h-10 relative overflow-hidden group/btn border font-bold text-xs hover:scale-105 transition-transform bg-gradient-to-r from-primary/20 to-primary/10"
+                style={{
+                  borderColor: 'hsl(var(--primary) / 0.3)',
+                  color: 'hsl(255 100% 100%)'
+                }}
+              >
+                <div className="relative flex items-center justify-center gap-2">
+                  <History className="w-4 h-4 group-hover/btn:animate-pulse" />
+                  <span>查看完整历史记录</span>
+                </div>
+                
+                {/* 动画闪光效果 */}
+                <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* 预测历史记录 */}
       {stats && stats.recentPredictions && stats.recentPredictions.length > 0 && (
