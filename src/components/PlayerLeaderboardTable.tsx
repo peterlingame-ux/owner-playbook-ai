@@ -432,18 +432,19 @@ const PlayerLeaderboardTable = () => {
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('avg_confidence')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('action')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         {t('loading')}...
                       </TableCell>
                     </TableRow>
                   ) : allPlayers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         {t('no_data')}
                       </TableCell>
                     </TableRow>
@@ -520,6 +521,21 @@ const PlayerLeaderboardTable = () => {
                           <span className="font-mono-data text-xs sm:text-sm text-foreground/80">
                             {player.avgConfidence ? player.avgConfidence.toFixed(1) : '0.0'}%
                           </span>
+                        </TableCell>
+                        <TableCell className="text-center py-2 sm:py-3">
+                          <Button
+                            size="sm"
+                            variant={followedPlayers.has(player.id) ? "default" : "outline"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleFollowToggle(player.id, player.displayName);
+                            }}
+                            className="h-7 px-2 text-xs"
+                          >
+                            <Heart 
+                              className={`h-3 w-3 ${followedPlayers.has(player.id) ? 'fill-current' : ''}`}
+                            />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
