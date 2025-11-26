@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Trophy, History, Sparkles, Info } from "lucide-react";
+import { Home, Trophy, History, Sparkles, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 
@@ -12,7 +12,7 @@ const BottomNav = () => {
     { to: "/leaderboard", icon: Trophy, label: t('nav_rank') },
     { to: "/history", icon: History, label: t('nav_history') },
     { to: "/models", icon: Sparkles, label: t('nav_models') },
-    { to: "/blog", icon: Info, label: t('nav_blog') },
+    { to: "/my-predictions", icon: Target, label: "我的预测" },
   ];
 
   // 触觉反馈函数

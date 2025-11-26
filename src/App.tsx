@@ -18,6 +18,7 @@ import Blog from "./pages/Blog";
 import Auth from "./pages/Auth";
 import Waitlist from "./pages/Waitlist";
 import History from "./pages/History";
+import MyPredictions from "./pages/MyPredictions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/match/:matchId" element={<MatchDetail />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/history" element={<History />} />
+              <Route path="/my-predictions" element={<MyPredictions />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/waitlist" element={<Waitlist />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
