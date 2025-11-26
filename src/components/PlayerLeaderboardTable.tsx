@@ -426,11 +426,24 @@ const PlayerLeaderboardTable = () => {
                           </div>
                         </TableCell>
                         <TableCell className="text-center py-2 sm:py-3">
-                          <AnimatedWinRate 
-                            value={player.winRate}
-                            className="font-mono-data font-bold text-sm sm:text-base"
-                            style={{ color: player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--foreground))' }}
-                          />
+                          <div className="relative w-full min-w-[100px]">
+                            {/* 背景条形图 */}
+                            <div 
+                              className="absolute inset-0 rounded-sm opacity-20"
+                              style={{ 
+                                width: `${player.winRate}%`,
+                                backgroundColor: player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--primary))'
+                              }}
+                            />
+                            {/* 胜率文字 */}
+                            <div className="relative z-10">
+                              <AnimatedWinRate 
+                                value={player.winRate}
+                                className="font-mono-data font-bold text-sm sm:text-base"
+                                style={{ color: player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--foreground))' }}
+                              />
+                            </div>
+                          </div>
                         </TableCell>
                         <TableCell className="text-center py-2 sm:py-3">
                           <span className="font-mono-data text-xs sm:text-sm text-muted-foreground">
