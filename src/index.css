@@ -120,7 +120,14 @@ All colors MUST be HSL.
     body {
       padding-left: max(0px, env(safe-area-inset-left));
       padding-right: max(0px, env(safe-area-inset-right));
+      /* 为底部导航留出空间 */
+      padding-bottom: max(68px, calc(68px + env(safe-area-inset-bottom)));
     }
+  }
+  
+  /* 添加底部安全区域类 */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
   /* 防止 iOS 缩放和文字大小调整 */
