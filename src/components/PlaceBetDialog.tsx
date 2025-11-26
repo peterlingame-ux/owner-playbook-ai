@@ -819,31 +819,37 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                 <div className="flex items-center gap-2">
                   <Target className="w-5 h-5 text-primary" />
                   <div>
-                    <p className="text-sm font-bold">投注类型：{getBetTypeLabel()}</p>
-                    <p className="text-xs text-muted-foreground">AI正在分析这个类型，选择你的预测</p>
+                    <p className="text-sm font-bold">赔率盘口：{getBetTypeLabel()}</p>
+                    <p className="text-xs text-muted-foreground">选择赔率进行下注，确认后不可更改</p>
                   </div>
                 </div>
               </Card>
 
-              {/* 用户选择区 */}
+              {/* 赔率盘口选择 */}
               <div className="space-y-3">
-                <Label className="text-base font-bold">选择你的预测</Label>
-                <div className="grid grid-cols-2 gap-3">
+                <Label className="text-base font-bold">选择赔率盘口</Label>
+                <div className="grid grid-cols-2 gap-4">
                   {getBetOptions().map((option) => (
                     <Card
                       key={option.value}
-                      className={`p-4 cursor-pointer transition-all hover:border-primary ${
+                      className={`p-5 cursor-pointer transition-all hover:border-primary hover:shadow-lg ${
                         selectedBetOption === option.value
-                          ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
-                          : 'border-border'
+                          ? 'border-primary bg-primary/10 ring-2 ring-primary/30 shadow-lg'
+                          : 'border-border hover:bg-accent/5'
                       }`}
                       onClick={() => setSelectedBetOption(option.value)}
                     >
-                      <div className="text-center">
-                        <p className="font-bold text-lg mb-1">{option.label}</p>
-                        <Badge className="bg-success/20 text-success border-success/30">
-                          赔率 {option.odds.toFixed(2)}
-                        </Badge>
+                      <div className="text-center space-y-2">
+                        <p className="font-bold text-base">{option.label}</p>
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-xs text-muted-foreground">赔率</span>
+                          <Badge className="text-lg font-bold px-3 py-1 bg-gradient-to-r from-success/20 to-success/10 text-success border-success/30">
+                            {option.odds.toFixed(2)}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          投注 $100 可赢 ${(100 * option.odds).toFixed(0)}
+                        </p>
                       </div>
                     </Card>
                   ))}
@@ -912,10 +918,10 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                 className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-warning hover:opacity-90"
               >
                 <Target className="mr-2 h-5 w-5" />
-                {isSubmitting ? "下注中..." : "确认下注 - 挑战AI"}
+                {isSubmitting ? "下注中..." : `确认下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                ⚠️ 下注后不可更改，比赛结束后与AI一起结算胜负
+                ⚠️ 确认后不可更改，比赛结束后自动结算并更新你的胜率
               </p>
             </div>
           )}
