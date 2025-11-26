@@ -9,12 +9,34 @@ import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
 import { AIModel } from "@/types/prediction";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+
+  // Check if user has seen the welcome dialog
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeDialog');
+    if (!hasSeenWelcome) {
+      setShowWelcomeDialog(true);
+    }
+  }, []);
+
+  const handleWelcomeClose = () => {
+    localStorage.setItem('hasSeenWelcomeDialog', 'true');
+    setShowWelcomeDialog(false);
+  };
   
   // 获取真实的胜率数据和模拟收益 - 使用 Realtime 订阅实现实时更新
   useEffect(() => {
@@ -150,6 +172,25 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <CryptoTicker />
+
+      {/* Welcome Dialog */}
+      <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">
+              {t('welcome_title')}
+            </DialogTitle>
+            <DialogDescription className="text-base whitespace-pre-line text-center pt-4">
+              {t('welcome_message')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center pt-4">
+            <Button onClick={handleWelcomeClose} size="lg" className="min-w-[200px]">
+              {t('welcome_button')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
         {/* Models Section */}
