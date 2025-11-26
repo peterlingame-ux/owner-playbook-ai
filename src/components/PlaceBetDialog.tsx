@@ -10,6 +10,7 @@ import { TrendingUp, Target, Plus, Trophy, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer } from 'recharts';
 
 interface Match {
   fixture_id: number;
@@ -49,6 +50,16 @@ interface MatchStats {
   };
   home_form: string[]; // 近5场 W/D/L
   away_form: string[];
+  team_stats: {
+    home: TeamRadarData[];
+    away: TeamRadarData[];
+  };
+}
+
+interface TeamRadarData {
+  category: string;
+  value: number;
+  fullMark: number;
 }
 
 interface PlaceBetDialogProps {
@@ -289,6 +300,22 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
         },
         home_form: ['W', 'W', 'D', 'W', 'L'], // 最近5场：胜-胜-平-胜-负
         away_form: ['W', 'L', 'W', 'W', 'D'],
+        team_stats: {
+          home: [
+            { category: '进攻', value: 85, fullMark: 100 },
+            { category: '防守', value: 78, fullMark: 100 },
+            { category: '控球', value: 82, fullMark: 100 },
+            { category: '传球', value: 88, fullMark: 100 },
+            { category: '体能', value: 75, fullMark: 100 },
+          ],
+          away: [
+            { category: '进攻', value: 72, fullMark: 100 },
+            { category: '防守', value: 85, fullMark: 100 },
+            { category: '控球', value: 68, fullMark: 100 },
+            { category: '传球', value: 70, fullMark: 100 },
+            { category: '体能', value: 80, fullMark: 100 },
+          ],
+        },
       };
       setMatchStats(mockStats);
     } catch (error) {
@@ -555,6 +582,52 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                   <p className="text-xs text-muted-foreground mt-1">← 最新</p>
                 </Card>
               </div>
+
+              {/* 球队实力对比雷达图 */}
+              <Card className="p-4 bg-gradient-to-br from-primary/5 to-warning/5 border-primary/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-primary" />
+                  <h4 className="font-bold text-sm">球队实力对比</h4>
+                </div>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RadarChart data={matchStats.team_stats.home.map((item, idx) => ({
+                    category: item.category,
+                    主队: item.value,
+                    客队: matchStats.team_stats.away[idx].value,
+                  }))}>
+                    <PolarGrid stroke="hsl(var(--border))" />
+                    <PolarAngleAxis 
+                      dataKey="category" 
+                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                    />
+                    <PolarRadiusAxis 
+                      angle={90} 
+                      domain={[0, 100]}
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                    />
+                    <Radar 
+                      name="主队" 
+                      dataKey="主队" 
+                      stroke="hsl(var(--primary))" 
+                      fill="hsl(var(--primary))" 
+                      fillOpacity={0.3}
+                    />
+                    <Radar 
+                      name="客队" 
+                      dataKey="客队" 
+                      stroke="hsl(var(--warning))" 
+                      fill="hsl(var(--warning))" 
+                      fillOpacity={0.3}
+                    />
+                    <Legend 
+                      wrapperStyle={{ 
+                        fontSize: '12px',
+                        paddingTop: '10px'
+                      }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </Card>
             </div>
           )}
 
