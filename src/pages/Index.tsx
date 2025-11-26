@@ -8,6 +8,7 @@ import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
+import { virtualPlayers } from "@/data/virtualPlayers";
 import { supabase } from "@/integrations/supabase/client";
 import { AIModel } from "@/types/prediction";
 import {
@@ -188,45 +189,11 @@ const Index = () => {
         setIsLoadingPlayers(true);
         const INITIAL_BALANCE = 10000;
         
-        // 虚拟玩家数据
-        const virtualPlayers: PlayerData[] = [
-          {
-            id: 'virtual-1',
-            displayName: 'LegendKing',
-            avatarUrl: '/avatars/avatar-1.png',
-            totalPredictions: 156,
-            correctPredictions: 132,
-            winRate: 84.6,
-            balance: 28750,
-            profit: 18750,
-            changePercent: 187.5,
-            rank: 1
-          },
-          {
-            id: 'virtual-2',
-            displayName: 'FootballMaster',
-            avatarUrl: '/avatars/avatar-2.png',
-            totalPredictions: 203,
-            correctPredictions: 165,
-            winRate: 81.3,
-            balance: 24320,
-            profit: 14320,
-            changePercent: 143.2,
-            rank: 2
-          },
-          {
-            id: 'virtual-3',
-            displayName: 'PredictorPro',
-            avatarUrl: '/avatars/avatar-3.png',
-            totalPredictions: 178,
-            correctPredictions: 140,
-            winRate: 78.7,
-            balance: 21890,
-            profit: 11890,
-            changePercent: 118.9,
-            rank: 3
-          }
-        ];
+        // 将虚拟玩家转换为 PlayerData 格式
+        const virtualPlayersData: PlayerData[] = virtualPlayers.map((player, index) => ({
+          ...player,
+          rank: index + 1
+        }));
         
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
@@ -235,9 +202,9 @@ const Index = () => {
         
         if (usersError) throw usersError;
         
-        // 如果没有真实用户或获取失败，使用虚拟玩家
+        // 如果没有真实用户或获取失败，使用虚拟玩家的前3名
         if (!usersData || usersData.length === 0) {
-          setTopPlayers(virtualPlayers);
+          setTopPlayers(virtualPlayersData.slice(0, 3));
           return;
         }
         
@@ -284,7 +251,7 @@ const Index = () => {
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
         // 合并真实玩家和虚拟玩家
-        const allPlayers = [...virtualPlayers, ...realPlayerStats];
+        const allPlayers = [...virtualPlayersData, ...realPlayerStats];
         
         // 按胜率排序并设置排名
         const sortedPlayers = allPlayers
