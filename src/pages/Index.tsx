@@ -188,13 +188,58 @@ const Index = () => {
         setIsLoadingPlayers(true);
         const INITIAL_BALANCE = 10000;
         
+        // 虚拟玩家数据
+        const virtualPlayers: PlayerData[] = [
+          {
+            id: 'virtual-1',
+            displayName: 'LegendKing',
+            avatarUrl: '/avatars/avatar-1.png',
+            totalPredictions: 156,
+            correctPredictions: 132,
+            winRate: 84.6,
+            balance: 28750,
+            profit: 18750,
+            changePercent: 187.5,
+            rank: 1
+          },
+          {
+            id: 'virtual-2',
+            displayName: 'FootballMaster',
+            avatarUrl: '/avatars/avatar-2.png',
+            totalPredictions: 203,
+            correctPredictions: 165,
+            winRate: 81.3,
+            balance: 24320,
+            profit: 14320,
+            changePercent: 143.2,
+            rank: 2
+          },
+          {
+            id: 'virtual-3',
+            displayName: 'PredictorPro',
+            avatarUrl: '/avatars/avatar-3.png',
+            totalPredictions: 178,
+            correctPredictions: 140,
+            winRate: 78.7,
+            balance: 21890,
+            profit: 11890,
+            changePercent: 118.9,
+            rank: 3
+          }
+        ];
+        
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
           .from('users')
           .select('id, display_name, avatar_url');
         
         if (usersError) throw usersError;
-        if (!usersData) return;
+        
+        // 如果没有真实用户或获取失败，使用虚拟玩家
+        if (!usersData || usersData.length === 0) {
+          setTopPlayers(virtualPlayers);
+          return;
+        }
         
         // 获取所有用户的余额信息
         const { data: balancesData, error: balancesError } = await supabase
@@ -214,7 +259,7 @@ const Index = () => {
         const balancesMap = new Map(balancesData?.map(b => [b.user_id, b.balance]) || []);
         
         // 计算每个用户的统计数据
-        const playerStats = usersData.map(user => {
+        const realPlayerStats = usersData.map(user => {
           const userPredictions = predictionsData?.filter(p => p.user_id === user.id) || [];
           const totalPredictions = userPredictions.length;
           const correctPredictions = userPredictions.filter(p => p.result === 'win').length;
@@ -234,12 +279,15 @@ const Index = () => {
             balance,
             profit,
             changePercent,
-            rank: 0 // 临时值，稍后设置
+            rank: 0
           };
-        });
+        }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
+        
+        // 合并真实玩家和虚拟玩家
+        const allPlayers = [...virtualPlayers, ...realPlayerStats];
         
         // 按胜率排序并设置排名
-        const sortedPlayers = playerStats
+        const sortedPlayers = allPlayers
           .sort((a, b) => b.winRate - a.winRate)
           .map((player, index) => ({
             ...player,
