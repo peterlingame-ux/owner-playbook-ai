@@ -342,7 +342,7 @@ const MyPredictions = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6">
       {/* 用户预测球星卡 - 仿照AI模型卡设计 */}
       <Card 
         className="relative p-6 bg-card border-primary hover:border-opacity-50 transition-all overflow-hidden"
