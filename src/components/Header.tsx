@@ -10,11 +10,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui/sheet";
 import { useState } from "react";
 import { useTheme } from "next-themes";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -144,18 +145,36 @@ const Header = () => {
                     </Button>
                   </div>
                   {user ? (
-                    <Button 
-                      variant="outline" 
-                      size="lg" 
-                      onClick={() => {
-                        handleSignOut();
-                        setMobileMenuOpen(false);
-                      }}
-                      className={`w-full inline-flex items-center justify-center gap-2 h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
-                    >
-                      <LogOut size={16} />
-                      <span>OUT</span>
-                    </Button>
+                    <>
+                      <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name || 'User'} />
+                          <AvatarFallback className="text-lg bg-primary text-primary-foreground">
+                            {userProfile?.display_name?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {userProfile?.display_name || 'User'}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="lg" 
+                        onClick={() => {
+                          handleSignOut();
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`w-full inline-flex items-center justify-center gap-2 h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                      >
+                        <LogOut size={16} />
+                        <span>OUT</span>
+                      </Button>
+                    </>
                   ) : (
                     <Button 
                       variant="outline" 
@@ -194,15 +213,25 @@ const Header = () => {
           {/* Desktop Auth Buttons */}
           <div className="hidden sm:flex items-center gap-1.5">
             {user ? (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleSignOut}
-                className={`inline-flex items-center gap-1 text-base px-3 h-9 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
-              >
-                <LogOut size={16} />
-                <span>OUT</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate("/profile")}>
+                  <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name || 'User'} />
+                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                    {userProfile?.display_name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
+                  {userProfile?.display_name || 'User'}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  className="h-8 w-8 p-0"
+                >
+                  <LogOut size={16} />
+                </Button>
+              </div>
             ) : (
               <Button 
                 variant="outline" 
