@@ -78,6 +78,8 @@ const History = () => {
   const [playerHistoryRecords, setPlayerHistoryRecords] = useState<HistoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPlayerLoading, setIsPlayerLoading] = useState(true);
+  const [topPlayers, setTopPlayers] = useState<Array<{id: string, display_name: string, win_rate: number}>>([]);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string>("");
 
   // 从数据库获取历史数据
   useEffect(() => {
@@ -216,10 +218,85 @@ const History = () => {
     fetchHistory();
   }, []);
 
+  // 获取前十名玩家
+  useEffect(() => {
+    const fetchTopPlayers = async () => {
+      try {
+        // 查询所有用户的预测记录统计
+        const { data: predictionsData, error: predictionsError } = await supabase
+          .from('user_predictions')
+          .select('user_id, result')
+          .not('result', 'is', null);
+
+        if (predictionsError || !predictionsData) {
+          console.error('Error fetching predictions for top players:', predictionsError);
+          return;
+        }
+
+        // 按用户统计胜率
+        const userStats = predictionsData.reduce((acc: any, pred: any) => {
+          if (!acc[pred.user_id]) {
+            acc[pred.user_id] = { total: 0, wins: 0 };
+          }
+          acc[pred.user_id].total += 1;
+          if (pred.result === 'win') {
+            acc[pred.user_id].wins += 1;
+          }
+          return acc;
+        }, {});
+
+        // 计算胜率并排序
+        const userWinRates = Object.entries(userStats).map(([userId, stats]: [string, any]) => ({
+          user_id: userId,
+          win_rate: stats.total > 0 ? (stats.wins / stats.total) * 100 : 0,
+          total: stats.total
+        })).sort((a, b) => b.win_rate - a.win_rate).slice(0, 10);
+
+        // 获取用户信息
+        const userIds = userWinRates.map(u => u.user_id);
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, display_name')
+          .in('id', userIds);
+
+        if (usersError || !usersData) {
+          console.error('Error fetching users:', usersError);
+          return;
+        }
+
+        // 合并用户信息和胜率
+        const topPlayersData = userWinRates.map(u => {
+          const userInfo = usersData.find(user => user.id === u.user_id);
+          return {
+            id: u.user_id,
+            display_name: userInfo?.display_name || 'Unknown',
+            win_rate: u.win_rate
+          };
+        });
+
+        setTopPlayers(topPlayersData);
+        
+        // 设置默认选择当前用户（如果在前十名中）或第一名
+        if (user) {
+          const currentUserInTop = topPlayersData.find(p => p.id === user.id);
+          setSelectedPlayerId(currentUserInTop ? user.id : (topPlayersData[0]?.id || ""));
+        } else {
+          setSelectedPlayerId(topPlayersData[0]?.id || "");
+        }
+      } catch (error) {
+        console.error('Error fetching top players:', error);
+      }
+    };
+
+    fetchTopPlayers();
+  }, [user]);
+
   // 从数据库获取玩家历史数据
   useEffect(() => {
     const fetchPlayerHistory = async () => {
-      if (!user) {
+      const targetUserId = selectedPlayerId || user?.id;
+      
+      if (!targetUserId) {
         setPlayerHistoryRecords([]);
         setIsPlayerLoading(false);
         return;
@@ -228,11 +305,11 @@ const History = () => {
       try {
         setIsPlayerLoading(true);
         
-        // 查询用户的预测记录
+        // 查询选中玩家的预测记录
         const { data: predictionsData, error: predictionsError } = await supabase
           .from('user_predictions')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', targetUserId)
           .not('result', 'is', null)
           .order('created_at', { ascending: false });
 
@@ -286,7 +363,7 @@ const History = () => {
     };
 
     fetchPlayerHistory();
-  }, [user]);
+  }, [user, selectedPlayerId]);
 
   // 过滤历史数据
   let filteredHistory = [...historyRecords].sort(
@@ -765,7 +842,24 @@ const History = () => {
                   <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                  <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t('select_player') || '选择玩家'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {topPlayers.map((player, index) => (
+                        <SelectItem key={player.id} value={player.id}>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">#{index + 1}</span>
+                            <span>{player.display_name}</span>
+                            <span className="text-success text-xs">({player.win_rate.toFixed(1)}%)</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                   <Select value={filterResult} onValueChange={setFilterResult}>
                     <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder={t('result')} />
