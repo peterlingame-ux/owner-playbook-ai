@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -482,9 +483,9 @@ const MyPredictions = () => {
         </div>
       </Card>
 
-      {/* 预测历史记录 */}
+      {/* 预测历史记录 - 表格形式 */}
       {stats && stats.recentPredictions && stats.recentPredictions.length > 0 && (
-        <Card className="border-2 border-primary/20 shadow-xl bg-gradient-to-br from-background to-muted/30">
+        <Card className="border-2 border-primary/20 shadow-xl overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-primary/10 via-transparent to-warning/10 border-b border-border/50">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
@@ -503,42 +504,61 @@ const MyPredictions = () => {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
-            <div className="space-y-3">
-              {stats.recentPredictions.map((pred) => (
-                <div 
-                  key={pred.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 transition-all border border-border/50 hover:border-primary/30"
-                >
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground mb-1.5 font-medium">
-                      {new Date(pred.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
-                    </p>
-                    <p className="text-sm font-bold mb-1">
-                      预测: <span className="text-primary">{pred.prediction}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      投注: ${pred.bet_amount}
-                    </p>
-                  </div>
-                  <div className="text-right flex flex-col items-end gap-2">
-                    <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${
-                      pred.result === 'win' 
-                        ? 'bg-success/20 text-success border border-success/30' 
-                        : pred.result === 'loss'
-                        ? 'bg-destructive/20 text-destructive border border-destructive/30'
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {pred.result === 'win' ? '✓ 命中' : pred.result === 'loss' ? '✗ 未中' : '待定'}
-                    </span>
-                    {pred.result === 'win' && pred.actual_payout > 0 && (
-                      <p className="text-sm text-success font-bold font-mono-data">
-                        +${(pred.actual_payout - pred.bet_amount).toFixed(0)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border/50 bg-muted/30">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">日期</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">预测</th>
+                    <th className="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">投注</th>
+                    <th className="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">盈亏</th>
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-muted-foreground">结果</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.recentPredictions.map((pred, index) => (
+                    <tr 
+                      key={pred.id}
+                      className={`
+                        border-b border-border/30 hover:bg-muted/20 transition-colors
+                        ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}
+                      `}
+                    >
+                      <td className="px-4 py-3 text-xs text-muted-foreground font-medium">
+                        {new Date(pred.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-bold">
+                        <span className="text-primary">{pred.prediction}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-mono-data">
+                        ${pred.bet_amount}
+                      </td>
+                      <td className={`px-4 py-3 text-right text-sm font-bold font-mono-data ${
+                        pred.result === 'win' ? 'text-success' : pred.result === 'loss' ? 'text-destructive' : 'text-muted-foreground'
+                      }`}>
+                        {pred.result === 'win' && pred.actual_payout > 0
+                          ? `+$${(pred.actual_payout - pred.bet_amount).toFixed(0)}`
+                          : pred.result === 'loss'
+                          ? `-$${pred.bet_amount.toFixed(0)}`
+                          : '--'
+                        }
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold ${
+                          pred.result === 'win' 
+                            ? 'bg-success/20 text-success border border-success/30' 
+                            : pred.result === 'loss'
+                            ? 'bg-destructive/20 text-destructive border border-destructive/30'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {pred.result === 'win' ? '✓ 命中' : pred.result === 'loss' ? '✗ 未中' : '待定'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
