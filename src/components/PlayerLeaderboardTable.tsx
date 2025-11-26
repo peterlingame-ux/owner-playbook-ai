@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, Crown, TrendingUp } from "lucide-react";
+import { ArrowDown, Trophy, Crown } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -245,7 +245,7 @@ const PlayerLeaderboardTable = () => {
             </CardContent>
           </Card>
 
-          {/* 前6名玩家胜率对比 */}
+          {/* 前6名玩家对比图 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -286,59 +286,6 @@ const PlayerLeaderboardTable = () => {
                       <Cell 
                         key={`cell-${index}`} 
                         fill={getRankColor(entry.rank)}
-                        opacity={entry.rank <= 3 ? 1 : 0.8}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* 前6名玩家收益对比 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-success" />
-                前6名玩家收益对比
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="hsl(var(--muted-foreground))" 
-                    style={{ fontSize: '11px' }}
-                    angle={-30}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
-                    style={{ fontSize: '12px' }}
-                    label={{ value: '收益 ($)', angle: -90, position: 'insideLeft' }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }}
-                    formatter={(value: number) => [
-                      `${value >= 0 ? '+' : ''}$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
-                      '收益'
-                    ]}
-                  />
-                  <Bar 
-                    dataKey="profit" 
-                    radius={[8, 8, 0, 0]}
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={entry.profit >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
                         opacity={entry.rank <= 3 ? 1 : 0.8}
                       />
                     ))}
