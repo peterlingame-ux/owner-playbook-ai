@@ -59,6 +59,58 @@ const MyPredictions = () => {
   useEffect(() => {
     const fetchPredictions = async () => {
       if (!user) {
+        // 模拟登录后的数据，用于演示
+        setUserProfile({
+          display_name: "QuickTiger1234",
+          avatar_url: "/avatars/avatar-1.png"
+        });
+        setEditDisplayName("QuickTiger1234");
+        setSelectedAvatar("/avatars/avatar-1.png");
+        setStats({
+          totalPredictions: 15,
+          correctPredictions: 10,
+          winRate: 66.67,
+          balance: 12500,
+          profit: 2500,
+          recentPredictions: [
+            {
+              id: "1",
+              match_id: "m1",
+              prediction: "主队胜",
+              result: "win",
+              bet_amount: 500,
+              actual_payout: 950,
+              created_at: new Date().toISOString()
+            },
+            {
+              id: "2",
+              match_id: "m2",
+              prediction: "大球 2.5",
+              result: "win",
+              bet_amount: 300,
+              actual_payout: 600,
+              created_at: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+              id: "3",
+              match_id: "m3",
+              prediction: "平局",
+              result: "loss",
+              bet_amount: 400,
+              actual_payout: 0,
+              created_at: new Date(Date.now() - 172800000).toISOString()
+            },
+            {
+              id: "4",
+              match_id: "m4",
+              prediction: "客队胜",
+              result: "win",
+              bet_amount: 600,
+              actual_payout: 1200,
+              created_at: new Date(Date.now() - 259200000).toISOString()
+            }
+          ]
+        });
         setIsLoading(false);
         return;
       }
@@ -119,7 +171,16 @@ const MyPredictions = () => {
   }, [user]);
 
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      // 演示模式：模拟保存
+      setUserProfile({
+        display_name: editDisplayName,
+        avatar_url: selectedAvatar,
+      });
+      setIsEditDialogOpen(false);
+      toast.success("演示模式：个人资料已更新！");
+      return;
+    }
     
     setIsSaving(true);
     try {
@@ -148,7 +209,7 @@ const MyPredictions = () => {
     }
   };
 
-  if (!user) {
+  if (!user && !stats) {
     return (
       <Card className="border-primary/20">
         <CardContent className="p-6 text-center">
