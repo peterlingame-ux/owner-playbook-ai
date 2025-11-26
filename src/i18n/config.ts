@@ -27,6 +27,8 @@ const resources = {
       // Live Matches
       "upcoming_matches": "UPCOMING MATCHES",
       "live": "LIVE",
+      "match_center": "MATCH CENTER",
+      "choose_match_to_predict": "Choose a match to compete with AI",
       
       // Tabs
       "leaderboard": "LEADERBOARD",
@@ -400,6 +402,8 @@ const resources = {
       // Live Matches
       "upcoming_matches": "即将开始的比赛",
       "live": "直播中",
+      "match_center": "赛事中心",
+      "choose_match_to_predict": "选择比赛与AI同场PK",
       
       // Tabs
       "leaderboard": "排行榜",
