@@ -80,7 +80,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-7',
     displayName: 'StrikerSage',
-    avatarUrl: '/avatars/avatar-1.png',
+    avatarUrl: '/avatars/avatar-7.png',
     totalPredictions: 211,
     correctPredictions: 155,
     winRate: 73.5,
@@ -91,7 +91,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-8',
     displayName: 'TacticTitan',
-    avatarUrl: '/avatars/avatar-2.png',
+    avatarUrl: '/avatars/avatar-8.png',
     totalPredictions: 176,
     correctPredictions: 128,
     winRate: 72.7,
@@ -102,7 +102,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-9',
     displayName: 'ChampionCaller',
-    avatarUrl: '/avatars/avatar-3.png',
+    avatarUrl: '/avatars/avatar-9.png',
     totalPredictions: 198,
     correctPredictions: 142,
     winRate: 71.7,
@@ -113,7 +113,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-10',
     displayName: 'VictoryVision',
-    avatarUrl: '/avatars/avatar-4.png',
+    avatarUrl: '/avatars/avatar-1.png',
     totalPredictions: 183,
     correctPredictions: 130,
     winRate: 71.0,
@@ -124,7 +124,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-11',
     displayName: 'BetBeast',
-    avatarUrl: '/avatars/avatar-5.png',
+    avatarUrl: '/avatars/avatar-2.png',
     totalPredictions: 167,
     correctPredictions: 118,
     winRate: 70.7,
@@ -135,7 +135,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-12',
     displayName: 'OddsOracle',
-    avatarUrl: '/avatars/avatar-6.png',
+    avatarUrl: '/avatars/avatar-3.png',
     totalPredictions: 192,
     correctPredictions: 135,
     winRate: 70.3,
@@ -146,7 +146,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-13',
     displayName: 'WinWhisperer',
-    avatarUrl: '/avatars/avatar-1.png',
+    avatarUrl: '/avatars/avatar-4.png',
     totalPredictions: 159,
     correctPredictions: 111,
     winRate: 69.8,
@@ -157,7 +157,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-14',
     displayName: 'ResultRider',
-    avatarUrl: '/avatars/avatar-2.png',
+    avatarUrl: '/avatars/avatar-5.png',
     totalPredictions: 174,
     correctPredictions: 121,
     winRate: 69.5,
@@ -168,7 +168,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   {
     id: 'virtual-15',
     displayName: 'GameGladiator',
-    avatarUrl: '/avatars/avatar-3.png',
+    avatarUrl: '/avatars/avatar-6.png',
     totalPredictions: 186,
     correctPredictions: 129,
     winRate: 69.4,
