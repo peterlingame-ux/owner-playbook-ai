@@ -14,9 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      user_balances: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          total_lost: number
+          total_wagered: number
+          total_won: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_lost?: number
+          total_wagered?: number
+          total_won?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_lost?: number
+          total_wagered?: number
+          total_won?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_predictions: {
         Row: {
+          actual_payout: number | null
           actual_result: string | null
+          bet_amount: number
           confidence: number | null
           created_at: string
           handicap_line: number | null
@@ -24,13 +59,16 @@ export type Database = {
           match_date: string
           match_id: string
           over_under_line: number | null
+          potential_payout: number | null
           prediction: string
           prediction_type: string
           result: string | null
           user_id: string
         }
         Insert: {
+          actual_payout?: number | null
           actual_result?: string | null
+          bet_amount?: number
           confidence?: number | null
           created_at?: string
           handicap_line?: number | null
@@ -38,13 +76,16 @@ export type Database = {
           match_date: string
           match_id: string
           over_under_line?: number | null
+          potential_payout?: number | null
           prediction: string
           prediction_type: string
           result?: string | null
           user_id: string
         }
         Update: {
+          actual_payout?: number | null
           actual_result?: string | null
+          bet_amount?: number
           confidence?: number | null
           created_at?: string
           handicap_line?: number | null
@@ -52,6 +93,7 @@ export type Database = {
           match_date?: string
           match_id?: string
           over_under_line?: number | null
+          potential_payout?: number | null
           prediction?: string
           prediction_type?: string
           result?: string | null
@@ -89,6 +131,21 @@ export type Database = {
     }
     Functions: {
       generate_random_username: { Args: never; Returns: string }
+      place_bet: {
+        Args: {
+          p_bet_amount: number
+          p_confidence?: number
+          p_handicap_line?: number
+          p_match_date: string
+          p_match_id: string
+          p_over_under_line?: number
+          p_potential_payout: number
+          p_prediction: string
+          p_prediction_type: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

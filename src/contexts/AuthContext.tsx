@@ -7,11 +7,20 @@ interface UserProfile {
   avatar_url: string;
 }
 
+interface UserBalance {
+  balance: number;
+  total_wagered: number;
+  total_won: number;
+  total_lost: number;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   userProfile: UserProfile | null;
+  userBalance: UserBalance | null;
+  refreshBalance: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -19,6 +28,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   userProfile: null,
+  userBalance: null,
+  refreshBalance: async () => {},
 });
 
 export const useAuth = () => {
@@ -34,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
 
   // Fetch user profile
   const fetchUserProfile = async (userId: string) => {
@@ -45,6 +57,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!error && data) {
       setUserProfile(data);
+    }
+  };
+
+  // Fetch user balance
+  const fetchUserBalance = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_balances')
+      .select('balance, total_wagered, total_won, total_lost')
+      .eq('user_id', userId)
+      .single();
+
+    if (!error && data) {
+      setUserBalance(data);
+    }
+  };
+
+  // Refresh balance
+  const refreshBalance = async () => {
+    if (user) {
+      await fetchUserBalance(user.id);
     }
   };
 
@@ -60,9 +92,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           setTimeout(() => {
             fetchUserProfile(session.user.id);
+            fetchUserBalance(session.user.id);
           }, 0);
         } else {
           setUserProfile(null);
+          setUserBalance(null);
         }
       }
     );
@@ -76,6 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         setTimeout(() => {
           fetchUserProfile(session.user.id);
+          fetchUserBalance(session.user.id);
         }, 0);
       }
     });
@@ -84,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, userProfile }}>
+    <AuthContext.Provider value={{ user, session, loading, userProfile, userBalance, refreshBalance }}>
       {children}
     </AuthContext.Provider>
   );
