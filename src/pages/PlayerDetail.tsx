@@ -470,6 +470,7 @@ const PlayerDetail = () => {
                 <TableHeader>
                   <TableRow className="bg-muted/50">
                     <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">日期</TableHead>
+                    <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">比赛</TableHead>
                     <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">类型</TableHead>
                     <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">预测</TableHead>
                     <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 font-bold">下注</TableHead>
@@ -480,7 +481,7 @@ const PlayerDetail = () => {
                 <TableBody>
                   {filteredPredictions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center py-10 text-sm text-muted-foreground">
                         暂无历史记录
                       </TableCell>
                     </TableRow>
@@ -488,10 +489,21 @@ const PlayerDetail = () => {
                     filteredPredictions.map((pred) => (
                       <TableRow 
                         key={pred.id}
-                        className="hover:bg-muted/50 transition-colors"
+                        className="hover:bg-muted/50 transition-colors cursor-pointer group"
+                        onClick={() => {
+                          if (pred.match_id) {
+                            navigate(`/match/${pred.match_id}`);
+                          }
+                        }}
+                        title={pred.match_id ? "点击查看比赛详情" : ""}
                       >
                         <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4 py-3">
                           {new Date(pred.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
+                          <div className="truncate max-w-[120px] group-hover:text-primary transition-colors">
+                            {pred.match_id ? `比赛 #${pred.match_id.substring(0, 8)}` : '未知比赛'}
+                          </div>
                         </TableCell>
                         <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
                           <Badge variant="outline" className="text-[10px] sm:text-xs">
