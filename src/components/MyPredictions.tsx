@@ -59,49 +59,6 @@ const MyPredictions = () => {
   useEffect(() => {
     const fetchPredictions = async () => {
       if (!user) {
-        // 为了演示，提供模拟数据
-        setUserProfile({
-          display_name: "QuickTiger1234",
-          avatar_url: "/avatars/avatar-1.png"
-        });
-        setEditDisplayName("QuickTiger1234");
-        setSelectedAvatar("/avatars/avatar-1.png");
-        setStats({
-          totalPredictions: 15,
-          correctPredictions: 10,
-          winRate: 66.67,
-          balance: 12500,
-          profit: 2500,
-          recentPredictions: [
-            {
-              id: "1",
-              match_id: "m1",
-              prediction: "主队胜",
-              result: "win",
-              bet_amount: 500,
-              actual_payout: 950,
-              created_at: new Date().toISOString()
-            },
-            {
-              id: "2",
-              match_id: "m2",
-              prediction: "大球",
-              result: "win",
-              bet_amount: 300,
-              actual_payout: 600,
-              created_at: new Date(Date.now() - 86400000).toISOString()
-            },
-            {
-              id: "3",
-              match_id: "m3",
-              prediction: "平局",
-              result: "loss",
-              bet_amount: 400,
-              actual_payout: 0,
-              created_at: new Date(Date.now() - 172800000).toISOString()
-            }
-          ]
-        });
         setIsLoading(false);
         return;
       }
@@ -162,16 +119,7 @@ const MyPredictions = () => {
   }, [user]);
 
   const handleSaveProfile = async () => {
-    if (!user) {
-      // 演示模式下的模拟保存
-      toast.success("演示模式：个人资料已更新！");
-      setUserProfile({
-        display_name: editDisplayName,
-        avatar_url: selectedAvatar,
-      });
-      setIsEditDialogOpen(false);
-      return;
-    }
+    if (!user) return;
     
     setIsSaving(true);
     try {
@@ -201,8 +149,16 @@ const MyPredictions = () => {
   };
 
   if (!user) {
-    // 为了演示效果，即使未登录也显示模板
-    return null;
+    return (
+      <Card className="border-primary/20">
+        <CardContent className="p-6 text-center">
+          <p className="text-muted-foreground mb-4">登录后查看您的预测统计</p>
+          <Button onClick={() => navigate('/auth')}>
+            立即登录
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (isLoading) {
