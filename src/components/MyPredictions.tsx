@@ -20,6 +20,17 @@ interface UserProfile {
   avatar_url: string;
 }
 
+interface MatchInfo {
+  fixture_id: number;
+  home_team_name: string;
+  away_team_name: string;
+  home_logo?: string;
+  away_logo?: string;
+  league_name?: string;
+  goals_home?: number;
+  goals_away?: number;
+}
+
 interface PredictionStats {
   totalPredictions: number;
   correctPredictions: number;
@@ -34,6 +45,7 @@ interface PredictionStats {
     bet_amount: number;
     actual_payout: number;
     created_at: string;
+    match?: MatchInfo;
   }>;
 }
 
@@ -53,6 +65,7 @@ const MyPredictions = () => {
   const [stats, setStats] = useState<PredictionStats | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [matchesMap, setMatchesMap] = useState<Map<string, MatchInfo>>(new Map());
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editDisplayName, setEditDisplayName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("");
@@ -68,6 +81,51 @@ const MyPredictions = () => {
         });
         setEditDisplayName("QuickTiger1234");
         setSelectedAvatar("/avatars/avatar-1.png");
+        
+        // 模拟比赛数据
+        const mockMatches = new Map<string, MatchInfo>();
+        mockMatches.set("m1", {
+          fixture_id: 1,
+          home_team_name: "曼联",
+          away_team_name: "利物浦",
+          home_logo: "/src/assets/team-manchester-united.png",
+          away_logo: "/src/assets/team-liverpool.png",
+          league_name: "英超",
+          goals_home: 2,
+          goals_away: 1
+        });
+        mockMatches.set("m2", {
+          fixture_id: 2,
+          home_team_name: "巴塞罗那",
+          away_team_name: "皇家马德里",
+          home_logo: "/src/assets/team-barcelona.png",
+          away_logo: "/src/assets/team-real-madrid.png",
+          league_name: "西甲",
+          goals_home: 3,
+          goals_away: 2
+        });
+        mockMatches.set("m3", {
+          fixture_id: 3,
+          home_team_name: "拜仁",
+          away_team_name: "多特蒙德",
+          home_logo: "/src/assets/team-bayern.png",
+          away_logo: "/src/assets/team-dortmund.png",
+          league_name: "德甲",
+          goals_home: 1,
+          goals_away: 1
+        });
+        mockMatches.set("m4", {
+          fixture_id: 4,
+          home_team_name: "巴黎圣日耳曼",
+          away_team_name: "马赛",
+          home_logo: "/src/assets/team-psg.png",
+          away_logo: "/src/assets/team-marseille.png",
+          league_name: "法甲",
+          goals_home: 0,
+          goals_away: 2
+        });
+        setMatchesMap(mockMatches);
+        
         setStats({
           totalPredictions: 15,
           correctPredictions: 10,
@@ -82,7 +140,8 @@ const MyPredictions = () => {
               result: "win",
               bet_amount: 500,
               actual_payout: 950,
-              created_at: new Date().toISOString()
+              created_at: new Date().toISOString(),
+              match: mockMatches.get("m1")
             },
             {
               id: "2",
@@ -91,7 +150,8 @@ const MyPredictions = () => {
               result: "win",
               bet_amount: 300,
               actual_payout: 600,
-              created_at: new Date(Date.now() - 86400000).toISOString()
+              created_at: new Date(Date.now() - 86400000).toISOString(),
+              match: mockMatches.get("m2")
             },
             {
               id: "3",
@@ -100,7 +160,8 @@ const MyPredictions = () => {
               result: "loss",
               bet_amount: 400,
               actual_payout: 0,
-              created_at: new Date(Date.now() - 172800000).toISOString()
+              created_at: new Date(Date.now() - 172800000).toISOString(),
+              match: mockMatches.get("m3")
             },
             {
               id: "4",
@@ -109,7 +170,8 @@ const MyPredictions = () => {
               result: "win",
               bet_amount: 600,
               actual_payout: 1200,
-              created_at: new Date(Date.now() - 259200000).toISOString()
+              created_at: new Date(Date.now() - 259200000).toISOString(),
+              match: mockMatches.get("m4")
             }
           ]
         });
@@ -146,7 +208,27 @@ const MyPredictions = () => {
           .from('user_predictions')
           .select('*')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        // 获取所有唯一的 match_id
+        const matchIds = [...new Set(predictionsData?.map(p => p.match_id).filter(Boolean) || [])];
+        
+        // 获取比赛详情
+        const matchesDataMap = new Map<string, MatchInfo>();
+        if (matchIds.length > 0) {
+          const { data: matchesData } = await supabase
+            .from('daily_matches' as any)
+            .select('fixture_id, home_team_name, away_team_name, home_logo, away_logo, league_name, goals_home, goals_away')
+            .in('fixture_id', matchIds.map(id => parseInt(id)));
+          
+          if (matchesData) {
+            matchesData.forEach((match: any) => {
+              matchesDataMap.set(match.fixture_id.toString(), match as MatchInfo);
+            });
+          }
+        }
+        setMatchesMap(matchesDataMap);
 
         const totalPredictions = predictionsData?.length || 0;
         const correctPredictions = predictionsData?.filter(p => p.result === 'win').length || 0;
@@ -154,13 +236,19 @@ const MyPredictions = () => {
         const balance = balanceData?.balance || INITIAL_BALANCE;
         const profit = balance - INITIAL_BALANCE;
 
+        // 关联比赛信息到预测记录
+        const predictionsWithMatches = predictionsData?.map(pred => ({
+          ...pred,
+          match: matchesDataMap.get(pred.match_id)
+        })) || [];
+
         setStats({
           totalPredictions,
           correctPredictions,
           winRate,
           balance,
           profit,
-          recentPredictions: predictionsData || []
+          recentPredictions: predictionsWithMatches
         });
       } catch (error) {
         console.error('Error fetching predictions:', error);
@@ -510,7 +598,8 @@ const MyPredictions = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[70px] sm:w-[100px] text-[10px] sm:text-xs px-2">日期</TableHead>
-                  <TableHead className="text-[10px] sm:text-xs px-2">预测</TableHead>
+                  <TableHead className="text-[10px] sm:text-xs px-2">比赛</TableHead>
+                  <TableHead className="hidden md:table-cell text-[10px] sm:text-xs px-2">预测</TableHead>
                   <TableHead className="hidden sm:table-cell text-[10px] sm:text-xs px-2">投注类型</TableHead>
                   <TableHead className="text-right text-[10px] sm:text-xs px-2">赔率</TableHead>
                   <TableHead className="hidden lg:table-cell text-right text-[10px] sm:text-xs px-2">投注金额</TableHead>
@@ -521,12 +610,13 @@ const MyPredictions = () => {
               <TableBody>
                 {stats.recentPredictions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
                       暂无预测记录
                     </TableCell>
                   </TableRow>
                 ) : (
                   stats.recentPredictions.map((pred) => {
+                    const match = pred.match;
                     const profit = pred.result === 'win' && pred.actual_payout > 0
                       ? pred.actual_payout - pred.bet_amount
                       : pred.result === 'loss'
@@ -549,7 +639,50 @@ const MyPredictions = () => {
                           </div>
                         </TableCell>
                         <TableCell className="px-2 py-2">
-                          <div className="text-[11px] sm:text-sm font-medium text-primary">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            {match?.home_logo && (
+                              <img 
+                                src={match.home_logo} 
+                                alt={match.home_team_name}
+                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[11px] sm:text-sm font-medium truncate">
+                                {match ? `${match.home_team_name} vs ${match.away_team_name}` : '比赛信息不可用'}
+                              </div>
+                              {match && (
+                                <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                                  {match.goals_home !== undefined && match.goals_home !== null && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                      {match.goals_home} - {match.goals_away}
+                                    </span>
+                                  )}
+                                  {match.league_name && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                                      • {match.league_name}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            {match?.away_logo && (
+                              <img 
+                                src={match.away_logo} 
+                                alt={match.away_team_name}
+                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-[11px] sm:text-sm font-medium px-2 py-2">
+                          <div className="truncate max-w-[100px] text-primary">
                             {pred.prediction}
                           </div>
                         </TableCell>
