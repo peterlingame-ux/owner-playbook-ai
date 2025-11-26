@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
+import PlayerCard from "@/components/PlayerCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import Disclaimer from "@/components/Disclaimer";
@@ -18,12 +19,27 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+interface PlayerData {
+  id: string;
+  displayName: string;
+  avatarUrl: string;
+  totalPredictions: number;
+  correctPredictions: number;
+  winRate: number;
+  balance: number;
+  profit: number;
+  changePercent: number;
+  rank: number;
+}
+
 const Index = () => {
   const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  const [topPlayers, setTopPlayers] = useState<PlayerData[]>([]);
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(true);
 
   // Check if user has seen the welcome dialog
   useEffect(() => {
@@ -165,6 +181,122 @@ const Index = () => {
     };
   }, []);
   
+  // 获取前3名玩家数据
+  useEffect(() => {
+    const fetchTopPlayers = async () => {
+      try {
+        setIsLoadingPlayers(true);
+        const INITIAL_BALANCE = 10000;
+        
+        // 获取所有用户的基本信息
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, display_name, avatar_url');
+        
+        if (usersError) throw usersError;
+        if (!usersData) return;
+        
+        // 获取所有用户的余额信息
+        const { data: balancesData, error: balancesError } = await supabase
+          .from('user_balances')
+          .select('user_id, balance');
+        
+        if (balancesError) throw balancesError;
+        
+        // 获取所有用户的预测统计
+        const { data: predictionsData, error: predictionsError } = await supabase
+          .from('user_predictions')
+          .select('user_id, result');
+        
+        if (predictionsError) throw predictionsError;
+        
+        // 创建映射
+        const balancesMap = new Map(balancesData?.map(b => [b.user_id, b.balance]) || []);
+        
+        // 计算每个用户的统计数据
+        const playerStats = usersData.map(user => {
+          const userPredictions = predictionsData?.filter(p => p.user_id === user.id) || [];
+          const totalPredictions = userPredictions.length;
+          const correctPredictions = userPredictions.filter(p => p.result === 'win').length;
+          const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+          
+          const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
+          const profit = balance - INITIAL_BALANCE;
+          const changePercent = (profit / INITIAL_BALANCE) * 100;
+          
+          return {
+            id: user.id,
+            displayName: user.display_name,
+            avatarUrl: user.avatar_url,
+            totalPredictions,
+            correctPredictions,
+            winRate,
+            balance,
+            profit,
+            changePercent,
+            rank: 0 // 临时值，稍后设置
+          };
+        });
+        
+        // 按胜率排序并设置排名
+        const sortedPlayers = playerStats
+          .sort((a, b) => b.winRate - a.winRate)
+          .map((player, index) => ({
+            ...player,
+            rank: index + 1
+          }))
+          .slice(0, 3); // 只取前3名
+        
+        setTopPlayers(sortedPlayers);
+      } catch (error) {
+        console.error('Error fetching top players:', error);
+        setTopPlayers([]);
+      } finally {
+        setIsLoadingPlayers(false);
+      }
+    };
+    
+    fetchTopPlayers();
+    
+    // 订阅用户预测和余额变化，实时更新排名
+    const predictionsChannel = supabase
+      .channel('top-players-predictions')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_predictions',
+        },
+        () => {
+          console.log('User predictions changed, refreshing top players');
+          fetchTopPlayers();
+        }
+      )
+      .subscribe();
+    
+    const balancesChannel = supabase
+      .channel('top-players-balances')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_balances',
+        },
+        () => {
+          console.log('User balances changed, refreshing top players');
+          fetchTopPlayers();
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(predictionsChannel);
+      supabase.removeChannel(balancesChannel);
+    };
+  }, []);
+
   // Sort models by win rate
   const sortedModels = [...modelsWithRealData].sort((a, b) => b.winRate - a.winRate);
 
@@ -206,6 +338,31 @@ const Index = () => {
               />
             ))}
           </div>
+        </div>
+
+        {/* Top Players Section */}
+        <div className="mb-6 sm:mb-8 lg:mb-10">
+          <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-6 text-foreground tracking-wide sm:tracking-wider text-center uppercase px-2 sm:px-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-tight" style={{ fontWeight: 700 }}>
+            {t('top_players')}
+          </h2>
+          {isLoadingPlayers ? (
+            <div className="text-center py-8 text-muted-foreground">
+              加载中...
+            </div>
+          ) : topPlayers.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              {topPlayers.map((player) => (
+                <PlayerCard 
+                  key={player.id} 
+                  player={player}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              暂无玩家数据，快来参与预测吧！
+            </div>
+          )}
         </div>
 
         {/* Performance Chart */}

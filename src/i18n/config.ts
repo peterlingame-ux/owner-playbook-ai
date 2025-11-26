@@ -44,6 +44,7 @@ const resources = {
       
       // Model Cards
       "the_contestants": "AI Football Match Win Rate Comparison",
+      "top_players": "Player Football Match Win Rate Comparison",
       "view_details": "VIEW DETAILS",
       "total_predictions": "Total Predictions",
       
@@ -411,6 +412,7 @@ const resources = {
       
       // Model Cards
       "the_contestants": "AI足球赛事胜率对比",
+      "top_players": "玩家足球赛事胜率对比",
       "view_details": "查看详情",
       "total_predictions": "总预测次数",
       
