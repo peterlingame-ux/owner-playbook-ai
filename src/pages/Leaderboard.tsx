@@ -2,9 +2,11 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import CryptoTicker from "@/components/CryptoTicker";
 import LeaderboardTable from "@/components/LeaderboardTable";
+import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Leaderboard = () => {
   const { t } = useTranslation();
@@ -18,11 +20,22 @@ const Leaderboard = () => {
       <CryptoTicker />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
-        {/* Leaderboard Table */}
-        <div>
-          <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('all_models')}</h2>
-          <LeaderboardTable />
-        </div>
+        <Tabs defaultValue="ai" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+            <TabsTrigger value="ai">{t('ai_leaderboard')}</TabsTrigger>
+            <TabsTrigger value="players">{t('player_leaderboard')}</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="ai">
+            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('all_models')}</h2>
+            <LeaderboardTable />
+          </TabsContent>
+          
+          <TabsContent value="players">
+            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('all_players')}</h2>
+            <PlayerLeaderboardTable />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

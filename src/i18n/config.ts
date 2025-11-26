@@ -37,10 +37,15 @@ const resources = {
       // Leaderboard
       "rank": "RANK",
       "model": "MODEL",
+      "player": "PLAYER",
       "predictions": "PREDICTIONS",
       "correct": "CORRECT",
       "wrong": "WRONG",
       "performance": "PERFORMANCE",
+      "ai_leaderboard": "AI Leaderboard",
+      "player_leaderboard": "Player Leaderboard",
+      "all_players": "All Players",
+      "no_data": "No data available",
       
       // Model Cards
       "the_contestants": "AI Football Match Win Rate Comparison",
@@ -405,10 +410,15 @@ const resources = {
       // Leaderboard
       "rank": "排名",
       "model": "模型",
+      "player": "玩家",
       "predictions": "预测",
       "correct": "正确",
       "wrong": "错误",
       "performance": "表现",
+      "ai_leaderboard": "AI排行榜",
+      "player_leaderboard": "玩家排行榜",
+      "all_players": "所有玩家",
+      "no_data": "暂无数据",
       
       // Model Cards
       "the_contestants": "AI足球赛事胜率对比",
