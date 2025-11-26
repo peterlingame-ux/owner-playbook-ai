@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      user_predictions: {
+        Row: {
+          actual_result: string | null
+          confidence: number | null
+          created_at: string
+          handicap_line: number | null
+          id: string
+          match_date: string
+          match_id: string
+          over_under_line: number | null
+          prediction: string
+          prediction_type: string
+          result: string | null
+          user_id: string
+        }
+        Insert: {
+          actual_result?: string | null
+          confidence?: number | null
+          created_at?: string
+          handicap_line?: number | null
+          id?: string
+          match_date: string
+          match_id: string
+          over_under_line?: number | null
+          prediction: string
+          prediction_type: string
+          result?: string | null
+          user_id: string
+        }
+        Update: {
+          actual_result?: string | null
+          confidence?: number | null
+          created_at?: string
+          handicap_line?: number | null
+          id?: string
+          match_date?: string
+          match_id?: string
+          over_under_line?: number | null
+          prediction?: string
+          prediction_type?: string
+          result?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           avatar_url: string
