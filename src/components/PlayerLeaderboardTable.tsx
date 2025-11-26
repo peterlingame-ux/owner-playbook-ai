@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import grassTexture from "@/assets/grass-texture.jpg";
 
 interface PlayerData {
   id: string;
@@ -21,6 +22,9 @@ interface PlayerData {
   profit: number;
   changePercent: number;
   rank: number;
+  bestStreak?: number;
+  currentStreak?: number;
+  avgConfidence?: number;
 }
 
 const PlayerLeaderboardTable = () => {
@@ -64,7 +68,7 @@ const PlayerLeaderboardTable = () => {
         // 获取所有用户的预测统计
         const { data: predictionsData, error: predictionsError } = await supabase
           .from('user_predictions')
-          .select('user_id, result');
+          .select('user_id, result, confidence');
         
         if (predictionsError) throw predictionsError;
         
@@ -82,6 +86,36 @@ const PlayerLeaderboardTable = () => {
           const profit = balance - INITIAL_BALANCE;
           const changePercent = (profit / INITIAL_BALANCE) * 100;
           
+          // 计算连胜和平均信心度
+          let currentStreak = 0;
+          let bestStreak = 0;
+          let tempStreak = 0;
+          let totalConfidence = 0;
+          
+          userPredictions.forEach(pred => {
+            if (pred.result === 'win') {
+              tempStreak++;
+              bestStreak = Math.max(bestStreak, tempStreak);
+            } else if (pred.result === 'loss') {
+              tempStreak = 0;
+            }
+          });
+          
+          // 最后一次连胜
+          for (let i = userPredictions.length - 1; i >= 0; i--) {
+            if (userPredictions[i].result === 'win') {
+              currentStreak++;
+            } else {
+              break;
+            }
+          }
+          
+          // 计算平均信心度
+          const confidenceSum = userPredictions.reduce((sum, pred) => {
+            return sum + (pred.confidence || 50);
+          }, 0);
+          const avgConfidence = totalPredictions > 0 ? confidenceSum / totalPredictions : 0;
+          
           return {
             id: user.id,
             displayName: user.display_name,
@@ -92,7 +126,10 @@ const PlayerLeaderboardTable = () => {
             balance,
             profit,
             changePercent,
-            rank: 0
+            rank: 0,
+            bestStreak,
+            currentStreak,
+            avgConfidence
           };
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
@@ -197,103 +234,123 @@ const PlayerLeaderboardTable = () => {
       {/* 获胜玩家和前6名对比 */}
       {!isLoading && allPlayers.length > 0 && winner && (
         <>
-          {/* 获胜玩家展示 */}
-          <Card className="border-2 bg-gradient-to-br from-yellow-500/10 via-background to-background" style={{ borderColor: getRankColor(1) }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Crown className="h-6 w-6" style={{ color: getRankColor(1) }} fill={getRankColor(1)} />
-                当前冠军
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          {/* 获胜玩家展示 - 参考AI排行榜样式 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* 获胜玩家卡片 */}
+            <Card className="relative overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform" onClick={() => navigate(`/player/${winner.id}`)}>
+              {/* 背景图片 */}
               <div 
-                className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-lg bg-card/50 cursor-pointer hover:bg-card/80 transition-colors"
-                onClick={() => navigate(`/player/${winner.id}`)}
-              >
-                <Avatar className="w-20 h-20 border-4" style={{ borderColor: getRankColor(1) }}>
-                  <AvatarImage src={winner.avatarUrl} alt={winner.displayName} />
-                  <AvatarFallback className="text-2xl">{winner.displayName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-center sm:text-left">
-                  <h3 className="text-2xl font-bold mb-2">{winner.displayName}</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">胜率</p>
-                      <p className="text-xl font-bold font-mono-data" style={{ color: getRankColor(1) }}>
-                        {winner.winRate.toFixed(1)}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">总预测</p>
-                      <p className="text-xl font-bold font-mono-data">{winner.totalPredictions}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">余额</p>
-                      <p className="text-xl font-bold font-mono-data">
-                        ${winner.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">收益</p>
-                      <p className="text-xl font-bold font-mono-data text-success">
-                        +${winner.profit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                      </p>
-                    </div>
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${winner.avatarUrl})` }}
+              />
+              
+              {/* 金色渐变覆盖层 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/80 via-yellow-600/70 to-amber-700/80" />
+              
+              {/* 深色渐变提高文字可读性 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+              
+              <CardContent className="p-4 sm:p-6 relative z-10">
+                <h3 className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 text-white/80 flex items-center gap-2">
+                  <Crown className="h-4 w-4" fill="white" />
+                  {t('winning_player').toUpperCase()}
+                </h3>
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-white/50">
+                    <AvatarImage src={winner.avatarUrl} alt={winner.displayName} />
+                    <AvatarFallback>{winner.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-lg sm:text-xl font-bold text-white">{winner.displayName}</span>
+                </div>
+                
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
+                    <p className="text-xl sm:text-2xl font-bold font-mono-data text-white">
+                      <AnimatedWinRate 
+                        value={winner.winRate}
+                        className="text-xl sm:text-2xl font-bold font-mono-data text-white"
+                      />
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('correct_predictions_label').toUpperCase()}</p>
+                    <p className="text-lg sm:text-xl font-bold font-mono-data text-success">
+                      {winner.correctPredictions} / {winner.totalPredictions}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('profit').toUpperCase()}</p>
+                    <p className="text-lg sm:text-xl font-bold font-mono-data text-white">
+                      +${winner.profit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </p>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* 前6名玩家对比图 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-primary" />
-                前6名玩家胜率对比
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="hsl(var(--muted-foreground))" 
-                    style={{ fontSize: '11px' }}
-                    angle={-30}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
-                    style={{ fontSize: '12px' }}
-                    label={{ value: '胜率 (%)', angle: -90, position: 'insideLeft' }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }}
-                    formatter={(value: number) => [`${value.toFixed(1)}%`, '胜率']}
-                  />
-                  <Bar 
-                    dataKey="winRate" 
-                    radius={[8, 8, 0, 0]}
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={getRankColor(entry.rank)}
-                        opacity={entry.rank <= 3 ? 1 : 0.8}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            {/* 前6名玩家对比图 - 参考AI排行榜样式 */}
+            <Card className="lg:col-span-2 relative overflow-hidden">
+              {/* 草地纹理背景 */}
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{ 
+                  backgroundImage: `url(${grassTexture})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              {/* 深色覆盖层提高对比度 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
+              
+              <CardContent className="p-4 sm:p-6 relative z-10">
+                <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-primary" />
+                  {t('top_players_comparison')}
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      style={{ fontSize: '11px' }}
+                      angle={-30}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      style={{ fontSize: '12px' }}
+                      label={{ value: t('win_rate') + ' (%)', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                      formatter={(value: number) => [`${value.toFixed(1)}%`, t('win_rate')]}
+                    />
+                    <Bar 
+                      dataKey="winRate" 
+                      radius={[8, 8, 0, 0]}
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={getRankColor(entry.rank)}
+                          opacity={entry.rank <= 3 ? 1 : 0.8}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
       <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
@@ -322,8 +379,8 @@ const PlayerLeaderboardTable = () => {
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('predictions')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('correct')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('balance')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('profit')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('avg_confidence')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -391,13 +448,13 @@ const PlayerLeaderboardTable = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-center py-2 sm:py-3">
-                          <span className="font-mono-data text-xs sm:text-sm text-foreground/80">
-                            ${player.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <span className="font-mono-data text-xs sm:text-sm text-foreground/70">
+                            +{player.bestStreak || 0}
                           </span>
                         </TableCell>
                         <TableCell className="text-center py-2 sm:py-3">
-                          <span className={`font-mono-data font-semibold text-xs sm:text-sm ${player.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            {formatProfit(player.profit)}
+                          <span className="font-mono-data text-xs sm:text-sm text-foreground/80">
+                            {player.avgConfidence ? player.avgConfidence.toFixed(1) : '0.0'}%
                           </span>
                         </TableCell>
                       </TableRow>
