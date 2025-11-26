@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import { Trophy, TrendingUp, TrendingDown } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
 
 interface PlayerCardProps {
   player: {
@@ -45,6 +46,40 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     }
   };
   
+  const getBadgeAnimation = (rank: number) => {
+    if (rank > 3) return {};
+    
+    return {
+      animate: {
+        scale: [1, 1.1, 1],
+        boxShadow: [
+          `0 0 0px ${getRankColor(rank)}`,
+          `0 0 20px ${getRankColor(rank)}`,
+          `0 0 0px ${getRankColor(rank)}`
+        ]
+      },
+      transition: {
+        duration: 2,
+        repeat: Infinity as number,
+      }
+    };
+  };
+  
+  const getTrophyAnimation = (rank: number) => {
+    if (rank > 3) return {};
+    
+    return {
+      animate: {
+        rotate: [0, -10, 10, -10, 0],
+        y: [0, -3, 0]
+      },
+      transition: {
+        duration: 3,
+        repeat: Infinity as number,
+      }
+    };
+  };
+  
   const handleCardClick = () => {
     toast.info("玩家详情页面即将上线");
   };
@@ -63,18 +98,21 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     >
       {/* Rank Badge */}
       <div className="absolute top-2 right-2 z-20">
-        <div 
+        <motion.div 
           className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-sm border"
           style={{ 
             backgroundColor: `${getRankColor(player.rank).replace(')', ' / 0.2)')}`,
             borderColor: getRankColor(player.rank)
           }}
+          {...getBadgeAnimation(player.rank)}
         >
-          <Trophy className="h-3 w-3 sm:h-4 sm:w-4" style={{ color: getRankColor(player.rank) }} />
+          <motion.div {...getTrophyAnimation(player.rank)}>
+            <Trophy className="h-3 w-3 sm:h-4 sm:w-4" style={{ color: getRankColor(player.rank) }} />
+          </motion.div>
           <span className="text-xs sm:text-sm font-bold" style={{ color: getRankColor(player.rank) }}>
             #{player.rank}
           </span>
-        </div>
+        </motion.div>
       </div>
 
       {/* Background gradient */}
