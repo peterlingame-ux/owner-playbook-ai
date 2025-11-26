@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
+import { pastMatches, upcomingMatches } from "@/data/mockData";
 import { ArrowLeft, Trophy, TrendingUp, Target, Calendar, CheckCircle2, XCircle, Filter } from "lucide-react";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from "recharts";
@@ -54,6 +55,9 @@ const PlayerDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
+  
+  // 合并所有比赛数据用于查找
+  const allMatches = [...pastMatches, ...upcomingMatches];
 
   useEffect(() => {
     const fetchPlayerData = async () => {
@@ -470,7 +474,7 @@ const PlayerDetail = () => {
                 <TableHeader>
                   <TableRow className="bg-muted/50">
                     <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">日期</TableHead>
-                    <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">比赛</TableHead>
+                    <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold min-w-[180px]">比赛对阵</TableHead>
                     <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">类型</TableHead>
                     <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">预测</TableHead>
                     <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 font-bold">下注</TableHead>
@@ -486,25 +490,44 @@ const PlayerDetail = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredPredictions.map((pred) => (
-                      <TableRow 
-                        key={pred.id}
-                        className="hover:bg-muted/50 transition-colors cursor-pointer group"
-                        onClick={() => {
-                          if (pred.match_id) {
-                            navigate(`/match/${pred.match_id}`);
-                          }
-                        }}
-                        title={pred.match_id ? "点击查看比赛详情" : ""}
-                      >
-                        <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4 py-3">
-                          {new Date(pred.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
-                          <div className="truncate max-w-[120px] group-hover:text-primary transition-colors">
-                            {pred.match_id ? `比赛 #${pred.match_id.substring(0, 8)}` : '未知比赛'}
-                          </div>
-                        </TableCell>
+                    filteredPredictions.map((pred) => {
+                      const match = allMatches.find(m => m.id === pred.match_id);
+                      return (
+                        <TableRow 
+                          key={pred.id}
+                          className="hover:bg-muted/50 transition-colors cursor-pointer group"
+                          onClick={() => {
+                            if (pred.match_id) {
+                              navigate(`/match/${pred.match_id}`);
+                            }
+                          }}
+                          title={pred.match_id ? "点击查看比赛详情" : ""}
+                        >
+                          <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4 py-3">
+                            {new Date(pred.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
+                            {match ? (
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 group-hover:text-primary transition-colors">
+                                  <span className="font-medium">{match.homeTeamZh || match.homeTeam}</span>
+                                  {match.homeScore !== undefined && match.awayScore !== undefined && (
+                                    <span className="text-xs px-1.5 py-0.5 bg-muted rounded font-bold">
+                                      {match.homeScore} - {match.awayScore}
+                                    </span>
+                                  )}
+                                  <span className="font-medium">{match.awayTeamZh || match.awayTeam}</span>
+                                </div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  {match.leagueZh || match.league}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="truncate max-w-[120px] group-hover:text-primary transition-colors">
+                                比赛 #{pred.match_id.substring(0, 8)}
+                              </div>
+                            )}
+                          </TableCell>
                         <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
                           <Badge variant="outline" className="text-[10px] sm:text-xs">
                             {pred.prediction_type === 'moneyline' ? '独赢' : pred.prediction_type === 'handicap' ? '让分盘' : '大小球'}
@@ -530,8 +553,9 @@ const PlayerDetail = () => {
                             <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-destructive inline" />
                           )}
                         </TableCell>
-                      </TableRow>
-                    ))
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
