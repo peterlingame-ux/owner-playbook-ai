@@ -230,73 +230,47 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
         .eq('status', 'pending');
       
       if (betsData && betsData.length > 0) {
-        setAiPredictions(betsData as unknown as AIBet[]);
+        const predictions = betsData as unknown as AIBet[];
+        setAiPredictions(predictions);
+        // 自动选择第一个AI预测的投注类型
+        if (predictions.length > 0) {
+          setSelectedBetType(predictions[0].bet_type);
+        }
       } else {
-        // 如果没有真实AI预测，使用模拟数据
+        // 使用丰富的虚拟数据展示
         const mockPredictions: AIBet[] = [
-          {
-            ai_id: "gpt5",
-            ai_display_name: "GPT-5",
-            prediction: "主队胜",
-            bet_type: "moneyline",
-            confidence: 78,
-            odds: 1.95,
-          },
-          {
-            ai_id: "gpt5",
-            ai_display_name: "GPT-5",
-            prediction: "主队让-1.5",
-            bet_type: "handicap",
-            confidence: 72,
-            odds: 2.10,
-            handicap_line: -1.5,
-          },
           {
             ai_id: "gpt5",
             ai_display_name: "GPT-5",
             prediction: "大球",
             bet_type: "over_under",
-            confidence: 81,
+            confidence: 85,
             odds: 1.88,
             over_under_line: 2.5,
             over_under_pick: "over",
           },
         ];
         setAiPredictions(mockPredictions);
+        // 自动选择虚拟数据的投注类型
+        setSelectedBetType("over_under");
       }
     } catch (error) {
       console.error('Error fetching AI predictions:', error);
-      // 出错时也使用模拟数据
+      // 出错时使用虚拟数据
       const mockPredictions: AIBet[] = [
-        {
-          ai_id: "gpt5",
-          ai_display_name: "GPT-5",
-          prediction: "主队胜",
-          bet_type: "moneyline",
-          confidence: 78,
-          odds: 1.95,
-        },
-        {
-          ai_id: "gpt5",
-          ai_display_name: "GPT-5",
-          prediction: "主队让-1.5",
-          bet_type: "handicap",
-          confidence: 72,
-          odds: 2.10,
-          handicap_line: -1.5,
-        },
         {
           ai_id: "gpt5",
           ai_display_name: "GPT-5",
           prediction: "大球",
           bet_type: "over_under",
-          confidence: 81,
+          confidence: 85,
           odds: 1.88,
           over_under_line: 2.5,
           over_under_pick: "over",
         },
       ];
       setAiPredictions(mockPredictions);
+      setSelectedBetType("over_under");
     }
   };
 
@@ -376,6 +350,12 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
       return [
         { label: "大球 2.5", value: "over_2.5", odds: 1.88, line: 2.5 },
         { label: "小球 2.5", value: "under_2.5", odds: 1.95, line: 2.5 },
+      ];
+    } else if (selectedBetType === "moneyline") {
+      return [
+        { label: `${selectedMatch?.home_team_name} 胜`, value: "home_win", odds: 1.85 },
+        { label: "平局", value: "draw", odds: 3.40 },
+        { label: `${selectedMatch?.away_team_name} 胜`, value: "away_win", odds: 4.20 },
       ];
     }
     return [];
