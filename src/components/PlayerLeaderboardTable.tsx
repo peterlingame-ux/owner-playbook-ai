@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, Crown } from "lucide-react";
+import { ArrowDown, Trophy, Crown, Heart } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,8 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import grassTexture from "@/assets/grass-texture.jpg";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface PlayerData {
   id: string;
@@ -32,6 +34,7 @@ const PlayerLeaderboardTable = () => {
   const navigate = useNavigate();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [followedPlayers, setFollowedPlayers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -160,6 +163,12 @@ const PlayerLeaderboardTable = () => {
     
     fetchAllPlayers();
     
+    // 从本地存储加载关注列表
+    const savedFollows = localStorage.getItem('followedPlayers');
+    if (savedFollows) {
+      setFollowedPlayers(new Set(JSON.parse(savedFollows)));
+    }
+    
     // 订阅用户预测和余额变化，实时更新排名
     const predictionsChannel = supabase
       .channel('all-players-predictions')
@@ -218,6 +227,21 @@ const PlayerLeaderboardTable = () => {
       : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  const handleFollowToggle = (playerId: string, playerName: string) => {
+    const newFollows = new Set(followedPlayers);
+    
+    if (newFollows.has(playerId)) {
+      newFollows.delete(playerId);
+      toast.success(`已取消关注 ${playerName}`);
+    } else {
+      newFollows.add(playerId);
+      toast.success(`已关注 ${playerName}`);
+    }
+    
+    setFollowedPlayers(newFollows);
+    localStorage.setItem('followedPlayers', JSON.stringify(Array.from(newFollows)));
+  };
+
   // 获取前6名玩家数据用于条形图
   const top6Players = allPlayers.slice(0, 6);
   const winner = allPlayers[0];
@@ -237,7 +261,7 @@ const PlayerLeaderboardTable = () => {
           {/* 获胜玩家展示 - 参考AI排行榜样式 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* 获胜玩家卡片 */}
-            <Card className="relative overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform" onClick={() => navigate(`/player/${winner.id}`)}>
+            <Card className="relative overflow-hidden">
               {/* 背景图片 */}
               <div 
                 className="absolute inset-0 bg-cover bg-center"
@@ -251,11 +275,38 @@ const PlayerLeaderboardTable = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
               
               <CardContent className="p-4 sm:p-6 relative z-10">
-                <h3 className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 text-white/80 flex items-center gap-2">
-                  <Crown className="h-4 w-4" fill="white" />
-                  {t('winning_player').toUpperCase()}
-                </h3>
-                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <h3 className="text-xs sm:text-sm font-bold text-white/80 flex items-center gap-2">
+                    <Crown className="h-4 w-4" fill="white" />
+                    {t('winning_player').toUpperCase()}
+                  </h3>
+                  <Button
+                    size="sm"
+                    variant={followedPlayers.has(winner.id) ? "default" : "outline"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFollowToggle(winner.id, winner.displayName);
+                    }}
+                    className={`
+                      transition-all duration-300
+                      ${followedPlayers.has(winner.id) 
+                        ? 'bg-white/20 hover:bg-white/30 border-white/40 text-white' 
+                        : 'bg-white/10 hover:bg-white/20 border-white/30 text-white'
+                      }
+                    `}
+                  >
+                    <Heart 
+                      className={`h-4 w-4 transition-all ${followedPlayers.has(winner.id) ? 'fill-white' : ''}`}
+                    />
+                    <span className="ml-1.5 text-xs">
+                      {followedPlayers.has(winner.id) ? '已关注' : '关注'}
+                    </span>
+                  </Button>
+                </div>
+                <div 
+                  className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 cursor-pointer"
+                  onClick={() => navigate(`/player/${winner.id}`)}
+                >
                   <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-white/50">
                     <AvatarImage src={winner.avatarUrl} alt={winner.displayName} />
                     <AvatarFallback>{winner.displayName.charAt(0)}</AvatarFallback>
