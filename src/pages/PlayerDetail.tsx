@@ -343,7 +343,7 @@ const PlayerDetail = () => {
           <CardContent>
             {leagueChartData.length > 0 ? (
               <>
-                {/* 前三名展示卡片 */}
+                {/* 前三名展示卡片 - 带入场动画 */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                   {leagueChartData.slice(0, 3).map((league, index) => {
                     const rank = index + 1;
@@ -354,24 +354,68 @@ const PlayerDetail = () => {
                     return (
                       <Card 
                         key={league.league}
-                        className="relative overflow-hidden border-2 transition-all hover:scale-105"
-                        style={{ borderColor: rankColor }}
+                        className="relative overflow-hidden border-2 transition-all hover:scale-105 animate-fade-in"
+                        style={{ 
+                          borderColor: rankColor,
+                          animationDelay: `${index * 150}ms`,
+                          animationFillMode: 'backwards'
+                        }}
                       >
-                        {/* 发光效果 */}
+                        {/* 动态发光效果 */}
                         <div 
                           className="absolute inset-0 opacity-10 animate-pulse"
-                          style={{ backgroundColor: rankColor }}
+                          style={{ 
+                            backgroundColor: rankColor,
+                            animationDuration: rank === 1 ? '2s' : rank === 2 ? '2.5s' : '3s'
+                          }}
                         />
+                        
+                        {/* 冠军额外光芒效果 */}
+                        {rank === 1 && (
+                          <div 
+                            className="absolute inset-0 opacity-20 animate-pulse"
+                            style={{ 
+                              background: `radial-gradient(circle at 50% 50%, ${rankColor}, transparent 70%)`,
+                              animationDuration: '1.5s'
+                            }}
+                          />
+                        )}
                         
                         <CardContent className="p-4 relative z-10">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-2xl">{rankIcon}</span>
-                              <Badge variant="outline" className="text-xs" style={{ borderColor: rankColor, color: rankColor }}>
+                              {/* 奖牌图标带旋转动画 */}
+                              <span 
+                                className="text-2xl inline-block animate-scale-in"
+                                style={{ 
+                                  animationDelay: `${index * 150 + 200}ms`,
+                                  animationFillMode: 'backwards'
+                                }}
+                              >
+                                {rankIcon}
+                              </span>
+                              <Badge 
+                                variant="outline" 
+                                className="text-xs animate-fade-in" 
+                                style={{ 
+                                  borderColor: rankColor, 
+                                  color: rankColor,
+                                  animationDelay: `${index * 150 + 300}ms`,
+                                  animationFillMode: 'backwards'
+                                }}
+                              >
                                 {rankText}
                               </Badge>
                             </div>
-                            <Trophy className="h-5 w-5" style={{ color: rankColor }} fill={rankColor} />
+                            <Trophy 
+                              className="h-5 w-5 animate-scale-in" 
+                              style={{ 
+                                color: rankColor,
+                                animationDelay: `${index * 150 + 250}ms`,
+                                animationFillMode: 'backwards'
+                              }} 
+                              fill={rankColor} 
+                            />
                           </div>
                           
                           <h3 className="font-bold text-sm mb-2 truncate">{league.league}</h3>
@@ -379,7 +423,14 @@ const PlayerDetail = () => {
                           <div className="space-y-1">
                             <div className="flex justify-between items-baseline">
                               <span className="text-xs text-muted-foreground">胜率</span>
-                              <span className="text-xl font-bold font-mono-data" style={{ color: rankColor }}>
+                              <span 
+                                className="text-xl font-bold font-mono-data animate-fade-in" 
+                                style={{ 
+                                  color: rankColor,
+                                  animationDelay: `${index * 150 + 400}ms`,
+                                  animationFillMode: 'backwards'
+                                }}
+                              >
                                 {league.winRate}%
                               </span>
                             </div>
@@ -396,52 +447,56 @@ const PlayerDetail = () => {
                   })}
                 </div>
                 
-                {/* 条形图 */}
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={leagueChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="league" 
-                      stroke="hsl(var(--muted-foreground))" 
-                      style={{ fontSize: '11px' }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                    />
-                    <YAxis 
-                      stroke="hsl(var(--muted-foreground))" 
-                      style={{ fontSize: '12px' }}
-                      label={{ value: '胜率 (%)', angle: -90, position: 'insideLeft' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                      formatter={(value: number, name: string, props: any) => {
-                        const { payload } = props;
-                        return [`${value}% (${payload.wins}/${payload.total})`, '胜率'];
-                      }}
-                    />
-                    <Bar 
-                      dataKey="winRate" 
-                      radius={[4, 4, 0, 0]}
-                    >
-                      {leagueChartData.map((entry, index) => {
-                        const rank = index + 1;
-                        const color = rank <= 3 ? getRankColor(rank) : 'hsl(var(--primary))';
-                        return (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={color}
-                            opacity={rank <= 3 ? 1 : 0.7}
-                          />
-                        );
-                      })}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                {/* 条形图 - 带动画效果 */}
+                <div className="animate-fade-in" style={{ animationDelay: '600ms', animationFillMode: 'backwards' }}>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={leagueChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis 
+                        dataKey="league" 
+                        stroke="hsl(var(--muted-foreground))" 
+                        style={{ fontSize: '11px' }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))" 
+                        style={{ fontSize: '12px' }}
+                        label={{ value: '胜率 (%)', angle: -90, position: 'insideLeft' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))', 
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px'
+                        }}
+                        formatter={(value: number, name: string, props: any) => {
+                          const { payload } = props;
+                          return [`${value}% (${payload.wins}/${payload.total})`, '胜率'];
+                        }}
+                      />
+                      <Bar 
+                        dataKey="winRate" 
+                        radius={[4, 4, 0, 0]}
+                        animationDuration={1000}
+                        animationBegin={700}
+                      >
+                        {leagueChartData.map((entry, index) => {
+                          const rank = index + 1;
+                          const color = rank <= 3 ? getRankColor(rank) : 'hsl(var(--primary))';
+                          return (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={color}
+                              opacity={rank <= 3 ? 1 : 0.7}
+                            />
+                          );
+                        })}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </>
             ) : (
               <div className="text-center py-10 text-sm text-muted-foreground">
