@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { ArrowDown, Trophy } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
@@ -23,6 +24,7 @@ interface PlayerData {
 
 const PlayerLeaderboardTable = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -228,7 +230,7 @@ const PlayerLeaderboardTable = () => {
                       <TableRow 
                         key={player.id}
                         className="border-b border-border/20 hover:bg-accent/20 transition-colors cursor-pointer"
-                        onClick={() => window.location.href = `/player/${player.id}`}
+                        onClick={() => navigate(`/player/${player.id}`)}
                       >
                         <TableCell className="py-2 sm:py-3 text-center">
                           <div className="flex items-center justify-center">

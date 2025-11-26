@@ -6,9 +6,12 @@ import CryptoTicker from "@/components/CryptoTicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { ArrowLeft, Trophy, TrendingUp, Target, Calendar } from "lucide-react";
+import { ArrowLeft, Trophy, TrendingUp, Target, Calendar, CheckCircle2, XCircle, Filter } from "lucide-react";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from "recharts";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
@@ -49,6 +52,8 @@ const PlayerDetail = () => {
   const [player, setPlayer] = useState<PlayerData | null>(null);
   const [predictions, setPredictions] = useState<PredictionHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterResult, setFilterResult] = useState<string>("all");
+  const [filterPeriod, setFilterPeriod] = useState<string>("all");
 
   useEffect(() => {
     const fetchPlayerData = async () => {
@@ -151,6 +156,25 @@ const PlayerDetail = () => {
           <div className="text-center text-muted-foreground">加载中...</div>
         </div>
       </div>
+    );
+  }
+
+  // 过滤预测数据
+  let filteredPredictions = [...predictions];
+
+  if (filterResult !== "all") {
+    filteredPredictions = filteredPredictions.filter(p => 
+      filterResult === "win" ? p.result === 'win' : p.result === 'loss'
+    );
+  }
+
+  if (filterPeriod !== "all") {
+    const now = new Date();
+    const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
+    const periodDate = new Date();
+    periodDate.setDate(periodDate.getDate() - daysAgo);
+    filteredPredictions = filteredPredictions.filter(p => 
+      new Date(p.created_at) >= periodDate
     );
   }
 
@@ -386,42 +410,119 @@ const PlayerDetail = () => {
           </Card>
         </div>
 
-        {/* 最近预测历史 */}
+        {/* 历史记录 */}
         <Card>
           <CardHeader>
-            <CardTitle>最近预测记录</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>历史记录</span>
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {predictions.slice(0, 10).map((pred) => (
-                <div 
-                  key={pred.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:bg-accent/20 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                        pred.result === 'win' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-                      }`}>
-                        {pred.result === 'win' ? '胜' : '负'}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {pred.prediction_type === 'moneyline' ? '独赢' : pred.prediction_type === 'handicap' ? '让分盘' : '大小球'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(pred.created_at).toLocaleDateString()} · 下注 ${pred.bet_amount.toFixed(0)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-mono-data font-semibold ${
-                      pred.result === 'win' ? 'text-success' : 'text-destructive'
-                    }`}>
-                      {pred.result === 'win' ? '+' : '-'}${Math.abs((pred.actual_payout || 0) - pred.bet_amount).toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            {/* 筛选器 */}
+            <div className="mb-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                <Select value={filterResult} onValueChange={setFilterResult}>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                    <SelectValue placeholder="结果" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部结果</SelectItem>
+                    <SelectItem value="win">胜</SelectItem>
+                    <SelectItem value="loss">负</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                    <SelectValue placeholder="时间段" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部时间</SelectItem>
+                    <SelectItem value="7d">最近7天</SelectItem>
+                    <SelectItem value="30d">最近30天</SelectItem>
+                    <SelectItem value="90d">最近90天</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="text-xs sm:text-sm text-muted-foreground pt-2 border-t border-border/50 flex items-center justify-between">
+                <span>记录数:</span>
+                <span className="font-bold">{filteredPredictions.length}</span>
+              </div>
+            </div>
+
+            {/* 滚动提示 - 仅移动端显示 */}
+            <div className="sm:hidden bg-muted/30 px-3 py-2 rounded-lg mb-3 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">左右滑动查看更多</span>
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse" style={{ animationDelay: '75ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse" style={{ animationDelay: '150ms' }} />
+              </div>
+            </div>
+
+            {/* 表格 */}
+            <div className="overflow-x-auto rounded-lg border border-border/50">
+              <Table className="min-w-[600px]">
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">日期</TableHead>
+                    <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">类型</TableHead>
+                    <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 font-bold">预测</TableHead>
+                    <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 font-bold">下注</TableHead>
+                    <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 font-bold">盈亏</TableHead>
+                    <TableHead className="text-center text-[11px] sm:text-xs px-2 sm:px-4 font-bold">结果</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPredictions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
+                        暂无历史记录
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredPredictions.map((pred) => (
+                      <TableRow 
+                        key={pred.id}
+                        className="hover:bg-muted/50 transition-colors"
+                      >
+                        <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4 py-3">
+                          {new Date(pred.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
+                          <Badge variant="outline" className="text-[10px] sm:text-xs">
+                            {pred.prediction_type === 'moneyline' ? '独赢' : pred.prediction_type === 'handicap' ? '让分盘' : '大小球'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-[11px] sm:text-sm px-2 sm:px-4">
+                          <span className="truncate max-w-[100px] inline-block">
+                            {pred.prediction}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right text-[11px] sm:text-sm px-2 sm:px-4 font-mono-data">
+                          ${pred.bet_amount.toFixed(0)}
+                        </TableCell>
+                        <TableCell className={`text-right text-[11px] sm:text-sm px-2 sm:px-4 font-mono-data font-semibold ${
+                          pred.result === 'win' ? 'text-success' : 'text-destructive'
+                        }`}>
+                          {pred.result === 'win' ? '+' : '-'}${Math.abs((pred.actual_payout || 0) - pred.bet_amount).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-center px-2 sm:px-4">
+                          {pred.result === 'win' ? (
+                            <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-success inline" />
+                          ) : (
+                            <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-destructive inline" />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
