@@ -5,8 +5,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, Target, DollarSign, History } from "lucide-react";
+import { Trophy, TrendingUp, Target, DollarSign, History, Wallet } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
+interface UserProfile {
+  display_name: string;
+  avatar_url: string;
+}
 
 interface PredictionStats {
   totalPredictions: number;
@@ -30,6 +36,7 @@ const MyPredictions = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<PredictionStats | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +50,17 @@ const MyPredictions = () => {
         setIsLoading(true);
         const INITIAL_BALANCE = 10000;
 
+        // 获取用户资料
+        const { data: profileData } = await supabase
+          .from('users')
+          .select('display_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        if (profileData) {
+          setUserProfile(profileData);
+        }
+
         // 获取余额
         const { data: balanceData } = await supabase
           .from('user_balances')
@@ -55,8 +73,7 @@ const MyPredictions = () => {
           .from('user_predictions')
           .select('*')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(5);
+          .order('created_at', { ascending: false });
 
         const totalPredictions = predictionsData?.length || 0;
         const correctPredictions = predictionsData?.filter(p => p.result === 'win').length || 0;
@@ -125,15 +142,44 @@ const MyPredictions = () => {
   }
 
   return (
-    <Card className="border-primary/20">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          我的预测统计
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div className="space-y-6">
+      {/* 用户资料卡片 */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-background">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20 border-4 border-primary/20">
+              <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
+              <AvatarFallback className="text-2xl">
+                {userProfile?.display_name?.charAt(0) || '?'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold mb-1">{userProfile?.display_name}</h2>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Wallet className="h-4 w-4" />
+                <span className="text-sm">虚拟钱包</span>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <DollarSign className="h-5 w-5 text-warning" />
+                <span className="text-2xl font-bold font-mono-data text-warning">
+                  {stats?.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 统计数据卡片 */}
+      <Card className="border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-primary" />
+            预测统计
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 rounded-lg bg-muted/50">
             <Trophy className="h-5 w-5 mx-auto mb-2 text-primary" />
             <p className="text-xs text-muted-foreground mb-1">胜率</p>
@@ -150,14 +196,6 @@ const MyPredictions = () => {
           </div>
 
           <div className="text-center p-4 rounded-lg bg-muted/50">
-            <DollarSign className="h-5 w-5 mx-auto mb-2 text-warning" />
-            <p className="text-xs text-muted-foreground mb-1">余额</p>
-            <p className="text-lg font-bold font-mono-data">
-              ${stats.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </p>
-          </div>
-
-          <div className="text-center p-4 rounded-lg bg-muted/50">
             <Target className="h-5 w-5 mx-auto mb-2 text-info" />
             <p className="text-xs text-muted-foreground mb-1">收益</p>
             <p className={`text-lg font-bold font-mono-data ${stats.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -165,14 +203,18 @@ const MyPredictions = () => {
             </p>
           </div>
         </div>
+        </CardContent>
+      </Card>
 
-        {stats.recentPredictions.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2">
-                <History className="h-4 w-4" />
-                最近预测
-              </h4>
+      {/* 预测历史记录卡片 */}
+      {stats.recentPredictions.length > 0 && (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5 text-primary" />
+                预测历史
+              </CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -182,6 +224,8 @@ const MyPredictions = () => {
                 查看全部
               </Button>
             </div>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-2">
               {stats.recentPredictions.map((pred) => (
                 <div 
@@ -215,20 +259,10 @@ const MyPredictions = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        <div className="mt-4 pt-4 border-t border-border">
-          <Button 
-            onClick={() => navigate('/history')}
-            className="w-full"
-            variant="outline"
-          >
-            查看完整历史记录
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 
