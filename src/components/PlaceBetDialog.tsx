@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { TrendingUp, Target, Plus, Trophy, TrendingDown, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -838,37 +839,49 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
             </div>
           )}
 
-          {/* 投注金额 */}
+          {/* 投注金额选择区 - 选择赔率后显示 */}
           {selectedMatch && selectedBetOption && (
-            <div className="space-y-3">
-              <Label className="text-base font-bold">投注金额</Label>
-              <div className="space-y-2">
-                <Input
-                  type="number"
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(e.target.value)}
-                  placeholder="输入投注金额"
-                  min="1"
-                  max={userBalance}
-                  className="text-lg font-mono-data"
-                />
-                <div className="flex gap-2">
-                  {[100, 500, 1000, 2000].map((amount) => (
-                    <Button
-                      key={amount}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setBetAmount(amount.toString())}
-                      className="flex-1"
-                    >
-                      ${amount}
-                    </Button>
-                  ))}
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <Separator />
+              
+              {/* 余额提示 */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm text-muted-foreground">当前余额</span>
+                <span className="text-lg font-bold font-mono-data">${userBalance.toFixed(2)}</span>
+              </div>
+
+              {/* 金额输入 */}
+              <div className="space-y-3">
+                <Label className="text-base font-bold">选择投注金额</Label>
+                <div className="space-y-3">
+                  <Input
+                    type="number"
+                    value={betAmount}
+                    onChange={(e) => setBetAmount(e.target.value)}
+                    placeholder="输入投注金额"
+                    min="1"
+                    max={userBalance}
+                    className="h-12 text-lg font-mono-data text-center"
+                  />
+                  <div className="grid grid-cols-4 gap-2">
+                    {[100, 500, 1000, 2000].map((amount) => (
+                      <Button
+                        key={amount}
+                        variant={betAmount === amount.toString() ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setBetAmount(amount.toString())}
+                        className="h-10 font-bold"
+                        disabled={amount > userBalance}
+                      >
+                        ${amount}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
               
-              {/* 预期收益 */}
-              <Card className="p-4 bg-gradient-to-r from-success/10 to-success/5 border-success/30">
+              {/* 预期收益卡片 */}
+              <Card className="p-4 bg-gradient-to-br from-success/10 via-success/5 to-transparent border-success/30">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">预期收益</p>
@@ -881,7 +894,7 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                       ${getPotentialPayout().toFixed(2)}
                     </p>
                     <p className="text-xs text-success">
-                      +${(getPotentialPayout() - (parseFloat(betAmount) || 0)).toFixed(2)}
+                      净收益: +${(getPotentialPayout() - (parseFloat(betAmount) || 0)).toFixed(2)}
                     </p>
                   </div>
                 </div>
