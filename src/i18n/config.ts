@@ -360,7 +360,6 @@ const resources = {
       "last_90_days": "Last 90 Days",
       "no_history_data": "No historical data found",
       "swipe_to_view_more": "Swipe to view more →",
-      "action": "ACTION",
       
       // Platform disclaimer
       "platform_disclaimer": "Platform Disclaimer",
@@ -733,7 +732,6 @@ const resources = {
       "last_90_days": "最近90天",
       "no_history_data": "未找到历史数据",
       "swipe_to_view_more": "滑动查看更多 →",
-      "action": "操作",
       
       // Platform disclaimer
       "platform_disclaimer": "平台声明",
