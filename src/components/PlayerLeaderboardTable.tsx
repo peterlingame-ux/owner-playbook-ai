@@ -227,7 +227,8 @@ const PlayerLeaderboardTable = () => {
                     allPlayers.map((player) => (
                       <TableRow 
                         key={player.id}
-                        className="border-b border-border/20 hover:bg-accent/20 transition-colors"
+                        className="border-b border-border/20 hover:bg-accent/20 transition-colors cursor-pointer"
+                        onClick={() => window.location.href = `/player/${player.id}`}
                       >
                         <TableCell className="py-2 sm:py-3 text-center">
                           <div className="flex items-center justify-center">

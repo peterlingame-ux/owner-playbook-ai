@@ -1,9 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
-import { Trophy, TrendingUp, TrendingDown } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 
@@ -81,7 +80,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
   };
   
   const handleCardClick = () => {
-    toast.info("玩家详情页面即将上线");
+    navigate(`/player/${player.id}`);
   };
   
   const formattedProfit = player.profit >= 0 
