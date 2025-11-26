@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, Target, DollarSign, History, Wallet, Edit2, Check } from "lucide-react";
+import { Trophy, TrendingUp, Target, DollarSign, History, Wallet, Edit2, Check, CheckCircle2, XCircle } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -483,10 +484,10 @@ const MyPredictions = () => {
         </div>
       </Card>
 
-      {/* 预测历史记录 - 表格形式 */}
+      {/* 预测历史记录 - 表格形式（与AI预测历史一致） */}
       {stats && stats.recentPredictions && stats.recentPredictions.length > 0 && (
-        <Card className="border-2 border-primary/20 shadow-xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/10 via-transparent to-warning/10 border-b border-border/50">
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/10 via-transparent to-warning/10 border-b border-border/50 py-4">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <History className="h-5 w-5 text-primary" />
@@ -504,63 +505,96 @@ const MyPredictions = () => {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border/50 bg-muted/30">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">日期</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">预测</th>
-                    <th className="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">投注</th>
-                    <th className="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">盈亏</th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-muted-foreground">结果</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentPredictions.map((pred, index) => (
-                    <tr 
-                      key={pred.id}
-                      className={`
-                        border-b border-border/30 hover:bg-muted/20 transition-colors
-                        ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}
-                      `}
-                    >
-                      <td className="px-4 py-3 text-xs text-muted-foreground font-medium">
-                        {new Date(pred.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
-                      </td>
-                      <td className="px-4 py-3 text-sm font-bold">
-                        <span className="text-primary">{pred.prediction}</span>
-                      </td>
-                      <td className="px-4 py-3 text-right text-sm font-mono-data">
-                        ${pred.bet_amount}
-                      </td>
-                      <td className={`px-4 py-3 text-right text-sm font-bold font-mono-data ${
-                        pred.result === 'win' ? 'text-success' : pred.result === 'loss' ? 'text-destructive' : 'text-muted-foreground'
-                      }`}>
-                        {pred.result === 'win' && pred.actual_payout > 0
-                          ? `+$${(pred.actual_payout - pred.bet_amount).toFixed(0)}`
-                          : pred.result === 'loss'
-                          ? `-$${pred.bet_amount.toFixed(0)}`
-                          : '--'
-                        }
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold ${
-                          pred.result === 'win' 
-                            ? 'bg-success/20 text-success border border-success/30' 
-                            : pred.result === 'loss'
-                            ? 'bg-destructive/20 text-destructive border border-destructive/30'
-                            : 'bg-muted text-muted-foreground'
+          <div className="overflow-x-auto">
+            <Table className="min-w-[800px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[70px] sm:w-[100px] text-[10px] sm:text-xs px-2">日期</TableHead>
+                  <TableHead className="text-[10px] sm:text-xs px-2">预测</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[10px] sm:text-xs px-2">投注类型</TableHead>
+                  <TableHead className="text-right text-[10px] sm:text-xs px-2">赔率</TableHead>
+                  <TableHead className="hidden lg:table-cell text-right text-[10px] sm:text-xs px-2">投注金额</TableHead>
+                  <TableHead className="text-right text-[10px] sm:text-xs px-2">盈亏</TableHead>
+                  <TableHead className="text-center text-[10px] sm:text-xs px-2">结果</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stats.recentPredictions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
+                      暂无预测记录
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  stats.recentPredictions.map((pred) => {
+                    const profit = pred.result === 'win' && pred.actual_payout > 0
+                      ? pred.actual_payout - pred.bet_amount
+                      : pred.result === 'loss'
+                      ? -pred.bet_amount
+                      : 0;
+                    
+                    // 假设赔率为1.9（可以根据实际数据调整）
+                    const odds = pred.result === 'win' && pred.actual_payout > 0
+                      ? (pred.actual_payout / pred.bet_amount).toFixed(2)
+                      : '1.90';
+                    
+                    return (
+                      <TableRow 
+                        key={pred.id}
+                        className="hover:bg-muted/50 cursor-pointer"
+                      >
+                        <TableCell className="font-medium text-[10px] sm:text-xs px-2 py-2">
+                          <div className="truncate max-w-[60px] sm:max-w-none">
+                            {new Date(pred.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-2 py-2">
+                          <div className="text-[11px] sm:text-sm font-medium text-primary">
+                            {pred.prediction}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-[11px] sm:text-sm px-2 py-2">
+                          <div className="truncate max-w-[120px] text-muted-foreground">
+                            独赢盘
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-[11px] sm:text-sm px-2 py-2">
+                          {odds}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell text-right font-mono text-[11px] sm:text-sm px-2 py-2">
+                          ${pred.bet_amount}
+                        </TableCell>
+                        <TableCell className={`text-right font-mono text-[11px] sm:text-sm font-bold px-2 py-2 ${
+                          profit > 0 ? 'text-success' : profit < 0 ? 'text-destructive' : 'text-muted-foreground'
                         }`}>
-                          {pred.result === 'win' ? '✓ 命中' : pred.result === 'loss' ? '✗ 未中' : '待定'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
+                          {profit > 0 ? '+' : ''}${profit.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-center px-2 py-2">
+                          {pred.result === 'win' ? (
+                            <Badge className="gap-0.5 sm:gap-1 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                              <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                              <span className="hidden xs:inline">命中</span>
+                              <span className="xs:hidden">✓</span>
+                            </Badge>
+                          ) : pred.result === 'loss' ? (
+                            <Badge variant="destructive" className="gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                              <XCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                              <span className="hidden xs:inline">未中</span>
+                              <span className="xs:hidden">✗</span>
+                            </Badge>
+                          ) : (
+                            <Badge className="gap-0.5 sm:gap-1 bg-muted text-muted-foreground text-[10px] sm:text-xs px-1.5 sm:px-2">
+                              待定
+                            </Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </Card>
       )}
     </div>
