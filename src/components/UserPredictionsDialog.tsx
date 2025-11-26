@@ -5,11 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Match } from "@/types/prediction";
-import { Loader2 } from "lucide-react";
+import { Loader2, Coins } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UserPredictionsDialogProps {
   open: boolean;
@@ -19,11 +22,14 @@ interface UserPredictionsDialogProps {
 
 export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredictionsDialogProps) => {
   const { t, i18n } = useTranslation();
+  const { userBalance, refreshBalance } = useAuth();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [predictionType, setPredictionType] = useState<"handicap" | "over_under" | "moneyline">("moneyline");
   const [prediction, setPrediction] = useState("");
+  const [betAmount, setBetAmount] = useState(100);
   const [winRate, setWinRate] = useState<number | null>(null);
 
   useEffect(() => {
@@ -78,25 +84,51 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
       return;
     }
 
+    if (betAmount <= 0) {
+      toast.error(t("下注金额必须大于0"));
+      return;
+    }
+
+    if (userBalance && betAmount > userBalance.balance) {
+      toast.error(t("余额不足"));
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      const { error } = await supabase.from('user_predictions').insert({
-        user_id: userId,
-        match_id: selectedMatch.id,
-        prediction_type: predictionType,
-        prediction,
-        match_date: new Date(selectedMatch.date).toISOString(),
-        result: 'pending'
+      // Calculate potential payout (example: 2x odds)
+      const potentialPayout = betAmount * 2;
+
+      const { data, error } = await supabase.rpc('place_bet', {
+        p_user_id: userId,
+        p_match_id: selectedMatch.id,
+        p_prediction_type: predictionType,
+        p_prediction: prediction,
+        p_bet_amount: betAmount,
+        p_potential_payout: potentialPayout,
+        p_match_date: new Date(selectedMatch.date).toISOString(),
       });
 
       if (error) throw error;
 
-      toast.success(t("预测提交成功！"));
+      const result = data as { success: boolean; error?: string; new_balance?: number };
+      
+      if (!result.success) {
+        toast.error(result.error || t("下注失败"));
+        return;
+      }
+
+      toast.success(t("下注成功！") + ` ${t("剩余余额")}: ${result.new_balance?.toFixed(2)}`);
+      await refreshBalance();
       onOpenChange(false);
       setSelectedMatch(null);
       setPrediction("");
+      setBetAmount(100);
     } catch (error) {
       console.error("Error submitting prediction:", error);
       toast.error(t("提交失败，请重试"));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -104,10 +136,16 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">
-            {t("AI今日推荐比赛")}
+          <DialogTitle className="text-2xl flex items-center gap-4 flex-wrap">
+            <span>{t("AI今日推荐比赛")}</span>
+            {userBalance && (
+              <Badge className="text-base px-4 py-1" variant="default">
+                <Coins className="h-4 w-4 mr-2" />
+                {t("余额")}: {userBalance.balance.toFixed(2)}
+              </Badge>
+            )}
             {winRate !== null && (
-              <Badge className="ml-4" variant="secondary">
+              <Badge className="text-base px-4 py-1" variant="secondary">
                 {t("我的胜率")}: {winRate}%
               </Badge>
             )}
@@ -245,12 +283,55 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                       </RadioGroup>
                     </div>
 
+                    <div className="mt-6 space-y-4">
+                      <div>
+                        <Label className="text-base font-semibold mb-3 block">{t("下注金额")}</Label>
+                        <div className="flex items-center gap-4">
+                          <Input
+                            type="number"
+                            value={betAmount}
+                            onChange={(e) => setBetAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                            min={0}
+                            max={userBalance?.balance || 10000}
+                            className="text-lg font-medium"
+                          />
+                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                            {t("最大")}: {userBalance?.balance.toFixed(2) || 0}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[betAmount]}
+                          onValueChange={(value) => setBetAmount(value[0])}
+                          max={userBalance?.balance || 10000}
+                          step={50}
+                          className="mt-4"
+                        />
+                        <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                          <span>0</span>
+                          <span>{((userBalance?.balance || 10000) / 2).toFixed(0)}</span>
+                          <span>{userBalance?.balance.toFixed(0) || 10000}</span>
+                        </div>
+                        <div className="mt-3 p-3 bg-primary/10 rounded-lg">
+                          <p className="text-sm">
+                            {t("预计赔付")}: <span className="font-bold text-lg text-primary">{(betAmount * 2).toFixed(2)}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <Button 
                       onClick={handleSubmitPrediction} 
-                      className="w-full mt-6"
-                      disabled={!prediction}
+                      className="w-full mt-6 text-lg h-12"
+                      disabled={!prediction || submitting || betAmount <= 0}
                     >
-                      {t("确认提交")}
+                      {submitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          {t("提交中...")}
+                        </>
+                      ) : (
+                        t("确认下注")
+                      )}
                     </Button>
                   </Card>
                 )}
