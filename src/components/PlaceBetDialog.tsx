@@ -33,6 +33,13 @@ interface AIBet {
   over_under_pick?: string;
 }
 
+interface BetOption {
+  label: string;
+  value: string;
+  odds: number;
+  line?: number;
+}
+
 interface PlaceBetDialogProps {
   onBetPlaced?: () => void;
 }
@@ -43,7 +50,8 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [aiPredictions, setAiPredictions] = useState<AIBet[]>([]);
-  const [selectedBetType, setSelectedBetType] = useState<string>("moneyline");
+  const [selectedBetType, setSelectedBetType] = useState<string>("handicap");
+  const [selectedBetOption, setSelectedBetOption] = useState<string>("");
   const [betAmount, setBetAmount] = useState<string>("100");
   const [userBalance, setUserBalance] = useState<number>(10000);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,8 +67,13 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
   useEffect(() => {
     if (selectedMatch) {
       fetchAIPredictions(selectedMatch.fixture_id);
+      setSelectedBetOption(""); // 重置选择
     }
   }, [selectedMatch]);
+
+  useEffect(() => {
+    setSelectedBetOption(""); // 切换投注类型时重置选择
+  }, [selectedBetType]);
 
   const fetchUserBalance = async () => {
     if (!user) return;
@@ -243,9 +256,39 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
     }
   };
 
+  const getBetOptions = (): BetOption[] => {
+    if (selectedBetType === "handicap") {
+      return [
+        { label: `${selectedMatch?.home_team_name} -1.5`, value: "home_-1.5", odds: 2.10, line: -1.5 },
+        { label: `${selectedMatch?.away_team_name} +1.5`, value: "away_+1.5", odds: 1.75, line: 1.5 },
+      ];
+    } else if (selectedBetType === "over_under") {
+      return [
+        { label: "大球 2.5", value: "over_2.5", odds: 1.88, line: 2.5 },
+        { label: "小球 2.5", value: "under_2.5", odds: 1.95, line: 2.5 },
+      ];
+    }
+    return [];
+  };
+
+  const getAIPrediction = () => {
+    return aiPredictions.find(p => p.bet_type === selectedBetType);
+  };
+
+  const getCurrentOdds = (): number => {
+    const options = getBetOptions();
+    const selected = options.find(opt => opt.value === selectedBetOption);
+    return selected?.odds || 1.9;
+  };
+
   const handlePlaceBet = async () => {
     if (!user || !selectedMatch) {
       toast.error("请先登录");
+      return;
+    }
+
+    if (!selectedBetOption) {
+      toast.error("请选择下注选项");
       return;
     }
 
@@ -260,10 +303,10 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
       return;
     }
 
-    // 获取选中投注类型的AI预测
-    const selectedPrediction = aiPredictions.find(p => p.bet_type === selectedBetType);
-    if (!selectedPrediction) {
-      toast.error("未找到对应的AI预测");
+    const options = getBetOptions();
+    const selected = options.find(opt => opt.value === selectedBetOption);
+    if (!selected) {
+      toast.error("选择的下注选项无效");
       return;
     }
 
@@ -273,23 +316,24 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
         p_user_id: user.id,
         p_match_id: selectedMatch.fixture_id.toString(),
         p_prediction_type: selectedBetType,
-        p_prediction: selectedPrediction.prediction,
+        p_prediction: selected.label,
         p_bet_amount: amount,
-        p_potential_payout: amount * selectedPrediction.odds,
+        p_potential_payout: amount * selected.odds,
         p_match_date: selectedMatch.kickoff_at,
-        p_handicap_line: selectedPrediction.handicap_line,
-        p_over_under_line: selectedPrediction.over_under_line,
-        p_confidence: selectedPrediction.confidence
+        p_handicap_line: selectedBetType === "handicap" ? selected.line : null,
+        p_over_under_line: selectedBetType === "over_under" ? selected.line : null,
+        p_confidence: null
       });
 
       if (error) throw error;
 
       const result = data as { success: boolean; error?: string };
       if (result && result.success) {
-        toast.success("下注成功！");
+        toast.success("下注成功！开始与AI的PK之旅！");
         setOpen(false);
         setBetAmount("100");
         setSelectedMatch(null);
+        setSelectedBetOption("");
         if (onBetPlaced) onBetPlaced();
       } else {
         toast.error(result?.error || "下注失败");
@@ -302,15 +346,10 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
     }
   };
 
-  const getOddsForBetType = (betType: string): number => {
-    const prediction = aiPredictions.find(p => p.bet_type === betType);
-    return prediction?.odds || 1.9;
-  };
-
   const getPotentialPayout = (): number => {
     const amount = parseFloat(betAmount);
     if (isNaN(amount)) return 0;
-    return amount * getOddsForBetType(selectedBetType);
+    return amount * getCurrentOdds();
   };
 
   return (
@@ -321,14 +360,17 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
           size="lg"
         >
           <Plus className="mr-2 h-5 w-5" />
-          跟随AI预测下注
+          与AI同场PK
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-warning bg-clip-text text-transparent">
-            选择比赛并下注
+            与AI同场PK - 选择比赛下注
           </DialogTitle>
+          <p className="text-sm text-muted-foreground mt-2">
+            选择你的预测结果，与AI在同一场比赛中一较高下！
+          </p>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
@@ -391,62 +433,68 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
             )}
           </div>
 
-          {/* 选择投注类型 */}
-          {selectedMatch && aiPredictions.length > 0 && (
-            <div className="space-y-3">
-              <Label className="text-base font-bold">选择投注类型</Label>
-              <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="moneyline">独赢</TabsTrigger>
-                  <TabsTrigger value="handicap">让分</TabsTrigger>
-                  <TabsTrigger value="over_under">大小球</TabsTrigger>
-                </TabsList>
-                
-                {aiPredictions.map((prediction) => (
-                  <TabsContent key={prediction.bet_type} value={prediction.bet_type} className="mt-4">
-                    <Card className="p-4 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">AI模型预测</p>
-                          <p className="font-bold text-lg">{prediction.ai_display_name}</p>
-                        </div>
-                        <Badge className="bg-primary/20 text-primary border-primary/30">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          {prediction.confidence}%
+          {/* 选择投注类型和选项 */}
+          {selectedMatch && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-base font-bold mb-3 block">选择投注类型</Label>
+                <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="handicap">让分盘</TabsTrigger>
+                    <TabsTrigger value="over_under">大小球</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              {/* 用户选择区 */}
+              <div className="space-y-3">
+                <Label className="text-base font-bold">你的预测</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {getBetOptions().map((option) => (
+                    <Card
+                      key={option.value}
+                      className={`p-4 cursor-pointer transition-all hover:border-primary ${
+                        selectedBetOption === option.value
+                          ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
+                          : 'border-border'
+                      }`}
+                      onClick={() => setSelectedBetOption(option.value)}
+                    >
+                      <div className="text-center">
+                        <p className="font-bold text-lg mb-1">{option.label}</p>
+                        <Badge className="bg-success/20 text-success border-success/30">
+                          赔率 {option.odds.toFixed(2)}
                         </Badge>
                       </div>
-                      
-                      <div className="space-y-2 mb-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm">预测结果</span>
-                          <span className="font-bold text-primary">{prediction.prediction}</span>
-                        </div>
-                        {prediction.handicap_line && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">让分</span>
-                            <span className="font-bold">{prediction.handicap_line > 0 ? '+' : ''}{prediction.handicap_line}</span>
-                          </div>
-                        )}
-                        {prediction.over_under_line && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">大小球线</span>
-                            <span className="font-bold">{prediction.over_under_line} ({prediction.over_under_pick === 'over' ? '大球' : '小球'})</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between items-center pt-2 border-t">
-                          <span className="text-sm font-bold">赔率</span>
-                          <span className="font-bold text-lg text-success">{prediction.odds.toFixed(2)}</span>
-                        </div>
-                      </div>
                     </Card>
-                  </TabsContent>
-                ))}
-              </Tabs>
+                  ))}
+                </div>
+              </div>
+
+              {/* AI预测展示 */}
+              {getAIPrediction() && (
+                <Card className="p-4 border-warning/30 bg-gradient-to-br from-warning/10 to-transparent">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">🤖 AI的预测</p>
+                      <p className="font-bold">{getAIPrediction()?.ai_display_name}</p>
+                    </div>
+                    <Badge className="bg-warning/20 text-warning border-warning/30">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      {getAIPrediction()?.confidence}%
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">AI选择</span>
+                    <span className="font-bold text-warning">{getAIPrediction()?.prediction}</span>
+                  </div>
+                </Card>
+              )}
             </div>
           )}
 
           {/* 投注金额 */}
-          {selectedMatch && aiPredictions.length > 0 && (
+          {selectedMatch && selectedBetOption && (
             <div className="space-y-3">
               <Label className="text-base font-bold">投注金额</Label>
               <div className="space-y-2">
@@ -480,7 +528,7 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">预期收益</p>
                     <p className="text-sm text-muted-foreground">
-                      投注 ${parseFloat(betAmount) || 0} × {getOddsForBetType(selectedBetType).toFixed(2)}
+                      投注 ${parseFloat(betAmount) || 0} × {getCurrentOdds().toFixed(2)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -497,7 +545,7 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
           )}
 
           {/* 确认按钮 */}
-          {selectedMatch && aiPredictions.length > 0 && (
+          {selectedMatch && selectedBetOption && (
             <div className="space-y-3">
               <Button
                 onClick={handlePlaceBet}
@@ -505,10 +553,10 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                 className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-warning hover:opacity-90"
               >
                 <Target className="mr-2 h-5 w-5" />
-                {isSubmitting ? "下注中..." : `确认下注 $${betAmount}`}
+                {isSubmitting ? "下注中..." : "确认下注 - 挑战AI"}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                ⚠️ 下注后不可更改，比赛结束后自动结算
+                ⚠️ 下注后不可更改，比赛结束后与AI一起结算胜负
               </p>
             </div>
           )}
