@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { PlaceBetDialog } from "./PlaceBetDialog";
 
 interface UserProfile {
   display_name: string;
@@ -549,14 +550,19 @@ const MyPredictions = () => {
               </div>
             </div>
             
-            {/* 查看历史按钮 */}
-            <div className="pt-2.5 border-t border-border/50">
+            {/* 下注和查看历史按钮 */}
+            <div className="pt-2.5 border-t border-border/50 space-y-2">
+              <PlaceBetDialog onBetPlaced={() => {
+                // 重新加载预测数据
+                window.location.reload();
+              }} />
+              
               <Button 
                 onClick={() => navigate('/history')}
-                className="w-full h-10 relative overflow-hidden group/btn border font-bold text-xs hover:scale-105 transition-transform bg-gradient-to-r from-primary/20 to-primary/10"
+                variant="outline"
+                className="w-full h-10 relative overflow-hidden group/btn border font-bold text-xs hover:scale-105 transition-transform"
                 style={{
                   borderColor: 'hsl(var(--primary) / 0.3)',
-                  color: 'hsl(255 100% 100%)'
                 }}
               >
                 <div className="relative flex items-center justify-center gap-2">
