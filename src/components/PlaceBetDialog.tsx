@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, Target, Plus, Trophy, TrendingDown } from "lucide-react";
+import { TrendingUp, Target, Plus, Trophy, TrendingDown, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -54,12 +54,25 @@ interface MatchStats {
     home: TeamRadarData[];
     away: TeamRadarData[];
   };
+  key_players: {
+    home: KeyPlayer[];
+    away: KeyPlayer[];
+  };
 }
 
 interface TeamRadarData {
   category: string;
   value: number;
   fullMark: number;
+}
+
+interface KeyPlayer {
+  name: string;
+  position: string;
+  goals: number;
+  assists: number;
+  rating: number;
+  matches: number;
 }
 
 interface PlaceBetDialogProps {
@@ -314,6 +327,18 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
             { category: '控球', value: 68, fullMark: 100 },
             { category: '传球', value: 70, fullMark: 100 },
             { category: '体能', value: 80, fullMark: 100 },
+          ],
+        },
+        key_players: {
+          home: [
+            { name: 'Haaland', position: '前锋', goals: 28, assists: 5, rating: 8.8, matches: 30 },
+            { name: 'De Bruyne', position: '中场', goals: 8, assists: 18, rating: 8.5, matches: 28 },
+            { name: 'Rodri', position: '中场', goals: 4, assists: 6, rating: 8.2, matches: 32 },
+          ],
+          away: [
+            { name: 'Salah', position: '前锋', goals: 24, assists: 12, rating: 8.6, matches: 31 },
+            { name: 'Nunez', position: '前锋', goals: 15, assists: 7, rating: 7.9, matches: 29 },
+            { name: 'Alexander-Arnold', position: '后卫', goals: 2, assists: 14, rating: 8.1, matches: 30 },
           ],
         },
       };
@@ -628,6 +653,84 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                   </RadarChart>
                 </ResponsiveContainer>
               </Card>
+
+              {/* 核心球员数据 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-primary" />
+                  <h4 className="font-bold text-sm">核心球员数据</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* 主队球员 */}
+                  <Card className="p-3 border-primary/20">
+                    <p className="text-xs font-bold text-primary mb-3">主队核心</p>
+                    <div className="space-y-2">
+                      {matchStats.key_players.home.map((player, idx) => (
+                        <div key={idx} className="p-2 bg-primary/5 rounded border border-primary/10">
+                          <div className="flex items-center justify-between mb-1">
+                            <div>
+                              <p className="font-bold text-sm">{player.name}</p>
+                              <p className="text-xs text-muted-foreground">{player.position}</p>
+                            </div>
+                            <Badge className="bg-primary/20 text-primary border-primary/30">
+                              {player.rating.toFixed(1)}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center text-xs mt-2">
+                            <div>
+                              <p className="text-muted-foreground">进球</p>
+                              <p className="font-bold">{player.goals}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">助攻</p>
+                              <p className="font-bold">{player.assists}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">场次</p>
+                              <p className="font-bold">{player.matches}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+
+                  {/* 客队球员 */}
+                  <Card className="p-3 border-warning/20">
+                    <p className="text-xs font-bold text-warning mb-3">客队核心</p>
+                    <div className="space-y-2">
+                      {matchStats.key_players.away.map((player, idx) => (
+                        <div key={idx} className="p-2 bg-warning/5 rounded border border-warning/10">
+                          <div className="flex items-center justify-between mb-1">
+                            <div>
+                              <p className="font-bold text-sm">{player.name}</p>
+                              <p className="text-xs text-muted-foreground">{player.position}</p>
+                            </div>
+                            <Badge className="bg-warning/20 text-warning border-warning/30">
+                              {player.rating.toFixed(1)}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center text-xs mt-2">
+                            <div>
+                              <p className="text-muted-foreground">进球</p>
+                              <p className="font-bold">{player.goals}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">助攻</p>
+                              <p className="font-bold">{player.assists}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">场次</p>
+                              <p className="font-bold">{player.matches}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              </div>
             </div>
           )}
 
