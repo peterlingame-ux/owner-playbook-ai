@@ -2,9 +2,12 @@ import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
-import { Trophy } from "lucide-react";
+import { Trophy, Heart } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface PlayerCardProps {
   player: {
@@ -25,6 +28,16 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = player.changePercent > 0;
+  const [isFollowed, setIsFollowed] = useState(false);
+  
+  // 从localStorage加载关注状态
+  useEffect(() => {
+    const savedFollows = localStorage.getItem('followedPlayers');
+    if (savedFollows) {
+      const follows = new Set(JSON.parse(savedFollows));
+      setIsFollowed(follows.has(player.id));
+    }
+  }, [player.id]);
   
   // 动画效果：从较低的值开始动画到实际值
   const animatedWinRate = useCountAnimation(player.winRate, { 
@@ -83,6 +96,25 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     navigate(`/player/${player.id}`);
   };
   
+  const handleFollowToggle = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 阻止卡片点击事件
+    
+    const savedFollows = localStorage.getItem('followedPlayers');
+    const follows = new Set(savedFollows ? JSON.parse(savedFollows) : []);
+    
+    if (follows.has(player.id)) {
+      follows.delete(player.id);
+      setIsFollowed(false);
+      toast.success(`已取消关注 ${player.displayName}`);
+    } else {
+      follows.add(player.id);
+      setIsFollowed(true);
+      toast.success(`已关注 ${player.displayName}`);
+    }
+    
+    localStorage.setItem('followedPlayers', JSON.stringify(Array.from(follows)));
+  };
+  
   const formattedProfit = player.profit >= 0 
     ? `+$${player.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : `-$${Math.abs(player.profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -95,8 +127,25 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
         borderColor: getRankColor(player.rank)
       }}
     >
-      {/* Rank Badge */}
-      <div className="absolute top-2 right-2 z-20">
+      {/* Rank Badge and Follow Button */}
+      <div className="absolute top-2 right-2 z-20 flex items-start gap-2">
+        <Button
+          size="sm"
+          variant={isFollowed ? "default" : "outline"}
+          onClick={handleFollowToggle}
+          className={`
+            transition-all duration-300 h-8 w-8 p-0
+            ${isFollowed 
+              ? 'bg-primary/20 hover:bg-primary/30 border-primary/40' 
+              : 'bg-card/80 hover:bg-card border-border/60'
+            }
+          `}
+        >
+          <Heart 
+            className={`h-4 w-4 transition-all ${isFollowed ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
+          />
+        </Button>
+        
         <motion.div 
           className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-sm border"
           style={{ 
