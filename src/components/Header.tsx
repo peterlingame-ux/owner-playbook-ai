@@ -60,8 +60,8 @@ const Header = () => {
           </h1>
         </Link>
         
-        {/* Desktop Navigation */}
-        <nav className="hidden sm:flex items-center gap-3 md:gap-5 flex-shrink min-w-0">
+        {/* Desktop Navigation - 保留桌面端导航 */}
+        <nav className="hidden md:flex items-center gap-3 md:gap-5 flex-shrink min-w-0">
           <NavLink to="/" className={({ isActive }) => getDesktopNavClass(isActive)}>
             {t('nav_live')}
           </NavLink>
@@ -80,13 +80,13 @@ const Header = () => {
         </nav>
         
         <div className="flex items-center gap-0.5 sm:gap-1.5 md:gap-2 flex-shrink-0">
-          {/* Mobile Menu */}
+          {/* Mobile Menu - 仅用于设置和账户信息 */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="sm:hidden h-7 w-7 p-0"
+                className="md:hidden h-7 w-7 p-0"
               >
                 <Menu className="h-4 w-4" />
               </Button>
@@ -94,43 +94,7 @@ const Header = () => {
             <SheetOverlay className="bg-black/60 backdrop-blur-sm animate-fade-in" />
             <SheetContent side="right" className="w-[280px] sm:w-[400px] animate-slide-in-right">
               <nav className="flex flex-col gap-2 mt-6">
-                <NavLink 
-                  to="/" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => getMobileNavClass(isActive)}
-                >
-                  {t('nav_live')}
-                </NavLink>
-                <NavLink 
-                  to="/leaderboard" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => getMobileNavClass(isActive)}
-                >
-                  {t('nav_rank')}
-                </NavLink>
-                <NavLink 
-                  to="/history" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => getMobileNavClass(isActive)}
-                >
-                  {t('nav_history')}
-                </NavLink>
-                <NavLink 
-                  to="/blog" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => getMobileNavClass(isActive)}
-                >
-                  {t('nav_blog')}
-                </NavLink>
-                <NavLink 
-                  to="/models" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => getMobileNavClass(isActive)}
-                >
-                  {t('nav_models')}
-                </NavLink>
-                
-                <div className="mt-8 pt-6 border-t border-border space-y-3">
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 justify-between">
                     <span className="text-sm text-muted-foreground">{theme === "dark" ? t('dark_mode') || "夜间模式" : t('light_mode') || "日间模式"}</span>
                     <Button

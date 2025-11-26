@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import FloatingAIChat from "./components/FloatingAIChat";
+import BottomNav from "./components/BottomNav";
 import Index from "./pages/Index";
 import Leaderboard from "./pages/Leaderboard";
 import Models from "./pages/Models";
@@ -45,6 +46,8 @@ const App = () => (
             </Routes>
             {/* Global Floating AI Chat */}
             <FloatingAIChat />
+            {/* iOS-style Bottom Navigation */}
+            <BottomNav />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
