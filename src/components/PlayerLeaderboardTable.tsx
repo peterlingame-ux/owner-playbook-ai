@@ -1,13 +1,14 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy } from "lucide-react";
+import { ArrowDown, Trophy, Crown } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface PlayerData {
   id: string;
@@ -180,8 +181,121 @@ const PlayerLeaderboardTable = () => {
       : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  // 获取前6名玩家数据用于条形图
+  const top6Players = allPlayers.slice(0, 6);
+  const winner = allPlayers[0];
+
+  const chartData = top6Players.map(player => ({
+    name: player.displayName,
+    winRate: player.winRate,
+    profit: player.profit,
+    rank: player.rank,
+  }));
+
   return (
     <div className="space-y-6">
+      {/* 获胜玩家和前6名对比 */}
+      {!isLoading && allPlayers.length > 0 && winner && (
+        <>
+          {/* 获胜玩家展示 */}
+          <Card className="border-2 bg-gradient-to-br from-yellow-500/10 via-background to-background" style={{ borderColor: getRankColor(1) }}>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Crown className="h-6 w-6" style={{ color: getRankColor(1) }} fill={getRankColor(1)} />
+                当前冠军
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div 
+                className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-lg bg-card/50 cursor-pointer hover:bg-card/80 transition-colors"
+                onClick={() => navigate(`/player/${winner.id}`)}
+              >
+                <Avatar className="w-20 h-20 border-4" style={{ borderColor: getRankColor(1) }}>
+                  <AvatarImage src={winner.avatarUrl} alt={winner.displayName} />
+                  <AvatarFallback className="text-2xl">{winner.displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-2xl font-bold mb-2">{winner.displayName}</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">胜率</p>
+                      <p className="text-xl font-bold font-mono-data" style={{ color: getRankColor(1) }}>
+                        {winner.winRate.toFixed(1)}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">总预测</p>
+                      <p className="text-xl font-bold font-mono-data">{winner.totalPredictions}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">余额</p>
+                      <p className="text-xl font-bold font-mono-data">
+                        ${winner.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">收益</p>
+                      <p className="text-xl font-bold font-mono-data text-success">
+                        +${winner.profit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 前6名玩家对比图 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-primary" />
+                前6名玩家胜率对比
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    style={{ fontSize: '11px' }}
+                    angle={-30}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    style={{ fontSize: '12px' }}
+                    label={{ value: '胜率 (%)', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                    formatter={(value: number) => [`${value.toFixed(1)}%`, '胜率']}
+                  />
+                  <Bar 
+                    dataKey="winRate" 
+                    radius={[8, 8, 0, 0]}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={getRankColor(entry.rank)}
+                        opacity={entry.rank <= 3 ? 1 : 0.8}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </>
+      )}
       <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
         <CardContent className="p-0">
           {/* 滚动提示 - 仅移动端显示 */}
