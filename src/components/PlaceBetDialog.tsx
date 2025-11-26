@@ -72,6 +72,13 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
   }, [selectedMatch]);
 
   useEffect(() => {
+    // 根据AI的预测自动设置投注类型
+    if (aiPredictions.length > 0) {
+      setSelectedBetType(aiPredictions[0].bet_type);
+    }
+  }, [aiPredictions]);
+
+  useEffect(() => {
     setSelectedBetOption(""); // 切换投注类型时重置选择
   }, [selectedBetType]);
 
@@ -256,6 +263,12 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
     }
   };
 
+  const getBetTypeLabel = (): string => {
+    if (selectedBetType === "handicap") return "让分盘";
+    if (selectedBetType === "over_under") return "大小球";
+    return "独赢盘";
+  };
+
   const getBetOptions = (): BetOption[] => {
     if (selectedBetType === "handicap") {
       return [
@@ -271,9 +284,6 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
     return [];
   };
 
-  const getAIPrediction = () => {
-    return aiPredictions.find(p => p.bet_type === selectedBetType);
-  };
 
   const getCurrentOdds = (): number => {
     const options = getBetOptions();
@@ -433,22 +443,23 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
             )}
           </div>
 
-          {/* 选择投注类型和选项 */}
-          {selectedMatch && (
+          {/* 投注选项 */}
+          {selectedMatch && aiPredictions.length > 0 && (
             <div className="space-y-4">
-              <div>
-                <Label className="text-base font-bold mb-3 block">选择投注类型</Label>
-                <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="handicap">让分盘</TabsTrigger>
-                    <TabsTrigger value="over_under">大小球</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
+              {/* 投注类型提示 */}
+              <Card className="p-3 bg-gradient-to-r from-primary/10 to-warning/10 border-primary/30">
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className="text-sm font-bold">投注类型：{getBetTypeLabel()}</p>
+                    <p className="text-xs text-muted-foreground">AI正在分析这个类型，选择你的预测</p>
+                  </div>
+                </div>
+              </Card>
 
               {/* 用户选择区 */}
               <div className="space-y-3">
-                <Label className="text-base font-bold">你的预测</Label>
+                <Label className="text-base font-bold">选择你的预测</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {getBetOptions().map((option) => (
                     <Card
@@ -470,26 +481,6 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
                   ))}
                 </div>
               </div>
-
-              {/* AI预测展示 */}
-              {getAIPrediction() && (
-                <Card className="p-4 border-warning/30 bg-gradient-to-br from-warning/10 to-transparent">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">🤖 AI的预测</p>
-                      <p className="font-bold">{getAIPrediction()?.ai_display_name}</p>
-                    </div>
-                    <Badge className="bg-warning/20 text-warning border-warning/30">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      {getAIPrediction()?.confidence}%
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">AI选择</span>
-                    <span className="font-bold text-warning">{getAIPrediction()?.prediction}</span>
-                  </div>
-                </Card>
-              )}
             </div>
           )}
 
