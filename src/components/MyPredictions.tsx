@@ -5,9 +5,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, Target, DollarSign, History, Wallet } from "lucide-react";
+import { Trophy, TrendingUp, Target, DollarSign, History, Wallet, Edit2, Check } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface UserProfile {
   display_name: string;
@@ -31,6 +35,15 @@ interface PredictionStats {
   }>;
 }
 
+const AVATAR_OPTIONS = [
+  '/avatars/avatar-1.png',
+  '/avatars/avatar-2.png',
+  '/avatars/avatar-3.png',
+  '/avatars/avatar-4.png',
+  '/avatars/avatar-5.png',
+  '/avatars/avatar-6.png',
+];
+
 const MyPredictions = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -38,10 +51,57 @@ const MyPredictions = () => {
   const [stats, setStats] = useState<PredictionStats | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchPredictions = async () => {
       if (!user) {
+        // 为了演示，提供模拟数据
+        setUserProfile({
+          display_name: "QuickTiger1234",
+          avatar_url: "/avatars/avatar-1.png"
+        });
+        setEditDisplayName("QuickTiger1234");
+        setSelectedAvatar("/avatars/avatar-1.png");
+        setStats({
+          totalPredictions: 15,
+          correctPredictions: 10,
+          winRate: 66.67,
+          balance: 12500,
+          profit: 2500,
+          recentPredictions: [
+            {
+              id: "1",
+              match_id: "m1",
+              prediction: "主队胜",
+              result: "win",
+              bet_amount: 500,
+              actual_payout: 950,
+              created_at: new Date().toISOString()
+            },
+            {
+              id: "2",
+              match_id: "m2",
+              prediction: "大球",
+              result: "win",
+              bet_amount: 300,
+              actual_payout: 600,
+              created_at: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+              id: "3",
+              match_id: "m3",
+              prediction: "平局",
+              result: "loss",
+              bet_amount: 400,
+              actual_payout: 0,
+              created_at: new Date(Date.now() - 172800000).toISOString()
+            }
+          ]
+        });
         setIsLoading(false);
         return;
       }
@@ -59,6 +119,8 @@ const MyPredictions = () => {
 
         if (profileData) {
           setUserProfile(profileData);
+          setEditDisplayName(profileData.display_name);
+          setSelectedAvatar(profileData.avatar_url);
         }
 
         // 获取余额
@@ -99,17 +161,48 @@ const MyPredictions = () => {
     fetchPredictions();
   }, [user]);
 
+  const handleSaveProfile = async () => {
+    if (!user) {
+      // 演示模式下的模拟保存
+      toast.success("演示模式：个人资料已更新！");
+      setUserProfile({
+        display_name: editDisplayName,
+        avatar_url: selectedAvatar,
+      });
+      setIsEditDialogOpen(false);
+      return;
+    }
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({
+          display_name: editDisplayName,
+          avatar_url: selectedAvatar,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setUserProfile({
+        display_name: editDisplayName,
+        avatar_url: selectedAvatar,
+      });
+      
+      setIsEditDialogOpen(false);
+      toast.success("个人资料已更新！");
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error("更新失败，请重试");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (!user) {
-    return (
-      <Card className="border-primary/20">
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground mb-4">登录后查看您的预测统计</p>
-          <Button onClick={() => navigate('/auth')}>
-            立即登录
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    // 为了演示效果，即使未登录也显示模板
+    return null;
   }
 
   if (isLoading) {
@@ -122,7 +215,7 @@ const MyPredictions = () => {
     );
   }
 
-  if (!stats || stats.totalPredictions === 0) {
+  if (!stats) {
     return (
       <Card className="border-primary/20">
         <CardHeader>
@@ -154,7 +247,80 @@ const MyPredictions = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-1">{userProfile?.display_name}</h2>
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-2xl font-bold">{userProfile?.display_name}</h2>
+                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>编辑个人资料</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-6 py-4">
+                      {/* 昵称编辑 */}
+                      <div className="space-y-2">
+                        <Label htmlFor="display-name">昵称</Label>
+                        <Input
+                          id="display-name"
+                          value={editDisplayName}
+                          onChange={(e) => setEditDisplayName(e.target.value)}
+                          placeholder="输入你的昵称"
+                          maxLength={20}
+                        />
+                      </div>
+                      
+                      {/* 头像选择 */}
+                      <div className="space-y-3">
+                        <Label>选择头像</Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {AVATAR_OPTIONS.map((avatar) => (
+                            <button
+                              key={avatar}
+                              onClick={() => setSelectedAvatar(avatar)}
+                              className={`
+                                relative rounded-lg p-2 transition-all
+                                ${selectedAvatar === avatar 
+                                  ? 'ring-2 ring-primary bg-primary/10' 
+                                  : 'hover:bg-muted border border-border'
+                                }
+                              `}
+                            >
+                              <Avatar className="h-16 w-16 mx-auto">
+                                <AvatarImage src={avatar} />
+                              </Avatar>
+                              {selectedAvatar === avatar && (
+                                <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                                  <Check className="h-3 w-3 text-primary-foreground" />
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => setIsEditDialogOpen(false)}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving || !editDisplayName.trim()}
+                      >
+                        {isSaving ? "保存中..." : "保存"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Wallet className="h-4 w-4" />
                 <span className="text-sm">虚拟钱包</span>
