@@ -16,6 +16,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import CryptoTicker from "@/components/CryptoTicker";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import iconGreencourt from "@/assets/icon_greencourt.jpg";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
@@ -67,13 +68,16 @@ const History = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
   
   const [filterModel, setFilterModel] = useState<string>("all");
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
   const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
+  const [playerHistoryRecords, setPlayerHistoryRecords] = useState<HistoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPlayerLoading, setIsPlayerLoading] = useState(true);
 
   // 从数据库获取历史数据
   useEffect(() => {
@@ -212,6 +216,78 @@ const History = () => {
     fetchHistory();
   }, []);
 
+  // 从数据库获取玩家历史数据
+  useEffect(() => {
+    const fetchPlayerHistory = async () => {
+      if (!user) {
+        setPlayerHistoryRecords([]);
+        setIsPlayerLoading(false);
+        return;
+      }
+
+      try {
+        setIsPlayerLoading(true);
+        
+        // 查询用户的预测记录
+        const { data: predictionsData, error: predictionsError } = await supabase
+          .from('user_predictions')
+          .select('*')
+          .eq('user_id', user.id)
+          .not('result', 'is', null)
+          .order('created_at', { ascending: false });
+
+        if (predictionsError) {
+          console.error('Error fetching player predictions:', predictionsError);
+          setPlayerHistoryRecords([]);
+          return;
+        }
+
+        if (!predictionsData || predictionsData.length === 0) {
+          setPlayerHistoryRecords([]);
+          return;
+        }
+
+        // 转换数据格式
+        const records: HistoryRecord[] = predictionsData.map((prediction: any) => {
+          const correct = prediction.result === 'win';
+          const profit = prediction.actual_payout ? prediction.actual_payout - prediction.bet_amount : (correct ? prediction.bet_amount * 0.9 : -prediction.bet_amount);
+          
+          // 格式化日期
+          const date = new Date(prediction.created_at);
+          const dateStr = date.toISOString().split('T')[0];
+          
+          return {
+            id: prediction.id.toString(),
+            matchId: prediction.match_id?.toString() || '',
+            aiModel: 'player',
+            prediction: prediction.prediction as "HOME_WIN" | "AWAY_WIN" | "DRAW",
+            actualResult: prediction.actual_result as "HOME_WIN" | "AWAY_WIN" | "DRAW" | undefined,
+            correct,
+            confidence: prediction.confidence || 0,
+            date: dateStr,
+            betType: prediction.prediction_type as "moneyline" | "handicap" | "over_under",
+            handicapLine: prediction.handicap_line,
+            overUnderLine: prediction.over_under_line,
+            overUnderPick: undefined,
+            odds: prediction.potential_payout ? prediction.potential_payout / prediction.bet_amount : 1.9,
+            betAmount: prediction.bet_amount,
+            profit,
+            match: undefined, // 玩家历史记录暂不显示比赛详情
+          };
+        });
+
+        setPlayerHistoryRecords(records);
+      } catch (error) {
+        console.error('Error fetching player history:', error);
+        setPlayerHistoryRecords([]);
+      } finally {
+        setIsPlayerLoading(false);
+      }
+    };
+
+    fetchPlayerHistory();
+  }, [user]);
+
   // 过滤历史数据
   let filteredHistory = [...historyRecords].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -236,7 +312,27 @@ const History = () => {
     );
   }
 
-  // 计算统计数据
+  // 过滤玩家历史数据
+  let filteredPlayerHistory = [...playerHistoryRecords].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  if (filterResult !== "all") {
+    filteredPlayerHistory = filteredPlayerHistory.filter(p => 
+      filterResult === "correct" ? p.correct : !p.correct
+    );
+  }
+
+  if (filterPeriod !== "all") {
+    const now = new Date();
+    const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
+    const periodDate = new Date(now.setDate(now.getDate() - daysAgo));
+    filteredPlayerHistory = filteredPlayerHistory.filter(p => 
+      new Date(p.date) >= periodDate
+    );
+  }
+
+  // 计算AI统计数据
   const totalPredictions = filteredHistory.length;
   const correctPredictions = filteredHistory.filter(p => p.correct).length;
   const winRate = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(1) : "0.0";
@@ -249,6 +345,14 @@ const History = () => {
   const totalProfit = filteredHistory.reduce((sum, p) => sum + calculateProfit(p), 0);
   const currentBalance = INITIAL_BALANCE + totalProfit;
   const roi = totalPredictions > 0 ? ((totalProfit / INITIAL_BALANCE) * 100).toFixed(1) : "0.0";
+
+  // 计算玩家统计数据
+  const playerTotalPredictions = filteredPlayerHistory.length;
+  const playerCorrectPredictions = filteredPlayerHistory.filter(p => p.correct).length;
+  const playerWinRate = playerTotalPredictions > 0 ? ((playerCorrectPredictions / playerTotalPredictions) * 100).toFixed(1) : "0.0";
+  const playerTotalProfit = filteredPlayerHistory.reduce((sum, p) => sum + calculateProfit(p), 0);
+  const playerCurrentBalance = INITIAL_BALANCE + playerTotalProfit;
+  const playerRoi = playerTotalPredictions > 0 ? ((playerTotalProfit / INITIAL_BALANCE) * 100).toFixed(1) : "0.0";
 
   // 获取选中的模型信息
   const selectedModel = filterModel !== "all" ? aiModels.find(m => m.id === filterModel) : null;
@@ -439,57 +543,65 @@ const History = () => {
           </div>
         )}
 
-        {/* 筛选器 */}
-        <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-              <Select value={filterModel} onValueChange={setFilterModel}>
-                <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
-                  <SelectValue placeholder={t('model')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('all_models')}</SelectItem>
-                  {aiModels.map(model => (
-                    <SelectItem key={model.id} value={model.id}>{model.displayName}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* 筛选器和历史记录 */}
+        <Tabs defaultValue="ai" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+            <TabsTrigger value="ai">{t('ai_history') || 'AI历史'}</TabsTrigger>
+            <TabsTrigger value="player">{t('player_history') || '玩家历史'}</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="ai">
+            {/* 筛选器 */}
+            <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                  <Select value={filterModel} onValueChange={setFilterModel}>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t('model')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_models')}</SelectItem>
+                      {aiModels.map(model => (
+                        <SelectItem key={model.id} value={model.id}>{model.displayName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-              <Select value={filterResult} onValueChange={setFilterResult}>
-                <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
-                  <SelectValue placeholder={t('result')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('all_results')}</SelectItem>
-                  <SelectItem value="correct">{t('correct')}</SelectItem>
-                  <SelectItem value="wrong">{t('wrong')}</SelectItem>
-                </SelectContent>
-              </Select>
+                  <Select value={filterResult} onValueChange={setFilterResult}>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t('result')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_results')}</SelectItem>
+                      <SelectItem value="correct">{t('correct')}</SelectItem>
+                      <SelectItem value="wrong">{t('wrong')}</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-              <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-                <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
-                  <SelectValue placeholder={t('period')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('all_time')}</SelectItem>
-                  <SelectItem value="7d">{t('last_7_days')}</SelectItem>
-                  <SelectItem value="30d">{t('last_30_days')}</SelectItem>
-                  <SelectItem value="90d">{t('last_90_days')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                  <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t('period')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_time')}</SelectItem>
+                      <SelectItem value="7d">{t('last_7_days')}</SelectItem>
+                      <SelectItem value="30d">{t('last_30_days')}</SelectItem>
+                      <SelectItem value="90d">{t('last_90_days')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="text-xs sm:text-sm text-muted-foreground pt-2 border-t border-border/50 flex items-center justify-between">
-              <span>{t('records')}:</span>
-              <span className="font-bold">{filteredHistory.length}</span>
-            </div>
-          </div>
-        </Card>
+                <div className="text-xs sm:text-sm text-muted-foreground pt-2 border-t border-border/50 flex items-center justify-between">
+                  <span>{t('records')}:</span>
+                  <span className="font-bold">{filteredHistory.length}</span>
+                </div>
+              </div>
+            </Card>
 
         {/* 历史记录表格 */}
         <Card className="overflow-hidden">
@@ -641,6 +753,198 @@ const History = () => {
             </Table>
           </div>
         </Card>
+
+          </TabsContent>
+          
+          <TabsContent value="player">
+            {/* 筛选器 - 玩家历史 */}
+            <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  <Select value={filterResult} onValueChange={setFilterResult}>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t('result')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_results')}</SelectItem>
+                      <SelectItem value="correct">{t('correct')}</SelectItem>
+                      <SelectItem value="wrong">{t('wrong')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t('period')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_time')}</SelectItem>
+                      <SelectItem value="7d">{t('last_7_days')}</SelectItem>
+                      <SelectItem value="30d">{t('last_30_days')}</SelectItem>
+                      <SelectItem value="90d">{t('last_90_days')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="text-xs sm:text-sm text-muted-foreground pt-2 border-t border-border/50 flex items-center justify-between">
+                  <span>{t('records')}:</span>
+                  <span className="font-bold">{filteredPlayerHistory.length}</span>
+                </div>
+              </div>
+            </Card>
+            
+            {/* 玩家统计卡片 */}
+            {user && playerTotalPredictions > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+                <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('total_predictions')}</p>
+                  <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate text-primary">
+                    {playerTotalPredictions}
+                  </p>
+                </Card>
+                
+                <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('win_rate')}</p>
+                  <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate text-success">
+                    <AnimatedWinRate 
+                      value={parseFloat(playerWinRate)}
+                      className="text-lg sm:text-2xl lg:text-3xl font-bold"
+                    />
+                  </p>
+                </Card>
+                
+                <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">ROI</p>
+                  <p className={`text-lg sm:text-2xl lg:text-3xl font-bold truncate ${playerTotalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {Number(playerRoi) >= 0 ? '+' : ''}{playerRoi}%
+                  </p>
+                </Card>
+                
+                <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2 truncate">{t('current_balance')}</p>
+                  <p className="text-lg sm:text-2xl lg:text-3xl font-bold truncate text-primary">
+                    ${playerCurrentBalance.toFixed(0)}
+                  </p>
+                </Card>
+              </div>
+            )}
+
+            {/* 玩家历史记录表格 */}
+            <Card className="overflow-hidden">
+              {/* 滚动提示 - 仅移动端显示 */}
+              <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
+                <Table className="min-w-[800px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px] sm:w-[100px] text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
+                      <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('match_id')}</TableHead>
+                      <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('prediction')}</TableHead>
+                      <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
+                      <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_amount')}</TableHead>
+                      <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
+                      <TableHead className="text-center text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {!user ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
+                          {t('please_login') || '请先登录'}
+                        </TableCell>
+                      </TableRow>
+                    ) : filteredPlayerHistory.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
+                          {t('no_history_data')}
+                        </TableCell>
+                      </TableRow>
+                    ) : isPlayerLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
+                          {t('loading') || '加载中...'}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredPlayerHistory.map((prediction) => {
+                        const profit = calculateProfit(prediction);
+                        
+                        return (
+                          <TableRow 
+                            key={prediction.id}
+                            className="hover:bg-muted/50 transition-colors"
+                          >
+                            <TableCell className="font-medium text-[11px] sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="truncate min-w-[70px]">
+                                {prediction.date}
+                              </div>
+                            </TableCell>
+                            
+                            <TableCell className="text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="truncate max-w-[150px]">
+                                {prediction.matchId}
+                              </div>
+                            </TableCell>
+                            
+                            <TableCell className="text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="truncate max-w-[120px]">
+                                {prediction.prediction}
+                              </div>
+                            </TableCell>
+                            
+                            <TableCell className="text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="truncate max-w-[140px]">
+                                {prediction.betType}
+                              </div>
+                            </TableCell>
+                            
+                            <TableCell className="text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4">
+                              ${prediction.betAmount.toFixed(2)}
+                            </TableCell>
+                            
+                            <TableCell className={`text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4 ${
+                              profit >= 0 ? 'text-success' : 'text-destructive'
+                            }`}>
+                              {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
+                            </TableCell>
+                            
+                            <TableCell className="text-center px-2 sm:px-4 py-3 sm:py-4">
+                              {prediction.correct ? (
+                                <Badge className="gap-1 sm:gap-1.5 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
+                                  <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                  <span className="hidden xs:inline">{t('correct')}</span>
+                                  <span className="xs:hidden">✓</span>
+                                </Badge>
+                              ) : (
+                                <Badge variant="destructive" className="gap-1 sm:gap-1.5 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
+                                  <XCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                  <span className="hidden xs:inline">{t('wrong')}</span>
+                                  <span className="xs:hidden">✗</span>
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Disclaimer */}
         <Disclaimer />
