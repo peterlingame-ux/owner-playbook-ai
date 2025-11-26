@@ -14,6 +14,7 @@ import Models from "./pages/Models";
 import ModelDetail from "./pages/ModelDetail";
 import PlayerDetail from "./pages/PlayerDetail";
 import MatchDetail from "./pages/MatchDetail";
+import Matches from "./pages/Matches";
 import Blog from "./pages/Blog";
 import Auth from "./pages/Auth";
 import Waitlist from "./pages/Waitlist";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/model/:modelId" element={<ModelDetail />} />
               <Route path="/player/:playerId" element={<PlayerDetail />} />
               <Route path="/match/:matchId" element={<MatchDetail />} />
+              <Route path="/matches" element={<Matches />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/history" element={<History />} />
               <Route path="/my-predictions" element={<MyPredictions />} />
