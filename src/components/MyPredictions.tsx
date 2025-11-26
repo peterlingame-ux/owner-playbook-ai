@@ -253,139 +253,201 @@ const MyPredictions = () => {
 
   return (
     <div className="space-y-6">
-      {/* 用户资料卡片 */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-background">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20 border-4 border-primary/20">
-              <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
-              <AvatarFallback className="text-2xl">
-                {userProfile?.display_name?.charAt(0) || '?'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-2xl font-bold">{userProfile?.display_name}</h2>
-                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>编辑个人资料</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-6 py-4">
-                      {/* 昵称编辑 */}
-                      <div className="space-y-2">
-                        <Label htmlFor="display-name">昵称</Label>
-                        <Input
-                          id="display-name"
-                          value={editDisplayName}
-                          onChange={(e) => setEditDisplayName(e.target.value)}
-                          placeholder="输入你的昵称"
-                          maxLength={20}
-                        />
-                      </div>
-                      
-                      {/* 头像选择 */}
-                      <div className="space-y-3">
-                        <Label>选择头像</Label>
-                        <div className="grid grid-cols-3 gap-3">
-                          {AVATAR_OPTIONS.map((avatar) => (
-                            <button
-                              key={avatar}
-                              onClick={() => setSelectedAvatar(avatar)}
-                              className={`
-                                relative rounded-lg p-2 transition-all
-                                ${selectedAvatar === avatar 
-                                  ? 'ring-2 ring-primary bg-primary/10' 
-                                  : 'hover:bg-muted border border-border'
-                                }
-                              `}
-                            >
-                              <Avatar className="h-16 w-16 mx-auto">
-                                <AvatarImage src={avatar} />
-                              </Avatar>
-                              {selectedAvatar === avatar && (
-                                <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
-                                  <Check className="h-3 w-3 text-primary-foreground" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+      {/* 球星卡片 - 用户资料 */}
+      <Card className="border-none overflow-hidden relative bg-gradient-to-br from-primary via-primary/80 to-primary/60 shadow-2xl">
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-5 mix-blend-overlay"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+        
+        <CardContent className="p-8 relative z-10">
+          {/* 顶部装饰条 */}
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-warning via-success to-info"></div>
+          
+          <div className="flex flex-col items-center text-center space-y-4">
+            {/* 头像区域 */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-warning to-success rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+              <Avatar className="h-32 w-32 border-4 border-white shadow-2xl relative z-10 ring-4 ring-white/20">
+                <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
+                <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-primary-foreground text-white">
+                  {userProfile?.display_name?.charAt(0) || '?'}
+                </AvatarFallback>
+              </Avatar>
+              
+              {/* 编辑按钮 */}
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    size="icon" 
+                    className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full bg-white text-primary shadow-lg hover:scale-110 transition-transform z-20"
+                  >
+                    <Edit2 className="h-5 w-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>编辑个人资料</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    {/* 昵称编辑 */}
+                    <div className="space-y-2">
+                      <Label htmlFor="display-name">昵称</Label>
+                      <Input
+                        id="display-name"
+                        value={editDisplayName}
+                        onChange={(e) => setEditDisplayName(e.target.value)}
+                        placeholder="输入你的昵称"
+                        maxLength={20}
+                      />
                     </div>
                     
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setIsEditDialogOpen(false)}
-                      >
-                        取消
-                      </Button>
-                      <Button
-                        className="flex-1"
-                        onClick={handleSaveProfile}
-                        disabled={isSaving || !editDisplayName.trim()}
-                      >
-                        {isSaving ? "保存中..." : "保存"}
-                      </Button>
+                    {/* 头像选择 */}
+                    <div className="space-y-3">
+                      <Label>选择头像</Label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {AVATAR_OPTIONS.map((avatar) => (
+                          <button
+                            key={avatar}
+                            onClick={() => setSelectedAvatar(avatar)}
+                            className={`
+                              relative rounded-lg p-2 transition-all
+                              ${selectedAvatar === avatar 
+                                ? 'ring-2 ring-primary bg-primary/10' 
+                                : 'hover:bg-muted border border-border'
+                              }
+                            `}
+                          >
+                            <Avatar className="h-16 w-16 mx-auto">
+                              <AvatarImage src={avatar} />
+                            </Avatar>
+                            {selectedAvatar === avatar && (
+                              <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                                <Check className="h-3 w-3 text-primary-foreground" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setIsEditDialogOpen(false)}
+                    >
+                      取消
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      onClick={handleSaveProfile}
+                      disabled={isSaving || !editDisplayName.trim()}
+                    >
+                      {isSaving ? "保存中..." : "保存"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            {/* 用户名 */}
+            <div>
+              <h2 className="text-3xl font-black text-white mb-1 tracking-tight drop-shadow-lg">
+                {userProfile?.display_name}
+              </h2>
+              <div className="flex items-center justify-center gap-2 text-white/90 text-sm">
+                <Trophy className="h-4 w-4" />
+                <span className="font-semibold">预测大师</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Wallet className="h-4 w-4" />
-                <span className="text-sm">虚拟钱包</span>
+            </div>
+            
+            {/* 钱包余额 - 突出显示 */}
+            <div className="bg-white/20 backdrop-blur-md rounded-2xl px-8 py-4 border border-white/30 shadow-xl">
+              <div className="flex items-center gap-3">
+                <div className="bg-warning/20 p-3 rounded-xl">
+                  <Wallet className="h-6 w-6 text-warning" />
+                </div>
+                <div className="text-left">
+                  <p className="text-white/80 text-xs font-medium mb-1">虚拟钱包余额</p>
+                  <p className="text-3xl font-black text-white font-mono-data tracking-tight">
+                    ${stats?.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <DollarSign className="h-5 w-5 text-warning" />
-                <span className="text-2xl font-bold font-mono-data text-warning">
-                  {stats?.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                </span>
+            </div>
+            
+            {/* 核心统计数据 - 三联卡 */}
+            <div className="grid grid-cols-3 gap-3 w-full mt-4">
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                <div className="bg-success/20 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Trophy className="h-5 w-5 text-success" />
+                </div>
+                <p className="text-white/70 text-xs mb-1">胜率</p>
+                <AnimatedWinRate 
+                  value={stats?.winRate || 0}
+                  className="text-2xl font-black text-white font-mono-data"
+                />
+              </div>
+              
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                <div className="bg-info/20 w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <TrendingUp className="h-5 w-5 text-info" />
+                </div>
+                <p className="text-white/70 text-xs mb-1">总预测</p>
+                <p className="text-2xl font-black text-white font-mono-data">{stats?.totalPredictions}</p>
+              </div>
+              
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                <div className={`${stats?.profit && stats.profit >= 0 ? 'bg-success/20' : 'bg-destructive/20'} w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2`}>
+                  <Target className={`h-5 w-5 ${stats?.profit && stats.profit >= 0 ? 'text-success' : 'text-destructive'}`} />
+                </div>
+                <p className="text-white/70 text-xs mb-1">收益</p>
+                <p className={`text-2xl font-black font-mono-data ${stats?.profit && stats.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  {stats?.profit && stats.profit >= 0 ? '+' : ''}{stats?.profit?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* 统计数据卡片 */}
-      <Card className="border-primary/20">
-        <CardHeader>
+      {/* 统计详情卡片 */}
+      <Card className="border-primary/20 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-5 w-5 text-primary" />
-            预测统计
+            详细统计
           </CardTitle>
         </CardHeader>
-        <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 rounded-lg bg-muted/50">
-            <Trophy className="h-5 w-5 mx-auto mb-2 text-primary" />
-            <p className="text-xs text-muted-foreground mb-1">胜率</p>
-            <AnimatedWinRate 
-              value={stats.winRate}
-              className="text-lg font-bold font-mono-data text-primary"
-            />
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gradient-to-br from-success/10 to-transparent p-4 rounded-xl border border-success/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-success/20 p-2 rounded-lg">
+                  <Trophy className="h-4 w-4 text-success" />
+                </div>
+                <span className="text-sm text-muted-foreground">命中预测</span>
+              </div>
+              <p className="text-2xl font-bold font-mono-data text-success">{stats?.correctPredictions}</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-warning/10 to-transparent p-4 rounded-xl border border-warning/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-warning/20 p-2 rounded-lg">
+                  <DollarSign className="h-4 w-4 text-warning" />
+                </div>
+                <span className="text-sm text-muted-foreground">总投注</span>
+              </div>
+              <p className="text-2xl font-bold font-mono-data">
+                {stats && stats.recentPredictions ? 
+                  stats.recentPredictions.reduce((sum, p) => sum + p.bet_amount, 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+                  : '0'
+                }
+              </p>
+            </div>
           </div>
-
-          <div className="text-center p-4 rounded-lg bg-muted/50">
-            <TrendingUp className="h-5 w-5 mx-auto mb-2 text-success" />
-            <p className="text-xs text-muted-foreground mb-1">总预测</p>
-            <p className="text-lg font-bold font-mono-data">{stats.totalPredictions}</p>
-          </div>
-
-          <div className="text-center p-4 rounded-lg bg-muted/50">
-            <Target className="h-5 w-5 mx-auto mb-2 text-info" />
-            <p className="text-xs text-muted-foreground mb-1">收益</p>
-            <p className={`text-lg font-bold font-mono-data ${stats.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {stats.profit >= 0 ? '+' : ''}{stats.profit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </p>
-          </div>
-        </div>
         </CardContent>
       </Card>
 
