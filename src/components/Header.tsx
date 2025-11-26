@@ -60,22 +60,10 @@ const Header = () => {
           </h1>
         </Link>
         
-        {/* Desktop Navigation - 保留桌面端导航 */}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-3 md:gap-5 flex-shrink min-w-0">
-          <NavLink to="/" className={({ isActive }) => getDesktopNavClass(isActive)}>
-            {t('nav_live')}
-          </NavLink>
-          <NavLink to="/leaderboard" className={({ isActive }) => getDesktopNavClass(isActive)}>
-            {t('nav_rank')}
-          </NavLink>
-          <NavLink to="/history" className={({ isActive }) => getDesktopNavClass(isActive)}>
-            {t('nav_history')}
-          </NavLink>
-          <NavLink to="/blog" className={({ isActive }) => `${getDesktopNavClass(isActive)} hidden lg:inline`}>
+          <NavLink to="/blog" className={({ isActive }) => getDesktopNavClass(isActive)}>
             {t('nav_blog')}
-          </NavLink>
-          <NavLink to="/models" className={({ isActive }) => getDesktopNavClass(isActive)}>
-            {t('nav_models')}
           </NavLink>
         </nav>
         
