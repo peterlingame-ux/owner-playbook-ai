@@ -148,6 +148,15 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
       return;
     }
     
+    // Demo mode - show login prompt
+    if (isDemo) {
+      toast.info('请先登录以保存训练数据');
+      setIsFeeding(true);
+      setFeedProgress(0);
+      setFeedComplete(false);
+      return;
+    }
+    
     // Save to database first
     const saved = await saveTrainingData(feedText.trim());
     if (!saved) {
@@ -178,9 +187,10 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
     setFeedComplete(false);
   };
 
-  if (!user || !userProfile) {
-    return null;
-  }
+  // Demo mode for non-logged-in users
+  const isDemo = !user || !userProfile;
+  const displayName = isDemo ? '体验玩家' : userProfile.display_name;
+  const avatarUrl = isDemo ? '/avatars/avatar-1.png' : userProfile.avatar_url;
 
   return (
     <>
@@ -232,14 +242,14 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
           {/* Header with Player Avatar */}
           <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-amber-500/20">
             <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-amber-500/60 shadow-2xl group-hover:ring-amber-500/80 transition-all">
-              <AvatarImage src={userProfile.avatar_url} alt={userProfile.display_name} className="object-cover" />
+              <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
               <AvatarFallback className="text-sm sm:text-sm md:text-lg font-bold bg-gradient-to-br from-amber-500 to-yellow-500 text-black">
-                {userProfile.display_name[0]}
+                {displayName[0]}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-[11px] sm:text-xs font-bold text-amber-400">
-                {userProfile.display_name}
+                {displayName}
               </span>
               <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">
                 专属AI模型

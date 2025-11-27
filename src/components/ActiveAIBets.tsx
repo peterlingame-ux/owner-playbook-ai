@@ -1394,9 +1394,7 @@ const ActiveAIBets = () => {
         })}
         
         {/* Player Exclusive Model Card - replaces hunsoccermax */}
-        {user && userProfile && (
-          <PlayerExclusiveModelCard />
-        )}
+        <PlayerExclusiveModelCard />
       </div>
       
       <MatchAnalysisDialog
