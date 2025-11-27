@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
@@ -36,7 +35,6 @@ interface PlayerData {
 
 const Index = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
@@ -55,7 +53,6 @@ const Index = () => {
   const handleWelcomeClose = () => {
     localStorage.setItem('hasSeenWelcomeDialog', 'true');
     setShowWelcomeDialog(false);
-    navigate('/matches');
   };
   
   // 获取真实的胜率数据和模拟收益 - 使用 Realtime 订阅实现实时更新
