@@ -6,7 +6,6 @@ import ModelCard from "@/components/ModelCard";
 import PlayerCard from "@/components/PlayerCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
-import ExclusiveAIModel from "@/components/ExclusiveAIModel";
 import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
 import { virtualPlayers } from "@/data/virtualPlayers";
@@ -391,11 +390,6 @@ const Index = () => {
               }
             }}
           />
-        </div>
-
-        {/* Exclusive AI Model Section */}
-        <div className="mb-6 sm:mb-8">
-          <ExclusiveAIModel />
         </div>
 
         {/* AI Betting Cards */}
