@@ -9,6 +9,8 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
+import PlayerExclusiveModelCard from "@/components/PlayerExclusiveModelCard";
+import { useAuth } from "@/contexts/AuthContext";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -291,9 +293,10 @@ type AIBalance = {
 
 const ActiveAIBets = () => {
   const { t, i18n } = useTranslation();
+  const { user, userProfile } = useAuth();
   
-  // Get AI models (exclude locked ones like mystery and boospot)
-  const activeAIs = aiModels.filter(ai => !ai.locked);
+  // Get AI models (exclude locked ones like mystery and boospot, and hunsoccermax which is replaced by player's model)
+  const activeAIs = aiModels.filter(ai => !ai.locked && ai.id !== 'hunsoccermax');
 
   // State for real data
   const [matches, setMatches] = useState<DailyMatch[]>([]);
@@ -1389,6 +1392,11 @@ const ActiveAIBets = () => {
             </div>
           );
         })}
+        
+        {/* Player Exclusive Model Card - replaces hunsoccermax */}
+        {user && userProfile && (
+          <PlayerExclusiveModelCard />
+        )}
       </div>
       
       <MatchAnalysisDialog
