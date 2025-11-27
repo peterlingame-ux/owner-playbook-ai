@@ -10,11 +10,9 @@ import { useNavigate } from "react-router-dom";
 import { Trophy, TrendingUp, Target, DollarSign, History, Wallet, Edit2, Check, CheckCircle2, XCircle } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PlaceBetDialog } from "./PlaceBetDialog";
+import PlayerStarCard from "./PlayerStarCard";
 
 interface UserProfile {
   display_name: string;
@@ -347,238 +345,67 @@ const MyPredictions = () => {
 
   return (
     <div className="space-y-6">
-      {/* 用户预测球星卡 - 仿照AI模型卡设计 */}
-      <Card 
-        className="relative p-6 bg-card border-primary hover:border-opacity-50 transition-all overflow-hidden"
-        style={{
-          borderColor: 'hsl(var(--primary) / 0.3)',
-          borderWidth: '2px'
-        }}
-      >
-        {/* 用户头像背景 */}
-        <div 
-          className="absolute inset-0 opacity-10 transition-opacity duration-300"
-          style={{
-            backgroundImage: `url(${userProfile?.avatar_url})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        />
-        
-        {/* 品牌色彩叠加层 */}
-        <div 
-          className="absolute inset-0 opacity-30 transition-opacity duration-300"
-          style={{
-            background: 'radial-gradient(circle at 30% 50%, hsl(var(--primary)), transparent 70%)'
-          }}
-        />
-        
-        {/* 渐变遮罩确保内容可读 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
-        
-        {/* 内容区域 */}
-        <div className="relative z-10">
-          {/* 顶部：头像和用户名 */}
-          <div className="flex items-start justify-between mb-4 gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="relative">
-                <Avatar 
-                  className="h-20 w-20 border-4 shrink-0"
-                  style={{
-                    borderColor: 'hsl(var(--primary))'
-                  }}
-                >
-                  <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
-                  <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-warning text-white font-black">
-                    {userProfile?.display_name?.charAt(0) || '?'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                {/* 编辑按钮 */}
-                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      size="icon" 
-                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-primary shadow-lg hover:scale-110 transition-transform z-20"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>编辑个人资料</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-6 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="display-name">昵称</Label>
-                        <Input
-                          id="display-name"
-                          value={editDisplayName}
-                          onChange={(e) => setEditDisplayName(e.target.value)}
-                          placeholder="输入你的昵称"
-                          maxLength={20}
-                        />
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <Label>选择头像</Label>
-                        <div className="grid grid-cols-3 gap-3">
-                          {AVATAR_OPTIONS.map((avatar) => (
-                            <button
-                              key={avatar}
-                              onClick={() => setSelectedAvatar(avatar)}
-                              className={`
-                                relative rounded-lg p-2 transition-all
-                                ${selectedAvatar === avatar 
-                                  ? 'ring-2 ring-primary bg-primary/10' 
-                                  : 'hover:bg-muted border border-border'
-                                }
-                              `}
-                            >
-                              <Avatar className="h-16 w-16 mx-auto">
-                                <AvatarImage src={avatar} />
-                              </Avatar>
-                              {selectedAvatar === avatar && (
-                                <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
-                                  <Check className="h-3 w-3 text-primary-foreground" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setIsEditDialogOpen(false)}
-                      >
-                        取消
-                      </Button>
-                      <Button
-                        className="flex-1"
-                        onClick={handleSaveProfile}
-                        disabled={isSaving || !editDisplayName.trim()}
-                      >
-                        {isSaving ? "保存中..." : "保存"}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              
-              <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-lg leading-tight truncate text-white">
-                  {userProfile?.display_name}
-                </h3>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <Trophy className="h-3.5 w-3.5 text-warning" />
-                  <span className="text-xs text-muted-foreground">预测精英</span>
+      {/* 用户AI预测球星卡 - 仿照AI模型卡设计 */}
+      <PlayerStarCard
+        displayName={userProfile?.display_name || ''}
+        avatarUrl={userProfile?.avatar_url || ''}
+        winRate={stats?.winRate || 0}
+        totalPredictions={stats?.totalPredictions || 0}
+        correctPredictions={stats?.correctPredictions || 0}
+        profit={stats?.profit || 0}
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        editDisplayName={editDisplayName}
+        setEditDisplayName={setEditDisplayName}
+        selectedAvatar={selectedAvatar}
+        setSelectedAvatar={setSelectedAvatar}
+        avatarOptions={AVATAR_OPTIONS}
+        onSaveProfile={handleSaveProfile}
+        isSaving={isSaving}
+        onNavigateToMatches={() => navigate('/matches')}
+      />
+      
+      {/* 钱包余额显示 */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <div className="bg-gradient-to-r from-warning/20 to-warning/10 rounded-lg p-4 border border-warning/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-warning/30 p-2.5 rounded-lg">
+                  <Wallet className="h-5 w-5 text-warning" />
                 </div>
-              </div>
-            </div>
-            
-            {/* 收益徽章 */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
-              <span className="text-[9px] text-muted-foreground whitespace-nowrap">模拟收益</span>
-              <div className={`px-3 py-1.5 rounded-full font-mono-data font-bold text-xs ${
-                (stats?.profit || 0) >= 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-              }`}>
-                {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 0}
+                <div>
+                  <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wide">虚拟钱包</p>
+                  <p className="text-2xl font-black text-white font-mono-data">
+                    ${stats?.balance?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 10000}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="space-y-3">
-            {/* 胜率显示 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground">胜率</span>
-                <span className="text-2xl font-bold font-mono-data text-primary">
-                  <AnimatedWinRate value={stats?.winRate || 0} />%
-                </span>
-              </div>
-              
-              {/* 胜率进度条 */}
-              <div className="relative h-2.5 bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 bg-primary"
-                  style={{
-                    width: `${stats?.winRate || 0}%`
-                  }}
-                />
-              </div>
-            </div>
+          {/* 下注和查看历史按钮 */}
+          <div className="mt-4 space-y-2">
+            <PlaceBetDialog onBetPlaced={() => {
+              window.location.reload();
+            }} />
             
-            {/* 统计数据 */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-border/50 gap-2">
-              <div>
-                <p className="text-[10px] text-muted-foreground mb-0.5">命中</p>
-                <p className="text-base font-bold font-mono-data text-success">
-                  {stats?.correctPredictions || 0}
-                </p>
+            <Button 
+              onClick={() => navigate('/history')}
+              variant="outline"
+              className="w-full h-10 relative overflow-hidden group/btn border font-bold text-xs hover:scale-105 transition-transform"
+              style={{
+                borderColor: 'hsl(var(--primary) / 0.3)',
+              }}
+            >
+              <div className="relative flex items-center justify-center gap-2">
+                <History className="w-4 h-4 group-hover/btn:animate-pulse" />
+                <span>查看完整历史记录</span>
               </div>
-              <div className="text-center">
-                <p className="text-[10px] text-muted-foreground mb-0.5">总预测</p>
-                <p className="text-base font-bold font-mono-data">
-                  {stats?.totalPredictions || 0}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] text-muted-foreground mb-0.5">未中</p>
-                <p className="text-base font-bold font-mono-data text-destructive">
-                  {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
-                </p>
-              </div>
-            </div>
-            
-            {/* 钱包余额显示 */}
-            <div className="pt-2.5 border-t border-border/50">
-              <div className="bg-gradient-to-r from-warning/20 to-warning/10 rounded-lg p-4 border border-warning/30">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-warning/30 p-2.5 rounded-lg">
-                      <Wallet className="h-5 w-5 text-warning" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wide">虚拟钱包</p>
-                      <p className="text-2xl font-black text-white font-mono-data">
-                        ${stats?.balance?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 10000}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* 下注和查看历史按钮 */}
-            <div className="pt-2.5 border-t border-border/50 space-y-2">
-              <PlaceBetDialog onBetPlaced={() => {
-                // 重新加载预测数据
-                window.location.reload();
-              }} />
-              
-              <Button 
-                onClick={() => navigate('/history')}
-                variant="outline"
-                className="w-full h-10 relative overflow-hidden group/btn border font-bold text-xs hover:scale-105 transition-transform"
-                style={{
-                  borderColor: 'hsl(var(--primary) / 0.3)',
-                }}
-              >
-                <div className="relative flex items-center justify-center gap-2">
-                  <History className="w-4 h-4 group-hover/btn:animate-pulse" />
-                  <span>查看完整历史记录</span>
-                </div>
-                
-                {/* 动画闪光效果 */}
-                <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-              </Button>
-            </div>
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </Button>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       {/* 预测历史记录 - 表格形式（与AI预测历史一致） */}
