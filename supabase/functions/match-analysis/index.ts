@@ -437,10 +437,15 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
       };
     }
 
-    console.log(`[normalizeMatchesPayload] 比赛列表: ${todayMatches.map((m: any) => `fixture_id=${m.fixture_id}, ${m.home_team_name} vs ${m.away_team_name}, status=${m.status_short}`).join('; ')}`);
+    // 限制处理的比赛数量，避免超时（最多处理 15 场）
+    const MAX_MATCHES = 15;
+    const limitedMatches = todayMatches.slice(0, MAX_MATCHES);
+    if (todayMatches.length > MAX_MATCHES) {
+      console.log(`[normalizeMatchesPayload] 比赛数量过多(${todayMatches.length}场)，限制为前${MAX_MATCHES}场`);
+    }
 
     // 为每场比赛生成默认的 MatchRequest
-    const matches: MatchRequest[] = todayMatches.map((match) => {
+    const matches: MatchRequest[] = limitedMatches.map((match) => {
       const matchInfo: MatchInfo = {
         league: match.league_name || 'Unknown League',
         homeTeam: match.home_team_name,
@@ -495,13 +500,11 @@ const checkExistingAnalysis = async (
   aiId: string | undefined,
 ): Promise<StoredAnalysisResult[] | null> => {
   if (!supabase || !matchId || !aiId) {
-    console.log(`[checkExistingAnalysis] 跳过检查: matchId=${matchId}, aiId=${aiId}, supabase=${!!supabase}`);
     return null;
   }
 
   try {
     const today = new Date().toISOString().split('T')[0];
-    console.log(`[checkExistingAnalysis] 检查已有分析: matchId=${matchId}, aiId=${aiId}, today=${today}`);
     
     // 查询今天是否有该AI对该比赛的分析记录
     const { data, error } = await supabase
@@ -514,25 +517,17 @@ const checkExistingAnalysis = async (
       .limit(1);
 
     if (error) {
-      console.error(`[checkExistingAnalysis] 查询失败:`, error);
       return null;
-    }
-
-    console.log(`[checkExistingAnalysis] 查询结果: ${data?.length || 0} 条记录`);
-    if (data && data.length > 0) {
-      console.log(`[checkExistingAnalysis] 找到记录: id=${data[0].id}, 有分析=${!!data[0].analysis}, 分析长度=${data[0].analysis?.length || 0}`);
     }
 
     if (data && data.length > 0 && data[0].analysis) {
       // 找到已有分析记录，返回引用
-      console.log(`[checkExistingAnalysis] 返回已有分析记录: id=${data[0].id}`);
       return [{
         id: data[0].id,
         modelId: data[0].provider_model_id || aiId,
       }];
     }
 
-    console.log(`[checkExistingAnalysis] 没有找到有效的已有分析记录`);
     return null;
   } catch (error) {
     console.error(`[checkExistingAnalysis] 检查失败:`, error);
@@ -1391,21 +1386,25 @@ serve(async (req) => {
           return null; // 如果获取失败，返回 null 使用计算赔率
         };
 
-        console.log(`[${aiDisplayName}] 开始处理 ${matchesPayload.length} 场比赛`);
+        // 限制处理的比赛数量，避免超时
+        const MAX_MATCHES_PER_AI = 12;
+        const limitedMatches = matchesPayload.slice(0, MAX_MATCHES_PER_AI);
+        if (matchesPayload.length > MAX_MATCHES_PER_AI) {
+          console.log(`[${aiDisplayName}] 比赛数量过多(${matchesPayload.length}场)，限制为前${MAX_MATCHES_PER_AI}场`);
+        }
+        
+        console.log(`[${aiDisplayName}] 开始处理 ${limitedMatches.length} 场比赛`);
         
         // 第一步：并行分析所有比赛（大幅提升性能）
-        const analysisPromises = matchesPayload.map(async (match) => {
+        const analysisPromises = limitedMatches.map(async (match) => {
           const matchInfo = match.matchInfo;
           const defaultBetInfo = generateDefaultBetInfo('OVER', 50);
-          
-          console.log(`[${aiDisplayName}] 处理比赛 ${match.matchId}: ${matchInfo.homeTeam} vs ${matchInfo.awayTeam}`);
           
           // 检查是否已有分析记录
           const existingAnalysisRefs = await checkExistingAnalysis(match.matchId, aiId);
           
           if (existingAnalysisRefs && existingAnalysisRefs.length > 0) {
             // 已有分析记录，直接使用
-            console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 已有分析记录，跳过分析。已有记录ID: ${existingAnalysisRefs.map(r => r.id).join(', ')}`);
             
             // 从数据库获取已有的分析结果
             if (!supabase) {
@@ -1424,7 +1423,6 @@ serve(async (req) => {
             
             if (existingData && existingData.analysis) {
               // 构建已有的分析结果
-              console.log(`[${aiDisplayName}] 使用已有分析记录: id=${existingAnalysisRefs[0].id}, 分析长度=${existingData.analysis.length}`);
               const existingAnalysis: ModelAnalysisResult = {
                 ...modelConfig,
                 analysis: existingData.analysis,
@@ -1488,11 +1486,11 @@ serve(async (req) => {
           }
           
           // 没有已有分析，进行新分析
-          console.log(`[${aiDisplayName}] 开始分析比赛 ${match.matchId}: ${matchInfo.homeTeam} vs ${matchInfo.awayTeam}`);
-          
-          // 在分析之前，先获取市场赔率
-          const marketOdds = await getAllMarketOdds(match.matchId);
-          console.log(`[${aiDisplayName}] 市场赔率获取结果: ${marketOdds ? `大小球${marketOdds.overUnder?.length || 0}个, 让球盘${marketOdds.handicap?.length || 0}个` : '无'}`);
+          // 在分析之前，先获取市场赔率（限制超时，设置较短的超时时间）
+          const marketOdds = await Promise.race([
+            getAllMarketOdds(match.matchId),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)) // 5秒超时
+          ]);
           
           // 调用当前 AI 模型进行分析（只调用自己的模型）
           const analysis = await analyzeWithSingleModel(
@@ -1506,8 +1504,6 @@ serve(async (req) => {
 
           const analyses = [analysis]; // 包装成数组以保持兼容性
           const successfulAnalysis = analysis.analysis && !analysis.error ? analysis : null;
-          
-          console.log(`[${aiDisplayName}] 分析完成: ${successfulAnalysis ? '成功' : '失败'}, 错误: ${analysis.error || '无'}, 分析长度: ${analysis.analysis?.length || 0}`);
           
           // 保存 marketOdds 以便后续使用
           const savedMarketOdds = marketOdds;
@@ -1584,9 +1580,12 @@ serve(async (req) => {
           // 保存分析记录（包含输赢、大小球和让球盘预测）
           // 从已获取的市场赔率中查找真实赔率
           
-          // 获取输赢真实赔率（仍需要调用API，因为marketOdds中没有输赢赔率）
+          // 获取输赢真实赔率（设置超时，避免等待过久）
           const moneylineRealOdds = moneylinePick
-            ? await getMatchOdds(match.matchId, 'moneyline', moneylinePick)
+            ? await Promise.race([
+                getMatchOdds(match.matchId, 'moneyline', moneylinePick),
+                new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3秒超时
+              ])
             : null;
 
           const moneylineBetInfo: BetInfo | null = moneylinePick && moneylineConfidence
@@ -1612,9 +1611,12 @@ serve(async (req) => {
             }
           }
           
-          // 如果从市场赔率中没找到，尝试从API获取
+          // 如果从市场赔率中没找到，尝试从API获取（设置超时）
           if (!overUnderRealOdds && overUnderPick && overUnderLine) {
-            const apiOdds = await getMatchOdds(match.matchId, 'over_under', overUnderPick, overUnderLine, overUnderPick.toLowerCase());
+            const apiOdds = await Promise.race([
+              getMatchOdds(match.matchId, 'over_under', overUnderPick, overUnderLine, overUnderPick.toLowerCase()),
+              new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3秒超时
+            ]);
             // 确保API返回的赔率也在范围内
             if (apiOdds && isOddsInRange(apiOdds)) {
               overUnderRealOdds = apiOdds;
@@ -1646,9 +1648,12 @@ serve(async (req) => {
             }
           }
           
-          // 如果从市场赔率中没找到，尝试从API获取
+          // 如果从市场赔率中没找到，尝试从API获取（设置超时）
           if (!handicapRealOdds && handicapPick && handicapLine !== undefined) {
-            const apiOdds = await getMatchOdds(match.matchId, 'handicap', handicapPick, handicapLine);
+            const apiOdds = await Promise.race([
+              getMatchOdds(match.matchId, 'handicap', handicapPick, handicapLine),
+              new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3秒超时
+            ]);
             // 确保API返回的赔率也在范围内
             if (apiOdds && isOddsInRange(apiOdds)) {
               handicapRealOdds = apiOdds;
@@ -1691,7 +1696,6 @@ serve(async (req) => {
             primaryBet: finalBetInfo,
           };
           
-          console.log(`[${aiDisplayName}] 准备保存分析记录到数据库: matchId=${match.matchId}`);
           const analysisRefs = await persistAnalyses(
             match.matchId,
             aiId,
@@ -1701,7 +1705,6 @@ serve(async (req) => {
             analyses,
             allPredictions, // 传递完整的预测信息
           );
-          console.log(`[${aiDisplayName}] 分析记录保存完成: ${analysisRefs.length} 条引用, IDs: ${analysisRefs.map(r => r.id).join(', ') || 'none'}`);
 
           return {
             match,
@@ -1715,9 +1718,7 @@ serve(async (req) => {
         });
 
         // 等待所有分析完成
-        console.log(`[${aiDisplayName}] 等待所有比赛分析完成...`);
         const matchAnalyses = await Promise.all(analysisPromises);
-        console.log(`[${aiDisplayName}] 所有比赛分析完成，共 ${matchAnalyses.length} 场`);
 
         // 第二步：为每场比赛选择置信度最高的一个投注（只考虑大小球或让球盘，不考虑输赢预测）
         // 注意：虽然AI会预测输赢（moneyline），但在投注决策时不使用输赢预测
@@ -1806,7 +1807,9 @@ serve(async (req) => {
         for (const betToPlace of betsToPlace) {
           // 检查今天已下注次数
           const currentBetsCount = await getTodayBetsCount(aiId);
-          if (currentBetsCount >= maxBets) break;
+          if (currentBetsCount >= maxBets) {
+            break;
+          }
           
           // 重新获取最新余额
           if (!supabase) continue;
@@ -1833,20 +1836,26 @@ serve(async (req) => {
             // 如果数据库中没有有效赔率，尝试从 API 获取最新赔率
             let apiOdds: number | null = null;
             if (betToPlace.betInfo.betType === 'over_under') {
-              apiOdds = await getMatchOdds(
-                betToPlace.match.matchId,
-                'over_under',
-                betToPlace.betInfo.overUnderPick || betToPlace.betInfo.prediction,
-                betToPlace.betInfo.overUnderLine,
-                betToPlace.betInfo.overUnderPick
-              );
+              apiOdds = await Promise.race([
+                getMatchOdds(
+                  betToPlace.match.matchId,
+                  'over_under',
+                  betToPlace.betInfo.overUnderPick || betToPlace.betInfo.prediction,
+                  betToPlace.betInfo.overUnderLine,
+                  betToPlace.betInfo.overUnderPick
+                ),
+                new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3秒超时
+              ]);
             } else if (betToPlace.betInfo.betType === 'handicap') {
-              apiOdds = await getMatchOdds(
-                betToPlace.match.matchId,
-                'handicap',
-                betToPlace.betInfo.prediction,
-                betToPlace.betInfo.handicapLine
-              );
+              apiOdds = await Promise.race([
+                getMatchOdds(
+                  betToPlace.match.matchId,
+                  'handicap',
+                  betToPlace.betInfo.prediction,
+                  betToPlace.betInfo.handicapLine
+                ),
+                new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3秒超时
+              ]);
             }
             
             // 优先使用 API 获取的赔率（必须在范围内），如果失败则跳过这个投注

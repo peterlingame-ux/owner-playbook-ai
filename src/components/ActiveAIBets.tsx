@@ -377,12 +377,13 @@ const ActiveAIBets = () => {
           setMatches(matchesList);
         }
 
-        // Fetch auto bets (pending status for active predictions)
+        // Fetch auto bets (pending and confirmed status for active predictions)
         // 包含昨天和今天的投注（因为要显示昨天和今天的比赛）
+        // 显示 pending 和 confirmed 状态的投注（已确定但比赛未完成的投注）
         const { data: betsData, error: betsError } = await supabase
           .from('ai_auto_bets' as any)
           .select('*')
-          .eq('status', 'pending')
+          .in('status', ['pending', 'confirmed'])
           .gte('inserted_at', `${yesterdayStr}T00:00:00Z`)
           .order('inserted_at', { ascending: false });
 
@@ -682,7 +683,7 @@ const ActiveAIBets = () => {
       handicapLine: bet.handicap_line ?? undefined,
       overUnderLine: bet.over_under_line ?? undefined,
       overUnderPick: bet.over_under_pick ?? undefined,
-      confirmed: bet.status === 'pending',
+      confirmed: bet.status === 'confirmed' || bet.status === 'pending',
     };
   };
 
@@ -768,7 +769,7 @@ const ActiveAIBets = () => {
   const matchesWithBets = matches.filter(match => 
     autoBets.some(bet => bet.match_id === match.fixture_id)
   );
-
+  
   // Only show loading state on initial load, not on refresh
   if (isInitialLoading) {
     return (

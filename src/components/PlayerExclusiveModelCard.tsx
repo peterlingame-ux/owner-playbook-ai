@@ -82,8 +82,8 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
 
   // Demo mode for non-logged-in users
   const isDemo = !user || !userProfile;
-  const displayName = isDemo ? '体验玩家' : userProfile.display_name;
-  const avatarUrl = isDemo ? '/avatars/avatar-1.png' : userProfile.avatar_url;
+  const displayName = isDemo ? '体验玩家' : (userProfile?.display_name || '玩家');
+  const avatarUrl = isDemo ? '/avatars/avatar-1.png' : (userProfile?.avatar_url || '/avatars/avatar-1.png');
 
   // Calculate training trend data (last 7 days)
   const trendData = useMemo(() => {

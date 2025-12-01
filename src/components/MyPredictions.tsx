@@ -196,16 +196,21 @@ const MyPredictions = () => {
 
         if (profileData) {
           setUserProfile(profileData);
-          setEditDisplayName(profileData.display_name);
-          setSelectedAvatar(profileData.avatar_url);
+          setEditDisplayName(profileData.display_name || '');
+          setSelectedAvatar(profileData.avatar_url || '');
         }
 
         // 获取余额
-        const { data: balanceData } = await supabase
+        const { data: balanceData, error: balanceError } = await supabase
           .from('user_balances')
           .select('balance')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
+
+        // 如果查询出错且不是"无记录"错误，记录错误
+        if (balanceError && balanceError.code !== 'PGRST116') {
+          console.error('Error fetching balance:', balanceError);
+        }
 
         // 获取预测记录
         const { data: predictionsData } = await supabase
@@ -237,7 +242,7 @@ const MyPredictions = () => {
         const totalPredictions = predictionsData?.length || 0;
         const correctPredictions = predictionsData?.filter(p => p.result === 'win').length || 0;
         const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
-        const balance = balanceData?.balance || INITIAL_BALANCE;
+        const balance = balanceData?.balance ?? INITIAL_BALANCE;
         const profit = balance - INITIAL_BALANCE;
 
         // 关联比赛信息到预测记录
@@ -356,14 +361,16 @@ const MyPredictions = () => {
         }}
       >
         {/* 用户头像背景 */}
-        <div 
-          className="absolute inset-0 opacity-10 transition-opacity duration-300"
-          style={{
-            backgroundImage: `url(${userProfile?.avatar_url})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        />
+        {userProfile?.avatar_url && (
+          <div 
+            className="absolute inset-0 opacity-10 transition-opacity duration-300"
+            style={{
+              backgroundImage: `url(${userProfile.avatar_url})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          />
+        )}
         
         {/* 品牌色彩叠加层 */}
         <div 
@@ -388,7 +395,7 @@ const MyPredictions = () => {
                     borderColor: 'hsl(var(--primary))'
                   }}
                 >
-                  <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name} />
+                  <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.display_name || '用户'} />
                   <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-warning text-white font-black">
                     {userProfile?.display_name?.charAt(0) || '?'}
                   </AvatarFallback>
@@ -460,7 +467,7 @@ const MyPredictions = () => {
                       <Button
                         className="flex-1"
                         onClick={handleSaveProfile}
-                        disabled={isSaving || !editDisplayName.trim()}
+                        disabled={isSaving || !editDisplayName || !editDisplayName.trim()}
                       >
                         {isSaving ? "保存中..." : "保存"}
                       </Button>
@@ -471,7 +478,7 @@ const MyPredictions = () => {
               
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-lg leading-tight truncate text-white">
-                  {userProfile?.display_name}
+                  {userProfile?.display_name || '玩家'}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-1">
                   <Trophy className="h-3.5 w-3.5 text-warning" />

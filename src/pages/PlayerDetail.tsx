@@ -104,11 +104,16 @@ const PlayerDetail = () => {
           }
           
           // 获取余额
-          const { data: balanceData } = await supabase
+          const { data: balanceData, error: balanceError } = await supabase
             .from('user_balances')
             .select('balance')
             .eq('user_id', playerId)
-            .single();
+            .maybeSingle();
+
+          // 如果查询出错且不是"无记录"错误，记录错误
+          if (balanceError && balanceError.code !== 'PGRST116') {
+            console.error('Error fetching balance:', balanceError);
+          }
           
           // 获取预测记录
           const { data: predictionsData } = await supabase

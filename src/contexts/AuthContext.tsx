@@ -66,10 +66,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .from('user_balances')
       .select('balance, total_wagered, total_won, total_lost')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
-    if (!error && data) {
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching user balance:', error);
+      return;
+    }
+
+    if (data) {
       setUserBalance(data);
+    } else {
+      // 如果没有记录，使用默认值
+      setUserBalance({
+        balance: 10000,
+        total_wagered: 0,
+        total_won: 0,
+        total_lost: 0,
+      });
     }
   };
 

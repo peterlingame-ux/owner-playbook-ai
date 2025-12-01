@@ -123,14 +123,22 @@ export const PlaceBetDialog = ({ onBetPlaced }: PlaceBetDialogProps) => {
   const fetchUserBalance = async () => {
     if (!user) return;
     
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('user_balances')
       .select('balance')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
+    
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching user balance:', error);
+      return;
+    }
     
     if (data) {
       setUserBalance(data.balance);
+    } else {
+      // 如果没有记录，使用默认值
+      setUserBalance(10000);
     }
   };
 

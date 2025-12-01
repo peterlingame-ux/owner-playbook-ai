@@ -81,23 +81,142 @@ const History = () => {
   const [topPlayers, setTopPlayers] = useState<Array<{id: string, display_name: string, win_rate: number}>>([]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>("");
 
-  // 从数据库获取历史数据 - AI历史记录暂时为空（表未创建）
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        setIsLoading(true);
-        // sim_positions 表尚未创建，暂时返回空数组
-        setHistoryRecords([]);
-      } catch (error) {
-        console.error('Error fetching history:', error);
-        setHistoryRecords([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchHistory();
-  }, []);
+    // 从数据库获取历史数据
+    useEffect(() => {
+      const fetchHistory = async () => {
+        try {
+          setIsLoading(true);
+          
+          // 查询已结算的投注记录
+          const { data: positionsData, error: positionsError } = await supabase
+            .from('sim_positions' as any)
+            .select(`
+              id,
+              match_id,
+              ai_id,
+              status,
+              settled_at,
+              stake_amount,
+              odds,
+              bet_type,
+              metadata
+            `)
+            .eq('status', 'settled')
+            .not('settled_at', 'is', null)
+            .order('settled_at', { ascending: false });
+  
+          if (positionsError) {
+            console.error('Error fetching positions:', positionsError);
+            setHistoryRecords([]);
+            return;
+          }
+  
+          if (!positionsData || positionsData.length === 0) {
+            setHistoryRecords([]);
+            return;
+          }
+  
+          // 获取所有唯一的 match_id
+          const matchIds = [...new Set(positionsData.map((p: any) => p.match_id).filter(Boolean))];
+          
+          // 查询比赛信息
+          let matchesMap = new Map();
+          if (matchIds.length > 0) {
+            const { data: matchesData, error: matchesError } = await supabase
+              .from('daily_matches' as any)
+              .select('*')
+              .in('fixture_id', matchIds);
+  
+            if (!matchesError && matchesData) {
+              matchesData.forEach((match: any) => {
+                matchesMap.set(match.fixture_id, match);
+              });
+            }
+          }
+  
+          // 转换数据格式
+          const records: HistoryRecord[] = positionsData.map((position: any) => {
+            const metadata = position.metadata || {};
+            const settlement = metadata.settlement || {};
+            const result = settlement.result; // 'win', 'loss', 'push', 'void'
+            
+            // 从表的 bet_type 列读取，如果不存在则从 metadata 读取（向后兼容）
+            const betType = position.bet_type || metadata.bet_type || metadata.betType || 'moneyline';
+            
+            // 从 metadata 中提取预测信息
+            const prediction = metadata.prediction || position.prediction || 'HOME_WIN';
+            const confidence = metadata.confidence || 0;
+            // metadata 中可能使用驼峰命名，需要兼容两种格式
+            const handicapLine = metadata.handicap_line ?? metadata.handicapLine;
+            const overUnderLine = metadata.over_under_line ?? metadata.overUnderLine;
+            const overUnderPick = metadata.over_under_pick ?? metadata.overUnderPick;
+            
+            // 获取比赛信息
+            const match = position.match_id ? matchesMap.get(position.match_id) : null;
+            
+            // 计算实际结果（从比赛比分推断）
+            let actualResult: "HOME_WIN" | "AWAY_WIN" | "DRAW" | undefined;
+            if (match && match.goals_home !== null && match.goals_away !== null) {
+              if (match.goals_home > match.goals_away) {
+                actualResult = "HOME_WIN";
+              } else if (match.goals_away > match.goals_home) {
+                actualResult = "AWAY_WIN";
+              } else {
+                actualResult = "DRAW";
+              }
+            }
+            
+            // 判断是否正确（只考虑 win/loss，不考虑 push/void）
+            const correct = result === 'win';
+            
+            // 计算盈亏
+            const betAmount = position.stake_amount || 0;
+            const profit = correct ? betAmount * (position.odds - 1) : -betAmount;
+            
+            // 格式化日期
+            const settledDate = position.settled_at ? new Date(position.settled_at) : new Date();
+            const dateStr = settledDate.toISOString().split('T')[0];
+            
+            return {
+              id: position.id.toString(),
+              matchId: position.match_id?.toString() || '',
+              aiModel: position.ai_id || '',
+              prediction: prediction as "HOME_WIN" | "AWAY_WIN" | "DRAW",
+              actualResult,
+              correct,
+              confidence,
+              date: dateStr,
+              betType: betType as "moneyline" | "handicap" | "over_under",
+              handicapLine,
+              overUnderLine,
+              overUnderPick: overUnderPick as "over" | "under" | undefined,
+              odds: position.odds || 1,
+              betAmount,
+              profit,
+              match: match ? {
+                id: match.fixture_id?.toString() || '',
+                homeTeam: match.home_team_name || '',
+                awayTeam: match.away_team_name || '',
+                homeScore: match.goals_home,
+                awayScore: match.goals_away,
+                homeLogo: match.home_logo || undefined,
+                awayLogo: match.away_logo || undefined,
+                league: match.league_name || undefined,
+              } : undefined,
+            };
+          });
+  
+          setHistoryRecords(records);
+        } catch (error) {
+          console.error('Error fetching history:', error);
+          setHistoryRecords([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchHistory();
+    }, []);
 
   // 获取前十名玩家
   useEffect(() => {
