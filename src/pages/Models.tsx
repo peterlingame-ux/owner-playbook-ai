@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
-import MyPredictions from "@/components/MyPredictions";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -412,10 +411,6 @@ export default function Models() {
             </Card>
           </div>
         )}
-
-        <div className="px-2 sm:px-4 pb-20">
-          <MyPredictions />
-        </div>
       </main>
       {hasApiKey && (
         <api-sports-widget

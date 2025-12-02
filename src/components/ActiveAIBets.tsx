@@ -4,13 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3, Target } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
 import PlayerExclusiveModelCard from "@/components/PlayerExclusiveModelCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { PlaceBetDialog } from "./PlaceBetDialog";
+import { toast } from "@/hooks/use-toast";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -291,6 +292,7 @@ type AIBalance = {
   currency: string;
 };
 
+
 const ActiveAIBets = () => {
   const { t, i18n } = useTranslation();
   const { user, userProfile } = useAuth();
@@ -320,6 +322,10 @@ const ActiveAIBets = () => {
     analyses: [],
     isLoading: false,
   });
+
+  // State for PK dialog
+  const [pkDialogOpen, setPkDialogOpen] = useState(false);
+  const [pkSelectedMatch, setPkSelectedMatch] = useState<DailyMatch | null>(null);
 
   // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
@@ -524,6 +530,7 @@ const ActiveAIBets = () => {
     prevLanguage.current = i18n.language;
     // No need to fetch data, just let component re-render with new translations
   }, [i18n.language]);
+
 
   // Function to get match analysis directly from ai_match_analyses table
   const getMatchAnalysisFromDB = async (
@@ -763,6 +770,12 @@ const ActiveAIBets = () => {
       },
     };
     return colorMap[aiId] || colorMap.deepseek;
+  };
+
+  // PK Dialog function
+  const handleOpenPKDialog = (match: DailyMatch) => {
+    setPkSelectedMatch(match);
+    setPkDialogOpen(true);
   };
 
   // Get matches with bets (live or upcoming)
@@ -1019,12 +1032,31 @@ const ActiveAIBets = () => {
               <div className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3">
                  {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-primary/20 relative">
-                  {/* Analysis Button - Left Side */}
+                  {/* PK Button - Top Left */}
+                  {currentMatchData && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="absolute left-0 top-0 sm:left-1 sm:top-1 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-warning/50 bg-warning/10 hover:bg-warning/20 hover:border-warning z-10 group/pk flex items-center gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentMatchData) {
+                          handleOpenPKDialog(currentMatchData.match);
+                        }
+                      }}
+                      title="与AI同场PK"
+                    >
+                      <Target className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-warning group-hover/pk:scale-110 transition-transform" />
+                      <span className="text-[9px] sm:text-[9px] font-bold text-warning">PK</span>
+                    </Button>
+                  )}
+                  
+                  {/* Analysis Button - Left Side (below PK button) */}
                   {(moneylineBet || handicapBet || overUnderBet) && (
                     <Button
                       size="sm"
                       variant="outline"
-                      className="absolute left-0 top-0 sm:left-1 sm:top-1 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
+                      className="absolute left-0 top-7 sm:left-1 sm:top-8 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         if (currentMatchData) {
@@ -1405,6 +1437,23 @@ const ActiveAIBets = () => {
         analyses={analysisDialog.analyses}
         isLoading={analysisDialog.isLoading}
         matchInfo={analysisDialog.matchInfo}
+      />
+
+      {/* PK Dialog */}
+      <PlaceBetDialog
+        open={pkDialogOpen}
+        onOpenChange={setPkDialogOpen}
+        match={pkSelectedMatch ? {
+          fixture_id: pkSelectedMatch.fixture_id,
+          home_team_id: pkSelectedMatch.home_team_id || undefined,
+          home_team_name: pkSelectedMatch.home_team_name,
+          away_team_id: pkSelectedMatch.away_team_id || undefined,
+          away_team_name: pkSelectedMatch.away_team_name,
+          home_logo: pkSelectedMatch.home_logo || undefined,
+          away_logo: pkSelectedMatch.away_logo || undefined,
+          league_name: pkSelectedMatch.league_name,
+          kickoff_at: pkSelectedMatch.kickoff_at,
+        } : null}
       />
     </div>
   );

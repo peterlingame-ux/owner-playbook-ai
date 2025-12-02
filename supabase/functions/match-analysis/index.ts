@@ -164,13 +164,27 @@ const MODEL_CONFIGS: ModelConfig[] = [
   },
 ];
 
-const buildSystemPrompt = () => `你是一位专业的足球赛事分析专家。请从以下三个维度进行深度分析：
+const buildSystemPrompt = (userTrainingData?: string[]) => {
+  let prompt = `你是一位专业的足球赛事分析专家。请从以下三个维度进行深度分析：
 
 1. **球队老板层面分析**：分析球队投资、战略布局、近期管理层动态
 2. **球员技术面拆解**：分析关键球员状态、战术体系、阵容配置
 3. **异常赔率监测**：分析赔率波动、市场热度、投注趋势
 
 最后给出综合判断和投注建议。请用专业、简洁的语言，重点突出关键信息。`;
+
+  // 如果有用户训练数据，注入到系统提示词中
+  if (userTrainingData && userTrainingData.length > 0) {
+    prompt += `\n\n**重要：您的专属分析偏好与知识库**\n`;
+    prompt += `以下是从您之前的训练数据中提取的关键观点和分析偏好，请在分析时重点参考这些内容：\n\n`;
+    userTrainingData.forEach((data, index) => {
+      prompt += `${index + 1}. ${data}\n`;
+    });
+    prompt += `\n请结合以上您的专属知识，给出更符合您分析风格的预测。`;
+  }
+
+  return prompt;
+};
 
 type MarketOdds = {
   overUnder?: Array<{ line: number; over: number; under: number }>;
@@ -437,15 +451,85 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
       };
     }
 
-    // 限制处理的比赛数量，避免超时（最多处理 15 场）
+    // 如果比赛数量过多，按时间段每个小时挑选一场比赛
     const MAX_MATCHES = 15;
-    const limitedMatches = todayMatches.slice(0, MAX_MATCHES);
+    let selectedMatches = todayMatches;
+    
     if (todayMatches.length > MAX_MATCHES) {
-      console.log(`[normalizeMatchesPayload] 比赛数量过多(${todayMatches.length}场)，限制为前${MAX_MATCHES}场`);
+      console.log(`[normalizeMatchesPayload] 比赛数量过多(${todayMatches.length}场)，按时间段每个小时挑选一场比赛`);
+      
+      // 按小时分组比赛
+      const matchesByHour = new Map<string, any[]>();
+      
+      for (const match of todayMatches) {
+        if (!match.kickoff_at) continue;
+        
+        try {
+          const kickoffDate = new Date(match.kickoff_at);
+          // 使用 UTC+8 时区获取日期和小时（与数据库存储时区一致）
+          // 使用 Intl.DateTimeFormat 获取 UTC+8 时区的各个部分
+          const formatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Shanghai',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            hour12: false,
+          });
+          
+          const parts = formatter.formatToParts(kickoffDate);
+          const year = parts.find(p => p.type === 'year')?.value || '';
+          const month = parts.find(p => p.type === 'month')?.value || '';
+          const day = parts.find(p => p.type === 'day')?.value || '';
+          const hour = parts.find(p => p.type === 'hour')?.value || '';
+          
+          // 获取日期和小时，格式：YYYY-MM-DD-HH (例如：2025-11-21-14)
+          const dateHourKey = `${year}-${month}-${day}-${hour}`;
+          
+          if (!matchesByHour.has(dateHourKey)) {
+            matchesByHour.set(dateHourKey, []);
+          }
+          matchesByHour.get(dateHourKey)!.push(match);
+        } catch (error) {
+          console.warn(`[normalizeMatchesPayload] 解析比赛时间失败: ${match.kickoff_at}`, error);
+          // 如果解析失败，跳过该比赛
+          continue;
+        }
+      }
+      
+      // 每个小时选择一场比赛（选择最早的那场）
+      selectedMatches = [];
+      const sortedHours = Array.from(matchesByHour.keys()).sort();
+      
+      for (const hourKey of sortedHours) {
+        const matchesInHour = matchesByHour.get(hourKey)!;
+        // 按 kickoff_at 排序，选择最早的那场
+        const sortedMatches = matchesInHour.sort((a, b) => {
+          try {
+            const timeA = new Date(a.kickoff_at).getTime();
+            const timeB = new Date(b.kickoff_at).getTime();
+            return timeA - timeB;
+          } catch {
+            return 0;
+          }
+        });
+        
+        if (sortedMatches.length > 0) {
+          selectedMatches.push(sortedMatches[0]);
+        }
+      }
+      
+      console.log(`[normalizeMatchesPayload] 按小时分组后选出 ${selectedMatches.length} 场比赛`);
+      
+      // 如果按小时分组后仍然超过限制，再应用最大数量限制
+      if (selectedMatches.length > MAX_MATCHES) {
+        selectedMatches = selectedMatches.slice(0, MAX_MATCHES);
+        console.log(`[normalizeMatchesPayload] 按小时分组后仍然超过限制，限制为前${MAX_MATCHES}场`);
+      }
     }
 
     // 为每场比赛生成默认的 MatchRequest
-    const matches: MatchRequest[] = limitedMatches.map((match) => {
+    const matches: MatchRequest[] = selectedMatches.map((match) => {
       const matchInfo: MatchInfo = {
         league: match.league_name || 'Unknown League',
         homeTeam: match.home_team_name,
@@ -744,6 +828,30 @@ const createAutoBet = async (
   };
 };
 
+// 获取用户的训练数据
+const getUserTrainingData = async (userId?: string, limit: number = 10): Promise<string[]> => {
+  if (!userId || !supabase) return [];
+  
+  try {
+    const { data, error } = await supabase
+      .from('ai_training_history' as any)
+      .select('content')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('[getUserTrainingData] Error fetching training data:', error);
+      return [];
+    }
+    
+    return (data || []).map((item: any) => item.content);
+  } catch (error) {
+    console.error('[getUserTrainingData] Unexpected error:', error);
+    return [];
+  }
+};
+
 // 单个模型分析（用于每个AI独立分析）
 const analyzeWithSingleModel = async (
   OPENROUTER_API_KEY: string,
@@ -752,8 +860,15 @@ const analyzeWithSingleModel = async (
   modelConfig: ModelConfig,
   isDefaultBetInfo: boolean = false,
   marketOdds?: MarketOdds,
+  userId?: string, // 添加可选的 userId 参数
 ): Promise<ModelAnalysisResult> => {
-  const systemPrompt = buildSystemPrompt();
+  // 如果是专属模型且有 userId，获取用户的训练数据
+  let userTrainingData: string[] = [];
+  if (modelConfig.id === 'hunsoccermax' && userId) {
+    userTrainingData = await getUserTrainingData(userId, 10); // 获取最近10条训练数据
+  }
+  
+  const systemPrompt = buildSystemPrompt(userTrainingData.length > 0 ? userTrainingData : undefined);
   const userPrompt = buildUserPrompt(matchInfo, betInfo, modelConfig.displayName, isDefaultBetInfo, marketOdds);
   
   const startedAt = performance.now();
