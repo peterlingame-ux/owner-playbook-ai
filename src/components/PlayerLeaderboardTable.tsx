@@ -358,9 +358,9 @@ const PlayerLeaderboardTable = () => {
                           <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                           <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        {/* 奖牌徽章悬浮在头像上方 */}
-                        <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center ${config.glowColor} border-2 border-white`}>
-                          <span className="text-white font-bold text-sm">{rank}</span>
+                        {/* 奖杯图标在头像右上角 */}
+                        <div className={`absolute -top-1 -right-1 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center ${config.glowColor} border-2 border-white`}>
+                          <MedalIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" fill="white" />
                         </div>
                       </div>
                       <span className="text-lg sm:text-xl font-bold text-white text-center">{player.displayName}</span>
@@ -528,10 +528,27 @@ const PlayerLeaderboardTable = () => {
                         </TableCell>
                         <TableCell className="py-2 sm:py-3">
                           <div className="flex items-center gap-1.5 sm:gap-2.5">
-                            <Avatar className="w-6 h-6 sm:w-8 sm:h-8 border" style={{ borderColor: player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--border))' }}>
-                              <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-                              <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
-                            </Avatar>
+                            <div className="relative">
+                              <Avatar className="w-6 h-6 sm:w-8 sm:h-8 border" style={{ borderColor: player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--border))' }}>
+                                <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                                <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              {player.rank <= 3 && (
+                                <div 
+                                  className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-4 sm:h-4 rounded-full flex items-center justify-center"
+                                  style={{ 
+                                    backgroundColor: getRankColor(player.rank),
+                                    border: '1.5px solid white'
+                                  }}
+                                >
+                                  <Trophy 
+                                    className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-white" 
+                                    style={{ color: 'white' }}
+                                    fill="white"
+                                  />
+                                </div>
+                              )}
+                            </div>
                             <span className="font-semibold text-xs sm:text-sm truncate">{player.displayName}</span>
                           </div>
                         </TableCell>

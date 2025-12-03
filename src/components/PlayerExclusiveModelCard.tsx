@@ -27,7 +27,11 @@ import {
   BarChart3,
   Tag,
   FileText,
-  Calendar
+  Calendar,
+  Shield,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight
 } from "lucide-react";
 import {
   Dialog,
@@ -45,8 +49,36 @@ interface TrainingRecord {
   created_at: string;
 }
 
+interface BetData {
+  match: any; // Flexible match type to support different formats
+  aiId: string;
+  betType: string;
+  prediction: string;
+  confidence: number;
+  odds: number;
+  betAmount: number;
+  handicapLine?: number;
+  overUnderLine?: number;
+  overUnderPick?: string;
+  confirmed: boolean;
+}
+
 interface PlayerExclusiveModelCardProps {
   className?: string;
+  // Data from ActiveAIBets
+  currentMatchData?: { match: any; bets: BetData[] } | null;
+  moneylineBet?: BetData | null;
+  handicapBet?: BetData | null;
+  overUnderBet?: BetData | null;
+  balanceValue?: string;
+  matchIndex?: number;
+  matchEntries?: Array<{ match: any; bets: BetData[] }>;
+  onOpenPKDialog?: (match: any) => void;
+  onOpenAnalysis?: (matchId: number, aiId: string, match: any, aiModel: any) => void;
+  getTeamName?: (match: any, team: 'home' | 'away') => string;
+  getLeagueName?: (match: any) => string;
+  onPrevMatch?: (e: React.MouseEvent) => void;
+  onNextMatch?: (e: React.MouseEvent) => void;
 }
 
 // Common football-related keywords to extract
@@ -59,7 +91,129 @@ const FOOTBALL_KEYWORDS = [
   '爆冷', '热门', '冷门', '稳胆', '单关', '串关', '比分', '净胜', '总进球', '半全场'
 ];
 
-const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) => {
+// MatchTimeDisplay component for PlayerExclusiveModelCard
+const MatchTimeDisplay = ({ match }: { match: any }) => {
+  const { t } = useTranslation();
+  const [timeDisplay, setTimeDisplay] = useState<string>('');
+  const [showCountdown, setShowCountdown] = useState<boolean>(false);
+  const [isLive, setIsLive] = useState<boolean>(false);
+
+  useEffect(() => {
+    const updateTime = () => {
+      const status = match.status_short;
+      
+      if (status !== 'NS') {
+        setShowCountdown(false);
+        const showScoreAndTimeStatuses = ['LIVE', '1H', 'HT', '2H', 'ET'];
+        const shouldShowScore = showScoreAndTimeStatuses.includes(status);
+        setIsLive(shouldShowScore);
+        
+        if (shouldShowScore) {
+          const elapsed = match.status_elapsed;
+          switch (status) {
+            case 'HT':
+              setTimeDisplay(t('half_time') || '半场');
+              break;
+            case '1H':
+            case '2H':
+            case 'ET':
+            case 'LIVE':
+              setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
+              break;
+            default:
+              setTimeDisplay(status);
+              break;
+          }
+        } else {
+          setIsLive(false);
+          switch (status) {
+            case 'P':
+              setTimeDisplay('PEN');
+              break;
+            case 'BREAK':
+              setTimeDisplay('BREAK');
+              break;
+            default:
+              setTimeDisplay(status);
+              break;
+          }
+        }
+        return;
+      }
+      
+      setIsLive(false);
+      setShowCountdown(true);
+      const kickoffTime = new Date(match.kickoff_at);
+      const now = new Date();
+      const diff = kickoffTime.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setTimeDisplay(t('starting_soon') || '即将开始');
+        return;
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    
+    return () => clearInterval(interval);
+  }, [match.status_short, match.status_elapsed, match.kickoff_at, t]);
+
+  const homeScore = match.goals_home ?? 0;
+  const awayScore = match.goals_away ?? 0;
+
+  return (
+    <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
+      {isLive ? (
+        <>
+          <div className="flex items-center gap-1 sm:gap-1">
+            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{homeScore}</span>
+            <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
+            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{awayScore}</span>
+          </div>
+          <span className="text-[7px] sm:text-[7px] text-success font-bold font-mono uppercase">
+            {timeDisplay}
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+          {showCountdown && (
+            <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
+              {t('until_match_starts') || '距离比赛开始'}
+            </span>
+          )}
+          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
+            {timeDisplay}
+          </span>
+        </>
+      )}
+    </div>
+  );
+};
+
+const PlayerExclusiveModelCard = ({ 
+  className,
+  currentMatchData,
+  moneylineBet,
+  handicapBet,
+  overUnderBet,
+  balanceValue,
+  matchIndex = 0,
+  matchEntries = [],
+  onOpenPKDialog,
+  onOpenAnalysis,
+  getTeamName,
+  getLeagueName,
+  onPrevMatch,
+  onNextMatch
+}: PlayerExclusiveModelCardProps) => {
   const { t } = useTranslation();
   const { user, userProfile } = useAuth();
   const [showFeedDialog, setShowFeedDialog] = useState(false);
@@ -180,20 +334,37 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
   };
 
   const saveTrainingData = async (content: string) => {
-    if (!user) return false;
-    
-    const { error } = await supabase
-      .from('ai_training_history')
-      .insert({
-        user_id: user.id,
-        content: content
-      });
-    
-    if (error) {
-      console.error('Error saving training data:', error);
+    if (!user) {
+      console.error('User not authenticated');
       return false;
     }
-    return true;
+    
+    try {
+      const { data, error } = await supabase
+        .from('ai_training_history')
+        .insert({
+          user_id: user.id,
+          content: content
+        })
+        .select(); // 返回插入的数据，用于验证
+      
+      if (error) {
+        console.error('Error saving training data:', error);
+        toast.error(`保存失败: ${error.message}`);
+        return false;
+      }
+      
+      if (data && data.length > 0) {
+        console.log('Training data saved successfully:', data[0].id);
+        return true;
+      }
+      
+      return false;
+    } catch (err) {
+      console.error('Unexpected error saving training data:', err);
+      toast.error('保存失败，请检查网络连接');
+      return false;
+    }
   };
 
   const deleteTrainingRecord = async (id: string) => {
@@ -244,14 +415,25 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
     
     if (isDemo) {
       toast.info('请先登录以保存训练数据');
-    } else {
-      const saved = await saveTrainingData(feedText.trim());
-      if (!saved) {
-        toast.error('保存训练数据失败');
-        return;
-      }
+      // 演示模式下不执行训练动画
+      return;
     }
     
+    // 保存训练数据
+    const saved = await saveTrainingData(feedText.trim());
+    if (!saved) {
+      toast.error('保存训练数据失败，请稍后重试');
+      return;
+    }
+    
+    // 保存成功后立即更新训练计数和历史记录
+    setTrainingCount(prev => prev + 1);
+    // 延迟获取历史记录，确保数据库已写入
+    setTimeout(() => {
+      fetchTrainingHistory();
+    }, 500);
+    
+    // 开始训练动画
     setCurrentStep(0);
     setIsFeeding(true);
     setFeedProgress(0);
@@ -270,8 +452,9 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
 
   const handleFeedComplete = () => {
     toast.success('AI训练完成！您的专属模型已更新');
-    if (!isDemo) {
-      setTrainingCount(prev => prev + 1);
+    // 训练计数和历史记录已在 handleFeedSubmit 中更新，这里只需刷新一次确保数据同步
+    if (!isDemo && user) {
+      fetchTrainingCount();
       fetchTrainingHistory();
     }
     setFeedText('');
@@ -288,18 +471,82 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
     return 'bg-amber-500/30 text-amber-200';
   };
 
+  // Helper functions with fallbacks
+  const safeGetTeamName = (match: any, team: 'home' | 'away') => {
+    if (getTeamName) return getTeamName(match, team);
+    return team === 'home' ? (match?.home_team_name || '主队') : (match?.away_team_name || '客队');
+  };
+
+  const safeGetLeagueName = (match: any) => {
+    if (getLeagueName) return getLeagueName(match);
+    return match?.league_name || '联赛';
+  };
+
+  const bet = handicapBet || overUnderBet || moneylineBet;
+
   return (
     <>
       <Card 
-        className={`relative rounded-xl p-3 sm:p-3 md:p-4 bg-gradient-to-br from-amber-500/20 via-card to-amber-600/10 hover:shadow-2xl transition-all duration-500 border-2 border-amber-500/40 hover:border-amber-500/60 overflow-hidden group hover:scale-105 cursor-pointer ${className}`}
-        onClick={() => setShowFeedDialog(true)}
+        className={`relative rounded-xl p-3 sm:p-3 md:p-4 bg-gradient-to-br from-amber-500/20 via-card to-amber-600/10 hover:shadow-2xl transition-all duration-500 border-2 border-amber-500/40 hover:border-amber-500/60 overflow-hidden group ${className}`}
+        onClick={onNextMatch}
       >
-        {/* Badges */}
-        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
-          <Badge className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 shadow-lg">
-            <Sparkles className="h-2.5 w-2.5 mr-1" />
-            专属模型
-          </Badge>
+        {/* Top Right Section */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex flex-col items-end gap-2">
+          {/* Match Pagination - Top */}
+          {matchEntries.length > 1 && (
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onPrevMatch) onPrevMatch(e);
+                }}
+              >
+                <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              </Button>
+              <Badge 
+                variant="secondary"
+                className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80"
+              >
+                {matchIndex + 1}/{matchEntries.length}
+              </Badge>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onNextMatch) onNextMatch(e);
+                }}
+              >
+                <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              </Button>
+            </div>
+          )}
+          
+          {/* Exclusive Model Badge and AI Feed Button */}
+          <div className="flex flex-col items-end gap-1.5">
+            <Badge className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 shadow-lg">
+              <Sparkles className="h-2.5 w-2.5 mr-1" />
+              专属模型
+            </Badge>
+            <Button 
+              size="sm"
+              className="h-auto px-2 sm:px-2.5 py-1 sm:py-1.5 relative overflow-hidden group/btn border font-bold text-[9px] sm:text-[10px] bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border-amber-500/40 text-amber-300 hover:scale-105 transition-all"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                setShowFeedDialog(true); 
+              }}
+            >
+              <div className="relative flex items-center justify-center gap-1 sm:gap-1.5">
+                <Brain className="h-3 w-3 sm:h-3.5 sm:w-3.5 group-hover/btn:animate-pulse" />
+                <span>AI投喂</span>
+              </div>
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </Button>
+          </div>
         </div>
 
         {trainingCount > 0 && (
@@ -307,6 +554,18 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
             <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
               <History className="h-2.5 w-2.5 mr-1" />
               {trainingCount}次训练
+            </Badge>
+          </div>
+        )}
+
+        {/* No Bets Indicator */}
+        {!currentMatchData && (
+          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
+            <Badge 
+              variant="outline"
+              className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-muted/80 text-muted-foreground"
+            >
+              {t('no_bets')}
             </Badge>
           </div>
         )}
@@ -322,7 +581,54 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
         
         {/* Content */}
         <div className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3">
-          <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-amber-500/20">
+          {/* Header with Avatar and Balance */}
+          <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-amber-500/20 relative">
+            {/* Buttons Container - Left Side */}
+            <div className="absolute left-0 top-0 sm:left-1 sm:top-1 z-10 flex flex-col gap-2">
+              {/* PK Button */}
+              {currentMatchData && onOpenPKDialog && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-warning/50 bg-warning/10 hover:bg-warning/20 hover:border-warning group/pk flex items-center gap-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (currentMatchData && onOpenPKDialog) {
+                      onOpenPKDialog(currentMatchData.match);
+                    }
+                  }}
+                  title="与AI同场PK"
+                >
+                  <Target className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-warning group-hover/pk:scale-110 transition-transform" />
+                  <span className="text-[9px] sm:text-[9px] font-bold text-warning">PK</span>
+                </Button>
+              )}
+              
+              {/* Analysis Button - Below PK button */}
+              {bet && currentMatchData && onOpenAnalysis && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-500 group/analyze flex items-center gap-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (currentMatchData && onOpenAnalysis) {
+                      onOpenAnalysis(
+                        currentMatchData.match.fixture_id,
+                        'hunsoccermax',
+                        currentMatchData.match,
+                        { id: 'hunsoccermax', displayName: 'HUNSOCCER MAX' }
+                      );
+                    }
+                  }}
+                  title="查看分析"
+                >
+                  <BarChart3 className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-amber-500 group-hover/analyze:scale-110 transition-transform" />
+                  <span className="text-[9px] sm:text-[9px] font-bold text-amber-500">查看分析</span>
+                </Button>
+              )}
+            </div>
+
             <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-amber-500/60 shadow-2xl group-hover:ring-amber-500/80 transition-all">
               <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
               <AvatarFallback className="text-sm sm:text-sm md:text-lg font-bold bg-gradient-to-br from-amber-500 to-yellow-500 text-black">
@@ -331,23 +637,331 @@ const PlayerExclusiveModelCard = ({ className }: PlayerExclusiveModelCardProps) 
             </Avatar>
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-[11px] sm:text-xs font-bold text-amber-400">{displayName}</span>
-              <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">专属AI模型</span>
+              <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
+              <Badge variant="outline" className="text-xs sm:text-xs font-mono-data font-bold px-2 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
+                {balanceValue || '$10,000.00'}
+              </Badge>
             </div>
           </div>
 
-          <div className="pt-2 space-y-2">
-            <Button 
-              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border-amber-500/40 text-amber-300 hover:scale-105 transition-all"
-              onClick={(e) => { e.stopPropagation(); setShowFeedDialog(true); }}
-            >
-              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
-                <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:animate-pulse" />
-                <span>AI投喂</span>
+          {/* Match Info */}
+          {currentMatchData ? (
+            <div className="space-y-1 sm:space-y-1 py-1 sm:py-1">
+              <Badge variant="outline" className="text-[9px] sm:text-[9px] w-full justify-center py-1">
+                {safeGetLeagueName(currentMatchData.match)}
+              </Badge>
+              
+              {/* Teams with Logos */}
+              <div className="flex items-center justify-between gap-1 sm:gap-1 px-1">
+                <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
+                  {currentMatchData.match.home_logo ? (
+                    <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                      <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
+                      <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                    </div>
+                  )}
+                  <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
+                    {safeGetTeamName(currentMatchData.match, 'home')}
+                  </p>
+                </div>
+                
+                {/* Match Time Display */}
+                <MatchTimeDisplay match={currentMatchData.match} />
+                
+                <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
+                  <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
+                    {safeGetTeamName(currentMatchData.match, 'away')}
+                  </p>
+                  {currentMatchData.match.away_logo ? (
+                    <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
+                      <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
+                      <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-            </Button>
-            <p className="text-[8px] sm:text-[9px] text-center text-muted-foreground">输入文字训练您的专属AI模型</p>
-          </div>
+            </div>
+          ) : (
+            <div className="space-y-2 py-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                {t('no_active_predictions')}
+              </p>
+              <p className="text-xs text-muted-foreground/70">
+                {t('no_bets_for_ai')}
+              </p>
+            </div>
+          )}
+
+          {/* Betting Predictions */}
+          {handicapBet && currentMatchData && (
+            <div className="space-y-2 pt-1.5 sm:pt-1.5 border-t-2 border-amber-500/20">
+              <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
+                <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
+                  <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {t('bet_slip')}
+                  </p>
+                  <Badge 
+                    variant={handicapBet.confirmed ? "default" : "outline"}
+                    className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
+                      handicapBet.confirmed 
+                        ? "bg-success/20 text-success border-success/50" 
+                        : "bg-destructive/20 text-destructive border-destructive/50"
+                    }`}
+                  >
+                    {handicapBet.confirmed ? "已确定" : "未确定"}
+                  </Badge>
+                </div>
+                
+                <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
+                  <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-amber-500/15 text-amber-500 border-amber-500/40 px-2 sm:px-2 py-1 sm:py-1">
+                        {handicapBet.prediction === 'HOME_WIN' || handicapBet.prediction === 'HOME' 
+                          ? safeGetTeamName(currentMatchData.match, 'home')
+                          : handicapBet.prediction === 'AWAY_WIN' || handicapBet.prediction === 'AWAY' 
+                          ? safeGetTeamName(currentMatchData.match, 'away')
+                          : t('draw')}
+                        {handicapBet.handicapLine !== undefined && (
+                          <span className="ml-1 font-mono-data">
+                            {handicapBet.handicapLine > 0 ? '+' : ''}{handicapBet.handicapLine}
+                          </span>
+                        )}
+                      </Badge>
+                      <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
+                        {handicapBet.confidence}% {t('confidence')}
+                      </Badge>
+                    </div>
+                    <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
+                      @{Math.max(0, handicapBet.odds - 1).toFixed(2)}
+                    </Badge>
+                  </div>
+                  
+                  {/* Handicap Selection */}
+                  <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
+                    <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
+                      {t('handicap_bet')}
+                    </p>
+                    <div className="grid grid-cols-2 gap-1">
+                      <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
+                        handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
+                          ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
+                          : "bg-card border-border/50"
+                      }`}>
+                        {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") && (
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                        )}
+                        <div className="flex items-center gap-1">
+                          {currentMatchData?.match.home_logo ? (
+                            <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
+                              <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
+                              <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
+                            </Avatar>
+                          ) : null}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[7px] sm:text-[8px] font-medium truncate">{safeGetTeamName(currentMatchData!.match, 'home')}</p>
+                          </div>
+                          {handicapBet.handicapLine !== undefined && (
+                            <Badge variant={(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
+                              {(() => {
+                                const homeLine = (handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") 
+                                  ? handicapBet.handicapLine 
+                                  : -handicapBet.handicapLine;
+                                return homeLine > 0 ? `+${homeLine}` : `${homeLine}`;
+                              })()}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
+                        handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
+                          ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
+                          : "bg-card border-border/50"
+                      }`}>
+                        {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") && (
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                        )}
+                        <div className="flex items-center gap-1">
+                          {currentMatchData?.match.away_logo ? (
+                            <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
+                              <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
+                              <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
+                            </Avatar>
+                          ) : null}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[7px] sm:text-[8px] font-medium truncate">{safeGetTeamName(currentMatchData!.match, 'away')}</p>
+                          </div>
+                          {handicapBet.handicapLine !== undefined && (
+                            <Badge variant={(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
+                              {(() => {
+                                const awayLine = (handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") 
+                                  ? handicapBet.handicapLine 
+                                  : -handicapBet.handicapLine;
+                                return awayLine > 0 ? `+${awayLine}` : `${awayLine}`;
+                              })()}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Financial Details */}
+                  <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1 border-t border-border/30">
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                        {t('bet_amount')}
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                        ${handicapBet.betAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                        {t('odds')}
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                        {Math.max(0, handicapBet.odds - 1).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
+                      <span className="text-[9px] sm:text-[9px] text-success font-bold">
+                        {t('potential_return')}
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
+                        ${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {overUnderBet && currentMatchData && (
+            <div className={`space-y-2 ${handicapBet ? 'pt-2' : 'pt-1.5 sm:pt-1.5 border-t-2 border-amber-500/20'}`}>
+              <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
+                <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
+                  <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {t('bet_slip')}
+                  </p>
+                  <Badge 
+                    variant={overUnderBet.confirmed ? "default" : "outline"}
+                    className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
+                      overUnderBet.confirmed 
+                        ? "bg-success/20 text-success border-success/50" 
+                        : "bg-destructive/20 text-destructive border-destructive/50"
+                    }`}
+                  >
+                    {overUnderBet.confirmed ? "已确定" : "未确定"}
+                  </Badge>
+                </div>
+                
+                <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
+                  <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-amber-500/15 text-amber-500 border-amber-500/40 px-2 sm:px-2 py-1 sm:py-1">
+                        {overUnderBet.overUnderLine} ({overUnderBet.overUnderPick === 'over' ? t('over') : t('under')})
+                      </Badge>
+                      <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
+                        {overUnderBet.confidence}% {t('confidence')}
+                      </Badge>
+                    </div>
+                    <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
+                      @{Math.max(0, overUnderBet.odds - 1).toFixed(2)}
+                    </Badge>
+                  </div>
+                  
+                  {/* Over/Under Selection */}
+                  <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
+                    <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
+                      {t('over_under_bet')}
+                    </p>
+                    <div className="grid grid-cols-2 gap-1">
+                      {/* 大球选项 */}
+                      {(() => {
+                        const isSelected = overUnderBet.overUnderPick === 'over';
+                        return (
+                          <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
+                            isSelected
+                              ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
+                              : "bg-card border-border/50"
+                          }`}>
+                            {isSelected && (
+                              <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                            )}
+                            <div className="flex items-center gap-1 justify-center">
+                              <p className="text-[7px] sm:text-[8px] font-medium">{t('over')}</p>
+                              <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
+                                {overUnderBet.overUnderLine}
+                              </Badge>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {/* 小球选项 */}
+                      {(() => {
+                        const isSelected = overUnderBet.overUnderPick === 'under';
+                        return (
+                          <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
+                            isSelected
+                              ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
+                              : "bg-card border-border/50"
+                          }`}>
+                            {isSelected && (
+                              <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                            )}
+                            <div className="flex items-center gap-1 justify-center">
+                              <p className="text-[7px] sm:text-[8px] font-medium">{t('under')}</p>
+                              <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
+                                {overUnderBet.overUnderLine}
+                              </Badge>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                  
+                  {/* Financial Details */}
+                  <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1 border-t border-border/30">
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                        {t('bet_amount')}
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                        ${overUnderBet.betAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
+                        {t('odds')}
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
+                        {Math.max(0, overUnderBet.odds - 1).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
+                      <span className="text-[9px] sm:text-[9px] text-success font-bold">
+                        {t('potential_return')}
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
+                        ${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </Card>
 

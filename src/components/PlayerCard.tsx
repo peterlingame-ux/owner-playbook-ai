@@ -2,12 +2,12 @@ import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
-import { Trophy, Heart } from "lucide-react";
+import { Trophy, PlayCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface PlayerCardProps {
   player: {
@@ -28,16 +28,6 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = player.changePercent > 0;
-  const [isFollowed, setIsFollowed] = useState(false);
-  
-  // 从localStorage加载关注状态
-  useEffect(() => {
-    const savedFollows = localStorage.getItem('followedPlayers');
-    if (savedFollows) {
-      const follows = new Set(JSON.parse(savedFollows));
-      setIsFollowed(follows.has(player.id));
-    }
-  }, [player.id]);
   
   // 动画效果：从较低的值开始动画到实际值
   const animatedWinRate = useCountAnimation(player.winRate, { 
@@ -96,28 +86,22 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     navigate(`/player/${player.id}`);
   };
   
-  const handleFollowToggle = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 阻止卡片点击事件
-    
-    const savedFollows = localStorage.getItem('followedPlayers');
-    const follows = new Set(savedFollows ? JSON.parse(savedFollows) : []);
-    
-    if (follows.has(player.id)) {
-      follows.delete(player.id);
-      setIsFollowed(false);
-      toast.success(`已取消关注 ${player.displayName}`);
-    } else {
-      follows.add(player.id);
-      setIsFollowed(true);
-      toast.success(`已关注 ${player.displayName}`);
-    }
-    
-    localStorage.setItem('followedPlayers', JSON.stringify(Array.from(follows)));
+  const handleFollowPlayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.info(t('copy_trade_player_unavailable_desc') || '关注玩家功能即将上线，敬请期待！');
   };
   
   const formattedProfit = player.profit >= 0 
     ? `+$${player.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : `-$${Math.abs(player.profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  // 按钮渐变颜色计算
+  const rankColor = getRankColor(player.rank);
+  const withOpacity = (color: string, opacity: number) =>
+    color.includes("/") ? color : color.replace(")", ` / ${opacity})`);
+  const buttonGradientStart = withOpacity(rankColor, 0.18);
+  const buttonGradientEnd = withOpacity(rankColor, 0.08);
+  const buttonBorderColor = withOpacity(rankColor, 0.3);
   
   return (
     <Card 
@@ -127,42 +111,6 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
         borderColor: getRankColor(player.rank)
       }}
     >
-      {/* Rank Badge and Follow Button */}
-      <div className="absolute top-2 right-2 z-20 flex items-start gap-2">
-        <Button
-          size="sm"
-          variant={isFollowed ? "default" : "outline"}
-          onClick={handleFollowToggle}
-          className={`
-            transition-all duration-300 h-8 w-8 p-0
-            ${isFollowed 
-              ? 'bg-primary/20 hover:bg-primary/30 border-primary/40' 
-              : 'bg-card/80 hover:bg-card border-border/60'
-            }
-          `}
-        >
-          <Heart 
-            className={`h-4 w-4 transition-all ${isFollowed ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
-          />
-        </Button>
-        
-        <motion.div 
-          className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-sm border"
-          style={{ 
-            backgroundColor: `${getRankColor(player.rank).replace(')', ' / 0.2)')}`,
-            borderColor: getRankColor(player.rank)
-          }}
-          {...getBadgeAnimation(player.rank)}
-        >
-          <motion.div {...getTrophyAnimation(player.rank)}>
-            <Trophy className="h-3 w-3 sm:h-4 sm:w-4" style={{ color: getRankColor(player.rank) }} />
-          </motion.div>
-          <span className="text-xs sm:text-sm font-bold" style={{ color: getRankColor(player.rank) }}>
-            #{player.rank}
-          </span>
-        </motion.div>
-      </div>
-
       {/* Background gradient */}
       <div 
         className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300"
@@ -178,10 +126,32 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-            <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-2 shrink-0" style={{ borderColor: getRankColor(player.rank) }}>
-              <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-              <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <div className="relative shrink-0">
+              <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-2" style={{ borderColor: getRankColor(player.rank) }}>
+                <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              {player.rank <= 3 && (
+                <motion.div 
+                  className="absolute -top-1 -right-1 z-10"
+                  {...getTrophyAnimation(player.rank)}
+                >
+                  <div 
+                    className="rounded-full p-0.5 sm:p-1 backdrop-blur-sm border"
+                    style={{ 
+                      backgroundColor: `${getRankColor(player.rank).replace(')', ' / 0.9)')}`,
+                      borderColor: getRankColor(player.rank)
+                    }}
+                  >
+                    <Trophy 
+                      className="h-3 w-3 sm:h-4 sm:w-4" 
+                      style={{ color: 'white' }}
+                      fill="white"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </div>
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <h3 className="font-bold text-xs sm:text-sm leading-tight text-foreground truncate">
                 {player.displayName}
@@ -240,6 +210,37 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
                 {player.totalPredictions - player.correctPredictions}
               </p>
             </div>
+          </div>
+          
+          {/* Follow Player Button */}
+          <div className="pt-2 sm:pt-2.5 border-t border-border/50">
+            <Button 
+              onClick={handleFollowPlayer}
+              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
+              style={{
+                background: `linear-gradient(to right, ${buttonGradientStart}, ${buttonGradientEnd})`,
+                borderColor: buttonBorderColor,
+                color: 'hsl(255 100% 100%)',
+              }}
+            >
+              {/* Football field pattern overlay */}
+              <div 
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: `url(${footballFieldBg})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              
+              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
+                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px] group-hover/btn:animate-pulse" />
+                <span>{t('copy_trade_player')}</span>
+              </div>
+              
+              {/* Animated shine effect */}
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </Button>
           </div>
         </div>
       </div>

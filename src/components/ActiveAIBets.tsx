@@ -1032,49 +1032,52 @@ const ActiveAIBets = () => {
               <div className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3">
                  {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-primary/20 relative">
-                  {/* PK Button - Top Left */}
-                  {currentMatchData && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute left-0 top-0 sm:left-1 sm:top-1 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-warning/50 bg-warning/10 hover:bg-warning/20 hover:border-warning z-10 group/pk flex items-center gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (currentMatchData) {
-                          handleOpenPKDialog(currentMatchData.match);
-                        }
-                      }}
-                      title="与AI同场PK"
-                    >
-                      <Target className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-warning group-hover/pk:scale-110 transition-transform" />
-                      <span className="text-[9px] sm:text-[9px] font-bold text-warning">PK</span>
-                    </Button>
-                  )}
-                  
-                  {/* Analysis Button - Left Side (below PK button) */}
-                  {(moneylineBet || handicapBet || overUnderBet) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute left-0 top-7 sm:left-1 sm:top-8 h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary z-10 group/analyze flex items-center gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (currentMatchData) {
-                          // 直接从 ai_match_analyses 表获取分析数据
-                          getMatchAnalysisFromDB(
-                            currentMatchData.match.fixture_id,
-                            aiModel.id,
-                            convertMatch(currentMatchData.match),
-                            aiModel
-                          );
-                        }
-                      }}
-                      title="查看分析"
-                    >
-                      <BarChart3 className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
-                      <span className="text-[9px] sm:text-[9px] font-bold text-primary">查看分析</span>
-                    </Button>
-                  )}
+                  {/* Buttons Container - Left Side */}
+                  <div className="absolute left-0 top-0 sm:left-1 sm:top-1 z-10 flex flex-col gap-2">
+                    {/* PK Button */}
+                    {currentMatchData && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-warning/50 bg-warning/10 hover:bg-warning/20 hover:border-warning group/pk flex items-center gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (currentMatchData) {
+                            handleOpenPKDialog(currentMatchData.match);
+                          }
+                        }}
+                        title="与AI同场PK"
+                      >
+                        <Target className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-warning group-hover/pk:scale-110 transition-transform" />
+                        <span className="text-[9px] sm:text-[9px] font-bold text-warning">PK</span>
+                      </Button>
+                    )}
+                    
+                    {/* Analysis Button - Below PK button */}
+                    {(moneylineBet || handicapBet || overUnderBet) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-primary/50 bg-primary/10 hover:bg-primary/20 hover:border-primary group/analyze flex items-center gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (currentMatchData) {
+                            // 直接从 ai_match_analyses 表获取分析数据
+                            getMatchAnalysisFromDB(
+                              currentMatchData.match.fixture_id,
+                              aiModel.id,
+                              convertMatch(currentMatchData.match),
+                              aiModel
+                            );
+                          }
+                        }}
+                        title="查看分析"
+                      >
+                        <BarChart3 className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-primary group-hover/analyze:scale-110 transition-transform" />
+                        <span className="text-[9px] sm:text-[9px] font-bold text-primary">查看分析</span>
+                      </Button>
+                    )}
+                  </div>
                   
                   <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-primary/40 shadow-2xl group-hover:ring-primary/60 transition-all">
                     <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
@@ -1427,7 +1430,70 @@ const ActiveAIBets = () => {
         })}
         
         {/* Player Exclusive Model Card - replaces hunsoccermax */}
-        <PlayerExclusiveModelCard />
+        {(() => {
+          // Get hunsoccermax model data
+          const hunsoccermaxModel = aiModels.find(ai => ai.id === 'hunsoccermax');
+          if (!hunsoccermaxModel) return null;
+
+          // Find hunsoccermax bets from database, grouped by match
+          const betsByMatch = new Map<number, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
+          
+          matchesWithBets.forEach(match => {
+            const matchBets = autoBets
+              .filter(b => b.match_id === match.fixture_id && b.ai_id === 'hunsoccermax')
+              .map(bet => convertBet(bet, match));
+            
+            if (matchBets.length > 0) {
+              betsByMatch.set(match.fixture_id, { match, bets: matchBets });
+            }
+          });
+
+          // Get current match index for hunsoccermax
+          const matchIndex = currentMatchIndex['hunsoccermax'] || 0;
+          const matchEntries = Array.from(betsByMatch.values());
+          const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
+          
+          // Separate bets by type
+          const moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+          const handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
+          const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          
+          // Get AI balance
+          const balance = aiBalances['hunsoccermax'];
+          const balanceValue = balance 
+            ? `$${(balance.available_balance + balance.locked_balance).toLocaleString()}`
+            : hunsoccermaxModel.currentValue;
+
+          return (
+            <PlayerExclusiveModelCard
+              currentMatchData={currentMatchData as any}
+              moneylineBet={moneylineBet as any}
+              handicapBet={handicapBet as any}
+              overUnderBet={overUnderBet as any}
+              balanceValue={balanceValue}
+              matchIndex={matchIndex}
+              matchEntries={matchEntries as any}
+              onOpenPKDialog={handleOpenPKDialog}
+              onOpenAnalysis={getMatchAnalysisFromDB}
+              getTeamName={getTeamName}
+              getLeagueName={getLeagueName}
+              onPrevMatch={(e) => {
+                e.stopPropagation();
+                setCurrentMatchIndex(prev => ({
+                  ...prev,
+                  'hunsoccermax': ((prev['hunsoccermax'] || 0) - 1 + matchEntries.length) % matchEntries.length
+                }));
+              }}
+              onNextMatch={(e) => {
+                e.stopPropagation();
+                setCurrentMatchIndex(prev => ({
+                  ...prev,
+                  'hunsoccermax': ((prev['hunsoccermax'] || 0) + 1) % matchEntries.length
+                }));
+              }}
+            />
+          );
+        })()}
       </div>
       
       <MatchAnalysisDialog
