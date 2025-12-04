@@ -243,7 +243,7 @@ const LeaderboardTable = () => {
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('correct')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('avg_confidence')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('worst_streak')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -293,8 +293,8 @@ const LeaderboardTable = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-2 sm:py-3">
-                        <span className="font-mono-data text-xs sm:text-sm text-foreground/80">
-                          {model.locked ? '???' : model.avgConfidence + '%'}
+                        <span className="font-mono-data text-xs sm:text-sm text-destructive/70">
+                          {model.locked ? '???' : '-' + model.worstStreak}
                         </span>
                       </TableCell>
                     </TableRow>

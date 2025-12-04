@@ -24,7 +24,7 @@ interface PlayerData {
   rank: number;
   bestStreak?: number;
   currentStreak?: number;
-  avgConfidence?: number;
+  worstStreak?: number;
 }
 
 const PlayerLeaderboardTable = () => {
@@ -90,14 +90,18 @@ const PlayerLeaderboardTable = () => {
           let currentStreak = 0;
           let bestStreak = 0;
           let tempStreak = 0;
-          let totalConfidence = 0;
+          let worstStreak = 0;
+          let lossStreak = 0;
           
           userPredictions.forEach(pred => {
             if (pred.result === 'win') {
               tempStreak++;
               bestStreak = Math.max(bestStreak, tempStreak);
+              lossStreak = 0;
             } else if (pred.result === 'loss') {
               tempStreak = 0;
+              lossStreak++;
+              worstStreak = Math.max(worstStreak, lossStreak);
             }
           });
           
@@ -109,12 +113,6 @@ const PlayerLeaderboardTable = () => {
               break;
             }
           }
-          
-          // 计算平均信心度
-          const confidenceSum = userPredictions.reduce((sum, pred) => {
-            return sum + (pred.confidence || 50);
-          }, 0);
-          const avgConfidence = totalPredictions > 0 ? confidenceSum / totalPredictions : 0;
           
           return {
             id: user.id,
@@ -129,7 +127,7 @@ const PlayerLeaderboardTable = () => {
             rank: 0,
             bestStreak,
             currentStreak,
-            avgConfidence
+            worstStreak
           };
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
@@ -259,7 +257,7 @@ const PlayerLeaderboardTable = () => {
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('correct')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
                     <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('avg_confidence')}</TableHead>
+                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('worst_streak')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -332,8 +330,8 @@ const PlayerLeaderboardTable = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-center py-2 sm:py-3">
-                          <span className="font-mono-data text-xs sm:text-sm text-foreground/80">
-                            {player.avgConfidence ? player.avgConfidence.toFixed(1) : '0.0'}%
+                          <span className="font-mono-data text-xs sm:text-sm text-destructive/70">
+                            -{player.worstStreak || 0}
                           </span>
                         </TableCell>
                       </TableRow>

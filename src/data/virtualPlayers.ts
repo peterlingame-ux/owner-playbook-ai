@@ -8,6 +8,8 @@ export interface VirtualPlayer {
   balance: number;
   profit: number;
   changePercent: number;
+  bestStreak?: number;
+  worstStreak?: number;
 }
 
 export const virtualPlayers: VirtualPlayer[] = [
@@ -21,6 +23,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 28750,
     profit: 18750,
     changePercent: 187.5,
+    bestStreak: 12,
+    worstStreak: 2,
   },
   {
     id: 'virtual-2',
@@ -32,6 +36,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 24320,
     profit: 14320,
     changePercent: 143.2,
+    bestStreak: 10,
+    worstStreak: 3,
   },
   {
     id: 'virtual-3',
@@ -43,6 +49,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 21890,
     profit: 11890,
     changePercent: 118.9,
+    bestStreak: 9,
+    worstStreak: 3,
   },
   {
     id: 'virtual-4',
@@ -54,6 +62,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 19650,
     profit: 9650,
     changePercent: 96.5,
+    bestStreak: 8,
+    worstStreak: 4,
   },
   {
     id: 'virtual-5',
@@ -65,6 +75,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 18420,
     profit: 8420,
     changePercent: 84.2,
+    bestStreak: 7,
+    worstStreak: 4,
   },
   {
     id: 'virtual-6',
@@ -76,6 +88,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 17280,
     profit: 7280,
     changePercent: 72.8,
+    bestStreak: 7,
+    worstStreak: 5,
   },
   {
     id: 'virtual-7',
@@ -87,6 +101,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 16890,
     profit: 6890,
     changePercent: 68.9,
+    bestStreak: 6,
+    worstStreak: 5,
   },
   {
     id: 'virtual-8',
@@ -98,6 +114,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 15560,
     profit: 5560,
     changePercent: 55.6,
+    bestStreak: 6,
+    worstStreak: 5,
   },
   {
     id: 'virtual-9',
@@ -109,6 +127,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 14920,
     profit: 4920,
     changePercent: 49.2,
+    bestStreak: 5,
+    worstStreak: 6,
   },
   {
     id: 'virtual-10',
@@ -120,6 +140,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 14180,
     profit: 4180,
     changePercent: 41.8,
+    bestStreak: 5,
+    worstStreak: 6,
   },
   {
     id: 'virtual-11',
@@ -131,6 +153,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 13650,
     profit: 3650,
     changePercent: 36.5,
+    bestStreak: 5,
+    worstStreak: 6,
   },
   {
     id: 'virtual-12',
@@ -142,6 +166,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 13120,
     profit: 3120,
     changePercent: 31.2,
+    bestStreak: 4,
+    worstStreak: 7,
   },
   {
     id: 'virtual-13',
@@ -153,6 +179,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 12560,
     profit: 2560,
     changePercent: 25.6,
+    bestStreak: 4,
+    worstStreak: 7,
   },
   {
     id: 'virtual-14',
@@ -164,6 +192,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 12080,
     profit: 2080,
     changePercent: 20.8,
+    bestStreak: 4,
+    worstStreak: 7,
   },
   {
     id: 'virtual-15',
@@ -175,5 +205,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     balance: 11720,
     profit: 1720,
     changePercent: 17.2,
+    bestStreak: 4,
+    worstStreak: 8,
   },
 ];
