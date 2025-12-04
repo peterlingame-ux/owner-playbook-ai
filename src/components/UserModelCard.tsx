@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import footballFieldBg from "@/assets/football-field-bg.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
 
 interface UserStats {
   totalPredictions: number;
@@ -91,63 +91,102 @@ const UserModelCard = () => {
   if (!user && !authLoading) {
     return (
       <Card 
-        className="relative p-4 sm:p-5 lg:p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden min-h-[280px] flex flex-col"
+        className="relative p-4 sm:p-5 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
         onClick={handleActivate}
-        style={{ borderColor: 'hsl(270 70% 60% / 0.3)' }}
       >
-        {/* Gradient background */}
+        {/* Star Background Image */}
         <div 
-          className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
+          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
           style={{
-            background: `radial-gradient(circle at 30% 50%, ${colorTint.color}, transparent 70%)`
+            backgroundImage: `url(${starNeymar})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
           }}
         />
         
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
+        {/* Gradient Overlay for Content Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40" />
         
         {/* Content */}
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-secondary border-2 border-dashed border-muted-foreground/30 flex items-center justify-center mb-4">
-            <User className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+              <div 
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-card shrink-0 border-2 border-dashed border-muted-foreground/30"
+              >
+                <User className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
+              </div>
+              <div className="min-w-0 flex-1 text-center sm:text-left">
+                <h3 className="font-bold text-xs sm:text-sm leading-tight text-foreground truncate">
+                  我的专属模型
+                </h3>
+              </div>
+            </div>
+            
+            {/* Placeholder Badge */}
+            <div className="flex flex-col items-center gap-1.5 shrink-0">
+              <span className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">{t('simulated_profit')}</span>
+              <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data font-bold text-sm sm:text-base bg-secondary/50 text-muted-foreground border border-border/30">
+                --
+              </div>
+            </div>
           </div>
           
-          <h3 className="text-sm sm:text-base font-semibold text-white mb-2">
-            我的专属模型
-          </h3>
-          
-          <p className="text-xs sm:text-sm text-muted-foreground mb-4 leading-relaxed">
-            创建账号后激活属于你的<br />专属AI预测模型
-          </p>
-          
-          <Button 
-            className="w-full relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleActivate();
-            }}
-            style={{
-              background: `linear-gradient(to right, hsl(270 70% 60% / 0.18), hsl(270 70% 60% / 0.08))`,
-              borderColor: 'hsl(270 70% 60% / 0.3)',
-              color: 'hsl(255 100% 100%)',
-            }}
-          >
-            {/* Football field pattern overlay */}
-            <div 
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage: `url(${footballFieldBg})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-            <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
-              <Sparkles className="w-4 h-4 group-hover/btn:animate-pulse" />
-              <span>免费激活专属模型</span>
+          <div className="space-y-2.5 sm:space-y-3">
+            <div>
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
+                <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-muted-foreground">
+                  --%
+                </span>
+              </div>
+              
+              {/* Win Rate Progress Bar */}
+              <div className="relative h-2 sm:h-2.5 bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 w-0"
+                  style={{ backgroundColor: colorTint.color }}
+                />
+              </div>
             </div>
-            {/* Animated shine effect */}
-            <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-          </Button>
+            
+            <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
+              <div>
+                <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
+                <p className="text-base sm:text-lg font-bold font-mono-data text-muted-foreground">
+                  --
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
+                <p className="text-base sm:text-lg font-bold font-mono-data text-muted-foreground">
+                  --
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
+                <p className="text-base sm:text-lg font-bold font-mono-data text-muted-foreground">
+                  --
+                </p>
+              </div>
+            </div>
+            
+            {/* Activate Button */}
+            <div className="pt-2 sm:pt-2.5 border-t border-border/30">
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleActivate();
+                }}
+                className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
+              >
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                  <Sparkles size={13} className="sm:w-[14px] sm:h-[14px]" />
+                  <span>免费激活专属模型</span>
+                </div>
+              </Button>
+            </div>
+          </div>
         </div>
       </Card>
     );
@@ -156,20 +195,21 @@ const UserModelCard = () => {
   // Logged-in user view
   return (
     <Card 
-      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
       onClick={handleCardClick}
-      style={{ borderColor: 'hsl(270 70% 60% / 0.3)' }}
     >
-      {/* AI Brand Color Overlay */}
+      {/* Star Background Image */}
       <div 
-        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
+        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(circle at 30% 50%, ${colorTint.color}, transparent 70%)`
+          backgroundImage: `url(${starNeymar})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
         }}
       />
       
       {/* Gradient Overlay for Content Readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40" />
       
       {/* Content */}
       <div className="relative z-10">
@@ -181,16 +221,15 @@ const UserModelCard = () => {
             >
               <Avatar className="w-full h-full">
                 <AvatarImage src={userProfile?.avatar_url || '/avatars/avatar-1.png'} />
-                <AvatarFallback className="bg-secondary text-white">
+                <AvatarFallback className="bg-secondary text-foreground">
                   {userProfile?.display_name?.[0] || 'U'}
                 </AvatarFallback>
               </Avatar>
             </div>
             <div className="min-w-0 flex-1 text-center sm:text-left">
-              <h3 className="font-bold text-xs sm:text-sm leading-tight text-white truncate">
+              <h3 className="font-bold text-xs sm:text-sm leading-tight text-foreground truncate">
                 {userProfile?.display_name || '我的模型'}
               </h3>
-              <span className="text-[10px]" style={{ color: 'hsl(270 70% 60%)' }}>专属模型</span>
             </div>
           </div>
           
@@ -208,8 +247,8 @@ const UserModelCard = () => {
         <div className="space-y-2.5 sm:space-y-3">
           <div>
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[10px] sm:text-xs text-white">{t('win_rate')}</span>
-              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-white">
+              <span className="text-[10px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
+              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-foreground">
                 {animatedWinRate.toFixed(1)}%
               </span>
             </div>
@@ -226,21 +265,21 @@ const UserModelCard = () => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/50 gap-2">
+          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
             <div>
-              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('correct')}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
               <p className="text-base sm:text-lg font-bold font-mono-data text-success">
                 {stats.correctPredictions}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('total_predictions')}</p>
-              <p className="text-base sm:text-lg font-bold font-mono-data">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
+              <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
                 {stats.totalPredictions}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('wrong')}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
               <p className="text-base sm:text-lg font-bold font-mono-data text-destructive">
                 {stats.totalPredictions - stats.correctPredictions}
               </p>
@@ -248,36 +287,18 @@ const UserModelCard = () => {
           </div>
           
           {/* View Predictions Button */}
-          <div className="pt-2 sm:pt-2.5 border-t border-border/50">
+          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
             <Button 
               onClick={(e) => {
                 e.stopPropagation();
                 navigate('/my-predictions');
               }}
-              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
-              style={{
-                background: `linear-gradient(to right, hsl(270 70% 60% / 0.18), hsl(270 70% 60% / 0.08))`,
-                borderColor: 'hsl(270 70% 60% / 0.3)',
-                color: 'hsl(255 100% 100%)',
-              }}
+              className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              {/* Football field pattern overlay */}
-              <div 
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: `url(${footballFieldBg})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
-              
-              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
-                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px] group-hover/btn:animate-pulse" />
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px]" />
                 <span>查看预测记录</span>
               </div>
-              
-              {/* Animated shine effect */}
-              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </Button>
           </div>
         </div>
