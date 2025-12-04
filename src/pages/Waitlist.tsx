@@ -2,39 +2,14 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Trophy, Calendar, Users, TrendingUp, Award, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Trophy, Calendar, Users, TrendingUp, Award, Clock, CheckCircle2, XCircle, ChevronRight, Zap, Target, DollarSign } from "lucide-react";
+import { useState } from "react";
 
 const Waitlist = () => {
   const navigate = useNavigate();
+  const [expandedRound, setExpandedRound] = useState<string | null>("S1-R6");
 
-  const prizeRules = [
-    {
-      icon: Calendar,
-      title: "发放周期",
-      description: "每30天进行一次奖金结算",
-      highlight: "30天/轮",
-    },
-    {
-      icon: Trophy,
-      title: "奖金池",
-      description: "每轮最高奖金池金额",
-      highlight: "$1,000,000",
-    },
-    {
-      icon: Users,
-      title: "获奖条件",
-      description: "玩家胜率必须超过AI模型才能获得奖金",
-      highlight: "战胜AI",
-    },
-    {
-      icon: TrendingUp,
-      title: "奖金分配",
-      description: "根据超越AI的幅度按比例分配奖金",
-      highlight: "按比例",
-    },
-  ];
-
-  const historyExamples = [
+  const historyData = [
     { 
       round: "S1-R6", 
       period: "2024.11.01 - 2024.11.30", 
@@ -49,7 +24,6 @@ const Waitlist = () => {
         { rank: 3, name: "BoldWolf7756", winRate: 73.8, predictions: 168, prize: 45000 },
       ],
       totalDistributed: 255000,
-      poolCarryover: 745000,
     },
     { 
       round: "S1-R5", 
@@ -63,7 +37,6 @@ const Waitlist = () => {
       topPlayerRate: 71.2,
       topPlayerName: "QuickPanther9901",
       totalDistributed: 0,
-      poolCarryover: 1000000,
     },
     { 
       round: "S1-R4", 
@@ -78,7 +51,6 @@ const Waitlist = () => {
         { rank: 2, name: "WiseFalcon4423", winRate: 76.8, predictions: 145, prize: 120000 },
       ],
       totalDistributed: 320000,
-      poolCarryover: 680000,
     },
     { 
       round: "S1-R3", 
@@ -92,10 +64,8 @@ const Waitlist = () => {
         { rank: 1, name: "NobleLion5567", winRate: 79.5, predictions: 134, prize: 180000 },
         { rank: 2, name: "EpicBear8834", winRate: 74.1, predictions: 156, prize: 95000 },
         { rank: 3, name: "CleverHawk2290", winRate: 71.8, predictions: 123, prize: 55000 },
-        { rank: 4, name: "SwiftPhoenix1123", winRate: 70.5, predictions: 145, prize: 35000 },
       ],
-      totalDistributed: 365000,
-      poolCarryover: 635000,
+      totalDistributed: 330000,
     },
     { 
       round: "S1-R2", 
@@ -109,7 +79,6 @@ const Waitlist = () => {
       topPlayerRate: 73.8,
       topPlayerName: "SmartTiger6678",
       totalDistributed: 0,
-      poolCarryover: 1000000,
     },
     { 
       round: "S1-R1", 
@@ -123,290 +92,369 @@ const Waitlist = () => {
         { rank: 1, name: "QuickEagle3345", winRate: 82.3, predictions: 112, prize: 250000 },
       ],
       totalDistributed: 250000,
-      poolCarryover: 750000,
     },
   ];
+
+  const stats = {
+    totalRounds: 6,
+    distributedRounds: 4,
+    totalDistributed: 1155000,
+    totalWinners: 10,
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 sm:py-12">
+      <main className="container mx-auto px-4 py-6 sm:py-10">
         {/* Hero Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
-            <Award className="w-5 h-5 text-amber-400" />
-            <span className="text-sm font-medium text-amber-400">奖金活动</span>
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            战胜AI，赢取百万大奖
-          </h1>
-          
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
-            每30天进行一次奖金结算，当有玩家的预测胜率超过AI模型时，将瓜分百万奖金池
-          </p>
-
-          {/* Prize Amount */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="relative inline-block mb-8"
-          >
+        <section className="relative mb-16">
+          {/* Background Effects */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <motion.div 
-              className="absolute inset-0 -inset-x-8 -inset-y-4 bg-gradient-to-r from-yellow-500/20 via-amber-400/30 to-yellow-500/20 blur-2xl rounded-full"
-              animate={{ opacity: [0.4, 0.7, 0.4], scale: [0.95, 1.05, 0.95] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px]"
+              animate={{ opacity: [0.3, 0.5, 0.3], scale: [1, 1.1, 1] }}
+              transition={{ duration: 8, repeat: Infinity }}
             />
-            <div className="relative flex flex-col items-center gap-1">
-              <span className="text-sm text-muted-foreground font-medium tracking-widest uppercase">每轮奖金池</span>
-              <span className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
-                $1,000,000
-              </span>
-            </div>
-          </motion.div>
-        </motion.div>
+            <motion.div 
+              className="absolute bottom-0 right-1/4 w-80 h-80 bg-yellow-500/10 rounded-full blur-[100px]"
+              animate={{ opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 6, repeat: Infinity, delay: 2 }}
+            />
+          </div>
 
-        {/* Rules Cards */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
-        >
-          {prizeRules.map((rule, index) => (
+          <div className="relative text-center max-w-4xl mx-auto">
             <motion.div
-              key={rule.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-              className="bg-card/50 border border-border rounded-xl p-6 hover:border-primary/50 transition-colors"
+              transition={{ duration: 0.5 }}
             >
-              <rule.icon className="w-10 h-10 text-primary mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">{rule.title}</h3>
-              <p className="text-sm text-muted-foreground mb-3">{rule.description}</p>
-              <span className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
-                {rule.highlight}
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm font-medium mb-6">
+                <Zap className="w-4 h-4" />
+                PRIZE POOL
               </span>
             </motion.div>
-          ))}
-        </motion.div>
 
-        {/* Important Notice */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-xl p-6 mb-12"
-        >
-          <div className="flex items-start gap-4">
-            <Clock className="w-6 h-6 text-amber-400 flex-shrink-0 mt-1" />
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">重要说明</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  <span>若当轮有玩家胜率超过最强AI模型，则发放奖金</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <XCircle className="w-4 h-4 text-red-500" />
-                  <span>若当轮无玩家超过AI，则奖金不发放，累积至下一轮</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  <span>多名玩家超过AI时，按超越幅度比例分配奖金</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight"
+            >
+              战胜AI，赢取
+              <span className="bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 bg-clip-text text-transparent"> 百万奖金</span>
+            </motion.h1>
 
-        {/* History Examples */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="mb-12"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-foreground">历史发放记录</h2>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              <span>已发放</span>
-              <span className="w-2 h-2 rounded-full bg-red-500 ml-3" />
-              <span>未发放</span>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            {historyExamples.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`bg-card/50 border rounded-xl overflow-hidden ${
-                  item.status === 'distributed' ? 'border-green-500/30' : 'border-red-500/30'
-                }`}
-              >
-                {/* Header */}
-                <div className={`px-6 py-4 ${
-                  item.status === 'distributed' 
-                    ? 'bg-gradient-to-r from-green-500/10 to-transparent' 
-                    : 'bg-gradient-to-r from-red-500/10 to-transparent'
-                }`}>
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <span className="text-lg font-bold text-foreground">{item.round}</span>
-                      <span className="text-sm text-muted-foreground">{item.period}</span>
-                      {item.status === 'distributed' ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                          <CheckCircle2 className="w-4 h-4" />
-                          已发放
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">
-                          <XCircle className="w-4 h-4" />
-                          未发放
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="text-center">
-                        <div className="text-muted-foreground">参与人数</div>
-                        <div className="font-semibold text-foreground">{item.participants.toLocaleString()}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">总预测数</div>
-                        <div className="font-semibold text-foreground">{item.totalPredictions.toLocaleString()}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">AI模型</div>
-                        <div className="font-semibold text-foreground">{item.aiModel}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">AI胜率</div>
-                        <div className="font-semibold text-primary">{item.aiWinRate}%</div>
-                      </div>
-                    </div>
-                  </div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-muted-foreground text-base sm:text-lg mb-10 max-w-2xl mx-auto"
+            >
+              每30天进行一次结算，当玩家预测胜率超越AI模型时，即可瓜分奖金池
+            </motion.p>
+
+            {/* Prize Display */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="relative inline-block"
+            >
+              <motion.div 
+                className="absolute -inset-8 bg-gradient-to-r from-yellow-500/20 via-amber-400/30 to-yellow-500/20 blur-3xl rounded-full"
+                animate={{ opacity: [0.5, 0.8, 0.5], scale: [0.95, 1.05, 0.95] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              <div className="relative bg-gradient-to-b from-card/80 to-card/40 backdrop-blur-sm border border-amber-500/20 rounded-2xl px-12 py-8">
+                <div className="text-xs text-amber-400/80 uppercase tracking-widest mb-2 font-medium">每轮奖金池</div>
+                <div className="text-5xl sm:text-6xl lg:text-7xl font-black bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent tracking-tight">
+                  $1,000,000
                 </div>
-                
-                {/* Winners Table or No Winner Info */}
-                <div className="px-6 py-4">
-                  {item.status === 'distributed' && item.winners.length > 0 ? (
-                    <>
-                      <div className="text-sm font-medium text-muted-foreground mb-3">获奖玩家</div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-border/50">
-                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">排名</th>
-                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">玩家</th>
-                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">胜率</th>
-                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">超越AI</th>
-                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">预测场次</th>
-                              <th className="text-right py-2 px-3 text-muted-foreground font-medium">获得奖金</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {item.winners.map((winner, wIndex) => (
-                              <tr key={wIndex} className="border-b border-border/30 last:border-0">
-                                <td className="py-3 px-3">
-                                  {winner.rank === 1 && <span className="text-yellow-400">🥇</span>}
-                                  {winner.rank === 2 && <span className="text-gray-400">🥈</span>}
-                                  {winner.rank === 3 && <span className="text-amber-600">🥉</span>}
-                                  {winner.rank > 3 && <span className="text-muted-foreground">#{winner.rank}</span>}
-                                </td>
-                                <td className="py-3 px-3 font-medium text-foreground">{winner.name}</td>
-                                <td className="py-3 px-3">
-                                  <span className="text-green-400 font-semibold">{winner.winRate}%</span>
-                                </td>
-                                <td className="py-3 px-3">
-                                  <span className="text-emerald-400">+{(winner.winRate - item.aiWinRate).toFixed(1)}%</span>
-                                </td>
-                                <td className="py-3 px-3 text-muted-foreground">{winner.predictions}场</td>
-                                <td className="py-3 px-3 text-right">
-                                  <span className="font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
-                                    ${winner.prize.toLocaleString()}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="mt-4 pt-4 border-t border-border/50 flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">本轮共发放</span>
-                        <span className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
-                          ${item.totalDistributed.toLocaleString()}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center py-6">
-                      <XCircle className="w-12 h-12 text-red-500/50 mx-auto mb-3" />
-                      <div className="text-muted-foreground mb-2">本轮无玩家超过AI</div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">最高玩家胜率：</span>
-                        <span className="text-foreground font-medium">{item.topPlayerName} ({item.topPlayerRate}%)</span>
-                        <span className="text-red-400 ml-2">低于AI {(item.aiWinRate - (item.topPlayerRate || 0)).toFixed(1)}%</span>
-                      </div>
-                      <div className="mt-3 text-amber-400 text-sm">
-                        奖金池累积至下一轮 → ${item.poolCarryover.toLocaleString()}
-                      </div>
-                    </div>
-                  )}
+                <div className="mt-4 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-amber-400" />
+                    30天/轮
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Target className="w-4 h-4 text-amber-400" />
+                    战胜AI即可获奖
+                  </span>
                 </div>
-              </motion.div>
-            ))}
+              </div>
+            </motion.div>
           </div>
-          
-          {/* Summary Stats */}
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">6</div>
-              <div className="text-sm text-muted-foreground">总轮次</div>
-            </div>
-            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-green-400">4</div>
-              <div className="text-sm text-muted-foreground">发放轮次</div>
-            </div>
-            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">$1.19M</div>
-              <div className="text-sm text-muted-foreground">累计发放</div>
-            </div>
-            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">10</div>
-              <div className="text-sm text-muted-foreground">获奖玩家</div>
-            </div>
-          </div>
-        </motion.div>
+        </section>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center"
-        >
-          <Button 
-            onClick={() => navigate('/auth')}
-            size="lg"
-            className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-black font-bold px-10 py-6 text-lg rounded-full shadow-lg shadow-amber-500/25"
+        {/* Rules Section */}
+        <section className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
-            立即参与竞赛
-          </Button>
-          <p className="text-sm text-muted-foreground mt-4">
-            免费注册 · 无需充值 · 公平竞技
-          </p>
-        </motion.div>
+            <div className="bg-card/50 border border-border rounded-2xl p-6 hover:border-amber-500/30 transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 transition-colors">
+                <Trophy className="w-6 h-6 text-amber-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">获奖条件</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                玩家当轮预测胜率必须<span className="text-amber-400 font-medium">超过AI模型</span>才能获得奖金，超越幅度越大，获得奖金越多
+              </p>
+            </div>
+
+            <div className="bg-card/50 border border-border rounded-2xl p-6 hover:border-amber-500/30 transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 transition-colors">
+                <Users className="w-6 h-6 text-amber-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">奖金分配</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                多名玩家超越AI时，按<span className="text-amber-400 font-medium">超越幅度比例</span>分配奖金池，单人最高可获得全部奖金
+              </p>
+            </div>
+
+            <div className="bg-card/50 border border-border rounded-2xl p-6 hover:border-amber-500/30 transition-colors group">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 transition-colors">
+                <TrendingUp className="w-6 h-6 text-amber-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">奖金累积</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                若当轮无人超越AI，奖金池<span className="text-amber-400 font-medium">不发放并累积</span>至下一轮，直到有玩家获胜
+              </p>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Statistics */}
+        <section className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="bg-gradient-to-r from-amber-500/5 via-yellow-500/10 to-amber-500/5 border border-amber-500/20 rounded-2xl p-6 sm:p-8"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <Award className="w-5 h-5 text-amber-400" />
+              <h2 className="text-lg font-semibold text-foreground">累计数据</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold text-foreground">{stats.totalRounds}</div>
+                <div className="text-sm text-muted-foreground mt-1">总轮次</div>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold text-green-400">{stats.distributedRounds}</div>
+                <div className="text-sm text-muted-foreground mt-1">发放轮次</div>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                  ${(stats.totalDistributed / 1000000).toFixed(2)}M
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">累计发放</div>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold text-foreground">{stats.totalWinners}</div>
+                <div className="text-sm text-muted-foreground mt-1">获奖玩家</div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* History Records */}
+        <section className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">发放历史</h2>
+              <div className="flex items-center gap-4 text-xs">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500" />
+                  已发放
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-zinc-500" />
+                  未发放
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {historyData.map((item, index) => {
+                const isExpanded = expandedRound === item.round;
+                const isDistributed = item.status === 'distributed';
+                
+                return (
+                  <motion.div
+                    key={item.round}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className={`bg-card/50 border rounded-xl overflow-hidden transition-all ${
+                      isDistributed ? 'border-green-500/20 hover:border-green-500/40' : 'border-border hover:border-border'
+                    }`}
+                  >
+                    {/* Header Row */}
+                    <button
+                      onClick={() => setExpandedRound(isExpanded ? null : item.round)}
+                      className="w-full px-4 sm:px-6 py-4 flex items-center justify-between gap-4 text-left hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          isDistributed ? 'bg-green-500/10' : 'bg-zinc-500/10'
+                        }`}>
+                          {isDistributed ? (
+                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                          ) : (
+                            <XCircle className="w-5 h-5 text-zinc-500" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-foreground">{item.round}</span>
+                            <span className="text-xs text-muted-foreground hidden sm:inline">{item.period}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5 sm:hidden">{item.period}</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 sm:gap-8">
+                        <div className="hidden sm:flex items-center gap-6 text-sm">
+                          <div className="text-center">
+                            <div className="text-muted-foreground text-xs">参与</div>
+                            <div className="font-medium text-foreground">{item.participants.toLocaleString()}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-muted-foreground text-xs">AI胜率</div>
+                            <div className="font-medium text-primary">{item.aiWinRate}%</div>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right">
+                          {isDistributed ? (
+                            <div className="font-bold text-lg bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                              ${(item.totalDistributed / 1000).toFixed(0)}K
+                            </div>
+                          ) : (
+                            <div className="text-sm text-muted-foreground">未发放</div>
+                          )}
+                        </div>
+
+                        <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                      </div>
+                    </button>
+
+                    {/* Expanded Content */}
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="border-t border-border/50"
+                      >
+                        <div className="px-4 sm:px-6 py-5">
+                          {/* Info Grid */}
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 pb-6 border-b border-border/50">
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">参与人数</div>
+                              <div className="font-semibold text-foreground">{item.participants.toLocaleString()}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">总预测数</div>
+                              <div className="font-semibold text-foreground">{item.totalPredictions.toLocaleString()}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">AI模型</div>
+                              <div className="font-semibold text-foreground">{item.aiModel}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">AI胜率</div>
+                              <div className="font-semibold text-primary">{item.aiWinRate}%</div>
+                            </div>
+                          </div>
+
+                          {/* Winners or No Winner */}
+                          {isDistributed && item.winners.length > 0 ? (
+                            <div>
+                              <div className="text-sm font-medium text-foreground mb-3">获奖玩家</div>
+                              <div className="space-y-2">
+                                {item.winners.map((winner, wIndex) => (
+                                  <div 
+                                    key={wIndex}
+                                    className="flex items-center justify-between py-3 px-4 bg-muted/30 rounded-lg"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center text-sm font-bold text-black">
+                                        {winner.rank}
+                                      </div>
+                                      <div>
+                                        <div className="font-medium text-foreground">{winner.name}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {winner.predictions}场预测 · 胜率 <span className="text-green-400">{winner.winRate}%</span>
+                                          <span className="text-emerald-400 ml-1">(+{(winner.winRate - item.aiWinRate).toFixed(1)}%)</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent text-lg">
+                                      ${winner.prize.toLocaleString()}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center py-6">
+                              <div className="w-16 h-16 rounded-full bg-zinc-500/10 flex items-center justify-center mx-auto mb-4">
+                                <XCircle className="w-8 h-8 text-zinc-500" />
+                              </div>
+                              <div className="text-muted-foreground mb-2">本轮无玩家超越AI</div>
+                              <div className="text-sm">
+                                最高玩家: <span className="text-foreground font-medium">{item.topPlayerName}</span>
+                                <span className="text-muted-foreground"> ({item.topPlayerRate}%)</span>
+                                <span className="text-red-400 ml-2">差距 {(item.aiWinRate - (item.topPlayerRate || 0)).toFixed(1)}%</span>
+                              </div>
+                              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm">
+                                <DollarSign className="w-4 h-4" />
+                                奖金累积至下一轮
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="text-center pb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="bg-gradient-to-r from-amber-500/10 via-yellow-500/15 to-amber-500/10 border border-amber-500/20 rounded-2xl p-8 sm:p-12"
+          >
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">准备好挑战AI了吗？</h2>
+            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+              免费注册，无需充值，立即开始与顶级AI模型同台竞技
+            </p>
+            <Button 
+              onClick={() => navigate('/auth')}
+              size="lg"
+              className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-black font-bold px-10 py-6 text-base rounded-full shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all"
+            >
+              立即参与竞赛
+              <ChevronRight className="w-5 h-5 ml-1" />
+            </Button>
+          </motion.div>
+        </section>
       </main>
     </div>
   );
