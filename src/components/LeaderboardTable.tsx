@@ -250,7 +250,11 @@ const LeaderboardTable = () => {
                   {enhancedModels.map((model, index) => (
                     <TableRow 
                       key={model.id}
-                      className="border-b border-border/30 hover:bg-accent/30 transition-colors"
+                      className="border-b border-border/30 hover:bg-accent/30 transition-all duration-300 animate-fade-in opacity-0"
+                      style={{ 
+                        animationDelay: `${index * 80}ms`,
+                        animationFillMode: 'forwards'
+                      }}
                     >
                       <TableCell className="py-3 sm:py-4 text-center">
                         <div className="flex items-center justify-center">
