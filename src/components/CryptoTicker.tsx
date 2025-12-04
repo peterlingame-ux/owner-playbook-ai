@@ -28,29 +28,107 @@ const CryptoTicker = () => {
     return `$${Math.round(value).toLocaleString()}`;
   };
 
+  // Generate floating particles
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 4 + 2,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 10 + 15,
+    delay: Math.random() * 5,
+  }));
+
   return (
     <div className="relative overflow-hidden">
       {/* Main Banner */}
-      <div className="relative min-h-[220px] sm:min-h-[260px] lg:min-h-[300px]">
+      <div className="relative min-h-[260px] sm:min-h-[300px] lg:min-h-[340px]">
         {/* Background Image */}
         <motion.div 
           initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 0.2, scale: 1 }}
+          animate={{ opacity: 0.15, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="absolute inset-0 bg-cover bg-no-repeat"
           style={{ backgroundImage: `url(${bannerBg})`, backgroundPosition: 'center calc(50% + 40px)' }}
         />
         
         {/* Professional gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background"/>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background"/>
         
-        {/* Accent glow effects - Subtle */}
+        {/* Animated glow orbs */}
         <motion.div 
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 0.3 }}
-          className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-foreground/5 rounded-full blur-[120px] pointer-events-none"
+          animate={{ 
+            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.2, 1],
+            x: [0, 30, 0],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] pointer-events-none"
         />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ 
+            opacity: [0.2, 0.4, 0.2],
+            scale: [1.2, 1, 1.2],
+            x: [0, -20, 0],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-blue-500/15 rounded-full blur-[120px] pointer-events-none"
+        />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ 
+            opacity: [0.15, 0.3, 0.15],
+            y: [0, -20, 0],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute top-1/2 right-1/3 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none"
+        />
+
+        {/* Floating particles */}
+        {particles.map((particle) => (
+          <motion.div
+            key={particle.id}
+            className="absolute rounded-full bg-primary/40 pointer-events-none"
+            style={{
+              width: particle.size,
+              height: particle.size,
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+            }}
+            initial={{ opacity: 0, y: 0 }}
+            animate={{ 
+              opacity: [0, 0.6, 0],
+              y: [-20, -80, -140],
+              x: [0, Math.random() * 40 - 20, 0],
+            }}
+            transition={{
+              duration: particle.duration,
+              repeat: Infinity,
+              delay: particle.delay,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+
+        {/* Light rays */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-gradient-to-b from-primary/30 via-primary/5 to-transparent"
+            animate={{ opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-0 left-1/3 w-[1px] h-3/4 bg-gradient-to-b from-blue-400/20 via-blue-400/5 to-transparent rotate-12"
+            animate={{ opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
+          <motion.div
+            className="absolute top-0 right-1/3 w-[1px] h-2/3 bg-gradient-to-b from-emerald-400/15 via-emerald-400/5 to-transparent -rotate-12"
+            animate={{ opacity: [0.15, 0.4, 0.15] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          />
+        </div>
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-10 sm:py-12 lg:py-14 flex flex-col items-center justify-center text-center">
