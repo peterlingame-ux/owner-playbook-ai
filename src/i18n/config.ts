@@ -92,6 +92,13 @@ const resources = {
       
       // Crypto Ticker
       "market_overview": "MARKET OVERVIEW",
+      "banner_title": "Compete with Top AI Models",
+      "banner_subtitle": "Showcase your prediction skills, challenge AI, win generous prizes",
+      "max_prize": "MAX PRIZE",
+      "join_competition": "Join Competition",
+      "free_to_join": "Free to Join",
+      "no_deposit": "No Deposit",
+      "fair_competition": "Fair Competition",
       
       // Info Section
       "better_benchmark": "A Better Benchmark",
@@ -468,6 +475,13 @@ const resources = {
       
       // Crypto Ticker
       "market_overview": "市场概览",
+      "banner_title": "与顶级AI模型同台竞技",
+      "banner_subtitle": "展示你的预测能力，挑战人工智能，赢取丰厚奖金",
+      "max_prize": "最高奖金",
+      "join_competition": "立即参与竞赛",
+      "free_to_join": "免费参与",
+      "no_deposit": "无需充值",
+      "fair_competition": "公平竞技",
       
       // Info Section
       "better_benchmark": "更好的基准测试",

@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
+import { useTranslation } from "react-i18next";
 import bannerBg from "@/assets/banner-bg.png";
 
 const CryptoTicker = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const prizeRef = useRef(null);
   const isInView = useInView(prizeRef, { once: true });
   const [startCount, setStartCount] = useState(false);
@@ -140,7 +142,7 @@ const CryptoTicker = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-foreground mb-2 leading-tight max-w-3xl tracking-tight"
           >
-            与顶级AI模型同台竞技
+            {t('banner_title')}
           </motion.h1>
           
           <motion.p
@@ -149,7 +151,7 @@ const CryptoTicker = () => {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="text-sm sm:text-base text-muted-foreground mb-6 max-w-xl"
           >
-            展示你的预测能力，挑战人工智能，赢取丰厚奖金
+            {t('banner_subtitle')}
           </motion.p>
 
           {/* Prize Amount */}
@@ -213,7 +215,7 @@ const CryptoTicker = () => {
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
             />
             <div className="relative flex flex-col items-center gap-1">
-              <span className="text-xs sm:text-sm text-muted-foreground font-medium tracking-widest uppercase">最高奖金</span>
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium tracking-widest uppercase">{t('max_prize')}</span>
               <span className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,191,36,0.5)]">
                 {formatPrize(animatedPrize)}
               </span>
@@ -231,7 +233,7 @@ const CryptoTicker = () => {
               size="lg"
               className="group relative bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 py-3 text-base rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
             >
-              立即参与竞赛
+              {t('join_competition')}
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"/>
             </Button>
           </motion.div>
@@ -245,17 +247,17 @@ const CryptoTicker = () => {
           >
             <span className="flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-green-500"/>
-              免费参与
+              {t('free_to_join')}
             </span>
             <span className="w-px h-3 bg-border"/>
             <span className="flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-green-500"/>
-              无需充值
+              {t('no_deposit')}
             </span>
             <span className="w-px h-3 bg-border"/>
             <span className="flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-green-500"/>
-              公平竞技
+              {t('fair_competition')}
             </span>
           </motion.div>
         </div>
