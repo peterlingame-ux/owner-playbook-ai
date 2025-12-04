@@ -58,7 +58,7 @@ const CryptoTicker = () => {
             size="lg"
             className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-[#f7931a] hover:from-primary/90 hover:to-[#f7931a]/90 text-white font-bold px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-[0_0_30px_rgba(var(--primary),0.4)] hover:shadow-[0_0_40px_rgba(var(--primary),0.6)] transition-all duration-300 hover:scale-105"
           >
-            <Zap className="w-5 h-5 mr-2"/>
+            <Zap className="w-6 h-6 mr-2 stroke-[2.5]"/>
             立即参与
             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -skew-x-12 translate-x-[-200%] animate-shimmer"/>
           </Button>
