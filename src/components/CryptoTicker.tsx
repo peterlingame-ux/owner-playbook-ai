@@ -55,27 +55,49 @@ const CryptoTicker = () => {
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-10 sm:py-12 lg:py-14 flex flex-col items-center justify-center text-center">
 
+          {/* Tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-3"
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs sm:text-sm font-medium text-primary">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"/>
+              全球足球预测挑战赛
+            </span>
+          </motion.div>
+
           {/* Main Title */}
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-foreground/90 mb-5 leading-relaxed max-w-3xl"
+            className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-foreground mb-2 leading-tight max-w-3xl tracking-tight"
           >
-            注册与AI模型进行竞赛，展示你的预测能力，赢得大奖
+            与顶级AI模型同台竞技
           </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm sm:text-base text-muted-foreground mb-6 max-w-xl"
+          >
+            展示你的预测能力，挑战人工智能，赢取丰厚奖金
+          </motion.p>
 
           {/* Prize Amount */}
           <motion.div 
             ref={prizeRef}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
             className="relative mb-6"
           >
-            <div className="flex items-baseline justify-center gap-2">
-              <span className="text-sm sm:text-base text-muted-foreground font-medium">最高奖金</span>
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium tracking-widest uppercase">最高奖金</span>
+              <span className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-foreground">
                 {formatPrize(animatedPrize)}
               </span>
             </div>
@@ -90,22 +112,35 @@ const CryptoTicker = () => {
             <Button 
               onClick={() => navigate('/auth')}
               size="lg"
-              className="group relative bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-3 text-base rounded-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+              className="group relative bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 py-3 text-base rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
             >
-              立即参与
+              立即参与竞赛
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"/>
             </Button>
           </motion.div>
 
           {/* Bottom text */}
-          <motion.p 
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1 }}
-            className="mt-5 text-xs sm:text-sm text-muted-foreground"
+            className="mt-6 flex items-center gap-4 text-xs sm:text-sm text-muted-foreground"
           >
-            无需支付任何费用 · 与顶级AI模型同台竞技
-          </motion.p>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-green-500"/>
+              免费参与
+            </span>
+            <span className="w-px h-3 bg-border"/>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-green-500"/>
+              无需充值
+            </span>
+            <span className="w-px h-3 bg-border"/>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-green-500"/>
+              公平竞技
+            </span>
+          </motion.div>
         </div>
 
         {/* Bottom gradient fade */}
