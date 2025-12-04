@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, Home, Trophy, History, Sparkles, Target } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -21,11 +21,11 @@ const Header = () => {
   const [showPredictions, setShowPredictions] = useState(false);
 
   const navItems = [
-    { to: "/", icon: Home, label: t('nav_live') },
-    { to: "/leaderboard", icon: Trophy, label: t('nav_rank') },
-    { to: "/history", icon: History, label: t('nav_history') },
-    { to: "/models", icon: Sparkles, label: t('nav_models') },
-    { to: "/my-predictions", icon: Target, label: "我的预测" },
+    { to: "/", label: t('nav_live') },
+    { to: "/leaderboard", label: t('nav_rank') },
+    { to: "/history", label: t('nav_history') },
+    { to: "/models", label: t('nav_models') },
+    { to: "/my-predictions", label: "我的预测" },
   ];
 
   const handleSignOut = async () => {
@@ -58,21 +58,20 @@ const Header = () => {
           </Link>
           
           {/* Center: Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5 bg-[#1a1a1a]/80 rounded-full px-1.5 py-1.5">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
                   ${isActive 
-                    ? 'text-primary bg-primary/10' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                    ? 'bg-[#2a2a2a] text-white shadow-lg' 
+                    : 'text-[#888888] hover:text-[#cccccc]'
                   }`
                 }
               >
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
+                {item.label}
               </NavLink>
             ))}
           </nav>
@@ -101,15 +100,14 @@ const Header = () => {
                         to={item.to}
                         onClick={() => setMobileMenuOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-colors
+                          `flex items-center px-4 py-3 rounded-full text-base font-medium transition-all duration-300
                           ${isActive 
-                            ? 'text-primary bg-primary/10' 
-                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                            ? 'bg-[#2a2a2a] text-white' 
+                            : 'text-[#888888] hover:text-foreground hover:bg-accent/30'
                           }`
                         }
                       >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.label}</span>
+                        {item.label}
                       </NavLink>
                     ))}
                   </div>
