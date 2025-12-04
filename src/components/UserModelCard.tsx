@@ -1,21 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Sparkles, User, PlayCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sparkles, User, PlayCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-// Star background images
-import starMessi from "@/assets/star-messi.jpg";
-import starRonaldo from "@/assets/star-ronaldo.jpg";
-import starMbappe from "@/assets/star-mbappe.jpg";
-import starHaaland from "@/assets/star-haaland.jpg";
 import starNeymar from "@/assets/star-neymar.jpg";
-import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 interface UserStats {
   totalPredictions: number;
@@ -23,19 +16,6 @@ interface UserStats {
   winRate: number;
   profit: number;
 }
-
-type StarType = 'messi' | 'ronaldo' | 'mbappe' | 'haaland' | 'neymar' | 'hunsoccer';
-
-const starBackgrounds: Record<StarType, { image: string; name: string; color: string }> = {
-  messi: { image: starMessi, name: '梅西', color: 'hsl(210 80% 55%)' },
-  ronaldo: { image: starRonaldo, name: 'C罗', color: 'hsl(0 70% 50%)' },
-  mbappe: { image: starMbappe, name: '姆巴佩', color: 'hsl(220 70% 50%)' },
-  haaland: { image: starHaaland, name: '哈兰德', color: 'hsl(200 80% 50%)' },
-  neymar: { image: starNeymar, name: '内马尔', color: 'hsl(50 80% 50%)' },
-  hunsoccer: { image: starHunsoccer, name: '胡恩索克', color: 'hsl(270 70% 60%)' },
-};
-
-const starOrder: StarType[] = ['messi', 'ronaldo', 'mbappe', 'haaland', 'neymar', 'hunsoccer'];
 
 const UserModelCard = () => {
   const { t } = useTranslation();
@@ -48,7 +28,6 @@ const UserModelCard = () => {
     winRate: 0,
     profit: 0
   });
-  const [selectedStar, setSelectedStar] = useState<StarType>('neymar');
 
   useEffect(() => {
     if (user) {
@@ -106,22 +85,7 @@ const UserModelCard = () => {
     }
   };
 
-  const handlePrevStar = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const currentIndex = starOrder.indexOf(selectedStar);
-    const prevIndex = (currentIndex - 1 + starOrder.length) % starOrder.length;
-    setSelectedStar(starOrder[prevIndex]);
-  };
-
-  const handleNextStar = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const currentIndex = starOrder.indexOf(selectedStar);
-    const nextIndex = (currentIndex + 1) % starOrder.length;
-    setSelectedStar(starOrder[nextIndex]);
-  };
-
-  const currentStar = starBackgrounds[selectedStar];
-  const colorTint = { hue: '270deg', color: currentStar.color };
+  const colorTint = { hue: '270deg', color: 'hsl(270 70% 60%)' };
 
   // Non-logged-in user view
   if (!user && !authLoading) {
@@ -132,9 +96,9 @@ const UserModelCard = () => {
       >
         {/* Star Background Image */}
         <div 
-          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-all duration-500"
+          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
           style={{
-            backgroundImage: `url(${currentStar.image})`,
+            backgroundImage: `url(${starNeymar})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center top',
           }}
@@ -142,23 +106,6 @@ const UserModelCard = () => {
         
         {/* Gradient Overlay for Content Readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40" />
-        
-        {/* Star Selector */}
-        <div className="absolute top-2 right-2 z-20 flex items-center gap-1 bg-background/60 backdrop-blur-sm rounded-full px-1.5 py-0.5">
-          <button 
-            onClick={handlePrevStar}
-            className="p-0.5 hover:bg-secondary/50 rounded-full transition-colors"
-          >
-            <ChevronLeft size={14} className="text-muted-foreground" />
-          </button>
-          <span className="text-[10px] font-medium text-foreground min-w-[40px] text-center">{currentStar.name}</span>
-          <button 
-            onClick={handleNextStar}
-            className="p-0.5 hover:bg-secondary/50 rounded-full transition-colors"
-          >
-            <ChevronRight size={14} className="text-muted-foreground" />
-          </button>
-        </div>
         
         {/* Content */}
         <div className="relative z-10">
@@ -253,9 +200,9 @@ const UserModelCard = () => {
     >
       {/* Star Background Image */}
       <div 
-        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-all duration-500"
+        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
         style={{
-          backgroundImage: `url(${currentStar.image})`,
+          backgroundImage: `url(${starNeymar})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
         }}
@@ -264,30 +211,13 @@ const UserModelCard = () => {
       {/* Gradient Overlay for Content Readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40" />
       
-      {/* Star Selector */}
-      <div className="absolute top-2 right-2 z-20 flex items-center gap-1 bg-background/60 backdrop-blur-sm rounded-full px-1.5 py-0.5">
-        <button 
-          onClick={handlePrevStar}
-          className="p-0.5 hover:bg-secondary/50 rounded-full transition-colors"
-        >
-          <ChevronLeft size={14} className="text-muted-foreground" />
-        </button>
-        <span className="text-[10px] font-medium text-foreground min-w-[40px] text-center">{currentStar.name}</span>
-        <button 
-          onClick={handleNextStar}
-          className="p-0.5 hover:bg-secondary/50 rounded-full transition-colors"
-        >
-          <ChevronRight size={14} className="text-muted-foreground" />
-        </button>
-      </div>
-      
       {/* Content */}
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
             <div 
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 p-0.5 bg-card"
-              style={{ border: `2px solid ${currentStar.color}` }}
+              style={{ border: '2px solid hsl(270 70% 60%)' }}
             >
               <Avatar className="w-full h-full">
                 <AvatarImage src={userProfile?.avatar_url || '/avatars/avatar-1.png'} />
@@ -329,7 +259,7 @@ const UserModelCard = () => {
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${animatedWinRate}%`,
-                  backgroundColor: currentStar.color
+                  backgroundColor: 'hsl(270 70% 60%)'
                 }}
               />
             </div>
