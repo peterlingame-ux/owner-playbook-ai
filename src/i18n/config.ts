@@ -21,7 +21,7 @@ const resources = {
       "correct_predictions": "correct predictions",
       
       // Performance Chart
-      "performance_over_time": "AI FOOTBALL MATCH WIN RATE TRENDS",
+      "performance_over_time": "Win Rate Trends",
       "win_rate": "Win Rate (%)",
       
       // Live Matches
@@ -48,8 +48,8 @@ const resources = {
       "no_data": "No data available",
       
       // Model Cards
-      "the_contestants": "AI Football Match Win Rate Comparison",
-      "top_players": "Player Football Match Win Rate Comparison",
+      "the_contestants": "AI Models",
+      "top_players": "Top Players",
       "view_details": "VIEW DETAILS",
       "total_predictions": "Total Predictions",
       
@@ -397,7 +397,7 @@ const resources = {
       "correct_predictions": "次正确预测",
       
       // Performance Chart
-      "performance_over_time": "AI足球赛事胜率走势",
+      "performance_over_time": "胜率走势",
       "win_rate": "胜率 (%)",
       
       // Live Matches
@@ -424,8 +424,8 @@ const resources = {
       "no_data": "暂无数据",
       
       // Model Cards
-      "the_contestants": "AI足球赛事胜率对比",
-      "top_players": "玩家足球赛事胜率对比",
+      "the_contestants": "AI 模型",
+      "top_players": "玩家排行",
       "view_details": "查看详情",
       "total_predictions": "总预测次数",
       
