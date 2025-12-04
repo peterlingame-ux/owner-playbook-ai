@@ -179,23 +179,6 @@ export default {
             opacity: "0.7",
           },
         },
-        "ken-burns": {
-          "0%": {
-            transform: "scale(1) translate(0, 0)",
-          },
-          "25%": {
-            transform: "scale(1.1) translate(-2%, -1%)",
-          },
-          "50%": {
-            transform: "scale(1.15) translate(1%, 2%)",
-          },
-          "75%": {
-            transform: "scale(1.1) translate(2%, -1%)",
-          },
-          "100%": {
-            transform: "scale(1) translate(0, 0)",
-          },
-        },
       },
       animation: {
         "spin-slow": "spin 8s linear infinite",
@@ -210,7 +193,6 @@ export default {
         "shimmer": "shimmer 2s infinite",
         "bounce-slow": "bounce-slow 2s ease-in-out infinite",
         "pulse-slow": "pulse-slow 3s ease-in-out infinite",
-        "ken-burns": "ken-burns 20s ease-in-out infinite",
       },
     },
   },
