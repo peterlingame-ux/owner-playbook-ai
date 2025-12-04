@@ -487,46 +487,44 @@ const PlayerExclusiveModelCard = ({
   return (
     <>
       <Card 
-        className={`relative rounded-xl p-3 sm:p-3 md:p-4 bg-gradient-to-br from-amber-500/20 via-card to-amber-600/10 hover:shadow-2xl transition-all duration-500 border-2 border-amber-500/40 hover:border-amber-500/60 overflow-hidden group ${className}`}
+        className={`relative rounded-lg p-3 sm:p-4 bg-card border border-amber-500/30 hover:border-amber-500/50 transition-all duration-300 overflow-hidden cursor-pointer ${className}`}
         onClick={onNextMatch}
       >
-        {/* Top Right Section */}
-        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex flex-col items-end gap-2">
-          {/* Match Pagination - Top */}
-          {matchEntries.length > 1 && (
-            <div className="flex items-center gap-0.5 sm:gap-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onPrevMatch) onPrevMatch(e);
-                }}
-              >
-                <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              </Button>
-              <Badge 
-                variant="secondary"
-                className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80"
-              >
-                {matchIndex + 1}/{matchEntries.length}
-              </Badge>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onNextMatch) onNextMatch(e);
-                }}
-              >
-                <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              </Button>
-            </div>
-          )}
-        </div>
+        {/* Match Counter - Top Right */}
+        {matchEntries.length > 1 && (
+          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onPrevMatch) onPrevMatch(e);
+              }}
+            >
+              <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            </Button>
+            <Badge 
+              variant="secondary"
+              className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80"
+            >
+              {matchIndex + 1}/{matchEntries.length}
+            </Badge>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onNextMatch) onNextMatch(e);
+              }}
+            >
+              <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            </Button>
+          </div>
+        )}
 
+        {/* Training Count Badge */}
         {trainingCount > 0 && (
           <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-20">
             <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
@@ -537,7 +535,7 @@ const PlayerExclusiveModelCard = ({
         )}
 
         {/* No Bets Indicator */}
-        {!currentMatchData && (
+        {matchEntries.length === 0 && (
           <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
             <Badge 
               variant="outline"
@@ -547,91 +545,69 @@ const PlayerExclusiveModelCard = ({
             </Badge>
           </div>
         )}
-
-        {/* Background effects */}
-        <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-          style={{ background: `radial-gradient(circle at 30% 50%, hsl(45 100% 50%), transparent 70%)` }}
-        />
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500 via-transparent to-transparent" />
-        </div>
-        <div className="absolute -inset-1 bg-gradient-to-br from-amber-500/20 via-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
         
         {/* Content */}
-        <div className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3">
-          {/* Header with Avatar and Balance */}
-          <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-amber-500/20 relative">
-            {/* Buttons Container - Left Side */}
-            <div className="absolute left-0 top-0 sm:left-1 sm:top-1 z-10 flex flex-col gap-2">
-              {/* PK Button */}
+        <div className="relative z-10 space-y-3">
+          {/* Compact Header - Player Info & Actions */}
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-amber-500/30">
+            {/* Player Avatar & Balance */}
+            <div className="flex items-center gap-2">
+              <Avatar className="h-10 w-10 ring-1 ring-amber-500/50">
+                <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
+                <AvatarFallback className="text-xs font-bold bg-amber-500/20 text-amber-400">{displayName[0]}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold text-amber-400">{displayName}</span>
+                <span className="text-[10px] font-mono-data text-muted-foreground">{balanceValue || '$10,000.00'}</span>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1.5">
               {currentMatchData && onOpenPKDialog && (
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-warning/50 bg-warning/10 hover:bg-warning/20 hover:border-warning group/pk flex items-center gap-1"
+                  variant="ghost"
+                  className="h-7 px-2 text-warning hover:bg-warning/10"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (currentMatchData && onOpenPKDialog) {
-                      onOpenPKDialog(currentMatchData.match);
-                    }
+                    onOpenPKDialog(currentMatchData.match);
                   }}
-                  title="与AI同场PK"
                 >
-                  <Target className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-warning group-hover/pk:scale-110 transition-transform" />
-                  <span className="text-[9px] sm:text-[9px] font-bold text-warning">PK</span>
+                  <Target className="h-3.5 w-3.5 mr-1" />
+                  <span className="text-[10px] font-bold">PK</span>
                 </Button>
               )}
-              
-              {/* Analysis Button - Below PK button */}
               {bet && currentMatchData && onOpenAnalysis && (
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-500 group/analyze flex items-center gap-1"
+                  variant="ghost"
+                  className="h-7 px-2 text-amber-500 hover:bg-amber-500/10"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (currentMatchData && onOpenAnalysis) {
-                      onOpenAnalysis(
-                        currentMatchData.match.fixture_id,
-                        'hunsoccermax',
-                        currentMatchData.match,
-                        { id: 'hunsoccermax', displayName: 'HUNSOCCER MAX' }
-                      );
-                    }
+                    onOpenAnalysis(
+                      currentMatchData.match.fixture_id,
+                      'hunsoccermax',
+                      currentMatchData.match,
+                      { id: 'hunsoccermax', displayName: 'HUNSOCCER MAX' }
+                    );
                   }}
-                  title="查看分析"
                 >
-                  <BarChart3 className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-amber-500 group-hover/analyze:scale-110 transition-transform" />
-                  <span className="text-[9px] sm:text-[9px] font-bold text-amber-500">查看分析</span>
+                  <BarChart3 className="h-3.5 w-3.5 mr-1" />
+                  <span className="text-[10px] font-bold">{t('view_analysis') || '分析'}</span>
                 </Button>
               )}
-              
-              {/* AI Feed Button */}
               <Button
                 size="sm"
-                className="h-auto px-2.5 sm:px-3 py-1.5 sm:py-2 relative group/feed bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300"
+                className="h-7 px-2 bg-violet-600 hover:bg-violet-500 text-white"
                 onClick={(e) => { 
                   e.stopPropagation(); 
                   setShowFeedDialog(true); 
                 }}
-                title="训练专属AI模型"
               >
-                <span className="text-[9px] sm:text-[10px] font-semibold tracking-wide">AI训练</span>
+                <Brain className="h-3.5 w-3.5 mr-1" />
+                <span className="text-[10px] font-bold">训练</span>
               </Button>
-            </div>
-
-            <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-amber-500/60 shadow-2xl group-hover:ring-amber-500/80 transition-all">
-              <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
-              <AvatarFallback className="text-sm sm:text-sm md:text-lg font-bold bg-gradient-to-br from-amber-500 to-yellow-500 text-black">
-                {displayName[0]}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col items-center gap-0.5">
-              <span className="text-[11px] sm:text-xs font-bold text-amber-400">{displayName}</span>
-              <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{t('wallet_balance')}</span>
-              <Badge variant="outline" className="text-xs sm:text-xs font-mono-data font-bold px-2 sm:px-2 py-0.5 bg-gradient-to-r from-foreground/10 to-foreground/5 border-2 border-foreground/20 text-foreground">
-                {balanceValue || '$10,000.00'}
-              </Badge>
             </div>
           </div>
 
@@ -691,264 +667,126 @@ const PlayerExclusiveModelCard = ({
             </div>
           )}
 
-          {/* Betting Predictions */}
+          {/* Handicap Bet - Simplified */}
           {handicapBet && currentMatchData && (
-            <div className="space-y-2 pt-1.5 sm:pt-1.5 border-t-2 border-amber-500/20">
-              <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
-                <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
-                  <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t('bet_slip')}
-                  </p>
-                  <Badge 
-                    variant={handicapBet.confirmed ? "default" : "outline"}
-                    className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
-                      handicapBet.confirmed 
-                        ? "bg-success/20 text-success border-success/50" 
-                        : "bg-destructive/20 text-destructive border-destructive/50"
-                    }`}
-                  >
-                    {handicapBet.confirmed ? "已确定" : "未确定"}
-                  </Badge>
-                </div>
-                
-                <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
-                  <div className="flex items-center justify-between gap-1.5 sm:gap-2">
-                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                      <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-amber-500/15 text-amber-500 border-amber-500/40 px-2 sm:px-2 py-1 sm:py-1">
-                        {handicapBet.prediction === 'HOME_WIN' || handicapBet.prediction === 'HOME' 
-                          ? safeGetTeamName(currentMatchData.match, 'home')
-                          : handicapBet.prediction === 'AWAY_WIN' || handicapBet.prediction === 'AWAY' 
-                          ? safeGetTeamName(currentMatchData.match, 'away')
-                          : t('draw')}
-                        {handicapBet.handicapLine !== undefined && (
-                          <span className="ml-1 font-mono-data">
-                            {handicapBet.handicapLine > 0 ? '+' : ''}{handicapBet.handicapLine}
-                          </span>
-                        )}
-                      </Badge>
-                      <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
-                        {handicapBet.confidence}% {t('confidence')}
-                      </Badge>
-                    </div>
-                    <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
-                      @{Math.max(0, handicapBet.odds - 1).toFixed(2)}
-                    </Badge>
-                  </div>
-                  
-                  {/* Handicap Selection */}
-                  <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
-                    <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
-                      {t('handicap_bet')}
-                    </p>
-                    <div className="grid grid-cols-2 gap-1">
-                      <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
-                        handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
-                          ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
-                          : "bg-card border-border/50"
+            <div className="bg-amber-500/10 rounded-lg p-2.5 space-y-2">
+              {/* Bet Type Header */}
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-medium text-amber-400 uppercase tracking-wide">{t('handicap_bet')}</span>
+                <Badge 
+                  variant="outline"
+                  className={`text-[9px] px-1.5 py-0 ${handicapBet.confirmed ? "text-success border-success/40" : "text-muted-foreground"}`}
+                >
+                  {handicapBet.confirmed ? "✓" : "○"}
+                </Badge>
+              </div>
+              
+              {/* Selection Grid */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <div className={`p-2 rounded-md border transition-all ${
+                  handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
+                    ? "bg-amber-500/20 border-amber-500/50" 
+                    : "bg-card/50 border-border/30"
+                }`}>
+                  <div className="flex items-center gap-1.5">
+                    {currentMatchData.match.home_logo && (
+                      <Avatar className="h-4 w-4">
+                        <AvatarImage src={currentMatchData.match.home_logo} />
+                        <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
+                      </Avatar>
+                    )}
+                    <span className="text-[9px] font-medium truncate flex-1">{safeGetTeamName(currentMatchData.match, 'home')}</span>
+                    {handicapBet.handicapLine !== undefined && (
+                      <span className={`text-[9px] font-mono-data font-bold ${
+                        handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-amber-400" : "text-muted-foreground"
                       }`}>
-                        {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") && (
-                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                        )}
-                        <div className="flex items-center gap-1">
-                          {currentMatchData?.match.home_logo ? (
-                            <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
-                              <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
-                              <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
-                            </Avatar>
-                          ) : null}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[7px] sm:text-[8px] font-medium truncate">{safeGetTeamName(currentMatchData!.match, 'home')}</p>
-                          </div>
-                          {handicapBet.handicapLine !== undefined && (
-                            <Badge variant={(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
-                              {(() => {
-                                const homeLine = (handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") 
-                                  ? handicapBet.handicapLine 
-                                  : -handicapBet.handicapLine;
-                                return homeLine > 0 ? `+${homeLine}` : `${homeLine}`;
-                              })()}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
-                        handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
-                          ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
-                          : "bg-card border-border/50"
-                      }`}>
-                        {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") && (
-                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                        )}
-                        <div className="flex items-center gap-1">
-                          {currentMatchData?.match.away_logo ? (
-                            <Avatar className="h-3 w-3 sm:h-4 sm:w-4 ring-1 ring-border shrink-0">
-                              <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
-                              <AvatarFallback><Shield className="h-1.5 w-1.5" /></AvatarFallback>
-                            </Avatar>
-                          ) : null}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[7px] sm:text-[8px] font-medium truncate">{safeGetTeamName(currentMatchData!.match, 'away')}</p>
-                          </div>
-                          {handicapBet.handicapLine !== undefined && (
-                            <Badge variant={(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
-                              {(() => {
-                                const awayLine = (handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") 
-                                  ? handicapBet.handicapLine 
-                                  : -handicapBet.handicapLine;
-                                return awayLine > 0 ? `+${awayLine}` : `${awayLine}`;
-                              })()}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Financial Details */}
-                  <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1 border-t border-border/30">
-                    <div className="flex items-center justify-between py-1">
-                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
-                        {t('bet_amount')}
+                        {((handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
+                        {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine}
                       </span>
-                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                        ${handicapBet.betAmount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1">
-                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
-                        {t('odds')}
-                      </span>
-                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                        {Math.max(0, handicapBet.odds - 1).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
-                      <span className="text-[9px] sm:text-[9px] text-success font-bold">
-                        {t('potential_return')}
-                      </span>
-                      <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
-                        ${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </span>
-                    </div>
+                    )}
                   </div>
                 </div>
+                <div className={`p-2 rounded-md border transition-all ${
+                  handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
+                    ? "bg-amber-500/20 border-amber-500/50" 
+                    : "bg-card/50 border-border/30"
+                }`}>
+                  <div className="flex items-center gap-1.5">
+                    {currentMatchData.match.away_logo && (
+                      <Avatar className="h-4 w-4">
+                        <AvatarImage src={currentMatchData.match.away_logo} />
+                        <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
+                      </Avatar>
+                    )}
+                    <span className="text-[9px] font-medium truncate flex-1">{safeGetTeamName(currentMatchData.match, 'away')}</span>
+                    {handicapBet.handicapLine !== undefined && (
+                      <span className={`text-[9px] font-mono-data font-bold ${
+                        handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-amber-400" : "text-muted-foreground"
+                      }`}>
+                        {((handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
+                        {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Compact Stats Row */}
+              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-amber-500/20">
+                <div className="flex items-center gap-3">
+                  <span className="text-muted-foreground">{t('confidence')}: <span className="font-semibold text-foreground">{handicapBet.confidence}%</span></span>
+                  <span className="text-muted-foreground">@<span className="font-mono-data font-semibold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                </div>
+                <span className="font-mono-data font-bold text-success">${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
             </div>
           )}
 
+          {/* Over/Under Bet - Simplified */}
           {overUnderBet && currentMatchData && (
-            <div className={`space-y-2 ${handicapBet ? 'pt-2' : 'pt-1.5 sm:pt-1.5 border-t-2 border-amber-500/20'}`}>
-              <div className="bg-card/90 backdrop-blur-md rounded-lg overflow-hidden border-2 border-border/80 shadow-xl">
-                <div className="bg-muted/60 px-2 sm:px-2 py-1 sm:py-1 border-b border-border/70 flex items-center justify-between backdrop-blur-sm">
-                  <p className="text-[9px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t('bet_slip')}
-                  </p>
-                  <Badge 
-                    variant={overUnderBet.confirmed ? "default" : "outline"}
-                    className={`text-[9px] sm:text-[9px] font-bold px-1.5 sm:px-1.5 py-0.5 ${
-                      overUnderBet.confirmed 
-                        ? "bg-success/20 text-success border-success/50" 
-                        : "bg-destructive/20 text-destructive border-destructive/50"
-                    }`}
-                  >
-                    {overUnderBet.confirmed ? "已确定" : "未确定"}
-                  </Badge>
+            <div className="bg-amber-500/10 rounded-lg p-2.5 space-y-2">
+              {/* Bet Type Header */}
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-medium text-amber-400 uppercase tracking-wide">{t('over_under_bet')}</span>
+                <Badge 
+                  variant="outline"
+                  className={`text-[9px] px-1.5 py-0 ${overUnderBet.confirmed ? "text-success border-success/40" : "text-muted-foreground"}`}
+                >
+                  {overUnderBet.confirmed ? "✓" : "○"}
+                </Badge>
+              </div>
+              
+              {/* Selection Grid */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <div className={`p-2 rounded-md border text-center transition-all ${
+                  overUnderBet.overUnderPick === 'over'
+                    ? "bg-amber-500/20 border-amber-500/50" 
+                    : "bg-card/50 border-border/30"
+                }`}>
+                  <span className="text-[9px] font-medium">{t('over')}</span>
+                  <span className={`ml-1 text-[10px] font-mono-data font-bold ${
+                    overUnderBet.overUnderPick === 'over' ? "text-amber-400" : "text-muted-foreground"
+                  }`}>{overUnderBet.overUnderLine}</span>
                 </div>
-                
-                <div className="p-2 sm:p-2 space-y-1.5 sm:space-y-1.5 bg-card/95 backdrop-blur-sm">
-                  <div className="flex items-center justify-between gap-1.5 sm:gap-2">
-                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                      <Badge variant="outline" className="text-[10px] sm:text-[10px] font-bold bg-amber-500/15 text-amber-500 border-amber-500/40 px-2 sm:px-2 py-1 sm:py-1">
-                        {overUnderBet.overUnderLine} ({overUnderBet.overUnderPick === 'over' ? t('over') : t('under')})
-                      </Badge>
-                      <Badge variant="secondary" className="text-[10px] sm:text-[10px] font-bold px-2 sm:px-2 py-1 bg-secondary/80 text-foreground border-2 border-border">
-                        {overUnderBet.confidence}% {t('confidence')}
-                      </Badge>
-                    </div>
-                    <Badge variant="default" className="text-[10px] sm:text-[10px] font-mono-data font-bold bg-foreground text-background px-2 sm:px-2 py-1">
-                      @{Math.max(0, overUnderBet.odds - 1).toFixed(2)}
-                    </Badge>
-                  </div>
-                  
-                  {/* Over/Under Selection */}
-                  <div className="bg-muted/50 rounded-lg p-1 sm:p-1.5 border border-border/70 backdrop-blur-sm">
-                    <p className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
-                      {t('over_under_bet')}
-                    </p>
-                    <div className="grid grid-cols-2 gap-1">
-                      {/* 大球选项 */}
-                      {(() => {
-                        const isSelected = overUnderBet.overUnderPick === 'over';
-                        return (
-                          <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
-                            isSelected
-                              ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
-                              : "bg-card border-border/50"
-                          }`}>
-                            {isSelected && (
-                              <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                            )}
-                            <div className="flex items-center gap-1 justify-center">
-                              <p className="text-[7px] sm:text-[8px] font-medium">{t('over')}</p>
-                              <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
-                                {overUnderBet.overUnderLine}
-                              </Badge>
-                            </div>
-                          </div>
-                        );
-                      })()}
-                      {/* 小球选项 */}
-                      {(() => {
-                        const isSelected = overUnderBet.overUnderPick === 'under';
-                        return (
-                          <div className={`p-1 sm:p-1.5 rounded border-2 transition-all relative ${
-                            isSelected
-                              ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/30" 
-                              : "bg-card border-border/50"
-                          }`}>
-                            {isSelected && (
-                              <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                            )}
-                            <div className="flex items-center gap-1 justify-center">
-                              <p className="text-[7px] sm:text-[8px] font-medium">{t('under')}</p>
-                              <Badge variant={isSelected ? "default" : "outline"} className="text-[7px] sm:text-[8px] font-mono-data py-0 px-1 shrink-0">
-                                {overUnderBet.overUnderLine}
-                              </Badge>
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                  
-                  {/* Financial Details */}
-                  <div className="space-y-1 sm:space-y-1 pt-1 sm:pt-1 border-t border-border/30">
-                    <div className="flex items-center justify-between py-1">
-                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
-                        {t('bet_amount')}
-                      </span>
-                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                        ${overUnderBet.betAmount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1">
-                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-medium">
-                        {t('odds')}
-                      </span>
-                      <span className="text-xs sm:text-sm font-mono-data font-bold text-foreground">
-                        {Math.max(0, overUnderBet.odds - 1).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1 bg-success/10 rounded-lg px-2 sm:px-2 border border-success/30">
-                      <span className="text-[9px] sm:text-[9px] text-success font-bold">
-                        {t('potential_return')}
-                      </span>
-                      <span className="text-xs sm:text-sm font-mono-data font-bold text-success">
-                        ${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </span>
-                    </div>
-                  </div>
+                <div className={`p-2 rounded-md border text-center transition-all ${
+                  overUnderBet.overUnderPick === 'under'
+                    ? "bg-amber-500/20 border-amber-500/50" 
+                    : "bg-card/50 border-border/30"
+                }`}>
+                  <span className="text-[9px] font-medium">{t('under')}</span>
+                  <span className={`ml-1 text-[10px] font-mono-data font-bold ${
+                    overUnderBet.overUnderPick === 'under' ? "text-amber-400" : "text-muted-foreground"
+                  }`}>{overUnderBet.overUnderLine}</span>
                 </div>
+              </div>
+              
+              {/* Compact Stats Row */}
+              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-amber-500/20">
+                <div className="flex items-center gap-3">
+                  <span className="text-muted-foreground">{t('confidence')}: <span className="font-semibold text-foreground">{overUnderBet.confidence}%</span></span>
+                  <span className="text-muted-foreground">@<span className="font-mono-data font-semibold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                </div>
+                <span className="font-mono-data font-bold text-success">${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
             </div>
           )}
