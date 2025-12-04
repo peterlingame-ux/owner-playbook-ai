@@ -140,7 +140,8 @@ const CryptoTicker = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mb-3"
           >
-            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs sm:text-sm font-medium text-primary">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs sm:text-sm font-medium text-primary">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"/>
               全球足球预测挑战赛
             </span>
           </motion.div>
