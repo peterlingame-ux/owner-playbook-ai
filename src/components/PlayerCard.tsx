@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface PlayerCardProps {
@@ -26,6 +27,7 @@ interface PlayerCardProps {
 
 const PlayerCard = ({ player }: PlayerCardProps) => {
   const { t } = useTranslation();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const isPositive = player.changePercent > 0;
   
@@ -83,6 +85,13 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
   };
   
   const handleCardClick = () => {
+    if (!authLoading && !user) {
+      toast.warning(t("login_required"), {
+        description: t("login_prompt"),
+      });
+      navigate("/auth");
+      return;
+    }
     navigate(`/player/${player.id}`);
   };
   
@@ -160,10 +169,10 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
           </div>
           
           {/* Money Change Badge */}
-          <div className="flex flex-col items-center gap-1 shrink-0">
-            <span className="text-[8px] sm:text-[9px] text-muted-foreground whitespace-nowrap">{t('simulated_profit')}</span>
-            <div className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-mono-data font-bold text-[10px] sm:text-xs ${
-              isPositive ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+          <div className="flex flex-col items-center gap-1.5 shrink-0">
+            <span className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">{t('simulated_profit')}</span>
+            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data font-bold text-sm sm:text-base ${
+              isPositive ? 'bg-success/30 text-success border border-success/30' : 'bg-destructive/30 text-destructive border border-destructive/30'
             }`}>
               {formattedProfit}
             </div>

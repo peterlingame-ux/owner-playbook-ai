@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, CheckCircle2, XCircle, Filter, Calendar as CalendarIcon } from "lucide-react";
@@ -7,25 +7,253 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { aiModels, predictionHistory, pastMatches } from "@/data/mockData";
+import { aiModels } from "@/data/mockData";
 import Header from "@/components/Header";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 import iconGreencourt from "@/assets/icon_greencourt.jpg";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import gpt5Icon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+
+// AI 图标映射
+const AI_ICONS: Record<string, string> = {
+  deepseek: deepseekIcon,
+  gpt5: gpt5Icon,
+  claude: claudeIcon,
+  gemini: geminiIcon,
+  grok: grokIcon,
+  hunsoccermax: hunsoccerIcon,
+};
+
+// 类型定义
+type ModelPrediction = {
+  id: string;
+  matchId: string;
+  prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW";
+  actualResult?: "HOME_WIN" | "AWAY_WIN" | "DRAW";
+  correct: boolean;
+  confidence: number;
+  date: string;
+  betType: "moneyline" | "handicap" | "over_under";
+  handicapLine?: number;
+  overUnderLine?: number;
+  overUnderPick?: "over" | "under";
+  odds: number;
+  betAmount: number;
+  profit: number;
+  match?: {
+    id: string;
+    homeTeam: string;
+    awayTeam: string;
+    homeScore?: number;
+    awayScore?: number;
+    homeLogo?: string;
+    awayLogo?: string;
+    league?: string;
+  };
+};
 
 const ModelDetail = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { modelId } = useParams<{ modelId: string }>();
   const navigate = useNavigate();
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterBetType, setFilterBetType] = useState<string>("all");
+  const [modelPredictions, setModelPredictions] = useState<ModelPrediction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
   
   const model = aiModels.find(m => m.id === modelId);
   
+  // 从数据库获取历史数据和余额
+  const [aiBalance, setAiBalance] = useState<{ currentValue: number; profit: number; changePercent: number } | null>(null);
+
+  useEffect(() => {
+    const fetchModelHistory = async () => {
+      if (!modelId) return;
+      
+      try {
+        setIsLoading(true);
+        
+        // 并行查询：投注记录和余额数据
+        const [positionsResult, balanceResult] = await Promise.all([
+          supabase
+            .from('sim_positions' as any)
+            .select(`
+              id,
+              match_id,
+              ai_id,
+              status,
+              settled_at,
+              stake_amount,
+              odds,
+              bet_type,
+              metadata
+            `)
+            .eq('status', 'settled')
+            .eq('ai_id', modelId)
+            .not('settled_at', 'is', null)
+            .order('settled_at', { ascending: false }),
+          supabase
+            .from('ai_balances' as any)
+            .select('ai_id, available_balance, locked_balance')
+            .eq('ai_id', modelId)
+            .maybeSingle()
+        ]);
+
+        const { data: positionsData, error: positionsError } = positionsResult;
+        const { data: balanceData, error: balanceError } = balanceResult;
+  
+        if (positionsError) {
+          console.error('Error fetching positions:', positionsError);
+          setModelPredictions([]);
+        }
+
+        // 处理余额数据（与首页逻辑一致）
+        const INITIAL_BALANCE = 10000;
+        if (!balanceError && balanceData) {
+          const balance = balanceData as any;
+          const totalBalance = (balance.available_balance || 0) + (balance.locked_balance || 0);
+          const profit = totalBalance - INITIAL_BALANCE;
+          const changePercent = (profit / INITIAL_BALANCE) * 100;
+          
+          setAiBalance({
+            currentValue: totalBalance,
+            profit,
+            changePercent,
+          });
+        } else {
+          // 如果没有余额数据，使用默认值
+          setAiBalance({
+            currentValue: INITIAL_BALANCE,
+            profit: 0,
+            changePercent: 0,
+          });
+        }
+  
+        if (!positionsData || positionsData.length === 0) {
+          setModelPredictions([]);
+          return;
+        }
+  
+        // 获取所有唯一的 match_id
+        const matchIds = [...new Set(positionsData.map((p: any) => p.match_id).filter(Boolean))];
+        
+        // 查询比赛信息
+        let matchesMap = new Map();
+        if (matchIds.length > 0) {
+          const { data: matchesData, error: matchesError } = await supabase
+            .from('daily_matches' as any)
+            .select('*')
+            .in('fixture_id', matchIds);
+  
+          if (!matchesError && matchesData) {
+            matchesData.forEach((match: any) => {
+              matchesMap.set(match.fixture_id, match);
+            });
+          }
+        }
+  
+        // 转换数据格式
+        // 过滤掉 push 和 void 的结果，与 ai_win_rates_overall 视图保持一致
+        const records: ModelPrediction[] = positionsData
+          .filter((position: any) => {
+            const metadata = position.metadata || {};
+            const settlement = metadata.settlement || {};
+            const result = settlement.result;
+            // 只保留 win 和 loss 的结果，排除 push 和 void（与视图逻辑一致）
+            return result === 'win' || result === 'loss';
+          })
+          .map((position: any) => {
+          const metadata = position.metadata || {};
+          const settlement = metadata.settlement || {};
+          const result = settlement.result; // 'win', 'loss' (已过滤掉 push/void)
+          
+          // 从表的 bet_type 列读取，如果不存在则从 metadata 读取（向后兼容）
+          const betType = position.bet_type || metadata.bet_type || metadata.betType || 'moneyline';
+          
+          // 从 metadata 中提取预测信息
+          const prediction = metadata.prediction || position.prediction || 'HOME_WIN';
+          const confidence = metadata.confidence || 0;
+          // metadata 中可能使用驼峰命名，需要兼容两种格式
+          const handicapLine = metadata.handicap_line ?? metadata.handicapLine;
+          const overUnderLine = metadata.over_under_line ?? metadata.overUnderLine;
+          const overUnderPick = metadata.over_under_pick ?? metadata.overUnderPick;
+          
+          // 获取比赛信息
+          const match = position.match_id ? matchesMap.get(position.match_id) : null;
+          
+          // 计算实际结果（从比赛比分推断）
+          let actualResult: "HOME_WIN" | "AWAY_WIN" | "DRAW" | undefined;
+          if (match && match.goals_home !== null && match.goals_away !== null) {
+            if (match.goals_home > match.goals_away) {
+              actualResult = "HOME_WIN";
+            } else if (match.goals_away > match.goals_home) {
+              actualResult = "AWAY_WIN";
+            } else {
+              actualResult = "DRAW";
+            }
+          }
+          
+          // 判断是否正确（只考虑 win/loss，不考虑 push/void）
+          const correct = result === 'win';
+          
+          // 计算盈亏
+          const betAmount = position.stake_amount || 0;
+          const profit = correct ? betAmount * (position.odds - 1) : -betAmount;
+          
+          // 格式化日期
+          const settledDate = position.settled_at ? new Date(position.settled_at) : new Date();
+          const dateStr = settledDate.toISOString().split('T')[0];
+          
+          return {
+            id: position.id.toString(),
+            matchId: position.match_id?.toString() || '',
+            prediction: prediction as "HOME_WIN" | "AWAY_WIN" | "DRAW",
+            actualResult,
+            correct,
+            confidence,
+            date: dateStr,
+            betType: betType as "moneyline" | "handicap" | "over_under",
+            handicapLine,
+            overUnderLine,
+            overUnderPick: overUnderPick as "over" | "under" | undefined,
+            odds: position.odds || 1,
+            betAmount,
+            profit,
+            match: match ? {
+              id: match.fixture_id?.toString() || '',
+              homeTeam: match.home_team_name || '',
+              awayTeam: match.away_team_name || '',
+              homeScore: match.goals_home,
+              awayScore: match.goals_away,
+              homeLogo: match.home_logo || undefined,
+              awayLogo: match.away_logo || undefined,
+              league: match.league_name || undefined,
+            } : undefined,
+          };
+        });
+  
+        setModelPredictions(records);
+      } catch (error) {
+        console.error('Error fetching model history:', error);
+        setModelPredictions([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchModelHistory();
+  }, [modelId]);
+
   if (!model) {
     return (
       <div className="min-h-screen bg-background">
@@ -40,54 +268,106 @@ const ModelDetail = () => {
     );
   }
 
-  // 获取并过滤预测历史
-  let modelPredictions = predictionHistory
-    .filter(p => p.aiModel === modelId)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
   // 应用筛选
+  let filteredPredictions = [...modelPredictions];
+  
   if (filterResult !== "all") {
-    modelPredictions = modelPredictions.filter(p => 
+    filteredPredictions = filteredPredictions.filter(p => 
       filterResult === "correct" ? p.correct : !p.correct
     );
   }
   
   if (filterBetType !== "all") {
-    modelPredictions = modelPredictions.filter(p => p.betType === filterBetType);
+    filteredPredictions = filteredPredictions.filter(p => p.betType === filterBetType);
   }
 
-  // 计算盈利
-  const calculateProfit = (prediction: any) => {
-    if (prediction.correct) {
-      return prediction.betAmount * (prediction.odds - 1);
-    }
-    return -prediction.betAmount;
+  // 计算盈利（用于表格显示）
+  const calculateProfit = (prediction: ModelPrediction) => {
+    return prediction.profit;
   };
 
   const INITIAL_BALANCE = 10000;
-  const totalProfit = modelPredictions.reduce((sum, p) => sum + calculateProfit(p), 0);
-  const currentBalance = INITIAL_BALANCE + totalProfit;
-  const roi = ((totalProfit / INITIAL_BALANCE) * 100).toFixed(1);
+  
+  // 使用 ai_balances 表的余额数据（与首页一致）
+  const currentBalance = aiBalance?.currentValue ?? INITIAL_BALANCE;
+  const totalProfit = aiBalance?.profit ?? 0;
+  const roi = aiBalance?.changePercent ? aiBalance.changePercent.toFixed(1) : "0.0";
+  
+  // 计算筛选后的总盈利（用于表格显示）
+  const filteredTotalProfit = filteredPredictions.reduce((sum, p) => sum + calculateProfit(p), 0);
+  
+  // 计算统计数据（使用未筛选的数据，与首页视图保持一致）
+  // 注意：这里使用 modelPredictions 而不是 filteredPredictions，因为统计应该基于所有数据
+  const totalPredictions = modelPredictions.length;
+  const correctPredictions = modelPredictions.filter(p => p.correct).length;
+  const winRate = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(2) : "0.00";
 
-  const getBetTypeLabel = (betType: string, prediction: any) => {
+  // Helper function to get team name based on language
+  const getTeamName = (match: ModelPrediction['match'], team: 'home' | 'away') => {
+    if (!match) return '';
+    
+    const originalName = team === 'home' ? match.homeTeam : match.awayTeam;
+    if (!originalName) return '';
+    
+    // If Chinese language, try to get translation from i18n
+    if (i18n.language === 'zh') {
+      const translatedName = t(`teams.${originalName}`, originalName);
+      return translatedName;
+    }
+    
+    // Return original name for English
+    return originalName;
+  };
+
+  const getBetTypeLabel = (betType: string, prediction: ModelPrediction, match?: ModelPrediction['match']) => {
     switch(betType) {
-      case "moneyline": return t('bet_type_moneyline');
+      case "moneyline": 
+        return t('bet_type_moneyline') || 'Moneyline';
       case "handicap": 
-        return `${t('bet_type_handicap')} ${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+        // 显示让球线和让球方
+        if (prediction.handicapLine !== undefined) {
+          const lineStr = `${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+          // 根据 prediction 判断是哪个球队让球
+          const predStr = prediction.prediction as string;
+          if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
+            const teamName = match ? getTeamName(match, 'home') : t('home') || 'Home';
+            return `${teamName} ${lineStr}`;
+          } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
+            const teamName = match ? getTeamName(match, 'away') : t('away') || 'Away';
+            return `${teamName} ${lineStr}`;
+          } else {
+            if (prediction.handicapLine < 0 && match) {
+              return `${getTeamName(match, 'home')} ${lineStr}`;
+            } else if (prediction.handicapLine > 0 && match) {
+              return `${getTeamName(match, 'away')} ${lineStr}`;
+            }
+            return lineStr;
+          }
+        }
+        return t('bet_type_handicap') || 'Handicap';
       case "over_under": 
-        const overUnder = prediction.overUnderPick === 'over' ? t('over') || '大' : t('under') || '小';
-        return `${t('bet_type_over_under')} ${prediction.overUnderLine} ${overUnder}`;
+        // 显示大小球具体投注
+        if (prediction.overUnderLine !== undefined && prediction.overUnderPick) {
+          const overUnder = prediction.overUnderPick === 'over' ? t('over') || 'Over' : t('under') || 'Under';
+          return `${prediction.overUnderLine} ${overUnder}`;
+        }
+        return t('bet_type_over_under') || 'Over/Under';
       default: return betType;
     }
   };
 
-  const getPredictionLabel = (prediction: string, match: any) => {
-    switch(prediction) {
-      case "HOME_WIN": return match.homeTeam;
-      case "AWAY_WIN": return match.awayTeam;
-      case "DRAW": return t('draw') || '平局';
-      default: return prediction;
+  const getPredictionLabel = (prediction: ModelPrediction, match: ModelPrediction['match']) => {
+    // AI预测列显示投注类型：让分或大小球
+    if (prediction.betType === 'over_under') {
+      return t('bet_type_over_under') || '大小球';
+    } else if (prediction.betType === 'handicap') {
+      return t('bet_type_handicap') || '让分';
+    } else if (prediction.betType === 'moneyline') {
+      // 对于独赢，也显示类型名称
+      return t('bet_type_moneyline') || '独赢';
     }
+    // 默认情况：显示投注类型
+    return prediction.betType || t('bet_type_moneyline') || '独赢';
   };
 
   const getModelBackground = (modelId: string) => {
@@ -127,7 +407,7 @@ const ModelDetail = () => {
               style={{ borderColor: `hsl(var(--${model.color}))` }}
             >
               <img 
-                src={`/src/assets/${model.id}-icon.png`}
+                src={AI_ICONS[model.id] || deepseekIcon}
                 alt={model.name}
                 className="w-full h-full object-contain"
               />
@@ -140,7 +420,7 @@ const ModelDetail = () => {
                 {model.displayName}
               </h1>
               <p className="text-muted-foreground text-xs sm:text-lg">
-                {model.totalPredictions} {t('predictions')}
+                {totalPredictions} {t('predictions')}
               </p>
             </div>
           </div>
@@ -152,7 +432,7 @@ const ModelDetail = () => {
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('win_rate')}</p>
             <p className="text-xl sm:text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               <AnimatedWinRate 
-                value={model.winRate}
+                value={parseFloat(winRate)}
                 className="text-xl sm:text-3xl font-bold"
                 style={{ color: `hsl(var(--${model.color}))` }}
               />
@@ -162,14 +442,14 @@ const ModelDetail = () => {
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('correct')}</p>
             <p className="text-xl sm:text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-              {model.correctPredictions}
+              {correctPredictions}
             </p>
           </Card>
           
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('wrong')}</p>
             <p className="text-xl sm:text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-              {model.totalPredictions - model.correctPredictions}
+              {totalPredictions - correctPredictions}
             </p>
           </Card>
           
@@ -183,7 +463,7 @@ const ModelDetail = () => {
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm col-span-2 sm:col-span-1">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('current_balance')}</p>
             <p className="text-xl sm:text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-              ${currentBalance.toFixed(0)}
+              ${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </Card>
         </div>
@@ -214,7 +494,6 @@ const ModelDetail = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t('all_types')}</SelectItem>
-                  <SelectItem value="moneyline">{t('bet_type_moneyline')}</SelectItem>
                   <SelectItem value="handicap">{t('bet_type_handicap')}</SelectItem>
                   <SelectItem value="over_under">{t('bet_type_over_under')}</SelectItem>
                 </SelectContent>
@@ -222,7 +501,7 @@ const ModelDetail = () => {
             </div>
 
             <div className="text-xs sm:text-sm text-muted-foreground sm:ml-auto">
-              {modelPredictions.length} {t('records')}
+              {filteredPredictions.length} {t('records')}
             </div>
           </div>
         </Card>
@@ -244,15 +523,21 @@ const ModelDetail = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {modelPredictions.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
+                      {t('loading') || '加载中...'}
+                    </TableCell>
+                  </TableRow>
+                ) : filteredPredictions.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
                       {t('no_predictions')}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  modelPredictions.map((prediction) => {
-                    const match = pastMatches.find(m => m.id === prediction.matchId);
+                  filteredPredictions.map((prediction) => {
+                    const match = prediction.match;
                     if (!match) return null;
                     
                     const profit = calculateProfit(prediction);
@@ -273,7 +558,7 @@ const ModelDetail = () => {
                             {match.homeLogo && (
                               <img 
                                 src={match.homeLogo} 
-                                alt={match.homeTeam}
+                                alt={getTeamName(match, 'home')}
                                 className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
@@ -282,23 +567,25 @@ const ModelDetail = () => {
                             )}
                             <div className="flex-1 min-w-0">
                               <div className="text-[11px] sm:text-sm font-medium truncate">
-                                {match.homeTeam} vs {match.awayTeam}
+                                {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
                               </div>
                               <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
-                                {match.homeScore !== undefined && (
+                                {match.homeScore !== undefined && match.awayScore !== undefined && (
                                   <span className="text-[10px] sm:text-xs text-muted-foreground">
                                     {match.homeScore} - {match.awayScore}
                                   </span>
                                 )}
-                                <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                                  • {match.league}
-                                </span>
+                                {match.league && (
+                                  <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                                    • {match.league}
+                                  </span>
+                                )}
                               </div>
                             </div>
                             {match.awayLogo && (
                               <img 
                                 src={match.awayLogo} 
-                                alt={match.awayTeam}
+                                alt={getTeamName(match, 'away')}
                                 className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
@@ -309,19 +596,19 @@ const ModelDetail = () => {
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-[11px] sm:text-sm font-medium px-2 py-2">
                           <div className="truncate max-w-[100px]">
-                            {getPredictionLabel(prediction.prediction, match)}
+                            {getPredictionLabel(prediction, match)}
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell text-[11px] sm:text-sm px-2 py-2">
                           <div className="truncate max-w-[120px]">
-                            {getBetTypeLabel(prediction.betType, prediction)}
+                            {getBetTypeLabel(prediction.betType, prediction, match)}
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono text-[11px] sm:text-sm px-2 py-2">
                           {prediction.odds.toFixed(2)}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell text-right font-mono text-[11px] sm:text-sm px-2 py-2">
-                          ${prediction.betAmount}
+                          ${prediction.betAmount.toFixed(2)}
                         </TableCell>
                         <TableCell className={`text-right font-mono text-[11px] sm:text-sm font-bold px-2 py-2 ${
                           profit >= 0 ? 'text-success' : 'text-destructive'

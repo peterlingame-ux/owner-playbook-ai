@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.football-fixtures]
 verify_jwt = false
+
+[functions.send-sms-aliyun]
+verify_jwt = false

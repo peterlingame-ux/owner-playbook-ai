@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, X, Sun, Moon } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -9,7 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui/sheet";
 import { useState } from "react";
-import { useTheme } from "next-themes";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
 import boosportLogo from "@/assets/boosport-logo-pixel.png";
@@ -21,7 +20,6 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPredictions, setShowPredictions] = useState(false);
-  const { theme, setTheme } = useTheme();
   const languageClassDesktop = i18n.language === "en" ? "font-pixel tracking-wider text-sm md:text-base" : "text-base md:text-lg";
   const languageClassMobile = i18n.language === "en" ? "font-pixel tracking-wider text-sm" : "text-base";
   const getDesktopNavClass = (isActive: boolean) =>
@@ -89,21 +87,6 @@ const Header = () => {
               <SheetContent side="right" className="w-[280px] sm:w-[400px] animate-slide-in-right">
                 <nav className="flex flex-col gap-2 mt-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 justify-between">
-                      <span className="text-sm text-muted-foreground">{theme === "dark" ? t('dark_mode') || "夜间模式" : t('light_mode') || "日间模式"}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                        className="h-9 w-9"
-                      >
-                        {theme === "dark" ? (
-                          <Sun className="h-4 w-4" />
-                        ) : (
-                          <Moon className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
                     {user ? (
                       <>
                         <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
@@ -160,19 +143,6 @@ const Header = () => {
             </Sheet>
             
             <OnlineUsers />
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="hidden sm:flex h-8 w-8"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Button>
             
             <LanguageSwitcher />
             

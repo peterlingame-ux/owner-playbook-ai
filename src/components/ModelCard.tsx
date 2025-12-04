@@ -189,10 +189,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
           
           {/* Money Change Badge */}
-          <div className="flex flex-col items-center gap-1 shrink-0">
-            <span className="text-[8px] sm:text-[9px] text-muted-foreground whitespace-nowrap">{t('simulated_profit')}</span>
-            <div className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-mono-data font-bold text-[10px] sm:text-xs ${
-              model.change.startsWith('+') ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+          <div className="flex flex-col items-center gap-1.5 shrink-0">
+            <span className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">{t('simulated_profit')}</span>
+            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data font-bold text-sm sm:text-base ${
+              model.change.startsWith('+') ? 'bg-success/30 text-success border border-success/30' : 'bg-destructive/30 text-destructive border border-destructive/30'
             }`}>
               {model.change}
             </div>
@@ -202,8 +202,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         <div className="space-y-2.5 sm:space-y-3">
           <div>
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[10px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
-              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all" style={{ color: `hsl(var(--${model.color}))` }}>
+              <span className="text-[10px] sm:text-xs text-white">{t('win_rate')}</span>
+              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-white">
                 {animatedWinRate.toFixed(1)}%
               </span>
             </div>
@@ -222,20 +222,20 @@ const ModelCard = ({ model }: ModelCardProps) => {
           
           <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/50 gap-2">
             <div>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data text-success">
+              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('correct')}</p>
+              <p className="text-base sm:text-lg font-bold font-mono-data text-success">
                 {model.correctPredictions}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data">
+              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('total_predictions')}</p>
+              <p className="text-base sm:text-lg font-bold font-mono-data">
                 {model.totalPredictions}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data text-destructive">
+              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('wrong')}</p>
+              <p className="text-base sm:text-lg font-bold font-mono-data text-destructive">
                 {model.totalPredictions - model.correctPredictions}
               </p>
             </div>
