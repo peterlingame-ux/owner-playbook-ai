@@ -231,69 +231,69 @@ const LeaderboardTable = () => {
             <div className="inline-block min-w-full align-middle">
               <Table className="min-w-[800px]">
                 <TableHeader>
-                  <TableRow className="border-b border-border/50 hover:bg-transparent bg-muted/30">
-                    <TableHead className="w-8 sm:w-12 py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase text-center">#</TableHead>
-                    <TableHead className="py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase min-w-[100px] sm:min-w-0">{t('model')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">
-                      <div className="flex items-center justify-center gap-1">
-                        {t('win_rate')} <ArrowDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <TableRow className="border-b-2 border-border/60 hover:bg-transparent bg-muted/40">
+                    <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase text-center">#</TableHead>
+                    <TableHead className="py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0">{t('model')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {t('win_rate')} <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       </div>
                     </TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('predictions')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('correct')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('wrong')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('best_streak')}</TableHead>
-                    <TableHead className="text-center py-2 sm:py-2.5 text-muted-foreground font-medium text-[9px] sm:text-[10px] tracking-wider uppercase">{t('worst_streak')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('predictions')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('correct')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {enhancedModels.map((model, index) => (
                     <TableRow 
                       key={model.id}
-                      className="border-b border-border/20 hover:bg-accent/20 transition-colors"
+                      className="border-b border-border/30 hover:bg-accent/30 transition-colors"
                     >
-                      <TableCell className="py-2 sm:py-3 text-center">
+                      <TableCell className="py-3 sm:py-4 text-center">
                         <div className="flex items-center justify-center">
-                          <span className="font-bold text-xs sm:text-sm text-muted-foreground">{index + 1}</span>
+                          <span className="font-black text-sm sm:text-base text-foreground/70">{index + 1}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="py-2 sm:py-3">
-                        <div className="flex items-center gap-1.5 sm:gap-2.5">
-                          <div className="w-5 h-5 sm:w-7 sm:h-7 rounded bg-background/50 p-0.5 sm:p-1 flex items-center justify-center border border-border/30 flex-shrink-0">
+                      <TableCell className="py-3 sm:py-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0">
                             <img src={getModelIcon(model.id)} alt={model.name} className="w-full h-full object-contain" />
                           </div>
-                          <span className="font-semibold text-xs sm:text-sm truncate">{model.displayName}</span>
+                          <span className="font-bold text-sm sm:text-base truncate">{model.displayName}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3">
+                      <TableCell className="text-center py-3 sm:py-4">
                         <AnimatedWinRate 
                           value={model.winRate}
-                          className="font-mono-data font-bold text-sm sm:text-base"
+                          className="font-mono-data font-black text-base sm:text-lg"
                           style={{ color: `hsl(var(--${model.color}))` }}
                         />
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3">
-                        <span className="font-mono-data text-xs sm:text-sm text-muted-foreground">
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : model.totalPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3">
-                        <span className="font-mono-data font-semibold text-xs sm:text-sm text-foreground/90">
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-success">
                           {model.locked ? '???' : model.correctPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3">
-                        <span className="font-mono-data font-semibold text-xs sm:text-sm text-foreground/50">
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-foreground/40">
                           {model.locked ? '???' : model.wrongPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3">
-                        <span className="font-mono-data text-xs sm:text-sm text-foreground/70">
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-success/80">
                           {model.locked ? '???' : '+' + model.bestStreak}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-2 sm:py-3">
-                        <span className="font-mono-data text-xs sm:text-sm text-destructive/70">
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
                           {model.locked ? '???' : '-' + model.worstStreak}
                         </span>
                       </TableCell>
