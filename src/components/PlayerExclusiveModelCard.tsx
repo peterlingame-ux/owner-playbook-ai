@@ -543,15 +543,8 @@ const PlayerExclusiveModelCard = ({
               {/* Glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg blur opacity-40 group-hover/btn:opacity-70 transition-opacity duration-300" />
               
-              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
-                <div className="relative">
-                  <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:animate-pulse" />
-                  <div className="absolute inset-0 animate-ping">
-                    <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 opacity-30" />
-                  </div>
-                </div>
+              <div className="relative flex items-center justify-center">
                 <span className="font-black tracking-wide">AI投喂</span>
-                <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5 animate-pulse" />
               </div>
               
               {/* Shine effect */}
