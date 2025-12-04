@@ -160,9 +160,25 @@ const CryptoTicker = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="relative mb-6"
           >
-            <div className="flex flex-col items-center gap-1">
+            {/* Golden glow effect */}
+            <motion.div 
+              className="absolute inset-0 -inset-x-8 -inset-y-4 bg-gradient-to-r from-yellow-500/20 via-amber-400/30 to-yellow-500/20 blur-2xl rounded-full"
+              animate={{ 
+                opacity: [0.4, 0.7, 0.4],
+                scale: [0.95, 1.05, 0.95],
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div 
+              className="absolute inset-0 -inset-x-4 -inset-y-2 bg-amber-400/20 blur-xl rounded-full"
+              animate={{ 
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            />
+            <div className="relative flex flex-col items-center gap-1">
               <span className="text-xs sm:text-sm text-muted-foreground font-medium tracking-widest uppercase">最高奖金</span>
-              <span className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,191,36,0.4)]">
+              <span className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,191,36,0.5)]">
                 {formatPrize(animatedPrize)}
               </span>
             </div>
