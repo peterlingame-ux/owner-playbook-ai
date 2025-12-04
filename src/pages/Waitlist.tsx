@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { differenceInDays, format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Trophy, Target, TrendingUp, DollarSign } from "lucide-react";
 
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
@@ -16,6 +20,14 @@ const aiIcons: Record<string, string> = {
 
 const Waitlist = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [userStats, setUserStats] = useState<{
+    totalPredictions: number;
+    wins: number;
+    winRate: number;
+    potentialPrize: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Current round info
   const currentRound = {
@@ -33,6 +45,49 @@ const Waitlist = () => {
   const daysElapsed = differenceInDays(today, currentRound.startDate);
   const daysRemaining = Math.max(0, differenceInDays(currentRound.endDate, today));
   const progress = Math.min(100, Math.max(0, (daysElapsed / totalDays) * 100));
+
+  // Fetch user predictions stats
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const { data: predictions } = await supabase
+          .from('user_predictions')
+          .select('*')
+          .eq('user_id', user.id);
+        
+        if (predictions) {
+          const total = predictions.length;
+          const wins = predictions.filter(p => p.result === 'win').length;
+          const winRate = total > 0 ? (wins / total) * 100 : 0;
+          
+          // Calculate potential prize based on win rate exceeding AI
+          let potentialPrize = 0;
+          if (winRate > currentRound.aiWinRate && total >= 50) {
+            const excessRate = winRate - currentRound.aiWinRate;
+            potentialPrize = Math.floor(excessRate * 10000); // Simplified calculation
+          }
+          
+          setUserStats({
+            totalPredictions: total,
+            wins,
+            winRate,
+            potentialPrize,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserStats();
+  }, [user]);
 
   const historyData = [
     { 
@@ -191,6 +246,103 @@ const Waitlist = () => {
             </div>
           </div>
         </div>
+
+        {/* My Stats Card */}
+        {user ? (
+          <div className="bg-card border border-border rounded-lg p-4 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">我的竞赛进度</h3>
+            </div>
+            
+            {loading ? (
+              <div className="text-sm text-muted-foreground">加载中...</div>
+            ) : userStats ? (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">预测场次</div>
+                    <div className="text-lg font-semibold text-foreground">
+                      {userStats.totalPredictions}
+                      <span className="text-xs text-muted-foreground font-normal ml-1">/ 50场</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-green-500" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">我的胜率</div>
+                    <div className={`text-lg font-semibold ${userStats.winRate > currentRound.aiWinRate ? 'text-green-500' : 'text-foreground'}`}>
+                      {userStats.winRate.toFixed(1)}%
+                      {userStats.winRate > currentRound.aiWinRate && (
+                        <span className="text-xs ml-1">超越AI</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <Trophy className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">胜场数</div>
+                    <div className="text-lg font-semibold text-foreground">
+                      {userStats.wins}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">预计奖金</div>
+                    <div className="text-lg font-semibold text-emerald-500">
+                      {userStats.potentialPrize > 0 ? `$${userStats.potentialPrize.toLocaleString()}` : '-'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">暂无预测记录</div>
+            )}
+            
+            {userStats && userStats.totalPredictions < 50 && (
+              <div className="mt-4 pt-3 border-t border-border">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-muted-foreground">完成进度</span>
+                  <span className="text-foreground">{userStats.totalPredictions}/50 场</span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-1.5">
+                  <motion.div 
+                    className="h-full bg-primary rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, (userStats.totalPredictions / 50) * 100)}%` }}
+                    transition={{ duration: 0.8 }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  还需完成 {Math.max(0, 50 - userStats.totalPredictions)} 场预测才能参与奖金分配
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-muted/30 border border-border rounded-lg p-4 mb-8 text-center">
+            <p className="text-sm text-muted-foreground mb-3">登录后查看您的竞赛进度和预计奖金</p>
+            <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
+              登录 / 注册
+            </Button>
+          </div>
+        )}
 
         {/* Stats Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
