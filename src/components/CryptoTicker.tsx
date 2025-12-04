@@ -12,8 +12,8 @@ const CryptoTicker = () => {
       <div className="relative min-h-[200px] sm:min-h-[240px] lg:min-h-[280px]">
         {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
-          style={{ backgroundImage: `url(${bannerBg})` }}
+          className="absolute inset-0 bg-cover bg-no-repeat opacity-25"
+          style={{ backgroundImage: `url(${bannerBg})`, backgroundPosition: 'center calc(50% + 20px)' }}
         />
         
         {/* Dark overlay for better text readability */}
