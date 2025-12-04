@@ -44,18 +44,12 @@ const CryptoTicker = () => {
         {/* Professional gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background"/>
         
-        {/* Accent glow effects */}
+        {/* Accent glow effects - Subtle */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.3 }}
-          className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"
-        />
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 0.5 }}
-          className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"
+          className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-foreground/5 rounded-full blur-[120px] pointer-events-none"
         />
 
         {/* Content */}
@@ -81,10 +75,8 @@ const CryptoTicker = () => {
           >
             <div className="flex items-baseline justify-center gap-2">
               <span className="text-sm sm:text-base text-muted-foreground font-medium">最高奖金</span>
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
-                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
-                  {formatPrize(animatedPrize)}
-                </span>
+              <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
+                {formatPrize(animatedPrize)}
               </span>
             </div>
           </motion.div>
