@@ -6,7 +6,7 @@ import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Bot, Users, Swords } from "lucide-react";
+import { Bot, Users, Zap } from "lucide-react";
 
 const Leaderboard = () => {
   const { t } = useTranslation();
@@ -20,79 +20,62 @@ const Leaderboard = () => {
       <CryptoTicker />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
-        {/* VS Header for mobile */}
-        <div className="lg:hidden flex items-center justify-center gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <span className="font-bold text-primary">AI</span>
-          </div>
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 flex items-center justify-center shadow-lg shadow-red-500/30 animate-pulse">
-              <span className="text-white font-black text-sm">VS</span>
+        {/* VS Header */}
+        <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 rounded-xl bg-primary/10 border border-primary/30">
+              <Bot className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
+            </div>
+            <div className="text-right">
+              <span className="font-bold text-base sm:text-xl text-primary">{t('ai_leaderboard')}</span>
+              <p className="text-xs text-muted-foreground hidden sm:block">{t('all_models')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-accent">玩家</span>
-            <Users className="h-5 w-5 text-accent" />
+          
+          {/* Animated VS Badge */}
+          <div className="relative">
+            {/* Pulsing glow rings */}
+            <div className="absolute inset-0 animate-ping">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 opacity-20" />
+            </div>
+            <div className="absolute inset-0 animate-pulse">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 opacity-30 blur-md" />
+            </div>
+            
+            {/* Main VS badge with bounce animation */}
+            <div className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 p-0.5 sm:p-1 shadow-2xl shadow-red-500/50 animate-bounce [animation-duration:2s]">
+              <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
+                <div className="relative flex flex-col items-center">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500 absolute -top-2 sm:-top-3 animate-pulse" />
+                  <span className="text-lg sm:text-2xl font-black bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
+                    VS
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="text-left">
+              <span className="font-bold text-base sm:text-xl text-accent">{t('player_leaderboard')}</span>
+              <p className="text-xs text-muted-foreground hidden sm:block">{t('all_players')}</p>
+            </div>
+            <div className="p-2 sm:p-3 rounded-xl bg-accent/10 border border-accent/30">
+              <Users className="h-5 w-5 sm:h-7 sm:w-7 text-accent" />
+            </div>
           </div>
         </div>
 
         {/* Side by side layout on desktop, stacked on mobile */}
-        <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
-          {/* VS Divider - Desktop only */}
-          <div className="hidden lg:flex absolute left-1/2 top-0 bottom-0 -translate-x-1/2 flex-col items-center z-10">
-            {/* Top line */}
-            <div className="w-px h-24 bg-gradient-to-b from-transparent via-red-500/50 to-red-500" />
-            
-            {/* VS Badge */}
-            <div className="relative my-4">
-              {/* Glow effect */}
-              <div className="absolute inset-0 blur-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 opacity-60 animate-pulse" />
-              
-              {/* Outer ring */}
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 p-1 shadow-2xl shadow-red-500/40">
-                {/* Inner circle */}
-                <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
-                  <div className="relative">
-                    <Swords className="h-6 w-6 text-red-500 absolute -top-4 left-1/2 -translate-x-1/2 opacity-60" />
-                    <span className="text-2xl font-black bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
-                      VS
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Bottom line */}
-            <div className="w-px flex-1 bg-gradient-to-b from-red-500 via-red-500/50 to-transparent" />
-          </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* AI Leaderboard - Left Side */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3 px-2">
-              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                <Bot className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-2xl font-bold leading-tight">{t('ai_leaderboard')}</h2>
-                <p className="text-sm text-muted-foreground">{t('all_models')}</p>
-              </div>
-            </div>
-            <LeaderboardTable />
+            <LeaderboardTable compact />
           </div>
           
           {/* Player Leaderboard - Right Side */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3 px-2">
-              <div className="p-2 rounded-lg bg-accent/10 border border-accent/20">
-                <Users className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-2xl font-bold leading-tight">{t('player_leaderboard')}</h2>
-                <p className="text-sm text-muted-foreground">{t('all_players')}</p>
-              </div>
-            </div>
-            <PlayerLeaderboardTable />
+            <PlayerLeaderboardTable compact />
           </div>
         </div>
       </div>
