@@ -38,30 +38,30 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* AI Model Colors */
-    --deepseek: 217 91% 60%;
-    --gpt: 158 64% 52%;
-    --claude: 14 90% 63%;
-    --gemini: 250 71% 63%;
-    --grok: 0 0% 25%;
-    --mystery: 45 100% 51%;
+    /* AI Model Colors - Unified Professional Palette */
+    --deepseek: 210 15% 50%;
+    --gpt: 210 15% 50%;
+    --claude: 210 15% 50%;
+    --gemini: 210 15% 50%;
+    --grok: 210 15% 50%;
+    --mystery: 45 70% 50%;
     
-    /* Chart Colors */
-    --chart-1: 217 91% 60%;
-    --chart-2: 0 0% 40%;
-    --chart-3: 14 90% 63%;
-    --chart-4: 250 71% 63%;
-    --chart-5: 158 64% 52%;
+    /* Chart Colors - Monochromatic */
+    --chart-1: 210 15% 55%;
+    --chart-2: 210 15% 45%;
+    --chart-3: 210 15% 65%;
+    --chart-4: 210 15% 35%;
+    --chart-5: 210 15% 75%;
     
-    /* Status Colors */
-    --success: 142 76% 36%;
-    --warning: 38 92% 50%;
-    --info: 199 89% 48%;
+    /* Status Colors - Subtle */
+    --success: 150 45% 42%;
+    --warning: 38 70% 50%;
+    --info: 200 60% 50%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(250 71% 63%));
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(158 64% 52%));
-    --gradient-chart: linear-gradient(180deg, hsl(217 91% 60% / 0.2), hsl(0 0% 100% / 0));
+    /* Gradients - Minimal */
+    --gradient-primary: linear-gradient(135deg, hsl(210 15% 50%), hsl(210 15% 40%));
+    --gradient-success: linear-gradient(135deg, hsl(150 45% 42%), hsl(150 45% 50%));
+    --gradient-chart: linear-gradient(180deg, hsl(210 15% 50% / 0.15), hsl(0 0% 100% / 0));
   }
 
   .dark {
@@ -93,7 +93,7 @@ All colors MUST be HSL.
     --input: 0 0% 20%;
     --ring: 0 0% 40%;
 
-    --gradient-chart: linear-gradient(180deg, hsl(217 91% 60% / 0.2), hsl(0 0% 7% / 0));
+    --gradient-chart: linear-gradient(180deg, hsl(210 15% 50% / 0.15), hsl(0 0% 7% / 0));
   }
 }
 

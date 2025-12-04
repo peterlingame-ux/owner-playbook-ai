@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface PlayerCardProps {
   player: {
@@ -40,11 +39,11 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
   const getRankColor = (rank: number) => {
     switch(rank) {
       case 1:
-        return 'hsl(45 100% 51%)'; // Gold
+        return 'hsl(45 50% 50%)'; // Muted Gold
       case 2:
-        return 'hsl(0 0% 75%)'; // Silver
+        return 'hsl(210 10% 60%)'; // Silver-gray
       case 3:
-        return 'hsl(30 60% 50%)'; // Bronze
+        return 'hsl(25 30% 45%)'; // Muted Bronze
       default:
         return 'hsl(var(--muted-foreground))';
     }
@@ -104,27 +103,16 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     ? `+$${player.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : `-$${Math.abs(player.profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   
-  // 按钮渐变颜色计算
-  const rankColor = getRankColor(player.rank);
-  const withOpacity = (color: string, opacity: number) =>
-    color.includes("/") ? color : color.replace(")", ` / ${opacity})`);
-  const buttonGradientStart = withOpacity(rankColor, 0.18);
-  const buttonGradientEnd = withOpacity(rankColor, 0.08);
-  const buttonBorderColor = withOpacity(rankColor, 0.3);
-  
   return (
     <Card 
-      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
       onClick={handleCardClick}
-      style={{
-        borderColor: getRankColor(player.rank)
-      }}
     >
-      {/* Background gradient */}
+      {/* Subtle Background gradient */}
       <div 
-        className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300"
+        className="absolute inset-0 opacity-3 group-hover:opacity-5 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(circle at 30% 50%, ${getRankColor(player.rank)}, transparent 70%)`
+          background: `linear-gradient(135deg, ${getRankColor(player.rank)}, transparent 80%)`
         }}
       />
       
@@ -200,7 +188,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/50 gap-2">
+          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
             <div>
               <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
               <p className="text-sm sm:text-base font-bold font-mono-data text-success">
@@ -209,7 +197,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
             </div>
             <div className="text-center">
               <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data">
+              <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
                 {player.totalPredictions}
               </p>
             </div>
@@ -222,33 +210,15 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
           </div>
           
           {/* Follow Player Button */}
-          <div className="pt-2 sm:pt-2.5 border-t border-border/50">
+          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
             <Button 
               onClick={handleFollowPlayer}
-              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
-              style={{
-                background: `linear-gradient(to right, ${buttonGradientStart}, ${buttonGradientEnd})`,
-                borderColor: buttonBorderColor,
-                color: 'hsl(255 100% 100%)',
-              }}
+              className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              {/* Football field pattern overlay */}
-              <div 
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: `url(${footballFieldBg})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
-              
-              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
-                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px] group-hover/btn:animate-pulse" />
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px]" />
                 <span>{t('copy_trade_player')}</span>
               </div>
-              
-              {/* Animated shine effect */}
-              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </Button>
           </div>
         </div>

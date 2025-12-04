@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { TrendingUp, TrendingDown, PlayCircle, Lock } from "lucide-react";
+import { PlayCircle, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,14 +15,6 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
-import starRonaldo from "@/assets/star-ronaldo.jpg";
-import starMessi from "@/assets/star-messi.jpg";
-import starHaaland from "@/assets/star-haaland.jpg";
-import starMbappe from "@/assets/star-mbappe.jpg";
-import starNeymar from "@/assets/star-neymar.jpg";
-import starHunsoccer from "@/assets/star-hunsoccer.jpg";
-import expertMystery from "@/assets/expert-mystery.jpg";
-import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 interface ModelCardProps {
   model: AIModel;
@@ -61,54 +53,15 @@ const ModelCard = ({ model }: ModelCardProps) => {
     }
   };
   
-  const getExpertImage = (modelId: string) => {
-    switch(modelId) {
-      case 'deepseek':
-        return starRonaldo;
-      case 'gpt5':
-        return starNeymar;
-      case 'claude':
-        return starMessi;
-      case 'gemini':
-        return starHaaland;
-      case 'grok':
-        return starMbappe;
-      case 'mystery':
-        return expertMystery;
-      case 'hunsoccermax':
-        return starHunsoccer;
-      default:
-        return starRonaldo;
-    }
-  };
-  
   const getColorTint = (modelId: string) => {
-    switch(modelId) {
-      case 'deepseek':
-        return { hue: '200deg', color: 'hsl(217 91% 60%)' };
-      case 'claude':
-        return { hue: '20deg', color: 'hsl(14 90% 63%)' };
-      case 'gemini':
-        return { hue: '260deg', color: 'hsl(250 71% 63%)' };
-      case 'grok':
-        return { hue: '0deg', color: 'hsl(0 0% 40%)' };
-      case 'gpt5':
-        return { hue: '150deg', color: 'hsl(158 64% 52%)' };
-      case 'hunsoccermax':
-        return { hue: '52deg', color: 'hsl(52 100% 55%)' };
-      case 'mystery':
-        return { hue: '45deg', color: 'hsl(45 100% 51%)' };
-      default:
-        return { hue: '0deg', color: 'hsl(0 0% 40%)' };
+    // Unified professional color - subtle blue-gray
+    if (modelId === 'mystery') {
+      return { hue: '45deg', color: 'hsl(45 70% 50%)' };
     }
+    return { hue: '210deg', color: 'hsl(210 15% 50%)' };
   };
   
   const colorTint = getColorTint(model.id);
-  const withOpacity = (color: string, opacity: number) =>
-    color.includes("/") ? color : color.replace(")", ` / ${opacity})`);
-  const buttonGradientStart = withOpacity(colorTint.color, 0.18);
-  const buttonGradientEnd = withOpacity(colorTint.color, 0.08);
-  const buttonBorderColor = withOpacity(colorTint.color, 0.3);
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -128,11 +81,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <Card 
-      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border hover:border-opacity-50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
       onClick={handleCardClick}
-      style={{
-        borderColor: `hsl(var(--${model.color}) / 0.3)`
-      }}
     >
       {/* Locked Badge Overlay - Center */}
       {model.locked && (
@@ -143,21 +93,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </span>
         </div>
       )}
-      {/* Star Player Background */}
+      {/* Subtle Background Gradient */}
       <div 
-        className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"
+        className="absolute inset-0 opacity-5 group-hover:opacity-8 transition-opacity duration-300"
         style={{
-          backgroundImage: `url(${getExpertImage(model.id)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      />
-      
-      {/* AI Brand Color Overlay */}
-      <div 
-        className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity duration-300"
-        style={{
-          background: `radial-gradient(circle at 30% 50%, ${colorTint.color}, transparent 70%)`
+          background: `linear-gradient(135deg, ${colorTint.color}, transparent 80%)`
         }}
       />
       
@@ -181,8 +121,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               />
             </div>
             <div className="min-w-0 flex-1 text-center sm:text-left">
-              {/* <h3 className="font-bold text-xs sm:text-sm leading-tight truncate" style={{ color: `hsl(var(--${model.color}))` }}> */}
-              <h3 className="font-bold text-xs sm:text-sm leading-tight" style={{ color: 'hsl(255 100% 100%)' }}>
+              <h3 className="font-bold text-xs sm:text-sm leading-tight text-foreground truncate">
                 {model.displayName.split(' ')[0]}
               </h3>
             </div>
@@ -202,8 +141,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         <div className="space-y-2.5 sm:space-y-3">
           <div>
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[10px] sm:text-xs text-white">{t('win_rate')}</span>
-              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-white">
+              <span className="text-[10px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
+              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-foreground">
                 {animatedWinRate.toFixed(1)}%
               </span>
             </div>
@@ -220,21 +159,21 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/50 gap-2">
+          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
             <div>
-              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('correct')}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
               <p className="text-base sm:text-lg font-bold font-mono-data text-success">
                 {model.correctPredictions}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('total_predictions')}</p>
-              <p className="text-base sm:text-lg font-bold font-mono-data">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
+              <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
                 {model.totalPredictions}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] sm:text-[10px] text-white mb-0.5">{t('wrong')}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
               <p className="text-base sm:text-lg font-bold font-mono-data text-destructive">
                 {model.totalPredictions - model.correctPredictions}
               </p>
@@ -242,33 +181,15 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
           
           {/* Follow Model Button */}
-          <div className="pt-2 sm:pt-2.5 border-t border-border/50">
+          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
             <Button 
               onClick={handleCopyTrade}
-              className="w-full h-9 sm:h-10 relative overflow-hidden group/btn border font-bold text-[10px] sm:text-xs hover:scale-105 transition-transform"
-              style={{
-                background: `linear-gradient(to right, ${buttonGradientStart}, ${buttonGradientEnd})`,
-                borderColor: buttonBorderColor,
-                color: 'hsl(255 100% 100%)',
-              }}
+              className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              {/* Football field pattern overlay */}
-              <div 
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: `url(${footballFieldBg})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
-              
-              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
-                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px] group-hover/btn:animate-pulse" />
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px]" />
                 <span>{t('copy_trade')}</span>
               </div>
-              
-              {/* Animated shine effect */}
-              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </Button>
           </div>
         </div>
