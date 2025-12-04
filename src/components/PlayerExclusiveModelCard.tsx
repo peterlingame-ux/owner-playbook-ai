@@ -534,7 +534,7 @@ const PlayerExclusiveModelCard = ({
             </Badge>
             <Button 
               size="sm"
-              className="h-auto px-3 sm:px-4 py-1.5 sm:py-2 relative overflow-hidden group/btn font-bold text-[10px] sm:text-xs bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-black shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-110 transition-all duration-300 rounded-lg border-0"
+              className="h-auto px-3 sm:px-4 py-1.5 sm:py-2 relative overflow-hidden group/btn font-bold text-[10px] sm:text-xs bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-black shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:animate-bounce transition-all duration-300 rounded-lg border-0"
               onClick={(e) => { 
                 e.stopPropagation(); 
                 setShowFeedDialog(true); 
