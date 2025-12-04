@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Trophy, Sparkles, Zap } from "lucide-react";
+import { Trophy, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import bannerBg from "@/assets/banner-bg.png";
 
 const CryptoTicker = () => {
   const navigate = useNavigate();
@@ -8,42 +9,18 @@ const CryptoTicker = () => {
   return (
     <div className="relative overflow-hidden">
       {/* Main Banner */}
-      <div className="relative min-h-[200px] sm:min-h-[240px] lg:min-h-[280px] bg-gradient-to-br from-[#0a1628] via-[#0d2847] to-[#0a1628]">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          {/* Football pattern */}
-          <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 opacity-10">
-            <svg viewBox="0 0 100 100" className="w-full h-full animate-spin-slow">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" className="text-white"/>
-              <path d="M50 5 L50 95 M5 50 L95 50 M15 15 L85 85 M85 15 L15 85" stroke="currentColor" strokeWidth="1" className="text-white/50"/>
-              <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/30"/>
-            </svg>
-          </div>
-          
-          {/* Bitcoin symbol */}
-          <div className="absolute -right-10 top-1/2 -translate-y-1/2 w-48 h-48 opacity-15">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#f7931a" strokeWidth="3"/>
-              <text x="50" y="65" textAnchor="middle" fontSize="40" fontWeight="bold" fill="#f7931a">₿</text>
-            </svg>
-          </div>
-          
-          {/* Floating particles */}
-          <div className="absolute top-10 left-[20%] w-2 h-2 bg-primary/40 rounded-full animate-float"/>
-          <div className="absolute top-20 right-[30%] w-3 h-3 bg-[#f7931a]/30 rounded-full animate-float-delayed"/>
-          <div className="absolute bottom-10 left-[40%] w-2 h-2 bg-green-400/30 rounded-full animate-float"/>
-          <div className="absolute bottom-20 right-[20%] w-1.5 h-1.5 bg-primary/50 rounded-full animate-float-delayed"/>
-          
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-[#f7931a]/10"/>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent"/>
-          
-          {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px'
-          }}/>
-        </div>
+      <div className="relative min-h-[200px] sm:min-h-[240px] lg:min-h-[280px]">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          style={{ backgroundImage: `url(${bannerBg})` }}
+        />
+        
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/80"/>
+        
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"/>
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-8 sm:py-10 lg:py-12 flex flex-col items-center justify-center text-center">
