@@ -609,16 +609,17 @@ const PlayerExclusiveModelCard = ({
               {/* AI Feed Button */}
               <Button
                 size="sm"
-                variant="outline"
-                className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-500 group/feed flex items-center gap-1"
+                className="h-auto px-2.5 sm:px-3 py-1.5 sm:py-2 relative group/feed flex items-center gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300"
                 onClick={(e) => { 
                   e.stopPropagation(); 
                   setShowFeedDialog(true); 
                 }}
                 title="训练专属AI模型"
               >
-                <Brain className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5 text-orange-500 group-hover/feed:scale-110 transition-transform" />
-                <span className="text-[9px] sm:text-[9px] font-bold text-orange-500">AI投喂</span>
+                <div className="relative">
+                  <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 group-hover/feed:rotate-12 transition-transform duration-300" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-semibold tracking-wide">AI训练</span>
               </Button>
             </div>
 
