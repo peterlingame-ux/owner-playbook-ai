@@ -525,28 +525,6 @@ const PlayerExclusiveModelCard = ({
               </Button>
             </div>
           )}
-          
-          {/* AI Feed Button */}
-          <div className="flex flex-col items-end gap-1.5">
-            <Button
-              size="sm"
-              className="h-auto px-3 sm:px-4 py-1.5 sm:py-2 relative overflow-hidden group/btn font-bold text-[10px] sm:text-xs bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-black shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:animate-bounce transition-all duration-300 rounded-lg border-0"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                setShowFeedDialog(true); 
-              }}
-            >
-              {/* Glow effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg blur opacity-40 group-hover/btn:opacity-70 transition-opacity duration-300" />
-              
-              <div className="relative flex items-center justify-center">
-                <span className="font-black tracking-wide">AI投喂</span>
-              </div>
-              
-              {/* Shine effect */}
-              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-            </Button>
-          </div>
         </div>
 
         {trainingCount > 0 && (
@@ -627,6 +605,21 @@ const PlayerExclusiveModelCard = ({
                   <span className="text-[9px] sm:text-[9px] font-bold text-amber-500">查看分析</span>
                 </Button>
               )}
+              
+              {/* AI Feed Button */}
+              <Button
+                size="sm"
+                className="h-auto px-2 sm:px-2.5 py-1.5 sm:py-1.5 relative overflow-hidden group/btn font-bold text-[9px] sm:text-[9px] bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-black shadow-md shadow-amber-500/30 hover:shadow-lg hover:shadow-amber-500/50 hover:scale-105 transition-all duration-300 rounded-md border-0"
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setShowFeedDialog(true); 
+                }}
+              >
+                <div className="relative flex items-center justify-center gap-1">
+                  <Brain className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5" />
+                  <span className="font-bold">AI投喂</span>
+                </div>
+              </Button>
             </div>
 
             <Avatar className="h-12 w-12 sm:h-10 md:h-14 sm:w-10 md:w-14 ring-2 ring-amber-500/60 shadow-2xl group-hover:ring-amber-500/80 transition-all">
