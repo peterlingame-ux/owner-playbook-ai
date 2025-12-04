@@ -12,12 +12,12 @@ const CryptoTicker = () => {
       <div className="relative min-h-[200px] sm:min-h-[240px] lg:min-h-[280px]">
         {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
           style={{ backgroundImage: `url(${bannerBg})` }}
         />
         
         {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/80"/>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/90"/>
         
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"/>
