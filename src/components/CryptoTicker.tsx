@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Trophy, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bannerBg from "@/assets/banner-bg.png";
 
@@ -39,13 +39,11 @@ const CryptoTicker = () => {
           {/* Prize Amount */}
           <div className="relative mb-6">
             <div className="flex items-center justify-center gap-2 sm:gap-3">
-              <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-[#f7931a] animate-bounce-slow"/>
               <span className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black">
                 <span className="bg-gradient-to-r from-[#f7931a] via-yellow-400 to-[#f7931a] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(247,147,26,0.5)]">
                   $1,000,000
                 </span>
               </span>
-              <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-[#f7931a] animate-bounce-slow"/>
             </div>
             <p className="text-sm sm:text-base text-white/60 mt-1 font-medium tracking-wider">
               最高奖金
