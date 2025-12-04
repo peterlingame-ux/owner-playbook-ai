@@ -26,6 +26,7 @@ const Header = () => {
     { to: "/history", label: t('nav_history') },
     { to: "/models", label: t('nav_models') },
     { to: "/my-predictions", label: "我的预测" },
+    { to: "/waitlist", label: "奖金" },
   ];
 
   const handleSignOut = async () => {
