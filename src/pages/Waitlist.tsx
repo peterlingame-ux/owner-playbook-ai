@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { differenceInDays, format } from "date-fns";
 
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
@@ -15,6 +16,23 @@ const aiIcons: Record<string, string> = {
 
 const Waitlist = () => {
   const navigate = useNavigate();
+  
+  // Current round info
+  const currentRound = {
+    round: "S1-007",
+    startDate: new Date("2024-12-01"),
+    endDate: new Date("2024-12-30"),
+    aiModel: "GPT-4o",
+    participants: 1523,
+    topPlayer: { name: "E***k4412", winRate: 71.8 },
+    aiWinRate: 73.2,
+  };
+  
+  const today = new Date();
+  const totalDays = differenceInDays(currentRound.endDate, currentRound.startDate);
+  const daysElapsed = differenceInDays(today, currentRound.startDate);
+  const daysRemaining = Math.max(0, differenceInDays(currentRound.endDate, today));
+  const progress = Math.min(100, Math.max(0, (daysElapsed / totalDays) * 100));
 
   const historyData = [
     { 
@@ -108,13 +126,70 @@ const Waitlist = () => {
       
       <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Title */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">
             预测竞赛奖金计划
           </h1>
           <p className="text-sm text-muted-foreground">
             Season 1 · 2024年6月启动
           </p>
+        </div>
+
+        {/* Current Round Progress */}
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded font-medium">进行中</span>
+              <span className="font-semibold text-foreground">{currentRound.round}</span>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {format(currentRound.startDate, "yyyy-MM-dd")} ~ {format(currentRound.endDate, "yyyy-MM-dd")}
+            </span>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mb-3">
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-primary rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+              />
+            </div>
+            <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+              <span>已进行 {daysElapsed} 天</span>
+              <span>剩余 {daysRemaining} 天</span>
+            </div>
+          </div>
+          
+          {/* Current Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">AI基准</div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <img src={aiIcons[currentRound.aiModel]} alt="" className="w-4 h-4 rounded" />
+                <span className="text-foreground">{currentRound.aiWinRate}%</span>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">当前参与</div>
+              <div className="text-foreground mt-0.5">{currentRound.participants.toLocaleString()} 人</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">领先玩家</div>
+              <div className="text-foreground mt-0.5">{currentRound.topPlayer.name}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">最高胜率</div>
+              <div className={`mt-0.5 ${currentRound.topPlayer.winRate > currentRound.aiWinRate ? 'text-green-500' : 'text-foreground'}`}>
+                {currentRound.topPlayer.winRate}%
+                {currentRound.topPlayer.winRate > currentRound.aiWinRate && (
+                  <span className="text-xs ml-1">超越AI</span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Summary */}
