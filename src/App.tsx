@@ -48,8 +48,6 @@ const App = () => (
             </Routes>
             {/* Global Floating AI Chat */}
             <FloatingAIChat />
-            {/* iOS-style Bottom Navigation */}
-            <BottomNav />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
