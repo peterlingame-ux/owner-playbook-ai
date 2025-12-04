@@ -9,9 +9,6 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
-import ronaldoBg from "@/assets/ronaldo-bg.jpg";
-import messiBg from "@/assets/messi-bg.jpg";
-import mbappeBg from "@/assets/mbappe-bg.jpg";
 
 interface PerformanceChartProps {
   onChartClick?: () => void;
@@ -290,48 +287,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   };
 
   return (
-    <Card className="p-3 sm:p-6 bg-card border-border relative overflow-hidden">
-      {/* Football Stars Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-25">
-          <div 
-            className="w-full h-full"
-            style={{
-              backgroundImage: `url(${ronaldoBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'grayscale(40%)'
-            }}
-          />
-        </div>
-        <div className="absolute left-1/3 top-0 bottom-0 w-1/3 opacity-25">
-          <div 
-            className="w-full h-full"
-            style={{
-              backgroundImage: `url(${messiBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'grayscale(40%)'
-            }}
-          />
-        </div>
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-25">
-          <div 
-            className="w-full h-full"
-            style={{
-              backgroundImage: `url(${mbappeBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'grayscale(40%)'
-            }}
-          />
-        </div>
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/85 to-background/80" />
-      </div>
-      
+    <Card className="p-3 sm:p-6 bg-card border-border/30">
       {/* Content */}
-      <div className="relative z-10">
+      <div>
       <div className="mb-3 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
         <h2 className="text-base sm:text-xl md:text-2xl font-bold tracking-wider text-center text-foreground">
           {t('performance_over_time')}
@@ -340,7 +298,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           <button 
             onClick={() => setTimeRange('all')}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-semibold tracking-wide transition-colors ${
-              timeRange === 'all' 
+              timeRange === 'all'
                 ? 'bg-foreground text-background' 
                 : 'bg-secondary text-foreground hover:bg-accent'
             }`}
@@ -361,25 +319,25 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       </div>
 
       {/* Analysis Dimensions Banner */}
-      <div className="mb-3 sm:mb-6 p-2 sm:p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-xl">
+      <div className="mb-3 sm:mb-6 p-2 sm:p-4 bg-secondary/30 border border-border/30 rounded-lg">
         <div className="flex items-center justify-center gap-2 sm:gap-6 flex-wrap">
           <div className="flex items-center gap-1 sm:gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[10px] sm:text-sm font-semibold tracking-wide text-foreground">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-foreground/40" />
+            <span className="text-[10px] sm:text-sm font-medium tracking-wide text-muted-foreground">
               {t('owners_analysis')}
             </span>
           </div>
-          <div className="hidden sm:block w-px h-6 bg-border" />
+          <div className="hidden sm:block w-px h-4 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[10px] sm:text-sm font-semibold tracking-wide text-foreground">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-foreground/40" />
+            <span className="text-[10px] sm:text-sm font-medium tracking-wide text-muted-foreground">
               {t('tech_breakdown')}
             </span>
           </div>
-          <div className="hidden sm:block w-px h-6 bg-border" />
+          <div className="hidden sm:block w-px h-4 bg-border" />
           <div className="flex items-center gap-1 sm:gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[10px] sm:text-sm font-semibold tracking-wide text-foreground">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-foreground/40" />
+            <span className="text-[10px] sm:text-sm font-medium tracking-wide text-muted-foreground">
               {t('odds_monitoring')}
             </span>
           </div>
@@ -430,33 +388,32 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           <Tooltip 
             contentStyle={{
               backgroundColor: "hsl(var(--card))",
-              border: "2px solid hsl(var(--primary))",
-              borderRadius: "12px",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "8px",
               fontFamily: 'JetBrains Mono, monospace',
-              fontWeight: 600,
-              fontSize: '13px',
-              padding: '12px 16px',
-              boxShadow: '0 10px 40px -10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.2)',
+              fontWeight: 500,
+              fontSize: '12px',
+              padding: '10px 14px',
             }}
             labelStyle={{
               color: "hsl(var(--foreground))",
-              fontWeight: 700,
-              marginBottom: '8px',
-              fontSize: '12px'
+              fontWeight: 600,
+              marginBottom: '6px',
+              fontSize: '11px'
             }}
             formatter={(value: number, name: string) => [
               <span style={{ 
-                color: 'hsl(var(--primary))', 
-                fontWeight: 700,
-                fontSize: '14px'
+                color: 'hsl(var(--foreground))', 
+                fontWeight: 600,
+                fontSize: '13px'
               }}>
                 {value.toFixed(1)}%
               </span>, 
               <span style={{ color: 'hsl(var(--muted-foreground))' }}>{name}</span>
             ]}
-            animationDuration={300}
+            animationDuration={200}
             animationEasing="ease-out"
-            cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 2, strokeDasharray: '5 5' }}
+            cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }}
           />
           <Legend 
             content={<CustomLegend />}
@@ -465,121 +422,115 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             type="monotone" 
             dataKey="deepseek" 
             stroke="hsl(var(--deepseek))" 
-            strokeWidth={3}
+            strokeWidth={2}
             dot={<CustomDot />}
             name="DeepSeek"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 8, 
+              r: 6, 
               fill: 'hsl(var(--deepseek))',
               stroke: 'hsl(var(--background))',
-              strokeWidth: 3,
-              filter: 'drop-shadow(0 0 8px hsl(var(--deepseek)))'
+              strokeWidth: 2,
             }}
-            animationDuration={2000}
-            animationEasing="ease-in-out"
+            animationDuration={1500}
+            animationEasing="ease-out"
             animationBegin={0}
           />
           <Line 
             type="monotone" 
             dataKey="gpt5" 
             stroke="hsl(var(--gpt))" 
-            strokeWidth={3}
+            strokeWidth={2}
             dot={<CustomDot />}
             name="GPT 5"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 8, 
+              r: 6, 
               fill: 'hsl(var(--gpt))',
               stroke: 'hsl(var(--background))',
-              strokeWidth: 3,
-              filter: 'drop-shadow(0 0 8px hsl(var(--gpt)))'
+              strokeWidth: 2,
             }}
-            animationDuration={2000}
-            animationEasing="ease-in-out"
-            animationBegin={200}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            animationBegin={100}
           />
           <Line 
             type="monotone" 
             dataKey="claude" 
             stroke="hsl(var(--claude))" 
-            strokeWidth={3}
+            strokeWidth={2}
             dot={<CustomDot />}
             name="Claude"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 8, 
+              r: 6, 
               fill: 'hsl(var(--claude))',
               stroke: 'hsl(var(--background))',
-              strokeWidth: 3,
-              filter: 'drop-shadow(0 0 8px hsl(var(--claude)))'
+              strokeWidth: 2,
             }}
-            animationDuration={2000}
-            animationEasing="ease-in-out"
-            animationBegin={400}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            animationBegin={200}
           />
           <Line 
             type="monotone" 
             dataKey="gemini" 
             stroke="hsl(var(--gemini))" 
-            strokeWidth={3}
+            strokeWidth={2}
             dot={<CustomDot />}
             name="Gemini"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 8, 
+              r: 6, 
               fill: 'hsl(var(--gemini))',
               stroke: 'hsl(var(--background))',
-              strokeWidth: 3,
-              filter: 'drop-shadow(0 0 8px hsl(var(--gemini)))'
+              strokeWidth: 2,
             }}
-            animationDuration={2000}
-            animationEasing="ease-in-out"
-            animationBegin={600}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            animationBegin={300}
           />
           <Line 
             type="monotone" 
             dataKey="grok" 
             stroke="hsl(var(--grok))" 
-            strokeWidth={3}
+            strokeWidth={2}
             dot={<CustomDot />}
             name="Grok"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 8, 
+              r: 6, 
               fill: 'hsl(var(--grok))',
               stroke: 'hsl(var(--background))',
-              strokeWidth: 3,
-              filter: 'drop-shadow(0 0 8px hsl(var(--grok)))'
+              strokeWidth: 2,
             }}
-            animationDuration={2000}
-            animationEasing="ease-in-out"
-            animationBegin={800}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            animationBegin={400}
           />
           <Line 
             type="monotone" 
             dataKey="hunsoccermax" 
             stroke="hsl(var(--mystery))" 
-            strokeWidth={4}
+            strokeWidth={2}
             dot={<CustomDot />}
             name="HUNSOCCER MAX"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 10, 
+              r: 6, 
               fill: 'hsl(var(--mystery))',
               stroke: 'hsl(var(--background))',
-              strokeWidth: 4,
-              filter: 'drop-shadow(0 0 12px hsl(var(--mystery)))'
+              strokeWidth: 2,
             }}
-            animationDuration={2500}
-            animationEasing="ease-in-out"
-            animationBegin={1000}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            animationBegin={500}
           />
         </LineChart>
       </ResponsiveContainer>
