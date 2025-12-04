@@ -18,12 +18,6 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
-import deepseekCardBg from "@/assets/deepseek-card-bg.png";
-import grokCardBg from "@/assets/grok-card-bg.png";
-import gpt5CardBg from "@/assets/gpt5-card-bg.png";
-import claudeCardBg from "@/assets/claude-card-bg.png";
-import geminiCardBg from "@/assets/gemini-card-bg.png";
-import hunsoccerMaxCardBg from "@/assets/hunsoccer-max-card-bg.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -731,45 +725,13 @@ const ActiveAIBets = () => {
   };
 
   const getModelColor = (aiId: string) => {
-    const colorMap: Record<string, { bg: string; border: string; text: string; glow: string }> = {
-      deepseek: { 
-        bg: "from-blue-500/20 to-blue-600/10", 
-        border: "border-blue-500/40", 
-        text: "text-blue-400",
-        glow: "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-      },
-      gpt5: { 
-        bg: "from-emerald-500/20 to-green-500/10", 
-        border: "border-emerald-500/40", 
-        text: "text-emerald-400",
-        glow: "drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-      },
-      claude: { 
-        bg: "from-purple-500/20 to-violet-500/10", 
-        border: "border-purple-500/40", 
-        text: "text-purple-400",
-        glow: "drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
-      },
-      gemini: { 
-        bg: "from-cyan-500/20 to-sky-500/10", 
-        border: "border-cyan-500/40", 
-        text: "text-cyan-400",
-        glow: "drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]"
-      },
-      grok: { 
-        bg: "from-orange-500/20 to-amber-500/10", 
-        border: "border-orange-500/40", 
-        text: "text-orange-400",
-        glow: "drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]"
-      },
-      hunsoccermax: { 
-        bg: "from-red-500/20 to-rose-500/10", 
-        border: "border-red-500/40", 
-        text: "text-red-400",
-        glow: "drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-      },
+    // Unified professional color scheme
+    return { 
+      bg: "from-secondary/30 to-secondary/10", 
+      border: "border-border/40", 
+      text: "text-foreground",
+      glow: ""
     };
-    return colorMap[aiId] || colorMap.deepseek;
   };
 
   // PK Dialog function
@@ -787,10 +749,10 @@ const ActiveAIBets = () => {
   if (isInitialLoading) {
     return (
       <div className="w-full">
-        <div className="flex items-center justify-between mb-6 px-2">
-          <h2 className="text-2xl font-bold">{t('active_ai_predictions')}</h2>
+        <div className="flex items-center justify-center mb-5">
+          <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">{t('active_ai_predictions')}</h2>
         </div>
-        <p className="text-sm text-muted-foreground text-center py-8">
+        <p className="text-sm text-muted-foreground text-center py-6">
           加载中...
         </p>
       </div>
@@ -802,14 +764,14 @@ const ActiveAIBets = () => {
       {/* Subtle refresh indicator */}
       {isRefreshing && (
         <div className="absolute top-0 right-0 z-50">
-          <div className="h-1 w-16 bg-primary/30 rounded-full overflow-hidden">
-            <div className="h-full bg-primary animate-pulse" style={{ width: '100%' }} />
+          <div className="h-0.5 w-12 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-foreground/50 animate-pulse" style={{ width: '100%' }} />
           </div>
         </div>
       )}
       
-      <div className="flex flex-col items-center justify-center mb-4 sm:mb-6 px-2">
-        <h2 className="text-sm sm:text-xl md:text-2xl font-bold text-center text-white">
+      <div className="flex items-center justify-center mb-4 sm:mb-5">
+        <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">
           {t('active_ai_predictions')}
         </h2>
       </div>
@@ -891,7 +853,7 @@ const ActiveAIBets = () => {
           return (
             <div 
               key={aiModel.id}
-              className="relative rounded-xl p-3 sm:p-3 md:p-4 bg-gradient-to-br from-card/95 via-card to-card/90 hover:shadow-2xl transition-all duration-500 border-2 border-primary/30 hover:border-primary/60 overflow-hidden group hover:scale-105 cursor-pointer"
+              className="relative rounded-lg p-3 sm:p-4 bg-card border border-border/30 hover:border-border/50 transition-all duration-300 overflow-hidden cursor-pointer"
               onClick={nextMatch}
             >
               {/* Match Counter - Top Right */}
@@ -934,102 +896,8 @@ const ActiveAIBets = () => {
                 </div>
               )}
 
-              {/* Background Image for DeepSeek */}
-              {aiModel.id === 'deepseek' && (
-                <div 
-                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${deepseekCardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '-20px'
-                  }}
-                />
-              )}
-              
-              {/* Background Image for Grok */}
-              {aiModel.id === 'grok' && (
-                <div 
-                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${grokCardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '-20px'
-                  }}
-                />
-              )}
-              
-              {/* Background Image for GPT5 */}
-              {aiModel.id === 'gpt5' && (
-                <div 
-                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${gpt5CardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '-20px',
-                    backgroundRepeat: 'no-repeat'
-                  }}
-                />
-              )}
-              
-              {/* Background Image for Claude */}
-              {aiModel.id === 'claude' && (
-                <div 
-                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${claudeCardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '-20px',
-                    backgroundRepeat: 'no-repeat'
-                  }}
-                />
-              )}
-              
-              {/* Background Image for Gemini */}
-              {aiModel.id === 'gemini' && (
-                <div 
-                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${geminiCardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '-20px',
-                    backgroundRepeat: 'no-repeat'
-                  }}
-                />
-              )}
-              
-              {/* Background Image for HUNSOCCER MAX */}
-              {aiModel.id === 'hunsoccermax' && (
-                <div 
-                  className="absolute inset-0 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-500"
-                  style={{
-                    backgroundImage: `url(${hunsoccerMaxCardBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                    backgroundPositionY: '-20px',
-                    backgroundRepeat: 'no-repeat'
-                  }}
-                />
-              )}
-              
-              {/* Diagonal Stripe Background */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary via-transparent to-transparent" />
-                <div className="absolute inset-0" style={{
-                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--primary)) 10px, hsl(var(--primary)) 11px)',
-                  opacity: 0.1
-                }} />
-              </div>
-              
-              {/* Glow Effect */}
-              <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-              
               {/* Content */}
-              <div className="relative z-10 space-y-2 sm:space-y-2 md:space-y-3">
+              <div className="relative z-10 space-y-2.5 sm:space-y-3">
                  {/* Header with Avatar and Balance */}
                 <div className="flex flex-col items-center gap-1.5 sm:gap-1.5 pb-2 sm:pb-2 border-b-2 border-primary/20 relative">
                   {/* Buttons Container - Left Side */}
