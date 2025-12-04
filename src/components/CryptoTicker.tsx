@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
@@ -60,17 +60,6 @@ const CryptoTicker = () => {
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-10 sm:py-12 lg:py-14 flex flex-col items-center justify-center text-center">
-          
-          {/* Badge */}
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm"
-          >
-            <Sparkles className="w-4 h-4 text-primary"/>
-            <span className="text-xs sm:text-sm font-medium text-primary">AI 预测竞技平台</span>
-          </motion.div>
 
           {/* Main Title */}
           <motion.h1 
