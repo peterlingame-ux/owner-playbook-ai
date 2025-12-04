@@ -160,6 +160,42 @@ const CryptoTicker = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="relative mb-6"
           >
+            {/* Falling gold coins */}
+            {Array.from({ length: 12 }, (_, i) => (
+              <motion.div
+                key={`coin-${i}`}
+                className="absolute pointer-events-none"
+                style={{
+                  left: `${10 + (i % 6) * 16}%`,
+                  top: '-20px',
+                }}
+                initial={{ y: -20, opacity: 0, rotateY: 0 }}
+                animate={{ 
+                  y: [0, 120, 140],
+                  opacity: [0, 1, 0],
+                  rotateY: [0, 360, 720],
+                  x: [0, (i % 2 === 0 ? 10 : -10), 0],
+                }}
+                transition={{ 
+                  duration: 3 + (i % 3),
+                  repeat: Infinity,
+                  delay: i * 0.4,
+                  ease: "easeIn",
+                }}
+              >
+                <div 
+                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 shadow-lg"
+                  style={{
+                    boxShadow: '0 0 8px rgba(251,191,36,0.6), inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.3)',
+                  }}
+                >
+                  <div className="w-full h-full rounded-full flex items-center justify-center text-[8px] sm:text-[10px] font-bold text-yellow-900/70">
+                    $
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+
             {/* Golden glow effect */}
             <motion.div 
               className="absolute inset-0 -inset-x-8 -inset-y-4 bg-gradient-to-r from-yellow-500/20 via-amber-400/30 to-yellow-500/20 blur-2xl rounded-full"
