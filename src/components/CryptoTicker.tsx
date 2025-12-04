@@ -25,16 +25,11 @@ const CryptoTicker = () => {
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-8 sm:py-10 lg:py-12 flex flex-col items-center justify-center text-center">
           {/* Main Title */}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-white mb-3 sm:mb-4 leading-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-black text-white mb-4 sm:mb-6 leading-tight">
             <span className="bg-gradient-to-r from-white via-primary-foreground to-white bg-clip-text text-transparent drop-shadow-lg">
-              免费注册与AI进行竞赛
+              注册与AI模型进行竞赛，展示你的预测能力，赢得大奖
             </span>
           </h1>
-          
-          {/* Subtitle */}
-          <p className="text-base sm:text-lg lg:text-xl text-white/80 mb-2 font-medium">
-            赢得大奖，展示你的预测能力
-          </p>
 
           {/* Prize Amount */}
           <div className="relative mb-6">
