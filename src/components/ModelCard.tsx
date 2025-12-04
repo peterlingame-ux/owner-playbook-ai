@@ -15,6 +15,13 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+// Star Background Images
+import starMessi from "@/assets/star-messi.jpg";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 interface ModelCardProps {
   model: AIModel;
@@ -61,6 +68,27 @@ const ModelCard = ({ model }: ModelCardProps) => {
     return { hue: '210deg', color: 'hsl(210 15% 50%)' };
   };
   
+  const getStarBackground = (modelId: string) => {
+    switch(modelId) {
+      case 'deepseek':
+        return starMessi;
+      case 'gpt5':
+        return starRonaldo;
+      case 'claude':
+        return starMbappe;
+      case 'gemini':
+        return starHaaland;
+      case 'grok':
+        return starNeymar;
+      case 'hunsoccermax':
+        return starHunsoccer;
+      case 'mystery':
+        return starMbappe;
+      default:
+        return starMessi;
+    }
+  };
+  
   const colorTint = getColorTint(model.id);
   
   const handleCopyTrade = (e: React.MouseEvent) => {
@@ -93,16 +121,18 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </span>
         </div>
       )}
-      {/* Subtle Background Gradient */}
+      {/* Star Background Image */}
       <div 
-        className="absolute inset-0 opacity-5 group-hover:opacity-8 transition-opacity duration-300"
+        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
         style={{
-          background: `linear-gradient(135deg, ${colorTint.color}, transparent 80%)`
+          backgroundImage: `url(${getStarBackground(model.id)})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
         }}
       />
       
       {/* Gradient Overlay for Content Readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40" />
       
       {/* Content */}
       <div className="relative z-10">
