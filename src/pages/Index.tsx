@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
+import UserModelCard from "@/components/UserModelCard";
 import PlayerCard from "@/components/PlayerCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
@@ -346,12 +347,14 @@ const Index = () => {
             {t('the_contestants')}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-            {sortedModels.map((model) => (
+            {sortedModels.filter(model => model.id !== 'hunsoccermax').map((model) => (
               <ModelCard 
                 key={model.id} 
                 model={model}
               />
             ))}
+            {/* User's Personal Model Card */}
+            <UserModelCard />
           </div>
         </div>
 
