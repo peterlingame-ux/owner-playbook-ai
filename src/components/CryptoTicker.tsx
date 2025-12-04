@@ -1,11 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 import bannerBg from "@/assets/banner-bg.png";
 
 const CryptoTicker = () => {
   const navigate = useNavigate();
+  const prizeRef = useRef(null);
+  const isInView = useInView(prizeRef, { once: true });
+  const [startCount, setStartCount] = useState(false);
+  
+  useEffect(() => {
+    if (isInView) {
+      const timer = setTimeout(() => setStartCount(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isInView]);
+  
+  const animatedPrize = useCountAnimation(startCount ? 1000000 : 0, { 
+    duration: 2000, 
+    startValue: 0 
+  });
+  
+  const formatPrize = (value: number) => {
+    return `$${Math.round(value).toLocaleString()}`;
+  };
 
   return (
     <div className="relative overflow-hidden">
@@ -63,6 +84,7 @@ const CryptoTicker = () => {
 
           {/* Prize Amount */}
           <motion.div 
+            ref={prizeRef}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
@@ -72,7 +94,7 @@ const CryptoTicker = () => {
               <span className="text-sm sm:text-base text-muted-foreground font-medium">最高奖金</span>
               <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
                 <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
-                  $1,000,000
+                  {formatPrize(animatedPrize)}
                 </span>
               </span>
             </div>
