@@ -534,17 +534,28 @@ const PlayerExclusiveModelCard = ({
             </Badge>
             <Button 
               size="sm"
-              className="h-auto px-2 sm:px-2.5 py-1 sm:py-1.5 relative overflow-hidden group/btn border font-bold text-[9px] sm:text-[10px] bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border-amber-500/40 text-amber-300 hover:scale-105 transition-all"
+              className="h-auto px-3 sm:px-4 py-1.5 sm:py-2 relative overflow-hidden group/btn font-bold text-[10px] sm:text-xs bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-black shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:scale-110 transition-all duration-300 rounded-lg border-0"
               onClick={(e) => { 
                 e.stopPropagation(); 
                 setShowFeedDialog(true); 
               }}
             >
-              <div className="relative flex items-center justify-center gap-1 sm:gap-1.5">
-                <Brain className="h-3 w-3 sm:h-3.5 sm:w-3.5 group-hover/btn:animate-pulse" />
-                <span>AI投喂</span>
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg blur opacity-40 group-hover/btn:opacity-70 transition-opacity duration-300" />
+              
+              <div className="relative flex items-center justify-center gap-1.5 sm:gap-2">
+                <div className="relative">
+                  <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:animate-pulse" />
+                  <div className="absolute inset-0 animate-ping">
+                    <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 opacity-30" />
+                  </div>
+                </div>
+                <span className="font-black tracking-wide">AI投喂</span>
+                <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5 animate-pulse" />
               </div>
-              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              
+              {/* Shine effect */}
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
             </Button>
           </div>
         </div>
