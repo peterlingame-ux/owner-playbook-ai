@@ -613,10 +613,35 @@ const PlayerExclusiveModelCard = ({
 
           {/* Match Info */}
           {currentMatchData ? (
-            <div className="space-y-1 sm:space-y-1 py-1 sm:py-1">
-              <Badge variant="outline" className="text-[9px] sm:text-[9px] w-full justify-center py-1">
-                {safeGetLeagueName(currentMatchData.match)}
-              </Badge>
+            <div className="space-y-1.5 py-1">
+              {/* League & Status Row */}
+              <div className="flex items-center justify-between gap-2">
+                <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[60%]">
+                  {safeGetLeagueName(currentMatchData.match)}
+                </Badge>
+                {/* Match Status Indicator */}
+                {(() => {
+                  const status = currentMatchData.match.status_short;
+                  const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'P', 'BREAK'];
+                  const finishedStatuses = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
+                  
+                  if (liveStatuses.includes(status)) {
+                    return (
+                      <Badge className="text-[8px] px-1.5 py-0 bg-success/20 text-success border-success/40 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-success mr-1" />
+                        {t('live') || 'LIVE'}
+                      </Badge>
+                    );
+                  } else if (finishedStatuses.includes(status)) {
+                    return (
+                      <Badge variant="secondary" className="text-[8px] px-1.5 py-0 text-muted-foreground">
+                        {t('finished') || '已结束'}
+                      </Badge>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
               
               {/* Teams with Logos */}
               <div className="flex items-center justify-between gap-1 sm:gap-1 px-1">
