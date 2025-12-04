@@ -3,6 +3,16 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import openaiIcon from "@/assets/openai-icon.png";
+
+const aiIcons: Record<string, string> = {
+  "Claude 3.5 Sonnet": claudeIcon,
+  "GPT-4o": openaiIcon,
+  "Gemini 1.5 Pro": geminiIcon,
+};
+
 const Waitlist = () => {
   const navigate = useNavigate();
 
@@ -156,14 +166,23 @@ const Waitlist = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {historyData.map((item, index) => (
+                  {historyData.map((item) => (
                     <tr key={item.round} className="border-b border-border/50 last:border-0">
                       <td className="py-3 px-4 font-mono text-foreground">{item.round}</td>
                       <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
                         {item.startDate} ~ {item.endDate.slice(5)}
                       </td>
-                      <td className="py-3 px-4 text-muted-foreground">
-                        {item.aiModel} ({item.aiWinRate}%)
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={aiIcons[item.aiModel]} 
+                            alt={item.aiModel} 
+                            className="w-5 h-5 rounded"
+                          />
+                          <span className="text-muted-foreground">
+                            {item.aiModel} ({item.aiWinRate}%)
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground">{item.participants.toLocaleString()}</td>
                       <td className="py-3 px-4">
@@ -205,8 +224,14 @@ const Waitlist = () => {
                   <span className="text-xs text-muted-foreground">{item.startDate} ~ {item.endDate}</span>
                 </div>
                 <div className="p-4">
-                  <div className="text-xs text-muted-foreground mb-3">
-                    AI基准: {item.aiModel} · 胜率 {item.aiWinRate}%
+                  <div className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+                    <span>AI基准:</span>
+                    <img 
+                      src={aiIcons[item.aiModel]} 
+                      alt={item.aiModel} 
+                      className="w-4 h-4 rounded"
+                    />
+                    <span>{item.aiModel} · 胜率 {item.aiWinRate}%</span>
                   </div>
                   <div className="space-y-2">
                     {item.winners.map((winner, wIndex) => (
