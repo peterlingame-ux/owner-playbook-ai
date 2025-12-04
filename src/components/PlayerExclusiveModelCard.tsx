@@ -1198,63 +1198,85 @@ const PlayerExclusiveModelCard = ({
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="flex-1 flex flex-col items-center justify-center py-8 px-6"
                 >
-                  <div className="relative mb-6">
-                    <motion.div
-                      animate={isFeeding ? { rotate: 360 } : {}}
-                      transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                      className="relative h-20 w-20 rounded-full bg-foreground/10 border-2 border-border flex items-center justify-center"
-                    >
-                      <Loader2 className={`h-8 w-8 text-foreground ${isFeeding ? 'animate-spin' : ''}`} />
-                    </motion.div>
-                    {feedComplete && (
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-foreground flex items-center justify-center">
-                        <CheckCircle2 className="h-4 w-4 text-background" />
-                      </motion.div>
-                    )}
-                  </div>
-
-                  <h3 className="text-lg font-semibold mb-2 text-foreground">
-                    {feedComplete ? '训练完成' : '处理中...'}
+                  <h3 className="text-lg font-semibold mb-6 text-foreground">
+                    {feedComplete ? '训练完成' : '正在训练模型...'}
                   </h3>
                   
-                  <div className="w-full max-w-sm space-y-4 mt-4">
-                    <div className="flex justify-between items-center text-sm mb-2">
-                      <span className="text-muted-foreground">进度</span>
-                      <span className="font-mono font-medium text-foreground">{Math.round(feedProgress)}%</span>
-                    </div>
-                    
-                    <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                      <motion.div
-                        className="absolute inset-y-0 left-0 bg-foreground rounded-full"
+                  <div className="w-full max-w-md space-y-6">
+                    {/* Progress Steps with connecting line */}
+                    <div className="relative">
+                      {/* Connecting line background */}
+                      <div className="absolute top-5 left-[calc(12.5%)] right-[calc(12.5%)] h-0.5 bg-border" />
+                      {/* Connecting line progress */}
+                      <motion.div 
+                        className="absolute top-5 left-[calc(12.5%)] h-0.5 bg-foreground origin-left"
                         initial={{ width: 0 }}
-                        animate={{ width: `${feedProgress}%` }}
-                        transition={{ duration: 0.3 }}
+                        animate={{ width: `${Math.min(100, (currentStep / (trainingSteps.length - 1)) * 75)}%` }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
                       />
+                      
+                      <div className="relative grid grid-cols-4 gap-2">
+                        {trainingSteps.map((step, index) => {
+                          const StepIcon = step.icon;
+                          const isActive = index <= currentStep;
+                          const isCurrent = index === currentStep && isFeeding;
+                          const isCompleted = index < currentStep;
+                          
+                          return (
+                            <motion.div
+                              key={step.label}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="flex flex-col items-center text-center"
+                            >
+                              <motion.div 
+                                className={`relative h-10 w-10 rounded-full flex items-center justify-center mb-2 border-2 transition-all duration-300 ${
+                                  isCompleted 
+                                    ? 'bg-foreground border-foreground' 
+                                    : isActive 
+                                    ? 'bg-background border-foreground' 
+                                    : 'bg-background border-border'
+                                }`}
+                                animate={isCurrent ? { scale: [1, 1.05, 1] } : {}}
+                                transition={{ duration: 1, repeat: Infinity }}
+                              >
+                                {isCompleted ? (
+                                  <CheckCircle2 className="h-5 w-5 text-background" />
+                                ) : (
+                                  <StepIcon className={`h-4 w-4 ${isActive ? 'text-foreground' : 'text-muted-foreground'} ${isCurrent ? 'animate-pulse' : ''}`} />
+                                )}
+                                {isCurrent && (
+                                  <motion.div 
+                                    className="absolute inset-0 rounded-full border-2 border-foreground"
+                                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0, 1] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                  />
+                                )}
+                              </motion.div>
+                              <span className={`text-[10px] font-medium leading-tight ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                {step.label}
+                              </span>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2 mt-6">
-                      {trainingSteps.map((step, index) => {
-                        const StepIcon = step.icon;
-                        const isActive = index <= currentStep;
-                        const isCurrent = index === currentStep && isFeeding;
-                        
-                        return (
-                          <motion.div
-                            key={step.label}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className={`flex flex-col items-center text-center p-2 rounded-lg transition-all ${isActive ? 'bg-foreground/5' : 'bg-muted/30'}`}
-                          >
-                            <div className={`h-8 w-8 rounded-full flex items-center justify-center mb-1.5 transition-all ${
-                              isActive ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
-                            }`}>
-                              <StepIcon className={`h-4 w-4 ${isCurrent ? 'animate-pulse' : ''}`} />
-                            </div>
-                            <span className={`text-[9px] font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>{step.label}</span>
-                          </motion.div>
-                        );
-                      })}
+                    {/* Progress bar */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-muted-foreground">处理进度</span>
+                        <span className="font-mono font-medium text-foreground">{Math.round(feedProgress)}%</span>
+                      </div>
+                      <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
+                        <motion.div
+                          className="absolute inset-y-0 left-0 bg-foreground rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${feedProgress}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
                     </div>
                   </div>
                   
