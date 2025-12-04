@@ -35,9 +35,96 @@ const Waitlist = () => {
   ];
 
   const historyExamples = [
-    { round: "第1轮", date: "2024年11月", winner: true, topPlayer: "SwiftTiger8821", winRate: "78.5%", aiRate: "72.3%", prize: "$125,000" },
-    { round: "第2轮", date: "2024年10月", winner: false, topPlayer: "-", winRate: "68.2%", aiRate: "71.5%", prize: "-" },
-    { round: "第3轮", date: "2024年9月", winner: true, topPlayer: "BraveDragon2156", winRate: "81.2%", aiRate: "73.8%", prize: "$200,000" },
+    { 
+      round: "S1-R6", 
+      period: "2024.11.01 - 2024.11.30", 
+      status: "distributed",
+      participants: 2847,
+      totalPredictions: 45821,
+      aiModel: "Claude 3.5",
+      aiWinRate: 72.3,
+      winners: [
+        { rank: 1, name: "SwiftTiger8821", winRate: 78.5, predictions: 156, prize: 125000 },
+        { rank: 2, name: "LuckyEagle3392", winRate: 75.2, predictions: 142, prize: 85000 },
+        { rank: 3, name: "BoldWolf7756", winRate: 73.8, predictions: 168, prize: 45000 },
+      ],
+      totalDistributed: 255000,
+      poolCarryover: 745000,
+    },
+    { 
+      round: "S1-R5", 
+      period: "2024.10.01 - 2024.10.31", 
+      status: "not_distributed",
+      participants: 2156,
+      totalPredictions: 38562,
+      aiModel: "GPT-4o",
+      aiWinRate: 74.8,
+      winners: [],
+      topPlayerRate: 71.2,
+      topPlayerName: "QuickPanther9901",
+      totalDistributed: 0,
+      poolCarryover: 1000000,
+    },
+    { 
+      round: "S1-R4", 
+      period: "2024.09.01 - 2024.09.30", 
+      status: "distributed",
+      participants: 1892,
+      totalPredictions: 32156,
+      aiModel: "Claude 3.5",
+      aiWinRate: 71.5,
+      winners: [
+        { rank: 1, name: "BraveDragon2156", winRate: 81.2, predictions: 178, prize: 200000 },
+        { rank: 2, name: "WiseFalcon4423", winRate: 76.8, predictions: 145, prize: 120000 },
+      ],
+      totalDistributed: 320000,
+      poolCarryover: 680000,
+    },
+    { 
+      round: "S1-R3", 
+      period: "2024.08.01 - 2024.08.31", 
+      status: "distributed",
+      participants: 1654,
+      totalPredictions: 28745,
+      aiModel: "Gemini Pro",
+      aiWinRate: 69.2,
+      winners: [
+        { rank: 1, name: "NobleLion5567", winRate: 79.5, predictions: 134, prize: 180000 },
+        { rank: 2, name: "EpicBear8834", winRate: 74.1, predictions: 156, prize: 95000 },
+        { rank: 3, name: "CleverHawk2290", winRate: 71.8, predictions: 123, prize: 55000 },
+        { rank: 4, name: "SwiftPhoenix1123", winRate: 70.5, predictions: 145, prize: 35000 },
+      ],
+      totalDistributed: 365000,
+      poolCarryover: 635000,
+    },
+    { 
+      round: "S1-R2", 
+      period: "2024.07.01 - 2024.07.31", 
+      status: "not_distributed",
+      participants: 1245,
+      totalPredictions: 21890,
+      aiModel: "GPT-4o",
+      aiWinRate: 76.5,
+      winners: [],
+      topPlayerRate: 73.8,
+      topPlayerName: "SmartTiger6678",
+      totalDistributed: 0,
+      poolCarryover: 1000000,
+    },
+    { 
+      round: "S1-R1", 
+      period: "2024.06.01 - 2024.06.30", 
+      status: "distributed",
+      participants: 987,
+      totalPredictions: 15678,
+      aiModel: "Claude 3.5",
+      aiWinRate: 70.2,
+      winners: [
+        { rank: 1, name: "QuickEagle3345", winRate: 82.3, predictions: 112, prize: 250000 },
+      ],
+      totalDistributed: 250000,
+      poolCarryover: 750000,
+    },
   ];
 
   return (
@@ -147,54 +234,158 @@ const Waitlist = () => {
           transition={{ duration: 0.6, delay: 0.7 }}
           className="mb-12"
         >
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">历史发放记录</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">轮次</th>
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">时间</th>
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">状态</th>
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">最高玩家</th>
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">玩家胜率</th>
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">AI胜率</th>
-                  <th className="text-left py-4 px-4 text-muted-foreground font-medium">发放金额</th>
-                </tr>
-              </thead>
-              <tbody>
-                {historyExamples.map((item, index) => (
-                  <tr key={index} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                    <td className="py-4 px-4 font-medium text-foreground">{item.round}</td>
-                    <td className="py-4 px-4 text-muted-foreground">{item.date}</td>
-                    <td className="py-4 px-4">
-                      {item.winner ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/10 text-green-500 text-sm">
-                          <CheckCircle2 className="w-3 h-3" />
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground">历史发放记录</h2>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              <span>已发放</span>
+              <span className="w-2 h-2 rounded-full bg-red-500 ml-3" />
+              <span>未发放</span>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            {historyExamples.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className={`bg-card/50 border rounded-xl overflow-hidden ${
+                  item.status === 'distributed' ? 'border-green-500/30' : 'border-red-500/30'
+                }`}
+              >
+                {/* Header */}
+                <div className={`px-6 py-4 ${
+                  item.status === 'distributed' 
+                    ? 'bg-gradient-to-r from-green-500/10 to-transparent' 
+                    : 'bg-gradient-to-r from-red-500/10 to-transparent'
+                }`}>
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <span className="text-lg font-bold text-foreground">{item.round}</span>
+                      <span className="text-sm text-muted-foreground">{item.period}</span>
+                      {item.status === 'distributed' ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
+                          <CheckCircle2 className="w-4 h-4" />
                           已发放
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/10 text-red-500 text-sm">
-                          <XCircle className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">
+                          <XCircle className="w-4 h-4" />
                           未发放
                         </span>
                       )}
-                    </td>
-                    <td className="py-4 px-4 text-foreground">{item.topPlayer}</td>
-                    <td className="py-4 px-4 text-foreground">{item.winRate}</td>
-                    <td className="py-4 px-4 text-muted-foreground">{item.aiRate}</td>
-                    <td className="py-4 px-4">
-                      {item.prize !== "-" ? (
-                        <span className="font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
-                          {item.prize}
+                    </div>
+                    <div className="flex items-center gap-6 text-sm">
+                      <div className="text-center">
+                        <div className="text-muted-foreground">参与人数</div>
+                        <div className="font-semibold text-foreground">{item.participants.toLocaleString()}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-muted-foreground">总预测数</div>
+                        <div className="font-semibold text-foreground">{item.totalPredictions.toLocaleString()}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-muted-foreground">AI模型</div>
+                        <div className="font-semibold text-foreground">{item.aiModel}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-muted-foreground">AI胜率</div>
+                        <div className="font-semibold text-primary">{item.aiWinRate}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Winners Table or No Winner Info */}
+                <div className="px-6 py-4">
+                  {item.status === 'distributed' && item.winners.length > 0 ? (
+                    <>
+                      <div className="text-sm font-medium text-muted-foreground mb-3">获奖玩家</div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-border/50">
+                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">排名</th>
+                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">玩家</th>
+                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">胜率</th>
+                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">超越AI</th>
+                              <th className="text-left py-2 px-3 text-muted-foreground font-medium">预测场次</th>
+                              <th className="text-right py-2 px-3 text-muted-foreground font-medium">获得奖金</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {item.winners.map((winner, wIndex) => (
+                              <tr key={wIndex} className="border-b border-border/30 last:border-0">
+                                <td className="py-3 px-3">
+                                  {winner.rank === 1 && <span className="text-yellow-400">🥇</span>}
+                                  {winner.rank === 2 && <span className="text-gray-400">🥈</span>}
+                                  {winner.rank === 3 && <span className="text-amber-600">🥉</span>}
+                                  {winner.rank > 3 && <span className="text-muted-foreground">#{winner.rank}</span>}
+                                </td>
+                                <td className="py-3 px-3 font-medium text-foreground">{winner.name}</td>
+                                <td className="py-3 px-3">
+                                  <span className="text-green-400 font-semibold">{winner.winRate}%</span>
+                                </td>
+                                <td className="py-3 px-3">
+                                  <span className="text-emerald-400">+{(winner.winRate - item.aiWinRate).toFixed(1)}%</span>
+                                </td>
+                                <td className="py-3 px-3 text-muted-foreground">{winner.predictions}场</td>
+                                <td className="py-3 px-3 text-right">
+                                  <span className="font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                                    ${winner.prize.toLocaleString()}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-border/50 flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">本轮共发放</span>
+                        <span className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                          ${item.totalDistributed.toLocaleString()}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <XCircle className="w-12 h-12 text-red-500/50 mx-auto mb-3" />
+                      <div className="text-muted-foreground mb-2">本轮无玩家超过AI</div>
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">最高玩家胜率：</span>
+                        <span className="text-foreground font-medium">{item.topPlayerName} ({item.topPlayerRate}%)</span>
+                        <span className="text-red-400 ml-2">低于AI {(item.aiWinRate - (item.topPlayerRate || 0)).toFixed(1)}%</span>
+                      </div>
+                      <div className="mt-3 text-amber-400 text-sm">
+                        奖金池累积至下一轮 → ${item.poolCarryover.toLocaleString()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Summary Stats */}
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-foreground">6</div>
+              <div className="text-sm text-muted-foreground">总轮次</div>
+            </div>
+            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-green-400">4</div>
+              <div className="text-sm text-muted-foreground">发放轮次</div>
+            </div>
+            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">$1.19M</div>
+              <div className="text-sm text-muted-foreground">累计发放</div>
+            </div>
+            <div className="bg-card/50 border border-border rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-foreground">10</div>
+              <div className="text-sm text-muted-foreground">获奖玩家</div>
+            </div>
           </div>
         </motion.div>
 
