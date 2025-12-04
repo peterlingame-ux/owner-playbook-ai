@@ -47,13 +47,6 @@ const CryptoTicker = () => {
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-8 sm:py-10 lg:py-12 flex flex-col items-center justify-center text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-[#f7931a]/20 border border-primary/30 mb-4 animate-pulse-slow">
-            <Sparkles className="w-4 h-4 text-[#f7931a]"/>
-            <span className="text-xs sm:text-sm font-semibold text-white/90 tracking-wide">限时活动</span>
-            <Sparkles className="w-4 h-4 text-primary"/>
-          </div>
-
           {/* Main Title */}
           <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-white mb-3 sm:mb-4 leading-tight">
             <span className="bg-gradient-to-r from-white via-primary-foreground to-white bg-clip-text text-transparent drop-shadow-lg">
