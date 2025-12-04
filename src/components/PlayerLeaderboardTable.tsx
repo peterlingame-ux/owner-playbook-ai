@@ -29,7 +29,11 @@ interface PlayerData {
   avgConfidence?: number;
 }
 
-const PlayerLeaderboardTable = () => {
+interface PlayerLeaderboardTableProps {
+  compact?: boolean;
+}
+
+const PlayerLeaderboardTable = ({ compact = false }: PlayerLeaderboardTableProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
@@ -255,8 +259,8 @@ const PlayerLeaderboardTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* 前三名玩家展示 */}
-      {!isLoading && allPlayers.length >= 3 && (
+      {/* 前三名玩家展示 - Only show when not compact */}
+      {!compact && !isLoading && allPlayers.length >= 3 && (
         <>
           {/* 前三名人物卡 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
