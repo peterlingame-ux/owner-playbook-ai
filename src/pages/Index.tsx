@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
-import UserModelCard from "@/components/UserModelCard";
 import PlayerCard from "@/components/PlayerCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
@@ -353,8 +352,6 @@ const Index = () => {
                 model={model}
               />
             ))}
-            {/* User's Personal Model Card */}
-            <UserModelCard />
           </div>
         </div>
 
