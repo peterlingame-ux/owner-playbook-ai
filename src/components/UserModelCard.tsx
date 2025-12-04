@@ -210,7 +210,7 @@ const UserModelCard = () => {
                 >
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                     <Sparkles size={13} className="sm:w-[14px] sm:h-[14px]" />
-                    <span>免费激活专属模型</span>
+                    <span>免费培养专属模型</span>
                   </div>
                 </Button>
               </div>
