@@ -323,30 +323,30 @@ const Index = () => {
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">
+            <DialogTitle className="text-xl font-bold text-center">
               {t('welcome_title')}
             </DialogTitle>
-            <DialogDescription className="text-base whitespace-pre-line text-center pt-4">
+            <DialogDescription className="text-sm whitespace-pre-line text-center pt-3">
               {t('welcome_message')}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-center pt-4">
-            <Button onClick={handleWelcomeClose} size="lg" className="min-w-[200px]">
+          <div className="flex justify-center pt-3">
+            <Button onClick={handleWelcomeClose} size="default" className="min-w-[160px]">
               {t('welcome_button')}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl">
         {/* Models Section */}
-        <div className="mb-6 sm:mb-8 lg:mb-10">
-          <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-6 text-foreground tracking-wide sm:tracking-wider text-center uppercase px-2 sm:px-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-tight" style={{ fontWeight: 700 }}>
+        <section className="mb-10 sm:mb-12 lg:mb-14">
+          <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
             {t('the_contestants')}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
             {sortedModels.filter(model => model.id !== 'hunsoccermax').map((model) => (
               <ModelCard 
                 key={model.id} 
@@ -356,19 +356,19 @@ const Index = () => {
             {/* User's Personal Model Card */}
             <UserModelCard />
           </div>
-        </div>
+        </section>
 
         {/* Top Players Section */}
-        <div className="mb-6 sm:mb-8 lg:mb-10">
-          <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-6 text-foreground tracking-wide sm:tracking-wider text-center uppercase px-2 sm:px-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-tight" style={{ fontWeight: 700 }}>
+        <section className="mb-10 sm:mb-12 lg:mb-14">
+          <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
             {t('top_players')}
           </h2>
           {isLoadingPlayers ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 text-muted-foreground text-sm">
               加载中...
             </div>
           ) : topPlayers.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
               {topPlayers.map((player) => (
                 <PlayerCard 
                   key={player.id} 
@@ -377,14 +377,14 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 text-muted-foreground text-sm">
               暂无玩家数据，快来参与预测吧！
             </div>
           )}
-        </div>
+        </section>
 
         {/* Performance Chart */}
-        <div className="mb-6 sm:mb-8 lg:mb-12">
+        <section className="mb-10 sm:mb-12 lg:mb-14">
           <PerformanceChart 
             onChartClick={() => {
               const element = document.getElementById('match-predictions');
@@ -393,12 +393,12 @@ const Index = () => {
               }
             }}
           />
-        </div>
+        </section>
 
         {/* AI Betting Cards */}
-        <div id="match-predictions" className="mb-6 sm:mb-8 scroll-mt-20">
+        <section id="match-predictions" className="mb-10 sm:mb-12 scroll-mt-20">
           <ActiveAIBets />
-        </div>
+        </section>
 
         {/* Disclaimer */}
         <Disclaimer />
