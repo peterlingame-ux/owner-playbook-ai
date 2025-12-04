@@ -162,7 +162,7 @@ const CryptoTicker = () => {
           >
             <div className="flex flex-col items-center gap-1">
               <span className="text-xs sm:text-sm text-muted-foreground font-medium tracking-widest uppercase">最高奖金</span>
-              <span className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-foreground">
+              <span className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,191,36,0.4)]">
                 {formatPrize(animatedPrize)}
               </span>
             </div>
