@@ -526,13 +526,9 @@ const PlayerExclusiveModelCard = ({
             </div>
           )}
           
-          {/* Exclusive Model Badge and AI Feed Button */}
+          {/* AI Feed Button */}
           <div className="flex flex-col items-end gap-1.5">
-            <Badge className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 shadow-lg">
-              <Sparkles className="h-2.5 w-2.5 mr-1" />
-              专属模型
-            </Badge>
-            <Button 
+            <Button
               size="sm"
               className="h-auto px-3 sm:px-4 py-1.5 sm:py-2 relative overflow-hidden group/btn font-bold text-[10px] sm:text-xs bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-black shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 hover:animate-bounce transition-all duration-300 rounded-lg border-0"
               onClick={(e) => { 
