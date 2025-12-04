@@ -234,10 +234,13 @@ const PlayerExclusiveModelCard = ({
     { icon: TrendingUp, label: '优化完成', description: '模型已更新！' },
   ];
 
-  // Demo mode for non-logged-in users
-  const isDemo = !user || !userProfile;
-  const displayName = isDemo ? '体验玩家' : (userProfile?.display_name || '玩家');
-  const avatarUrl = isDemo ? '/avatars/avatar-1.png' : (userProfile?.avatar_url || '/avatars/avatar-1.png');
+  // Only show for logged in users - no demo mode
+  if (!user || !userProfile) {
+    return null;
+  }
+
+  const displayName = userProfile?.display_name || '玩家';
+  const avatarUrl = userProfile?.avatar_url || '/avatars/avatar-1.png';
 
   // Calculate training trend data (last 7 days)
   const trendData = useMemo(() => {
@@ -413,12 +416,6 @@ const PlayerExclusiveModelCard = ({
       return;
     }
     
-    if (isDemo) {
-      toast.info('请先登录以保存训练数据');
-      // 演示模式下不执行训练动画
-      return;
-    }
-    
     // 保存训练数据
     const saved = await saveTrainingData(feedText.trim());
     if (!saved) {
@@ -452,11 +449,9 @@ const PlayerExclusiveModelCard = ({
 
   const handleFeedComplete = () => {
     toast.success('AI训练完成！您的专属模型已更新');
-    // 训练计数和历史记录已在 handleFeedSubmit 中更新，这里只需刷新一次确保数据同步
-    if (!isDemo && user) {
-      fetchTrainingCount();
-      fetchTrainingHistory();
-    }
+    // 刷新数据确保同步
+    fetchTrainingCount();
+    fetchTrainingHistory();
     setFeedText('');
     setFeedProgress(0);
     setFeedComplete(false);
