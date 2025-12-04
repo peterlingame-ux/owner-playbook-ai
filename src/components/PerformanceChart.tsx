@@ -287,30 +287,30 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   };
 
   return (
-    <Card className="p-3 sm:p-6 bg-card border-border/30">
+    <Card className="p-4 sm:p-5 bg-card border-border/30">
       {/* Content */}
       <div>
-      <div className="mb-3 sm:mb-6 flex flex-col items-center justify-center gap-2 sm:gap-4">
-        <h2 className="text-base sm:text-xl md:text-2xl font-bold tracking-wider text-center text-foreground">
+      <div className="mb-4 sm:mb-5 flex flex-col items-center justify-center gap-2 sm:gap-3">
+        <h2 className="text-base sm:text-lg lg:text-xl font-semibold tracking-wide text-center text-foreground">
           {t('performance_over_time')}
         </h2>
-        <div className="flex gap-2 sm:gap-2">
-          <button 
+        <div className="flex gap-1.5">
+          <button
             onClick={() => setTimeRange('all')}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-semibold tracking-wide transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               timeRange === 'all'
                 ? 'bg-foreground text-background' 
-                : 'bg-secondary text-foreground hover:bg-accent'
+                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
             }`}
           >
             {t('all')}
           </button>
           <button 
             onClick={() => setTimeRange('72h')}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-semibold tracking-wide transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               timeRange === '72h' 
                 ? 'bg-foreground text-background' 
-                : 'bg-secondary text-foreground hover:bg-accent'
+                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
             }`}
           >
             {t('72h')}
@@ -319,25 +319,23 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       </div>
 
       {/* Analysis Dimensions Banner */}
-      <div className="mb-3 sm:mb-6 p-2 sm:p-4 bg-secondary/30 border border-border/30 rounded-lg">
-        <div className="flex items-center justify-center gap-2 sm:gap-6 flex-wrap">
-          <div className="flex items-center gap-1 sm:gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-foreground/40" />
-            <span className="text-[10px] sm:text-sm font-medium tracking-wide text-muted-foreground">
+      <div className="mb-4 sm:mb-5 py-2 px-3 sm:px-4 bg-secondary/20 rounded-md">
+        <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-muted-foreground/50" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">
               {t('owners_analysis')}
             </span>
           </div>
-          <div className="hidden sm:block w-px h-4 bg-border" />
-          <div className="flex items-center gap-1 sm:gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-foreground/40" />
-            <span className="text-[10px] sm:text-sm font-medium tracking-wide text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-muted-foreground/50" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">
               {t('tech_breakdown')}
             </span>
           </div>
-          <div className="hidden sm:block w-px h-4 bg-border" />
-          <div className="flex items-center gap-1 sm:gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-foreground/40" />
-            <span className="text-[10px] sm:text-sm font-medium tracking-wide text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-muted-foreground/50" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">
               {t('odds_monitoring')}
             </span>
           </div>
