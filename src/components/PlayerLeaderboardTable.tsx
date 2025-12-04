@@ -274,10 +274,14 @@ const PlayerLeaderboardTable = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    allPlayers.map((player) => (
+                    allPlayers.map((player, index) => (
                       <TableRow 
                         key={player.id}
-                        className="border-b border-border/30 hover:bg-accent/30 transition-colors cursor-pointer"
+                        className="border-b border-border/30 hover:bg-accent/30 transition-all duration-300 cursor-pointer animate-fade-in opacity-0"
+                        style={{ 
+                          animationDelay: `${index * 60}ms`,
+                          animationFillMode: 'forwards'
+                        }}
                         onClick={() => navigate(`/player/${player.id}`)}
                       >
                         <TableCell className="py-3 sm:py-4 text-center">
