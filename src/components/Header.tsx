@@ -152,13 +152,12 @@ const Header = () => {
                       </>
                     ) : (
                       <Button 
-                        variant="outline" 
                         size="lg" 
                         onClick={() => {
                           navigate("/auth");
                           setMobileMenuOpen(false);
                         }}
-                        className={`w-full h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
+                        className={`w-full h-12 font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25 ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                       >
                         LOGIN
                       </Button>
@@ -199,10 +198,9 @@ const Header = () => {
                 </div>
               ) : (
                 <Button 
-                  variant="outline" 
                   size="sm" 
                   onClick={() => navigate("/auth")}
-                  className={`inline-flex text-base px-3 h-9 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider' : ''}`}
+                  className={`bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground px-5 h-9 font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-base'}`}
                 >
                   LOGIN
                 </Button>
