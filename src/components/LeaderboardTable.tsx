@@ -24,11 +24,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AIModel } from "@/types/prediction";
 
-interface LeaderboardTableProps {
-  compact?: boolean;
-}
-
-const LeaderboardTable = ({ compact = false }: LeaderboardTableProps) => {
+const LeaderboardTable = () => {
   const { t } = useTranslation();
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoading, setIsLoading] = useState(true);
@@ -310,8 +306,7 @@ const LeaderboardTable = ({ compact = false }: LeaderboardTableProps) => {
         </CardContent>
       </Card>
 
-          {/* Bottom Section: Winning Model + Bar Chart - Only show when not compact */}
-          {!compact && (
+          {/* Bottom Section: Winning Model + Bar Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Winning Model Card */}
             <Card className="relative overflow-hidden">
@@ -431,7 +426,6 @@ const LeaderboardTable = ({ compact = false }: LeaderboardTableProps) => {
               </CardContent>
             </Card>
           </div>
-          )}
 
           {/* Note */}
           <p className="text-sm text-muted-foreground">
