@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, Home, Trophy, History, Sparkles, Target } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui
 import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
-import boosportLogo from "@/assets/boosport-logo-pixel.png";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -20,16 +19,14 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPredictions, setShowPredictions] = useState(false);
-  const languageClassDesktop = i18n.language === "en" ? "font-pixel tracking-wider text-sm md:text-base" : "text-base md:text-lg";
-  const languageClassMobile = i18n.language === "en" ? "font-pixel tracking-wider text-sm" : "text-base";
-  const getDesktopNavClass = (isActive: boolean) =>
-    `font-bold transition-colors whitespace-nowrap hover:text-primary ${languageClassDesktop} ${
-      isActive ? "text-foreground" : "text-muted-foreground"
-    }`;
-  const getMobileNavClass = (isActive: boolean) =>
-    `font-bold transition-colors py-3 px-2 border-b border-border hover:text-primary ${languageClassMobile} ${
-      isActive ? "text-foreground" : "text-muted-foreground"
-    }`;
+
+  const navItems = [
+    { to: "/", icon: Home, label: t('nav_live') },
+    { to: "/leaderboard", icon: Trophy, label: t('nav_rank') },
+    { to: "/history", icon: History, label: t('nav_history') },
+    { to: "/models", icon: Sparkles, label: t('nav_models') },
+    { to: "/my-predictions", icon: Target, label: "我的预测" },
+  ];
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -60,19 +57,29 @@ const Header = () => {
             </h1>
           </Link>
           
-          {/* Center: Platform Introduction */}
-          <nav className="hidden md:flex items-center flex-1 justify-center">
-            <NavLink 
-              to="/blog" 
-              className={({ isActive }) => `${getDesktopNavClass(isActive)} text-lg font-bold`}
-            >
-              {t('nav_blog')}
-            </NavLink>
+          {/* Center: Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActive 
+                    ? 'text-primary bg-primary/10' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`
+                }
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
           </nav>
           
           {/* Right: Actions */}
           <div className="flex items-center gap-0.5 sm:gap-1.5 md:gap-2 flex-shrink-0">
-            {/* Mobile Menu - 仅用于设置和账户信息 */}
+            {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
@@ -86,7 +93,28 @@ const Header = () => {
               <SheetOverlay className="bg-black/60 backdrop-blur-sm animate-fade-in" />
               <SheetContent side="right" className="w-[280px] sm:w-[400px] animate-slide-in-right">
                 <nav className="flex flex-col gap-2 mt-6">
-                  <div className="space-y-3">
+                  {/* Mobile Navigation Links */}
+                  <div className="space-y-1 mb-4">
+                    {navItems.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-colors
+                          ${isActive 
+                            ? 'text-primary bg-primary/10' 
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                          }`
+                        }
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-border pt-4 space-y-3">
                     {user ? (
                       <>
                         <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
