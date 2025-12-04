@@ -121,15 +121,19 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </span>
         </div>
       )}
-      {/* Star Background Image */}
+      {/* Star Background Image with Ken Burns Animation */}
       <div 
-        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
-        style={{
-          backgroundImage: `url(${getStarBackground(model.id)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-        }}
-      />
+        className="absolute inset-0 opacity-20 group-hover:opacity-35 transition-opacity duration-500 overflow-hidden"
+      >
+        <div 
+          className="absolute inset-[-20%] w-[140%] h-[140%] animate-ken-burns group-hover:scale-110 transition-transform duration-700"
+          style={{
+            backgroundImage: `url(${getStarBackground(model.id)})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+          }}
+        />
+      </div>
       
       {/* Gradient Overlay for Content Readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40" />
