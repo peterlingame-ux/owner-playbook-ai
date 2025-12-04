@@ -958,42 +958,31 @@ const PlayerExclusiveModelCard = ({
 
       {/* AI Feed Dialog */}
       <Dialog open={showFeedDialog} onOpenChange={handleDialogClose}>
-        <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 bg-gradient-to-b from-background to-background/95 border-amber-500/30">
+        <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 bg-background border-border">
           {/* Header */}
-          <div className="relative px-6 pt-6 pb-4 border-b border-amber-500/20">
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent" />
-            
-            <DialogHeader className="relative">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-amber-500/30 blur-xl rounded-full" />
-                  <div className="relative h-14 w-14 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
-                    <Brain className="h-7 w-7 text-black" />
-                  </div>
-                </div>
-                <div>
-                  <DialogTitle className="text-xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
-                    AI 模型训练中心
-                  </DialogTitle>
-                  <p className="text-sm text-muted-foreground mt-1">投喂数据，让您的专属AI变得更聪明</p>
-                </div>
-              </div>
+          <div className="px-6 pt-6 pb-4 border-b border-border">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-semibold text-foreground">
+                AI 模型训练
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">输入训练数据以优化您的专属AI模型</p>
             </DialogHeader>
 
             {/* Stats Bar */}
-            <div className="flex items-center gap-3 mt-4 text-xs flex-wrap">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
-                <span className="text-amber-400 font-medium">{trainingCount} 次训练</span>
+            <div className="flex items-center gap-4 mt-4 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">训练次数</span>
+                <span className="font-medium text-foreground">{trainingCount}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30">
-                <FileText className="h-3.5 w-3.5 text-blue-500" />
-                <span className="text-blue-400 font-medium">{totalCharacters.toLocaleString()} 字符</span>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">总字符</span>
+                <span className="font-medium text-foreground">{totalCharacters.toLocaleString()}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-                <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="text-emerald-400 font-medium">模型活跃</span>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">状态</span>
+                <span className="font-medium text-foreground">活跃</span>
               </div>
             </div>
           </div>
@@ -1010,17 +999,14 @@ const PlayerExclusiveModelCard = ({
                   className="flex-1 overflow-hidden flex flex-col"
                 >
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                    <TabsList className="mx-6 mt-4 grid grid-cols-3 bg-muted/50">
-                      <TabsTrigger value="feed" className="text-xs data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400">
-                        <Send className="h-3.5 w-3.5 mr-1.5" />
+                    <TabsList className="mx-6 mt-4 grid grid-cols-3 bg-muted">
+                      <TabsTrigger value="feed" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
                         投喂训练
                       </TabsTrigger>
-                      <TabsTrigger value="stats" className="text-xs data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400">
-                        <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+                      <TabsTrigger value="stats" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
                         数据分析
                       </TabsTrigger>
-                      <TabsTrigger value="history" className="text-xs data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400">
-                        <History className="h-3.5 w-3.5 mr-1.5" />
+                      <TabsTrigger value="history" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
                         训练历史
                       </TabsTrigger>
                     </TabsList>
@@ -1028,16 +1014,15 @@ const PlayerExclusiveModelCard = ({
                     {/* Feed Tab */}
                     <TabsContent value="feed" className="flex-1 overflow-auto p-6 pt-4 space-y-4 m-0">
                       <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                          <Database className="h-4 w-4 text-amber-500" />
+                        <label className="text-sm font-medium text-foreground">
                           输入训练数据
-                        </div>
+                        </label>
                         <div className="relative">
                           <Textarea
                             placeholder="例如：&#10;• 我认为主队在主场的胜率通常更高&#10;• 最近5场比赛保持不败的球队状态更好&#10;• 欧冠比赛中实力差距明显的比赛更容易爆冷..."
                             value={feedText}
                             onChange={(e) => setFeedText(e.target.value)}
-                            className="min-h-[160px] resize-none border-amber-500/30 focus:border-amber-500 bg-card/50 backdrop-blur-sm text-sm"
+                            className="min-h-[160px] resize-none border-border focus:border-foreground/50 bg-muted/30 text-sm"
                           />
                           <div className="absolute bottom-2 right-2 text-[10px] text-muted-foreground">
                             {feedText.length} 字符
@@ -1045,15 +1030,16 @@ const PlayerExclusiveModelCard = ({
                         </div>
                       </div>
 
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={handleDialogClose} className="text-xs">取消</Button>
+                      <div className="flex justify-end gap-3 pt-2">
+                        <Button variant="outline" size="sm" onClick={handleDialogClose} className="text-xs">
+                          取消
+                        </Button>
                         <Button 
                           size="sm"
                           onClick={handleFeedSubmit}
-                          className="text-xs bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold hover:from-amber-600 hover:to-yellow-600 shadow-lg shadow-amber-500/25"
+                          className="text-xs"
                           disabled={!feedText.trim()}
                         >
-                          <Zap className="h-3.5 w-3.5 mr-1.5" />
                           开始训练
                         </Button>
                       </div>
@@ -1063,11 +1049,10 @@ const PlayerExclusiveModelCard = ({
                     <TabsContent value="stats" className="flex-1 overflow-auto p-6 pt-4 space-y-6 m-0">
                       {isLoadingHistory ? (
                         <div className="flex items-center justify-center py-12">
-                          <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                         </div>
                       ) : trainingHistory.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
-                          <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-30" />
                           <p className="text-sm">暂无训练数据</p>
                           <p className="text-xs mt-1">开始投喂数据后将显示统计分析</p>
                         </div>
@@ -1075,11 +1060,8 @@ const PlayerExclusiveModelCard = ({
                         <>
                           {/* Training Trend Chart */}
                           <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-sm font-medium">
-                              <Calendar className="h-4 w-4 text-amber-500" />
-                              近7天训练趋势
-                            </div>
-                            <div className="h-[140px] bg-card/50 rounded-lg border border-border/50 p-3">
+                            <h4 className="text-sm font-medium">近7天训练趋势</h4>
+                            <div className="h-[140px] bg-muted/30 rounded-lg border border-border p-3">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={trendData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                                   <XAxis 
@@ -1108,8 +1090,8 @@ const PlayerExclusiveModelCard = ({
                                     {trendData.map((entry, index) => (
                                       <Cell 
                                         key={`cell-${index}`} 
-                                        fill={entry.count > 0 ? 'hsl(45 100% 50%)' : 'hsl(var(--muted))'}
-                                        fillOpacity={entry.count > 0 ? 0.8 : 0.3}
+                                        fill={entry.count > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--muted))'}
+                                        fillOpacity={entry.count > 0 ? 0.7 : 0.3}
                                       />
                                     ))}
                                   </Bar>
@@ -1120,50 +1102,39 @@ const PlayerExclusiveModelCard = ({
 
                           {/* Keyword Analysis */}
                           <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-sm font-medium">
-                              <Tag className="h-4 w-4 text-amber-500" />
-                              常用关键词分析
-                            </div>
+                            <h4 className="text-sm font-medium">常用关键词</h4>
                             {keywordStats.length === 0 ? (
-                              <div className="text-center py-6 text-muted-foreground text-sm bg-card/50 rounded-lg border border-border/50">
+                              <div className="text-center py-6 text-muted-foreground text-sm bg-muted/30 rounded-lg border border-border">
                                 暂未检测到足球相关关键词
                               </div>
                             ) : (
-                              <div className="flex flex-wrap gap-2 p-4 bg-card/50 rounded-lg border border-border/50">
-                                {keywordStats.map((item, index) => {
-                                  const maxCount = keywordStats[0]?.count || 1;
-                                  return (
-                                    <motion.div
-                                      key={item.keyword}
-                                      initial={{ opacity: 0, scale: 0.8 }}
-                                      animate={{ opacity: 1, scale: 1 }}
-                                      transition={{ delay: index * 0.03 }}
-                                    >
-                                      <Badge 
-                                        className={`text-xs font-medium px-2.5 py-1 ${getKeywordColor(item.count, maxCount)} border-0`}
-                                      >
-                                        {item.keyword}
-                                        <span className="ml-1.5 opacity-70">×{item.count}</span>
-                                      </Badge>
-                                    </motion.div>
-                                  );
-                                })}
+                              <div className="flex flex-wrap gap-2 p-4 bg-muted/30 rounded-lg border border-border">
+                                {keywordStats.map((item, index) => (
+                                  <Badge 
+                                    key={item.keyword}
+                                    variant="secondary"
+                                    className="text-xs font-medium px-2.5 py-1"
+                                  >
+                                    {item.keyword}
+                                    <span className="ml-1.5 opacity-70">×{item.count}</span>
+                                  </Badge>
+                                ))}
                               </div>
                             )}
                           </div>
 
                           {/* Summary Stats */}
                           <div className="grid grid-cols-3 gap-3">
-                            <div className="bg-card/50 rounded-lg border border-border/50 p-3 text-center">
-                              <div className="text-2xl font-bold text-amber-400">{trainingCount}</div>
+                            <div className="bg-muted/30 rounded-lg border border-border p-3 text-center">
+                              <div className="text-2xl font-bold text-foreground">{trainingCount}</div>
                               <div className="text-[10px] text-muted-foreground mt-1">总训练次数</div>
                             </div>
-                            <div className="bg-card/50 rounded-lg border border-border/50 p-3 text-center">
-                              <div className="text-2xl font-bold text-blue-400">{totalCharacters.toLocaleString()}</div>
+                            <div className="bg-muted/30 rounded-lg border border-border p-3 text-center">
+                              <div className="text-2xl font-bold text-foreground">{totalCharacters.toLocaleString()}</div>
                               <div className="text-[10px] text-muted-foreground mt-1">总字符数</div>
                             </div>
-                            <div className="bg-card/50 rounded-lg border border-border/50 p-3 text-center">
-                              <div className="text-2xl font-bold text-emerald-400">{keywordStats.length}</div>
+                            <div className="bg-muted/30 rounded-lg border border-border p-3 text-center">
+                              <div className="text-2xl font-bold text-foreground">{keywordStats.length}</div>
                               <div className="text-[10px] text-muted-foreground mt-1">识别关键词</div>
                             </div>
                           </div>
@@ -1174,53 +1145,43 @@ const PlayerExclusiveModelCard = ({
                     {/* History Tab */}
                     <TabsContent value="history" className="flex-1 overflow-hidden p-6 pt-4 m-0">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                          <Clock className="h-4 w-4 text-amber-500" />
-                          训练历史记录
-                        </div>
-                        <Badge variant="secondary" className="text-[10px]">{trainingHistory.length} 条</Badge>
+                        <h4 className="text-sm font-medium">训练历史记录</h4>
+                        <span className="text-xs text-muted-foreground">{trainingHistory.length} 条</span>
                       </div>
                       
                       {isLoadingHistory ? (
                         <div className="flex items-center justify-center py-12">
-                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                          加载中...
+                          <Loader2 className="h-5 w-5 animate-spin mr-2 text-muted-foreground" />
+                          <span className="text-muted-foreground">加载中...</span>
                         </div>
                       ) : trainingHistory.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
-                          <Brain className="h-10 w-10 mx-auto mb-2 opacity-30" />
                           <p className="text-sm">暂无训练记录</p>
-                          <p className="text-xs mt-1">开始投喂您的专属AI吧！</p>
+                          <p className="text-xs mt-1">开始投喂您的专属AI吧</p>
                         </div>
                       ) : (
                         <ScrollArea className="h-[280px] pr-4">
                           <div className="space-y-2">
                             {trainingHistory.slice(0, 20).map((record, index) => (
-                              <motion.div
+                              <div
                                 key={record.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.03 }}
-                                className="bg-card/50 rounded-lg p-3 border border-border/50 group/item hover:border-amber-500/30 hover:bg-amber-500/5 transition-all"
+                                className="bg-muted/30 rounded-lg p-3 border border-border group/item hover:bg-muted/50 transition-all"
                               >
                                 <div className="flex justify-between items-start gap-2 mb-1.5">
-                                  <div className="flex items-center gap-1.5">
-                                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                                    <span className="text-[10px] text-muted-foreground font-mono">
-                                      {format(new Date(record.created_at), 'MM-dd HH:mm')}
-                                    </span>
-                                  </div>
+                                  <span className="text-[10px] text-muted-foreground font-mono">
+                                    {format(new Date(record.created_at), 'MM-dd HH:mm')}
+                                  </span>
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-6 w-6 p-0 opacity-0 group-hover/item:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    className="h-6 w-6 p-0 opacity-0 group-hover/item:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                     onClick={() => deleteTrainingRecord(record.id)}
                                   >
                                     <Trash2 className="h-3 w-3" />
                                   </Button>
                                 </div>
                                 <p className="text-xs text-foreground/80 line-clamp-2 leading-relaxed">{record.content}</p>
-                              </motion.div>
+                              </div>
                             ))}
                           </div>
                         </ScrollArea>
@@ -1238,34 +1199,33 @@ const PlayerExclusiveModelCard = ({
                   className="flex-1 flex flex-col items-center justify-center py-8 px-6"
                 >
                   <div className="relative mb-6">
-                    <div className={`absolute inset-0 bg-amber-500/30 blur-2xl rounded-full ${isFeeding ? 'animate-pulse' : ''}`} />
                     <motion.div
                       animate={isFeeding ? { rotate: 360 } : {}}
                       transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                      className="relative h-24 w-24 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-2xl shadow-amber-500/40"
+                      className="relative h-20 w-20 rounded-full bg-foreground/10 border-2 border-border flex items-center justify-center"
                     >
-                      <Brain className={`h-12 w-12 text-black ${isFeeding ? 'animate-pulse' : ''}`} />
+                      <Loader2 className={`h-8 w-8 text-foreground ${isFeeding ? 'animate-spin' : ''}`} />
                     </motion.div>
                     {feedComplete && (
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
-                        <CheckCircle2 className="h-5 w-5 text-white" />
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-foreground flex items-center justify-center">
+                        <CheckCircle2 className="h-4 w-4 text-background" />
                       </motion.div>
                     )}
                   </div>
 
-                  <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
-                    {feedComplete ? '训练完成！' : 'AI 学习中...'}
+                  <h3 className="text-lg font-semibold mb-2 text-foreground">
+                    {feedComplete ? '训练完成' : '处理中...'}
                   </h3>
                   
                   <div className="w-full max-w-sm space-y-4 mt-4">
                     <div className="flex justify-between items-center text-sm mb-2">
-                      <span className="text-muted-foreground">训练进度</span>
-                      <span className="font-mono font-bold text-amber-400">{Math.round(feedProgress)}%</span>
+                      <span className="text-muted-foreground">进度</span>
+                      <span className="font-mono font-medium text-foreground">{Math.round(feedProgress)}%</span>
                     </div>
                     
-                    <div className="relative h-3 bg-secondary rounded-full overflow-hidden">
+                    <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                       <motion.div
-                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"
+                        className="absolute inset-y-0 left-0 bg-foreground rounded-full"
                         initial={{ width: 0 }}
                         animate={{ width: `${feedProgress}%` }}
                         transition={{ duration: 0.3 }}
@@ -1284,14 +1244,14 @@ const PlayerExclusiveModelCard = ({
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className={`flex flex-col items-center text-center p-2 rounded-lg transition-all ${isActive ? 'bg-amber-500/10' : 'bg-muted/30'}`}
+                            className={`flex flex-col items-center text-center p-2 rounded-lg transition-all ${isActive ? 'bg-foreground/5' : 'bg-muted/30'}`}
                           >
                             <div className={`h-8 w-8 rounded-full flex items-center justify-center mb-1.5 transition-all ${
-                              isActive ? 'bg-gradient-to-br from-amber-500 to-yellow-500 shadow-lg shadow-amber-500/30' : 'bg-muted'
+                              isActive ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
                             }`}>
-                              <StepIcon className={`h-4 w-4 ${isActive ? 'text-black' : 'text-muted-foreground'} ${isCurrent ? 'animate-pulse' : ''}`} />
+                              <StepIcon className={`h-4 w-4 ${isCurrent ? 'animate-pulse' : ''}`} />
                             </div>
-                            <span className={`text-[9px] font-medium ${isActive ? 'text-amber-400' : 'text-muted-foreground'}`}>{step.label}</span>
+                            <span className={`text-[9px] font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>{step.label}</span>
                           </motion.div>
                         );
                       })}
@@ -1302,10 +1262,9 @@ const PlayerExclusiveModelCard = ({
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
                       <Button 
                         onClick={handleFeedComplete}
-                        className="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold hover:from-amber-600 hover:to-yellow-600 shadow-lg shadow-amber-500/30 px-8"
+                        className="px-8"
                       >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        完成训练
+                        完成
                       </Button>
                     </motion.div>
                   )}
