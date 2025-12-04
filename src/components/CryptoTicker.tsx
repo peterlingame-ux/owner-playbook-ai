@@ -13,7 +13,7 @@ const CryptoTicker = () => {
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-no-repeat opacity-25"
-          style={{ backgroundImage: `url(${bannerBg})`, backgroundPosition: 'center calc(50% + 20px)' }}
+          style={{ backgroundImage: `url(${bannerBg})`, backgroundPosition: 'center calc(50% + 40px)' }}
         />
         
         {/* Dark overlay for better text readability */}
