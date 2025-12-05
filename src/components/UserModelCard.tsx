@@ -227,26 +227,73 @@ const UserModelCard = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
+      className="relative"
     >
+      {/* Animated rotating border */}
+      <motion.div
+        className="absolute -inset-[2px] rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-orange-500 opacity-75 blur-sm"
+        animate={{ 
+          background: [
+            'linear-gradient(0deg, #f59e0b, #fcd34d, #f97316)',
+            'linear-gradient(90deg, #f59e0b, #fcd34d, #f97316)',
+            'linear-gradient(180deg, #f59e0b, #fcd34d, #f97316)',
+            'linear-gradient(270deg, #f59e0b, #fcd34d, #f97316)',
+            'linear-gradient(360deg, #f59e0b, #fcd34d, #f97316)',
+          ]
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+      />
+      
       <Card 
-        className="relative p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
+        className="relative p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-amber-950/60 via-card to-amber-900/30 border-2 border-amber-400/60 hover:border-amber-300 transition-all cursor-pointer group overflow-hidden"
         onClick={handleCardClick}
       >
-        {/* Animated glow effect */}
+        {/* Sparkle particles */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-yellow-300 rounded-full pointer-events-none"
+            style={{
+              left: `${15 + i * 15}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1.5, 0],
+              y: [0, -20, -40],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeOut"
+            }}
+          />
+        ))}
+        
+        {/* Animated glow effect - enhanced */}
         <motion.div 
-          className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"
+          className="absolute -top-20 -right-20 w-48 h-48 bg-amber-400/30 rounded-full blur-3xl pointer-events-none"
           animate={{ 
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.2, 1],
+            opacity: [0.4, 0.8, 0.4],
+            scale: [1, 1.3, 1],
           }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none"
+          className="absolute -bottom-16 -left-16 w-40 h-40 bg-yellow-500/25 rounded-full blur-2xl pointer-events-none"
           animate={{ 
+            opacity: [0.3, 0.7, 0.3],
+          }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-orange-400/20 rounded-full blur-2xl pointer-events-none"
+          animate={{ 
+            scale: [1, 1.5, 1],
             opacity: [0.2, 0.5, 0.2],
           }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
 
         {/* Star Background Image */}
@@ -268,28 +315,55 @@ const UserModelCard = () => {
 
           <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
             <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-              <motion.div 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 p-0.5"
-                style={{ 
-                  background: 'linear-gradient(135deg, #f59e0b, #eab308, #f59e0b)',
-                  boxShadow: '0 0 15px rgba(245,158,11,0.5)'
-                }}
-                animate={{ 
-                  boxShadow: ['0 0 15px rgba(245,158,11,0.5)', '0 0 25px rgba(245,158,11,0.7)', '0 0 15px rgba(245,158,11,0.5)'],
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Avatar className="w-full h-full">
-                  <AvatarImage src={userProfile?.avatar_url || '/avatars/avatar-1.png'} />
-                  <AvatarFallback className="bg-amber-900 text-amber-200">
-                    {userProfile?.display_name?.[0] || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </motion.div>
+              <div className="relative">
+                {/* Rotating ring around avatar */}
+                <motion.div
+                  className="absolute -inset-1 rounded-full border-2 border-transparent"
+                  style={{
+                    background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #f59e0b, #fcd34d, #f97316, #f59e0b) border-box',
+                  }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div 
+                  className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 p-0.5"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #f59e0b, #eab308, #f59e0b)',
+                  }}
+                  animate={{ 
+                    boxShadow: ['0 0 20px rgba(245,158,11,0.6)', '0 0 35px rgba(245,158,11,0.9)', '0 0 20px rgba(245,158,11,0.6)'],
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={userProfile?.avatar_url || '/avatars/avatar-1.png'} />
+                    <AvatarFallback className="bg-amber-900 text-amber-200">
+                      {userProfile?.display_name?.[0] || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </motion.div>
+                {/* Star badge */}
+                <motion.div 
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <Sparkles className="w-3 h-3 text-white" />
+                </motion.div>
+              </div>
               <div className="min-w-0 flex-1 text-center sm:text-left">
-                <h3 className="font-bold text-xs sm:text-sm leading-tight text-amber-300 truncate">
-                  {userProfile?.display_name || '我的模型'}
-                </h3>
+                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
+                  <h3 className="font-bold text-xs sm:text-sm leading-tight text-amber-200 truncate">
+                    {userProfile?.display_name || '我的模型'}
+                  </h3>
+                  <motion.span 
+                    className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold bg-gradient-to-r from-amber-500 to-yellow-400 text-black rounded-full whitespace-nowrap"
+                    animate={{ opacity: [0.8, 1, 0.8] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    专属
+                  </motion.span>
+                </div>
               </div>
             </div>
             
