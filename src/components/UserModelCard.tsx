@@ -146,7 +146,7 @@ const UserModelCard = () => {
                   <User className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
                 </motion.div>
                 <div className="min-w-0 flex-1 text-center sm:text-left">
-                  <h3 className="font-bold text-xs sm:text-sm leading-tight text-amber-300 truncate">
+                  <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
                     我的专属模型
                   </h3>
                 </div>
@@ -154,8 +154,8 @@ const UserModelCard = () => {
               
               {/* Placeholder Badge */}
               <div className="flex flex-col items-center gap-1.5 shrink-0">
-                <span className="text-xs sm:text-sm font-medium text-amber-200/70 whitespace-nowrap">{t('simulated_profit')}</span>
-                <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data font-bold text-sm sm:text-base bg-amber-500/10 text-amber-400/50 border border-amber-500/30">
+                <span className="text-[10px] sm:text-xs font-medium text-amber-200/70 uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
+                <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-mono-data font-medium text-sm sm:text-base tabular-nums bg-amber-500/10 text-amber-400/50 border border-amber-500/30">
                   --
                 </div>
               </div>
@@ -164,8 +164,8 @@ const UserModelCard = () => {
             <div className="space-y-2.5 sm:space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                  <span className="text-[10px] sm:text-xs text-amber-200/60">{t('win_rate')}</span>
-                  <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-amber-400/50">
+                  <span className="text-[10px] sm:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
+                  <span className="text-xl sm:text-2xl font-semibold font-mono-data transition-all text-amber-400/50 tabular-nums">
                     --%
                   </span>
                 </div>
@@ -180,20 +180,20 @@ const UserModelCard = () => {
               
               <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-amber-500/20 gap-2">
                 <div>
-                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-0.5">{t('correct')}</p>
-                  <p className="text-base sm:text-lg font-bold font-mono-data text-amber-400/50">
+                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('correct')}</p>
+                  <p className="text-base sm:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
                     --
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-0.5">{t('total_predictions')}</p>
-                  <p className="text-base sm:text-lg font-bold font-mono-data text-amber-400/50">
+                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
+                  <p className="text-base sm:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
                     --
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-0.5">{t('wrong')}</p>
-                  <p className="text-base sm:text-lg font-bold font-mono-data text-amber-400/50">
+                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('wrong')}</p>
+                  <p className="text-base sm:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
                     --
                   </p>
                 </div>
@@ -287,7 +287,7 @@ const UserModelCard = () => {
                 </Avatar>
               </motion.div>
               <div className="min-w-0 flex-1 text-center sm:text-left">
-                <h3 className="font-bold text-xs sm:text-sm leading-tight text-amber-300 truncate">
+                <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
                   {userProfile?.display_name || '我的模型'}
                 </h3>
               </div>
@@ -295,9 +295,9 @@ const UserModelCard = () => {
             
             {/* Profit Badge */}
             <div className="flex flex-col items-center gap-1.5 shrink-0">
-              <span className="text-xs sm:text-sm font-medium text-amber-200/70 whitespace-nowrap">{t('simulated_profit')}</span>
-              <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data font-bold text-sm sm:text-base ${
-                stats.profit >= 0 ? 'bg-success/30 text-success border border-success/30' : 'bg-destructive/30 text-destructive border border-destructive/30'
+              <span className="text-[10px] sm:text-xs font-medium text-amber-200/70 uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
+              <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-mono-data font-medium text-sm sm:text-base tabular-nums ${
+                stats.profit >= 0 ? 'bg-success/20 text-success border border-success/20' : 'bg-destructive/20 text-destructive border border-destructive/20'
               }`}>
                 {stats.profit >= 0 ? '+' : ''}${Math.abs(stats.profit).toFixed(2)}
               </div>
@@ -307,8 +307,8 @@ const UserModelCard = () => {
           <div className="space-y-2.5 sm:space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                <span className="text-[10px] sm:text-xs text-amber-200/60">{t('win_rate')}</span>
-                <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all text-amber-300">
+                <span className="text-[10px] sm:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
+                <span className="text-xl sm:text-2xl font-semibold font-mono-data transition-all text-amber-300 tabular-nums">
                   {animatedWinRate.toFixed(1)}%
                 </span>
               </div>
@@ -326,20 +326,20 @@ const UserModelCard = () => {
             
             <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-amber-500/20 gap-2">
               <div>
-                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-0.5">{t('correct')}</p>
-                <p className="text-base sm:text-lg font-bold font-mono-data text-success">
+                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('correct')}</p>
+                <p className="text-base sm:text-lg font-medium font-mono-data text-success tabular-nums">
                   {stats.correctPredictions}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-0.5">{t('total_predictions')}</p>
-                <p className="text-base sm:text-lg font-bold font-mono-data text-amber-300">
+                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
+                <p className="text-base sm:text-lg font-medium font-mono-data text-amber-300 tabular-nums">
                   {stats.totalPredictions}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-0.5">{t('wrong')}</p>
-                <p className="text-base sm:text-lg font-bold font-mono-data text-destructive">
+                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('wrong')}</p>
+                <p className="text-base sm:text-lg font-medium font-mono-data text-destructive tabular-nums">
                   {stats.totalPredictions - stats.correctPredictions}
                 </p>
               </div>
