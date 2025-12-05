@@ -9,7 +9,7 @@ import { useCountAnimation } from "@/hooks/useCountAnimation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import exclusiveModelBg from "@/assets/exclusive-model-bg.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 interface UserStats {
   totalPredictions: number;
@@ -100,20 +100,7 @@ const UserModelCard = () => {
           className="relative p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
           onClick={handleActivate}
         >
-          {/* Animated border glow */}
-          <motion.div 
-            className="absolute inset-0 rounded-xl pointer-events-none"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.3), transparent)',
-              backgroundSize: '200% 100%',
-            }}
-            animate={{ 
-              backgroundPosition: ['200% 0', '-200% 0'],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          />
-
-          {/* Animated glow effect - top right */}
+          {/* Animated glow effect */}
           <motion.div 
             className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"
             animate={{ 
@@ -122,8 +109,6 @@ const UserModelCard = () => {
             }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
-          
-          {/* Animated glow effect - bottom left */}
           <motion.div 
             className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none"
             animate={{ 
@@ -132,55 +117,18 @@ const UserModelCard = () => {
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           />
 
-          {/* Center light pulse */}
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-300/10 rounded-full blur-3xl pointer-events-none"
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          />
-
-          {/* Floating sparkle particles */}
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-amber-300 rounded-full pointer-events-none"
-              style={{
-                left: `${15 + i * 18}%`,
-                top: `${20 + (i % 3) * 25}%`,
-              }}
-              animate={{
-                opacity: [0, 1, 0],
-                y: [-10, -30, -10],
-                scale: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: 2 + i * 0.5,
-                repeat: Infinity,
-                delay: i * 0.4,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-
           {/* Star Background Image */}
-          <motion.div 
-            className="absolute inset-0 opacity-20 group-hover:opacity-35 transition-opacity duration-300"
+          <div 
+            className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-300"
             style={{
-              backgroundImage: `url(${exclusiveModelBg})`,
+              backgroundImage: `url(${starHunsoccer})`,
               backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundPosition: 'center top',
             }}
-            animate={{
-              scale: [1, 1.05, 1],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           
           {/* Gradient Overlay for Content Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/60 to-card/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/95 via-card/70 to-transparent" />
           
           {/* Content */}
           <div className="relative z-10">
@@ -284,20 +232,7 @@ const UserModelCard = () => {
         className="relative p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
         onClick={handleCardClick}
       >
-        {/* Animated border glow */}
-        <motion.div 
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ 
-            background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.3), transparent)',
-            backgroundSize: '200% 100%',
-          }}
-          animate={{ 
-            backgroundPosition: ['200% 0', '-200% 0'],
-          }}
-          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-        />
-
-        {/* Animated glow effect - top right */}
+        {/* Animated glow effect */}
         <motion.div 
           className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"
           animate={{ 
@@ -306,8 +241,6 @@ const UserModelCard = () => {
           }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
-        
-        {/* Animated glow effect - bottom left */}
         <motion.div 
           className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none"
           animate={{ 
@@ -316,55 +249,18 @@ const UserModelCard = () => {
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
 
-        {/* Center light pulse */}
-        <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-300/10 rounded-full blur-3xl pointer-events-none"
-          animate={{ 
-            opacity: [0.1, 0.3, 0.1],
-            scale: [0.8, 1.2, 0.8],
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        {/* Floating sparkle particles */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-amber-300 rounded-full pointer-events-none"
-            style={{
-              left: `${15 + i * 18}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              opacity: [0, 1, 0],
-              y: [-10, -30, -10],
-              scale: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: 2 + i * 0.5,
-              repeat: Infinity,
-              delay: i * 0.4,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-
         {/* Star Background Image */}
-        <motion.div 
-          className="absolute inset-0 opacity-20 group-hover:opacity-35 transition-opacity duration-300"
+        <div 
+          className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-300"
           style={{
-            backgroundImage: `url(${exclusiveModelBg})`,
+            backgroundImage: `url(${starHunsoccer})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center top',
           }}
-          animate={{
-            scale: [1, 1.05, 1],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         
         {/* Gradient Overlay for Content Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/60 to-card/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-card/95 via-card/70 to-transparent" />
         
         {/* Content */}
         <div className="relative z-10">
