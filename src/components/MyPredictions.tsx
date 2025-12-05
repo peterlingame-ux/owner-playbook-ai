@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Target, Wallet, Edit2, Check } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -349,6 +349,17 @@ const MyPredictions = () => {
 
   return (
     <div className="space-y-6">
+      {/* 返回按钮 */}
+      <Button 
+        variant="ghost" 
+        size="sm"
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground -ml-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>返回</span>
+      </Button>
+
       {/* 用户预测球星卡 - 仿照AI模型卡设计 */}
       <Card 
         className="relative p-6 bg-card border-primary hover:border-opacity-50 transition-all overflow-hidden"
