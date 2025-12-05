@@ -9,7 +9,7 @@ import { useCountAnimation } from "@/hooks/useCountAnimation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+import exclusiveModelBg from "@/assets/exclusive-model-bg.jpg";
 
 interface UserStats {
   totalPredictions: number;
@@ -121,7 +121,7 @@ const UserModelCard = () => {
           <div 
             className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-300"
             style={{
-              backgroundImage: `url(${starHunsoccer})`,
+              backgroundImage: `url(${exclusiveModelBg})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center top',
             }}
@@ -253,7 +253,7 @@ const UserModelCard = () => {
         <div 
           className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-300"
           style={{
-            backgroundImage: `url(${starHunsoccer})`,
+            backgroundImage: `url(${exclusiveModelBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center top',
           }}
