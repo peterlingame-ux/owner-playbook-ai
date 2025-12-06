@@ -1143,25 +1143,25 @@ const PlayerLeaderboardTable = () => {
                   <div className="space-y-2">
                     <div className="grid grid-cols-4 gap-2">
                       <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold text-primary font-mono-data">
+                        <div className="text-sm font-bold text-foreground font-mono-data">
                           {player?.winRate.toFixed(0)}%
                         </div>
                         <div className="text-[10px] text-muted-foreground">胜率</div>
                       </div>
                       <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold font-mono-data">
+                        <div className="text-sm font-bold font-mono-data text-foreground">
                           {player?.totalPredictions || 0}
                         </div>
                         <div className="text-[10px] text-muted-foreground">预测</div>
                       </div>
                       <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold text-success font-mono-data">
+                        <div className="text-sm font-bold text-foreground font-mono-data">
                           {player?.bestStreak || 0}
                         </div>
                         <div className="text-[10px] text-muted-foreground">连胜</div>
                       </div>
                       <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className={`text-sm font-bold font-mono-data ${(player?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        <div className="text-sm font-bold font-mono-data text-foreground">
                           {(player?.profit || 0) >= 0 ? '+' : ''}{((player?.profit || 0) / 100).toFixed(0)}%
                         </div>
                         <div className="text-[10px] text-muted-foreground">收益</div>
@@ -1178,13 +1178,13 @@ const PlayerLeaderboardTable = () => {
                           <div className="text-[10px] text-muted-foreground">投注金额</div>
                         </div>
                         <div className="bg-muted/30 rounded-lg p-2 text-center">
-                          <div className="text-sm font-bold font-mono-data text-primary">
+                          <div className="text-sm font-bold font-mono-data text-foreground">
                             ¥{validAmount.toFixed(0)}
                           </div>
                           <div className="text-[10px] text-muted-foreground">有效金额</div>
                         </div>
-                        <div className={`rounded-lg p-2 text-center ${todayProfitLoss >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                          <div className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        <div className="bg-muted/30 rounded-lg p-2 text-center">
+                          <div className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
                             {todayProfitLoss >= 0 ? '+' : ''}¥{todayProfitLoss.toFixed(0)}
                           </div>
                           <div className="text-[10px] text-muted-foreground">今日盈亏</div>
@@ -1205,11 +1205,10 @@ const PlayerLeaderboardTable = () => {
                     {/* 待开赛推荐 */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-xs font-semibold flex items-center gap-1.5">
-                          <Sparkles className="h-3 w-3 text-primary" />
+                        <h4 className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
                           今日推荐
                         </h4>
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
                           {upcomingPredictions.length}场
                         </span>
                       </div>
@@ -1246,7 +1245,7 @@ const PlayerLeaderboardTable = () => {
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     {/* 主队 */}
-                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'home' ? 'ring-1 ring-primary/50 rounded-md px-1.5 py-0.5 bg-primary/5' : ''}`}>
+                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'home' ? 'bg-muted/50 rounded-md px-1.5 py-0.5' : ''}`}>
                                       {getTeamLogo(pred.home_team || '') ? (
                                         <img 
                                           src={getTeamLogo(pred.home_team || '') || ''} 
@@ -1254,11 +1253,11 @@ const PlayerLeaderboardTable = () => {
                                           className="w-5 h-5 object-contain flex-shrink-0"
                                         />
                                       ) : (
-                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
+                                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground flex-shrink-0">
                                           {(pred.home_team || '主')[0]}
                                         </div>
                                       )}
-                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'home' ? 'text-primary font-bold' : ''}`}>
+                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'home' ? 'font-bold' : ''}`}>
                                         {pred.home_team || '主队'}
                                       </span>
                                     </div>
@@ -1266,7 +1265,7 @@ const PlayerLeaderboardTable = () => {
                                     <span className="text-[10px] text-muted-foreground font-bold">VS</span>
                                     
                                     {/* 客队 */}
-                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'away' ? 'ring-1 ring-primary/50 rounded-md px-1.5 py-0.5 bg-primary/5' : ''}`}>
+                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'away' ? 'bg-muted/50 rounded-md px-1.5 py-0.5' : ''}`}>
                                       {getTeamLogo(pred.away_team || '') ? (
                                         <img 
                                           src={getTeamLogo(pred.away_team || '') || ''} 
@@ -1274,27 +1273,26 @@ const PlayerLeaderboardTable = () => {
                                           className="w-5 h-5 object-contain flex-shrink-0"
                                         />
                                       ) : (
-                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
+                                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground flex-shrink-0">
                                           {(pred.away_team || '客')[0]}
                                         </div>
                                       )}
-                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'away' ? 'text-primary font-bold' : ''}`}>
+                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'away' ? 'font-bold' : ''}`}>
                                         {pred.away_team || '客队'}
                                       </span>
                                     </div>
                                   </div>
-                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground flex-shrink-0">
                                     待开赛
                                   </span>
                                 </div>
                                 
-                                {/* 推荐信息 - 更清晰的显示 */}
-                                <div className="bg-primary/5 rounded-md p-2 border border-primary/10">
+                                {/* 推荐信息 - 简洁显示 */}
+                                <div className="bg-muted/30 rounded-md p-2">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-1.5">
-                                      <Sparkles className="h-3 w-3 text-primary" />
                                       <span className="text-[10px] text-muted-foreground">推荐:</span>
-                                      <span className="text-xs font-bold text-primary">
+                                      <span className="text-xs font-bold text-foreground">
                                         {recommended.type === 'home' || recommended.type === 'away' 
                                           ? `${recommended.team} 胜` 
                                           : recommended.type === 'over' 
@@ -1309,7 +1307,7 @@ const PlayerLeaderboardTable = () => {
                                       <span className="text-muted-foreground">
                                         赔率 <span className="text-foreground font-medium">1.80</span>
                                       </span>
-                                      <span className="px-1.5 py-0.5 rounded bg-success/10 text-success font-medium">
+                                      <span className="px-1.5 py-0.5 rounded bg-muted text-foreground font-medium">
                                         85%
                                       </span>
                                     </div>
@@ -1361,11 +1359,7 @@ const PlayerLeaderboardTable = () => {
                             return (
                               <div 
                                 key={pred.id} 
-                                className={`rounded-lg p-2 ${
-                                  pred.result === 'win' 
-                                    ? 'bg-success/5 border border-success/20' 
-                                    : 'bg-destructive/5 border border-destructive/20'
-                                }`}
+                                className="rounded-lg p-2 bg-muted/20 border border-border/30"
                               >
                                 {/* 比赛信息行 */}
                                 <div className="flex items-center justify-between mb-1.5">
@@ -1379,13 +1373,13 @@ const PlayerLeaderboardTable = () => {
                                           className="w-4 h-4 object-contain"
                                         />
                                       ) : (
-                                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                        <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-[7px] font-bold text-muted-foreground">
                                           {(pred.home_team || '主')[0]}
                                         </div>
                                       )}
                                       <span className="truncate max-w-[45px]">{pred.home_team}</span>
                                     </div>
-                                    <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
+                                    <span className="font-bold px-1.5 py-0.5 rounded bg-muted text-xs">
                                       {pred.home_score ?? 0}-{pred.away_score ?? 0}
                                     </span>
                                     {/* 客队 */}
@@ -1397,17 +1391,15 @@ const PlayerLeaderboardTable = () => {
                                           className="w-4 h-4 object-contain"
                                         />
                                       ) : (
-                                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                        <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-[7px] font-bold text-muted-foreground">
                                           {(pred.away_team || '客')[0]}
                                         </div>
                                       )}
                                       <span className="truncate max-w-[45px]">{pred.away_team}</span>
                                     </div>
                                   </div>
-                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                                    pred.result === 'win' 
-                                      ? 'bg-success/20 text-success' 
-                                      : 'bg-destructive/20 text-destructive'
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted ${
+                                    pred.result === 'win' ? 'text-foreground' : 'text-muted-foreground'
                                   }`}>
                                     {pred.result === 'win' ? '✓ 正确' : '✗ 错误'}
                                   </span>
@@ -1419,11 +1411,11 @@ const PlayerLeaderboardTable = () => {
                                     <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                                       {predictionType}
                                     </span>
-                                    <span className={`font-medium ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                                    <span className="font-medium text-foreground">
                                       {getPredictionLabel()}
                                     </span>
                                   </div>
-                                  <span className={`font-bold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                                  <span className={`font-bold ${pred.result === 'win' ? 'text-foreground' : 'text-muted-foreground'}`}>
                                     {pred.result === 'win' 
                                       ? `+¥${((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number).toFixed(0)}` 
                                       : `-¥${pred.bet_amount}`
