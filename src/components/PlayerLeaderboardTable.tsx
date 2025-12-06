@@ -1294,7 +1294,7 @@ const PlayerLeaderboardTable = () => {
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="text-xs font-semibold flex items-center gap-1.5">
                             <History className="h-3 w-3 text-muted-foreground" />
-                            今日战绩
+                            已完赛
                           </h4>
                           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
                             {completedPredictions.filter(p => p.result === 'win').length}/{completedPredictions.length}
