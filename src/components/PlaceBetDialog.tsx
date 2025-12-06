@@ -238,16 +238,11 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
         { label: `${selectedMatch?.home_team_name} -1.5`, value: "home_-1.5", odds: 2.10, line: -1.5 },
         { label: `${selectedMatch?.away_team_name} +1.5`, value: "away_+1.5", odds: 1.75, line: 1.5 },
       ];
-    } else if (selectedBetType === "over_under") {
+    } else {
+      // over_under
       return [
         { label: "大球 2.5", value: "over_2.5", odds: 1.88, line: 2.5 },
         { label: "小球 2.5", value: "under_2.5", odds: 1.95, line: 2.5 },
-      ];
-    } else {
-      return [
-        { label: `${selectedMatch?.home_team_name} 胜`, value: "home_win", odds: 1.85 },
-        { label: "平局", value: "draw", odds: 3.40 },
-        { label: `${selectedMatch?.away_team_name} 胜`, value: "away_win", odds: 4.20 },
       ];
     }
   };
@@ -409,8 +404,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
             <div className="space-y-4">
               <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
                 <TabsList>
-                  <TabsTrigger value="moneyline">独赢盘</TabsTrigger>
-                  <TabsTrigger value="handicap">让分盘</TabsTrigger>
+                  <TabsTrigger value="handicap">让球</TabsTrigger>
                   <TabsTrigger value="over_under">大小球</TabsTrigger>
                 </TabsList>
               </Tabs>
