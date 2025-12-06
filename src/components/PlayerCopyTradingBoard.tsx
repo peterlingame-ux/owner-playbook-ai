@@ -197,19 +197,28 @@ const PlayerCopyTradingBoard = () => {
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-sm truncate">{player.displayName}</p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className={player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
-              {player.winRate.toFixed(1)}%
+          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+            <span className="flex items-center gap-1">
+              <span className="text-muted-foreground/70">胜率:</span>
+              <span className={player.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                {player.winRate.toFixed(1)}%
+              </span>
             </span>
             <span className="text-border">|</span>
-            <span className={player.changePercent >= 0 ? 'text-success' : 'text-destructive'}>
-              {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+            <span className="flex items-center gap-1">
+              <span className="text-muted-foreground/70">盈利:</span>
+              <span className={player.changePercent >= 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+              </span>
             </span>
             {showStreak && (
               <>
                 <span className="text-border">|</span>
-                <span className={streakType === 'best' ? 'text-success' : 'text-destructive'}>
-                  {streakType === 'best' ? `+${player.bestStreak}` : `-${player.worstStreak}`}
+                <span className="flex items-center gap-1">
+                  <span className="text-muted-foreground/70">{streakType === 'best' ? '连胜:' : '连败:'}</span>
+                  <span className={streakType === 'best' ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                    {streakType === 'best' ? player.bestStreak : player.worstStreak}场
+                  </span>
                 </span>
               </>
             )}
