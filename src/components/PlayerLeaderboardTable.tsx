@@ -12,6 +12,48 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import grassTexture from "@/assets/grass-texture.jpg";
+// 球队Logo导入
+import teamRealMadrid from "@/assets/team-real-madrid.png";
+import teamBarcelona from "@/assets/team-barcelona.png";
+import teamManchesterCity from "@/assets/team-manchester-city.png";
+import teamLiverpool from "@/assets/team-liverpool.png";
+import teamBayern from "@/assets/team-bayern.png";
+import teamDortmund from "@/assets/team-dortmund.png";
+import teamPsg from "@/assets/team-psg.png";
+import teamMarseille from "@/assets/team-marseille.png";
+import teamAcmilan from "@/assets/team-acmilan.png";
+import teamArsenal from "@/assets/team-arsenal.png";
+import teamInter from "@/assets/team-inter.png";
+import teamAtletico from "@/assets/team-atletico.png";
+import teamManchesterUnited from "@/assets/team-manchester-united.png";
+
+// 球队Logo映射
+const teamLogoMap: Record<string, string> = {
+  '皇家马德里': teamRealMadrid,
+  '巴塞罗那': teamBarcelona,
+  '曼城': teamManchesterCity,
+  '利物浦': teamLiverpool,
+  '拜仁慕尼黑': teamBayern,
+  '多特蒙德': teamDortmund,
+  '巴黎圣日耳曼': teamPsg,
+  '马赛': teamMarseille,
+  'AC米兰': teamAcmilan,
+  '尤文图斯': teamInter, // 使用国米logo暂代
+  '切尔西': teamManchesterCity, // 暂代
+  '阿森纳': teamArsenal,
+  '国际米兰': teamInter,
+  '那不勒斯': teamAcmilan, // 暂代
+  '马德里竞技': teamAtletico,
+  '塞维利亚': teamAtletico, // 暂代
+  '曼联': teamManchesterUnited,
+  '热刺': teamArsenal, // 暂代
+  '纽卡斯尔': teamLiverpool, // 暂代
+};
+
+// 获取球队Logo
+const getTeamLogo = (teamName: string): string | null => {
+  return teamLogoMap[teamName] || null;
+};
 import {
   Dialog,
   DialogContent,
@@ -1165,11 +1207,19 @@ const PlayerLeaderboardTable = () => {
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     {/* 主队 */}
-                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'home' ? 'ring-1 ring-primary/50 rounded-md px-1 bg-primary/5' : ''}`}>
-                                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
-                                        {(pred.home_team || '主')[0]}
-                                      </div>
-                                      <span className={`text-xs font-medium truncate max-w-[70px] ${recommended.type === 'home' ? 'text-primary font-bold' : ''}`}>
+                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'home' ? 'ring-1 ring-primary/50 rounded-md px-1.5 py-0.5 bg-primary/5' : ''}`}>
+                                      {getTeamLogo(pred.home_team || '') ? (
+                                        <img 
+                                          src={getTeamLogo(pred.home_team || '') || ''} 
+                                          alt={pred.home_team} 
+                                          className="w-5 h-5 object-contain flex-shrink-0"
+                                        />
+                                      ) : (
+                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
+                                          {(pred.home_team || '主')[0]}
+                                        </div>
+                                      )}
+                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'home' ? 'text-primary font-bold' : ''}`}>
                                         {pred.home_team || '主队'}
                                       </span>
                                     </div>
@@ -1177,11 +1227,19 @@ const PlayerLeaderboardTable = () => {
                                     <span className="text-[10px] text-muted-foreground font-bold">VS</span>
                                     
                                     {/* 客队 */}
-                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'away' ? 'ring-1 ring-primary/50 rounded-md px-1 bg-primary/5' : ''}`}>
-                                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
-                                        {(pred.away_team || '客')[0]}
-                                      </div>
-                                      <span className={`text-xs font-medium truncate max-w-[70px] ${recommended.type === 'away' ? 'text-primary font-bold' : ''}`}>
+                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'away' ? 'ring-1 ring-primary/50 rounded-md px-1.5 py-0.5 bg-primary/5' : ''}`}>
+                                      {getTeamLogo(pred.away_team || '') ? (
+                                        <img 
+                                          src={getTeamLogo(pred.away_team || '') || ''} 
+                                          alt={pred.away_team} 
+                                          className="w-5 h-5 object-contain flex-shrink-0"
+                                        />
+                                      ) : (
+                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
+                                          {(pred.away_team || '客')[0]}
+                                        </div>
+                                      )}
+                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'away' ? 'text-primary font-bold' : ''}`}>
                                         {pred.away_team || '客队'}
                                       </span>
                                     </div>
@@ -1257,9 +1315,17 @@ const PlayerLeaderboardTable = () => {
                                 <div className="flex items-center gap-2 text-xs">
                                   {/* 主队 */}
                                   <div className="flex items-center gap-1">
-                                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[7px] font-bold text-white">
-                                      {(pred.home_team || '主')[0]}
-                                    </div>
+                                    {getTeamLogo(pred.home_team || '') ? (
+                                      <img 
+                                        src={getTeamLogo(pred.home_team || '') || ''} 
+                                        alt={pred.home_team} 
+                                        className="w-4 h-4 object-contain"
+                                      />
+                                    ) : (
+                                      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                        {(pred.home_team || '主')[0]}
+                                      </div>
+                                    )}
                                     <span className="truncate max-w-[50px]">{pred.home_team}</span>
                                   </div>
                                   <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
@@ -1267,9 +1333,17 @@ const PlayerLeaderboardTable = () => {
                                   </span>
                                   {/* 客队 */}
                                   <div className="flex items-center gap-1">
-                                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[7px] font-bold text-white">
-                                      {(pred.away_team || '客')[0]}
-                                    </div>
+                                    {getTeamLogo(pred.away_team || '') ? (
+                                      <img 
+                                        src={getTeamLogo(pred.away_team || '') || ''} 
+                                        alt={pred.away_team} 
+                                        className="w-4 h-4 object-contain"
+                                      />
+                                    ) : (
+                                      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                        {(pred.away_team || '客')[0]}
+                                      </div>
+                                    )}
                                     <span className="truncate max-w-[50px]">{pred.away_team}</span>
                                   </div>
                                 </div>
