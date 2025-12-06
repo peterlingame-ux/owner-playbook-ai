@@ -227,9 +227,16 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
               </p>
             </div>
-            <div className="text-right">
+            <div 
+              className="text-right cursor-pointer hover:bg-accent/50 rounded-md px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/history?tab=player&player=${player.id}`);
+              }}
+              title={t('click_to_view_history') || '点击查看历史记录'}
+            >
               <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('today_prediction') || '今日'}</p>
-              <p className="text-xs sm:text-sm font-bold font-mono-data text-sky-500">
+              <p className="text-xs sm:text-sm font-bold font-mono-data text-sky-500 hover:underline">
                 {player.todayCorrect ?? Math.floor(Math.random() * 5) + 2}/{player.todayTotal ?? Math.floor(Math.random() * 3) + 5}
               </p>
             </div>
