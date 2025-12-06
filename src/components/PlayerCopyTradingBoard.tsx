@@ -480,7 +480,7 @@ const PlayerCopyTradingBoard = () => {
           }}
         >
           <UserPlus className="h-3 w-3" />
-          {t('copy_trade_btn') || '跟单'}
+          {t('view') || '查看'}
         </Button>
       </div>
     </div>
