@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -20,6 +21,7 @@ const aiIcons: Record<string, string> = {
 
 const Waitlist = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [userStats, setUserStats] = useState<{
     totalPredictions: number;
@@ -231,10 +233,10 @@ const Waitlist = () => {
           className="text-center mb-10"
         >
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
-            战胜AI，赢取奖金
+            {t('prize_hero_title')}
           </h1>
           <p className="text-muted-foreground">
-            每轮奖池 <span className="text-foreground font-semibold">$1,000,000</span>
+            {t('prize_pool_each_round')} <span className="text-foreground font-semibold">$1,000,000</span>
           </p>
         </motion.div>
 
@@ -251,20 +253,20 @@ const Waitlist = () => {
                 <Clock className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">当前轮次 {currentRound}</div>
-                <div className="text-xs text-muted-foreground">发奖日期: {nextAwardDate}</div>
+                <div className="text-sm text-muted-foreground">{t('current_round')} {currentRound}</div>
+                <div className="text-xs text-muted-foreground">{t('award_date')}: {nextAwardDate}</div>
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-foreground">{daysRemaining}</div>
-              <div className="text-xs text-muted-foreground">天后发奖</div>
+              <div className="text-xs text-muted-foreground">{t('days_until_award')}</div>
             </div>
           </div>
           
           {/* Progress Bar */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>已过 {daysPassed} 天</span>
+              <span>{t('days_passed')} {daysPassed}</span>
               <span>{progressPercent}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -285,7 +287,7 @@ const Waitlist = () => {
           transition={{ delay: 0.1 }}
           className="bg-card border border-border rounded-xl p-6 mb-8"
         >
-          <h2 className="text-lg font-semibold text-foreground mb-6 text-center">如何获奖？</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-6 text-center">{t('how_to_win')}</h2>
           
           <div className="space-y-6">
             {/* Step 1 */}
@@ -294,13 +296,13 @@ const Waitlist = () => {
                 <span className="text-primary font-bold">1</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">预测场次超过AI</h3>
+                <h3 className="font-medium text-foreground mb-1">{t('step1_title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  在30天内完成至少超过AI预测的场次数
+                  {t('step1_desc')}
                 </p>
                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   <img src={aiIcons[currentAI.model]} alt="" className="w-4 h-4 rounded" />
-                  <span>当前AI已预测 <span className="font-semibold text-foreground">{currentAI.predictions}</span> 场</span>
+                  <span>{t('ai_predicted_matches')} <span className="font-semibold text-foreground">{currentAI.predictions}</span> {t('matches_count')}</span>
                 </div>
                 {userStats && (
                   <div className="mt-2">
@@ -327,9 +329,9 @@ const Waitlist = () => {
                 <span className="text-primary font-bold">2</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">胜率超过AI</h3>
+                <h3 className="font-medium text-foreground mb-1">{t('step2_title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  当前AI胜率：
+                  {t('step2_desc')}:
                   <span className="inline-flex items-center gap-1 ml-1">
                     <img src={aiIcons[currentAI.model]} alt="" className="w-4 h-4 rounded" />
                     <span className="font-medium text-foreground">{currentAI.winRate}%</span>
@@ -337,7 +339,7 @@ const Waitlist = () => {
                 </p>
                 {userStats && userStats.totalPredictions > 0 && (
                   <div className="mt-2 flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">你的胜率:</span>
+                    <span className="text-muted-foreground">{t('your_win_rate')}:</span>
                     <span className={`font-semibold ${beatsAI ? 'text-success' : 'text-foreground'}`}>
                       {userStats.winRate.toFixed(1)}%
                     </span>
@@ -353,9 +355,9 @@ const Waitlist = () => {
                 <span className="text-primary font-bold">3</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">瓜分奖池</h3>
+                <h3 className="font-medium text-foreground mb-1">{t('step3_title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  每轮结束后，所有达标玩家按超越AI的幅度分配奖金
+                  {t('step3_desc')}
                 </p>
               </div>
             </div>
@@ -371,16 +373,16 @@ const Waitlist = () => {
         >
           {user ? (
             <Button size="lg" onClick={() => navigate('/')} className="px-8">
-              开始预测
+              {t('start_prediction_btn')}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
             <Button size="lg" onClick={() => navigate('/auth')} className="px-8">
-              免费注册
+              {t('free_register_btn')}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           )}
-          <p className="text-xs text-muted-foreground mt-2">无需充值 · 免费参与</p>
+          <p className="text-xs text-muted-foreground mt-2">{t('no_deposit_free')}</p>
         </motion.div>
 
         {/* Stats */}
@@ -393,17 +395,17 @@ const Waitlist = () => {
           <div className="bg-card border border-border rounded-lg p-4 text-center">
             <Calendar className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{historyData.length}</div>
-            <div className="text-xs text-muted-foreground">已完成轮次</div>
+            <div className="text-xs text-muted-foreground">{t('completed_rounds')}</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-4 text-center">
             <Users className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{totalWinners}</div>
-            <div className="text-xs text-muted-foreground">获奖人数</div>
+            <div className="text-xs text-muted-foreground">{t('total_winners')}</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-4 text-center">
             <Trophy className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">${(totalDistributed / 1000000).toFixed(2)}M</div>
-            <div className="text-xs text-muted-foreground">累计发放</div>
+            <div className="text-xs text-muted-foreground">{t('total_distributed')}</div>
           </div>
         </motion.div>
 
@@ -417,7 +419,7 @@ const Waitlist = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Award className="w-4 h-4 text-amber-500" />
-              <h2 className="text-sm font-medium text-foreground">获奖玩家案例</h2>
+              <h2 className="text-sm font-medium text-foreground">{t('featured_winners')}</h2>
             </div>
             
             {/* Round Filter */}
@@ -430,7 +432,7 @@ const Waitlist = () => {
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
-                精选
+                {t('featured')}
               </button>
               {roundsWithWinners.map((round) => (
                 <button
@@ -480,14 +482,14 @@ const Waitlist = () => {
                         </div>
                         <div className="text-right">
                           <span className="text-lg font-bold text-success">${winner.prize.toLocaleString()}</span>
-                          <span className="text-xs text-muted-foreground ml-1">奖金</span>
+                          <span className="text-xs text-muted-foreground ml-1">{t('prize_won')}</span>
                         </div>
                       </div>
 
                       {/* Stats */}
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-3">
                         <div>
-                          <span className="text-muted-foreground">胜率 </span>
+                          <span className="text-muted-foreground">{t('player_win_rate')} </span>
                           <span className="font-semibold text-success">{winner.winRate}%</span>
                         </div>
                         <div className="text-muted-foreground">vs</div>
@@ -496,10 +498,10 @@ const Waitlist = () => {
                           <span className="text-muted-foreground">{winner.aiWinRate}%</span>
                         </div>
                         <div className="text-muted-foreground">·</div>
-                        <div className="text-muted-foreground">{winner.predictions}场预测</div>
+                        <div className="text-muted-foreground">{winner.predictions} {t('predictions_count')}</div>
                         <div className="text-muted-foreground">·</div>
                         <div>
-                          <span className="text-muted-foreground">虚拟盈利 </span>
+                          <span className="text-muted-foreground">{t('virtual_profit')} </span>
                           <span className="font-semibold text-amber-500">+{winner.virtualProfit.toLocaleString()}</span>
                         </div>
                       </div>
@@ -515,7 +517,7 @@ const Waitlist = () => {
               ))
             ) : (
               <div className="text-center py-8 text-muted-foreground text-sm">
-                该轮次无获奖者
+                {t('no_winners_round')}
               </div>
             )}
           </div>
@@ -528,16 +530,16 @@ const Waitlist = () => {
           transition={{ delay: 0.7 }}
           className="mb-8"
         >
-          <h2 className="text-sm font-medium text-foreground mb-4">历史记录</h2>
+          <h2 className="text-sm font-medium text-foreground mb-4">{t('history_records_title')}</h2>
           <div className="border border-border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted/50 border-b border-border">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">轮次</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">发奖日期</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">AI胜率</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">获奖人数</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">发放金额</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('round_column')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('date_column_prize')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('ai_win_rate_label')}</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('winners_column')}</th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('distributed_column')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -553,7 +555,7 @@ const Waitlist = () => {
                     </td>
                     <td className="py-3 px-4 text-center">
                       {item.winners > 0 ? (
-                        <span className="text-success">{item.winners}人</span>
+                        <span className="text-success">{item.winners}</span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
@@ -575,9 +577,7 @@ const Waitlist = () => {
         {/* Disclaimer */}
         <div className="text-xs text-muted-foreground text-center pb-8">
           <p>
-            本平台为足球预测准确性竞赛，非博彩活动。
-            <br />
-            参与免费，奖金来源于平台运营预算。
+            {t('prize_disclaimer')}
           </p>
         </div>
       </main>
