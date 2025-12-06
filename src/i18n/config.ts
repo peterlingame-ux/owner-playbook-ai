@@ -49,8 +49,8 @@ const resources = {
       "no_data": "No data available",
       
       // Model Cards
-      "the_contestants": "AI Models",
-      "top_players": "Top Players",
+      "the_contestants": "AI Model Predictions",
+      "top_players": "Player Predictions",
       "view_details": "VIEW DETAILS",
       "total_predictions": "Total Predictions",
       
@@ -317,7 +317,7 @@ const resources = {
       "copy_trade_player_unavailable_desc": "The one-click follow player feature is coming soon. Stay tuned for updates!",
       "locked_model": "LOCKED",
       "locked_model_message": "This model is locked. Stay tuned for access!",
-      "active_ai_predictions": "Today's Predictions",
+      "active_ai_predictions": "Match Predictions Today",
       "view_analysis": "Analysis",
       "model_training": "Model Training",
       "prediction": "Prediction",
@@ -437,8 +437,8 @@ const resources = {
       "no_data": "暂无数据",
       
       // Model Cards
-      "the_contestants": "AI 模型",
-      "top_players": "玩家排行",
+      "the_contestants": "AI模型预测",
+      "top_players": "玩家预测",
       "view_details": "查看详情",
       "total_predictions": "总预测次数",
       
@@ -704,7 +704,7 @@ const resources = {
       "copy_trade_player_unavailable_desc": "关注玩家功能即将上线，敬请期待！",
       "locked_model": "已锁定",
       "locked_model_message": "该模型已锁定，敬请期待开放！",
-      "active_ai_predictions": "今日预测",
+      "active_ai_predictions": "赛事今日预测",
       "view_analysis": "分析",
       "model_training": "模型训练",
       "prediction": "预测",
