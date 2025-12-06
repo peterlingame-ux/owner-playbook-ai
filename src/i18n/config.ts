@@ -43,8 +43,8 @@ const resources = {
       "correct": "CORRECT",
       "wrong": "WRONG",
       "performance": "PERFORMANCE",
-      "ai_leaderboard": "AI Leaderboard",
-      "player_leaderboard": "Player Leaderboard",
+      "ai_leaderboard": "AI Recommendation Leaderboard",
+      "player_leaderboard": "Player Recommendation Leaderboard",
       "all_players": "All Players",
       "no_data": "No data available",
       
@@ -432,8 +432,8 @@ const resources = {
       "correct": "正确",
       "wrong": "错误",
       "performance": "表现",
-      "ai_leaderboard": "AI排行榜",
-      "player_leaderboard": "玩家排行榜",
+      "ai_leaderboard": "AI推荐排行榜",
+      "player_leaderboard": "玩家推荐排行榜",
       "all_players": "所有玩家",
       "no_data": "暂无数据",
       
