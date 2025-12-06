@@ -374,21 +374,12 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                   return (
                     <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                       <td className="py-1.5 px-2">
-                        <div className="flex items-center gap-1">
-                          {pred.type === 'prediction' ? (
-                            <Target className="h-3 w-3 text-primary flex-shrink-0" />
-                          ) : (
-                            <Users className="h-3 w-3 text-amber-500 flex-shrink-0" />
+                        <span className={`text-[10px] font-medium ${pred.type === 'prediction' ? 'text-primary' : 'text-amber-500'}`}>
+                          {pred.type === 'prediction' ? t('prediction_label') : t('copy_trade_type')}
+                          {pred.type === 'copy-trade' && pred.followed_player_name && (
+                            <span className="text-muted-foreground font-normal"> · {pred.followed_player_name}</span>
                           )}
-                          <span className={`text-[10px] font-medium ${pred.type === 'prediction' ? 'text-primary' : 'text-amber-500'}`}>
-                            {pred.type === 'prediction' ? t('prediction_label') : t('copy_trade_type')}
-                          </span>
-                        </div>
-                        {pred.type === 'copy-trade' && pred.followed_player_name && (
-                          <span className="text-[9px] text-muted-foreground ml-4 block truncate max-w-[60px]">
-                            @{pred.followed_player_name}
-                          </span>
-                        )}
+                        </span>
                       </td>
                       <td className="py-1.5 px-2 text-[10px] text-muted-foreground whitespace-nowrap">
                         {format(new Date(pred.created_at), 'MM-dd')}
