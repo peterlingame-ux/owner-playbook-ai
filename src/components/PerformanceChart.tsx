@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -48,9 +49,28 @@ const generateZeroChartData = (days: number): ChartDataPoint[] => {
 
 const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'all' | '72h'>('all');
+  const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        const { data } = await supabase
+          .from('users')
+          .select('display_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+        if (data) setUserProfile(data);
+      };
+      fetchProfile();
+    } else {
+      setUserProfile(null);
+    }
+  }, [user]);
 
   // 获取胜率数据 - 使用 Realtime 订阅实现实时更新
   useEffect(() => {
@@ -220,7 +240,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         iconSrc = grokIcon;
         break;
       case 'hunsoccermax':
-        iconSrc = hunsoccerIcon;
+        iconSrc = user && userProfile?.avatar_url ? userProfile.avatar_url : hunsoccerIcon;
         break;
       default:
         return null;
@@ -257,9 +277,16 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         case 'claude': return claudeIcon;
         case 'gemini': return geminiIcon;
         case 'grok': return grokIcon;
-        case 'hunsoccermax': return hunsoccerIcon;
+        case 'hunsoccermax': return user && userProfile?.avatar_url ? userProfile.avatar_url : hunsoccerIcon;
         default: return null;
       }
+    };
+
+    const getName = (dataKey: string, originalName: string) => {
+      if (dataKey === 'hunsoccermax') {
+        return user && userProfile?.display_name ? userProfile.display_name : (t('demo_player') || '体验玩家');
+      }
+      return originalName;
     };
     
     return (
@@ -269,10 +296,10 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             <img 
               src={getIcon(entry.dataKey)} 
               alt={entry.value}
-              className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+              className={`w-4 h-4 sm:w-5 sm:h-5 object-contain ${entry.dataKey === 'hunsoccermax' && user ? 'rounded-full' : ''}`}
             />
             <span className="text-xs sm:text-sm font-semibold tracking-wide" style={{ color: entry.color }}>
-              {entry.value}
+              {getName(entry.dataKey, entry.value)}
             </span>
           </div>
         ))}
