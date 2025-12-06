@@ -580,7 +580,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                             </div>
                           </div>
                           <Badge variant="secondary" className="text-[10px] shrink-0">
-                            {m.ai_count} AI
+                            {m.ai_count}AI已预测
                           </Badge>
                         </div>
                       </div>
