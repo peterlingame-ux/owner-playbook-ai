@@ -458,7 +458,7 @@ const PlayerCopyTradingBoard = () => {
           }}
         >
           <Calendar className="h-3 w-3" />
-          <span className="text-muted-foreground">今日预测:</span>
+          <span className="text-muted-foreground">昨日预测:</span>
           {(() => {
             const stats = todayStats.get(player.id);
             if (!stats || stats.total === 0) return '-';
