@@ -1021,44 +1021,34 @@ const MyPredictions = () => {
                   ${stats?.balance?.toLocaleString() || '10,000'}
                 </span>
               </div>
-              <div className="mt-1.5 flex items-center gap-1">
-                <div className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${(stats?.profit || 0) >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'}`}>
-                  {(stats?.profit || 0) >= 0 ? '↑' : '↓'} {Math.abs(stats?.profit || 0).toLocaleString()}
-                </div>
-                <span className="text-[10px] text-muted-foreground">{t('profit_loss_label')}</span>
-              </div>
             </div>
 
             {/* USDT钱包 */}
             <div className="p-3 bg-gradient-to-br from-[#26A17B]/5 to-transparent">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#26A17B]/15 flex items-center justify-center shadow-sm">
-                    <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4.5 h-4.5" />
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">{t('usdt_wallet_balance')}</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-[#26A17B]/15 flex items-center justify-center shadow-sm">
+                  <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4.5 h-4.5" />
                 </div>
+                <span className="text-xs font-medium text-muted-foreground">{t('usdt_wallet_balance')}</span>
               </div>
-              <div className="flex items-baseline gap-1.5">
+              <div className="flex items-baseline gap-1.5 mb-2">
                 <span className="text-2xl font-bold text-[#26A17B] font-mono tracking-tight">
                   {usdtBalance.toFixed(2)}
                 </span>
                 <span className="text-xs font-medium text-muted-foreground">USDT</span>
               </div>
-              <div className="mt-2">
-                <USDTWalletDialog 
-                  trigger={
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full h-7 text-xs font-medium border-[#26A17B]/30 bg-[#26A17B]/5 hover:bg-[#26A17B]/15 text-[#26A17B] shadow-sm"
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      {t('usdt_deposit')}
-                    </Button>
-                  }
-                />
-              </div>
+              <USDTWalletDialog 
+                trigger={
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full h-7 text-xs font-medium border-[#26A17B]/30 bg-[#26A17B]/5 hover:bg-[#26A17B]/15 text-[#26A17B] shadow-sm"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    {t('usdt_deposit')}
+                  </Button>
+                }
+              />
             </div>
           </div>
         </div>
