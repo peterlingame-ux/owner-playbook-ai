@@ -714,6 +714,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         const hours = Math.floor(diff / (1000 * 60 * 60));
                         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        const isUrgent = hours === 0 && minutes < 10;
                         
                         if (hours > 24) {
                           const days = Math.floor(hours / 24);
@@ -721,7 +722,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         }
                         
                         return (
-                          <span className="text-primary text-xs font-mono">
+                          <span className={`text-xs font-mono ${isUrgent ? 'text-destructive animate-pulse font-bold' : 'text-primary'}`}>
                             {hours > 0 
                               ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
                               : `${minutes}:${seconds.toString().padStart(2, '0')}`
