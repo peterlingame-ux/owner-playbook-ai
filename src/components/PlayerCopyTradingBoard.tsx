@@ -447,7 +447,7 @@ const PlayerCopyTradingBoard = () => {
                 <span className="text-border">|</span>
                 <span className="flex items-center gap-1">
                   <span className="text-muted-foreground/70">{streakType === 'best' ? '连胜:' : '连败:'}</span>
-                  <span className={streakType === 'best' ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                  <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                     {streakType === 'best' ? player.bestStreak : player.worstStreak}场
                   </span>
                 </span>
@@ -473,7 +473,7 @@ const PlayerCopyTradingBoard = () => {
             const stats = todayStats.get(player.id);
             if (!stats || stats.total === 0) return '-';
             return (
-              <span className={stats.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+              <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {stats.correct}/{stats.total} {stats.winRate.toFixed(0)}%
               </span>
             );
@@ -591,7 +591,7 @@ const PlayerCopyTradingBoard = () => {
                 
                 <div>
                   <p className="text-xs text-white/70 mb-0.5">{t('total_profit') || '总盈利'}</p>
-                  <p className="text-lg sm:text-xl font-bold font-mono text-success flex items-center gap-1">
+                  <p className="text-lg sm:text-xl font-bold font-mono text-destructive flex items-center gap-1">
                     <TrendingUp className="h-4 w-4" />
                     +¥{Math.abs(topStreakPlayers[0]?.profit || 0).toLocaleString()}
                   </p>
