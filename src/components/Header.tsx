@@ -65,7 +65,7 @@ const Header = () => {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-4 py-2 rounded-full text-sm font-nav font-medium tracking-wide transition-all duration-300
+                  `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
                   ${isActive 
                     ? 'bg-[#2a2a2a] text-white shadow-lg' 
                     : 'text-[#888888] hover:text-[#cccccc]'
@@ -101,7 +101,7 @@ const Header = () => {
                         to={item.to}
                         onClick={() => setMobileMenuOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center px-4 py-3 rounded-full text-base font-nav font-medium tracking-wide transition-all duration-300
+                          `flex items-center px-4 py-3 rounded-full text-base font-medium transition-all duration-300
                           ${isActive 
                             ? 'bg-[#2a2a2a] text-white' 
                             : 'text-[#888888] hover:text-foreground hover:bg-accent/30'
