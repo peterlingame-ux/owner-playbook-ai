@@ -457,47 +457,37 @@ const History = () => {
   };
 
   const getBetTypeLabel = (betType: string, prediction: HistoryRecord, match?: HistoryRecord['match']) => {
-    switch(betType) {
-      case "moneyline": 
-        return t('bet_type_moneyline') || 'Moneyline';
-      case "handicap": 
-        // 显示让球线和让球方，比如 "主队名 -1.5" 或 "客队名 +0.5"
-        if (prediction.handicapLine !== undefined) {
-          const lineStr = `${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
-          // 根据 prediction 判断是哪个球队让球
-          // "HOME" 或 "HOME_WIN" 表示主队让球（通常 handicapLine 为负数）
-          // "AWAY" 或 "AWAY_WIN" 表示客队让球（通常 handicapLine 为正数）
-          const predStr = prediction.prediction as string;
-          if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
-            // 主队让球
-            const teamName = match ? getTeamName(match, 'home') : t('home') || 'Home';
-            return `${teamName} ${lineStr}`;
-          } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
-            // 客队让球
-            const teamName = match ? getTeamName(match, 'away') : t('away') || 'Away';
-            return `${teamName} ${lineStr}`;
-          } else {
-            // 如果无法从 prediction 判断，根据 handicapLine 的正负判断
-            // 负数通常是主队让球，正数通常是客队让球
-            if (prediction.handicapLine < 0 && match) {
-              return `${getTeamName(match, 'home')} ${lineStr}`;
-            } else if (prediction.handicapLine > 0 && match) {
-              return `${getTeamName(match, 'away')} ${lineStr}`;
-            }
-            // 兜底：只显示数值
-            return lineStr;
+    if (betType === "handicap") {
+      // 显示让球线和让球方，比如 "主队名 -1.5" 或 "客队名 +0.5"
+      if (prediction.handicapLine !== undefined) {
+        const lineStr = `${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
+        // 根据 prediction 判断是哪个球队让球
+        const predStr = prediction.prediction as string;
+        if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
+          const teamName = match ? getTeamName(match, 'home') : t('home') || 'Home';
+          return `${teamName} ${lineStr}`;
+        } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
+          const teamName = match ? getTeamName(match, 'away') : t('away') || 'Away';
+          return `${teamName} ${lineStr}`;
+        } else {
+          if (prediction.handicapLine < 0 && match) {
+            return `${getTeamName(match, 'home')} ${lineStr}`;
+          } else if (prediction.handicapLine > 0 && match) {
+            return `${getTeamName(match, 'away')} ${lineStr}`;
           }
+          return lineStr;
         }
-        return t('bet_type_handicap') || 'Handicap';
-      case "over_under": 
-        // 显示大小球具体投注，比如 "3.5 Under"
-        if (prediction.overUnderLine !== undefined && prediction.overUnderPick) {
-          const overUnder = prediction.overUnderPick === 'over' ? t('over') || 'Over' : t('under') || 'Under';
-          return `${prediction.overUnderLine} ${overUnder}`;
-        }
-        return t('bet_type_over_under') || 'Over/Under';
-      default: return betType;
+      }
+      return t('bet_type_handicap') || '让球';
+    } else if (betType === "over_under") {
+      // 显示大小球具体投注，比如 "3.5 Under"
+      if (prediction.overUnderLine !== undefined && prediction.overUnderPick) {
+        const overUnder = prediction.overUnderPick === 'over' ? t('over') || '大' : t('under') || '小';
+        return `${prediction.overUnderLine} ${overUnder}`;
+      }
+      return t('bet_type_over_under') || '大小球';
     }
+    return betType;
   };
 
   const getPredictionLabel = (prediction: HistoryRecord, match: HistoryRecord['match']) => {
