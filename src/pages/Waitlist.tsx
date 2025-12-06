@@ -69,12 +69,12 @@ const Waitlist = () => {
   }, [user]);
 
   const historyData = [
-    { round: "S1-006", aiModel: "Claude 3.5 Sonnet", aiWinRate: 72.3, winners: 3, totalPaid: 255000 },
-    { round: "S1-005", aiModel: "GPT-4o", aiWinRate: 74.8, winners: 0, totalPaid: 0 },
-    { round: "S1-004", aiModel: "Claude 3.5 Sonnet", aiWinRate: 71.5, winners: 2, totalPaid: 320000 },
-    { round: "S1-003", aiModel: "Gemini 1.5 Pro", aiWinRate: 69.2, winners: 3, totalPaid: 330000 },
-    { round: "S1-002", aiModel: "GPT-4o", aiWinRate: 76.5, winners: 0, totalPaid: 0 },
-    { round: "S1-001", aiModel: "Claude 3.5 Sonnet", aiWinRate: 70.2, winners: 1, totalPaid: 250000 },
+    { round: "S1-006", aiModel: "Claude 3.5 Sonnet", aiWinRate: 72.3, winners: 3, totalPaid: 255000, awardDate: "2024-12-01" },
+    { round: "S1-005", aiModel: "GPT-4o", aiWinRate: 74.8, winners: 0, totalPaid: 0, awardDate: "2024-11-01" },
+    { round: "S1-004", aiModel: "Claude 3.5 Sonnet", aiWinRate: 71.5, winners: 2, totalPaid: 320000, awardDate: "2024-10-01" },
+    { round: "S1-003", aiModel: "Gemini 1.5 Pro", aiWinRate: 69.2, winners: 3, totalPaid: 330000, awardDate: "2024-09-01" },
+    { round: "S1-002", aiModel: "GPT-4o", aiWinRate: 76.5, winners: 0, totalPaid: 0, awardDate: "2024-08-01" },
+    { round: "S1-001", aiModel: "Claude 3.5 Sonnet", aiWinRate: 70.2, winners: 1, totalPaid: 250000, awardDate: "2024-07-01" },
   ];
 
   // All winners data organized by round
@@ -465,6 +465,7 @@ const Waitlist = () => {
               <thead>
                 <tr className="bg-muted/50 border-b border-border">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">轮次</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">发奖日期</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">AI胜率</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">获奖人数</th>
                   <th className="text-right py-3 px-4 font-medium text-muted-foreground">发放金额</th>
@@ -474,6 +475,7 @@ const Waitlist = () => {
                 {historyData.map((item) => (
                   <tr key={item.round} className="border-b border-border/50 last:border-0">
                     <td className="py-3 px-4 font-mono text-foreground">{item.round}</td>
+                    <td className="py-3 px-4 text-muted-foreground">{item.awardDate}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
                         <img src={aiIcons[item.aiModel]} alt="" className="w-4 h-4 rounded" />
