@@ -533,7 +533,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
         <div className="space-y-3">
           {/* 余额显示 */}
           <div className="flex items-center justify-between py-2 px-3 bg-muted/50 rounded-lg">
-            <span className="text-xs text-muted-foreground">可用余额</span>
+            <span className="text-xs text-muted-foreground">虚拟钱包余额</span>
             <span className="text-lg font-bold font-mono">${userBalance.toFixed(0)}</span>
           </div>
 
