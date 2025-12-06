@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
-import { Trophy, PlayCircle, Flame, TrendingUp, Target, Zap } from "lucide-react";
+import { Trophy, PlayCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -215,32 +215,23 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
           
           {/* Additional Stats Row */}
           <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
-            <div className="flex items-center gap-1">
-              <Flame className="h-3 w-3 text-orange-500" />
-              <div>
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('best_streak') || '连胜'}</p>
-                <p className="text-xs sm:text-sm font-bold font-mono-data text-orange-500">
-                  {player.bestStreak || Math.floor(Math.random() * 8) + 3}
-                </p>
-              </div>
+            <div>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('best_streak') || '连胜'}</p>
+              <p className="text-xs sm:text-sm font-bold font-mono-data text-orange-500">
+                {player.bestStreak || Math.floor(Math.random() * 8) + 3}
+              </p>
             </div>
-            <div className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-primary" />
-              <div className="text-center">
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground">ROI</p>
-                <p className={`text-xs sm:text-sm font-bold font-mono-data ${player.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
-                </p>
-              </div>
+            <div className="text-center">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">ROI</p>
+              <p className={`text-xs sm:text-sm font-bold font-mono-data ${player.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+              </p>
             </div>
-            <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-sky-500" />
-              <div className="text-right">
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('today_prediction') || '今日'}</p>
-                <p className="text-xs sm:text-sm font-bold font-mono-data text-sky-500">
-                  {player.todayCorrect ?? Math.floor(Math.random() * 5) + 2}/{player.todayTotal ?? Math.floor(Math.random() * 3) + 5}
-                </p>
-              </div>
+            <div className="text-right">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('today_prediction') || '今日'}</p>
+              <p className="text-xs sm:text-sm font-bold font-mono-data text-sky-500">
+                {player.todayCorrect ?? Math.floor(Math.random() * 5) + 2}/{player.todayTotal ?? Math.floor(Math.random() * 3) + 5}
+              </p>
             </div>
           </div>
           
