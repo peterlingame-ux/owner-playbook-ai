@@ -142,7 +142,7 @@ const DEMO_AI_MATCHES: AIMatchWithDetails[] = [
 interface PlaceBetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  match: Match | null;
+  match?: Match | null;
   onBetPlaced?: () => void;
 }
 
