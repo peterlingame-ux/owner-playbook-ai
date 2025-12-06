@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
-import CryptoTicker from "@/components/CryptoTicker";
+import AdCarousel from "@/components/AdCarousel";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
@@ -17,7 +17,11 @@ const Leaderboard = () => {
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
-      <CryptoTicker />
+      
+      {/* Ad Carousel Banner */}
+      <div className="container mx-auto px-3 sm:px-4 pt-4">
+        <AdCarousel />
+      </div>
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
         <Tabs defaultValue="ai" className="w-full">
