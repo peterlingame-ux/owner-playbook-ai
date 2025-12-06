@@ -662,7 +662,7 @@ const PlayerCopyTradingBoard = () => {
                     ].map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={entry.type === 'profit' ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                        fill={entry.type === 'profit' ? 'hsl(var(--destructive))' : 'hsl(var(--success))'}
                       />
                     ))}
                   </Bar>
@@ -671,13 +671,13 @@ const PlayerCopyTradingBoard = () => {
               
               {/* Summary Stats */}
               <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                <div className="p-2 rounded-lg bg-success/10 border border-success/20">
-                  <p className="text-[10px] text-muted-foreground">{t('total_earned') || '总赚取'}</p>
-                  <p className="text-sm font-bold text-success">+¥{Math.abs(topStreakPlayers[0]?.profit || 1500).toLocaleString()}</p>
-                </div>
                 <div className="p-2 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <p className="text-[10px] text-muted-foreground">{t('total_earned') || '总赚取'}</p>
+                  <p className="text-sm font-bold text-destructive">+¥{Math.abs(topStreakPlayers[0]?.profit || 1500).toLocaleString()}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-success/10 border border-success/20">
                   <p className="text-[10px] text-muted-foreground">{t('total_lost') || '总亏损'}</p>
-                  <p className="text-sm font-bold text-destructive">-¥{Math.abs(worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200).toLocaleString()}</p>
+                  <p className="text-sm font-bold text-success">-¥{Math.abs(worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200).toLocaleString()}</p>
                 </div>
               </div>
             </CardContent>
