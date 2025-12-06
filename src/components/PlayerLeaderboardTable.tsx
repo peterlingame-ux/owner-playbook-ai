@@ -1374,7 +1374,7 @@ const PlayerLeaderboardTable = () => {
                                   </span>
                                 </div>
                                 
-                                {/* 预测类别和内容 */}
+                                {/* 预测类别和内容 + 盈亏金额 */}
                                 <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/30">
                                   <div className="flex items-center gap-1.5">
                                     <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
@@ -1384,6 +1384,12 @@ const PlayerLeaderboardTable = () => {
                                       {getPredictionLabel()}
                                     </span>
                                   </div>
+                                  <span className={`font-bold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                                    {pred.result === 'win' 
+                                      ? `+¥${((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number).toFixed(0)}` 
+                                      : `-¥${pred.bet_amount}`
+                                    }
+                                  </span>
                                 </div>
                               </div>
                             );
