@@ -343,10 +343,15 @@ const PlayerCopyTradingBoard = () => {
           }}
         >
           <Calendar className="h-3 w-3" />
+          <span className="text-muted-foreground">今日预测:</span>
           {(() => {
             const stats = todayStats.get(player.id);
-            if (!stats || stats.total === 0) return '今日: -';
-            return `${stats.correct}/${stats.total} ${stats.winRate.toFixed(0)}%`;
+            if (!stats || stats.total === 0) return '-';
+            return (
+              <span className={stats.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                {stats.correct}/{stats.total} {stats.winRate.toFixed(0)}%
+              </span>
+            );
           })()}
         </Button>
         {/* 跟单按钮 */}
