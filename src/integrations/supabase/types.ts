@@ -193,6 +193,9 @@ export type Database = {
           created_at: string | null
           display_name: string
           id: string
+          invitation_code: string | null
+          invited_by: string | null
+          invited_count: number | null
           password_hash: string | null
           updated_at: string | null
         }
@@ -201,6 +204,9 @@ export type Database = {
           created_at?: string | null
           display_name: string
           id: string
+          invitation_code?: string | null
+          invited_by?: string | null
+          invited_count?: number | null
           password_hash?: string | null
           updated_at?: string | null
         }
@@ -209,6 +215,9 @@ export type Database = {
           created_at?: string | null
           display_name?: string
           id?: string
+          invitation_code?: string | null
+          invited_by?: string | null
+          invited_count?: number | null
           password_hash?: string | null
           updated_at?: string | null
         }
@@ -220,6 +229,7 @@ export type Database = {
     }
     Functions: {
       confirm_deposit: { Args: { p_deposit_id: string }; Returns: Json }
+      generate_invitation_code: { Args: never; Returns: string }
       generate_random_username: { Args: never; Returns: string }
       place_bet: {
         Args: {

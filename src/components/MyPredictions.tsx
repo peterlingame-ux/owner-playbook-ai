@@ -21,6 +21,8 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "rec
 interface UserProfile {
   display_name: string;
   avatar_url: string;
+  invitation_code?: string;
+  invited_count?: number;
 }
 
 interface MatchInfo {
@@ -686,12 +688,12 @@ const MyPredictions = () => {
         // 获取用户资料
         const { data: profileData } = await supabase
           .from('users')
-          .select('display_name, avatar_url')
+          .select('display_name, avatar_url, invitation_code, invited_count')
           .eq('id', user.id)
           .single();
 
         if (profileData) {
-          setUserProfile(profileData);
+          setUserProfile(profileData as UserProfile);
           setEditDisplayName(profileData.display_name || '');
           setSelectedAvatar(profileData.avatar_url || '');
         }
@@ -1043,6 +1045,43 @@ const MyPredictions = () => {
           />
         </div>
       </div>
+
+      {/* 邀请码卡片 */}
+      {userProfile?.invitation_code && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <Users className="h-4 w-4 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">{t('my_invitation_code') || '我的邀请码'}</p>
+                <p className="text-lg font-bold font-mono text-foreground tracking-wider">{userProfile.invitation_code}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
+                <p className="text-lg font-bold text-amber-500 font-mono">{userProfile.invited_count || 0}</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs border-amber-500/30 hover:bg-amber-500/10 text-amber-600"
+                onClick={() => {
+                  navigator.clipboard.writeText(userProfile.invitation_code || '');
+                  toast.success(t('invitation_code_copied') || '邀请码已复制');
+                }}
+              >
+                {t('copy') || '复制'}
+              </Button>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 USDT奖励'}
+          </p>
+        </div>
+      )}
 
       {/* 开始预测按钮 */}
       <Button 
