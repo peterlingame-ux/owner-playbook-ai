@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         pixel: ['"Press Start 2P"', 'cursive'],
         'mono-data': ['"DM Mono"', 'ui-monospace', 'monospace'],
+        nav: ['"Outfit"', 'Inter', 'sans-serif'],
         sans: [
           'Inter',
           '-apple-system',
