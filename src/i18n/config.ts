@@ -14,6 +14,7 @@ const resources = {
       "nav_history": "HISTORY",
       "nav_blog": "ABOUT",
       "nav_models": "MATCHES",
+      "nav_my": "My",
       
       // Stats
       "highest_win_rate": "HIGHEST WIN RATE",
@@ -318,6 +319,7 @@ const resources = {
       "locked_model_message": "This model is locked. Stay tuned for access!",
       "active_ai_predictions": "Today's Predictions",
       "view_analysis": "Analysis",
+      "model_training": "Model Training",
       "prediction": "Prediction",
       "current_score": "Current Score",
       "bet_amount": "Simulation Amount",
@@ -363,6 +365,8 @@ const resources = {
       
       // History page
       "history_data": "Historical Data",
+      "ai_history": "AI History",
+      "player_history": "Player History",
       "total_profit": "Total Profit",
       "period": "Period",
       "all_time": "All Time",
@@ -398,6 +402,7 @@ const resources = {
       "nav_history": "历史记录",
       "nav_blog": "平台介绍",
       "nav_models": "赛事中心",
+      "nav_my": "我的",
       
       // Stats
       "highest_win_rate": "最高胜率",
@@ -701,6 +706,7 @@ const resources = {
       "locked_model_message": "该模型已锁定，敬请期待开放！",
       "active_ai_predictions": "今日预测",
       "view_analysis": "分析",
+      "model_training": "模型训练",
       "prediction": "预测",
       "current_score": "当前比分",
       "bet_amount": "模拟额度",
@@ -746,6 +752,8 @@ const resources = {
       
       // History page
       "history_data": "历史数据",
+      "ai_history": "AI历史",
+      "player_history": "玩家历史",
       "total_profit": "总收益率",
       "period": "时间段",
       "all_time": "全部时间",

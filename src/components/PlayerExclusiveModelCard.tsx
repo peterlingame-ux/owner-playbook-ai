@@ -567,15 +567,13 @@ const PlayerExclusiveModelCard = ({
               {currentMatchData && onOpenPKDialog && (
                 <Button
                   size="sm"
-                  variant="ghost"
-                  className="h-7 px-2 text-warning hover:bg-warning/10"
+                  className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenPKDialog(currentMatchData.match);
                   }}
                 >
-                  <Target className="h-3.5 w-3.5 mr-1" />
-                  <span className="text-[10px] font-bold">PK</span>
+                  <span className="text-[10px]">AI竞赛</span>
                 </Button>
               )}
               {bet && currentMatchData && onOpenAnalysis && (
@@ -597,17 +595,6 @@ const PlayerExclusiveModelCard = ({
                   <span className="text-[10px] font-bold">{t('view_analysis') || '分析'}</span>
                 </Button>
               )}
-              <Button
-                size="sm"
-                className="h-7 px-2 bg-violet-600 hover:bg-violet-500 text-white"
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setShowFeedDialog(true); 
-                }}
-              >
-                <Brain className="h-3.5 w-3.5 mr-1" />
-                <span className="text-[10px] font-bold">训练</span>
-              </Button>
             </div>
           </div>
 
@@ -619,7 +606,18 @@ const PlayerExclusiveModelCard = ({
                 <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[60%]">
                   {safeGetLeagueName(currentMatchData.match)}
                 </Badge>
-                {/* Match Status Indicator */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    size="sm"
+                    className="h-7 px-3 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-bold"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setShowFeedDialog(true); 
+                    }}
+                  >
+                    {t('model_training') || '模型训练'}
+                  </Button>
+                  {/* Match Status Indicator */}
                 {(() => {
                   const status = currentMatchData.match.status_short;
                   const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'P', 'BREAK'];
@@ -641,6 +639,7 @@ const PlayerExclusiveModelCard = ({
                   }
                   return null;
                 })()}
+                </div>
               </div>
               
               {/* Teams with Logos */}

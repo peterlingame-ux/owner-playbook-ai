@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3, Target } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
@@ -917,15 +917,13 @@ const ActiveAIBets = () => {
                     {currentMatchData && (
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-warning hover:bg-warning/10"
+                        className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenPKDialog(currentMatchData.match);
                         }}
                       >
-                        <Target className="h-3.5 w-3.5 mr-1" />
-                        <span className="text-[10px] font-bold">PK</span>
+                        <span className="text-[10px]">AI竞赛</span>
                       </Button>
                     )}
                     {(moneylineBet || handicapBet || overUnderBet) && (

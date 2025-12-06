@@ -25,7 +25,7 @@ const Header = () => {
     { to: "/leaderboard", label: t('nav_rank') },
     { to: "/history", label: t('nav_history') },
     { to: "/models", label: t('nav_models') },
-    { to: "/my-predictions", label: "我的预测" },
+    { to: "/my-predictions", label: t('nav_my') },
     { to: "/waitlist", label: "奖金" },
   ];
 
