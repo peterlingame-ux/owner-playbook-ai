@@ -48,6 +48,12 @@ interface TodayPrediction {
   match_status?: string;
 }
 
+interface CopyTradeData {
+  player: PlayerData;
+  prediction: TodayPrediction;
+  betAmount: number;
+}
+
 const PlayerCopyTradingBoard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -55,6 +61,10 @@ const PlayerCopyTradingBoard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [todayStats, setTodayStats] = useState<Map<string, { total: number; correct: number; winRate: number }>>(new Map());
   const [selectedPlayer, setSelectedPlayer] = useState<{ player: PlayerData; predictions: TodayPrediction[] } | null>(null);
+  const [copyTradeDialog, setCopyTradeDialog] = useState<CopyTradeData | null>(null);
+  const [userBalance, setUserBalance] = useState(10000);
+  const [copyBetAmount, setCopyBetAmount] = useState(100);
+  const [isCopying, setIsCopying] = useState(false);
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -304,8 +314,76 @@ const PlayerCopyTradingBoard = () => {
     .sort((a, b) => b.worstStreak - a.worstStreak)
     .slice(0, 10);
 
+  // 模拟比赛数据用于跟单
+  const mockUpcomingMatches = [
+    { home: '皇家马德里', away: '巴塞罗那', matchId: 'upcoming-1001' },
+    { home: '曼城', away: '利物浦', matchId: 'upcoming-1002' },
+    { home: '拜仁慕尼黑', away: '多特蒙德', matchId: 'upcoming-1003' },
+    { home: '巴黎圣日耳曼', away: '马赛', matchId: 'upcoming-1004' },
+  ];
+
   const handleCopyTrade = (player: PlayerData) => {
-    toast.info(t('copy_trade_unavailable_desc') || '一键跟单功能即将上线，敬请期待！');
+    // 生成一个虚拟的待跟单预测
+    const randomMatch = mockUpcomingMatches[Math.floor(Math.random() * mockUpcomingMatches.length)];
+    const prediction: TodayPrediction = {
+      id: `copy-${Date.now()}`,
+      match_id: randomMatch.matchId,
+      prediction: Math.random() > 0.5 ? 'Over 2.5' : 'Under 2.5',
+      prediction_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
+      bet_amount: 200,
+      potential_payout: 360,
+      actual_payout: null,
+      result: null,
+      created_at: new Date().toISOString(),
+      home_team: randomMatch.home,
+      away_team: randomMatch.away,
+      home_score: null,
+      away_score: null,
+      match_status: 'NS'
+    };
+    
+    setCopyTradeDialog({ player, prediction, betAmount: 100 });
+    setCopyBetAmount(100);
+  };
+
+  const confirmCopyTrade = async () => {
+    if (!copyTradeDialog) return;
+    
+    if (copyBetAmount > userBalance) {
+      toast.error('余额不足，无法跟单');
+      return;
+    }
+
+    if (copyBetAmount < 10) {
+      toast.error('最低跟单金额为 ¥10');
+      return;
+    }
+
+    setIsCopying(true);
+    
+    // 模拟跟单过程
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 更新虚拟余额
+    setUserBalance(prev => prev - copyBetAmount);
+    
+    toast.success(
+      <div className="space-y-1">
+        <p className="font-medium">跟单成功！</p>
+        <p className="text-xs text-muted-foreground">
+          已跟随 {copyTradeDialog.player.displayName} 下注 ¥{copyBetAmount}
+        </p>
+        <p className="text-xs">
+          {copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}
+        </p>
+        <p className="text-xs text-primary">
+          预测: {copyTradeDialog.prediction.prediction}
+        </p>
+      </div>
+    );
+    
+    setIsCopying(false);
+    setCopyTradeDialog(null);
   };
 
   const PlayerCard = ({ 
@@ -546,6 +624,115 @@ const PlayerCopyTradingBoard = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 跟单确认弹窗 */}
+      <Dialog open={!!copyTradeDialog} onOpenChange={() => setCopyTradeDialog(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              一键跟单
+            </DialogTitle>
+          </DialogHeader>
+          
+          {copyTradeDialog && (
+            <div className="space-y-4">
+              {/* 跟单目标玩家 */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Avatar className="w-10 h-10 border-2 border-primary/30">
+                  <AvatarImage src={copyTradeDialog.player.avatarUrl} />
+                  <AvatarFallback>{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{copyTradeDialog.player.displayName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    胜率: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
+                      {copyTradeDialog.player.winRate.toFixed(1)}%
+                    </span>
+                    <span className="mx-2">|</span>
+                    连胜: <span className="text-success">{copyTradeDialog.player.bestStreak}场</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* 跟单比赛信息 */}
+              <div className="p-3 rounded-lg border border-border/50 space-y-2">
+                <div className="text-xs text-muted-foreground mb-2">跟单比赛</div>
+                <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                  <span className="text-right flex-1">{copyTradeDialog.prediction.home_team}</span>
+                  <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
+                  <span className="text-left flex-1">{copyTradeDialog.prediction.away_team}</span>
+                </div>
+                <div className="text-center text-xs text-muted-foreground mt-2">
+                  预测: <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
+                  <span className="mx-2">|</span>
+                  类型: {copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球'}
+                </div>
+              </div>
+
+              {/* 跟单金额设置 */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">跟单金额</span>
+                  <span className="text-xs text-muted-foreground">
+                    可用余额: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {[50, 100, 200, 500].map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={copyBetAmount === amount ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setCopyBetAmount(amount)}
+                    >
+                      ¥{amount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 预期收益 */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-success/10 border border-success/20">
+                <span className="text-sm text-muted-foreground">预期收益</span>
+                <span className="font-bold text-success">
+                  +¥{(copyBetAmount * 0.8).toFixed(0)} ~ +¥{(copyBetAmount * 1.2).toFixed(0)}
+                </span>
+              </div>
+
+              {/* 确认按钮 */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setCopyTradeDialog(null)}
+                >
+                  取消
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={confirmCopyTrade}
+                  disabled={isCopying || copyBetAmount > userBalance}
+                >
+                  {isCopying ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      跟单中...
+                    </>
+                  ) : (
+                    <>确认跟单 ¥{copyBetAmount}</>
+                  )}
+                </Button>
+              </div>
+
+              <p className="text-[10px] text-muted-foreground text-center">
+                * 跟单即表示您同意使用虚拟资金复制该玩家的预测策略
+              </p>
             </div>
           )}
         </DialogContent>
