@@ -454,7 +454,7 @@ const ModelDetail = () => {
           </Card>
           
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">ROI</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('roi') || '盈利率'}</p>
             <p className="text-xl sm:text-3xl font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
               {Number(roi) >= 0 ? '+' : ''}{roi}%
             </p>

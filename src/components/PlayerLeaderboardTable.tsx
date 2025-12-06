@@ -499,7 +499,7 @@ const PlayerLeaderboardTable = () => {
                           </span>
                           <span className="text-border">|</span>
                           <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">ROI:</span>
+                            <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
                             <span className={player.changePercent >= 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
                               {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
                             </span>
@@ -576,7 +576,7 @@ const PlayerLeaderboardTable = () => {
                           </span>
                           <span className="text-border">|</span>
                           <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">ROI:</span>
+                            <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
                             <span className={player.changePercent >= 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
                               {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
                             </span>
