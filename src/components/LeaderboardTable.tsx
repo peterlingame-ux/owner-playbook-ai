@@ -35,10 +35,11 @@ const LeaderboardTable = () => {
       try {
         setIsLoading(true);
         
-        // 并行查询：胜率数据和统计数据
-        const [winRatesResult, statisticsResult] = await Promise.all([
+        // 并行查询：胜率数据、统计数据和余额数据
+        const [winRatesResult, statisticsResult, balancesResult] = await Promise.all([
           supabase.from('ai_win_rates_overall' as any).select('*'),
           supabase.from('ai_statistics' as any).select('*'),
+          supabase.from('ai_balances' as any).select('*'),
         ]);
 
         if (winRatesResult.error) {
@@ -72,10 +73,23 @@ const LeaderboardTable = () => {
           });
         }
 
+        // 处理余额数据，计算盈利率
+        const INITIAL_BALANCE = 10000;
+        const roiMap = new Map<string, number>();
+        if (!balancesResult.error && balancesResult.data) {
+          balancesResult.data.forEach((item: any) => {
+            const totalBalance = (item.available_balance || 0) + (item.locked_balance || 0);
+            const profit = totalBalance - INITIAL_BALANCE;
+            const roi = (profit / INITIAL_BALANCE) * 100;
+            roiMap.set(item.ai_id, roi);
+          });
+        }
+
         // 更新每个模型的数据
         const updatedModels = aiModels.map(model => {
           const winRateData = winRatesMap.get(model.id);
           const statsData = statisticsMap.get(model.id);
+          const roi = roiMap.get(model.id) ?? 0;
           
           const wrongPredictions = (winRateData?.totalPredictions || 0) - (winRateData?.correctPredictions || 0);
           
@@ -90,6 +104,7 @@ const LeaderboardTable = () => {
             worstStreak: statsData?.worstStreak ?? 0,
             accuracy: winRateData?.winRate || 0,
             avgConfidence: statsData?.avgConfidence ? statsData.avgConfidence.toFixed(1) : '0',
+            roi,
           };
         });
 
@@ -108,6 +123,7 @@ const LeaderboardTable = () => {
           worstStreak: 0,
           accuracy: 0,
           avgConfidence: '0',
+          roi: 0,
         }));
         setModelsWithRealData(zeroModels);
       } finally {
@@ -151,6 +167,7 @@ const LeaderboardTable = () => {
       worstStreak: (model as any).worstStreak || 0,
       accuracy: (model as any).accuracy || model.winRate,
       avgConfidence: (model as any).avgConfidence || '0',
+      roi: (model as any).roi || 0,
     }))
     .sort((a, b) => b.winRate - a.winRate);
 
@@ -244,6 +261,7 @@ const LeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -299,6 +317,13 @@ const LeaderboardTable = () => {
                       <TableCell className="text-center py-3 sm:py-4">
                         <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
                           {model.locked ? '???' : '-' + model.worstStreak}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className={`font-mono-data font-bold text-sm sm:text-base ${
+                          (model as any).roi >= 0 ? 'text-success' : 'text-destructive'
+                        }`}>
+                          {model.locked ? '???' : `${(model as any).roi >= 0 ? '+' : ''}${((model as any).roi || 0).toFixed(2)}%`}
                         </span>
                       </TableCell>
                     </TableRow>

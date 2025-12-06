@@ -258,18 +258,19 @@ const PlayerLeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         {t('loading')}...
                       </TableCell>
                     </TableRow>
                   ) : allPlayers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         {t('no_data')}
                       </TableCell>
                     </TableRow>
@@ -336,6 +337,13 @@ const PlayerLeaderboardTable = () => {
                         <TableCell className="text-center py-3 sm:py-4">
                           <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
                             -{player.worstStreak || 0}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className={`font-mono-data font-bold text-sm sm:text-base ${
+                            player.changePercent >= 0 ? 'text-success' : 'text-destructive'
+                          }`}>
+                            {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(2)}%
                           </span>
                         </TableCell>
                       </TableRow>
