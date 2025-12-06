@@ -560,31 +560,56 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
               ) : (
                 <ScrollArea className="h-[320px]">
                   <div className="space-y-1.5 pr-2">
-                    {aiMatches.map((m) => (
-                      <div 
-                        key={m.fixture_id}
-                        className="p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
-                        onClick={() => handleSelectMatch(m)}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 text-sm font-medium truncate">
-                              <span>{m.home_team_name}</span>
-                              <span className="text-muted-foreground text-xs">vs</span>
-                              <span>{m.away_team_name}</span>
+                    {aiMatches.map((m) => {
+                      const kickoffTime = new Date(m.kickoff_at).getTime();
+                      const now = Date.now();
+                      const diff = kickoffTime - now;
+                      const isStarted = diff <= 0;
+                      
+                      let countdown = "";
+                      if (isStarted) {
+                        countdown = "已开赛";
+                      } else {
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        if (hours > 24) {
+                          const days = Math.floor(hours / 24);
+                          countdown = `${days}天后`;
+                        } else if (hours > 0) {
+                          countdown = `${hours}小时${minutes}分`;
+                        } else {
+                          countdown = `${minutes}分钟`;
+                        }
+                      }
+                      
+                      return (
+                        <div 
+                          key={m.fixture_id}
+                          className="p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                          onClick={() => handleSelectMatch(m)}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 text-sm font-medium truncate">
+                                <span>{m.home_team_name}</span>
+                                <span className="text-muted-foreground text-xs">vs</span>
+                                <span>{m.away_team_name}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
+                                <span>{m.league_name}</span>
+                                <span>·</span>
+                                <span className={isStarted ? "text-destructive" : "text-primary"}>
+                                  {countdown}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
-                              <span>{m.league_name}</span>
-                              <span>·</span>
-                              <span>{format(new Date(m.kickoff_at), "MM/dd HH:mm")}</span>
-                            </div>
+                            <Badge variant="secondary" className="text-[10px] shrink-0">
+                              {m.ai_count}AI已预测
+                            </Badge>
                           </div>
-                          <Badge variant="secondary" className="text-[10px] shrink-0">
-                            {m.ai_count}AI已预测
-                          </Badge>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </ScrollArea>
               )}
