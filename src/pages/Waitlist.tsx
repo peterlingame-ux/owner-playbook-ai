@@ -31,6 +31,7 @@ const Waitlist = () => {
   const currentAI = {
     model: "GPT-4o",
     winRate: 73.2,
+    predictions: 120, // AI当前轮次预测场次
   };
 
   useEffect(() => {
@@ -194,7 +195,7 @@ const Waitlist = () => {
   const totalDistributed = historyData.reduce((sum, item) => sum + item.totalPaid, 0);
   const totalWinners = historyData.reduce((sum, item) => sum + item.winners, 0);
 
-  const isEligible = userStats && userStats.totalPredictions >= 50;
+  const isEligible = userStats && userStats.totalPredictions >= currentAI.predictions;
   const beatsAI = userStats && userStats.winRate > currentAI.winRate;
 
   return (
@@ -232,21 +233,25 @@ const Waitlist = () => {
                 <span className="text-primary font-bold">1</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">完成50场预测</h3>
+                <h3 className="font-medium text-foreground mb-1">预测场次超过AI</h3>
                 <p className="text-sm text-muted-foreground">
-                  在30天内完成至少50场足球比赛预测
+                  在30天内完成至少超过AI预测的场次数
                 </p>
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <img src={aiIcons[currentAI.model]} alt="" className="w-4 h-4 rounded" />
+                  <span>当前AI已预测 <span className="font-semibold text-foreground">{currentAI.predictions}</span> 场</span>
+                </div>
                 {userStats && (
                   <div className="mt-2">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${Math.min(100, (userStats.totalPredictions / 50) * 100)}%` }}
+                          style={{ width: `${Math.min(100, (userStats.totalPredictions / currentAI.predictions) * 100)}%` }}
                         />
                       </div>
                       <span className={`font-medium ${isEligible ? 'text-success' : 'text-foreground'}`}>
-                        {userStats.totalPredictions}/50
+                        {userStats.totalPredictions}/{currentAI.predictions}
                       </span>
                       {isEligible && <CheckCircle2 className="w-4 h-4 text-success" />}
                     </div>
