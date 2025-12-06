@@ -222,7 +222,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">ROI</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('roi') || '盈利率'}</p>
               <p className={`text-xs sm:text-sm font-bold font-mono-data ${player.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
               </p>
