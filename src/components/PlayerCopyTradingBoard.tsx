@@ -57,6 +57,18 @@ interface CopyTradeData {
   betAmount: number;
 }
 
+// 隐藏玩家名字中间部分
+const maskPlayerName = (name: string): string => {
+  if (!name || name.length <= 2) return name;
+  if (name.length <= 4) {
+    return name.charAt(0) + '*'.repeat(name.length - 1);
+  }
+  const firstChar = name.charAt(0);
+  const lastTwoChars = name.slice(-2);
+  const middleLength = Math.min(name.length - 3, 4);
+  return firstChar + '*'.repeat(middleLength) + lastTwoChars;
+};
+
 const PlayerCopyTradingBoard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -427,7 +439,7 @@ const PlayerCopyTradingBoard = () => {
           <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-sm truncate">{player.displayName}</p>
+          <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1">
               <span className="text-muted-foreground/70">{t('win_rate')}:</span>
@@ -578,7 +590,7 @@ const PlayerCopyTradingBoard = () => {
                   <AvatarImage src={topStreakPlayers[0]?.avatarUrl} alt={topStreakPlayers[0]?.displayName} />
                   <AvatarFallback>{topStreakPlayers[0]?.displayName?.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className="text-lg sm:text-xl font-bold text-white">{topStreakPlayers[0]?.displayName}</span>
+                <span className="text-lg sm:text-xl font-bold text-white">{maskPlayerName(topStreakPlayers[0]?.displayName || '')}</span>
               </div>
               
               <div className="space-y-2 sm:space-y-3">
@@ -620,12 +632,12 @@ const PlayerCopyTradingBoard = () => {
                 <BarChart 
                   data={[
                     { 
-                      name: topStreakPlayers[0]?.displayName?.slice(0, 6) || '连红冠军', 
+                      name: maskPlayerName(topStreakPlayers[0]?.displayName || '').slice(0, 6) || '连红冠军', 
                       value: Math.abs(topStreakPlayers[0]?.profit || 1500),
                       type: 'profit'
                     },
                     { 
-                      name: worstStreakPlayers[0]?.displayName?.slice(0, 6) || '连黑冠军', 
+                      name: maskPlayerName(worstStreakPlayers[0]?.displayName || '').slice(0, 6) || '连黑冠军', 
                       value: -Math.abs(worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : -1200),
                       type: 'loss'
                     },
@@ -722,7 +734,7 @@ const PlayerCopyTradingBoard = () => {
                   <AvatarImage src={worstStreakPlayers[0]?.avatarUrl} alt={worstStreakPlayers[0]?.displayName} />
                   <AvatarFallback>{worstStreakPlayers[0]?.displayName?.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className="text-lg sm:text-xl font-bold text-white">{worstStreakPlayers[0]?.displayName}</span>
+                <span className="text-lg sm:text-xl font-bold text-white">{maskPlayerName(worstStreakPlayers[0]?.displayName || '')}</span>
               </div>
               
               <div className="space-y-2 sm:space-y-3">
@@ -761,7 +773,7 @@ const PlayerCopyTradingBoard = () => {
                 <AvatarImage src={selectedPlayer?.player.avatarUrl} />
                 <AvatarFallback>{selectedPlayer?.player.displayName.charAt(0)}</AvatarFallback>
               </Avatar>
-              <span>{selectedPlayer?.player.displayName} - {t('today_prediction')}</span>
+              <span>{maskPlayerName(selectedPlayer?.player.displayName || '')} - {t('today_prediction')}</span>
             </DialogTitle>
           </DialogHeader>
           
@@ -861,7 +873,7 @@ const PlayerCopyTradingBoard = () => {
                   <AvatarFallback>{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">{copyTradeDialog.player.displayName}</p>
+                  <p className="font-semibold">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
                   <p className="text-xs text-muted-foreground">
                     {t('win_rate')}: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
                       {copyTradeDialog.player.winRate.toFixed(1)}%

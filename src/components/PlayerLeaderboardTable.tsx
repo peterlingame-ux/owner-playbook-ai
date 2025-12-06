@@ -54,6 +54,18 @@ const teamLogoMap: Record<string, string> = {
 const getTeamLogo = (teamName: string): string | null => {
   return teamLogoMap[teamName] || null;
 };
+
+// 隐藏玩家名字中间部分
+const maskPlayerName = (name: string): string => {
+  if (!name || name.length <= 2) return name;
+  if (name.length <= 4) {
+    return name.charAt(0) + '*'.repeat(name.length - 1);
+  }
+  const firstChar = name.charAt(0);
+  const lastTwoChars = name.slice(-2);
+  const middleLength = Math.min(name.length - 3, 4);
+  return firstChar + '*'.repeat(middleLength) + lastTwoChars;
+};
 import {
   Dialog,
   DialogContent,
@@ -695,7 +707,7 @@ const PlayerLeaderboardTable = () => {
   const winner = allPlayers[0];
 
   const chartData = top6Players.map(player => ({
-    name: player.displayName,
+    name: maskPlayerName(player.displayName),
     winRate: player.winRate,
     profit: player.profit,
     rank: player.rank,
@@ -877,7 +889,7 @@ const PlayerLeaderboardTable = () => {
                         <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-sm truncate">{player.displayName}</p>
+                        <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
                             <span className="text-destructive font-bold">🔥 {player.currentStreak || 0}</span>
@@ -961,7 +973,7 @@ const PlayerLeaderboardTable = () => {
                         <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-sm truncate">{player.displayName}</p>
+                        <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
                             <span className="text-success font-bold">💀 {player.worstStreak || 0}</span>
@@ -1483,7 +1495,7 @@ const PlayerLeaderboardTable = () => {
                   <AvatarFallback>{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">{copyTradeDialog.player.displayName}</p>
+                  <p className="font-semibold">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
                   <p className="text-xs text-muted-foreground">
                     胜率: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
                       {copyTradeDialog.player.winRate.toFixed(1)}%
