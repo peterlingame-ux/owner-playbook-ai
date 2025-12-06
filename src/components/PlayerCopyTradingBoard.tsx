@@ -499,11 +499,11 @@ const PlayerCopyTradingBoard = () => {
       {/* Top Section: Win Rate Leaders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 连红榜 - Winning Streak */}
-        <Card className="border-success/30 bg-gradient-to-br from-success/5 to-transparent">
+        <Card className="border-destructive/30 bg-gradient-to-br from-destructive/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-success/20">
-                <Flame className="h-5 w-5 text-success" />
+              <div className="p-2 rounded-lg bg-destructive/20">
+                <Flame className="h-5 w-5 text-destructive" />
               </div>
               <div>
                 <h3 className="font-bold text-lg">{t('hot_streak_board') || '连红榜'}</h3>
@@ -519,11 +519,11 @@ const PlayerCopyTradingBoard = () => {
         </Card>
 
         {/* 连黑榜 - Losing Streak */}
-        <Card className="border-destructive/30 bg-gradient-to-br from-destructive/5 to-transparent">
+        <Card className="border-success/30 bg-gradient-to-br from-success/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-destructive/20">
-                <Skull className="h-5 w-5 text-destructive" />
+              <div className="p-2 rounded-lg bg-success/20">
+                <Skull className="h-5 w-5 text-success" />
               </div>
               <div>
                 <h3 className="font-bold text-lg">{t('cold_streak_board') || '连黑榜'}</h3>
