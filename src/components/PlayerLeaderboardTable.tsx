@@ -1302,61 +1302,92 @@ const PlayerLeaderboardTable = () => {
                         </div>
                         
                         <div className="space-y-1.5">
-                          {completedPredictions.slice(0, 2).map((pred) => (
-                            <div 
-                              key={pred.id} 
-                              className={`rounded-lg p-2 ${
-                                pred.result === 'win' 
-                                  ? 'bg-success/5 border border-success/20' 
-                                  : 'bg-destructive/5 border border-destructive/20'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-xs">
-                                  {/* 主队 */}
-                                  <div className="flex items-center gap-1">
-                                    {getTeamLogo(pred.home_team || '') ? (
-                                      <img 
-                                        src={getTeamLogo(pred.home_team || '') || ''} 
-                                        alt={pred.home_team} 
-                                        className="w-4 h-4 object-contain"
-                                      />
-                                    ) : (
-                                      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[7px] font-bold text-white">
-                                        {(pred.home_team || '主')[0]}
-                                      </div>
-                                    )}
-                                    <span className="truncate max-w-[50px]">{pred.home_team}</span>
+                          {completedPredictions.slice(0, 2).map((pred) => {
+                            // 解析预测类别和内容
+                            const predictionType = pred.prediction_type === 'over_under' ? '大小球' : '让球盘';
+                            const getPredictionLabel = () => {
+                              const p = pred.prediction.toLowerCase();
+                              if (p.includes('主胜') || p.includes('主让') || p.includes('home')) {
+                                return `${pred.home_team || '主队'} 胜`;
+                              } else if (p.includes('客胜') || p.includes('客让') || p.includes('away')) {
+                                return `${pred.away_team || '客队'} 胜`;
+                              } else if (p.includes('over') || p.includes('大')) {
+                                return `大 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'}球`;
+                              } else if (p.includes('under') || p.includes('小')) {
+                                return `小 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'}球`;
+                              }
+                              return pred.prediction;
+                            };
+                            
+                            return (
+                              <div 
+                                key={pred.id} 
+                                className={`rounded-lg p-2 ${
+                                  pred.result === 'win' 
+                                    ? 'bg-success/5 border border-success/20' 
+                                    : 'bg-destructive/5 border border-destructive/20'
+                                }`}
+                              >
+                                {/* 比赛信息行 */}
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <div className="flex items-center gap-2 text-xs">
+                                    {/* 主队 */}
+                                    <div className="flex items-center gap-1">
+                                      {getTeamLogo(pred.home_team || '') ? (
+                                        <img 
+                                          src={getTeamLogo(pred.home_team || '') || ''} 
+                                          alt={pred.home_team} 
+                                          className="w-4 h-4 object-contain"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                          {(pred.home_team || '主')[0]}
+                                        </div>
+                                      )}
+                                      <span className="truncate max-w-[45px]">{pred.home_team}</span>
+                                    </div>
+                                    <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
+                                      {pred.home_score ?? 0}-{pred.away_score ?? 0}
+                                    </span>
+                                    {/* 客队 */}
+                                    <div className="flex items-center gap-1">
+                                      {getTeamLogo(pred.away_team || '') ? (
+                                        <img 
+                                          src={getTeamLogo(pred.away_team || '') || ''} 
+                                          alt={pred.away_team} 
+                                          className="w-4 h-4 object-contain"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                          {(pred.away_team || '客')[0]}
+                                        </div>
+                                      )}
+                                      <span className="truncate max-w-[45px]">{pred.away_team}</span>
+                                    </div>
                                   </div>
-                                  <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
-                                    {pred.home_score ?? 0}-{pred.away_score ?? 0}
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                    pred.result === 'win' 
+                                      ? 'bg-success/20 text-success' 
+                                      : 'bg-destructive/20 text-destructive'
+                                  }`}>
+                                    {pred.result === 'win' ? '✓ 正确' : '✗ 错误'}
                                   </span>
-                                  {/* 客队 */}
-                                  <div className="flex items-center gap-1">
-                                    {getTeamLogo(pred.away_team || '') ? (
-                                      <img 
-                                        src={getTeamLogo(pred.away_team || '') || ''} 
-                                        alt={pred.away_team} 
-                                        className="w-4 h-4 object-contain"
-                                      />
-                                    ) : (
-                                      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[7px] font-bold text-white">
-                                        {(pred.away_team || '客')[0]}
-                                      </div>
-                                    )}
-                                    <span className="truncate max-w-[50px]">{pred.away_team}</span>
+                                </div>
+                                
+                                {/* 预测类别和内容 */}
+                                <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/30">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                      {predictionType}
+                                    </span>
+                                    <span className={`font-medium ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                                      {getPredictionLabel()}
+                                    </span>
                                   </div>
                                 </div>
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                                  pred.result === 'win' 
-                                    ? 'bg-success/20 text-success' 
-                                    : 'bg-destructive/20 text-destructive'
-                                }`}>
-                                  {pred.result === 'win' ? '✓' : '✗'}
-                                </span>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
