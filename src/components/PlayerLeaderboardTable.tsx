@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +67,26 @@ const PlayerLeaderboardTable = () => {
 
   // Get current user's rank
   const currentUserRank = user ? allPlayers.find(p => p.id === user.id) : null;
+
+  // Calculate rank change based on today's performance
+  // Positive todayWinRate > overall winRate = rank likely improved
+  const getRankChange = (playerId: string, winRate: number): number => {
+    const todayData = todayWinRates.get(playerId);
+    if (!todayData || todayData.total === 0) return 0;
+    
+    // If today's win rate is better than overall, assume rank improved
+    const todayWinRate = todayData.winRate;
+    if (todayWinRate > winRate + 5) {
+      // Significant improvement, estimate rank went up
+      return Math.min(Math.floor((todayWinRate - winRate) / 5), 5);
+    } else if (todayWinRate < winRate - 5) {
+      // Significant drop, estimate rank went down
+      return -Math.min(Math.floor((winRate - todayWinRate) / 5), 5);
+    }
+    return 0;
+  };
+
+  const currentUserRankChange = currentUserRank ? getRankChange(currentUserRank.id, currentUserRank.winRate) : 0;
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -463,6 +483,32 @@ const PlayerLeaderboardTable = () => {
                     `#${currentUserRank.rank}`
                   )}
                 </div>
+                {/* Rank Change Indicator */}
+                {currentUserRankChange !== 0 && (
+                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
+                    currentUserRankChange > 0 
+                      ? 'bg-success/20 text-success' 
+                      : 'bg-destructive/20 text-destructive'
+                  }`}>
+                    {currentUserRankChange > 0 ? (
+                      <>
+                        <TrendingUp className="h-3 w-3" />
+                        <span>+{currentUserRankChange}</span>
+                      </>
+                    ) : (
+                      <>
+                        <TrendingDown className="h-3 w-3" />
+                        <span>{currentUserRankChange}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+                {currentUserRankChange === 0 && todayWinRates.get(currentUserRank.id)?.total === 0 && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted/30 text-muted-foreground">
+                    <Minus className="h-3 w-3" />
+                    <span>{t('no_change') || '无变化'}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <Avatar className="w-12 h-12 border-2 border-primary/40">
                     <AvatarImage src={currentUserRank.avatarUrl} alt={currentUserRank.displayName} />
@@ -470,7 +516,14 @@ const PlayerLeaderboardTable = () => {
                   </Avatar>
                   <div>
                     <p className="font-bold text-lg">{currentUserRank.displayName}</p>
-                    <p className="text-sm text-muted-foreground">{t('your_current_rank') || '您当前的排名'}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-muted-foreground">{t('your_current_rank') || '您当前的排名'}</p>
+                      {currentUserRankChange !== 0 && (
+                        <span className={`text-xs ${currentUserRankChange > 0 ? 'text-success' : 'text-destructive'}`}>
+                          ({currentUserRankChange > 0 ? t('rank_up') || '排名上升' : t('rank_down') || '排名下降'})
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -489,6 +542,17 @@ const PlayerLeaderboardTable = () => {
                   </p>
                   <p className="text-xs text-muted-foreground">{t('roi') || 'ROI'}</p>
                 </div>
+                {/* Today's Performance */}
+                {todayWinRates.get(currentUserRank.id) && todayWinRates.get(currentUserRank.id)!.total > 0 && (
+                  <div className="border-l border-border pl-6">
+                    <p className={`text-2xl font-bold font-mono-data ${
+                      todayWinRates.get(currentUserRank.id)!.winRate >= 50 ? 'text-success' : 'text-destructive'
+                    }`}>
+                      {todayWinRates.get(currentUserRank.id)!.correct}/{todayWinRates.get(currentUserRank.id)!.total}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{t('today') || '今日'}</p>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
