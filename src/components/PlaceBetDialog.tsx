@@ -631,9 +631,6 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                             {/* 中间信息 */}
                             <div className="flex flex-col items-center flex-1">
                               <span className="text-[10px] text-muted-foreground">{m.league_name}</span>
-                              <span className={`text-[10px] font-mono ${isStarted ? "text-destructive" : "text-primary"}`}>
-                                {countdown}
-                              </span>
                             </div>
                             
                             {/* 客队 */}
