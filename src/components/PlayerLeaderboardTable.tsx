@@ -2,9 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { virtualPlayers } from "@/data/virtualPlayers";
@@ -72,6 +73,13 @@ const PlayerLeaderboardTable = () => {
   const [copyTradeDialog, setCopyTradeDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
+  const [copySuccess, setCopySuccess] = useState<{
+    show: boolean;
+    oldBalance: number;
+    newBalance: number;
+    betAmount: number;
+    playerName: string;
+  } | null>(null);
   
   // Get real balance from auth context
   const realBalance = userBalance?.balance ?? 10000;
@@ -459,6 +467,8 @@ const PlayerLeaderboardTable = () => {
       return;
     }
     
+    const oldBalance = realBalance;
+    
     if (copyBetAmount > realBalance) {
       toast.error('余额不足，无法跟单');
       return;
@@ -502,25 +512,22 @@ const PlayerLeaderboardTable = () => {
       // 刷新余额
       await refreshBalance();
       
-      toast.success(
-        <div className="space-y-1">
-          <p className="font-medium">跟单成功！</p>
-          <p className="text-xs text-muted-foreground">
-            已跟随 {copyTradeDialog.player.displayName} 下注 ¥{copyBetAmount}
-          </p>
-          <p className="text-xs">
-            {copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}
-          </p>
-          <p className="text-xs text-primary">
-            预测: {copyTradeDialog.prediction.prediction}
-          </p>
-          <p className="text-xs text-success">
-            新余额: ¥{result.new_balance?.toLocaleString()}
-          </p>
-        </div>
-      );
+      // 显示成功动画
+      setCopySuccess({
+        show: true,
+        oldBalance,
+        newBalance: result.new_balance || (oldBalance - copyBetAmount),
+        betAmount: copyBetAmount,
+        playerName: copyTradeDialog.player.displayName,
+      });
       
       setCopyTradeDialog(null);
+      
+      // 3秒后自动关闭成功动画
+      setTimeout(() => {
+        setCopySuccess(null);
+      }, 3500);
+      
     } catch (error) {
       console.error('Copy trade error:', error);
       toast.error('跟单失败，请稍后重试');
@@ -1315,6 +1322,147 @@ const PlayerLeaderboardTable = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* 跟单成功动画弹窗 */}
+      <AnimatePresence>
+        {copySuccess?.show && (
+          <Dialog open={true} onOpenChange={() => setCopySuccess(null)}>
+            <DialogContent className="max-w-sm overflow-hidden">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", duration: 0.5 }}
+                className="text-center space-y-4"
+              >
+                {/* 成功图标动画 */}
+                <motion.div 
+                  className="mx-auto w-20 h-20 rounded-full bg-success/20 flex items-center justify-center relative"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2, duration: 0.6 }}
+                >
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", delay: 0.4, duration: 0.6 }}
+                  >
+                    <CheckCircle2 className="h-10 w-10 text-success" />
+                  </motion.div>
+                  
+                  {/* 闪烁星星效果 */}
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: [0, 1, 0],
+                        opacity: [0, 1, 0],
+                        x: [0, (i % 2 === 0 ? 1 : -1) * (30 + Math.random() * 20)],
+                        y: [0, (i < 3 ? -1 : 1) * (20 + Math.random() * 20)],
+                      }}
+                      transition={{ 
+                        delay: 0.5 + i * 0.1,
+                        duration: 0.8,
+                        ease: "easeOut"
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 text-yellow-500" />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* 成功文字 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <h3 className="text-xl font-bold text-success">跟单成功!</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    已跟随 <span className="text-foreground font-medium">{copySuccess.playerName}</span>
+                  </p>
+                </motion.div>
+
+                {/* 余额变化动画 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="p-4 rounded-lg bg-muted/50 border border-border/50"
+                >
+                  <p className="text-xs text-muted-foreground mb-2">账户余额变化</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <motion.div
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: 0.5 }}
+                      transition={{ delay: 1 }}
+                      className="text-lg font-mono"
+                    >
+                      ¥{copySuccess.oldBalance.toLocaleString()}
+                    </motion.div>
+                    
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.8, type: "spring" }}
+                      className="flex items-center gap-1 px-2 py-1 rounded-full bg-destructive/20"
+                    >
+                      <TrendingDown className="h-3 w-3 text-destructive" />
+                      <span className="text-xs font-bold text-destructive">-¥{copySuccess.betAmount}</span>
+                    </motion.div>
+                    
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1.2 }}
+                      className="text-lg font-mono font-bold text-primary"
+                    >
+                      ¥{copySuccess.newBalance.toLocaleString()}
+                    </motion.div>
+                  </div>
+                </motion.div>
+
+                {/* 预期收益提示 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="p-3 rounded-lg bg-success/10 border border-success/20"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">预期收益</span>
+                    <motion.span
+                      initial={{ scale: 1 }}
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ delay: 1.5, duration: 0.5 }}
+                      className="font-bold text-success"
+                    >
+                      +¥{(copySuccess.betAmount * 1.8).toFixed(0)}
+                    </motion.span>
+                  </div>
+                </motion.div>
+
+                {/* 关闭按钮 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                >
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setCopySuccess(null)}
+                  >
+                    确定
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
 
       {/* Disclaimer */}
       <div className="mt-6 p-4 rounded-lg bg-muted/30 border border-border/50">
