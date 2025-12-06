@@ -6,6 +6,7 @@ import { ArrowDown, Trophy, History, ExternalLink } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -56,12 +57,16 @@ interface TodayPrediction {
 const PlayerLeaderboardTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
   const [selectedPlayerHistory, setSelectedPlayerHistory] = useState<{ playerId: string; playerName: string; predictions: TodayPrediction[] } | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Get current user's rank
+  const currentUserRank = user ? allPlayers.find(p => p.id === user.id) : null;
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -440,6 +445,85 @@ const PlayerLeaderboardTable = () => {
 
   return (
     <div className="space-y-6">
+      {/* Current User Rank Card - Only show when logged in */}
+      {user && currentUserRank && (
+        <Card className="border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
+                  currentUserRank.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
+                  currentUserRank.rank === 2 ? 'bg-gray-400/20 text-gray-400' :
+                  currentUserRank.rank === 3 ? 'bg-orange-600/20 text-orange-600' :
+                  'bg-primary/20 text-primary'
+                }`}>
+                  {currentUserRank.rank <= 3 ? (
+                    <Trophy className="h-6 w-6" style={{ color: getRankColor(currentUserRank.rank) }} />
+                  ) : (
+                    `#${currentUserRank.rank}`
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12 border-2 border-primary/40">
+                    <AvatarImage src={currentUserRank.avatarUrl} alt={currentUserRank.displayName} />
+                    <AvatarFallback>{currentUserRank.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-bold text-lg">{currentUserRank.displayName}</p>
+                    <p className="text-sm text-muted-foreground">{t('your_current_rank') || '您当前的排名'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-6 text-center">
+                <div>
+                  <p className="text-2xl font-bold font-mono-data text-primary">{currentUserRank.winRate.toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground">{t('win_rate')}</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold font-mono-data">{currentUserRank.totalPredictions}</p>
+                  <p className="text-xs text-muted-foreground">{t('predictions')}</p>
+                </div>
+                <div>
+                  <p className={`text-2xl font-bold font-mono-data ${currentUserRank.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {currentUserRank.changePercent >= 0 ? '+' : ''}{currentUserRank.changePercent.toFixed(1)}%
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t('roi') || 'ROI'}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Demo Player Card - Show when not logged in or no predictions */}
+      {!user && (
+        <Card className="border-muted/40 bg-gradient-to-br from-muted/10 via-muted/5 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold bg-muted/20 text-muted-foreground">
+                  ?
+                </div>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12 border-2 border-muted/40">
+                    <AvatarFallback>体</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-bold text-lg">{t('demo_player') || '体验玩家'}</p>
+                    <p className="text-sm text-muted-foreground">{t('login_to_see_rank') || '登录后查看您的排名'}</p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/auth')}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              >
+                {t('login') || '登录'}
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {/* Leaderboard Table - Split into two columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Left Column: Rank 1-10 */}
@@ -463,7 +547,11 @@ const PlayerLeaderboardTable = () => {
                 allPlayers.slice(0, 10).map((player, index) => (
                   <div 
                     key={player.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
+                      user && player.id === user.id 
+                        ? 'bg-primary/20 border-2 border-primary/40 hover:bg-primary/30' 
+                        : 'bg-muted/30 hover:bg-muted/50'
+                    }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -549,7 +637,11 @@ const PlayerLeaderboardTable = () => {
                 allPlayers.slice(10, 20).map((player, index) => (
                   <div 
                     key={player.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
+                      user && player.id === user.id 
+                        ? 'bg-primary/20 border-2 border-primary/40 hover:bg-primary/30' 
+                        : 'bg-muted/30 hover:bg-muted/50'
+                    }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
