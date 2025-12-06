@@ -374,21 +374,20 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                   return (
                     <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                       <td className="py-1.5 px-2">
-                        {pred.type === 'prediction' ? (
-                          <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
-                            {t('prediction_label')}
+                        <div className="flex items-center gap-1">
+                          {pred.type === 'prediction' ? (
+                            <Target className="h-3 w-3 text-primary flex-shrink-0" />
+                          ) : (
+                            <Users className="h-3 w-3 text-amber-500 flex-shrink-0" />
+                          )}
+                          <span className={`text-[10px] font-medium ${pred.type === 'prediction' ? 'text-primary' : 'text-amber-500'}`}>
+                            {pred.type === 'prediction' ? t('prediction_label') : t('copy_trade_type')}
                           </span>
-                        ) : (
-                          <div className="flex flex-col gap-0.5">
-                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                              {t('copy_trade_type')}
-                            </span>
-                            {pred.followed_player_name && (
-                              <span className="text-[9px] text-muted-foreground">
-                                {pred.followed_player_name}
-                              </span>
-                            )}
-                          </div>
+                        </div>
+                        {pred.type === 'copy-trade' && pred.followed_player_name && (
+                          <span className="text-[9px] text-muted-foreground ml-4 block truncate max-w-[60px]">
+                            @{pred.followed_player_name}
+                          </span>
                         )}
                       </td>
                       <td className="py-1.5 px-2 text-[10px] text-muted-foreground whitespace-nowrap">
