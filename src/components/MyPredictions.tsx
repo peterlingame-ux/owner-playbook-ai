@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, Calendar, BarChart3, Filter, CheckCircle2, XCircle } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -879,14 +879,10 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-12">
+        <TabsList className="grid w-full grid-cols-2 h-12">
           <TabsTrigger value="history" className="flex items-center gap-2 text-sm">
             <History className="h-4 w-4" />
             <span className="hidden sm:inline">完整</span>历史
-          </TabsTrigger>
-          <TabsTrigger value="recent" className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4" />
-            近期
           </TabsTrigger>
           <TabsTrigger value="copy-trade" className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4" />
@@ -897,69 +893,6 @@ const MyPredictions = () => {
         {/* 完整历史记录标签页 - 类似AI历史模板 */}
         <TabsContent value="history" className="mt-4">
           <PlayerHistoryTable predictions={stats?.recentPredictions || []} />
-        </TabsContent>
-
-        {/* 近期购买记录标签页 */}
-        <TabsContent value="recent" className="mt-4">
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-border">
-              <h3 className="font-semibold text-foreground">近期记录</h3>
-              <p className="text-xs text-muted-foreground mt-1">最近10条预测</p>
-            </div>
-            <div className="divide-y divide-border">
-              {stats?.recentPredictions && stats.recentPredictions.length > 0 ? (
-                stats.recentPredictions.slice(0, 10).map((pred) => (
-                  <div key={pred.id} className="p-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(pred.created_at), 'MM-dd HH:mm')}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        pred.result === 'win' 
-                          ? 'bg-success/10 text-success' 
-                          : pred.result === 'loss'
-                            ? 'bg-destructive/10 text-destructive'
-                            : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {pred.result === 'win' ? '胜' : pred.result === 'loss' ? '负' : '进行中'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-foreground text-sm">
-                        {pred.match?.home_team_name || '主队'} vs {pred.match?.away_team_name || '客队'}
-                      </span>
-                      {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && (
-                        <span className="text-sm font-mono text-muted-foreground">
-                          {pred.match.goals_home} : {pred.match.goals_away}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        预测: <span className="text-foreground">{pred.prediction}</span>
-                      </span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground font-mono text-xs">
-                          ${pred.bet_amount}
-                        </span>
-                        <span className={`font-bold font-mono ${
-                          pred.result === 'win' ? 'text-success' : 'text-destructive'
-                        }`}>
-                          {pred.result === 'win' ? '+' : ''}{(pred.actual_payout - pred.bet_amount).toFixed(0)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-8 text-center text-muted-foreground">
-                  暂无记录
-                </div>
-              )}
-            </div>
-          </div>
         </TabsContent>
 
         {/* 跟单记录标签页 */}
