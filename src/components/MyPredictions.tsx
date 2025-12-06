@@ -855,24 +855,28 @@ const MyPredictions = () => {
 
         {/* 钱包余额 */}
         <div className="p-4 bg-muted/30 border-t border-border">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">虚拟钱包余额</p>
-                <p className="text-xl font-bold text-foreground font-mono">
-                  ${stats?.balance?.toLocaleString() || 10000}
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Wallet className="h-5 w-5 text-primary" />
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
-              开始预测
-            </Button>
+            <div>
+              <p className="text-xs text-muted-foreground">虚拟钱包余额</p>
+              <p className="text-xl font-bold text-foreground font-mono">
+                ${stats?.balance?.toLocaleString() || 10000}
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* 开始预测按钮 - 更醒目的位置 */}
+      <Button 
+        className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg"
+        onClick={() => navigate('/')}
+      >
+        <Target className="h-5 w-5 mr-2" />
+        开始预测
+      </Button>
 
       {/* 胜率趋势图表 */}
       <WinRateTrendChart predictions={stats?.recentPredictions || []} />
