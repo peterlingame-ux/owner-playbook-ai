@@ -76,6 +76,30 @@ export type Database = {
         }
         Relationships: []
       }
+      usdt_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_balances: {
         Row: {
           balance: number
@@ -192,6 +216,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirm_deposit: { Args: { p_deposit_id: string }; Returns: Json }
       generate_random_username: { Args: never; Returns: string }
       place_bet: {
         Args: {
