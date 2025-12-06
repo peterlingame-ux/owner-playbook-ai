@@ -882,106 +882,104 @@ const PlayerLeaderboardTable = () => {
         </div>
       )}
 
-      {/* Today History Dialog */}
+      {/* Today History Dialog - styled like PlayerCopyTradingBoard */}
       <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
-              {selectedPlayerHistory?.playerName} - {t('today_history') || '今日记录'}
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={allPlayers.find(p => p.id === selectedPlayerHistory?.playerId)?.avatarUrl} />
+                <AvatarFallback>{selectedPlayerHistory?.playerName?.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <span>{selectedPlayerHistory?.playerName} - {t('today_history') || '今日预测'}</span>
             </DialogTitle>
           </DialogHeader>
           
-          <div className="overflow-y-auto max-h-[60vh] pr-2">
-            {isLoadingHistory ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          {isLoadingHistory ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          ) : selectedPlayerHistory && (
+            <div className="space-y-3">
+              {/* 今日统计 */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm text-muted-foreground">今日战绩</span>
+                <span className="font-bold">
+                  {selectedPlayerHistory.predictions.filter(p => p.result === 'win').length}/
+                  {selectedPlayerHistory.predictions.length}
+                  <span className={`ml-2 ${
+                    selectedPlayerHistory.predictions.length > 0 && 
+                    (selectedPlayerHistory.predictions.filter(p => p.result === 'win').length / selectedPlayerHistory.predictions.length * 100) >= 50 
+                      ? 'text-success' 
+                      : 'text-destructive'
+                  }`}>
+                    ({selectedPlayerHistory.predictions.length > 0 
+                      ? (selectedPlayerHistory.predictions.filter(p => p.result === 'win').length / selectedPlayerHistory.predictions.length * 100).toFixed(0) 
+                      : 0}%)
+                  </span>
+                </span>
               </div>
-            ) : selectedPlayerHistory?.predictions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {t('no_history_today') || '今日暂无记录'}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {selectedPlayerHistory?.predictions.map((pred) => (
-                  <div 
-                    key={pred.id}
-                    className={`p-3 rounded-lg border ${
-                      pred.result === 'win' 
-                        ? 'bg-success/10 border-success/30' 
-                        : pred.result === 'loss'
-                          ? 'bg-destructive/10 border-destructive/30'
-                          : 'bg-muted/30 border-border/50'
-                    }`}
-                  >
-                    {/* 比赛信息 */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                          <span className="text-right flex-1 truncate">{pred.home_team || '主队'}</span>
-                          <div className="flex items-center gap-1 px-2 py-1 rounded bg-background/50 min-w-[60px] justify-center">
-                            {pred.result ? (
-                              <span className="font-bold text-base">
-                                {pred.home_score ?? '-'} : {pred.away_score ?? '-'}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">未开始</span>
-                            )}
+              
+              {/* 预测列表 */}
+              {selectedPlayerHistory.predictions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  今日暂无预测记录
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedPlayerHistory.predictions.map((pred) => (
+                    <div key={pred.id} className="p-3 rounded-lg bg-muted/30 space-y-3 border border-border/30">
+                      {/* 比赛信息 */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                            <span className="text-right flex-1 truncate">{pred.home_team || '主队'}</span>
+                            <div className="flex items-center gap-1 px-2 py-1 rounded bg-background/50 min-w-[60px] justify-center">
+                              {pred.result ? (
+                                <span className="font-bold text-base">
+                                  {pred.home_score ?? '-'} : {pred.away_score ?? '-'}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">未开始</span>
+                              )}
+                            </div>
+                            <span className="text-left flex-1 truncate">{pred.away_team || '客队'}</span>
                           </div>
-                          <span className="text-left flex-1 truncate">{pred.away_team || '客队'}</span>
                         </div>
-                      </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ml-2 flex-shrink-0 ${
-                        pred.result === 'win'
-                          ? 'bg-success/20 text-success'
-                          : pred.result === 'loss'
-                            ? 'bg-destructive/20 text-destructive'
-                            : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {pred.result === 'win' 
-                          ? t('win') || '胜' 
-                          : pred.result === 'loss' 
-                            ? t('loss') || '负'
-                            : t('pending') || '进行中'}
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                      <div>
-                        <span className="text-muted-foreground">{t('bet_type') || '类型'}:</span>
-                        <span className="ml-1 font-medium">{pred.prediction_type}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('prediction') || '预测'}:</span>
-                        <span className="ml-1 font-medium">{pred.prediction}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('bet_amount') || '金额'}:</span>
-                        <span className="ml-1 font-medium">${pred.bet_amount}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('potential_return') || '预期回报'}:</span>
-                        <span className="ml-1 font-medium">${pred.potential_payout?.toFixed(2) || '-'}</span>
-                      </div>
-                    </div>
-                    
-                    {pred.result && pred.actual_payout !== null && (
-                      <div className="mt-2 pt-2 border-t border-border/30">
-                        <span className="text-xs text-muted-foreground">{t('profit_loss') || '盈亏'}:</span>
-                        <span className={`ml-1 font-bold ${(pred.actual_payout - pred.bet_amount) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {(pred.actual_payout - pred.bet_amount) >= 0 ? '+' : ''}${(pred.actual_payout - pred.bet_amount).toFixed(2)}
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ml-2 flex-shrink-0 ${
+                          pred.result === 'win' ? 'bg-success/20 text-success' :
+                          pred.result === 'loss' ? 'bg-destructive/20 text-destructive' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          {pred.result === 'win' ? '赢' : pred.result === 'loss' ? '输' : '待定'}
                         </span>
                       </div>
-                    )}
-                    
-                    <div className="mt-1 text-[10px] text-muted-foreground">
-                      {format(new Date(pred.created_at), 'HH:mm')}
+                      
+                      {/* 预测详情 */}
+                      <div className="flex items-center justify-between text-sm border-t border-border/20 pt-2">
+                        <span className="text-muted-foreground">
+                          {pred.prediction_type === 'over_under' ? '大小球' : '让球'}: 
+                          <span className="font-medium ml-1 text-foreground">{pred.prediction}</span>
+                        </span>
+                        <span className="text-muted-foreground">
+                          下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span>
+                        </span>
+                      </div>
+                      
+                      {/* 盈亏结果 */}
+                      {pred.result && pred.result !== 'pending' && (
+                        <div className="text-sm text-right border-t border-border/20 pt-2">
+                          <span className={`font-bold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                            {pred.result === 'win' ? `+¥${pred.actual_payout || pred.potential_payout}` : `-¥${pred.bet_amount}`}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
