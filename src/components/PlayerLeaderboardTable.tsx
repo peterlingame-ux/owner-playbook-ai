@@ -440,186 +440,183 @@ const PlayerLeaderboardTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* Leaderboard Table */}
-      <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
-        <CardContent className="p-0">
-          {/* 滚动提示 - 仅移动端显示 */}
-          <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
+      {/* Leaderboard Table - Split into two columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Left Column: Rank 1-10 */}
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 rounded-lg bg-primary/20">
+                <Trophy className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{t('top_10') || '前10名'}</h3>
+                <p className="text-xs text-muted-foreground">{t('highest_win_rate') || '最高胜率玩家'}</p>
+              </div>
             </div>
-          </div>
-          <div className="overflow-x-auto -mx-2 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <Table className="min-w-[800px]">
-                <TableHeader>
-                  <TableRow className="border-b-2 border-border/60 hover:bg-transparent bg-muted/40">
-                    <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase text-center">#</TableHead>
-                    <TableHead className="py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0">{t('player')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {t('win_rate')} <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <div className="space-y-2">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                </div>
+              ) : (
+                allPlayers.slice(0, 10).map((player, index) => (
+                  <div 
+                    key={player.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/player/${player.id}`)}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                        player.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
+                        player.rank === 2 ? 'bg-gray-400/20 text-gray-400' :
+                        player.rank === 3 ? 'bg-orange-600/20 text-orange-600' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {player.rank <= 3 ? (
+                          <Trophy className="h-3.5 w-3.5" style={{ color: getRankColor(player.rank) }} />
+                        ) : (
+                          player.rank
+                        )}
                       </div>
-                    </TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('predictions')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('correct')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
-                      <div className="flex items-center justify-center gap-1">
-                        {t('today_prediction_win_rate') || '今日预测胜率'}
-                        <History className="h-3 w-3" />
+                      <Avatar className="w-10 h-10 border-2 border-border/40 flex-shrink-0">
+                        <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                        <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-sm truncate">{player.displayName}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+                            <span className={player.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                              {player.winRate.toFixed(1)}%
+                            </span>
+                          </span>
+                          <span className="text-border">|</span>
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground/70">{t('predictions')}:</span>
+                            <span className="font-medium">{player.totalPredictions}</span>
+                          </span>
+                          <span className="text-border">|</span>
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground/70">ROI:</span>
+                            <span className={player.changePercent >= 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                              {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                            </span>
+                          </span>
+                        </div>
                       </div>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                        {t('loading')}...
-                      </TableCell>
-                    </TableRow>
-                  ) : allPlayers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                        {t('no_data')}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    allPlayers.map((player, index) => (
-                      <TableRow 
-                        key={player.id}
-                        className="border-b border-border/30 hover:bg-accent/30 transition-all duration-300 cursor-pointer animate-fade-in opacity-0"
-                        style={{ 
-                          animationDelay: `${index * 60}ms`,
-                          animationFillMode: 'forwards'
-                        }}
-                        onClick={() => navigate(`/player/${player.id}`)}
-                      >
-                        <TableCell className="py-3 sm:py-4 text-center">
-                          <div className="flex items-center justify-center">
-                            {player.rank <= 3 ? (
-                              <Trophy 
-                                className="h-5 w-5 sm:h-6 sm:w-6" 
-                                style={{ color: getRankColor(player.rank) }}
-                                fill={getRankColor(player.rank)}
-                              />
-                            ) : (
-                              <span className="font-black text-sm sm:text-base text-foreground/70">{player.rank}</span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3 sm:py-4">
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <Avatar className="w-7 h-7 sm:w-9 sm:h-9 border-2 border-border/40">
-                              <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-                              <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <span className="font-bold text-sm sm:text-base truncate">{player.displayName}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <AnimatedWinRate 
-                            value={player.winRate}
-                            className="font-mono-data font-black text-base sm:text-lg"
-                            style={{ color: player.rank <= 3 ? getRankColor(player.rank) : 'hsl(var(--foreground))' }}
-                          />
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
-                            {player.totalPredictions}
+                    </div>
+                    <button
+                      className="text-xs gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-primary/20 transition-colors flex-shrink-0 ml-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
+                    >
+                      <span className="text-muted-foreground">{t('today_prediction_win_rate') || '今日胜率'}:</span>
+                      {(() => {
+                        const todayData = todayWinRates.get(player.id);
+                        if (!todayData || todayData.total === 0) return <span className="ml-1">-</span>;
+                        return (
+                          <span className={`ml-1 ${todayData.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}`}>
+                            {todayData.correct}/{todayData.total} {todayData.winRate.toFixed(0)}%
                           </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-bold text-sm sm:text-base text-success">
-                            {player.correctPredictions}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-bold text-sm sm:text-base text-foreground/40">
-                            {player.totalPredictions - player.correctPredictions}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-bold text-sm sm:text-base text-success/80">
-                            +{player.bestStreak || 0}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
-                            -{player.worstStreak || 0}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                            player.changePercent >= 0 ? 'text-success' : 'text-destructive'
-                          }`}>
-                            {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(2)}%
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          {(() => {
-                            const todayData = todayWinRates.get(player.id);
-                            const todayWinRate = todayData?.winRate ?? 0;
-                            const todayTotal = todayData?.total ?? 0;
-                            
-                            // 虚拟玩家显示模拟数据
-                            if (player.isVirtual) {
-                              return (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    fetchTodayHistory(player.id, player.displayName, true);
-                                  }}
-                                  className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
-                                  title={t('click_to_view_history') || '点击查看今日记录'}
-                                >
-                                  <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
-                                    -
-                                  </span>
-                                  <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors">
-                                    {t('no_data_today') || '暂无'}
-                                  </span>
-                                </button>
-                              );
-                            }
-                            
-                            return (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  fetchTodayHistory(player.id, player.displayName, false);
-                                }}
-                                className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
-                                title={t('click_to_view_history') || '点击查看今日记录'}
-                              >
-                                <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                                  todayTotal === 0 ? 'text-muted-foreground' : todayWinRate >= 50 ? 'text-success' : 'text-destructive'
-                                }`}>
-                                  {todayTotal > 0 ? `${todayWinRate.toFixed(1)}%` : '-'}
-                                </span>
-                                <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors">
-                                  {todayTotal > 0 ? `${todayData?.correct}/${todayTotal}` : t('no_data_today') || '暂无'}
-                                </span>
-                              </button>
-                            );
-                          })()}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                        );
+                      })()}
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Right Column: Rank 11-20 */}
+        <Card className="border-muted-foreground/30 bg-gradient-to-br from-muted/5 to-transparent">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 rounded-lg bg-muted-foreground/20">
+                <Trophy className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{t('rank_11_20') || '11-20名'}</h3>
+                <p className="text-xs text-muted-foreground">{t('rising_players') || '潜力玩家'}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                </div>
+              ) : allPlayers.length <= 10 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {t('no_more_players') || '暂无更多玩家'}
+                </div>
+              ) : (
+                allPlayers.slice(10, 20).map((player, index) => (
+                  <div 
+                    key={player.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/player/${player.id}`)}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-muted text-muted-foreground">
+                        {player.rank}
+                      </div>
+                      <Avatar className="w-10 h-10 border-2 border-border/40 flex-shrink-0">
+                        <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                        <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-sm truncate">{player.displayName}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+                            <span className={player.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                              {player.winRate.toFixed(1)}%
+                            </span>
+                          </span>
+                          <span className="text-border">|</span>
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground/70">{t('predictions')}:</span>
+                            <span className="font-medium">{player.totalPredictions}</span>
+                          </span>
+                          <span className="text-border">|</span>
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground/70">ROI:</span>
+                            <span className={player.changePercent >= 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                              {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      className="text-xs gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-primary/20 transition-colors flex-shrink-0 ml-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
+                    >
+                      <span className="text-muted-foreground">{t('today_prediction_win_rate') || '今日胜率'}:</span>
+                      {(() => {
+                        const todayData = todayWinRates.get(player.id);
+                        if (!todayData || todayData.total === 0) return <span className="ml-1">-</span>;
+                        return (
+                          <span className={`ml-1 ${todayData.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}`}>
+                            {todayData.correct}/{todayData.total} {todayData.winRate.toFixed(0)}%
+                          </span>
+                        );
+                      })()}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Bottom Section: Leading Player + Bar Chart */}
       {!isLoading && allPlayers.length >= 3 && (
