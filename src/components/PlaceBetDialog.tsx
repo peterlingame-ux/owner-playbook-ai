@@ -8,11 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Target, Trophy, Calendar, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer } from 'recharts';
 import { format } from "date-fns";
 
 interface Match {
@@ -524,111 +523,67 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       }
       onOpenChange(isOpen);
     }}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-warning bg-clip-text text-transparent">
-            {showMatchSelection ? "选择AI预测比赛" : "与AI同场PK - 选择下注"}
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto p-4">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg font-bold">
+            {showMatchSelection ? "选择比赛" : "下注"}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-2">
-            {showMatchSelection 
-              ? "以下比赛已有AI模型进行预测，选择一场比赛与AI一较高下！"
-              : "选择你的预测结果，与AI在同一场比赛中一较高下！"
-            }
-          </p>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="space-y-3">
           {/* 余额显示 */}
-          <Card className="p-4 bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">可用余额</span>
-              <span className="text-2xl font-bold font-mono">${userBalance.toFixed(0)}</span>
-            </div>
-          </Card>
+          <div className="flex items-center justify-between py-2 px-3 bg-muted/50 rounded-lg">
+            <span className="text-xs text-muted-foreground">可用余额</span>
+            <span className="text-lg font-bold font-mono">${userBalance.toFixed(0)}</span>
+          </div>
 
           {/* 比赛选择列表 */}
           {showMatchSelection && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-bold flex items-center gap-2">
-                  <Target className="w-4 h-4 text-primary" />
-                  AI已预测比赛列表
-                </Label>
+                <span className="text-sm font-medium">AI预测比赛</span>
                 {isDemo && (
-                  <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/10">
-                    演示数据
+                  <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">
+                    演示
                   </Badge>
                 )}
               </div>
               
-              {/* 演示模式提示 */}
-              {isDemo && (
-                <Card className="p-3 bg-amber-500/10 border-amber-500/30">
-                  <p className="text-xs text-amber-600 dark:text-amber-400">
-                    📢 当前为演示模式，显示虚拟比赛数据。登录后可查看真实AI预测比赛并参与下注。
-                  </p>
-                </Card>
-              )}
-              
               {isLoadingMatches ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">加载中...</span>
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : aiMatches.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <p className="text-muted-foreground">暂无AI预测的比赛</p>
-                  <p className="text-xs text-muted-foreground mt-2">请稍后再试</p>
-                </Card>
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  暂无比赛
+                </div>
               ) : (
-                <ScrollArea className="h-[400px] pr-4">
-                  <div className="space-y-2">
+                <ScrollArea className="h-[320px]">
+                  <div className="space-y-1.5 pr-2">
                     {aiMatches.map((m) => (
-                      <Card 
+                      <div 
                         key={m.fixture_id}
-                        className="p-4 cursor-pointer transition-all hover:border-primary hover:bg-primary/5 group"
+                        className="p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
                         onClick={() => handleSelectMatch(m)}
                       >
-                        <div className="flex items-center gap-3">
-                          {/* 比赛信息 */}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              {m.home_logo && (
-                                <img src={m.home_logo} alt="" className="w-6 h-6 object-contain" />
-                              )}
-                              <span className="font-semibold text-sm">{m.home_team_name}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 text-sm font-medium truncate">
+                              <span>{m.home_team_name}</span>
                               <span className="text-muted-foreground text-xs">vs</span>
-                              <span className="font-semibold text-sm">{m.away_team_name}</span>
-                              {m.away_logo && (
-                                <img src={m.away_logo} alt="" className="w-6 h-6 object-contain" />
-                              )}
+                              <span>{m.away_team_name}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                {m.league_name}
-                              </Badge>
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {format(new Date(m.kickoff_at), "MM/dd HH:mm")}
-                              </span>
+                            <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
+                              <span>{m.league_name}</span>
+                              <span>·</span>
+                              <span>{format(new Date(m.kickoff_at), "MM/dd HH:mm")}</span>
                             </div>
                           </div>
-                          
-                          {/* AI预测数量 */}
-                          <div className="text-right">
-                            <Badge className="bg-primary/20 text-primary border-primary/30">
-                              {m.ai_count} AI预测
-                            </Badge>
-                            <div className="text-[10px] text-muted-foreground mt-1 max-w-[120px] truncate">
-                              {m.ai_models.slice(0, 3).join(", ")}
-                              {m.ai_models.length > 3 && "..."}
-                            </div>
-                          </div>
-                          
-                          {/* 箭头 */}
-                          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <Badge variant="secondary" className="text-[10px] shrink-0">
+                            {m.ai_count} AI
+                          </Badge>
                         </div>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 </ScrollArea>
@@ -645,140 +600,97 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                   variant="ghost" 
                   size="sm" 
                   onClick={handleBackToSelection}
-                  className="mb-2"
+                  className="h-7 px-2 text-xs"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  返回选择比赛
+                  <ArrowLeft className="h-3 w-3 mr-1" />
+                  返回
                 </Button>
               )}
 
               {/* 当前选中的比赛 */}
-              <Card className="p-4 border-primary/20">
-                <div className="flex items-center gap-4">
-                  {selectedMatch.home_logo && (
-                    <img src={selectedMatch.home_logo} alt="" className="w-12 h-12 object-contain" />
-                  )}
-                  <div className="flex-1">
-                    <p className="font-bold text-lg">{selectedMatch.home_team_name} vs {selectedMatch.away_team_name}</p>
-                    <p className="text-sm text-muted-foreground">{selectedMatch.league_name}</p>
+              <div className="p-3 rounded-lg border border-border bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{selectedMatch.home_team_name} vs {selectedMatch.away_team_name}</p>
+                    <p className="text-xs text-muted-foreground">{selectedMatch.league_name}</p>
                   </div>
-                  {selectedMatch.away_logo && (
-                    <img src={selectedMatch.away_logo} alt="" className="w-12 h-12 object-contain" />
-                  )}
                 </div>
-              </Card>
+              </div>
 
-              {/* 历史交锋和雷达图 */}
+              {/* 历史交锋 */}
               {matchStats && (
-                <div className="space-y-3">
-                  <Label className="text-base font-bold">比赛数据分析</Label>
-                  
-                  {/* 历史交锋 */}
-                  <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Trophy className="w-4 h-4 text-primary" />
-                      <h4 className="font-bold text-sm">历史交锋（近{matchStats.head_to_head.total_games}场）</h4>
+                <div className="p-3 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground mb-2">历史交锋（近{matchStats.head_to_head.total_games}场）</p>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-primary">{matchStats.head_to_head.home_wins}</div>
+                      <div className="text-[10px] text-muted-foreground">主胜</div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <div className="text-2xl font-bold text-primary">{matchStats.head_to_head.home_wins}</div>
-                        <div className="text-xs text-muted-foreground">主队胜</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-muted-foreground">{matchStats.head_to_head.draws}</div>
-                        <div className="text-xs text-muted-foreground">平局</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-warning">{matchStats.head_to_head.away_wins}</div>
-                        <div className="text-xs text-muted-foreground">客队胜</div>
-                      </div>
+                    <div>
+                      <div className="text-lg font-bold text-muted-foreground">{matchStats.head_to_head.draws}</div>
+                      <div className="text-[10px] text-muted-foreground">平</div>
                     </div>
-                  </Card>
-
-                  {/* 球队实力对比雷达图 */}
-                  <Card className="p-4 bg-gradient-to-br from-primary/5 to-warning/5 border-primary/20">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Target className="w-4 h-4 text-primary" />
-                        <h4 className="font-bold text-sm">球队实力对比</h4>
-                      </div>
+                    <div>
+                      <div className="text-lg font-bold text-warning">{matchStats.head_to_head.away_wins}</div>
+                      <div className="text-[10px] text-muted-foreground">客胜</div>
                     </div>
-                    <ResponsiveContainer width="100%" height={350}>
-                      <RadarChart 
-                        data={matchStats.team_stats.home.map((item, idx) => ({
-                          category: item.category,
-                          主队: item.value,
-                          客队: matchStats.team_stats.away[idx].value,
-                        }))}
-                        margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
-                      >
-                        <PolarGrid stroke="hsl(var(--border))" strokeWidth={1.5} strokeDasharray="3 3" />
-                        <PolarAngleAxis dataKey="category" tick={{ fill: 'hsl(var(--foreground))', fontSize: 13 }} />
-                        <PolarRadiusAxis angle={90} domain={[0, 100]} tickCount={6} />
-                        <Radar name={selectedMatch.home_team_name} dataKey="主队" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} strokeWidth={2.5} />
-                        <Radar name={selectedMatch.away_team_name} dataKey="客队" stroke="hsl(var(--warning))" fill="hsl(var(--warning))" fillOpacity={0.25} strokeWidth={2.5} />
-                        <Legend />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </Card>
+                  </div>
                 </div>
               )}
 
               {/* 投注类型选择 */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
-                  <TabsList>
-                    <TabsTrigger value="handicap">让球</TabsTrigger>
-                    <TabsTrigger value="over_under">大小球</TabsTrigger>
+                  <TabsList className="w-full h-8">
+                    <TabsTrigger value="handicap" className="flex-1 text-xs h-7">让球</TabsTrigger>
+                    <TabsTrigger value="over_under" className="flex-1 text-xs h-7">大小球</TabsTrigger>
                   </TabsList>
                 </Tabs>
 
                 {/* 赔率选项 */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   {getBetOptions().map((option) => (
-                    <Card
+                    <div
                       key={option.value}
-                      className={`p-5 cursor-pointer transition-all hover:border-primary ${
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
                         selectedBetOption === option.value
-                          ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
-                          : 'border-border'
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-primary/50'
                       }`}
                       onClick={() => setSelectedBetOption(option.value)}
                     >
-                      <div className="text-center space-y-2">
-                        <p className="font-bold text-base">{option.label}</p>
-                        <Badge className="text-lg font-bold px-3 py-1 bg-gradient-to-r from-success/20 to-success/10 text-success border-success/30">
-                          {option.odds.toFixed(2)}
-                        </Badge>
+                      <div className="text-center">
+                        <p className="font-medium text-sm">{option.label}</p>
+                        <p className="text-lg font-bold text-success">{option.odds.toFixed(2)}</p>
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
               </div>
 
               {/* 投注金额 */}
               {selectedBetOption && (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <Separator />
-                  <div className="space-y-3">
-                    <Label className="text-base font-bold">选择投注金额</Label>
+                  <div className="space-y-2">
+                    <Label className="text-xs">投注金额</Label>
                     <Input
                       type="number"
                       value={betAmount}
                       onChange={(e) => setBetAmount(e.target.value)}
-                      placeholder="输入投注金额"
+                      placeholder="输入金额"
                       min="1"
                       max={userBalance}
-                      className="h-12 text-lg font-mono text-center"
+                      className="h-9 text-center font-mono"
                     />
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-1.5">
                       {[100, 500, 1000, 2000].map((amount) => (
                         <Button
                           key={amount}
                           variant={betAmount === amount.toString() ? "default" : "outline"}
                           size="sm"
                           onClick={() => setBetAmount(amount.toString())}
-                          className="h-10 font-bold"
+                          className="h-7 text-xs"
                           disabled={amount > userBalance}
                         >
                           ${amount}
@@ -786,52 +698,24 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       ))}
                     </div>
                   </div>
-                  <Card className="p-4 bg-gradient-to-br from-success/10 via-success/5 to-transparent border-success/30">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">预期收益</p>
-                        <p className="text-sm text-muted-foreground">
-                          投注 ${parseFloat(betAmount) || 0} × {getCurrentOdds().toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-success font-mono">
-                          ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              )}
+                  
+                  {/* 预期收益 */}
+                  <div className="flex items-center justify-between py-2 px-3 bg-success/10 rounded-lg">
+                    <span className="text-xs text-muted-foreground">预期收益</span>
+                    <span className="text-lg font-bold text-success font-mono">
+                      ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(0)}
+                    </span>
+                  </div>
 
-              {/* 确认按钮 */}
-              {selectedBetOption && (
-                <>
-                  {isDemo && (
-                    <Card className="p-3 bg-amber-500/10 border-amber-500/30">
-                      <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
-                        ⚠️ 演示模式：登录后可进行真实下注
-                      </p>
-                    </Card>
-                  )}
+                  {/* 确认按钮 */}
                   <Button
                     onClick={handlePlaceBet}
                     disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
-                    className={`w-full h-12 text-lg font-bold ${
-                      isDemo 
-                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90' 
-                        : 'bg-gradient-to-r from-primary to-warning hover:opacity-90'
-                    }`}
+                    className="w-full h-9 text-sm font-medium"
                   >
-                    <Target className="mr-2 h-5 w-5" />
-                    {isSubmitting 
-                      ? "下注中..." 
-                      : isDemo 
-                        ? `体验下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`
-                        : `确认下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`
-                    }
+                    {isSubmitting ? "下注中..." : isDemo ? "体验下注" : "确认下注"}
                   </Button>
-                </>
+                </div>
               )}
             </>
           )}
