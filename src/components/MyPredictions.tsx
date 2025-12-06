@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -1005,44 +1005,62 @@ const MyPredictions = () => {
           </div>
         </div>
 
-        {/* 钱包余额区域 */}
-        <div className="p-2 bg-muted/30 border-t border-border flex items-center justify-between gap-2">
-          {/* 虚拟钱包 */}
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
-              <Wallet className="h-3.5 w-3.5 text-primary" />
+        {/* 钱包余额区域 - 专业版 */}
+        <div className="border-t border-border">
+          <div className="grid grid-cols-2 divide-x divide-border">
+            {/* 虚拟钱包 */}
+            <div className="p-3 bg-gradient-to-br from-primary/5 to-transparent">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center shadow-sm">
+                  <Wallet className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">{t('virtual_wallet_balance')}</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-foreground font-mono tracking-tight">
+                  ${stats?.balance?.toLocaleString() || '10,000'}
+                </span>
+              </div>
+              <div className="mt-1.5 flex items-center gap-1">
+                <div className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${(stats?.profit || 0) >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'}`}>
+                  {(stats?.profit || 0) >= 0 ? '↑' : '↓'} {Math.abs(stats?.profit || 0).toLocaleString()}
+                </div>
+                <span className="text-[10px] text-muted-foreground">{t('profit_loss_label')}</span>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground">{t('virtual_wallet_balance')}</p>
-              <p className="text-sm font-bold text-foreground font-mono">
-                ${stats?.balance?.toLocaleString() || 10000}
-              </p>
-            </div>
-          </div>
 
-          {/* USDT钱包 */}
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-[#26A17B]/10 flex items-center justify-center">
-              <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground">{t('usdt_wallet_balance')}</p>
-              <p className="text-sm font-bold text-foreground font-mono flex items-center gap-0.5">
-                <span className="text-[#26A17B]">{usdtBalance.toFixed(2)}</span>
-                <span className="text-[10px] text-muted-foreground">USDT</span>
-              </p>
+            {/* USDT钱包 */}
+            <div className="p-3 bg-gradient-to-br from-[#26A17B]/5 to-transparent">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#26A17B]/15 flex items-center justify-center shadow-sm">
+                    <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4.5 h-4.5" />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">{t('usdt_wallet_balance')}</span>
+                </div>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-bold text-[#26A17B] font-mono tracking-tight">
+                  {usdtBalance.toFixed(2)}
+                </span>
+                <span className="text-xs font-medium text-muted-foreground">USDT</span>
+              </div>
+              <div className="mt-2">
+                <USDTWalletDialog 
+                  trigger={
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full h-7 text-xs font-medium border-[#26A17B]/30 bg-[#26A17B]/5 hover:bg-[#26A17B]/15 text-[#26A17B] shadow-sm"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      {t('usdt_deposit')}
+                    </Button>
+                  }
+                />
+              </div>
             </div>
           </div>
-          
-          {/* USDT钱包按钮 */}
-          <USDTWalletDialog 
-            trigger={
-              <Button variant="outline" size="sm" className="flex items-center gap-1.5 border-[#26A17B]/30 hover:bg-[#26A17B]/10 h-7 text-xs px-2">
-                <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-3.5 h-3.5" />
-                {t('usdt_deposit')}
-              </Button>
-            }
-          />
         </div>
       </div>
 
