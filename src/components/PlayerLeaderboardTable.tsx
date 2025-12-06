@@ -508,22 +508,13 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-primary/20 transition-colors flex-shrink-0 ml-2"
+                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      <span className="text-muted-foreground">{t('today_prediction_win_rate') || '今日胜率'}:</span>
-                      {(() => {
-                        const todayData = todayWinRates.get(player.id);
-                        if (!todayData || todayData.total === 0) return <span className="ml-1">-</span>;
-                        return (
-                          <span className={`ml-1 ${todayData.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}`}>
-                            {todayData.correct}/{todayData.total} {todayData.winRate.toFixed(0)}%
-                          </span>
-                        );
-                      })()}
+                      {t('today_recommendations') || '今日推荐'}
                     </button>
                   </div>
                 ))
@@ -593,22 +584,13 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-primary/20 transition-colors flex-shrink-0 ml-2"
+                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      <span className="text-muted-foreground">{t('today_prediction_win_rate') || '今日胜率'}:</span>
-                      {(() => {
-                        const todayData = todayWinRates.get(player.id);
-                        if (!todayData || todayData.total === 0) return <span className="ml-1">-</span>;
-                        return (
-                          <span className={`ml-1 ${todayData.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}`}>
-                            {todayData.correct}/{todayData.total} {todayData.winRate.toFixed(0)}%
-                          </span>
-                        );
-                      })()}
+                      {t('today_recommendations') || '今日推荐'}
                     </button>
                   </div>
                 ))
