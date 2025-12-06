@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target, TrendingUp, ChevronRight, CheckCircle2, Users, Calendar, Quote, Award } from "lucide-react";
+import { Trophy, Target, TrendingUp, ChevronRight, CheckCircle2, Users, Calendar, Quote, Award, Clock } from "lucide-react";
+import { differenceInDays, endOfMonth, format } from "date-fns";
 
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
@@ -33,6 +34,13 @@ const Waitlist = () => {
     winRate: 73.2,
     predictions: 120, // AI当前轮次预测场次
   };
+
+  // Calculate days until next prize distribution (end of current month)
+  const now = new Date();
+  const monthEnd = endOfMonth(now);
+  const daysRemaining = differenceInDays(monthEnd, now);
+  const nextAwardDate = format(monthEnd, "yyyy-MM-dd");
+  const currentRound = `S1-00${7}`; // Next round number
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -215,6 +223,30 @@ const Waitlist = () => {
           <p className="text-muted-foreground">
             每轮奖池 <span className="text-foreground font-semibold">$1,000,000</span>
           </p>
+        </motion.div>
+
+        {/* Current Round Countdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 mb-8"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">当前轮次 {currentRound}</div>
+                <div className="text-xs text-muted-foreground">发奖日期: {nextAwardDate}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-foreground">{daysRemaining}</div>
+              <div className="text-xs text-muted-foreground">天后发奖</div>
+            </div>
+          </div>
         </motion.div>
 
         {/* How to Win - 3 Steps */}
