@@ -431,14 +431,14 @@ const PlayerCopyTradingBoard = () => {
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1">
               <span className="text-muted-foreground/70">胜率:</span>
-              <span className={player.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+              <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {player.winRate.toFixed(1)}%
               </span>
             </span>
             <span className="text-border">|</span>
             <span className="flex items-center gap-1">
               <span className="text-muted-foreground/70">盈利:</span>
-              <span className={player.changePercent >= 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+              <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
               </span>
             </span>
