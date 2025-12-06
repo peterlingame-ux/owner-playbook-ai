@@ -21,6 +21,7 @@ import geminiIcon from "@/assets/ai-icon-gemini.png";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import grokIcon from "@/assets/ai-icon-grok.png";
 import hunsoccerIcon from "@/assets/ai-icon-hunsoccer.png";
+import footballFieldBg from "@/assets/football-field-bg.jpg";
 
 const AI_ICONS: Record<string, string> = {
   "GPT-5": gpt5Icon,
@@ -660,12 +661,47 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 </Button>
               )}
 
-              {/* 当前选中的比赛 */}
-              <div className="p-3 rounded-lg border border-border bg-muted/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm">{selectedMatch.home_team_name} vs {selectedMatch.away_team_name}</p>
-                    <p className="text-xs text-muted-foreground">{selectedMatch.league_name}</p>
+              {/* 当前选中的比赛 - 球场背景 */}
+              <div 
+                className="relative rounded-lg overflow-hidden"
+                style={{
+                  backgroundImage: `url(${footballFieldBg})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="relative p-4">
+                  {/* 联赛信息 */}
+                  <div className="text-center mb-3">
+                    <span className="text-[10px] text-white/70 bg-black/30 px-2 py-0.5 rounded">
+                      {selectedMatch.league_name}
+                    </span>
+                  </div>
+                  
+                  {/* 球队对阵 */}
+                  <div className="flex items-center justify-center gap-4">
+                    {/* 主队 */}
+                    <div className="flex flex-col items-center gap-1">
+                      {selectedMatch.home_logo && (
+                        <img src={selectedMatch.home_logo} alt="" className="w-12 h-12 object-contain" />
+                      )}
+                      <span className="text-white font-medium text-sm">{selectedMatch.home_team_name}</span>
+                    </div>
+                    
+                    {/* VS */}
+                    <div className="text-center">
+                      <span className="text-white/70 text-xs">未开赛</span>
+                      <div className="text-white font-bold text-lg">VS</div>
+                    </div>
+                    
+                    {/* 客队 */}
+                    <div className="flex flex-col items-center gap-1">
+                      {selectedMatch.away_logo && (
+                        <img src={selectedMatch.away_logo} alt="" className="w-12 h-12 object-contain" />
+                      )}
+                      <span className="text-white font-medium text-sm">{selectedMatch.away_team_name}</span>
+                    </div>
                   </div>
                 </div>
               </div>
