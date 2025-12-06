@@ -223,6 +223,39 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawal_records: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          network: string
+          processed_at: string | null
+          status: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          network?: string
+          processed_at?: string | null
+          status?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          network?: string
+          processed_at?: string | null
+          status?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -243,6 +276,15 @@ export type Database = {
           p_prediction: string
           p_prediction_type: string
           p_user_id: string
+        }
+        Returns: Json
+      }
+      request_withdrawal: {
+        Args: {
+          p_amount: number
+          p_network?: string
+          p_user_id: string
+          p_wallet_address: string
         }
         Returns: Json
       }
