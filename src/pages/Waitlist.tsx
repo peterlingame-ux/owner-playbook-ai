@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Trophy, Target, TrendingUp, ChevronRight, CheckCircle2, Users, Calendar, Quote, Award, Clock } from "lucide-react";
-import { differenceInDays, endOfMonth, format } from "date-fns";
+import { differenceInDays, endOfMonth, startOfMonth, format, getDaysInMonth } from "date-fns";
 
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
@@ -37,8 +37,12 @@ const Waitlist = () => {
 
   // Calculate days until next prize distribution (end of current month)
   const now = new Date();
+  const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
+  const totalDaysInMonth = getDaysInMonth(now);
+  const daysPassed = differenceInDays(now, monthStart);
   const daysRemaining = differenceInDays(monthEnd, now);
+  const progressPercent = Math.round((daysPassed / totalDaysInMonth) * 100);
   const nextAwardDate = format(monthEnd, "yyyy-MM-dd");
   const currentRound = `S1-00${7}`; // Next round number
 
@@ -232,7 +236,7 @@ const Waitlist = () => {
           transition={{ delay: 0.05 }}
           className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 mb-8"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                 <Clock className="w-5 h-5 text-primary" />
@@ -245,6 +249,22 @@ const Waitlist = () => {
             <div className="text-right">
               <div className="text-2xl font-bold text-foreground">{daysRemaining}</div>
               <div className="text-xs text-muted-foreground">天后发奖</div>
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>已过 {daysPassed} 天</span>
+              <span>{progressPercent}%</span>
+            </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="h-full bg-primary rounded-full"
+              />
             </div>
           </div>
         </motion.div>
