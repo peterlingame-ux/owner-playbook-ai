@@ -302,8 +302,8 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             className="h-9 px-3 rounded-md border border-border bg-background text-sm"
           >
             <option value="all">全部结果</option>
-            <option value="win">命中</option>
-            <option value="loss">未中</option>
+            <option value="win">正确</option>
+            <option value="loss">错误</option>
           </select>
 
           <select
@@ -326,11 +326,11 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
           </div>
           <div className="text-center">
             <p className="text-lg font-bold font-mono text-success">{winCount}</p>
-            <p className="text-xs text-muted-foreground">命中</p>
+            <p className="text-xs text-muted-foreground">正确</p>
           </div>
           <div className="text-center">
             <p className="text-lg font-bold font-mono text-destructive">{lossCount}</p>
-            <p className="text-xs text-muted-foreground">未中</p>
+            <p className="text-xs text-muted-foreground">错误</p>
           </div>
           <div className="text-center">
             <p className={`text-lg font-bold font-mono ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -910,13 +910,13 @@ const MyPredictions = () => {
           </div>
           <div className="p-4 text-center">
             <p className="text-2xl font-bold text-success font-mono">{stats?.correctPredictions || 0}</p>
-            <p className="text-xs text-muted-foreground mt-1">命中</p>
+            <p className="text-xs text-muted-foreground mt-1">正确</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-2xl font-bold text-destructive font-mono">
               {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">未中</p>
+            <p className="text-xs text-muted-foreground mt-1">错误</p>
           </div>
           <div className="p-4 text-center">
             <p className={`text-2xl font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
