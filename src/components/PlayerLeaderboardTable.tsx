@@ -1054,305 +1054,180 @@ const PlayerLeaderboardTable = () => {
         </div>
       )}
 
-      {/* Today Recommendations Dialog - Professional Design */}
+      {/* Today Recommendations Dialog - Compact Design */}
       <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+        <DialogContent className="max-w-md p-0">
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-border/50 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-border/50 px-4 py-3">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-3">
-                <div className="relative">
-                  <Avatar className="w-12 h-12 border-2 border-primary/30 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                    <AvatarImage src={allPlayers.find(p => p.id === selectedPlayerHistory?.playerId)?.avatarUrl} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                      {selectedPlayerHistory?.playerName?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-success flex items-center justify-center">
-                    <CheckCircle2 className="h-3 w-3 text-success-foreground" />
-                  </div>
-                </div>
+              <DialogTitle className="flex items-center gap-2">
+                <Avatar className="w-8 h-8 border border-primary/30">
+                  <AvatarImage src={allPlayers.find(p => p.id === selectedPlayerHistory?.playerId)?.avatarUrl} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                    {selectedPlayerHistory?.playerName?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
-                  <span className="text-lg font-bold">{selectedPlayerHistory?.playerName}</span>
-                  <p className="text-sm text-muted-foreground font-normal">今日赛事推荐</p>
+                  <span className="text-sm font-bold">{selectedPlayerHistory?.playerName}</span>
+                  <p className="text-xs text-muted-foreground font-normal">今日推荐</p>
                 </div>
               </DialogTitle>
             </DialogHeader>
           </div>
           
-          <div className="overflow-y-auto max-h-[calc(90vh-100px)]">
-            {isLoadingHistory ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent" />
-                  <span className="text-sm text-muted-foreground">加载推荐数据...</span>
-                </div>
-              </div>
-            ) : selectedPlayerHistory && (
-              <div className="p-6 space-y-6">
-                {/* 玩家数据面板 */}
-                {(() => {
-                  const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
-                  const completedPreds = selectedPlayerHistory.predictions.filter(p => p.result);
-                  const wonPreds = completedPreds.filter(p => p.result === 'win');
-                  const todayWinRate = completedPreds.length > 0 ? (wonPreds.length / completedPreds.length * 100) : 0;
-                  
-                  return (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="bg-card border border-border/50 rounded-xl p-4 text-center">
-                        <div className="text-2xl font-bold text-primary font-mono-data">
-                          {player?.winRate.toFixed(1)}%
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">历史胜率</div>
+          {isLoadingHistory ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+            </div>
+          ) : selectedPlayerHistory && (
+            <div className="p-4 space-y-3">
+              {/* 玩家数据面板 - 紧凑版 */}
+              {(() => {
+                const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+                return (
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="bg-muted/30 rounded-lg p-2 text-center">
+                      <div className="text-sm font-bold text-primary font-mono-data">
+                        {player?.winRate.toFixed(0)}%
                       </div>
-                      <div className="bg-card border border-border/50 rounded-xl p-4 text-center">
-                        <div className="text-2xl font-bold font-mono-data">
-                          {player?.totalPredictions || 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">总预测</div>
-                      </div>
-                      <div className="bg-card border border-border/50 rounded-xl p-4 text-center">
-                        <div className="text-2xl font-bold text-success font-mono-data">
-                          {player?.bestStreak || 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">最佳连胜</div>
-                      </div>
-                      <div className="bg-card border border-border/50 rounded-xl p-4 text-center">
-                        <div className={`text-2xl font-bold font-mono-data ${(player?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {(player?.profit || 0) >= 0 ? '+' : ''}{((player?.profit || 0) / 100).toFixed(1)}%
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">收益率</div>
-                      </div>
+                      <div className="text-[10px] text-muted-foreground">胜率</div>
                     </div>
-                  );
-                })()}
-                
-                {/* 近7日趋势图 */}
-                <div className="bg-card border border-border/50 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-primary" />
-                      近7日胜率趋势
-                    </h4>
-                    <span className="text-xs text-muted-foreground px-2 py-1 bg-muted/50 rounded-md">
-                      {(() => {
-                        const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
-                        return player ? `平均胜率: ${player.winRate.toFixed(1)}%` : '';
-                      })()}
-                    </span>
+                    <div className="bg-muted/30 rounded-lg p-2 text-center">
+                      <div className="text-sm font-bold font-mono-data">
+                        {player?.totalPredictions || 0}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">预测</div>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-2 text-center">
+                      <div className="text-sm font-bold text-success font-mono-data">
+                        {player?.bestStreak || 0}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">连胜</div>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-2 text-center">
+                      <div className={`text-sm font-bold font-mono-data ${(player?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {(player?.profit || 0) >= 0 ? '+' : ''}{((player?.profit || 0) / 100).toFixed(0)}%
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">收益</div>
+                    </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={140}>
-                    <AreaChart
-                      data={(() => {
-                        const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
-                        const baseWinRate = player?.winRate || 50;
-                        const days = [];
-                        for (let i = 6; i >= 0; i--) {
-                          const date = new Date();
-                          date.setDate(date.getDate() - i);
-                          const variance = (Math.random() - 0.5) * 20;
-                          const winRate = Math.max(20, Math.min(95, baseWinRate + variance));
-                          days.push({
-                            date: format(date, 'MM/dd'),
-                            winRate: Math.round(winRate),
-                          });
-                        }
-                        return days;
-                      })()}
-                      margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
-                      <XAxis 
-                        dataKey="date" 
-                        stroke="hsl(var(--muted-foreground))" 
-                        style={{ fontSize: '11px' }}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis 
-                        domain={[0, 100]}
-                        stroke="hsl(var(--muted-foreground))" 
-                        style={{ fontSize: '11px' }}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `${value}%`}
-                      />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                        }}
-                        formatter={(value: number) => [`${value}%`, '胜率']}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="winRate" 
-                        stroke="hsl(var(--primary))" 
-                        fill="url(#trendGradient)"
-                        strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
-                        activeDot={{ r: 5, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--background))', strokeWidth: 2 }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
+                );
+              })()}
+              
+              {/* 今日推荐比赛 - 紧凑版 */}
+              {(() => {
+                const upcomingPredictions = selectedPlayerHistory.predictions.filter(p => !p.result);
+                const completedPredictions = selectedPlayerHistory.predictions.filter(p => p.result);
                 
-                {/* 今日推荐比赛 */}
-                {(() => {
-                  const upcomingPredictions = selectedPlayerHistory.predictions.filter(p => !p.result);
-                  const completedPredictions = selectedPlayerHistory.predictions.filter(p => p.result);
-                  
-                  return (
-                    <div className="space-y-5">
-                      {/* 待开赛推荐 */}
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-sm font-semibold flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-primary" />
-                            今日推荐
-                          </h4>
-                          <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                            {upcomingPredictions.length} 场比赛
-                          </span>
-                        </div>
-                        
-                        {upcomingPredictions.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border/50">
-                            <Sparkles className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                            <p className="text-sm">暂无待开赛推荐</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            {upcomingPredictions.map((pred, index) => (
-                              <div 
-                                key={pred.id} 
-                                className="bg-card border border-border/50 rounded-xl overflow-hidden hover:border-primary/30 transition-colors"
-                              >
-                                {/* 比赛头部 */}
-                                <div className="bg-muted/30 px-4 py-2 flex items-center justify-between border-b border-border/30">
-                                  <span className="text-xs text-muted-foreground">
-                                    #{index + 1} · {pred.prediction_type === 'over_under' ? '大小球' : '让球盘'}
-                                  </span>
-                                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                                    待开赛
-                                  </span>
-                                </div>
-                                
-                                {/* 比赛对阵 */}
-                                <div className="p-4">
-                                  <div className="flex items-center justify-between mb-4">
-                                    <div className="flex-1 text-center">
-                                      <div className="w-10 h-10 rounded-full bg-muted/50 mx-auto mb-2 flex items-center justify-center text-lg font-bold text-muted-foreground">
-                                        {(pred.home_team || '主')[0]}
-                                      </div>
-                                      <p className="text-sm font-medium truncate px-2">{pred.home_team || '主队'}</p>
-                                    </div>
-                                    <div className="px-4">
-                                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <span className="text-xs font-bold text-primary">VS</span>
-                                      </div>
-                                    </div>
-                                    <div className="flex-1 text-center">
-                                      <div className="w-10 h-10 rounded-full bg-muted/50 mx-auto mb-2 flex items-center justify-center text-lg font-bold text-muted-foreground">
-                                        {(pred.away_team || '客')[0]}
-                                      </div>
-                                      <p className="text-sm font-medium truncate px-2">{pred.away_team || '客队'}</p>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* 推荐信息 */}
-                                  <div className="bg-primary/5 rounded-lg p-3 border border-primary/10">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-muted-foreground">推荐:</span>
-                                        <span className="font-bold text-primary text-sm">{pred.prediction}</span>
-                                      </div>
-                                      <div className="flex items-center gap-3 text-xs">
-                                        <span className="text-muted-foreground">
-                                          赔率 <span className="font-bold text-foreground">1.80</span>
-                                        </span>
-                                        <span className="px-2 py-0.5 rounded bg-success/10 text-success font-medium">
-                                          信心度 85%
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                return (
+                  <div className="space-y-3">
+                    {/* 待开赛推荐 */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-xs font-semibold flex items-center gap-1.5">
+                          <Sparkles className="h-3 w-3 text-primary" />
+                          今日推荐
+                        </h4>
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                          {upcomingPredictions.length}场
+                        </span>
                       </div>
                       
-                      {/* 已完成比赛 */}
-                      {completedPredictions.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-sm font-semibold flex items-center gap-2">
-                              <History className="h-4 w-4 text-muted-foreground" />
-                              今日战绩
-                            </h4>
-                            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
-                              {completedPredictions.filter(p => p.result === 'win').length}/{completedPredictions.length} 正确
-                            </span>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            {completedPredictions.map((pred) => (
-                              <div 
-                                key={pred.id} 
-                                className={`rounded-xl p-4 border ${
-                                  pred.result === 'win' 
-                                    ? 'bg-success/5 border-success/20' 
-                                    : 'bg-destructive/5 border-destructive/20'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-4 flex-1">
-                                    {/* 比赛信息 */}
-                                    <div className="flex items-center gap-2 text-sm">
-                                      <span className="font-medium">{pred.home_team}</span>
-                                      <span className="font-bold text-lg px-2 py-0.5 rounded bg-background/80">
-                                        {pred.home_score ?? 0} - {pred.away_score ?? 0}
-                                      </span>
-                                      <span className="font-medium">{pred.away_team}</span>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* 结果和预测 */}
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-xs text-muted-foreground">
-                                      {pred.prediction}
-                                    </span>
-                                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                                      pred.result === 'win' 
-                                        ? 'bg-success/20 text-success' 
-                                        : 'bg-destructive/20 text-destructive'
-                                    }`}>
-                                      {pred.result === 'win' ? '✓ 正确' : '✗ 错误'}
-                                    </span>
-                                  </div>
+                      {upcomingPredictions.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground bg-muted/20 rounded-lg text-xs">
+                          暂无待开赛推荐
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {upcomingPredictions.slice(0, 3).map((pred, index) => (
+                            <div 
+                              key={pred.id} 
+                              className="bg-card border border-border/50 rounded-lg p-2.5"
+                            >
+                              {/* 比赛对阵 - 单行紧凑 */}
+                              <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                  <span className="text-xs font-medium truncate">{pred.home_team || '主队'}</span>
+                                  <span className="text-[10px] text-primary font-bold px-1.5 py-0.5 bg-primary/10 rounded">VS</span>
+                                  <span className="text-xs font-medium truncate">{pred.away_team || '客队'}</span>
+                                </div>
+                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
+                                  待开赛
+                                </span>
+                              </div>
+                              
+                              {/* 推荐信息 */}
+                              <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-border/30">
+                                <span className="text-muted-foreground">
+                                  推荐: <span className="font-bold text-primary">{pred.prediction}</span>
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-muted-foreground">
+                                    赔率 <span className="text-foreground font-medium">1.80</span>
+                                  </span>
+                                  <span className="px-1.5 py-0.5 rounded bg-success/10 text-success font-medium">
+                                    85%
+                                  </span>
                                 </div>
                               </div>
-                            ))}
-                          </div>
+                            </div>
+                          ))}
+                          {upcomingPredictions.length > 3 && (
+                            <p className="text-[10px] text-center text-muted-foreground">
+                              还有 {upcomingPredictions.length - 3} 场推荐...
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
+                    
+                    {/* 已完成比赛 - 紧凑版 */}
+                    {completedPredictions.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs font-semibold flex items-center gap-1.5">
+                            <History className="h-3 w-3 text-muted-foreground" />
+                            今日战绩
+                          </h4>
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                            {completedPredictions.filter(p => p.result === 'win').length}/{completedPredictions.length}
+                          </span>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          {completedPredictions.slice(0, 2).map((pred) => (
+                            <div 
+                              key={pred.id} 
+                              className={`rounded-lg p-2 flex items-center justify-between ${
+                                pred.result === 'win' 
+                                  ? 'bg-success/5 border border-success/20' 
+                                  : 'bg-destructive/5 border border-destructive/20'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 text-xs">
+                                <span className="truncate max-w-[60px]">{pred.home_team}</span>
+                                <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
+                                  {pred.home_score ?? 0}-{pred.away_score ?? 0}
+                                </span>
+                                <span className="truncate max-w-[60px]">{pred.away_team}</span>
+                              </div>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                pred.result === 'win' 
+                                  ? 'bg-success/20 text-success' 
+                                  : 'bg-destructive/20 text-destructive'
+                              }`}>
+                                {pred.result === 'win' ? '✓' : '✗'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
