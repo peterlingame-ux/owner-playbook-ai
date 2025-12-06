@@ -1183,8 +1183,8 @@ const PlayerLeaderboardTable = () => {
                           </div>
                           <div className="text-[10px] text-muted-foreground">有效金额</div>
                         </div>
-                        <div className="bg-muted/30 rounded-lg p-2 text-center">
-                          <div className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        <div className={`rounded-lg p-2 text-center ${todayProfitLoss >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                          <div className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
                             {todayProfitLoss >= 0 ? '+' : ''}¥{todayProfitLoss.toFixed(0)}
                           </div>
                           <div className="text-[10px] text-muted-foreground">今日盈亏</div>
@@ -1282,7 +1282,7 @@ const PlayerLeaderboardTable = () => {
                                       </span>
                                     </div>
                                   </div>
-                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground flex-shrink-0">
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
                                     待开赛
                                   </span>
                                 </div>
@@ -1357,9 +1357,9 @@ const PlayerLeaderboardTable = () => {
                             };
                             
                             return (
-                              <div 
+                                <div 
                                 key={pred.id} 
-                                className="rounded-lg p-2 bg-muted/20 border border-border/30"
+                                className={`rounded-lg p-2 border ${pred.result === 'win' ? 'bg-success/5 border-success/20' : 'bg-destructive/5 border-destructive/20'}`}
                               >
                                 {/* 比赛信息行 */}
                                 <div className="flex items-center justify-between mb-1.5">
@@ -1398,8 +1398,8 @@ const PlayerLeaderboardTable = () => {
                                       <span className="truncate max-w-[45px]">{pred.away_team}</span>
                                     </div>
                                   </div>
-                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted ${
-                                    pred.result === 'win' ? 'text-foreground' : 'text-muted-foreground'
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                    pred.result === 'win' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
                                   }`}>
                                     {pred.result === 'win' ? '✓ 正确' : '✗ 错误'}
                                   </span>
@@ -1415,7 +1415,7 @@ const PlayerLeaderboardTable = () => {
                                       {getPredictionLabel()}
                                     </span>
                                   </div>
-                                  <span className={`font-bold ${pred.result === 'win' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                  <span className={`font-bold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
                                     {pred.result === 'win' 
                                       ? `+¥${((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number).toFixed(0)}` 
                                       : `-¥${pred.bet_amount}`
