@@ -840,11 +840,10 @@ const PlayerLeaderboardTable = () => {
                       className="text-xs px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-2 border border-destructive/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/history?tab=player&player=${player.id}`);
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
                       {t('today_prediction') || '今日预测'}
-                      <ExternalLink className="h-3 w-3" />
                     </button>
                   </div>
                 ))
@@ -925,11 +924,10 @@ const PlayerLeaderboardTable = () => {
                       className="text-xs px-3 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-2 border border-success/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/history?tab=player&player=${player.id}`);
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
                       {t('today_prediction') || '今日预测'}
-                      <ExternalLink className="h-3 w-3" />
                     </button>
                   </div>
                 ))
