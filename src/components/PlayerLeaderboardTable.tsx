@@ -443,14 +443,14 @@ const PlayerLeaderboardTable = () => {
       {/* Leaderboard Table - Split into two columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Left Column: Rank 1-10 */}
-        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+        <Card className="border-yellow-500/40 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-primary/20">
-                <Trophy className="h-5 w-5 text-primary" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-yellow-500/30 to-orange-500/20">
+                <Trophy className="h-5 w-5 text-yellow-500" />
               </div>
               <div>
-                <h3 className="font-bold text-lg">{t('top_10') || '前10名'}</h3>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{t('top_10') || '前10名'}</h3>
                 <p className="text-xs text-muted-foreground">{t('highest_win_rate') || '最高胜率玩家'}</p>
               </div>
             </div>
@@ -533,14 +533,14 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Right Column: Rank 11-20 */}
-        <Card className="border-muted-foreground/30 bg-gradient-to-br from-muted/5 to-transparent">
+        <Card className="border-sky-500/40 bg-gradient-to-br from-sky-500/10 via-blue-500/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-muted-foreground/20">
-                <Trophy className="h-5 w-5 text-muted-foreground" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-sky-500/30 to-blue-500/20">
+                <Trophy className="h-5 w-5 text-sky-500" />
               </div>
               <div>
-                <h3 className="font-bold text-lg">{t('rank_11_20') || '11-20名'}</h3>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-sky-500 to-blue-500 bg-clip-text text-transparent">{t('rank_11_20') || '11-20名'}</h3>
                 <p className="text-xs text-muted-foreground">{t('rising_players') || '潜力玩家'}</p>
               </div>
             </div>
