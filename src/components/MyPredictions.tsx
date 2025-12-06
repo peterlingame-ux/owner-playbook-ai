@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -124,15 +124,17 @@ const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: strin
     });
   }, [predictions]);
 
+  const { t } = useTranslation();
+  
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <div className="p-4 border-b border-border flex items-center justify-between">
         <div>
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
-            胜率趋势
+            {t('win_rate_trend')}
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">近7天累计胜率变化</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('last_7_days_cumulative')}</p>
         </div>
       </div>
       <div className="p-4">
@@ -206,6 +208,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
   }>;
   copyTradeRecords: CopyTradeRecord[];
 }) => {
+  const { t } = useTranslation();
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
@@ -283,7 +286,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
       <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">筛选</span>
+          <span className="text-sm font-medium">{t('filter')}</span>
         </div>
         
         <div className="grid grid-cols-3 gap-3">
@@ -292,9 +295,9 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             onChange={(e) => setFilterType(e.target.value)}
             className="h-9 px-3 rounded-md border border-border bg-background text-sm"
           >
-            <option value="all">全部类型</option>
-            <option value="prediction">自主预测</option>
-            <option value="copy-trade">跟单</option>
+            <option value="all">{t('all_types')}</option>
+            <option value="prediction">{t('self_prediction')}</option>
+            <option value="copy-trade">{t('copy_trade_type')}</option>
           </select>
 
           <select
@@ -302,9 +305,9 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             onChange={(e) => setFilterResult(e.target.value)}
             className="h-9 px-3 rounded-md border border-border bg-background text-sm"
           >
-            <option value="all">全部结果</option>
-            <option value="win">正确</option>
-            <option value="loss">错误</option>
+            <option value="all">{t('all_results')}</option>
+            <option value="win">{t('correct_result')}</option>
+            <option value="loss">{t('wrong_result')}</option>
           </select>
 
           <select
@@ -312,10 +315,10 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             onChange={(e) => setFilterPeriod(e.target.value)}
             className="h-9 px-3 rounded-md border border-border bg-background text-sm"
           >
-            <option value="all">全部时间</option>
-            <option value="7d">近7天</option>
-            <option value="30d">近30天</option>
-            <option value="90d">近90天</option>
+            <option value="all">{t('all_periods')}</option>
+            <option value="7d">{t('last_7d')}</option>
+            <option value="30d">{t('last_30d')}</option>
+            <option value="90d">{t('last_90d')}</option>
           </select>
         </div>
 
@@ -323,21 +326,21 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
         <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-border">
           <div className="text-center">
             <p className="text-lg font-bold font-mono text-foreground">{totalPredictions}</p>
-            <p className="text-xs text-muted-foreground">总计</p>
+            <p className="text-xs text-muted-foreground">{t('total_count')}</p>
           </div>
           <div className="text-center">
             <p className="text-lg font-bold font-mono text-success">{winCount}</p>
-            <p className="text-xs text-muted-foreground">正确</p>
+            <p className="text-xs text-muted-foreground">{t('correct_result')}</p>
           </div>
           <div className="text-center">
             <p className="text-lg font-bold font-mono text-destructive">{lossCount}</p>
-            <p className="text-xs text-muted-foreground">错误</p>
+            <p className="text-xs text-muted-foreground">{t('wrong_result')}</p>
           </div>
           <div className="text-center">
             <p className={`text-lg font-bold font-mono ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
               {totalProfit >= 0 ? '+' : ''}{totalProfit.toFixed(0)}
             </p>
-            <p className="text-xs text-muted-foreground">盈亏</p>
+            <p className="text-xs text-muted-foreground">{t('profit_loss_label')}</p>
           </div>
         </div>
       </div>
@@ -348,20 +351,20 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">类型</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">日期</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">比赛</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">预测</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">投注</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">盈亏</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">结果</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('type_column')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('date_column')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('match_column')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('prediction_column')}</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('bet_column')}</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('profit_loss_label')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">{t('result_column')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredPredictions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12 text-muted-foreground">
-                    暂无记录
+                    {t('no_records')}
                   </td>
                 </tr>
               ) : (
@@ -373,12 +376,12 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                       <td className="py-3 px-4">
                         {pred.type === 'prediction' ? (
                           <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
-                            预测
+                            {t('prediction_label')}
                           </span>
                         ) : (
                           <div className="flex flex-col gap-0.5">
                             <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                              跟单
+                              {t('copy_trade_type')}
                             </span>
                             {pred.followed_player_name && (
                               <span className="text-[10px] text-muted-foreground">
@@ -397,11 +400,11 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                             <img src={pred.match.home_logo} alt="" className="w-4 h-4 object-contain" />
                           )}
                           <span className="text-xs text-foreground truncate max-w-[80px]">
-                            {pred.match?.home_team_name || '主队'}
+                            {pred.match?.home_team_name || t('home_team')}
                           </span>
                           <span className="text-xs text-muted-foreground">vs</span>
                           <span className="text-xs text-foreground truncate max-w-[80px]">
-                            {pred.match?.away_team_name || '客队'}
+                            {pred.match?.away_team_name || t('away_team')}
                           </span>
                           {pred.match?.away_logo && (
                             <img src={pred.match.away_logo} alt="" className="w-4 h-4 object-contain" />
@@ -756,9 +759,9 @@ const MyPredictions = () => {
     return (
       <Card className="border-primary/20">
         <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground mb-4">登录后查看您的预测统计</p>
+          <p className="text-muted-foreground mb-4">{t('login_to_view_stats')}</p>
           <Button onClick={() => navigate('/auth')}>
-            立即登录
+            {t('login_now_btn')}
           </Button>
         </CardContent>
       </Card>
@@ -769,7 +772,7 @@ const MyPredictions = () => {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">加载中...</p>
+          <p className="text-muted-foreground">{t('loading_data')}</p>
         </CardContent>
       </Card>
     );
@@ -781,13 +784,13 @@ const MyPredictions = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            我的预测
+            {t('my_predictions')}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-8">
-          <p className="text-muted-foreground mb-4">您还没有任何预测记录</p>
+          <p className="text-muted-foreground mb-4">{t('no_prediction_records')}</p>
           <Button onClick={() => navigate('/')}>
-            开始预测
+            {t('start_prediction')}
           </Button>
         </CardContent>
       </Card>
@@ -804,7 +807,7 @@ const MyPredictions = () => {
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground -ml-2"
       >
         <ArrowLeft className="h-4 w-4" />
-        <span>返回</span>
+        <span>{t('back')}</span>
       </Button>
 
       {/* 用户资料卡片 - 专业简洁设计 */}
@@ -834,22 +837,22 @@ const MyPredictions = () => {
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>编辑个人资料</DialogTitle>
+                      <DialogTitle>{t('edit_profile')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-6 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="display-name">昵称</Label>
+                        <Label htmlFor="display-name">{t('nickname')}</Label>
                         <Input
                           id="display-name"
                           value={editDisplayName}
                           onChange={(e) => setEditDisplayName(e.target.value)}
-                          placeholder="输入你的昵称"
+                          placeholder={t('enter_nickname')}
                           maxLength={20}
                         />
                       </div>
                       
                       <div className="space-y-3">
-                        <Label>选择头像</Label>
+                        <Label>{t('select_avatar')}</Label>
                         <div className="grid grid-cols-3 gap-3">
                           {AVATAR_OPTIONS.map((avatar) => (
                             <button
@@ -883,14 +886,14 @@ const MyPredictions = () => {
                         className="flex-1"
                         onClick={() => setIsEditDialogOpen(false)}
                       >
-                        取消
+                        {t('cancel')}
                       </Button>
                       <Button
                         className="flex-1"
                         onClick={handleSaveProfile}
                         disabled={isSaving || !editDisplayName || !editDisplayName.trim()}
                       >
-                        {isSaving ? "保存中..." : "保存"}
+                        {isSaving ? t('saving') : t('save')}
                       </Button>
                     </div>
                   </DialogContent>
@@ -899,9 +902,9 @@ const MyPredictions = () => {
               
               <div>
                 <h2 className="text-xl font-bold text-foreground">
-                  {userProfile?.display_name || '玩家'}
+                  {userProfile?.display_name || t('player')}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-0.5">预测玩家</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{t('prediction_player')}</p>
               </div>
             </div>
             
@@ -910,7 +913,7 @@ const MyPredictions = () => {
               <div className="text-3xl font-bold text-foreground font-mono">
                 <AnimatedWinRate value={stats?.winRate || 0} />%
               </div>
-              <p className="text-xs text-muted-foreground">胜率</p>
+              <p className="text-xs text-muted-foreground">{t('win_rate_label')}</p>
             </div>
           </div>
         </div>
@@ -919,23 +922,23 @@ const MyPredictions = () => {
         <div className="grid grid-cols-4 divide-x divide-border">
           <div className="p-4 text-center">
             <p className="text-2xl font-bold text-foreground font-mono">{stats?.totalPredictions || 0}</p>
-            <p className="text-xs text-muted-foreground mt-1">总预测</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('total_predictions_stat')}</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-2xl font-bold text-success font-mono">{stats?.correctPredictions || 0}</p>
-            <p className="text-xs text-muted-foreground mt-1">正确</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('correct_result')}</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-2xl font-bold text-destructive font-mono">
               {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">错误</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('wrong_result')}</p>
           </div>
           <div className="p-4 text-center">
             <p className={`text-2xl font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
               {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">盈亏</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('profit_loss_label')}</p>
           </div>
         </div>
 
@@ -948,7 +951,7 @@ const MyPredictions = () => {
                 <Wallet className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">虚拟钱包余额</p>
+                <p className="text-xs text-muted-foreground">{t('virtual_wallet_balance')}</p>
                 <p className="text-xl font-bold text-foreground font-mono">
                   ${stats?.balance?.toLocaleString() || 10000}
                 </p>
@@ -963,7 +966,7 @@ const MyPredictions = () => {
                 <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">USDT钱包余额</p>
+                <p className="text-xs text-muted-foreground">{t('usdt_wallet_balance')}</p>
                 <p className="text-xl font-bold text-foreground font-mono flex items-center gap-1">
                   <span className="text-[#26A17B]">{usdtBalance.toFixed(2)}</span>
                   <span className="text-sm text-muted-foreground">USDT</span>
@@ -976,7 +979,7 @@ const MyPredictions = () => {
               trigger={
                 <Button variant="outline" size="sm" className="flex items-center gap-2 border-[#26A17B]/30 hover:bg-[#26A17B]/10">
                   <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4 h-4" />
-                  充值
+                  {t('usdt_deposit')}
                 </Button>
               }
             />
@@ -989,7 +992,7 @@ const MyPredictions = () => {
         className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg"
         onClick={() => navigate('/')}
       >
-        开始预测
+        {t('start_prediction')}
       </Button>
 
       {/* 胜率趋势图表 */}
@@ -1000,11 +1003,11 @@ const MyPredictions = () => {
         <TabsList className="grid w-full grid-cols-2 h-12">
           <TabsTrigger value="history" className="flex items-center gap-2 text-sm">
             <History className="h-4 w-4" />
-            历史纪录
+            {t('history_records')}
           </TabsTrigger>
           <TabsTrigger value="copy-trade" className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4" />
-            跟单
+            {t('copy_trade_tab')}
           </TabsTrigger>
         </TabsList>
 
@@ -1017,29 +1020,28 @@ const MyPredictions = () => {
         <TabsContent value="copy-trade" className="mt-4">
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="p-4 border-b border-border">
-              <h3 className="font-semibold text-foreground">跟单记录</h3>
-              <p className="text-xs text-muted-foreground mt-1">您跟随其他玩家的预测</p>
+              <h3 className="font-semibold text-foreground">{t('copy_trade_records_title')}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{t('following_other_players')}</p>
             </div>
             
             {copyTradeRecords.length > 0 ? (
               <>
-                {/* 跟单统计 - 更清晰的数据展示 */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border border-b border-border">
                   <div className="p-4 text-center">
                     <p className="text-2xl font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">跟单次数</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('copy_trade_count')}</p>
                   </div>
                   <div className="p-4 text-center">
                     <p className="text-2xl font-bold font-mono text-foreground">
                       ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">总投入</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_investment')}</p>
                   </div>
                   <div className="p-4 text-center">
                     <p className="text-2xl font-bold font-mono text-success">
                       ${copyTradeRecords.filter(r => r.result === 'win').reduce((sum, r) => sum + r.bet_amount + r.pnl, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">赢得金额</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('won_amount')}</p>
                   </div>
                   <div className="p-4 text-center">
                     <p className={`text-2xl font-bold font-mono ${
@@ -1048,20 +1050,19 @@ const MyPredictions = () => {
                       {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
                       ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">净盈亏</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('net_profit_loss')}</p>
                   </div>
                 </div>
 
-                {/* 跟单列表 - 表格形式更清晰 */}
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">跟单对象</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">比赛</th>
-                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">跟注金额</th>
-                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">盈亏</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">结果</th>
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('followed_player')}</th>
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('match_column')}</th>
+                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('follow_amount')}</th>
+                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('profit_loss_label')}</th>
+                        <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">{t('result_column')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1087,28 +1088,23 @@ const MyPredictions = () => {
                             <p className="text-sm font-mono font-bold text-foreground">${record.bet_amount}</p>
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <p className={`text-sm font-mono font-bold ${
-                              record.pnl >= 0 ? 'text-success' : 'text-destructive'
-                            }`}>
+                            <p className={`text-sm font-mono font-bold ${record.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
                               {record.pnl >= 0 ? '+' : ''}${record.pnl}
                             </p>
-                            {record.result === 'win' && (
-                              <p className="text-[10px] text-success">赢 ${record.bet_amount + record.pnl}</p>
-                            )}
                           </td>
                           <td className="py-3 px-4 text-center">
                             {record.result === 'win' ? (
                               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
                                 <CheckCircle2 className="h-3 w-3" />
-                                正确
+                                {t('correct_result')}
                               </span>
                             ) : record.result === 'loss' ? (
                               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
                                 <XCircle className="h-3 w-3" />
-                                错误
+                                {t('wrong_result')}
                               </span>
                             ) : (
-                              <span className="text-xs text-muted-foreground">进行中</span>
+                              <span className="text-xs text-muted-foreground">{t('pending_status')}</span>
                             )}
                           </td>
                         </tr>
@@ -1120,10 +1116,10 @@ const MyPredictions = () => {
             ) : (
               <div className="p-8 text-center">
                 <Users className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-                <p className="text-muted-foreground mb-1">暂无跟单记录</p>
-                <p className="text-xs text-muted-foreground mb-4">前往排行榜跟单其他玩家</p>
+                <p className="text-muted-foreground mb-1">{t('no_copy_trade_records')}</p>
+                <p className="text-xs text-muted-foreground mb-4">{t('go_to_leaderboard')}</p>
                 <Button variant="outline" size="sm" onClick={() => navigate('/leaderboard')}>
-                  查看排行榜
+                  {t('view_leaderboard')}
                 </Button>
               </div>
             )}
