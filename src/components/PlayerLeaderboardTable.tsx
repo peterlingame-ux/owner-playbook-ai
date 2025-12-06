@@ -591,21 +591,21 @@ const PlayerLeaderboardTable = () => {
       {/* Leaderboard Table - Split into Hot Streak vs Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Left Column: 连红榜 (Hot Streak) */}
-        <Card className="border-success/40 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
+        <Card className="border-destructive/40 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-success/30 to-success/20">
-                <TrendingUp className="h-5 w-5 text-success" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-destructive/30 to-destructive/20">
+                <TrendingUp className="h-5 w-5 text-destructive" />
               </div>
               <div>
-                <h3 className="font-bold text-lg bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{t('hot_streak_board') || '连红榜'}</h3>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-destructive to-red-500 bg-clip-text text-transparent">{t('hot_streak_board') || '连红榜'}</h3>
                 <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜玩家'}</p>
               </div>
             </div>
             <div className="space-y-2">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-success" />
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive" />
                 </div>
               ) : (
                 [...allPlayers]
@@ -616,7 +616,7 @@ const PlayerLeaderboardTable = () => {
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
                       user && player.id === user.id 
-                        ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
+                        ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
                         : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                     onClick={() => navigate(`/player/${player.id}`)}
@@ -634,7 +634,7 @@ const PlayerLeaderboardTable = () => {
                           index + 1
                         )}
                       </div>
-                      <Avatar className="w-10 h-10 border-2 border-success/40 flex-shrink-0">
+                      <Avatar className="w-10 h-10 border-2 border-destructive/40 flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
@@ -642,7 +642,7 @@ const PlayerLeaderboardTable = () => {
                         <p className="font-semibold text-sm truncate">{player.displayName}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
-                            <span className="text-success font-bold">🔥 {player.currentStreak || 0}</span>
+                            <span className="text-destructive font-bold">🔥 {player.currentStreak || 0}</span>
                             <span className="text-muted-foreground/70">{t('current_streak') || '连红'}</span>
                           </span>
                           <span className="text-border">|</span>
@@ -663,7 +663,7 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-2 border border-success/20 flex items-center gap-1"
+                      className="text-xs px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-2 border border-destructive/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/history?tab=player&player=${player.id}`);
@@ -680,21 +680,21 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Right Column: 连黑榜 (Cold Streak) */}
-        <Card className="border-destructive/40 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent">
+        <Card className="border-success/40 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-destructive/30 to-destructive/20">
-                <TrendingDown className="h-5 w-5 text-destructive" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-success/30 to-success/20">
+                <TrendingDown className="h-5 w-5 text-success" />
               </div>
               <div>
-                <h3 className="font-bold text-lg bg-gradient-to-r from-destructive to-red-500 bg-clip-text text-transparent">{t('cold_streak_board') || '连黑榜'}</h3>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{t('cold_streak_board') || '连黑榜'}</h3>
                 <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连黑玩家'}</p>
               </div>
             </div>
             <div className="space-y-2">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive" />
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-success" />
                 </div>
               ) : (
                 [...allPlayers]
@@ -705,21 +705,21 @@ const PlayerLeaderboardTable = () => {
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
                       user && player.id === user.id 
-                        ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
+                        ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
                         : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-destructive/30 text-destructive' :
-                        index === 1 ? 'bg-destructive/20 text-destructive/80' :
-                        index === 2 ? 'bg-destructive/10 text-destructive/60' :
+                        index === 0 ? 'bg-success/30 text-success' :
+                        index === 1 ? 'bg-success/20 text-success/80' :
+                        index === 2 ? 'bg-success/10 text-success/60' :
                         'bg-muted text-muted-foreground'
                       }`}>
                         {index + 1}
                       </div>
-                      <Avatar className="w-10 h-10 border-2 border-destructive/40 flex-shrink-0">
+                      <Avatar className="w-10 h-10 border-2 border-success/40 flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
@@ -727,7 +727,7 @@ const PlayerLeaderboardTable = () => {
                         <p className="font-semibold text-sm truncate">{player.displayName}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
-                            <span className="text-destructive font-bold">💀 {player.worstStreak || 0}</span>
+                            <span className="text-success font-bold">💀 {player.worstStreak || 0}</span>
                             <span className="text-muted-foreground/70">{t('worst_streak') || '连黑'}</span>
                           </span>
                           <span className="text-border">|</span>
@@ -748,7 +748,7 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-2 border border-destructive/20 flex items-center gap-1"
+                      className="text-xs px-3 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-2 border border-success/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/history?tab=player&player=${player.id}`);
