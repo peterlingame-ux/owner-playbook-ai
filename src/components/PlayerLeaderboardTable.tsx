@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -508,13 +508,14 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20"
+                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                        navigate(`/history?tab=player&player=${player.id}`);
                       }}
                     >
-                      {t('today_recommendations') || '今日推荐'}
+                      {t('today_prediction') || '今日预测'}
+                      <ExternalLink className="h-3 w-3" />
                     </button>
                   </div>
                 ))
@@ -584,13 +585,14 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20"
+                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                        navigate(`/history?tab=player&player=${player.id}`);
                       }}
                     >
-                      {t('today_recommendations') || '今日推荐'}
+                      {t('today_prediction') || '今日预测'}
+                      <ExternalLink className="h-3 w-3" />
                     </button>
                   </div>
                 ))
