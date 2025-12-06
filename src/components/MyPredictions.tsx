@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, Calendar } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, Calendar, BarChart3 } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
+import { format, subDays, startOfDay } from "date-fns";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 interface UserProfile {
   display_name: string;
@@ -75,6 +76,111 @@ const AVATAR_OPTIONS = [
   '/avatars/avatar-8.png',
   '/avatars/avatar-9.png',
 ];
+
+// 胜率趋势图表组件
+const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: string; created_at: string }> }) => {
+  const chartData = useMemo(() => {
+    if (!predictions || predictions.length === 0) {
+      // 生成示例数据
+      return Array.from({ length: 7 }, (_, i) => ({
+        date: format(subDays(new Date(), 6 - i), 'MM/dd'),
+        winRate: Math.round(50 + Math.random() * 30),
+        wins: Math.floor(Math.random() * 5),
+        total: Math.floor(3 + Math.random() * 5),
+      }));
+    }
+
+    // 按日期分组预测
+    const dateGroups = new Map<string, { wins: number; total: number }>();
+    
+    predictions.forEach(pred => {
+      if (pred.result === 'pending') return;
+      const dateKey = format(new Date(pred.created_at), 'MM/dd');
+      const current = dateGroups.get(dateKey) || { wins: 0, total: 0 };
+      current.total += 1;
+      if (pred.result === 'win') current.wins += 1;
+      dateGroups.set(dateKey, current);
+    });
+
+    // 获取最近7天
+    const days = Array.from({ length: 7 }, (_, i) => format(subDays(new Date(), 6 - i), 'MM/dd'));
+    
+    let cumulativeWins = 0;
+    let cumulativeTotal = 0;
+    
+    return days.map(date => {
+      const dayData = dateGroups.get(date) || { wins: 0, total: 0 };
+      cumulativeWins += dayData.wins;
+      cumulativeTotal += dayData.total;
+      const winRate = cumulativeTotal > 0 ? Math.round((cumulativeWins / cumulativeTotal) * 100) : 0;
+      
+      return {
+        date,
+        winRate,
+        wins: dayData.wins,
+        total: dayData.total,
+      };
+    });
+  }, [predictions]);
+
+  return (
+    <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            胜率趋势
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">近7天累计胜率变化</p>
+        </div>
+      </div>
+      <div className="p-4">
+        <div className="h-[160px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="winRateGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis 
+                dataKey="date" 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+              />
+              <YAxis 
+                domain={[0, 100]}
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                }}
+                formatter={(value: number) => [`${value}%`, '胜率']}
+                labelStyle={{ color: 'hsl(var(--foreground))' }}
+              />
+              <Area
+                type="monotone"
+                dataKey="winRate"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                fill="url(#winRateGradient)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MyPredictions = () => {
   const { t } = useTranslation();
@@ -578,6 +684,9 @@ const MyPredictions = () => {
           </div>
         </div>
       </div>
+
+      {/* 胜率趋势图表 */}
+      <WinRateTrendChart predictions={stats?.recentPredictions || []} />
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
