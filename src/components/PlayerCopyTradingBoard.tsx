@@ -544,7 +544,7 @@ const PlayerCopyTradingBoard = () => {
       {!isLoading && topStreakPlayers.length > 0 && worstStreakPlayers.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Top Winner Card - 连红榜第一名 */}
-          <Card className="relative overflow-hidden border-destructive/30">
+          <Card className="relative overflow-hidden border-destructive/30 animate-fade-in hover:scale-[1.02] transition-transform duration-300" style={{ animationDelay: '100ms' }}>
             {/* Background */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-30"
@@ -555,7 +555,7 @@ const PlayerCopyTradingBoard = () => {
             
             <CardContent className="p-4 sm:p-6 relative z-10">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 rounded-lg bg-destructive/30">
+                <div className="p-1.5 rounded-lg bg-destructive/30 animate-pulse">
                   <Flame className="h-4 w-4 text-destructive" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-white/80">{t('hot_streak_champion') || '连红冠军'}</h3>
@@ -684,7 +684,7 @@ const PlayerCopyTradingBoard = () => {
           </Card>
 
           {/* Top Loser Card - 连黑榜第一名 */}
-          <Card className="relative overflow-hidden border-success/30">
+          <Card className="relative overflow-hidden border-success/30 animate-fade-in hover:scale-[1.02] transition-transform duration-300" style={{ animationDelay: '500ms' }}>
             {/* Background */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-30"
@@ -695,7 +695,7 @@ const PlayerCopyTradingBoard = () => {
             
             <CardContent className="p-4 sm:p-6 relative z-10">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 rounded-lg bg-success/30">
+                <div className="p-1.5 rounded-lg bg-success/30 animate-pulse">
                   <Skull className="h-4 w-4 text-success" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-white/80">{t('cold_streak_champion') || '连黑冠军'}</h3>
