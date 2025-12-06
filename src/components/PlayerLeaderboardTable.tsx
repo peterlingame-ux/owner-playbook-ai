@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy } from "lucide-react";
+import { ArrowDown, Trophy, History } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,13 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import grassTexture from "@/assets/grass-texture.jpg";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { format } from "date-fns";
 
 interface PlayerData {
   id: string;
@@ -25,6 +32,20 @@ interface PlayerData {
   bestStreak?: number;
   currentStreak?: number;
   worstStreak?: number;
+  isVirtual?: boolean;
+}
+
+interface TodayPrediction {
+  id: string;
+  match_id: string;
+  prediction: string;
+  prediction_type: string;
+  bet_amount: number;
+  potential_payout: number | null;
+  result: string | null;
+  actual_payout: number | null;
+  created_at: string;
+  match_date: string;
 }
 
 const PlayerLeaderboardTable = () => {
@@ -32,6 +53,10 @@ const PlayerLeaderboardTable = () => {
   const navigate = useNavigate();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
+  const [selectedPlayerHistory, setSelectedPlayerHistory] = useState<{ playerId: string; playerName: string; predictions: TodayPrediction[] } | null>(null);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -42,7 +67,8 @@ const PlayerLeaderboardTable = () => {
         // 将虚拟玩家转换为 PlayerData 格式
         const virtualPlayersData: PlayerData[] = virtualPlayers.map((player, index) => ({
           ...player,
-          rank: index + 1
+          rank: index + 1,
+          isVirtual: true
         }));
         
         // 获取所有用户的基本信息
@@ -127,7 +153,8 @@ const PlayerLeaderboardTable = () => {
             rank: 0,
             bestStreak,
             currentStreak,
-            worstStreak
+            worstStreak,
+            isVirtual: false
           };
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
@@ -148,7 +175,8 @@ const PlayerLeaderboardTable = () => {
         // 出错时使用虚拟玩家
         const virtualPlayersData: PlayerData[] = virtualPlayers.map((player, index) => ({
           ...player,
-          rank: index + 1
+          rank: index + 1,
+          isVirtual: true
         }));
         setAllPlayers(virtualPlayersData);
       } finally {
@@ -196,6 +224,111 @@ const PlayerLeaderboardTable = () => {
       supabase.removeChannel(balancesChannel);
     };
   }, []);
+
+  // 获取今日胜率数据
+  useEffect(() => {
+    const fetchTodayWinRates = async () => {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString();
+
+        // 查询今日的 user_predictions
+        const { data, error } = await supabase
+          .from('user_predictions')
+          .select('user_id, result')
+          .gte('created_at', todayStr);
+
+        if (error) {
+          console.error('Error fetching today predictions:', error);
+          return;
+        }
+
+        // 计算每个用户的今日胜率
+        const todayStats = new Map<string, { total: number; correct: number }>();
+        
+        if (data) {
+          data.forEach((pred: any) => {
+            const userId = pred.user_id;
+            if (!todayStats.has(userId)) {
+              todayStats.set(userId, { total: 0, correct: 0 });
+            }
+            const stats = todayStats.get(userId)!;
+            if (pred.result === 'win' || pred.result === 'loss') {
+              stats.total++;
+              if (pred.result === 'win') {
+                stats.correct++;
+              }
+            }
+          });
+        }
+
+        const todayWinRatesMap = new Map<string, { winRate: number; total: number; correct: number }>();
+        todayStats.forEach((stats, odayStr) => {
+          const winRate = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
+          todayWinRatesMap.set(odayStr, { winRate, total: stats.total, correct: stats.correct });
+        });
+
+        setTodayWinRates(todayWinRatesMap);
+      } catch (error) {
+        console.error('Error fetching today win rates:', error);
+      }
+    };
+
+    fetchTodayWinRates();
+  }, []);
+
+  // 获取指定玩家的今日历史记录
+  const fetchTodayHistory = async (playerId: string, playerName: string, isVirtual: boolean) => {
+    if (isVirtual) {
+      // 虚拟玩家没有真实记录
+      setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
+      setIsHistoryDialogOpen(true);
+      return;
+    }
+
+    setIsLoadingHistory(true);
+    setIsHistoryDialogOpen(true);
+    
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString();
+
+      const { data, error } = await supabase
+        .from('user_predictions')
+        .select('*')
+        .eq('user_id', playerId)
+        .gte('created_at', todayStr)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching today history:', error);
+        setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
+        return;
+      }
+
+      const predictions: TodayPrediction[] = (data || []).map((pred: any) => ({
+        id: pred.id,
+        match_id: pred.match_id,
+        prediction: pred.prediction,
+        prediction_type: pred.prediction_type,
+        bet_amount: pred.bet_amount,
+        potential_payout: pred.potential_payout,
+        result: pred.result,
+        actual_payout: pred.actual_payout,
+        created_at: pred.created_at,
+        match_date: pred.match_date,
+      }));
+
+      setSelectedPlayerHistory({ playerId, playerName, predictions });
+    } catch (error) {
+      console.error('Error fetching today history:', error);
+      setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const getRankColor = (rank: number) => {
     switch(rank) {
@@ -259,18 +392,24 @@ const PlayerLeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
+                      <div className="flex items-center justify-center gap-1">
+                        {t('today_win_rate') || '今日胜率'}
+                        <History className="h-3 w-3" />
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                         {t('loading')}...
                       </TableCell>
                     </TableRow>
                   ) : allPlayers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                         {t('no_data')}
                       </TableCell>
                     </TableRow>
@@ -345,6 +484,54 @@ const PlayerLeaderboardTable = () => {
                           }`}>
                             {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(2)}%
                           </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          {(() => {
+                            const todayData = todayWinRates.get(player.id);
+                            const todayWinRate = todayData?.winRate ?? 0;
+                            const todayTotal = todayData?.total ?? 0;
+                            
+                            // 虚拟玩家显示模拟数据
+                            if (player.isVirtual) {
+                              return (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    fetchTodayHistory(player.id, player.displayName, true);
+                                  }}
+                                  className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
+                                  title={t('click_to_view_history') || '点击查看今日记录'}
+                                >
+                                  <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                                    -
+                                  </span>
+                                  <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors">
+                                    {t('no_data_today') || '暂无'}
+                                  </span>
+                                </button>
+                              );
+                            }
+                            
+                            return (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  fetchTodayHistory(player.id, player.displayName, false);
+                                }}
+                                className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
+                                title={t('click_to_view_history') || '点击查看今日记录'}
+                              >
+                                <span className={`font-mono-data font-bold text-sm sm:text-base ${
+                                  todayTotal === 0 ? 'text-muted-foreground' : todayWinRate >= 50 ? 'text-success' : 'text-destructive'
+                                }`}>
+                                  {todayTotal > 0 ? `${todayWinRate.toFixed(1)}%` : '-'}
+                                </span>
+                                <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors">
+                                  {todayTotal > 0 ? `${todayData?.correct}/${todayTotal}` : t('no_data_today') || '暂无'}
+                                </span>
+                              </button>
+                            );
+                          })()}
                         </TableCell>
                       </TableRow>
                     ))
@@ -472,6 +659,96 @@ const PlayerLeaderboardTable = () => {
           </Card>
         </div>
       )}
+
+      {/* Today History Dialog */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              {selectedPlayerHistory?.playerName} - {t('today_history') || '今日记录'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="overflow-y-auto max-h-[60vh] pr-2">
+            {isLoadingHistory ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              </div>
+            ) : selectedPlayerHistory?.predictions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {t('no_history_today') || '今日暂无记录'}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {selectedPlayerHistory?.predictions.map((pred) => (
+                  <div 
+                    key={pred.id}
+                    className={`p-3 rounded-lg border ${
+                      pred.result === 'win' 
+                        ? 'bg-success/10 border-success/30' 
+                        : pred.result === 'loss'
+                          ? 'bg-destructive/10 border-destructive/30'
+                          : 'bg-muted/30 border-border/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-sm">
+                        {t('match')}: {pred.match_id}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        pred.result === 'win'
+                          ? 'bg-success/20 text-success'
+                          : pred.result === 'loss'
+                            ? 'bg-destructive/20 text-destructive'
+                            : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {pred.result === 'win' 
+                          ? t('win') || '胜' 
+                          : pred.result === 'loss' 
+                            ? t('loss') || '负'
+                            : t('pending') || '进行中'}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">{t('bet_type') || '类型'}:</span>
+                        <span className="ml-1 font-medium">{pred.prediction_type}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t('prediction') || '预测'}:</span>
+                        <span className="ml-1 font-medium">{pred.prediction}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t('bet_amount') || '金额'}:</span>
+                        <span className="ml-1 font-medium">${pred.bet_amount}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t('potential_return') || '预期回报'}:</span>
+                        <span className="ml-1 font-medium">${pred.potential_payout?.toFixed(2) || '-'}</span>
+                      </div>
+                    </div>
+                    
+                    {pred.result && pred.actual_payout !== null && (
+                      <div className="mt-2 pt-2 border-t border-border/30">
+                        <span className="text-xs text-muted-foreground">{t('profit_loss') || '盈亏'}:</span>
+                        <span className={`ml-1 font-bold ${(pred.actual_payout - pred.bet_amount) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          {(pred.actual_payout - pred.bet_amount) >= 0 ? '+' : ''}${(pred.actual_payout - pred.bet_amount).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="mt-1 text-[10px] text-muted-foreground">
+                      {format(new Date(pred.created_at), 'HH:mm')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
