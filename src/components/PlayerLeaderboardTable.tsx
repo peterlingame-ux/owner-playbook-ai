@@ -588,50 +588,53 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
       )}
-      {/* Leaderboard Table - Split into two columns */}
+      {/* Leaderboard Table - Split into Hot Streak vs Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Left Column: Rank 1-10 */}
-        <Card className="border-yellow-500/40 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-transparent">
+        {/* Left Column: 连红榜 (Hot Streak) */}
+        <Card className="border-success/40 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-yellow-500/30 to-orange-500/20">
-                <Trophy className="h-5 w-5 text-yellow-500" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-success/30 to-success/20">
+                <TrendingUp className="h-5 w-5 text-success" />
               </div>
               <div>
-                <h3 className="font-bold text-lg bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{t('top_10') || '前10名'}</h3>
-                <p className="text-xs text-muted-foreground">{t('highest_win_rate') || '最高胜率玩家'}</p>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{t('hot_streak_board') || '连红榜'}</h3>
+                <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜玩家'}</p>
               </div>
             </div>
             <div className="space-y-2">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-success" />
                 </div>
               ) : (
-                allPlayers.slice(0, 10).map((player, index) => (
+                [...allPlayers]
+                  .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
+                  .slice(0, 10)
+                  .map((player, index) => (
                   <div 
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
                       user && player.id === user.id 
-                        ? 'bg-primary/20 border-2 border-primary/40 hover:bg-primary/30' 
+                        ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
                         : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                        player.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
-                        player.rank === 2 ? 'bg-gray-400/20 text-gray-400' :
-                        player.rank === 3 ? 'bg-orange-600/20 text-orange-600' :
+                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
+                        index === 2 ? 'bg-orange-600/20 text-orange-600' :
                         'bg-muted text-muted-foreground'
                       }`}>
-                        {player.rank <= 3 ? (
-                          <Trophy className="h-3.5 w-3.5" style={{ color: getRankColor(player.rank) }} />
+                        {index < 3 ? (
+                          <Trophy className="h-3.5 w-3.5" style={{ color: getRankColor(index + 1) }} />
                         ) : (
-                          player.rank
+                          index + 1
                         )}
                       </div>
-                      <Avatar className="w-10 h-10 border-2 border-border/40 flex-shrink-0">
+                      <Avatar className="w-10 h-10 border-2 border-success/40 flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
@@ -639,15 +642,15 @@ const PlayerLeaderboardTable = () => {
                         <p className="font-semibold text-sm truncate">{player.displayName}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
+                            <span className="text-success font-bold">🔥 {player.currentStreak || 0}</span>
+                            <span className="text-muted-foreground/70">{t('current_streak') || '连红'}</span>
+                          </span>
+                          <span className="text-border">|</span>
+                          <span className="flex items-center gap-1">
                             <span className="text-muted-foreground/70">{t('win_rate')}:</span>
                             <span className={player.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
                               {player.winRate.toFixed(1)}%
                             </span>
-                          </span>
-                          <span className="text-border">|</span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">{t('predictions')}:</span>
-                            <span className="font-medium">{player.totalPredictions}</span>
                           </span>
                           <span className="text-border">|</span>
                           <span className="flex items-center gap-1">
@@ -660,7 +663,7 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20 flex items-center gap-1"
+                      className="text-xs px-3 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-2 border border-success/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/history?tab=player&player=${player.id}`);
@@ -676,43 +679,47 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Right Column: Rank 11-20 */}
-        <Card className="border-sky-500/40 bg-gradient-to-br from-sky-500/10 via-blue-500/5 to-transparent">
+        {/* Right Column: 连黑榜 (Cold Streak) */}
+        <Card className="border-destructive/40 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-sky-500/30 to-blue-500/20">
-                <Trophy className="h-5 w-5 text-sky-500" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-destructive/30 to-destructive/20">
+                <TrendingDown className="h-5 w-5 text-destructive" />
               </div>
               <div>
-                <h3 className="font-bold text-lg bg-gradient-to-r from-sky-500 to-blue-500 bg-clip-text text-transparent">{t('rank_11_20') || '11-20名'}</h3>
-                <p className="text-xs text-muted-foreground">{t('rising_players') || '潜力玩家'}</p>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-destructive to-red-500 bg-clip-text text-transparent">{t('cold_streak_board') || '连黑榜'}</h3>
+                <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连黑玩家'}</p>
               </div>
             </div>
             <div className="space-y-2">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                </div>
-              ) : allPlayers.length <= 10 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {t('no_more_players') || '暂无更多玩家'}
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive" />
                 </div>
               ) : (
-                allPlayers.slice(10, 20).map((player, index) => (
+                [...allPlayers]
+                  .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
+                  .slice(0, 10)
+                  .map((player, index) => (
                   <div 
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
                       user && player.id === user.id 
-                        ? 'bg-primary/20 border-2 border-primary/40 hover:bg-primary/30' 
+                        ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
                         : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-muted text-muted-foreground">
-                        {player.rank}
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                        index === 0 ? 'bg-destructive/30 text-destructive' :
+                        index === 1 ? 'bg-destructive/20 text-destructive/80' :
+                        index === 2 ? 'bg-destructive/10 text-destructive/60' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {index + 1}
                       </div>
-                      <Avatar className="w-10 h-10 border-2 border-border/40 flex-shrink-0">
+                      <Avatar className="w-10 h-10 border-2 border-destructive/40 flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
@@ -720,15 +727,15 @@ const PlayerLeaderboardTable = () => {
                         <p className="font-semibold text-sm truncate">{player.displayName}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
+                            <span className="text-destructive font-bold">💀 {player.worstStreak || 0}</span>
+                            <span className="text-muted-foreground/70">{t('worst_streak') || '连黑'}</span>
+                          </span>
+                          <span className="text-border">|</span>
+                          <span className="flex items-center gap-1">
                             <span className="text-muted-foreground/70">{t('win_rate')}:</span>
                             <span className={player.winRate >= 50 ? 'text-success font-medium' : 'text-destructive font-medium'}>
                               {player.winRate.toFixed(1)}%
                             </span>
-                          </span>
-                          <span className="text-border">|</span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">{t('predictions')}:</span>
-                            <span className="font-medium">{player.totalPredictions}</span>
                           </span>
                           <span className="text-border">|</span>
                           <span className="flex items-center gap-1">
@@ -741,7 +748,7 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-2 border border-primary/20 flex items-center gap-1"
+                      className="text-xs px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-2 border border-destructive/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/history?tab=player&player=${player.id}`);
