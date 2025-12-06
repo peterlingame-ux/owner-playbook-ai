@@ -389,7 +389,7 @@ const LeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
                       <div className="flex items-center justify-center gap-1">
-                        {t('today_win_rate') || '今日胜率'}
+                        {t('today_prediction_win_rate') || '今日预测胜率'}
                         <History className="h-3 w-3" />
                       </div>
                     </TableHead>
