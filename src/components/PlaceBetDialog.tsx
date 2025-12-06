@@ -620,21 +620,19 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                                 </span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                              <div className="flex -space-x-1.5">
-                                {m.ai_models.slice(0, 5).map((model, idx) => (
-                                  <img 
-                                    key={idx}
-                                    src={AI_ICONS[model] || gpt5Icon} 
-                                    alt={model}
-                                    className="w-5 h-5 rounded-full border border-background object-cover"
-                                    title={model}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-[10px] text-muted-foreground ml-1">
-                                {m.ai_count}AI
-                              </span>
+                            <div className="flex items-center gap-0.5 shrink-0">
+                              {m.ai_models.slice(0, 5).map((model, idx) => (
+                                <img 
+                                  key={idx}
+                                  src={AI_ICONS[model] || gpt5Icon} 
+                                  alt={model}
+                                  className="w-3.5 h-3.5 rounded-full object-cover"
+                                  title={model}
+                                />
+                              ))}
+                              {m.ai_models.length > 5 && (
+                                <span className="text-[9px] text-muted-foreground">+{m.ai_models.length - 5}</span>
+                              )}
                             </div>
                           </div>
                         </div>
