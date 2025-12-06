@@ -147,7 +147,7 @@ const UserModelCard = () => {
                 </motion.div>
                 <div className="min-w-0 flex-1 text-center sm:text-left">
                   <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
-                    我的专属模型
+                    {t('demo_player') || '体验玩家'}
                   </h3>
                 </div>
               </div>
@@ -288,7 +288,7 @@ const UserModelCard = () => {
               </motion.div>
               <div className="min-w-0 flex-1 text-center sm:text-left">
                 <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
-                  {userProfile?.display_name || '我的模型'}
+                  {userProfile?.display_name ? `${userProfile.display_name}的模型` : t('my_exclusive_model') || '我的专属模型'}
                 </h3>
               </div>
             </div>
