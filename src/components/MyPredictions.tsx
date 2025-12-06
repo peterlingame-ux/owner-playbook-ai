@@ -874,7 +874,6 @@ const MyPredictions = () => {
         className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg"
         onClick={() => navigate('/')}
       >
-        <Target className="h-5 w-5 mr-2" />
         开始预测
       </Button>
 
