@@ -30,6 +30,7 @@ interface PlayerData {
   todayTotal?: number;
   todayCorrect?: number;
   todayWinRate?: number;
+  allowCopyTrade?: boolean;
 }
 
 interface TodayPrediction {
@@ -74,14 +75,17 @@ const PlayerCopyTradingBoard = () => {
         setIsLoading(true);
         const INITIAL_BALANCE = 10000;
         
-        // 将虚拟玩家转换为 PlayerData 格式
-        const virtualPlayersData: PlayerData[] = virtualPlayers.map((player) => ({
-          ...player,
-          bestStreak: player.bestStreak || 0,
-          worstStreak: player.worstStreak || 0,
-          currentStreak: 0,
-          isVirtual: true
-        }));
+        // 将虚拟玩家转换为 PlayerData 格式（只选择允许跟单的玩家）
+        const virtualPlayersData: PlayerData[] = virtualPlayers
+          .filter(player => player.allowCopyTrade !== false) // 只选择允许跟单的玩家
+          .map((player) => ({
+            ...player,
+            bestStreak: player.bestStreak || 0,
+            worstStreak: player.worstStreak || 0,
+            currentStreak: 0,
+            isVirtual: true,
+            allowCopyTrade: player.allowCopyTrade ?? true,
+          }));
         
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
@@ -165,7 +169,8 @@ const PlayerCopyTradingBoard = () => {
             bestStreak,
             worstStreak,
             currentStreak,
-            isVirtual: false
+            isVirtual: false,
+            allowCopyTrade: true, // 真实玩家默认允许跟单
           };
         }).filter(player => player.totalPredictions > 0);
         
@@ -174,13 +179,16 @@ const PlayerCopyTradingBoard = () => {
         setAllPlayers(combined);
       } catch (error) {
         console.error('Error fetching all players:', error);
-        const virtualPlayersData: PlayerData[] = virtualPlayers.map((player) => ({
-          ...player,
-          bestStreak: player.bestStreak || 0,
-          worstStreak: player.worstStreak || 0,
-          currentStreak: 0,
-          isVirtual: true
-        }));
+        const virtualPlayersData: PlayerData[] = virtualPlayers
+          .filter(player => player.allowCopyTrade !== false)
+          .map((player) => ({
+            ...player,
+            bestStreak: player.bestStreak || 0,
+            worstStreak: player.worstStreak || 0,
+            currentStreak: 0,
+            isVirtual: true,
+            allowCopyTrade: player.allowCopyTrade ?? true,
+          }));
         setAllPlayers(virtualPlayersData);
       } finally {
         setIsLoading(false);

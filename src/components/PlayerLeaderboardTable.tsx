@@ -38,6 +38,7 @@ interface PlayerData {
   currentStreak?: number;
   worstStreak?: number;
   isVirtual?: boolean;
+  isRecommender?: boolean;
 }
 
 interface TodayPrediction {
@@ -113,12 +114,15 @@ const PlayerLeaderboardTable = () => {
         setIsLoading(true);
         const INITIAL_BALANCE = 10000;
         
-        // 将虚拟玩家转换为 PlayerData 格式
-        const virtualPlayersData: PlayerData[] = virtualPlayers.map((player, index) => ({
-          ...player,
-          rank: index + 1,
-          isVirtual: true
-        }));
+        // 将虚拟玩家转换为 PlayerData 格式（只选择推荐者）
+        const virtualPlayersData: PlayerData[] = virtualPlayers
+          .filter(player => player.isRecommender !== false) // 只选择推荐者
+          .map((player, index) => ({
+            ...player,
+            rank: index + 1,
+            isVirtual: true,
+            isRecommender: player.isRecommender ?? true,
+          }));
         
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
@@ -203,7 +207,8 @@ const PlayerLeaderboardTable = () => {
             bestStreak,
             currentStreak,
             worstStreak,
-            isVirtual: false
+            isVirtual: false,
+            isRecommender: true, // 真实玩家默认都是推荐者
           };
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
@@ -221,12 +226,15 @@ const PlayerLeaderboardTable = () => {
         setAllPlayers(sortedPlayers);
       } catch (error) {
         console.error('Error fetching all players:', error);
-        // 出错时使用虚拟玩家
-        const virtualPlayersData: PlayerData[] = virtualPlayers.map((player, index) => ({
-          ...player,
-          rank: index + 1,
-          isVirtual: true
-        }));
+        // 出错时使用虚拟玩家（只选择推荐者）
+        const virtualPlayersData: PlayerData[] = virtualPlayers
+          .filter(player => player.isRecommender !== false)
+          .map((player, index) => ({
+            ...player,
+            rank: index + 1,
+            isVirtual: true,
+            isRecommender: player.isRecommender ?? true,
+          }));
         setAllPlayers(virtualPlayersData);
       } finally {
         setIsLoading(false);

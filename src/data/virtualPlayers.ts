@@ -10,6 +10,10 @@ export interface VirtualPlayer {
   changePercent: number;
   bestStreak?: number;
   worstStreak?: number;
+  // 是否开启跟单功能（用于跟单排行榜）
+  allowCopyTrade?: boolean;
+  // 是否为推荐者（用于推荐排行榜）
+  isRecommender?: boolean;
 }
 
 export const virtualPlayers: VirtualPlayer[] = [
@@ -25,6 +29,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 187.5,
     bestStreak: 12,
     worstStreak: 2,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-2',
@@ -38,6 +44,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 143.2,
     bestStreak: 10,
     worstStreak: 3,
+    allowCopyTrade: true,
+    isRecommender: false,
   },
   {
     id: 'virtual-3',
@@ -51,6 +59,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 118.9,
     bestStreak: 9,
     worstStreak: 3,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
   {
     id: 'virtual-4',
@@ -64,6 +74,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 96.5,
     bestStreak: 8,
     worstStreak: 4,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-5',
@@ -77,6 +89,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 84.2,
     bestStreak: 7,
     worstStreak: 4,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
   {
     id: 'virtual-6',
@@ -90,6 +104,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 72.8,
     bestStreak: 7,
     worstStreak: 5,
+    allowCopyTrade: true,
+    isRecommender: false,
   },
   {
     id: 'virtual-7',
@@ -103,6 +119,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 68.9,
     bestStreak: 6,
     worstStreak: 5,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-8',
@@ -116,6 +134,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 55.6,
     bestStreak: 6,
     worstStreak: 5,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
   {
     id: 'virtual-9',
@@ -129,6 +149,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 49.2,
     bestStreak: 5,
     worstStreak: 6,
+    allowCopyTrade: true,
+    isRecommender: false,
   },
   {
     id: 'virtual-10',
@@ -142,6 +164,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 41.8,
     bestStreak: 5,
     worstStreak: 6,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-11',
@@ -155,6 +179,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 36.5,
     bestStreak: 5,
     worstStreak: 6,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
   {
     id: 'virtual-12',
@@ -168,6 +194,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 31.2,
     bestStreak: 4,
     worstStreak: 7,
+    allowCopyTrade: true,
+    isRecommender: false,
   },
   {
     id: 'virtual-13',
@@ -181,6 +209,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 25.6,
     bestStreak: 4,
     worstStreak: 7,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-14',
@@ -194,6 +224,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 20.8,
     bestStreak: 4,
     worstStreak: 7,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
   {
     id: 'virtual-15',
@@ -207,6 +239,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 17.2,
     bestStreak: 4,
     worstStreak: 8,
+    allowCopyTrade: true,
+    isRecommender: false,
   },
   {
     id: 'virtual-16',
@@ -220,6 +254,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 13.5,
     bestStreak: 4,
     worstStreak: 8,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-17',
@@ -233,6 +269,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 9.8,
     bestStreak: 3,
     worstStreak: 8,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
   {
     id: 'virtual-18',
@@ -246,6 +284,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 6.5,
     bestStreak: 3,
     worstStreak: 9,
+    allowCopyTrade: true,
+    isRecommender: false,
   },
   {
     id: 'virtual-19',
@@ -259,6 +299,8 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 3.2,
     bestStreak: 3,
     worstStreak: 9,
+    allowCopyTrade: true,
+    isRecommender: true,
   },
   {
     id: 'virtual-20',
@@ -272,5 +314,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     changePercent: 0.5,
     bestStreak: 3,
     worstStreak: 9,
+    allowCopyTrade: false,
+    isRecommender: true,
   },
 ];
