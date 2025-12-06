@@ -127,18 +127,18 @@ const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: strin
   const { t } = useTranslation();
   
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-border flex items-center justify-between">
+    <div className="bg-card border border-border rounded-lg overflow-hidden">
+      <div className="p-2 border-b border-border flex items-center justify-between">
         <div>
-          <h3 className="font-semibold text-foreground flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <BarChart3 className="h-3.5 w-3.5 text-primary" />
             {t('win_rate_trend')}
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">{t('last_7_days_cumulative')}</p>
+          <p className="text-[10px] text-muted-foreground">{t('last_7_days_cumulative')}</p>
         </div>
       </div>
-      <div className="p-4">
-        <div className="h-[160px]">
+      <div className="p-2">
+        <div className="h-[100px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs>
@@ -151,21 +151,21 @@ const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: strin
                 dataKey="date" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
               />
               <YAxis 
                 domain={[0, 100]}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
                 tickFormatter={(value) => `${value}%`}
               />
               <Tooltip 
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  fontSize: '12px',
+                  borderRadius: '6px',
+                  fontSize: '10px',
                 }}
                 formatter={(value: number) => [`${value}%`, '胜率']}
                 labelStyle={{ color: 'hsl(var(--foreground))' }}
@@ -174,7 +174,7 @@ const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: strin
                 type="monotone"
                 dataKey="winRate"
                 stroke="hsl(var(--primary))"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 fill="url(#winRateGradient)"
               />
             </AreaChart>
@@ -281,19 +281,19 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
   const totalProfit = filteredPredictions.reduce((sum, p) => sum + (p.actual_payout - p.bet_amount), 0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* 筛选器 */}
-      <div className="bg-card border border-border rounded-xl p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">{t('filter')}</span>
+      <div className="bg-card border border-border rounded-lg p-2">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Filter className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs font-medium">{t('filter')}</span>
         </div>
         
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="h-9 px-3 rounded-md border border-border bg-background text-sm"
+            className="h-7 px-2 rounded border border-border bg-background text-xs"
           >
             <option value="all">{t('all_types')}</option>
             <option value="prediction">{t('self_prediction')}</option>
@@ -303,7 +303,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
           <select
             value={filterResult}
             onChange={(e) => setFilterResult(e.target.value)}
-            className="h-9 px-3 rounded-md border border-border bg-background text-sm"
+            className="h-7 px-2 rounded border border-border bg-background text-xs"
           >
             <option value="all">{t('all_results')}</option>
             <option value="win">{t('correct_result')}</option>
@@ -313,7 +313,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
           <select
             value={filterPeriod}
             onChange={(e) => setFilterPeriod(e.target.value)}
-            className="h-9 px-3 rounded-md border border-border bg-background text-sm"
+            className="h-7 px-2 rounded border border-border bg-background text-xs"
           >
             <option value="all">{t('all_periods')}</option>
             <option value="7d">{t('last_7d')}</option>
@@ -323,47 +323,47 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
         </div>
 
         {/* 统计摘要 */}
-        <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-border">
+        <div className="grid grid-cols-4 gap-1 mt-2 pt-2 border-t border-border">
           <div className="text-center">
-            <p className="text-lg font-bold font-mono text-foreground">{totalPredictions}</p>
-            <p className="text-xs text-muted-foreground">{t('total_count')}</p>
+            <p className="text-sm font-bold font-mono text-foreground">{totalPredictions}</p>
+            <p className="text-[10px] text-muted-foreground">{t('total_count')}</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-bold font-mono text-success">{winCount}</p>
-            <p className="text-xs text-muted-foreground">{t('correct_result')}</p>
+            <p className="text-sm font-bold font-mono text-success">{winCount}</p>
+            <p className="text-[10px] text-muted-foreground">{t('correct_result')}</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-bold font-mono text-destructive">{lossCount}</p>
-            <p className="text-xs text-muted-foreground">{t('wrong_result')}</p>
+            <p className="text-sm font-bold font-mono text-destructive">{lossCount}</p>
+            <p className="text-[10px] text-muted-foreground">{t('wrong_result')}</p>
           </div>
           <div className="text-center">
-            <p className={`text-lg font-bold font-mono ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+            <p className={`text-sm font-bold font-mono ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
               {totalProfit >= 0 ? '+' : ''}{totalProfit.toFixed(0)}
             </p>
-            <p className="text-xs text-muted-foreground">{t('profit_loss_label')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('profit_loss_label')}</p>
           </div>
         </div>
       </div>
 
       {/* 历史记录表格 */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('type_column')}</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('date_column')}</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('match_column')}</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('prediction_column')}</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('bet_column')}</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('profit_loss_label')}</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">{t('result_column')}</th>
+                <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('type_column')}</th>
+                <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column')}</th>
+                <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
+                <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column')}</th>
+                <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_column')}</th>
+                <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
+                <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredPredictions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-muted-foreground">
+                  <td colSpan={7} className="text-center py-6 text-muted-foreground text-xs">
                     {t('no_records')}
                   </td>
                 </tr>
@@ -373,67 +373,67 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                   
                   return (
                     <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-4">
+                      <td className="py-1.5 px-2">
                         {pred.type === 'prediction' ? (
-                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                          <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
                             {t('prediction_label')}
                           </span>
                         ) : (
                           <div className="flex flex-col gap-0.5">
-                            <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
                               {t('copy_trade_type')}
                             </span>
                             {pred.followed_player_name && (
-                              <span className="text-[10px] text-muted-foreground">
+                              <span className="text-[9px] text-muted-foreground">
                                 {pred.followed_player_name}
                               </span>
                             )}
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-xs text-muted-foreground whitespace-nowrap">
+                      <td className="py-1.5 px-2 text-[10px] text-muted-foreground whitespace-nowrap">
                         {format(new Date(pred.created_at), 'MM-dd')}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2 min-w-[140px]">
+                      <td className="py-1.5 px-2">
+                        <div className="flex items-center gap-1 min-w-[100px]">
                           {pred.match?.home_logo && (
-                            <img src={pred.match.home_logo} alt="" className="w-4 h-4 object-contain" />
+                            <img src={pred.match.home_logo} alt="" className="w-3 h-3 object-contain" />
                           )}
-                          <span className="text-xs text-foreground truncate max-w-[80px]">
+                          <span className="text-[10px] text-foreground truncate max-w-[50px]">
                             {pred.match?.home_team_name || t('home_team')}
                           </span>
-                          <span className="text-xs text-muted-foreground">vs</span>
-                          <span className="text-xs text-foreground truncate max-w-[80px]">
+                          <span className="text-[10px] text-muted-foreground">vs</span>
+                          <span className="text-[10px] text-foreground truncate max-w-[50px]">
                             {pred.match?.away_team_name || t('away_team')}
                           </span>
                           {pred.match?.away_logo && (
-                            <img src={pred.match.away_logo} alt="" className="w-4 h-4 object-contain" />
+                            <img src={pred.match.away_logo} alt="" className="w-3 h-3 object-contain" />
                           )}
                         </div>
                         {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && (
-                          <div className="text-xs text-muted-foreground mt-0.5 font-mono">
+                          <div className="text-[10px] text-muted-foreground font-mono">
                             {pred.match.goals_home} : {pred.match.goals_away}
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-xs text-foreground">
+                      <td className="py-1.5 px-2 text-[10px] text-foreground">
                         {pred.prediction}
                       </td>
-                      <td className="py-3 px-4 text-right text-xs font-mono text-muted-foreground">
+                      <td className="py-1.5 px-2 text-right text-[10px] font-mono text-muted-foreground">
                         ${pred.bet_amount}
                       </td>
-                      <td className={`py-3 px-4 text-right text-xs font-mono font-bold ${
+                      <td className={`py-1.5 px-2 text-right text-[10px] font-mono font-bold ${
                         profit >= 0 ? 'text-success' : 'text-destructive'
                       }`}>
                         {profit >= 0 ? '+' : ''}{profit.toFixed(0)}
                       </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-1.5 px-2 text-center">
                         {pred.result === 'win' ? (
-                          <CheckCircle2 className="h-4 w-4 text-success inline-block" />
+                          <CheckCircle2 className="h-3 w-3 text-success inline-block" />
                         ) : pred.result === 'loss' ? (
-                          <XCircle className="h-4 w-4 text-destructive inline-block" />
+                          <XCircle className="h-3 w-3 text-destructive inline-block" />
                         ) : (
-                          <span className="text-xs text-muted-foreground">-</span>
+                          <span className="text-[10px] text-muted-foreground">-</span>
                         )}
                       </td>
                     </tr>
@@ -798,28 +798,28 @@ const MyPredictions = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* 返回按钮 */}
       <Button 
         variant="ghost" 
         size="sm"
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground -ml-2"
+        className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground -ml-2 h-7 text-xs"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-3.5 w-3.5" />
         <span>{t('back')}</span>
       </Button>
 
-      {/* 用户资料卡片 - 专业简洁设计 */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      {/* 用户资料卡片 - 紧凑设计 */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
         {/* 顶部用户信息 */}
-        <div className="p-6 border-b border-border">
+        <div className="p-3 border-b border-border">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="relative">
-                <Avatar className="h-16 w-16 border-2 border-primary/30">
+                <Avatar className="h-10 w-10 border-2 border-primary/30">
                   <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.display_name || '用户'} />
-                  <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
+                  <AvatarFallback className="text-sm bg-primary/10 text-primary font-bold">
                     {userProfile?.display_name?.charAt(0) || '?'}
                   </AvatarFallback>
                 </Avatar>
@@ -830,48 +830,49 @@ const MyPredictions = () => {
                     <Button 
                       size="icon" 
                       variant="outline"
-                      className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-background shadow-sm"
+                      className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-background shadow-sm"
                     >
-                      <Edit2 className="h-3 w-3" />
+                      <Edit2 className="h-2.5 w-2.5" />
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle>{t('edit_profile')}</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-6 py-4">
+                    <div className="space-y-4 py-3">
                       <div className="space-y-2">
-                        <Label htmlFor="display-name">{t('nickname')}</Label>
+                        <Label htmlFor="display-name" className="text-sm">{t('nickname')}</Label>
                         <Input
                           id="display-name"
                           value={editDisplayName}
                           onChange={(e) => setEditDisplayName(e.target.value)}
                           placeholder={t('enter_nickname')}
                           maxLength={20}
+                          className="h-9"
                         />
                       </div>
                       
-                      <div className="space-y-3">
-                        <Label>{t('select_avatar')}</Label>
-                        <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm">{t('select_avatar')}</Label>
+                        <div className="grid grid-cols-3 gap-2">
                           {AVATAR_OPTIONS.map((avatar) => (
                             <button
                               key={avatar}
                               onClick={() => setSelectedAvatar(avatar)}
                               className={`
-                                relative rounded-lg p-2 transition-all
+                                relative rounded-lg p-1.5 transition-all
                                 ${selectedAvatar === avatar 
                                   ? 'ring-2 ring-primary bg-primary/10' 
                                   : 'hover:bg-muted border border-border'
                                 }
                               `}
                             >
-                              <Avatar className="h-16 w-16 mx-auto">
+                              <Avatar className="h-12 w-12 mx-auto">
                                 <AvatarImage src={avatar} />
                               </Avatar>
                               {selectedAvatar === avatar && (
-                                <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
-                                  <Check className="h-3 w-3 text-primary-foreground" />
+                                <div className="absolute top-0.5 right-0.5 bg-primary rounded-full p-0.5">
+                                  <Check className="h-2.5 w-2.5 text-primary-foreground" />
                                 </div>
                               )}
                             </button>
@@ -883,13 +884,13 @@ const MyPredictions = () => {
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
-                        className="flex-1"
+                        className="flex-1 h-9"
                         onClick={() => setIsEditDialogOpen(false)}
                       >
                         {t('cancel')}
                       </Button>
                       <Button
-                        className="flex-1"
+                        className="flex-1 h-9"
                         onClick={handleSaveProfile}
                         disabled={isSaving || !editDisplayName || !editDisplayName.trim()}
                       >
@@ -901,95 +902,91 @@ const MyPredictions = () => {
               </div>
               
               <div>
-                <h2 className="text-xl font-bold text-foreground">
+                <h2 className="text-base font-bold text-foreground">
                   {userProfile?.display_name || t('player')}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-0.5">{t('prediction_player')}</p>
+                <p className="text-xs text-muted-foreground">{t('prediction_player')}</p>
               </div>
             </div>
             
             {/* 胜率徽章 */}
             <div className="text-right">
-              <div className="text-3xl font-bold text-foreground font-mono">
+              <div className="text-xl font-bold text-foreground font-mono">
                 <AnimatedWinRate value={stats?.winRate || 0} />%
               </div>
-              <p className="text-xs text-muted-foreground">{t('win_rate_label')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('win_rate_label')}</p>
             </div>
           </div>
         </div>
 
         {/* 统计数据网格 */}
         <div className="grid grid-cols-4 divide-x divide-border">
-          <div className="p-4 text-center">
-            <p className="text-2xl font-bold text-foreground font-mono">{stats?.totalPredictions || 0}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t('total_predictions_stat')}</p>
+          <div className="p-2 text-center">
+            <p className="text-lg font-bold text-foreground font-mono">{stats?.totalPredictions || 0}</p>
+            <p className="text-[10px] text-muted-foreground">{t('total_predictions_stat')}</p>
           </div>
-          <div className="p-4 text-center">
-            <p className="text-2xl font-bold text-success font-mono">{stats?.correctPredictions || 0}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t('correct_result')}</p>
+          <div className="p-2 text-center">
+            <p className="text-lg font-bold text-success font-mono">{stats?.correctPredictions || 0}</p>
+            <p className="text-[10px] text-muted-foreground">{t('correct_result')}</p>
           </div>
-          <div className="p-4 text-center">
-            <p className="text-2xl font-bold text-destructive font-mono">
+          <div className="p-2 text-center">
+            <p className="text-lg font-bold text-destructive font-mono">
               {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">{t('wrong_result')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('wrong_result')}</p>
           </div>
-          <div className="p-4 text-center">
-            <p className={`text-2xl font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+          <div className="p-2 text-center">
+            <p className={`text-lg font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
               {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">{t('profit_loss_label')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('profit_loss_label')}</p>
           </div>
         </div>
 
         {/* 钱包余额区域 */}
-        <div className="p-4 bg-muted/30 border-t border-border space-y-3">
+        <div className="p-2 bg-muted/30 border-t border-border flex items-center justify-between gap-2">
           {/* 虚拟钱包 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{t('virtual_wallet_balance')}</p>
-                <p className="text-xl font-bold text-foreground font-mono">
-                  ${stats?.balance?.toLocaleString() || 10000}
-                </p>
-              </div>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
+              <Wallet className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground">{t('virtual_wallet_balance')}</p>
+              <p className="text-sm font-bold text-foreground font-mono">
+                ${stats?.balance?.toLocaleString() || 10000}
+              </p>
             </div>
           </div>
 
           {/* USDT钱包 */}
-          <div className="flex items-center justify-between pt-3 border-t border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#26A17B]/10 flex items-center justify-center">
-                <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{t('usdt_wallet_balance')}</p>
-                <p className="text-xl font-bold text-foreground font-mono flex items-center gap-1">
-                  <span className="text-[#26A17B]">{usdtBalance.toFixed(2)}</span>
-                  <span className="text-sm text-muted-foreground">USDT</span>
-                </p>
-              </div>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-[#26A17B]/10 flex items-center justify-center">
+              <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4 h-4" />
             </div>
-            
-            {/* USDT钱包按钮 */}
-            <USDTWalletDialog 
-              trigger={
-                <Button variant="outline" size="sm" className="flex items-center gap-2 border-[#26A17B]/30 hover:bg-[#26A17B]/10">
-                  <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4 h-4" />
-                  {t('usdt_deposit')}
-                </Button>
-              }
-            />
+            <div>
+              <p className="text-[10px] text-muted-foreground">{t('usdt_wallet_balance')}</p>
+              <p className="text-sm font-bold text-foreground font-mono flex items-center gap-0.5">
+                <span className="text-[#26A17B]">{usdtBalance.toFixed(2)}</span>
+                <span className="text-[10px] text-muted-foreground">USDT</span>
+              </p>
+            </div>
           </div>
+          
+          {/* USDT钱包按钮 */}
+          <USDTWalletDialog 
+            trigger={
+              <Button variant="outline" size="sm" className="flex items-center gap-1.5 border-[#26A17B]/30 hover:bg-[#26A17B]/10 h-7 text-xs px-2">
+                <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-3.5 h-3.5" />
+                {t('usdt_deposit')}
+              </Button>
+            }
+          />
         </div>
       </div>
 
-      {/* 开始预测按钮 - 更醒目的位置 */}
+      {/* 开始预测按钮 */}
       <Button 
-        className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg"
+        className="w-full h-10 text-sm font-bold bg-primary hover:bg-primary/90 shadow-md"
         onClick={() => navigate('/')}
       >
         {t('start_prediction')}
@@ -1000,111 +997,105 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-12">
-          <TabsTrigger value="history" className="flex items-center gap-2 text-sm">
-            <History className="h-4 w-4" />
+        <TabsList className="grid w-full grid-cols-2 h-9">
+          <TabsTrigger value="history" className="flex items-center gap-1.5 text-xs">
+            <History className="h-3.5 w-3.5" />
             {t('history_records')}
           </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-2 text-sm">
-            <Users className="h-4 w-4" />
+          <TabsTrigger value="copy-trade" className="flex items-center gap-1.5 text-xs">
+            <Users className="h-3.5 w-3.5" />
             {t('copy_trade_tab')}
           </TabsTrigger>
         </TabsList>
 
-        {/* 完整历史记录标签页 - 类似AI历史模板 */}
-        <TabsContent value="history" className="mt-4">
+        {/* 完整历史记录标签页 */}
+        <TabsContent value="history" className="mt-2">
           <PlayerHistoryTable predictions={stats?.recentPredictions || []} copyTradeRecords={copyTradeRecords} />
         </TabsContent>
 
         {/* 跟单记录标签页 */}
-        <TabsContent value="copy-trade" className="mt-4">
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-border">
-              <h3 className="font-semibold text-foreground">{t('copy_trade_records_title')}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{t('following_other_players')}</p>
+        <TabsContent value="copy-trade" className="mt-2">
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">{t('copy_trade_records_title')}</h3>
+              <p className="text-[10px] text-muted-foreground">{t('following_other_players')}</p>
             </div>
             
             {copyTradeRecords.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border border-b border-border">
-                  <div className="p-4 text-center">
-                    <p className="text-2xl font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('copy_trade_count')}</p>
+                <div className="grid grid-cols-4 divide-x divide-border border-b border-border">
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('copy_trade_count')}</p>
                   </div>
-                  <div className="p-4 text-center">
-                    <p className="text-2xl font-bold font-mono text-foreground">
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-foreground">
                       ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_investment')}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('total_investment')}</p>
                   </div>
-                  <div className="p-4 text-center">
-                    <p className="text-2xl font-bold font-mono text-success">
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-success">
                       ${copyTradeRecords.filter(r => r.result === 'win').reduce((sum, r) => sum + r.bet_amount + r.pnl, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('won_amount')}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('won_amount')}</p>
                   </div>
-                  <div className="p-4 text-center">
-                    <p className={`text-2xl font-bold font-mono ${
+                  <div className="p-2 text-center">
+                    <p className={`text-sm font-bold font-mono ${
                       copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
                     }`}>
                       {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
                       ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('net_profit_loss')}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('net_profit_loss')}</p>
                   </div>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('followed_player')}</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">{t('match_column')}</th>
-                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('follow_amount')}</th>
-                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">{t('profit_loss_label')}</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">{t('result_column')}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player')}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('follow_amount')}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
+                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {copyTradeRecords.map((record) => (
                         <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-7 w-7 border border-border">
+                          <td className="py-1.5 px-2">
+                            <div className="flex items-center gap-1.5">
+                              <Avatar className="h-5 w-5 border border-border">
                                 <AvatarImage src={record.followed_player_avatar} />
-                                <AvatarFallback className="text-xs">{record.followed_player_name.charAt(0)}</AvatarFallback>
+                                <AvatarFallback className="text-[9px]">{record.followed_player_name.charAt(0)}</AvatarFallback>
                               </Avatar>
                               <div>
-                                <p className="text-xs font-medium text-foreground truncate max-w-[100px]">{record.followed_player_name}</p>
-                                <p className="text-[10px] text-muted-foreground">{format(new Date(record.created_at), 'MM-dd')}</p>
+                                <p className="text-[10px] font-medium text-foreground truncate max-w-[70px]">{record.followed_player_name}</p>
+                                <p className="text-[9px] text-muted-foreground">{format(new Date(record.created_at), 'MM-dd')}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4">
-                            <p className="text-xs text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
-                            <p className="text-[10px] text-muted-foreground">{record.prediction}</p>
+                          <td className="py-1.5 px-2">
+                            <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
+                            <p className="text-[9px] text-muted-foreground">{record.prediction}</p>
                           </td>
-                          <td className="py-3 px-4 text-right">
-                            <p className="text-sm font-mono font-bold text-foreground">${record.bet_amount}</p>
+                          <td className="py-1.5 px-2 text-right">
+                            <p className="text-[10px] font-mono font-bold text-foreground">${record.bet_amount}</p>
                           </td>
-                          <td className="py-3 px-4 text-right">
-                            <p className={`text-sm font-mono font-bold ${record.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          <td className="py-1.5 px-2 text-right">
+                            <p className={`text-[10px] font-mono font-bold ${record.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
                               {record.pnl >= 0 ? '+' : ''}${record.pnl}
                             </p>
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className="py-1.5 px-2 text-center">
                             {record.result === 'win' ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                                <CheckCircle2 className="h-3 w-3" />
-                                {t('correct_result')}
-                              </span>
+                              <CheckCircle2 className="h-3 w-3 text-success inline-block" />
                             ) : record.result === 'loss' ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
-                                <XCircle className="h-3 w-3" />
-                                {t('wrong_result')}
-                              </span>
+                              <XCircle className="h-3 w-3 text-destructive inline-block" />
                             ) : (
-                              <span className="text-xs text-muted-foreground">{t('pending_status')}</span>
+                              <span className="text-[10px] text-muted-foreground">-</span>
                             )}
                           </td>
                         </tr>
@@ -1114,11 +1105,11 @@ const MyPredictions = () => {
                 </div>
               </>
             ) : (
-              <div className="p-8 text-center">
-                <Users className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-                <p className="text-muted-foreground mb-1">{t('no_copy_trade_records')}</p>
-                <p className="text-xs text-muted-foreground mb-4">{t('go_to_leaderboard')}</p>
-                <Button variant="outline" size="sm" onClick={() => navigate('/leaderboard')}>
+              <div className="p-4 text-center">
+                <Users className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_records')}</p>
+                <p className="text-[10px] text-muted-foreground mb-2">{t('go_to_leaderboard')}</p>
+                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => navigate('/leaderboard')}>
                   {t('view_leaderboard')}
                 </Button>
               </div>
