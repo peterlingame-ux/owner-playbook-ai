@@ -478,7 +478,10 @@ const Waitlist = () => {
                           <span className="font-mono font-medium text-foreground">{winner.name}</span>
                           <span className="text-xs text-muted-foreground ml-2">{winner.round}</span>
                         </div>
-                        <span className="text-lg font-bold text-success">${winner.prize.toLocaleString()}</span>
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-success">${winner.prize.toLocaleString()}</span>
+                          <span className="text-xs text-muted-foreground ml-1">奖金</span>
+                        </div>
                       </div>
 
                       {/* Stats */}
