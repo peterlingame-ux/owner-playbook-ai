@@ -103,7 +103,7 @@ const resources = {
           },
           "contact": {
             "question": "How to contact HUNSOCCER staff?",
-            "answer": "Please add Telegram: HUNSOCCER"
+            "answer": "Please add Telegram: [HUNSOCCER](https://t.me/HUNSOCCER)"
           }
         }
       },
@@ -538,7 +538,7 @@ const resources = {
           },
           "contact": {
             "question": "如何联系 HUNSOCCER 工作人员？",
-            "answer": "请添加Telegram:HUNSOCCER"
+            "answer": "请添加Telegram: [HUNSOCCER](https://t.me/HUNSOCCER)"
           }
         }
       },
