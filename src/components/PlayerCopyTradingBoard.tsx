@@ -599,12 +599,12 @@ const PlayerCopyTradingBoard = () => {
           </Card>
 
           {/* Comparison Bar Chart */}
-          <Card className="lg:col-span-1 relative overflow-hidden">
+          <Card className="lg:col-span-1 relative overflow-hidden animate-fade-in">
             <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-transparent" />
             
             <CardContent className="p-4 sm:p-6 relative z-10">
               <h3 className="text-sm sm:text-base font-bold mb-4 flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-primary" />
+                <Trophy className="h-4 w-4 text-primary animate-pulse" />
                 {t('profit_comparison') || '盈亏对比'}
               </h3>
               <ResponsiveContainer width="100%" height={200}>
@@ -646,8 +646,16 @@ const PlayerCopyTradingBoard = () => {
                       fontSize: '12px'
                     }}
                     formatter={(value: number) => [`¥${Math.abs(value).toLocaleString()}`, value >= 0 ? '盈利' : '亏损']}
+                    animationDuration={300}
                   />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                  <Bar 
+                    dataKey="value" 
+                    radius={[0, 4, 4, 0]}
+                    isAnimationActive={true}
+                    animationDuration={1500}
+                    animationBegin={200}
+                    animationEasing="ease-out"
+                  >
                     {[
                       { type: 'profit' },
                       { type: 'loss' },
