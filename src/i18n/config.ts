@@ -439,7 +439,7 @@ const resources = {
       
       // Model Cards
       "the_contestants": "AI模型预测",
-      "top_players": "玩家预测",
+      "top_players": "玩家预测TOP3",
       "view_details": "查看详情",
       "total_predictions": "总预测次数",
       
