@@ -1,13 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { Flame, Skull, UserPlus } from "lucide-react";
+import { Flame, Skull, UserPlus, Calendar, X } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface PlayerData {
   id: string;
@@ -23,6 +25,21 @@ interface PlayerData {
   worstStreak: number;
   currentStreak: number;
   isVirtual?: boolean;
+  todayTotal?: number;
+  todayCorrect?: number;
+  todayWinRate?: number;
+}
+
+interface TodayPrediction {
+  id: string;
+  match_id: string;
+  prediction: string;
+  prediction_type: string;
+  bet_amount: number;
+  potential_payout: number | null;
+  actual_payout: number | null;
+  result: string | null;
+  created_at: string;
 }
 
 const PlayerCopyTradingBoard = () => {
@@ -30,6 +47,8 @@ const PlayerCopyTradingBoard = () => {
   const navigate = useNavigate();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [todayStats, setTodayStats] = useState<Map<string, { total: number; correct: number; winRate: number }>>(new Map());
+  const [selectedPlayer, setSelectedPlayer] = useState<{ player: PlayerData; predictions: TodayPrediction[] } | null>(null);
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -153,6 +172,91 @@ const PlayerCopyTradingBoard = () => {
     fetchAllPlayers();
   }, []);
 
+  // 获取今日预测统计
+  useEffect(() => {
+    const fetchTodayStats = async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const { data: todayPredictions, error } = await supabase
+        .from('user_predictions')
+        .select('user_id, result')
+        .gte('created_at', today.toISOString());
+      
+      if (error || !todayPredictions) return;
+      
+      const statsMap = new Map<string, { total: number; correct: number; winRate: number }>();
+      
+      todayPredictions.forEach(pred => {
+        const current = statsMap.get(pred.user_id) || { total: 0, correct: 0, winRate: 0 };
+        current.total++;
+        if (pred.result === 'win') current.correct++;
+        current.winRate = current.total > 0 ? (current.correct / current.total) * 100 : 0;
+        statsMap.set(pred.user_id, current);
+      });
+      
+      // 为虚拟玩家生成模拟今日数据
+      virtualPlayers.forEach(player => {
+        const total = Math.floor(Math.random() * 8) + 3;
+        const correct = Math.floor(total * (player.winRate / 100) + (Math.random() - 0.5) * 2);
+        const actualCorrect = Math.max(0, Math.min(total, correct));
+        statsMap.set(player.id, {
+          total,
+          correct: actualCorrect,
+          winRate: total > 0 ? (actualCorrect / total) * 100 : 0
+        });
+      });
+      
+      setTodayStats(statsMap);
+    };
+    
+    fetchTodayStats();
+  }, []);
+
+  const fetchTodayPredictions = async (player: PlayerData) => {
+    if (player.isVirtual) {
+      // 为虚拟玩家生成模拟数据
+      const stats = todayStats.get(player.id);
+      const mockPredictions: TodayPrediction[] = [];
+      const total = stats?.total || 5;
+      const correct = stats?.correct || 3;
+      
+      for (let i = 0; i < total; i++) {
+        mockPredictions.push({
+          id: `mock-${i}`,
+          match_id: `match-${1000 + i}`,
+          prediction: Math.random() > 0.5 ? 'over' : 'under',
+          prediction_type: 'over_under',
+          bet_amount: Math.floor(Math.random() * 500) + 100,
+          potential_payout: Math.floor(Math.random() * 800) + 200,
+          actual_payout: i < correct ? Math.floor(Math.random() * 800) + 200 : 0,
+          result: i < correct ? 'win' : 'loss',
+          created_at: new Date().toISOString()
+        });
+      }
+      
+      setSelectedPlayer({ player, predictions: mockPredictions });
+      return;
+    }
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const { data, error } = await supabase
+      .from('user_predictions')
+      .select('*')
+      .eq('user_id', player.id)
+      .gte('created_at', today.toISOString())
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      toast.error('获取今日记录失败');
+      return;
+    }
+    
+    setSelectedPlayer({ player, predictions: data || [] });
+  };
+
   // 按最佳连胜排序
   const topStreakPlayers = [...allPlayers]
     .sort((a, b) => b.bestStreak - a.bestStreak)
@@ -227,18 +331,38 @@ const PlayerCopyTradingBoard = () => {
           </div>
         </div>
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        className="flex-shrink-0 ml-2 text-xs gap-1"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleCopyTrade(player);
-        }}
-      >
-        <UserPlus className="h-3 w-3" />
-        {t('copy_trade_btn') || '跟单'}
-      </Button>
+      <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+        {/* 今日预测按钮 */}
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-xs gap-1 px-2"
+          onClick={(e) => {
+            e.stopPropagation();
+            fetchTodayPredictions(player);
+          }}
+        >
+          <Calendar className="h-3 w-3" />
+          {(() => {
+            const stats = todayStats.get(player.id);
+            if (!stats || stats.total === 0) return '今日: -';
+            return `${stats.correct}/${stats.total} ${stats.winRate.toFixed(0)}%`;
+          })()}
+        </Button>
+        {/* 跟单按钮 */}
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-xs gap-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleCopyTrade(player);
+          }}
+        >
+          <UserPlus className="h-3 w-3" />
+          {t('copy_trade_btn') || '跟单'}
+        </Button>
+      </div>
     </div>
   );
 
@@ -295,6 +419,78 @@ const PlayerCopyTradingBoard = () => {
         </Card>
       </div>
 
+      {/* 今日预测详情弹窗 */}
+      <Dialog open={!!selectedPlayer} onOpenChange={() => setSelectedPlayer(null)}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={selectedPlayer?.player.avatarUrl} />
+                <AvatarFallback>{selectedPlayer?.player.displayName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <span>{selectedPlayer?.player.displayName} - 今日预测</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedPlayer && (
+            <div className="space-y-3">
+              {/* 今日统计 */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm text-muted-foreground">今日战绩</span>
+                <span className="font-bold">
+                  {todayStats.get(selectedPlayer.player.id)?.correct || 0}/
+                  {todayStats.get(selectedPlayer.player.id)?.total || 0}
+                  <span className={`ml-2 ${(todayStats.get(selectedPlayer.player.id)?.winRate || 0) >= 50 ? 'text-success' : 'text-destructive'}`}>
+                    ({(todayStats.get(selectedPlayer.player.id)?.winRate || 0).toFixed(0)}%)
+                  </span>
+                </span>
+              </div>
+              
+              {/* 预测列表 */}
+              {selectedPlayer.predictions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  今日暂无预测记录
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {selectedPlayer.predictions.map((pred) => (
+                    <div key={pred.id} className="p-3 rounded-lg bg-muted/30 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          比赛ID: {pred.match_id}
+                        </span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          pred.result === 'win' ? 'bg-success/20 text-success' :
+                          pred.result === 'loss' ? 'bg-destructive/20 text-destructive' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          {pred.result === 'win' ? '赢' : pred.result === 'loss' ? '输' : '待定'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span>
+                          {pred.prediction_type === 'over_under' ? '大小球' : '让球'}: 
+                          <span className="font-medium ml-1">{pred.prediction}</span>
+                        </span>
+                        <span className="text-muted-foreground">
+                          下注: ¥{pred.bet_amount}
+                        </span>
+                      </div>
+                      {pred.result && pred.result !== 'pending' && (
+                        <div className="text-xs text-right">
+                          <span className={pred.result === 'win' ? 'text-success' : 'text-destructive'}>
+                            {pred.result === 'win' ? `+¥${pred.actual_payout || pred.potential_payout}` : `-¥${pred.bet_amount}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
