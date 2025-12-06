@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { Trophy, TrendingUp, TrendingDown, Flame, Skull, UserPlus } from "lucide-react";
+import { Flame, Skull, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface PlayerData {
@@ -153,16 +153,6 @@ const PlayerCopyTradingBoard = () => {
     fetchAllPlayers();
   }, []);
 
-  // 按胜率排序 - 最高
-  const topWinRatePlayers = [...allPlayers]
-    .sort((a, b) => b.winRate - a.winRate)
-    .slice(0, 5);
-
-  // 按胜率排序 - 最低
-  const bottomWinRatePlayers = [...allPlayers]
-    .sort((a, b) => a.winRate - b.winRate)
-    .slice(0, 5);
-
   // 按最佳连胜排序
   const topStreakPlayers = [...allPlayers]
     .sort((a, b) => b.bestStreak - a.bestStreak)
@@ -303,63 +293,6 @@ const PlayerCopyTradingBoard = () => {
         </Card>
       </div>
 
-      {/* Bottom Section: Win Rate Rankings */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* 高胜率玩家 */}
-        <Card className="border-primary/30">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-primary/20">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">{t('high_win_rate_players') || '高胜率玩家'}</h3>
-                <p className="text-xs text-muted-foreground">{t('top_performers') || '胜率最高的玩家'}</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {topWinRatePlayers.map((player, index) => (
-                <div key={player.id} className="relative">
-                  {index < 3 && (
-                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5">
-                      <Trophy 
-                        className="h-4 w-4" 
-                        style={{ 
-                          color: index === 0 ? 'hsl(45, 100%, 51%)' : index === 1 ? 'hsl(0, 0%, 75%)' : 'hsl(30, 60%, 50%)'
-                        }}
-                        fill={index === 0 ? 'hsl(45, 100%, 51%)' : index === 1 ? 'hsl(0, 0%, 75%)' : 'hsl(30, 60%, 50%)'}
-                      />
-                    </div>
-                  )}
-                  <div className={index < 3 ? 'ml-4' : ''}>
-                    <PlayerCard player={player} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 低胜率玩家 */}
-        <Card className="border-muted">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-muted">
-                <TrendingDown className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">{t('low_win_rate_players') || '低胜率玩家'}</h3>
-                <p className="text-xs text-muted-foreground">{t('needs_improvement') || '胜率最低的玩家'}</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {bottomWinRatePlayers.map((player) => (
-                <PlayerCard key={player.id} player={player} />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
