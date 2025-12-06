@@ -47,6 +47,8 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"sms" | "password">("sms");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [invitationCode, setInvitationCode] = useState("");
+  const [invitationBonus, setInvitationBonus] = useState<number>(0);
 
   useEffect(() => {
     if (user) {
@@ -87,10 +89,10 @@ const Auth = () => {
     }
   };
 
-  const syncUserProfile = async (user: User) => {
+  const syncUserProfile = async (user: User, withInvitation?: string) => {
     const formattedPhone = user.phone ?? `${normalizedCountryCode}${phone}`;
 
-    const { error: syncError } = await supabase.functions.invoke("sync-user", {
+    const { data: syncData, error: syncError } = await supabase.functions.invoke("sync-user", {
       body: {
         phoneNumber: formattedPhone,
         displayName:
@@ -102,6 +104,7 @@ const Auth = () => {
             ? user.user_metadata.avatar_url
             : undefined,
         metadata: user.user_metadata ?? undefined,
+        invitationCode: withInvitation || invitationCode || undefined,
       },
     });
 
@@ -111,6 +114,8 @@ const Auth = () => {
         description: syncError.message,
         variant: "destructive",
       });
+    } else if (syncData?.bonusReceived) {
+      setInvitationBonus(syncData.bonusReceived);
     }
   };
 
@@ -519,7 +524,25 @@ const Auth = () => {
                 </div>
               )}
 
-              <Button 
+              {/* 邀请码输入框 - 仅在注册模式且短信登录时显示 */}
+              {isSignUp && loginMethod === "sms" && (
+                <div className="space-y-2">
+                  <Label htmlFor="invitationCode" className="text-white/90 text-sm font-medium">
+                    邀请码 <span className="text-white/50 text-xs">（选填，可获得100 USDT）</span>
+                  </Label>
+                  <Input
+                    id="invitationCode"
+                    type="text"
+                    placeholder="请输入邀请码"
+                    value={invitationCode}
+                    onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
+                    maxLength={10}
+                    className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
+                  />
+                </div>
+              )}
+
+              <Button
                 type="submit" 
                 className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading}

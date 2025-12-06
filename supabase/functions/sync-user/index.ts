@@ -27,6 +27,7 @@ const payloadSchema = z.object({
   displayName: z.string().min(1).max(120).optional(),
   avatarUrl: z.string().url().nullable().optional(),
   metadata: z.record(z.any()).nullable().optional(),
+  invitationCode: z.string().min(6).max(20).optional(), // 邀请码
 });
 
 type UserRow = {
@@ -104,7 +105,44 @@ serve(async (req) => {
     const now = new Date().toISOString();
     const userMetadata = (user.user_metadata ?? {}) as Record<string, unknown>;
 
-    const upsertPayload: UserRow = {
+    // 检查用户是否已存在
+    const { data: existingUser } = await supabaseClient
+      .from("users")
+      .select("id, invited_by")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const isNewUser = !existingUser;
+    const invitationCode = validatedPayload.data.invitationCode?.toUpperCase().trim();
+
+    console.log(`[sync-user] User: ${user.id}, isNew: ${isNewUser}, invitationCode: ${invitationCode || 'none'}`);
+
+    // 处理邀请码逻辑
+    let invitedBy: string | null = null;
+    let inviterUserId: string | null = null;
+
+    if (isNewUser && invitationCode) {
+      // 查找邀请人
+      const { data: inviter, error: inviterError } = await supabaseClient
+        .from("users")
+        .select("id, invitation_code, invited_count")
+        .eq("invitation_code", invitationCode)
+        .maybeSingle();
+
+      if (inviterError) {
+        console.error("[sync-user] Error finding inviter:", inviterError);
+      }
+
+      if (inviter && inviter.id !== user.id) {
+        invitedBy = invitationCode;
+        inviterUserId = inviter.id;
+        console.log(`[sync-user] Valid invitation code from user: ${inviter.id}`);
+      } else {
+        console.log(`[sync-user] Invalid invitation code: ${invitationCode}`);
+      }
+    }
+
+    const upsertPayload: UserRow & { invited_by?: string | null } = {
       id: user.id,
       phone_number: validatedPayload.data.phoneNumber ?? user.phone ?? null,
       email: validatedPayload.data.email ?? user.email ?? null,
@@ -122,6 +160,11 @@ serve(async (req) => {
       last_sign_in_at: now,
     };
 
+    // 只有新用户才设置 invited_by
+    if (isNewUser && invitedBy) {
+      upsertPayload.invited_by = invitedBy;
+    }
+
     const { error: upsertError } = await supabaseClient.from("users").upsert(
       upsertPayload,
       { onConflict: "id" },
@@ -138,8 +181,44 @@ serve(async (req) => {
       );
     }
 
+    // 如果是通过邀请码注册的新用户，奖励 100 USDT
+    if (isNewUser && invitedBy && inviterUserId) {
+      console.log(`[sync-user] Rewarding new user ${user.id} with 100 USDT for invitation`);
+      
+      // 给新用户的 USDT 钱包增加 100
+      const { error: walletError } = await supabaseClient
+        .from("usdt_wallets")
+        .upsert({
+          user_id: user.id,
+          balance: 100,
+        }, { onConflict: "user_id" });
+
+      if (walletError) {
+        console.error("[sync-user] Error updating new user wallet:", walletError);
+      } else {
+        console.log(`[sync-user] Added 100 USDT to new user ${user.id}`);
+      }
+
+      // 更新邀请人的邀请计数
+      const { error: countError } = await supabaseClient
+        .from("users")
+        .update({ invited_count: (await supabaseClient.from("users").select("invited_count").eq("id", inviterUserId).single()).data?.invited_count + 1 || 1 })
+        .eq("id", inviterUserId);
+
+      if (countError) {
+        console.error("[sync-user] Error updating inviter count:", countError);
+      } else {
+        console.log(`[sync-user] Updated invite count for inviter ${inviterUserId}`);
+      }
+    }
+
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        success: true, 
+        isNewUser,
+        invitedBy: invitedBy || null,
+        bonusReceived: isNewUser && invitedBy ? 100 : 0
+      }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -156,5 +235,3 @@ serve(async (req) => {
     );
   }
 });
-
-
