@@ -70,6 +70,75 @@ interface AIMatchWithDetails extends Match {
   ai_models: string[];
 }
 
+// 虚拟演示数据 - 当没有真实数据时使用
+const DEMO_AI_MATCHES: AIMatchWithDetails[] = [
+  {
+    fixture_id: 1001,
+    home_team_id: 33,
+    home_team_name: "曼联",
+    away_team_id: 40,
+    away_team_name: "利物浦",
+    home_logo: "https://media.api-sports.io/football/teams/33.png",
+    away_logo: "https://media.api-sports.io/football/teams/40.png",
+    league_name: "英超",
+    kickoff_at: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+    ai_count: 5,
+    ai_models: ["GPT-5", "Claude", "Gemini", "DeepSeek", "Grok"],
+  },
+  {
+    fixture_id: 1002,
+    home_team_id: 529,
+    home_team_name: "巴塞罗那",
+    away_team_id: 541,
+    away_team_name: "皇家马德里",
+    home_logo: "https://media.api-sports.io/football/teams/529.png",
+    away_logo: "https://media.api-sports.io/football/teams/541.png",
+    league_name: "西甲",
+    kickoff_at: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString(),
+    ai_count: 6,
+    ai_models: ["GPT-5", "Claude", "Gemini", "DeepSeek", "Grok", "HUNSOCCER"],
+  },
+  {
+    fixture_id: 1003,
+    home_team_id: 157,
+    home_team_name: "拜仁慕尼黑",
+    away_team_id: 165,
+    away_team_name: "多特蒙德",
+    home_logo: "https://media.api-sports.io/football/teams/157.png",
+    away_logo: "https://media.api-sports.io/football/teams/165.png",
+    league_name: "德甲",
+    kickoff_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+    ai_count: 4,
+    ai_models: ["GPT-5", "Claude", "Gemini", "DeepSeek"],
+  },
+  {
+    fixture_id: 1004,
+    home_team_id: 85,
+    home_team_name: "巴黎圣日耳曼",
+    away_team_id: 81,
+    away_team_name: "马赛",
+    home_logo: "https://media.api-sports.io/football/teams/85.png",
+    away_logo: "https://media.api-sports.io/football/teams/81.png",
+    league_name: "法甲",
+    kickoff_at: new Date(Date.now() + 10 * 60 * 60 * 1000).toISOString(),
+    ai_count: 5,
+    ai_models: ["GPT-5", "Claude", "Gemini", "Grok", "HUNSOCCER"],
+  },
+  {
+    fixture_id: 1005,
+    home_team_id: 489,
+    home_team_name: "AC米兰",
+    away_team_id: 505,
+    away_team_name: "国际米兰",
+    home_logo: "https://media.api-sports.io/football/teams/489.png",
+    away_logo: "https://media.api-sports.io/football/teams/505.png",
+    league_name: "意甲",
+    kickoff_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    ai_count: 6,
+    ai_models: ["GPT-5", "Claude", "Gemini", "DeepSeek", "Grok", "HUNSOCCER"],
+  },
+];
+
 interface PlaceBetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -83,6 +152,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const [aiPredictions, setAiPredictions] = useState<AIBet[]>([]);
   const [selectedBetType, setSelectedBetType] = useState<string>("handicap");
   const [selectedBetOption, setSelectedBetOption] = useState<string>("");
+  const [isDemo, setIsDemo] = useState(false);
   const [betAmount, setBetAmount] = useState<string>("100");
   const [userBalance, setUserBalance] = useState<number>(10000);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,6 +210,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   // 获取AI已预测的比赛列表
   const fetchAIMatches = async () => {
     setIsLoadingMatches(true);
+    setIsDemo(false);
     try {
       // 获取所有pending状态的AI预测
       const { data: betsData, error: betsError } = await supabase
@@ -149,12 +220,16 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
 
       if (betsError) {
         console.error('Error fetching AI bets:', betsError);
-        setAiMatches([]);
+        // 使用演示数据
+        setAiMatches(DEMO_AI_MATCHES);
+        setIsDemo(true);
         return;
       }
 
       if (!betsData || betsData.length === 0) {
-        setAiMatches([]);
+        // 没有真实数据时使用演示数据
+        setAiMatches(DEMO_AI_MATCHES);
+        setIsDemo(true);
         return;
       }
 
@@ -183,7 +258,9 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
 
       if (matchesError) {
         console.error('Error fetching matches:', matchesError);
-        setAiMatches([]);
+        // 使用演示数据
+        setAiMatches(DEMO_AI_MATCHES);
+        setIsDemo(true);
         return;
       }
 
@@ -205,10 +282,19 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
         };
       });
 
-      setAiMatches(matchesWithAI);
+      if (matchesWithAI.length === 0) {
+        // 如果没有匹配到比赛，使用演示数据
+        setAiMatches(DEMO_AI_MATCHES);
+        setIsDemo(true);
+      } else {
+        setAiMatches(matchesWithAI);
+        setIsDemo(false);
+      }
     } catch (error) {
       console.error('Error fetching AI matches:', error);
-      setAiMatches([]);
+      // 发生错误时使用演示数据
+      setAiMatches(DEMO_AI_MATCHES);
+      setIsDemo(true);
     } finally {
       setIsLoadingMatches(false);
     }
@@ -371,6 +457,12 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   };
 
   const handlePlaceBet = async () => {
+    // 演示模式下提示登录
+    if (isDemo) {
+      toast.info("演示模式：请登录后进行真实下注");
+      return;
+    }
+    
     if (!user || !selectedMatch) {
       toast.error("请先登录");
       return;
@@ -457,10 +549,26 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           {/* 比赛选择列表 */}
           {showMatchSelection && (
             <div className="space-y-3">
-              <Label className="text-base font-bold flex items-center gap-2">
-                <Target className="w-4 h-4 text-primary" />
-                AI已预测比赛列表
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-bold flex items-center gap-2">
+                  <Target className="w-4 h-4 text-primary" />
+                  AI已预测比赛列表
+                </Label>
+                {isDemo && (
+                  <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/10">
+                    演示数据
+                  </Badge>
+                )}
+              </div>
+              
+              {/* 演示模式提示 */}
+              {isDemo && (
+                <Card className="p-3 bg-amber-500/10 border-amber-500/30">
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    📢 当前为演示模式，显示虚拟比赛数据。登录后可查看真实AI预测比赛并参与下注。
+                  </p>
+                </Card>
+              )}
               
               {isLoadingMatches ? (
                 <div className="flex items-center justify-center py-12">
@@ -698,14 +806,32 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
 
               {/* 确认按钮 */}
               {selectedBetOption && (
-                <Button
-                  onClick={handlePlaceBet}
-                  disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
-                  className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-warning hover:opacity-90"
-                >
-                  <Target className="mr-2 h-5 w-5" />
-                  {isSubmitting ? "下注中..." : `确认下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`}
-                </Button>
+                <>
+                  {isDemo && (
+                    <Card className="p-3 bg-amber-500/10 border-amber-500/30">
+                      <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
+                        ⚠️ 演示模式：登录后可进行真实下注
+                      </p>
+                    </Card>
+                  )}
+                  <Button
+                    onClick={handlePlaceBet}
+                    disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
+                    className={`w-full h-12 text-lg font-bold ${
+                      isDemo 
+                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90' 
+                        : 'bg-gradient-to-r from-primary to-warning hover:opacity-90'
+                    }`}
+                  >
+                    <Target className="mr-2 h-5 w-5" />
+                    {isSubmitting 
+                      ? "下注中..." 
+                      : isDemo 
+                        ? `体验下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`
+                        : `确认下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`
+                    }
+                  </Button>
+                </>
               )}
             </>
           )}
