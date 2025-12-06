@@ -208,10 +208,7 @@ const UserModelCard = () => {
                   }}
                   className="w-full h-9 sm:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
                 >
-                  <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                    <Sparkles size={13} className="sm:w-[14px] sm:h-[14px]" />
-                    <span>免费培养专属模型</span>
-                  </div>
+                  <span>{t('login_to_create_model') || '登录后生成专属模型'}</span>
                 </Button>
               </div>
             </div>
