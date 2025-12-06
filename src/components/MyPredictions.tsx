@@ -972,83 +972,98 @@ const MyPredictions = () => {
             
             {copyTradeRecords.length > 0 ? (
               <>
-                {/* 跟单统计 */}
-                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                  <div className="p-3 text-center">
-                    <p className="text-lg font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                    <p className="text-xs text-muted-foreground">跟单次数</p>
+                {/* 跟单统计 - 更清晰的数据展示 */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border border-b border-border">
+                  <div className="p-4 text-center">
+                    <p className="text-2xl font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
+                    <p className="text-xs text-muted-foreground mt-1">跟单次数</p>
                   </div>
-                  <div className="p-3 text-center">
-                    <p className="text-lg font-bold font-mono text-success">
-                      {copyTradeRecords.filter(r => r.result === 'win').length}
+                  <div className="p-4 text-center">
+                    <p className="text-2xl font-bold font-mono text-foreground">
+                      ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground">盈利次数</p>
+                    <p className="text-xs text-muted-foreground mt-1">总投入</p>
                   </div>
-                  <div className="p-3 text-center">
-                    <p className={`text-lg font-bold font-mono ${
+                  <div className="p-4 text-center">
+                    <p className="text-2xl font-bold font-mono text-success">
+                      ${copyTradeRecords.filter(r => r.result === 'win').reduce((sum, r) => sum + r.bet_amount + r.pnl, 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">赢得金额</p>
+                  </div>
+                  <div className="p-4 text-center">
+                    <p className={`text-2xl font-bold font-mono ${
                       copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
                     }`}>
                       {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toFixed(0)}
+                      ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground">总盈亏</p>
+                    <p className="text-xs text-muted-foreground mt-1">净盈亏</p>
                   </div>
                 </div>
 
-                {/* 跟单列表 */}
-                <div className="divide-y divide-border">
-                  {copyTradeRecords.map((record) => (
-                    <div key={record.id} className="p-4 hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 border border-border">
-                            <AvatarImage src={record.followed_player_avatar} />
-                            <AvatarFallback className="text-xs">{record.followed_player_name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{record.followed_player_name}</p>
-                            <p className="text-xs text-muted-foreground">跟单对象</p>
-                          </div>
-                        </div>
-                        <span className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
-                          record.result === 'win' 
-                            ? 'bg-success/10 text-success' 
-                            : record.result === 'loss'
-                              ? 'bg-destructive/10 text-destructive'
-                              : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {record.result === 'win' ? (
-                            <><TrendingUp className="h-3 w-3" /> 盈利</>
-                          ) : record.result === 'loss' ? (
-                            <><TrendingDown className="h-3 w-3" /> 亏损</>
-                          ) : (
-                            '进行中'
-                          )}
-                        </span>
-                      </div>
-                      
-                      <div className="text-sm mb-2">
-                        <span className="text-foreground font-medium">
-                          {record.match_home_team} vs {record.match_away_team}
-                        </span>
-                        <span className="text-muted-foreground ml-2">· {record.prediction}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          {format(new Date(record.created_at), 'MM-dd HH:mm')}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-muted-foreground font-mono">${record.bet_amount}</span>
-                          <span className={`font-bold font-mono ${
-                            record.pnl >= 0 ? 'text-success' : 'text-destructive'
-                          }`}>
-                            {record.pnl >= 0 ? '+' : ''}${record.pnl}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                {/* 跟单列表 - 表格形式更清晰 */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">跟单对象</th>
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">比赛</th>
+                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">跟注金额</th>
+                        <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">盈亏</th>
+                        <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">结果</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {copyTradeRecords.map((record) => (
+                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-7 w-7 border border-border">
+                                <AvatarImage src={record.followed_player_avatar} />
+                                <AvatarFallback className="text-xs">{record.followed_player_name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-xs font-medium text-foreground truncate max-w-[100px]">{record.followed_player_name}</p>
+                                <p className="text-[10px] text-muted-foreground">{format(new Date(record.created_at), 'MM-dd')}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <p className="text-xs text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
+                            <p className="text-[10px] text-muted-foreground">{record.prediction}</p>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <p className="text-sm font-mono font-bold text-foreground">${record.bet_amount}</p>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <p className={`text-sm font-mono font-bold ${
+                              record.pnl >= 0 ? 'text-success' : 'text-destructive'
+                            }`}>
+                              {record.pnl >= 0 ? '+' : ''}${record.pnl}
+                            </p>
+                            {record.result === 'win' && (
+                              <p className="text-[10px] text-success">赢 ${record.bet_amount + record.pnl}</p>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {record.result === 'win' ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                                <CheckCircle2 className="h-3 w-3" />
+                                胜
+                              </span>
+                            ) : record.result === 'loss' ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
+                                <XCircle className="h-3 w-3" />
+                                负
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">进行中</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </>
             ) : (
