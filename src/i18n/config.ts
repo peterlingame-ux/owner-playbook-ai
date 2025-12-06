@@ -47,6 +47,13 @@ const resources = {
       "player_leaderboard": "Player Recommendation Leaderboard",
       "all_players": "All Players",
       "no_data": "No data available",
+      "today_win_rate": "Today Win Rate",
+      "today_history": "Today's History",
+      "no_history_today": "No records today",
+      "no_data_today": "No data",
+      "click_to_view_history": "Click to view today's records",
+      "pending": "Pending",
+      "profit_loss": "P/L",
       
       // Model Cards
       "the_contestants": "AI Model Predictions",
@@ -436,6 +443,13 @@ const resources = {
       "player_leaderboard": "玩家推荐排行榜",
       "all_players": "所有玩家",
       "no_data": "暂无数据",
+      "today_win_rate": "今日胜率",
+      "today_history": "今日记录",
+      "no_history_today": "今日暂无记录",
+      "no_data_today": "暂无",
+      "click_to_view_history": "点击查看今日记录",
+      "pending": "进行中",
+      "profit_loss": "盈亏",
       
       // Model Cards
       "the_contestants": "AI模型预测",
