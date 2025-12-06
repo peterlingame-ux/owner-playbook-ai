@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X } from "lucide-react";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
@@ -23,11 +23,36 @@ import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AIModel } from "@/types/prediction";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { format } from "date-fns";
 
+interface TodayPosition {
+  id: string;
+  match_id: string;
+  home_team: string;
+  away_team: string;
+  bet_type: string;
+  prediction: string;
+  amount: number;
+  odds: number;
+  status: string;
+  result?: string;
+  pnl?: number;
+  created_at: string;
+}
 const LeaderboardTable = () => {
   const { t } = useTranslation();
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoading, setIsLoading] = useState(true);
+  const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
+  const [selectedModelHistory, setSelectedModelHistory] = useState<{ modelId: string; modelName: string; positions: TodayPosition[] } | null>(null);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // 获取真实的胜率数据和统计数据 - 使用 Realtime 订阅实现实时更新
   useEffect(() => {
@@ -157,6 +182,106 @@ const LeaderboardTable = () => {
     };
   }, []);
 
+  // 获取今日胜率数据
+  useEffect(() => {
+    const fetchTodayWinRates = async () => {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString();
+
+        // 查询今日的 sim_positions
+        const { data, error } = await supabase
+          .from('sim_positions' as any)
+          .select('ai_id, status, result')
+          .gte('created_at', todayStr);
+
+        if (error) {
+          console.error('Error fetching today positions:', error);
+          return;
+        }
+
+        // 计算每个 AI 的今日胜率
+        const todayStats = new Map<string, { total: number; correct: number }>();
+        
+        if (data) {
+          data.forEach((pos: any) => {
+            const aiId = pos.ai_id;
+            if (!todayStats.has(aiId)) {
+              todayStats.set(aiId, { total: 0, correct: 0 });
+            }
+            const stats = todayStats.get(aiId)!;
+            if (pos.status === 'settled') {
+              stats.total++;
+              if (pos.result === 'win') {
+                stats.correct++;
+              }
+            }
+          });
+        }
+
+        const todayWinRatesMap = new Map<string, { winRate: number; total: number; correct: number }>();
+        todayStats.forEach((stats, aiId) => {
+          const winRate = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
+          todayWinRatesMap.set(aiId, { winRate, total: stats.total, correct: stats.correct });
+        });
+
+        setTodayWinRates(todayWinRatesMap);
+      } catch (error) {
+        console.error('Error fetching today win rates:', error);
+      }
+    };
+
+    fetchTodayWinRates();
+  }, []);
+
+  // 获取指定 AI 的今日历史记录
+  const fetchTodayHistory = async (modelId: string, modelName: string) => {
+    setIsLoadingHistory(true);
+    setIsHistoryDialogOpen(true);
+    
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString();
+
+      const { data, error } = await supabase
+        .from('sim_positions' as any)
+        .select('*')
+        .eq('ai_id', modelId)
+        .gte('created_at', todayStr)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching today history:', error);
+        setSelectedModelHistory({ modelId, modelName, positions: [] });
+        return;
+      }
+
+      const positions: TodayPosition[] = (data || []).map((pos: any) => ({
+        id: pos.id,
+        match_id: pos.match_id,
+        home_team: pos.home_team || 'Home Team',
+        away_team: pos.away_team || 'Away Team',
+        bet_type: pos.bet_type,
+        prediction: pos.prediction,
+        amount: pos.amount,
+        odds: pos.odds,
+        status: pos.status,
+        result: pos.result,
+        pnl: pos.pnl,
+        created_at: pos.created_at,
+      }));
+
+      setSelectedModelHistory({ modelId, modelName, positions });
+    } catch (error) {
+      console.error('Error fetching today history:', error);
+      setSelectedModelHistory({ modelId, modelName, positions: [] });
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
   // Calculate additional stats for each model
   const enhancedModels = modelsWithRealData
     .map(model => ({
@@ -262,6 +387,12 @@ const LeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
+                      <div className="flex items-center justify-center gap-1">
+                        {t('today_win_rate') || '今日胜率'}
+                        <History className="h-3 w-3" />
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -325,6 +456,30 @@ const LeaderboardTable = () => {
                         }`}>
                           {model.locked ? '???' : `${(model as any).roi >= 0 ? '+' : ''}${((model as any).roi || 0).toFixed(2)}%`}
                         </span>
+                      </TableCell>
+                      <TableCell className="text-center py-3 sm:py-4">
+                        {(() => {
+                          const todayData = todayWinRates.get(model.id);
+                          const todayWinRate = todayData?.winRate ?? 0;
+                          const todayTotal = todayData?.total ?? 0;
+                          
+                          return (
+                            <button
+                              onClick={() => fetchTodayHistory(model.id, model.displayName)}
+                              className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
+                              title={t('click_to_view_history') || '点击查看今日记录'}
+                            >
+                              <span className={`font-mono-data font-bold text-sm sm:text-base ${
+                                todayTotal === 0 ? 'text-muted-foreground' : todayWinRate >= 50 ? 'text-success' : 'text-destructive'
+                              }`}>
+                                {model.locked ? '???' : todayTotal > 0 ? `${todayWinRate.toFixed(1)}%` : '-'}
+                              </span>
+                              <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors">
+                                {todayTotal > 0 ? `${todayData?.correct}/${todayTotal}` : t('no_data_today') || '暂无'}
+                              </span>
+                            </button>
+                          );
+                        })()}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -460,6 +615,94 @@ const LeaderboardTable = () => {
           <p className="text-sm text-muted-foreground">
             <span className="font-bold">{t('note')}:</span> {t('statistics_note')}
           </p>
+
+      {/* Today History Dialog */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              {selectedModelHistory?.modelName} - {t('today_history') || '今日记录'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="overflow-y-auto max-h-[60vh] pr-2">
+            {isLoadingHistory ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              </div>
+            ) : selectedModelHistory?.positions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {t('no_history_today') || '今日暂无记录'}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {selectedModelHistory?.positions.map((pos) => (
+                  <div 
+                    key={pos.id}
+                    className={`p-3 rounded-lg border ${
+                      pos.status === 'settled' 
+                        ? pos.result === 'win' 
+                          ? 'bg-success/10 border-success/30' 
+                          : 'bg-destructive/10 border-destructive/30'
+                        : 'bg-muted/30 border-border/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-sm">
+                        {pos.home_team} vs {pos.away_team}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        pos.status === 'settled'
+                          ? pos.result === 'win'
+                            ? 'bg-success/20 text-success'
+                            : 'bg-destructive/20 text-destructive'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {pos.status === 'settled' 
+                          ? pos.result === 'win' ? t('win') || '胜' : t('loss') || '负'
+                          : t('pending') || '进行中'}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">{t('bet_type') || '类型'}:</span>
+                        <span className="ml-1 font-medium">{pos.bet_type}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t('prediction') || '预测'}:</span>
+                        <span className="ml-1 font-medium">{pos.prediction}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t('bet_amount') || '金额'}:</span>
+                        <span className="ml-1 font-medium">${pos.amount}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t('odds') || '赔率'}:</span>
+                        <span className="ml-1 font-medium">{pos.odds?.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    
+                    {pos.status === 'settled' && pos.pnl !== undefined && (
+                      <div className="mt-2 pt-2 border-t border-border/30">
+                        <span className="text-xs text-muted-foreground">{t('profit_loss') || '盈亏'}:</span>
+                        <span className={`ml-1 font-bold ${pos.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          {pos.pnl >= 0 ? '+' : ''}${pos.pnl.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="mt-1 text-[10px] text-muted-foreground">
+                      {format(new Date(pos.created_at), 'HH:mm')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
