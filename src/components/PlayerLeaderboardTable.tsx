@@ -1139,39 +1139,88 @@ const PlayerLeaderboardTable = () => {
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          {upcomingPredictions.slice(0, 3).map((pred, index) => (
-                            <div 
-                              key={pred.id} 
-                              className="bg-card border border-border/50 rounded-lg p-2.5"
-                            >
-                              {/* 比赛对阵 - 单行紧凑 */}
-                              <div className="flex items-center justify-between gap-2 mb-1.5">
-                                <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                                  <span className="text-xs font-medium truncate">{pred.home_team || '主队'}</span>
-                                  <span className="text-[10px] text-primary font-bold px-1.5 py-0.5 bg-primary/10 rounded">VS</span>
-                                  <span className="text-xs font-medium truncate">{pred.away_team || '客队'}</span>
-                                </div>
-                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
-                                  待开赛
-                                </span>
-                              </div>
-                              
-                              {/* 推荐信息 */}
-                              <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-border/30">
-                                <span className="text-muted-foreground">
-                                  推荐: <span className="font-bold text-primary">{pred.prediction}</span>
-                                </span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-muted-foreground">
-                                    赔率 <span className="text-foreground font-medium">1.80</span>
+                          {upcomingPredictions.slice(0, 3).map((pred, index) => {
+                            // 解析推荐内容，提取推荐的球队
+                            const getRecommendedTeam = () => {
+                              const prediction = pred.prediction.toLowerCase();
+                              if (prediction.includes('主胜') || prediction.includes('主让') || prediction.includes('home')) {
+                                return { team: pred.home_team || '主队', type: 'home' };
+                              } else if (prediction.includes('客胜') || prediction.includes('客让') || prediction.includes('away')) {
+                                return { team: pred.away_team || '客队', type: 'away' };
+                              } else if (prediction.includes('大') || prediction.includes('over')) {
+                                return { team: '大球', type: 'over' };
+                              } else if (prediction.includes('小') || prediction.includes('under')) {
+                                return { team: '小球', type: 'under' };
+                              }
+                              return { team: pred.prediction, type: 'other' };
+                            };
+                            const recommended = getRecommendedTeam();
+                            
+                            return (
+                              <div 
+                                key={pred.id} 
+                                className="bg-card border border-border/50 rounded-lg p-2.5"
+                              >
+                                {/* 比赛对阵 - 带球队logo */}
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    {/* 主队 */}
+                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'home' ? 'ring-1 ring-primary/50 rounded-md px-1 bg-primary/5' : ''}`}>
+                                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
+                                        {(pred.home_team || '主')[0]}
+                                      </div>
+                                      <span className={`text-xs font-medium truncate max-w-[70px] ${recommended.type === 'home' ? 'text-primary font-bold' : ''}`}>
+                                        {pred.home_team || '主队'}
+                                      </span>
+                                    </div>
+                                    
+                                    <span className="text-[10px] text-muted-foreground font-bold">VS</span>
+                                    
+                                    {/* 客队 */}
+                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'away' ? 'ring-1 ring-primary/50 rounded-md px-1 bg-primary/5' : ''}`}>
+                                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0">
+                                        {(pred.away_team || '客')[0]}
+                                      </div>
+                                      <span className={`text-xs font-medium truncate max-w-[70px] ${recommended.type === 'away' ? 'text-primary font-bold' : ''}`}>
+                                        {pred.away_team || '客队'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
+                                    待开赛
                                   </span>
-                                  <span className="px-1.5 py-0.5 rounded bg-success/10 text-success font-medium">
-                                    85%
-                                  </span>
+                                </div>
+                                
+                                {/* 推荐信息 - 更清晰的显示 */}
+                                <div className="bg-primary/5 rounded-md p-2 border border-primary/10">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5">
+                                      <Sparkles className="h-3 w-3 text-primary" />
+                                      <span className="text-[10px] text-muted-foreground">推荐:</span>
+                                      <span className="text-xs font-bold text-primary">
+                                        {recommended.type === 'home' || recommended.type === 'away' 
+                                          ? `${recommended.team} 胜` 
+                                          : recommended.type === 'over' 
+                                            ? `大于 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'} 球`
+                                            : recommended.type === 'under'
+                                              ? `小于 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'} 球`
+                                              : pred.prediction
+                                        }
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <span className="text-muted-foreground">
+                                        赔率 <span className="text-foreground font-medium">1.80</span>
+                                      </span>
+                                      <span className="px-1.5 py-0.5 rounded bg-success/10 text-success font-medium">
+                                        85%
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                           {upcomingPredictions.length > 3 && (
                             <p className="text-[10px] text-center text-muted-foreground">
                               还有 {upcomingPredictions.length - 3} 场推荐...
@@ -1198,26 +1247,40 @@ const PlayerLeaderboardTable = () => {
                           {completedPredictions.slice(0, 2).map((pred) => (
                             <div 
                               key={pred.id} 
-                              className={`rounded-lg p-2 flex items-center justify-between ${
+                              className={`rounded-lg p-2 ${
                                 pred.result === 'win' 
                                   ? 'bg-success/5 border border-success/20' 
                                   : 'bg-destructive/5 border border-destructive/20'
                               }`}
                             >
-                              <div className="flex items-center gap-2 text-xs">
-                                <span className="truncate max-w-[60px]">{pred.home_team}</span>
-                                <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
-                                  {pred.home_score ?? 0}-{pred.away_score ?? 0}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-xs">
+                                  {/* 主队 */}
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                      {(pred.home_team || '主')[0]}
+                                    </div>
+                                    <span className="truncate max-w-[50px]">{pred.home_team}</span>
+                                  </div>
+                                  <span className="font-bold px-1.5 py-0.5 rounded bg-background/80 text-xs">
+                                    {pred.home_score ?? 0}-{pred.away_score ?? 0}
+                                  </span>
+                                  {/* 客队 */}
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[7px] font-bold text-white">
+                                      {(pred.away_team || '客')[0]}
+                                    </div>
+                                    <span className="truncate max-w-[50px]">{pred.away_team}</span>
+                                  </div>
+                                </div>
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                  pred.result === 'win' 
+                                    ? 'bg-success/20 text-success' 
+                                    : 'bg-destructive/20 text-destructive'
+                                }`}>
+                                  {pred.result === 'win' ? '✓' : '✗'}
                                 </span>
-                                <span className="truncate max-w-[60px]">{pred.away_team}</span>
                               </div>
-                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                                pred.result === 'win' 
-                                  ? 'bg-success/20 text-success' 
-                                  : 'bg-destructive/20 text-destructive'
-                              }`}>
-                                {pred.result === 'win' ? '✓' : '✗'}
-                              </span>
                             </div>
                           ))}
                         </div>
