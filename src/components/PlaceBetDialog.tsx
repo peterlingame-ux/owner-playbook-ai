@@ -7,11 +7,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Target, Trophy } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Target, Trophy, Calendar, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer } from 'recharts';
+import { format } from "date-fns";
 
 interface Match {
   fixture_id: number;
@@ -63,6 +65,11 @@ interface TeamRadarData {
   fullMark: number;
 }
 
+interface AIMatchWithDetails extends Match {
+  ai_count: number;
+  ai_models: string[];
+}
+
 interface PlaceBetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -82,19 +89,37 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
   const [matchLoading, setMatchLoading] = useState(false);
+  
+  // AI预测比赛列表相关状态
+  const [aiMatches, setAiMatches] = useState<AIMatchWithDetails[]>([]);
+  const [isLoadingMatches, setIsLoadingMatches] = useState(false);
+  const [showMatchSelection, setShowMatchSelection] = useState(!match);
 
   // Update selectedMatch when match prop changes
   useEffect(() => {
-    setSelectedMatch(match);
+    if (match) {
+      setSelectedMatch(match);
+      setShowMatchSelection(false);
+    } else {
+      setShowMatchSelection(true);
+    }
   }, [match]);
 
+  // 当对话框打开时获取AI预测的比赛列表
   useEffect(() => {
-    if (open && selectedMatch) {
+    if (open && showMatchSelection) {
+      fetchAIMatches();
+      fetchUserBalance();
+    }
+  }, [open, showMatchSelection]);
+
+  useEffect(() => {
+    if (open && selectedMatch && !showMatchSelection) {
       fetchUserBalance();
       fetchAIPredictions(selectedMatch.fixture_id);
       fetchMatchStats(selectedMatch);
     }
-  }, [open, selectedMatch]);
+  }, [open, selectedMatch, showMatchSelection]);
 
   useEffect(() => {
     if (selectedMatch) {
@@ -111,6 +136,83 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   useEffect(() => {
     setSelectedBetOption("");
   }, [selectedBetType]);
+
+  // 获取AI已预测的比赛列表
+  const fetchAIMatches = async () => {
+    setIsLoadingMatches(true);
+    try {
+      // 获取所有pending状态的AI预测
+      const { data: betsData, error: betsError } = await supabase
+        .from('ai_auto_bets' as any)
+        .select('match_id, ai_id, ai_display_name')
+        .eq('status', 'pending');
+
+      if (betsError) {
+        console.error('Error fetching AI bets:', betsError);
+        setAiMatches([]);
+        return;
+      }
+
+      if (!betsData || betsData.length === 0) {
+        setAiMatches([]);
+        return;
+      }
+
+      // 按match_id分组统计AI数量
+      const matchAIMap = new Map<number, { count: number; models: Set<string> }>();
+      betsData.forEach((bet: any) => {
+        const matchId = bet.match_id;
+        if (!matchAIMap.has(matchId)) {
+          matchAIMap.set(matchId, { count: 0, models: new Set() });
+        }
+        const entry = matchAIMap.get(matchId)!;
+        entry.count++;
+        if (bet.ai_display_name) {
+          entry.models.add(bet.ai_display_name);
+        }
+      });
+
+      const matchIds = [...matchAIMap.keys()];
+
+      // 获取比赛详情
+      const { data: matchesData, error: matchesError } = await supabase
+        .from('daily_matches' as any)
+        .select('*')
+        .in('fixture_id', matchIds)
+        .order('kickoff_at', { ascending: true });
+
+      if (matchesError) {
+        console.error('Error fetching matches:', matchesError);
+        setAiMatches([]);
+        return;
+      }
+
+      // 合并数据
+      const matchesWithAI: AIMatchWithDetails[] = (matchesData || []).map((m: any) => {
+        const aiInfo = matchAIMap.get(m.fixture_id) || { count: 0, models: new Set() };
+        return {
+          fixture_id: m.fixture_id,
+          home_team_id: m.home_team_id,
+          home_team_name: m.home_team_name,
+          away_team_id: m.away_team_id,
+          away_team_name: m.away_team_name,
+          home_logo: m.home_logo,
+          away_logo: m.away_logo,
+          league_name: m.league_name,
+          kickoff_at: m.kickoff_at,
+          ai_count: aiInfo.count,
+          ai_models: [...aiInfo.models],
+        };
+      });
+
+      setAiMatches(matchesWithAI);
+    } catch (error) {
+      console.error('Error fetching AI matches:', error);
+      setAiMatches([]);
+    } finally {
+      setIsLoadingMatches(false);
+    }
+  };
 
   const fetchUserBalance = async () => {
     if (!user) return;
@@ -135,7 +237,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           ai_id: bet.ai_id || '',
           ai_display_name: bet.ai_display_name || '',
           prediction: bet.prediction || '',
-          bet_type: bet.bet_type || 'moneyline',
+          bet_type: bet.bet_type || 'handicap',
           confidence: bet.confidence || 0,
           odds: bet.odds || 1.9,
           handicap_line: bet.handicap_line || undefined,
@@ -253,6 +355,21 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
     return selected?.odds || 1.9;
   };
 
+  const handleSelectMatch = (m: AIMatchWithDetails) => {
+    setSelectedMatch(m);
+    setShowMatchSelection(false);
+    setAiPredictions([]);
+    setMatchStats(null);
+  };
+
+  const handleBackToSelection = () => {
+    setShowMatchSelection(true);
+    setSelectedMatch(null);
+    setAiPredictions([]);
+    setMatchStats(null);
+    setSelectedBetOption("");
+  };
+
   const handlePlaceBet = async () => {
     if (!user || !selectedMatch) {
       toast.error("请先登录");
@@ -292,6 +409,8 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
         onOpenChange(false);
         setBetAmount("100");
         setSelectedBetOption("");
+        setShowMatchSelection(true);
+        setSelectedMatch(null);
         if (onBetPlaced) onBetPlaced();
       } else {
         toast.error(result?.error || "下注失败");
@@ -305,14 +424,24 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        // 关闭时重置状态
+        setShowMatchSelection(!match);
+        setSelectedMatch(match);
+      }
+      onOpenChange(isOpen);
+    }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-warning bg-clip-text text-transparent">
-            与AI同场PK - 选择比赛下注
+            {showMatchSelection ? "选择AI预测比赛" : "与AI同场PK - 选择下注"}
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-2">
-            选择你的预测结果，与AI在同一场比赛中一较高下！
+            {showMatchSelection 
+              ? "以下比赛已有AI模型进行预测，选择一场比赛与AI一较高下！"
+              : "选择你的预测结果，与AI在同一场比赛中一较高下！"
+            }
           </p>
         </DialogHeader>
 
@@ -321,176 +450,264 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           <Card className="p-4 bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">可用余额</span>
-              <span className="text-2xl font-bold font-mono-data">${userBalance.toFixed(0)}</span>
+              <span className="text-2xl font-bold font-mono">${userBalance.toFixed(0)}</span>
             </div>
           </Card>
 
-          {/* 当前选中的比赛 */}
-          {selectedMatch && (
-            <Card className="p-4 border-primary/20">
-              <div className="flex items-center gap-4">
-                {selectedMatch.home_logo && (
-                  <img src={selectedMatch.home_logo} alt="" className="w-12 h-12 object-contain" />
-                )}
-                <div className="flex-1">
-                  <p className="font-bold text-lg">{selectedMatch.home_team_name} vs {selectedMatch.away_team_name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedMatch.league_name}</p>
-                </div>
-                {selectedMatch.away_logo && (
-                  <img src={selectedMatch.away_logo} alt="" className="w-12 h-12 object-contain" />
-                )}
-              </div>
-            </Card>
-          )}
-
-          {/* 历史交锋和雷达图 */}
-          {selectedMatch && matchStats && (
+          {/* 比赛选择列表 */}
+          {showMatchSelection && (
             <div className="space-y-3">
-              <Label className="text-base font-bold">比赛数据分析</Label>
+              <Label className="text-base font-bold flex items-center gap-2">
+                <Target className="w-4 h-4 text-primary" />
+                AI已预测比赛列表
+              </Label>
               
-              {/* 历史交锋 */}
-              <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <Trophy className="w-4 h-4 text-primary" />
-                  <h4 className="font-bold text-sm">历史交锋（近{matchStats.head_to_head.total_games}场）</h4>
+              {isLoadingMatches ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="ml-2 text-muted-foreground">加载中...</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-primary">{matchStats.head_to_head.home_wins}</div>
-                    <div className="text-xs text-muted-foreground">主队胜</div>
+              ) : aiMatches.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">暂无AI预测的比赛</p>
+                  <p className="text-xs text-muted-foreground mt-2">请稍后再试</p>
+                </Card>
+              ) : (
+                <ScrollArea className="h-[400px] pr-4">
+                  <div className="space-y-2">
+                    {aiMatches.map((m) => (
+                      <Card 
+                        key={m.fixture_id}
+                        className="p-4 cursor-pointer transition-all hover:border-primary hover:bg-primary/5 group"
+                        onClick={() => handleSelectMatch(m)}
+                      >
+                        <div className="flex items-center gap-3">
+                          {/* 比赛信息 */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              {m.home_logo && (
+                                <img src={m.home_logo} alt="" className="w-6 h-6 object-contain" />
+                              )}
+                              <span className="font-semibold text-sm">{m.home_team_name}</span>
+                              <span className="text-muted-foreground text-xs">vs</span>
+                              <span className="font-semibold text-sm">{m.away_team_name}</span>
+                              {m.away_logo && (
+                                <img src={m.away_logo} alt="" className="w-6 h-6 object-contain" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                {m.league_name}
+                              </Badge>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {format(new Date(m.kickoff_at), "MM/dd HH:mm")}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* AI预测数量 */}
+                          <div className="text-right">
+                            <Badge className="bg-primary/20 text-primary border-primary/30">
+                              {m.ai_count} AI预测
+                            </Badge>
+                            <div className="text-[10px] text-muted-foreground mt-1 max-w-[120px] truncate">
+                              {m.ai_models.slice(0, 3).join(", ")}
+                              {m.ai_models.length > 3 && "..."}
+                            </div>
+                          </div>
+                          
+                          {/* 箭头 */}
+                          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </Card>
+                    ))}
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-muted-foreground">{matchStats.head_to_head.draws}</div>
-                    <div className="text-xs text-muted-foreground">平局</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-warning">{matchStats.head_to_head.away_wins}</div>
-                    <div className="text-xs text-muted-foreground">客队胜</div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* 球队实力对比雷达图 */}
-              <Card className="p-4 bg-gradient-to-br from-primary/5 to-warning/5 border-primary/20">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-primary" />
-                    <h4 className="font-bold text-sm">球队实力对比</h4>
-                  </div>
-                </div>
-                <ResponsiveContainer width="100%" height={350}>
-                  <RadarChart 
-                    data={matchStats.team_stats.home.map((item, idx) => ({
-                      category: item.category,
-                      主队: item.value,
-                      客队: matchStats.team_stats.away[idx].value,
-                    }))}
-                    margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
-                  >
-                    <PolarGrid stroke="hsl(var(--border))" strokeWidth={1.5} strokeDasharray="3 3" />
-                    <PolarAngleAxis dataKey="category" tick={{ fill: 'hsl(var(--foreground))', fontSize: 13 }} />
-                    <PolarRadiusAxis angle={90} domain={[0, 100]} tickCount={6} />
-                    <Radar name={selectedMatch.home_team_name} dataKey="主队" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} strokeWidth={2.5} />
-                    <Radar name={selectedMatch.away_team_name} dataKey="客队" stroke="hsl(var(--warning))" fill="hsl(var(--warning))" fillOpacity={0.25} strokeWidth={2.5} />
-                    <Legend />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </Card>
+                </ScrollArea>
+              )}
             </div>
           )}
 
-          {/* 投注类型选择 */}
-          {selectedMatch && aiPredictions.length > 0 && (
-            <div className="space-y-4">
-              <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
-                <TabsList>
-                  <TabsTrigger value="handicap">让球</TabsTrigger>
-                  <TabsTrigger value="over_under">大小球</TabsTrigger>
-                </TabsList>
-              </Tabs>
+          {/* 下注界面 */}
+          {!showMatchSelection && selectedMatch && (
+            <>
+              {/* 返回按钮 */}
+              {!match && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleBackToSelection}
+                  className="mb-2"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  返回选择比赛
+                </Button>
+              )}
 
-              {/* 赔率选项 */}
-              <div className="grid grid-cols-2 gap-4">
-                {getBetOptions().map((option) => (
-                  <Card
-                    key={option.value}
-                    className={`p-5 cursor-pointer transition-all hover:border-primary ${
-                      selectedBetOption === option.value
-                        ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
-                        : 'border-border'
-                    }`}
-                    onClick={() => setSelectedBetOption(option.value)}
-                  >
-                    <div className="text-center space-y-2">
-                      <p className="font-bold text-base">{option.label}</p>
-                      <Badge className="text-lg font-bold px-3 py-1 bg-gradient-to-r from-success/20 to-success/10 text-success border-success/30">
-                        {option.odds.toFixed(2)}
-                      </Badge>
+              {/* 当前选中的比赛 */}
+              <Card className="p-4 border-primary/20">
+                <div className="flex items-center gap-4">
+                  {selectedMatch.home_logo && (
+                    <img src={selectedMatch.home_logo} alt="" className="w-12 h-12 object-contain" />
+                  )}
+                  <div className="flex-1">
+                    <p className="font-bold text-lg">{selectedMatch.home_team_name} vs {selectedMatch.away_team_name}</p>
+                    <p className="text-sm text-muted-foreground">{selectedMatch.league_name}</p>
+                  </div>
+                  {selectedMatch.away_logo && (
+                    <img src={selectedMatch.away_logo} alt="" className="w-12 h-12 object-contain" />
+                  )}
+                </div>
+              </Card>
+
+              {/* 历史交锋和雷达图 */}
+              {matchStats && (
+                <div className="space-y-3">
+                  <Label className="text-base font-bold">比赛数据分析</Label>
+                  
+                  {/* 历史交锋 */}
+                  <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Trophy className="w-4 h-4 text-primary" />
+                      <h4 className="font-bold text-sm">历史交锋（近{matchStats.head_to_head.total_games}场）</h4>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-primary">{matchStats.head_to_head.home_wins}</div>
+                        <div className="text-xs text-muted-foreground">主队胜</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-muted-foreground">{matchStats.head_to_head.draws}</div>
+                        <div className="text-xs text-muted-foreground">平局</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-warning">{matchStats.head_to_head.away_wins}</div>
+                        <div className="text-xs text-muted-foreground">客队胜</div>
+                      </div>
                     </div>
                   </Card>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* 投注金额 */}
-          {selectedMatch && selectedBetOption && (
-            <div className="space-y-4">
-              <Separator />
-              <div className="space-y-3">
-                <Label className="text-base font-bold">选择投注金额</Label>
-                <Input
-                  type="number"
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(e.target.value)}
-                  placeholder="输入投注金额"
-                  min="1"
-                  max={userBalance}
-                  className="h-12 text-lg font-mono-data text-center"
-                />
-                <div className="grid grid-cols-4 gap-2">
-                  {[100, 500, 1000, 2000].map((amount) => (
-                    <Button
-                      key={amount}
-                      variant={betAmount === amount.toString() ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setBetAmount(amount.toString())}
-                      className="h-10 font-bold"
-                      disabled={amount > userBalance}
+                  {/* 球队实力对比雷达图 */}
+                  <Card className="p-4 bg-gradient-to-br from-primary/5 to-warning/5 border-primary/20">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Target className="w-4 h-4 text-primary" />
+                        <h4 className="font-bold text-sm">球队实力对比</h4>
+                      </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={350}>
+                      <RadarChart 
+                        data={matchStats.team_stats.home.map((item, idx) => ({
+                          category: item.category,
+                          主队: item.value,
+                          客队: matchStats.team_stats.away[idx].value,
+                        }))}
+                        margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
+                      >
+                        <PolarGrid stroke="hsl(var(--border))" strokeWidth={1.5} strokeDasharray="3 3" />
+                        <PolarAngleAxis dataKey="category" tick={{ fill: 'hsl(var(--foreground))', fontSize: 13 }} />
+                        <PolarRadiusAxis angle={90} domain={[0, 100]} tickCount={6} />
+                        <Radar name={selectedMatch.home_team_name} dataKey="主队" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} strokeWidth={2.5} />
+                        <Radar name={selectedMatch.away_team_name} dataKey="客队" stroke="hsl(var(--warning))" fill="hsl(var(--warning))" fillOpacity={0.25} strokeWidth={2.5} />
+                        <Legend />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </Card>
+                </div>
+              )}
+
+              {/* 投注类型选择 */}
+              <div className="space-y-4">
+                <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
+                  <TabsList>
+                    <TabsTrigger value="handicap">让球</TabsTrigger>
+                    <TabsTrigger value="over_under">大小球</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                {/* 赔率选项 */}
+                <div className="grid grid-cols-2 gap-4">
+                  {getBetOptions().map((option) => (
+                    <Card
+                      key={option.value}
+                      className={`p-5 cursor-pointer transition-all hover:border-primary ${
+                        selectedBetOption === option.value
+                          ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
+                          : 'border-border'
+                      }`}
+                      onClick={() => setSelectedBetOption(option.value)}
                     >
-                      ${amount}
-                    </Button>
+                      <div className="text-center space-y-2">
+                        <p className="font-bold text-base">{option.label}</p>
+                        <Badge className="text-lg font-bold px-3 py-1 bg-gradient-to-r from-success/20 to-success/10 text-success border-success/30">
+                          {option.odds.toFixed(2)}
+                        </Badge>
+                      </div>
+                    </Card>
                   ))}
                 </div>
               </div>
-              <Card className="p-4 bg-gradient-to-br from-success/10 via-success/5 to-transparent border-success/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">预期收益</p>
-                    <p className="text-sm text-muted-foreground">
-                      投注 ${parseFloat(betAmount) || 0} × {getCurrentOdds().toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-success font-mono-data">
-                      ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
 
-          {/* 确认按钮 */}
-          {selectedMatch && selectedBetOption && (
-            <Button
-              onClick={handlePlaceBet}
-              disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
-              className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-warning hover:opacity-90"
-            >
-              <Target className="mr-2 h-5 w-5" />
-              {isSubmitting ? "下注中..." : `确认下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`}
-            </Button>
+              {/* 投注金额 */}
+              {selectedBetOption && (
+                <div className="space-y-4">
+                  <Separator />
+                  <div className="space-y-3">
+                    <Label className="text-base font-bold">选择投注金额</Label>
+                    <Input
+                      type="number"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                      placeholder="输入投注金额"
+                      min="1"
+                      max={userBalance}
+                      className="h-12 text-lg font-mono text-center"
+                    />
+                    <div className="grid grid-cols-4 gap-2">
+                      {[100, 500, 1000, 2000].map((amount) => (
+                        <Button
+                          key={amount}
+                          variant={betAmount === amount.toString() ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setBetAmount(amount.toString())}
+                          className="h-10 font-bold"
+                          disabled={amount > userBalance}
+                        >
+                          ${amount}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <Card className="p-4 bg-gradient-to-br from-success/10 via-success/5 to-transparent border-success/30">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">预期收益</p>
+                        <p className="text-sm text-muted-foreground">
+                          投注 ${parseFloat(betAmount) || 0} × {getCurrentOdds().toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-success font-mono">
+                          ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {/* 确认按钮 */}
+              {selectedBetOption && (
+                <Button
+                  onClick={handlePlaceBet}
+                  disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
+                  className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-warning hover:opacity-90"
+                >
+                  <Target className="mr-2 h-5 w-5" />
+                  {isSubmitting ? "下注中..." : `确认下注 $${betAmount} @ ${getCurrentOdds().toFixed(2)}`}
+                </Button>
+              )}
+            </>
           )}
         </div>
       </DialogContent>
@@ -498,3 +715,4 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   );
 };
 
+export default PlaceBetDialog;
