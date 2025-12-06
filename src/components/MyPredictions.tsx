@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -212,6 +212,8 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // 合并预测和跟单记录
   const allRecords = useMemo(() => {
@@ -273,6 +275,18 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
 
     return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [allRecords, filterResult, filterPeriod, filterType]);
+
+  // 总页数和当前页数据
+  const totalPages = Math.ceil(filteredPredictions.length / ITEMS_PER_PAGE);
+  const paginatedPredictions = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredPredictions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredPredictions, currentPage]);
+
+  // 当筛选条件变化时重置页码
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterType, filterResult, filterPeriod]);
 
   // 统计数据
   const totalPredictions = filteredPredictions.length;
@@ -361,14 +375,14 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
               </tr>
             </thead>
             <tbody>
-              {filteredPredictions.length === 0 ? (
+              {paginatedPredictions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-6 text-muted-foreground text-xs">
                     {t('no_records')}
                   </td>
                 </tr>
               ) : (
-                filteredPredictions.map((pred) => {
+                paginatedPredictions.map((pred) => {
                   const profit = pred.actual_payout - pred.bet_amount;
                   
                   return (
@@ -433,6 +447,58 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             </tbody>
           </table>
         </div>
+        
+        {/* 分页控件 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-2 py-2 border-t border-border bg-muted/30">
+            <span className="text-[10px] text-muted-foreground">
+              {t('page_info', { current: currentPage, total: totalPages, count: filteredPredictions.length })}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-3 w-3" />
+              </Button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "ghost"}
+                    size="icon"
+                    className="h-6 w-6 text-[10px]"
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
