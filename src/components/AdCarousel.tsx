@@ -1,17 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-import sponsor1xbet from "@/assets/sponsor-1xbet.jpg";
-import sponsorEaSports from "@/assets/sponsor-ea-sports.jpg";
-import sponsorKaiyun from "@/assets/sponsor-kaiyun.png";
-import sponsorSportybet from "@/assets/sponsor-sportybet.png";
+import banner1 from "@/assets/banner-1.jpg";
+import banner2 from "@/assets/banner-2.jpg";
+import banner3 from "@/assets/banner-3.jpg";
 
 const ads = [
-  { id: 1, image: sponsor1xbet, alt: "1xBet" },
-  { id: 2, image: sponsorEaSports, alt: "EA Sports" },
-  { id: 3, image: sponsorKaiyun, alt: "Kaiyun" },
-  { id: 4, image: sponsorSportybet, alt: "SportyBet" },
+  { id: 1, image: banner1, alt: "年末冲刺月" },
+  { id: 2, image: banner2, alt: "逐梦欧战" },
+  { id: 3, image: banner3, alt: "运筹帷幄" },
 ];
 
 const AdCarousel = () => {
