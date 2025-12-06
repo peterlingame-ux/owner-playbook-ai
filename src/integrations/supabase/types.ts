@@ -43,6 +43,39 @@ export type Database = {
           },
         ]
       }
+      deposit_records: {
+        Row: {
+          amount: number
+          confirmed_at: string | null
+          created_at: string
+          id: string
+          network: string
+          status: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          network?: string
+          status?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          network?: string
+          status?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       user_balances: {
         Row: {
           balance: number

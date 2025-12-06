@@ -946,7 +946,7 @@ const MyPredictions = () => {
             <USDTWalletDialog 
               trigger={
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4" />
+                  <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4 h-4" />
                   USDT充值
                 </Button>
               }
