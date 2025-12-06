@@ -216,10 +216,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               onClick={handleCopyTrade}
               className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px]" />
-                <span>{t('copy_trade')}</span>
-              </div>
+              <span>{t('copy_trade')}</span>
             </Button>
           </div>
         </div>
