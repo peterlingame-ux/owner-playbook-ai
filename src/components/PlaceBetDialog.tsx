@@ -619,19 +619,29 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                           onClick={() => handleSelectMatch(m)}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5 text-sm font-medium truncate">
-                                <span>{m.home_team_name}</span>
-                                <span className="text-muted-foreground text-xs">vs</span>
-                                <span>{m.away_team_name}</span>
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              {/* 主队logo */}
+                              {m.home_logo && (
+                                <img src={m.home_logo} alt="" className="w-6 h-6 object-contain shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 text-sm font-medium truncate">
+                                  <span>{m.home_team_name}</span>
+                                  <span className="text-muted-foreground text-xs">vs</span>
+                                  <span>{m.away_team_name}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
+                                  <span>{m.league_name}</span>
+                                  <span>·</span>
+                                  <span className={isStarted ? "text-destructive" : "text-primary"}>
+                                    {countdown}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
-                                <span>{m.league_name}</span>
-                                <span>·</span>
-                                <span className={isStarted ? "text-destructive" : "text-primary"}>
-                                  {countdown}
-                                </span>
-                              </div>
+                              {/* 客队logo */}
+                              {m.away_logo && (
+                                <img src={m.away_logo} alt="" className="w-6 h-6 object-contain shrink-0" />
+                              )}
                             </div>
                             <div className="flex items-center gap-0.5 shrink-0">
                               {m.ai_models.slice(0, 5).map((model, idx) => (
