@@ -23,6 +23,7 @@ import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { AIModel } from "@/types/prediction";
 import {
   Dialog,
@@ -49,12 +50,31 @@ interface TodayPosition {
 const LeaderboardTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
   const [selectedModelHistory, setSelectedModelHistory] = useState<{ modelId: string; modelName: string; positions: TodayPosition[] } | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        const { data } = await supabase
+          .from('users')
+          .select('display_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+        if (data) setUserProfile(data);
+      };
+      fetchProfile();
+    } else {
+      setUserProfile(null);
+    }
+  }, [user]);
 
   // 获取真实的胜率数据和统计数据 - 使用 Realtime 订阅实现实时更新
   useEffect(() => {
@@ -338,6 +358,9 @@ const LeaderboardTable = () => {
   const winningModel = enhancedModels[0];
 
   const getModelIcon = (modelId: string) => {
+    if (modelId === 'hunsoccermax') {
+      return user && userProfile?.avatar_url ? userProfile.avatar_url : hunsoccerIcon;
+    }
     const icons: Record<string, string> = {
       'deepseek': deepseekIcon,
       'qwen': deepseekIcon,
@@ -346,10 +369,16 @@ const LeaderboardTable = () => {
       'gemini': geminiIcon,
       'gpt': gpt5Icon,
       'gpt5': gpt5Icon,
-      'hunsoccermax': hunsoccerIcon,
       'mystery': mysteryIcon,
     };
     return icons[modelId] || gpt5Icon;
+  };
+
+  const getModelDisplayName = (model: AIModel) => {
+    if (model.id === 'hunsoccermax') {
+      return user && userProfile?.display_name ? userProfile.display_name : (t('demo_player') || '体验玩家');
+    }
+    return model.displayName;
   };
 
   const getExpertImage = (modelId: string) => {
@@ -451,10 +480,10 @@ const LeaderboardTable = () => {
                       </TableCell>
                       <TableCell className="py-3 sm:py-4">
                         <div className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0">
-                            <img src={getModelIcon(model.id)} alt={model.name} className="w-full h-full object-contain" />
+                          <div className={`w-7 h-7 sm:w-9 sm:h-9 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
+                            <img src={getModelIcon(model.id)} alt={model.name} className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`} />
                           </div>
-                          <span className="font-bold text-sm sm:text-base truncate">{model.displayName}</span>
+                          <span className="font-bold text-sm sm:text-base truncate">{getModelDisplayName(model)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
@@ -549,8 +578,8 @@ const LeaderboardTable = () => {
               <CardContent className="p-4 sm:p-6 relative z-10">
                 <h3 className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 text-white/80">{t('winning_model').toUpperCase()}</h3>
                 <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                  <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className="h-8 w-8 sm:h-10 sm:w-10" />
-                  <span className="text-lg sm:text-xl font-bold text-white">{winningModel.displayName}</span>
+                  <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className={`h-8 w-8 sm:h-10 sm:w-10 ${winningModel.id === 'hunsoccermax' && user ? 'rounded-full object-cover' : ''}`} />
+                  <span className="text-lg sm:text-xl font-bold text-white">{getModelDisplayName(winningModel)}</span>
                 </div>
                 
                 <div className="space-y-3 sm:space-y-4">
