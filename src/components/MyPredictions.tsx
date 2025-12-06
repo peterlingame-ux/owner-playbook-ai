@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, Calendar, BarChart3 } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, Calendar, BarChart3, Filter, CheckCircle2, XCircle } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -176,6 +176,195 @@ const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: strin
               />
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 玩家历史记录表格组件 - 类似AI历史模板
+const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
+  id: string;
+  match_id: string;
+  prediction: string;
+  result: string;
+  bet_amount: number;
+  actual_payout: number;
+  created_at: string;
+  match?: {
+    fixture_id: number;
+    home_team_name: string;
+    away_team_name: string;
+    home_logo?: string;
+    away_logo?: string;
+    league_name?: string;
+    goals_home?: number;
+    goals_away?: number;
+  };
+}> }) => {
+  const [filterResult, setFilterResult] = useState<string>("all");
+  const [filterPeriod, setFilterPeriod] = useState<string>("all");
+
+  // 过滤数据
+  const filteredPredictions = useMemo(() => {
+    let filtered = [...predictions];
+
+    if (filterResult !== "all") {
+      filtered = filtered.filter(p => 
+        filterResult === "win" ? p.result === 'win' : p.result === 'loss'
+      );
+    }
+
+    if (filterPeriod !== "all") {
+      const now = new Date();
+      const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
+      const periodDate = subDays(now, daysAgo);
+      filtered = filtered.filter(p => new Date(p.created_at) >= periodDate);
+    }
+
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [predictions, filterResult, filterPeriod]);
+
+  // 统计数据
+  const totalPredictions = filteredPredictions.length;
+  const winCount = filteredPredictions.filter(p => p.result === 'win').length;
+  const lossCount = filteredPredictions.filter(p => p.result === 'loss').length;
+  const winRate = totalPredictions > 0 ? ((winCount / totalPredictions) * 100).toFixed(1) : "0.0";
+  const totalProfit = filteredPredictions.reduce((sum, p) => sum + (p.actual_payout - p.bet_amount), 0);
+
+  return (
+    <div className="space-y-4">
+      {/* 筛选器 */}
+      <div className="bg-card border border-border rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">筛选</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <select
+            value={filterResult}
+            onChange={(e) => setFilterResult(e.target.value)}
+            className="h-9 px-3 rounded-md border border-border bg-background text-sm"
+          >
+            <option value="all">全部结果</option>
+            <option value="win">命中</option>
+            <option value="loss">未中</option>
+          </select>
+
+          <select
+            value={filterPeriod}
+            onChange={(e) => setFilterPeriod(e.target.value)}
+            className="h-9 px-3 rounded-md border border-border bg-background text-sm"
+          >
+            <option value="all">全部时间</option>
+            <option value="7d">近7天</option>
+            <option value="30d">近30天</option>
+            <option value="90d">近90天</option>
+          </select>
+        </div>
+
+        {/* 统计摘要 */}
+        <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-border">
+          <div className="text-center">
+            <p className="text-lg font-bold font-mono text-foreground">{totalPredictions}</p>
+            <p className="text-xs text-muted-foreground">总计</p>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-bold font-mono text-success">{winCount}</p>
+            <p className="text-xs text-muted-foreground">命中</p>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-bold font-mono text-destructive">{lossCount}</p>
+            <p className="text-xs text-muted-foreground">未中</p>
+          </div>
+          <div className="text-center">
+            <p className={`text-lg font-bold font-mono ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {totalProfit >= 0 ? '+' : ''}{totalProfit.toFixed(0)}
+            </p>
+            <p className="text-xs text-muted-foreground">盈亏</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 历史记录表格 */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">日期</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">比赛</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">预测</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">投注</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs">盈亏</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground text-xs">结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPredictions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                    暂无记录
+                  </td>
+                </tr>
+              ) : (
+                filteredPredictions.map((pred) => {
+                  const profit = pred.actual_payout - pred.bet_amount;
+                  
+                  return (
+                    <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                      <td className="py-3 px-4 text-xs text-muted-foreground whitespace-nowrap">
+                        {format(new Date(pred.created_at), 'MM-dd')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2 min-w-[140px]">
+                          {pred.match?.home_logo && (
+                            <img src={pred.match.home_logo} alt="" className="w-4 h-4 object-contain" />
+                          )}
+                          <span className="text-xs text-foreground truncate max-w-[80px]">
+                            {pred.match?.home_team_name || '主队'}
+                          </span>
+                          <span className="text-xs text-muted-foreground">vs</span>
+                          <span className="text-xs text-foreground truncate max-w-[80px]">
+                            {pred.match?.away_team_name || '客队'}
+                          </span>
+                          {pred.match?.away_logo && (
+                            <img src={pred.match.away_logo} alt="" className="w-4 h-4 object-contain" />
+                          )}
+                        </div>
+                        {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && (
+                          <div className="text-xs text-muted-foreground mt-0.5 font-mono">
+                            {pred.match.goals_home} : {pred.match.goals_away}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-foreground">
+                        {pred.prediction}
+                      </td>
+                      <td className="py-3 px-4 text-right text-xs font-mono text-muted-foreground">
+                        ${pred.bet_amount}
+                      </td>
+                      <td className={`py-3 px-4 text-right text-xs font-mono font-bold ${
+                        profit >= 0 ? 'text-success' : 'text-destructive'
+                      }`}>
+                        {profit >= 0 ? '+' : ''}{profit.toFixed(0)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {pred.result === 'win' ? (
+                          <CheckCircle2 className="h-4 w-4 text-success inline-block" />
+                        ) : pred.result === 'loss' ? (
+                          <XCircle className="h-4 w-4 text-destructive inline-block" />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -690,27 +879,36 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-12">
+        <TabsList className="grid w-full grid-cols-3 h-12">
           <TabsTrigger value="history" className="flex items-center gap-2 text-sm">
             <History className="h-4 w-4" />
-            购买记录
+            <span className="hidden sm:inline">完整</span>历史
+          </TabsTrigger>
+          <TabsTrigger value="recent" className="flex items-center gap-2 text-sm">
+            <Calendar className="h-4 w-4" />
+            近期
           </TabsTrigger>
           <TabsTrigger value="copy-trade" className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4" />
-            跟单记录
+            跟单
           </TabsTrigger>
         </TabsList>
 
-        {/* 购买记录标签页 */}
+        {/* 完整历史记录标签页 - 类似AI历史模板 */}
         <TabsContent value="history" className="mt-4">
+          <PlayerHistoryTable predictions={stats?.recentPredictions || []} />
+        </TabsContent>
+
+        {/* 近期购买记录标签页 */}
+        <TabsContent value="recent" className="mt-4">
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="p-4 border-b border-border">
-              <h3 className="font-semibold text-foreground">购买记录</h3>
-              <p className="text-xs text-muted-foreground mt-1">您的预测历史</p>
+              <h3 className="font-semibold text-foreground">近期记录</h3>
+              <p className="text-xs text-muted-foreground mt-1">最近10条预测</p>
             </div>
             <div className="divide-y divide-border">
               {stats?.recentPredictions && stats.recentPredictions.length > 0 ? (
-                stats.recentPredictions.map((pred) => (
+                stats.recentPredictions.slice(0, 10).map((pred) => (
                   <div key={pred.id} className="p-4 hover:bg-muted/30 transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-muted-foreground">
@@ -757,7 +955,7 @@ const MyPredictions = () => {
                 ))
               ) : (
                 <div className="p-8 text-center text-muted-foreground">
-                  暂无购买记录
+                  暂无记录
                 </div>
               )}
             </div>
