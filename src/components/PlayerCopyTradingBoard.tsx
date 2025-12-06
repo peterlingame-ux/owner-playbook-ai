@@ -294,7 +294,7 @@ const PlayerCopyTradingBoard = () => {
       .order('created_at', { ascending: false });
     
     if (error) {
-      toast.error('获取今日记录失败');
+      toast.error(t('fetch_today_failed'));
       return;
     }
 
@@ -360,12 +360,12 @@ const PlayerCopyTradingBoard = () => {
     if (!copyTradeDialog) return;
     
     if (copyBetAmount > userBalance) {
-      toast.error('余额不足，无法跟单');
+      toast.error(t('insufficient_balance'));
       return;
     }
 
     if (copyBetAmount < 10) {
-      toast.error('最低跟单金额为 ¥10');
+      toast.error(t('min_copy_amount'));
       return;
     }
 
@@ -379,15 +379,15 @@ const PlayerCopyTradingBoard = () => {
     
     toast.success(
       <div className="space-y-1">
-        <p className="font-medium">跟单成功！</p>
+        <p className="font-medium">{t('copy_success')}</p>
         <p className="text-xs text-muted-foreground">
-          已跟随 {copyTradeDialog.player.displayName} 下注 ¥{copyBetAmount}
+          {t('followed_bet')} {copyTradeDialog.player.displayName} ¥{copyBetAmount}
         </p>
         <p className="text-xs">
           {copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}
         </p>
         <p className="text-xs text-primary">
-          预测: {copyTradeDialog.prediction.prediction}
+          {t('prediction')}: {copyTradeDialog.prediction.prediction}
         </p>
       </div>
     );
@@ -430,14 +430,14 @@ const PlayerCopyTradingBoard = () => {
           <p className="font-semibold text-sm truncate">{player.displayName}</p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1">
-              <span className="text-muted-foreground/70">胜率:</span>
+              <span className="text-muted-foreground/70">{t('win_rate')}:</span>
               <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {player.winRate.toFixed(1)}%
               </span>
             </span>
             <span className="text-border">|</span>
             <span className="flex items-center gap-1">
-              <span className="text-muted-foreground/70">盈利:</span>
+              <span className="text-muted-foreground/70">{t('profit_label')}:</span>
               <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
               </span>
@@ -446,9 +446,9 @@ const PlayerCopyTradingBoard = () => {
               <>
                 <span className="text-border">|</span>
                 <span className="flex items-center gap-1">
-                  <span className="text-muted-foreground/70">{streakType === 'best' ? '连胜:' : '连败:'}</span>
+                  <span className="text-muted-foreground/70">{streakType === 'best' ? t('best_streak') : t('worst_streak')}:</span>
                   <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                    {streakType === 'best' ? player.bestStreak : player.worstStreak}场
+                    {streakType === 'best' ? player.bestStreak : player.worstStreak}{t('matches_unit')}
                   </span>
                 </span>
               </>
@@ -468,7 +468,7 @@ const PlayerCopyTradingBoard = () => {
           }}
         >
           <Calendar className="h-3 w-3" />
-          <span className="text-muted-foreground">昨日预测:</span>
+          <span className="text-muted-foreground">{t('yesterday_predictions')}:</span>
           {(() => {
             const stats = todayStats.get(player.id);
             if (!stats || stats.total === 0) return '-';
@@ -654,7 +654,7 @@ const PlayerCopyTradingBoard = () => {
                       borderRadius: '8px',
                       fontSize: '12px'
                     }}
-                    formatter={(value: number) => [`¥${Math.abs(value).toLocaleString()}`, value >= 0 ? '盈利' : '亏损']}
+                    formatter={(value: number) => [`¥${Math.abs(value).toLocaleString()}`, value >= 0 ? t('profit_tooltip') : t('loss_tooltip')]}
                     animationDuration={300}
                   />
                   <Bar 
@@ -761,7 +761,7 @@ const PlayerCopyTradingBoard = () => {
                 <AvatarImage src={selectedPlayer?.player.avatarUrl} />
                 <AvatarFallback>{selectedPlayer?.player.displayName.charAt(0)}</AvatarFallback>
               </Avatar>
-              <span>{selectedPlayer?.player.displayName} - 今日预测</span>
+              <span>{selectedPlayer?.player.displayName} - {t('today_prediction')}</span>
             </DialogTitle>
           </DialogHeader>
           
@@ -769,7 +769,7 @@ const PlayerCopyTradingBoard = () => {
             <div className="space-y-3">
               {/* 今日统计 */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <span className="text-sm text-muted-foreground">今日战绩</span>
+                <span className="text-sm text-muted-foreground">{t('today_record')}</span>
                 <span className="font-bold">
                   {todayStats.get(selectedPlayer.player.id)?.correct || 0}/
                   {todayStats.get(selectedPlayer.player.id)?.total || 0}
@@ -782,7 +782,7 @@ const PlayerCopyTradingBoard = () => {
               {/* 预测列表 */}
               {selectedPlayer.predictions.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  今日暂无预测记录
+                  {t('no_predictions_today')}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -792,17 +792,17 @@ const PlayerCopyTradingBoard = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                            <span className="text-right flex-1 truncate">{pred.home_team || '主队'}</span>
+                            <span className="text-right flex-1 truncate">{pred.home_team || t('home_team')}</span>
                             <div className="flex items-center gap-1 px-2 py-1 rounded bg-background/50 min-w-[60px] justify-center">
                               {pred.match_status === 'FT' || pred.result ? (
                                 <span className="font-bold text-base">
                                   {pred.home_score ?? '-'} : {pred.away_score ?? '-'}
                                 </span>
                               ) : (
-                                <span className="text-xs text-muted-foreground">未开始</span>
+                                <span className="text-xs text-muted-foreground">{t('not_started')}</span>
                               )}
                             </div>
-                            <span className="text-left flex-1 truncate">{pred.away_team || '客队'}</span>
+                            <span className="text-left flex-1 truncate">{pred.away_team || t('away_team')}</span>
                           </div>
                         </div>
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ml-2 flex-shrink-0 ${
@@ -810,18 +810,18 @@ const PlayerCopyTradingBoard = () => {
                           pred.result === 'loss' ? 'bg-destructive/20 text-destructive' :
                           'bg-muted text-muted-foreground'
                         }`}>
-                          {pred.result === 'win' ? '赢' : pred.result === 'loss' ? '输' : '待定'}
+                          {pred.result === 'win' ? t('win_result') : pred.result === 'loss' ? t('loss_result') : t('pending_result')}
                         </span>
                       </div>
                       
                       {/* 预测详情 */}
                       <div className="flex items-center justify-between text-sm border-t border-border/20 pt-2">
                         <span className="text-muted-foreground">
-                          {pred.prediction_type === 'over_under' ? '大小球' : '让球'}: 
+                          {pred.prediction_type === 'over_under' ? t('over_under_type') : t('handicap_type')}: 
                           <span className="font-medium ml-1 text-foreground">{pred.prediction}</span>
                         </span>
                         <span className="text-muted-foreground">
-                          下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span>
+                          {t('bet_label')}: <span className="text-foreground font-medium">¥{pred.bet_amount}</span>
                         </span>
                       </div>
                       
@@ -848,7 +848,7 @@ const PlayerCopyTradingBoard = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-primary" />
-              一键跟单
+              {t('one_click_copy')}
             </DialogTitle>
           </DialogHeader>
           
@@ -863,36 +863,36 @@ const PlayerCopyTradingBoard = () => {
                 <div>
                   <p className="font-semibold">{copyTradeDialog.player.displayName}</p>
                   <p className="text-xs text-muted-foreground">
-                    胜率: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
+                    {t('win_rate')}: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
                       {copyTradeDialog.player.winRate.toFixed(1)}%
                     </span>
                     <span className="mx-2">|</span>
-                    连胜: <span className="text-success">{copyTradeDialog.player.bestStreak}场</span>
+                    {t('best_streak')}: <span className="text-success">{copyTradeDialog.player.bestStreak}{t('matches_unit')}</span>
                   </p>
                 </div>
               </div>
 
               {/* 跟单比赛信息 */}
               <div className="p-3 rounded-lg border border-border/50 space-y-2">
-                <div className="text-xs text-muted-foreground mb-2">跟单比赛</div>
+                <div className="text-xs text-muted-foreground mb-2">{t('copy_match')}</div>
                 <div className="flex items-center justify-center gap-2 text-sm font-medium">
                   <span className="text-right flex-1">{copyTradeDialog.prediction.home_team}</span>
                   <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
                   <span className="text-left flex-1">{copyTradeDialog.prediction.away_team}</span>
                 </div>
                 <div className="text-center text-xs text-muted-foreground mt-2">
-                  预测: <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
+                  {t('prediction')}: <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
                   <span className="mx-2">|</span>
-                  类型: {copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球'}
+                  {t('type_column')}: {copyTradeDialog.prediction.prediction_type === 'over_under' ? t('over_under_type') : t('handicap_type')}
                 </div>
               </div>
 
               {/* 跟单金额设置 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">跟单金额</span>
+                  <span className="text-muted-foreground">{t('copy_amount')}</span>
                   <span className="text-xs text-muted-foreground">
-                    可用余额: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
+                    {t('available_balance_label')}: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -912,20 +912,19 @@ const PlayerCopyTradingBoard = () => {
 
               {/* 预期收益 */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-success/10 border border-success/20">
-                <span className="text-sm text-muted-foreground">预期收益</span>
+                <span className="text-sm text-muted-foreground">{t('expected_profit')}</span>
                 <span className="font-bold text-success">
                   +¥{(copyBetAmount * 0.8).toFixed(0)} ~ +¥{(copyBetAmount * 1.2).toFixed(0)}
                 </span>
               </div>
 
-              {/* 确认按钮 */}
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   className="flex-1"
                   onClick={() => setCopyTradeDialog(null)}
                 >
-                  取消
+                  {t('cancel')}
                 </Button>
                 <Button
                   className="flex-1"
@@ -935,16 +934,16 @@ const PlayerCopyTradingBoard = () => {
                   {isCopying ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      跟单中...
+                      {t('copying')}
                     </>
                   ) : (
-                    <>确认跟单 ¥{copyBetAmount}</>
+                    <>{t('confirm_copy')} ¥{copyBetAmount}</>
                   )}
                 </Button>
               </div>
 
               <p className="text-[10px] text-muted-foreground text-center">
-                * 跟单即表示您同意使用虚拟资金复制该玩家的预测策略
+                {t('copy_disclaimer')}
               </p>
             </div>
           )}
