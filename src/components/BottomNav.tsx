@@ -10,7 +10,7 @@ const BottomNav = () => {
     { to: "/leaderboard", icon: Trophy, label: t('nav_rank') },
     { to: "/history", icon: History, label: t('nav_history') },
     { to: "/models", icon: Sparkles, label: t('nav_models') },
-    { to: "/my-predictions", icon: Target, label: "我的" },
+    { to: "/my-predictions", icon: Target, label: "个人中心" },
   ];
 
   return (
