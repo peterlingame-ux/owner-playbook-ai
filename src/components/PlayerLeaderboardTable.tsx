@@ -1127,14 +1127,17 @@ const PlayerLeaderboardTable = () => {
               {(() => {
                 const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
                 const completedPreds = selectedPlayerHistory.predictions.filter(p => p.result);
-                // 计算今日盈亏
-                const todayProfitLoss = completedPreds.reduce((acc, pred) => {
+                // 计算投注金额（总投入）
+                const totalBetAmount = completedPreds.reduce((acc, pred) => acc + pred.bet_amount, 0);
+                // 计算有效金额（赢的场次返还）
+                const validAmount = completedPreds.reduce((acc, pred) => {
                   if (pred.result === 'win') {
                     return acc + ((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number);
-                  } else {
-                    return acc - pred.bet_amount;
                   }
+                  return acc;
                 }, 0);
+                // 计算今日盈亏
+                const todayProfitLoss = validAmount - totalBetAmount;
                 
                 return (
                   <div className="space-y-2">
@@ -1165,18 +1168,27 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     
-                    {/* 今日盈亏汇总 */}
+                    {/* 今日投注统计 */}
                     {completedPreds.length > 0 && (
-                      <div className={`rounded-lg p-2.5 flex items-center justify-between ${todayProfitLoss >= 0 ? 'bg-success/10 border border-success/20' : 'bg-destructive/10 border border-destructive/20'}`}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">今日盈亏</span>
-                          <span className="text-[10px] text-muted-foreground">
-                            ({completedPreds.filter(p => p.result === 'win').length}胜{completedPreds.filter(p => p.result === 'loss').length}负)
-                          </span>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-muted/30 rounded-lg p-2 text-center">
+                          <div className="text-sm font-bold font-mono-data text-foreground">
+                            ¥{totalBetAmount.toFixed(0)}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">投注金额</div>
                         </div>
-                        <span className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {todayProfitLoss >= 0 ? '+' : ''}¥{todayProfitLoss.toFixed(0)}
-                        </span>
+                        <div className="bg-muted/30 rounded-lg p-2 text-center">
+                          <div className="text-sm font-bold font-mono-data text-primary">
+                            ¥{validAmount.toFixed(0)}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">有效金额</div>
+                        </div>
+                        <div className={`rounded-lg p-2 text-center ${todayProfitLoss >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                          <div className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {todayProfitLoss >= 0 ? '+' : ''}¥{todayProfitLoss.toFixed(0)}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">今日盈亏</div>
+                        </div>
                       </div>
                     )}
                   </div>
