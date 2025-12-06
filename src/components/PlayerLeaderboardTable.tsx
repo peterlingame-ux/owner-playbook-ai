@@ -415,12 +415,18 @@ const PlayerLeaderboardTable = () => {
         const match = upcomingMatches[i % upcomingMatches.length];
         const betAmount = Math.floor(Math.random() * 400) + 100;
         const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
-        const predictions = ['Over 2.5', 'Under 2.5', '主胜', '客胜', '平局', '让球主胜 -0.5', '让球客胜 +0.5'];
+        // 只有大小球和让分胜负两种类型
+        const isOverUnder = Math.random() > 0.5;
+        const overUnderPredictions = ['大 2.5球', '小 2.5球', '大 1.5球', '小 1.5球', '大 3.5球', '小 3.5球'];
+        const handicapPredictions = ['让分主胜 -0.5', '让分客胜 +0.5', '让分主胜 -1', '让分客胜 +1', '让分主胜 -1.5', '让分客胜 +1.5'];
+        const prediction = isOverUnder 
+          ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
+          : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
         mockPredictions.push({
           id: `upcoming-${playerId}-${i}`,
           match_id: `upcoming-${1000 + i}`,
-          prediction: predictions[Math.floor(Math.random() * predictions.length)],
-          prediction_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
+          prediction: prediction,
+          prediction_type: isOverUnder ? 'over_under' : 'handicap',
           bet_amount: betAmount,
           potential_payout: potentialPayout,
           result: null, // 未开始
@@ -440,11 +446,17 @@ const PlayerLeaderboardTable = () => {
         const isWin = Math.random() > 0.4;
         const betAmount = Math.floor(Math.random() * 400) + 100;
         const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
+        const isOverUnder = Math.random() > 0.5;
+        const overUnderPredictions = ['大 2.5球', '小 2.5球', '大 1.5球', '小 1.5球'];
+        const handicapPredictions = ['让分主胜 -0.5', '让分客胜 +0.5', '让分主胜 -1', '让分客胜 +1'];
+        const prediction = isOverUnder 
+          ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
+          : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
         mockPredictions.push({
           id: `completed-${playerId}-${i}`,
           match_id: `completed-${2000 + i}`,
-          prediction: Math.random() > 0.5 ? 'Over 2.5' : 'Under 2.5',
-          prediction_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
+          prediction: prediction,
+          prediction_type: isOverUnder ? 'over_under' : 'handicap',
           bet_amount: betAmount,
           potential_payout: potentialPayout,
           result: isWin ? 'win' : 'loss',
@@ -485,18 +497,24 @@ const PlayerLeaderboardTable = () => {
         const completedCount = Math.floor(Math.random() * 2) + 1;
         
         const mockPredictions: TodayPrediction[] = [];
-        const predictions = ['Over 2.5', 'Under 2.5', '主胜', '客胜', '让球主胜 -0.5'];
+        // 只有大小球和让分胜负两种类型
+        const overUnderPredictions = ['大 2.5球', '小 2.5球', '大 1.5球', '小 1.5球', '大 3.5球', '小 3.5球'];
+        const handicapPredictions = ['让分主胜 -0.5', '让分客胜 +0.5', '让分主胜 -1', '让分客胜 +1', '让分主胜 -1.5', '让分客胜 +1.5'];
         
         // 添加未开始的推荐比赛
         for (let i = 0; i < upcomingCount; i++) {
           const match = upcomingMatches[i % upcomingMatches.length];
           const betAmount = Math.floor(Math.random() * 400) + 100;
           const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
+          const isOverUnder = Math.random() > 0.5;
+          const prediction = isOverUnder 
+            ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
+            : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
           mockPredictions.push({
             id: `upcoming-real-${playerId}-${i}`,
             match_id: `upcoming-${3000 + i}`,
-            prediction: predictions[Math.floor(Math.random() * predictions.length)],
-            prediction_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
+            prediction: prediction,
+            prediction_type: isOverUnder ? 'over_under' : 'handicap',
             bet_amount: betAmount,
             potential_payout: potentialPayout,
             result: null,
@@ -516,11 +534,15 @@ const PlayerLeaderboardTable = () => {
           const isWin = Math.random() > 0.4;
           const betAmount = Math.floor(Math.random() * 400) + 100;
           const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
+          const isOverUnder = Math.random() > 0.5;
+          const prediction = isOverUnder 
+            ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
+            : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
           mockPredictions.push({
             id: `completed-real-${playerId}-${i}`,
             match_id: `completed-${4000 + i}`,
-            prediction: predictions[Math.floor(Math.random() * predictions.length)],
-            prediction_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
+            prediction: prediction,
+            prediction_type: isOverUnder ? 'over_under' : 'handicap',
             bet_amount: betAmount,
             potential_payout: potentialPayout,
             result: isWin ? 'win' : 'loss',
@@ -1220,21 +1242,28 @@ const PlayerLeaderboardTable = () => {
                       ) : (
                         <div className="space-y-2">
                           {upcomingPredictions.slice(0, 3).map((pred, index) => {
-                            // 解析推荐内容，提取推荐的球队
-                            const getRecommendedTeam = () => {
-                              const prediction = pred.prediction.toLowerCase();
-                              if (prediction.includes('主胜') || prediction.includes('主让') || prediction.includes('home')) {
-                                return { team: pred.home_team || '主队', type: 'home' };
-                              } else if (prediction.includes('客胜') || prediction.includes('客让') || prediction.includes('away')) {
-                                return { team: pred.away_team || '客队', type: 'away' };
-                              } else if (prediction.includes('大') || prediction.includes('over')) {
-                                return { team: '大球', type: 'over' };
-                              } else if (prediction.includes('小') || prediction.includes('under')) {
-                                return { team: '小球', type: 'under' };
+                            // 解析推荐内容 - 只有大小球和让分胜负两种类型
+                            const getRecommendedInfo = () => {
+                              const prediction = pred.prediction;
+                              // 大小球
+                              if (prediction.includes('大') || prediction.toLowerCase().includes('over')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return { label: `大 ${line}球`, type: 'over_under' };
+                              } else if (prediction.includes('小') || prediction.toLowerCase().includes('under')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return { label: `小 ${line}球`, type: 'over_under' };
+                              } 
+                              // 让分胜负
+                              else if (prediction.includes('让分主胜') || prediction.includes('主让')) {
+                                const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
+                                return { label: `${pred.home_team || '主队'} (${line})`, type: 'handicap' };
+                              } else if (prediction.includes('让分客胜') || prediction.includes('客让')) {
+                                const line = prediction.match(/\+?[\d.]+/)?.[0] || '+0.5';
+                                return { label: `${pred.away_team || '客队'} (+${line.replace('+', '')})`, type: 'handicap' };
                               }
-                              return { team: pred.prediction, type: 'other' };
+                              return { label: prediction, type: 'other' };
                             };
-                            const recommended = getRecommendedTeam();
+                            const recommended = getRecommendedInfo();
                             
                             return (
                               <div 
@@ -1244,8 +1273,7 @@ const PlayerLeaderboardTable = () => {
                                 {/* 比赛对阵 - 带球队logo */}
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    {/* 主队 */}
-                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'home' ? 'bg-muted/50 rounded-md px-1.5 py-0.5' : ''}`}>
+                                    <div className="flex items-center gap-1.5">
                                       {getTeamLogo(pred.home_team || '') ? (
                                         <img 
                                           src={getTeamLogo(pred.home_team || '') || ''} 
@@ -1257,7 +1285,7 @@ const PlayerLeaderboardTable = () => {
                                           {(pred.home_team || '主')[0]}
                                         </div>
                                       )}
-                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'home' ? 'font-bold' : ''}`}>
+                                      <span className="text-xs font-medium truncate max-w-[60px]">
                                         {pred.home_team || '主队'}
                                       </span>
                                     </div>
@@ -1265,7 +1293,7 @@ const PlayerLeaderboardTable = () => {
                                     <span className="text-[10px] text-muted-foreground font-bold">VS</span>
                                     
                                     {/* 客队 */}
-                                    <div className={`flex items-center gap-1.5 ${recommended.type === 'away' ? 'bg-muted/50 rounded-md px-1.5 py-0.5' : ''}`}>
+                                    <div className="flex items-center gap-1.5">
                                       {getTeamLogo(pred.away_team || '') ? (
                                         <img 
                                           src={getTeamLogo(pred.away_team || '') || ''} 
@@ -1277,7 +1305,7 @@ const PlayerLeaderboardTable = () => {
                                           {(pred.away_team || '客')[0]}
                                         </div>
                                       )}
-                                      <span className={`text-xs font-medium truncate max-w-[60px] ${recommended.type === 'away' ? 'font-bold' : ''}`}>
+                                      <span className="text-xs font-medium truncate max-w-[60px]">
                                         {pred.away_team || '客队'}
                                       </span>
                                     </div>
@@ -1291,23 +1319,18 @@ const PlayerLeaderboardTable = () => {
                                 <div className="bg-muted/30 rounded-md p-2">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-1.5">
-                                      <span className="text-[10px] text-muted-foreground">推荐:</span>
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                        {recommended.type === 'over_under' ? '大小球' : '让分'}
+                                      </span>
                                       <span className="text-xs font-bold text-foreground">
-                                        {recommended.type === 'home' || recommended.type === 'away' 
-                                          ? `${recommended.team} 胜` 
-                                          : recommended.type === 'over' 
-                                            ? `大于 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'} 球`
-                                            : recommended.type === 'under'
-                                              ? `小于 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'} 球`
-                                              : pred.prediction
-                                        }
+                                        {recommended.label}
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px]">
                                       <span className="text-muted-foreground">
                                         赔率 <span className="text-foreground font-medium">1.80</span>
                                       </span>
-                                      <span className="px-1.5 py-0.5 rounded bg-muted text-foreground font-medium">
+                                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
                                         85%
                                       </span>
                                     </div>
@@ -1340,22 +1363,27 @@ const PlayerLeaderboardTable = () => {
                         
                         <div className="space-y-1.5">
                           {completedPredictions.slice(0, 2).map((pred) => {
-                            // 解析预测类别和内容
-                            const predictionType = pred.prediction_type === 'over_under' ? '大小球' : '让球盘';
+                            // 解析预测 - 只有大小球和让分胜负两种类型
                             const getPredictionLabel = () => {
-                              const p = pred.prediction.toLowerCase();
-                              if (p.includes('主胜') || p.includes('主让') || p.includes('home')) {
-                                return `${pred.home_team || '主队'} 胜`;
-                              } else if (p.includes('客胜') || p.includes('客让') || p.includes('away')) {
-                                return `${pred.away_team || '客队'} 胜`;
-                              } else if (p.includes('over') || p.includes('大')) {
-                                return `大 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'}球`;
-                              } else if (p.includes('under') || p.includes('小')) {
-                                return `小 ${pred.prediction.match(/[\d.]+/)?.[0] || '2.5'}球`;
+                              const prediction = pred.prediction;
+                              // 大小球
+                              if (prediction.includes('大') || prediction.toLowerCase().includes('over')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return `大 ${line}球`;
+                              } else if (prediction.includes('小') || prediction.toLowerCase().includes('under')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return `小 ${line}球`;
+                              } 
+                              // 让分胜负
+                              else if (prediction.includes('让分主胜') || prediction.includes('主让')) {
+                                const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
+                                return `${pred.home_team || '主队'} (${line})`;
+                              } else if (prediction.includes('让分客胜') || prediction.includes('客让')) {
+                                const line = prediction.match(/\+?[\d.]+/)?.[0] || '+0.5';
+                                return `${pred.away_team || '客队'} (+${line.replace('+', '')})`;
                               }
-                              return pred.prediction;
+                              return prediction;
                             };
-                            
                             return (
                                 <div 
                                 key={pred.id} 
@@ -1409,7 +1437,7 @@ const PlayerLeaderboardTable = () => {
                                 <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/30">
                                   <div className="flex items-center gap-1.5">
                                     <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                      {predictionType}
+                                      {pred.prediction_type === 'over_under' ? '大小球' : '让分'}
                                     </span>
                                     <span className="font-medium text-foreground">
                                       {getPredictionLabel()}
