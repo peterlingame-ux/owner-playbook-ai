@@ -689,9 +689,31 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       <span className="text-white font-medium text-sm">{selectedMatch.home_team_name}</span>
                     </div>
                     
-                    {/* VS */}
+                    {/* VS 和倒计时 */}
                     <div className="text-center">
-                      <span className="text-white/70 text-xs">未开赛</span>
+                      {(() => {
+                        const kickoffTime = new Date(selectedMatch.kickoff_at).getTime();
+                        const now = Date.now();
+                        const diff = kickoffTime - now;
+                        
+                        if (diff <= 0) {
+                          return <span className="text-amber-400 text-xs">已开赛</span>;
+                        }
+                        
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        
+                        if (hours > 24) {
+                          const days = Math.floor(hours / 24);
+                          return <span className="text-white/70 text-xs">{days}天后开赛</span>;
+                        }
+                        
+                        return (
+                          <span className="text-primary text-xs font-mono">
+                            {hours > 0 ? `${hours}时${minutes}分` : `${minutes}分钟`}
+                          </span>
+                        );
+                      })()}
                       <div className="text-white font-bold text-lg">VS</div>
                     </div>
                     
