@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target, TrendingUp, ChevronRight, CheckCircle2, Users, Calendar } from "lucide-react";
+import { Trophy, Target, TrendingUp, ChevronRight, CheckCircle2, Users, Calendar, Quote, Award } from "lucide-react";
 
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
@@ -73,6 +73,43 @@ const Waitlist = () => {
     { round: "S1-003", aiModel: "Gemini 1.5 Pro", aiWinRate: 69.2, winners: 3, totalPaid: 330000 },
     { round: "S1-002", aiModel: "GPT-4o", aiWinRate: 76.5, winners: 0, totalPaid: 0 },
     { round: "S1-001", aiModel: "Claude 3.5 Sonnet", aiWinRate: 70.2, winners: 1, totalPaid: 250000 },
+  ];
+
+  // Featured winners for credibility
+  const featuredWinners = [
+    {
+      name: "S***r8821",
+      avatar: "/avatars/avatar-3.png",
+      round: "S1-006",
+      winRate: 78.5,
+      aiWinRate: 72.3,
+      aiModel: "Claude 3.5 Sonnet",
+      predictions: 156,
+      prize: 125000,
+      quote: "坚持数据分析，不跟风盲猜",
+    },
+    {
+      name: "B***n2156",
+      avatar: "/avatars/avatar-7.png",
+      round: "S1-004",
+      winRate: 81.2,
+      aiWinRate: 71.5,
+      aiModel: "Claude 3.5 Sonnet",
+      predictions: 178,
+      prize: 200000,
+      quote: "专注五大联赛，深耕自己熟悉的领域",
+    },
+    {
+      name: "Q***e3345",
+      avatar: "/avatars/avatar-5.png",
+      round: "S1-001",
+      winRate: 82.3,
+      aiWinRate: 70.2,
+      aiModel: "Claude 3.5 Sonnet",
+      predictions: 112,
+      prize: 250000,
+      quote: "每场比赛都认真研究，质量比数量更重要",
+    },
   ];
 
   const totalDistributed = historyData.reduce((sum, item) => sum + item.totalPaid, 0);
@@ -225,11 +262,82 @@ const Waitlist = () => {
           </div>
         </motion.div>
 
-        {/* History Table - Simplified */}
+        {/* Featured Winners */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="mb-10"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Award className="w-4 h-4 text-amber-500" />
+            <h2 className="text-sm font-medium text-foreground">获奖玩家案例</h2>
+          </div>
+          
+          <div className="space-y-4">
+            {featuredWinners.map((winner, index) => (
+              <motion.div
+                key={winner.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="bg-card border border-border rounded-lg p-4"
+              >
+                <div className="flex items-start gap-4">
+                  {/* Avatar */}
+                  <div className="relative flex-shrink-0">
+                    <img 
+                      src={winner.avatar} 
+                      alt="" 
+                      className="w-12 h-12 rounded-full border-2 border-amber-500/30"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                      <Trophy className="w-3 h-3 text-white" />
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <span className="font-mono font-medium text-foreground">{winner.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{winner.round}</span>
+                      </div>
+                      <span className="text-lg font-bold text-success">${winner.prize.toLocaleString()}</span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-4 text-sm mb-3">
+                      <div>
+                        <span className="text-muted-foreground">胜率 </span>
+                        <span className="font-semibold text-success">{winner.winRate}%</span>
+                      </div>
+                      <div className="text-muted-foreground">vs</div>
+                      <div className="flex items-center gap-1">
+                        <img src={aiIcons[winner.aiModel]} alt="" className="w-3.5 h-3.5 rounded" />
+                        <span className="text-muted-foreground">{winner.aiWinRate}%</span>
+                      </div>
+                      <div className="text-muted-foreground">·</div>
+                      <div className="text-muted-foreground">{winner.predictions}场预测</div>
+                    </div>
+
+                    {/* Quote */}
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/30 rounded-md px-3 py-2">
+                      <Quote className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-muted-foreground/50" />
+                      <span className="italic">{winner.quote}</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* History Table - Simplified */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
           className="mb-8"
         >
           <h2 className="text-sm font-medium text-foreground mb-4">历史记录</h2>
