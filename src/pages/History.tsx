@@ -35,7 +35,7 @@ type HistoryRecord = {
   correct: boolean;
   confidence: number;
   date: string;
-  betType: "moneyline" | "handicap" | "over_under";
+  betType: "handicap" | "over_under";
   handicapLine?: number;
   overUnderLine?: number;
   overUnderPick?: "over" | "under";
@@ -186,7 +186,7 @@ const History = () => {
               correct,
               confidence,
               date: dateStr,
-              betType: betType as "moneyline" | "handicap" | "over_under",
+              betType: betType as "handicap" | "over_under",
               handicapLine,
               overUnderLine,
               overUnderPick: overUnderPick as "over" | "under" | undefined,
@@ -342,7 +342,7 @@ const History = () => {
             correct,
             confidence: prediction.confidence || 0,
             date: dateStr,
-            betType: prediction.prediction_type as "moneyline" | "handicap" | "over_under",
+            betType: prediction.prediction_type as "handicap" | "over_under",
             handicapLine: prediction.handicap_line,
             overUnderLine: prediction.over_under_line,
             overUnderPick: undefined,

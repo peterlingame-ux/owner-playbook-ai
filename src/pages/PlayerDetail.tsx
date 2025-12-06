@@ -25,7 +25,7 @@ type PlayerPrediction = {
   correct: boolean;
   confidence: number;
   date: string;
-  betType: "moneyline" | "handicap" | "over_under";
+  betType: "handicap" | "over_under";
   handicapLine?: number;
   overUnderLine?: number;
   overUnderPick?: "over" | "under";
@@ -175,7 +175,7 @@ const PlayerDetail = () => {
             correct,
             confidence: prediction.confidence || 0,
             date: dateStr,
-            betType: prediction.prediction_type as "moneyline" | "handicap" | "over_under",
+            betType: prediction.prediction_type as "handicap" | "over_under",
             handicapLine: prediction.handicap_line,
             overUnderLine: prediction.over_under_line,
             overUnderPick: prediction.over_under_pick as "over" | "under" | undefined,

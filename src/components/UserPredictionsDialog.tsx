@@ -27,7 +27,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [predictionType, setPredictionType] = useState<"handicap" | "over_under" | "moneyline">("moneyline");
+  const [predictionType, setPredictionType] = useState<"handicap" | "over_under">("handicap");
   const [prediction, setPrediction] = useState("");
   const [betAmount, setBetAmount] = useState(100);
   const [winRate, setWinRate] = useState<number | null>(null);
@@ -208,12 +208,8 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                       setPrediction("");
                     }}>
                       <div className="flex items-center space-x-2 mb-2">
-                        <RadioGroupItem value="moneyline" id="moneyline" />
-                        <Label htmlFor="moneyline">{t("胜负预测")}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2 mb-2">
                         <RadioGroupItem value="handicap" id="handicap" />
-                        <Label htmlFor="handicap">{t("让分盘")}</Label>
+                        <Label htmlFor="handicap">{t("让球")}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="over_under" id="over_under" />
@@ -224,30 +220,6 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                     <div className="mt-4">
                       <h4 className="font-medium mb-3">{t("选择预测结果")}</h4>
                       <RadioGroup value={prediction} onValueChange={setPrediction}>
-                        {predictionType === "moneyline" && (
-                          <>
-                            <div className="flex items-center space-x-2 mb-2">
-                              <RadioGroupItem value="HOME_WIN" id="home" />
-                              <Label htmlFor="home">
-                                {i18n.language === 'zh' 
-                                  ? selectedMatch.homeTeamZh || selectedMatch.homeTeam 
-                                  : selectedMatch.homeTeam} {t("获胜")}
-                              </Label>
-                            </div>
-                            <div className="flex items-center space-x-2 mb-2">
-                              <RadioGroupItem value="DRAW" id="draw" />
-                              <Label htmlFor="draw">{t("平局")}</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="AWAY_WIN" id="away" />
-                              <Label htmlFor="away">
-                                {i18n.language === 'zh' 
-                                  ? selectedMatch.awayTeamZh || selectedMatch.awayTeam 
-                                  : selectedMatch.awayTeam} {t("获胜")}
-                              </Label>
-                            </div>
-                          </>
-                        )}
                         {predictionType === "handicap" && (
                           <>
                             <div className="flex items-center space-x-2 mb-2">

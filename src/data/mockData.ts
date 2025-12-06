@@ -345,7 +345,7 @@ export const matchPredictions: Record<string, Array<{
   aiId: string; 
   prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW"; 
   confidence: number;
-  betType: "moneyline" | "handicap" | "over_under";
+  betType: "handicap" | "over_under";
   handicapLine?: number;
   overUnderLine?: number;
   overUnderPick?: "over" | "under";
@@ -355,21 +355,21 @@ export const matchPredictions: Record<string, Array<{
   "m1": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 68, betType: "handicap", handicapLine: -1.5, odds: 1.92, confirmed: true },
     { aiId: "gpt5", prediction: "AWAY_WIN", confidence: 55, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 2.05, confirmed: false },
-    { aiId: "claude", prediction: "HOME_WIN", confidence: 62, betType: "moneyline", odds: 1.75, confirmed: true },
+    { aiId: "claude", prediction: "HOME_WIN", confidence: 62, betType: "handicap", handicapLine: -0.5, odds: 1.75, confirmed: true },
     { aiId: "gemini", prediction: "DRAW", confidence: 45, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.88, confirmed: false },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 71, betType: "handicap", handicapLine: -0.5, odds: 2.10, confirmed: true },
     { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 82, betType: "handicap", handicapLine: -1, odds: 1.88, confirmed: true },
   ],
   "m2": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 72, betType: "handicap", handicapLine: -1, odds: 1.95, confirmed: true },
-    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 64, betType: "moneyline", odds: 1.68, confirmed: false },
+    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 64, betType: "handicap", handicapLine: -1, odds: 1.68, confirmed: false },
     { aiId: "claude", prediction: "AWAY_WIN", confidence: 58, betType: "handicap", handicapLine: 1, odds: 2.15, confirmed: true },
     { aiId: "gemini", prediction: "HOME_WIN", confidence: 69, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 1.98, confirmed: false },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 65, betType: "handicap", handicapLine: -0.5, odds: 1.85, confirmed: true },
-    { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 79, betType: "moneyline", odds: 1.72, confirmed: true },
+    { aiId: "hunsoccermax", prediction: "HOME_WIN", confidence: 79, betType: "handicap", handicapLine: -0.5, odds: 1.72, confirmed: true },
   ],
   "m3": [
-    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 61, betType: "moneyline", odds: 1.72, confirmed: true },
+    { aiId: "deepseek", prediction: "HOME_WIN", confidence: 61, betType: "handicap", handicapLine: -0.5, odds: 1.72, confirmed: true },
     { aiId: "gpt5", prediction: "DRAW", confidence: 51, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.90, confirmed: false },
     { aiId: "claude", prediction: "AWAY_WIN", confidence: 59, betType: "handicap", handicapLine: 0.5, odds: 2.08, confirmed: true },
     { aiId: "gemini", prediction: "HOME_WIN", confidence: 63, betType: "handicap", handicapLine: -1, odds: 2.12, confirmed: true },
@@ -378,7 +378,7 @@ export const matchPredictions: Record<string, Array<{
   ],
   "m4": [
     { aiId: "deepseek", prediction: "HOME_WIN", confidence: 76, betType: "handicap", handicapLine: -1.5, odds: 2.05, confirmed: true },
-    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 61, betType: "moneyline", odds: 1.65, confirmed: true },
+    { aiId: "gpt5", prediction: "HOME_WIN", confidence: 61, betType: "handicap", handicapLine: -1, odds: 1.65, confirmed: true },
     { aiId: "claude", prediction: "HOME_WIN", confidence: 70, betType: "over_under", overUnderLine: 3.5, overUnderPick: "over", odds: 1.95, confirmed: false },
     { aiId: "gemini", prediction: "DRAW", confidence: 48, betType: "over_under", overUnderLine: 2.5, overUnderPick: "under", odds: 1.85, confirmed: false },
     { aiId: "grok", prediction: "HOME_WIN", confidence: 73, betType: "handicap", handicapLine: -1, odds: 1.88, confirmed: true },
@@ -890,7 +890,8 @@ export const predictionHistory: PredictionHistory[] = [
     correct: true,
     confidence: 79,
     date: "2025-10-28",
-    betType: "moneyline",
+    betType: "handicap",
+    handicapLine: -0.5,
     odds: 1.75,
     betAmount: 450
   },
@@ -963,7 +964,8 @@ export const predictionHistory: PredictionHistory[] = [
     correct: true,
     confidence: 85,
     date: "2025-10-29",
-    betType: "moneyline",
+    betType: "handicap",
+    handicapLine: -1,
     odds: 1.68,
     betAmount: 500
   },
@@ -1007,7 +1009,8 @@ export const predictionHistory: PredictionHistory[] = [
     correct: false,
     confidence: 78,
     date: "2025-10-30",
-    betType: "moneyline",
+    betType: "handicap",
+    handicapLine: -0.5,
     odds: 1.72,
     betAmount: 480
   },
@@ -1035,7 +1038,9 @@ export const predictionHistory: PredictionHistory[] = [
     correct: true,
     confidence: 71,
     date: "2025-10-30",
-    betType: "moneyline",
+    betType: "over_under",
+    overUnderLine: 2.5,
+    overUnderPick: "under",
     odds: 3.20,
     betAmount: 350
   },
@@ -1093,7 +1098,8 @@ export const predictionHistory: PredictionHistory[] = [
     correct: true,
     confidence: 71,
     date: "2025-10-31",
-    betType: "moneyline",
+    betType: "handicap",
+    handicapLine: -1,
     odds: 1.65,
     betAmount: 320
   },
@@ -1152,7 +1158,9 @@ export const predictionHistory: PredictionHistory[] = [
     correct: false,
     confidence: 75,
     date: "2025-11-01",
-    betType: "moneyline",
+    betType: "over_under",
+    overUnderLine: 2.5,
+    overUnderPick: "over",
     odds: 3.10,
     betAmount: 400
   },
@@ -1194,7 +1202,8 @@ export const predictionHistory: PredictionHistory[] = [
     correct: false,
     confidence: 70,
     date: "2025-11-01",
-    betType: "moneyline",
+    betType: "handicap",
+    handicapLine: -0.5,
     odds: 1.88,
     betAmount: 340
   },
