@@ -51,6 +51,41 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
+// Parse markdown-style links [text](url) to clickable elements
+const parseLinks = (text: string) => {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    // Add the link
+    parts.push(
+      <a
+        key={match.index}
+        href={match[2]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline hover:text-primary/80 font-medium"
+      >
+        {match[1]}
+      </a>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+};
+
 const MessageBubble = ({ message }: { message: Message }) => {
   const { i18n } = useTranslation();
   const { displayedText } = useTypewriter({
@@ -74,7 +109,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
             : "bg-muted"
         }`}
       >
-        <p className="text-sm">{content}</p>
+        <p className="text-sm">{parseLinks(content)}</p>
         <p className="text-xs opacity-70 mt-1">
           {message.timestamp.toLocaleTimeString(locale, {
             hour: "2-digit",
