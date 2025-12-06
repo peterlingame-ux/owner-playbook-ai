@@ -303,11 +303,18 @@ serve(async (req) => {
     const result = await sendAliyunSMS(formattedPhone, otp);
 
     if (result.success) {
-      // 根据官方文档，返回 200 状态码即可，不需要返回内容
-      return new Response(null, {
-        status: 200,
-        headers: corsHeaders,
-      });
+      // 返回有效的 JSON 响应，Supabase 需要解析 JSON
+      // 即使官方文档说可以返回空响应，但实际需要有效的 JSON 格式
+      return new Response(
+        JSON.stringify({ success: true }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     } else {
       console.error("SMS send failed:", result.error);
       return new Response(
