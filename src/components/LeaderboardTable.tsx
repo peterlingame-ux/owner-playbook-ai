@@ -455,12 +455,6 @@ const LeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
-                      <div className="flex items-center justify-center gap-1">
-                        {t('today_prediction') || '今日预测'}
-                        <History className="h-3 w-3" />
-                      </div>
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -524,31 +518,6 @@ const LeaderboardTable = () => {
                         }`}>
                           {model.locked ? '???' : `${(model as any).roi >= 0 ? '+' : ''}${((model as any).roi || 0).toFixed(2)}%`}
                         </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        {(() => {
-                          const todayData = todayWinRates.get(model.id);
-                          const todayWinRate = todayData?.winRate ?? 0;
-                          const todayTotal = todayData?.total ?? 0;
-                          
-                          return (
-                            <button
-                              onClick={() => navigate(`/history?tab=ai&model=${model.id}`)}
-                              className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
-                              title={t('click_to_view_history') || '点击查看历史记录'}
-                            >
-                              <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                                todayTotal === 0 ? 'text-muted-foreground' : todayWinRate >= 50 ? 'text-success' : 'text-destructive'
-                              }`}>
-                                {model.locked ? '???' : todayTotal > 0 ? `${todayData?.correct}/${todayTotal}` : '-'}
-                              </span>
-                              <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-0.5">
-                                {t('view_history') || '查看记录'}
-                                <ExternalLink className="h-2.5 w-2.5" />
-                              </span>
-                            </button>
-                          );
-                        })()}
                       </TableCell>
                     </TableRow>
                   ))}
