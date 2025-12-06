@@ -101,6 +101,7 @@ const Waitlist = () => {
       aiModel: "Claude 3.5 Sonnet",
       predictions: 156,
       prize: 125000,
+      virtualProfit: 28500,
       quote: "坚持数据分析，不跟风盲猜",
     },
     {
@@ -112,6 +113,7 @@ const Waitlist = () => {
       aiModel: "Claude 3.5 Sonnet",
       predictions: 142,
       prize: 85000,
+      virtualProfit: 21200,
       quote: "保持冷静，不追热门",
     },
     {
@@ -123,6 +125,7 @@ const Waitlist = () => {
       aiModel: "Claude 3.5 Sonnet",
       predictions: 168,
       prize: 45000,
+      virtualProfit: 18600,
       quote: "多看赔率变化，找准时机",
     },
     // S1-004
@@ -135,6 +138,7 @@ const Waitlist = () => {
       aiModel: "Claude 3.5 Sonnet",
       predictions: 178,
       prize: 200000,
+      virtualProfit: 45800,
       quote: "专注五大联赛，深耕自己熟悉的领域",
     },
     {
@@ -146,6 +150,7 @@ const Waitlist = () => {
       aiModel: "Claude 3.5 Sonnet",
       predictions: 145,
       prize: 120000,
+      virtualProfit: 32100,
       quote: "关注球队伤病情况很重要",
     },
     // S1-003
@@ -158,6 +163,7 @@ const Waitlist = () => {
       aiModel: "Gemini 1.5 Pro",
       predictions: 134,
       prize: 180000,
+      virtualProfit: 38200,
       quote: "AI预测可以参考，但要有自己判断",
     },
     {
@@ -169,6 +175,7 @@ const Waitlist = () => {
       aiModel: "Gemini 1.5 Pro",
       predictions: 156,
       prize: 95000,
+      virtualProfit: 24500,
       quote: "控制每日预测数量，精选比赛",
     },
     {
@@ -180,6 +187,7 @@ const Waitlist = () => {
       aiModel: "Gemini 1.5 Pro",
       predictions: 123,
       prize: 55000,
+      virtualProfit: 15800,
       quote: "坚持自己的策略，不被情绪左右",
     },
     // S1-001
@@ -192,6 +200,7 @@ const Waitlist = () => {
       aiModel: "Claude 3.5 Sonnet",
       predictions: 112,
       prize: 250000,
+      virtualProfit: 52300,
       quote: "每场比赛都认真研究，质量比数量更重要",
     },
   ];
@@ -473,7 +482,7 @@ const Waitlist = () => {
                       </div>
 
                       {/* Stats */}
-                      <div className="flex items-center gap-4 text-sm mb-3">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-3">
                         <div>
                           <span className="text-muted-foreground">胜率 </span>
                           <span className="font-semibold text-success">{winner.winRate}%</span>
@@ -485,6 +494,11 @@ const Waitlist = () => {
                         </div>
                         <div className="text-muted-foreground">·</div>
                         <div className="text-muted-foreground">{winner.predictions}场预测</div>
+                        <div className="text-muted-foreground">·</div>
+                        <div>
+                          <span className="text-muted-foreground">虚拟盈利 </span>
+                          <span className="font-semibold text-amber-500">+{winner.virtualProfit.toLocaleString()}</span>
+                        </div>
                       </div>
 
                       {/* Quote */}
