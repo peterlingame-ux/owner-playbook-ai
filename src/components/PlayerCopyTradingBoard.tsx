@@ -170,17 +170,29 @@ const PlayerCopyTradingBoard = () => {
   const PlayerCard = ({ 
     player, 
     showStreak = false, 
-    streakType = 'best' 
+    streakType = 'best',
+    rank
   }: { 
     player: PlayerData; 
     showStreak?: boolean; 
     streakType?: 'best' | 'worst';
+    rank?: number;
   }) => (
     <div 
       className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
       onClick={() => navigate(`/player/${player.id}`)}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
+        {rank !== undefined && (
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+            rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
+            rank === 2 ? 'bg-gray-400/20 text-gray-400' :
+            rank === 3 ? 'bg-orange-600/20 text-orange-600' :
+            'bg-muted text-muted-foreground'
+          }`}>
+            {rank}
+          </div>
+        )}
         <Avatar className="w-10 h-10 border-2 border-border/40 flex-shrink-0">
           <AvatarImage src={player.avatarUrl} alt={player.displayName} />
           <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
@@ -256,12 +268,7 @@ const PlayerCopyTradingBoard = () => {
             </div>
             <div className="space-y-2">
               {topStreakPlayers.map((player, index) => (
-                <div key={player.id} className="relative">
-                  {index === 0 && (
-                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-success rounded-full" />
-                  )}
-                  <PlayerCard player={player} showStreak streakType="best" />
-                </div>
+                <PlayerCard key={player.id} player={player} showStreak streakType="best" rank={index + 1} />
               ))}
             </div>
           </CardContent>
@@ -281,12 +288,7 @@ const PlayerCopyTradingBoard = () => {
             </div>
             <div className="space-y-2">
               {worstStreakPlayers.map((player, index) => (
-                <div key={player.id} className="relative">
-                  {index === 0 && (
-                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-destructive rounded-full" />
-                  )}
-                  <PlayerCard player={player} showStreak streakType="worst" />
-                </div>
+                <PlayerCard key={player.id} player={player} showStreak streakType="worst" rank={index + 1} />
               ))}
             </div>
           </CardContent>
