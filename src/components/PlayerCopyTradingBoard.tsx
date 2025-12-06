@@ -156,12 +156,12 @@ const PlayerCopyTradingBoard = () => {
   // 按最佳连胜排序
   const topStreakPlayers = [...allPlayers]
     .sort((a, b) => b.bestStreak - a.bestStreak)
-    .slice(0, 5);
+    .slice(0, 10);
 
   // 按最差连败排序
   const worstStreakPlayers = [...allPlayers]
     .sort((a, b) => b.worstStreak - a.worstStreak)
-    .slice(0, 5);
+    .slice(0, 10);
 
   const handleCopyTrade = (player: PlayerData) => {
     toast.info(t('copy_trade_unavailable_desc') || '一键跟单功能即将上线，敬请期待！');
