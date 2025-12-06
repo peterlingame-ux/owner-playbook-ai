@@ -569,21 +569,16 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                     TRC20
                   </span>
                 </Label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#26A17B]/20 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-[#26A17B]">T</span>
-                  </div>
-                  <Input
-                    id="withdraw-address"
-                    type="text"
-                    placeholder="请输入您的 TRC20 钱包地址 (以 T 开头)"
-                    value={withdrawAddress}
-                    onChange={(e) => setWithdrawAddress(e.target.value)}
-                    className="pl-10 font-mono text-sm h-12 bg-background border-2 focus:border-[#26A17B] transition-colors"
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                </div>
+                <textarea
+                  id="withdraw-address"
+                  placeholder="请输入您的 TRC20 钱包地址 (以 T 开头)"
+                  value={withdrawAddress}
+                  onChange={(e) => setWithdrawAddress(e.target.value)}
+                  className="w-full min-h-[60px] px-4 py-3 font-mono text-sm bg-background border-2 border-input rounded-md focus:border-[#26A17B] focus:outline-none focus:ring-1 focus:ring-[#26A17B] transition-colors resize-none placeholder:text-muted-foreground"
+                  autoComplete="off"
+                  spellCheck={false}
+                  rows={2}
+                />
                 {withdrawAddress && withdrawAddress.length > 0 && (
                   <p className={`text-xs ${withdrawAddress.length >= 34 ? 'text-success' : 'text-muted-foreground'}`}>
                     已输入 {withdrawAddress.length} 个字符 {withdrawAddress.length >= 34 ? '✓' : '(TRC20地址通常为34个字符)'}
