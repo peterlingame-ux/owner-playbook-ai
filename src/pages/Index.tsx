@@ -341,6 +341,11 @@ const Index = () => {
       </Dialog>
       
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl">
+        {/* AI Betting Cards - Match Predictions Today */}
+        <section id="match-predictions" className="mb-10 sm:mb-12 lg:mb-14 scroll-mt-20">
+          <ActiveAIBets />
+        </section>
+
         {/* Models Section */}
         <section className="mb-10 sm:mb-12 lg:mb-14">
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
@@ -393,11 +398,6 @@ const Index = () => {
               }
             }}
           />
-        </section>
-
-        {/* AI Betting Cards */}
-        <section id="match-predictions" className="mb-10 sm:mb-12 scroll-mt-20">
-          <ActiveAIBets />
         </section>
 
         {/* Disclaimer */}
