@@ -541,7 +541,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           {showMatchSelection && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">AI预测比赛</span>
+                <span className="text-sm font-medium">挑战AI</span>
                 {isDemo && (
                   <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">
                     演示
