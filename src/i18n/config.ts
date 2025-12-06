@@ -103,7 +103,7 @@ const resources = {
           },
           "contact": {
             "question": "How to contact HUNSOCCER staff?",
-            "answer": "Please reach out via WECHAT: HUNSOCCER or WHATSAPP: HUNSOCCER to contact our staff."
+            "answer": "Please add Telegram: HUNSOCCER"
           }
         }
       },
@@ -538,7 +538,7 @@ const resources = {
           },
           "contact": {
             "question": "如何联系 HUNSOCCER 工作人员？",
-            "answer": "请添加微信：HUNSOCCER 或 WhatsApp：HUNSOCCER，与工作人员取得联系。"
+            "answer": "请添加Telegram:HUNSOCCER"
           }
         }
       },
