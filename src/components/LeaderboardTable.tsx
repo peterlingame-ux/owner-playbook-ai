@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
@@ -47,6 +48,7 @@ interface TodayPosition {
 }
 const LeaderboardTable = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
@@ -426,7 +428,7 @@ const LeaderboardTable = () => {
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
                       <div className="flex items-center justify-center gap-1">
-                        {t('today_prediction_win_rate') || '今日预测胜率'}
+                        {t('today_prediction') || '今日预测'}
                         <History className="h-3 w-3" />
                       </div>
                     </TableHead>
@@ -502,17 +504,18 @@ const LeaderboardTable = () => {
                           
                           return (
                             <button
-                              onClick={() => fetchTodayHistory(model.id, model.displayName)}
+                              onClick={() => navigate(`/history?tab=ai&model=${model.id}`)}
                               className="group flex flex-col items-center gap-0.5 hover:bg-accent/50 rounded-md px-2 py-1 transition-colors cursor-pointer"
-                              title={t('click_to_view_history') || '点击查看今日记录'}
+                              title={t('click_to_view_history') || '点击查看历史记录'}
                             >
                               <span className={`font-mono-data font-bold text-sm sm:text-base ${
                                 todayTotal === 0 ? 'text-muted-foreground' : todayWinRate >= 50 ? 'text-success' : 'text-destructive'
                               }`}>
-                                {model.locked ? '???' : todayTotal > 0 ? `${todayWinRate.toFixed(1)}%` : '-'}
+                                {model.locked ? '???' : todayTotal > 0 ? `${todayData?.correct}/${todayTotal}` : '-'}
                               </span>
-                              <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors">
-                                {todayTotal > 0 ? `${todayData?.correct}/${todayTotal}` : t('no_data_today') || '暂无'}
+                              <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-0.5">
+                                {t('view_history') || '查看记录'}
+                                <ExternalLink className="h-2.5 w-2.5" />
                               </span>
                             </button>
                           );
