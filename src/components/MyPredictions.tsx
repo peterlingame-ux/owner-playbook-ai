@@ -426,51 +426,16 @@ const MyPredictions = () => {
         <span>返回</span>
       </Button>
 
-      {/* 用户预测球星卡 - 仿照AI模型卡设计 */}
-      <Card 
-        className="relative p-6 bg-card border-primary hover:border-opacity-50 transition-all overflow-hidden"
-        style={{
-          borderColor: 'hsl(var(--primary) / 0.3)',
-          borderWidth: '2px'
-        }}
-      >
-        {/* 用户头像背景 */}
-        {userProfile?.avatar_url && (
-          <div 
-            className="absolute inset-0 opacity-10 transition-opacity duration-300"
-            style={{
-              backgroundImage: `url(${userProfile.avatar_url})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          />
-        )}
-        
-        {/* 品牌色彩叠加层 */}
-        <div 
-          className="absolute inset-0 opacity-30 transition-opacity duration-300"
-          style={{
-            background: 'radial-gradient(circle at 30% 50%, hsl(var(--primary)), transparent 70%)'
-          }}
-        />
-        
-        {/* 渐变遮罩确保内容可读 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
-        
-        {/* 内容区域 */}
-        <div className="relative z-10">
-          {/* 顶部：头像和用户名 */}
-          <div className="flex items-start justify-between mb-4 gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
+      {/* 用户资料卡片 - 专业简洁设计 */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        {/* 顶部用户信息 */}
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <Avatar 
-                  className="h-20 w-20 border-4 shrink-0"
-                  style={{
-                    borderColor: 'hsl(var(--primary))'
-                  }}
-                >
+                <Avatar className="h-16 w-16 border-2 border-primary/30">
                   <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.display_name || '用户'} />
-                  <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-warning text-white font-black">
+                  <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
                     {userProfile?.display_name?.charAt(0) || '?'}
                   </AvatarFallback>
                 </Avatar>
@@ -480,9 +445,10 @@ const MyPredictions = () => {
                   <DialogTrigger asChild>
                     <Button 
                       size="icon" 
-                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-primary shadow-lg hover:scale-110 transition-transform z-20"
+                      variant="outline"
+                      className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-background shadow-sm"
                     >
-                      <Edit2 className="h-4 w-4" />
+                      <Edit2 className="h-3 w-3" />
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
@@ -550,256 +516,198 @@ const MyPredictions = () => {
                 </Dialog>
               </div>
               
-              <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-lg leading-tight truncate text-white">
-                  {userProfile?.display_name || '玩家'}
-                </h3>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <Trophy className="h-3.5 w-3.5 text-warning" />
-                  <span className="text-xs text-muted-foreground">预测精英</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* 收益徽章 */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
-              <span className="text-[9px] text-muted-foreground whitespace-nowrap">模拟收益</span>
-              <div className={`px-3 py-1.5 rounded-full font-mono-data font-bold text-xs ${
-                (stats?.profit || 0) >= 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-              }`}>
-                {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 0}
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            {/* 胜率显示 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground">胜率</span>
-                <span className="text-2xl font-bold font-mono-data text-primary">
-                  <AnimatedWinRate value={stats?.winRate || 0} />%
-                </span>
-              </div>
-              
-              {/* 胜率进度条 */}
-              <div className="relative h-2.5 bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 bg-primary"
-                  style={{
-                    width: `${stats?.winRate || 0}%`
-                  }}
-                />
-              </div>
-            </div>
-            
-            {/* 统计数据 */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-border/50 gap-2">
               <div>
-                <p className="text-[10px] text-muted-foreground mb-0.5">命中</p>
-                <p className="text-base font-bold font-mono-data text-success">
-                  {stats?.correctPredictions || 0}
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-[10px] text-muted-foreground mb-0.5">总预测</p>
-                <p className="text-base font-bold font-mono-data">
-                  {stats?.totalPredictions || 0}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] text-muted-foreground mb-0.5">未中</p>
-                <p className="text-base font-bold font-mono-data text-destructive">
-                  {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
-                </p>
+                <h2 className="text-xl font-bold text-foreground">
+                  {userProfile?.display_name || '玩家'}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-0.5">预测玩家</p>
               </div>
             </div>
             
-            {/* 钱包余额显示 */}
-            <div className="pt-2.5 border-t border-border/50">
-              <div className="bg-gradient-to-r from-warning/20 to-warning/10 rounded-lg p-4 border border-warning/30">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-warning/30 p-2.5 rounded-lg">
-                      <Wallet className="h-5 w-5 text-warning" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wide">虚拟钱包</p>
-                      <p className="text-2xl font-black text-white font-mono-data">
-                        ${stats?.balance?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 10000}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            {/* 胜率徽章 */}
+            <div className="text-right">
+              <div className="text-3xl font-bold text-foreground font-mono">
+                <AnimatedWinRate value={stats?.winRate || 0} />%
               </div>
+              <p className="text-xs text-muted-foreground">胜率</p>
             </div>
-            
           </div>
         </div>
-      </Card>
 
-      {/* 标签页：历史购买记录和跟单记录 */}
+        {/* 统计数据网格 */}
+        <div className="grid grid-cols-4 divide-x divide-border">
+          <div className="p-4 text-center">
+            <p className="text-2xl font-bold text-foreground font-mono">{stats?.totalPredictions || 0}</p>
+            <p className="text-xs text-muted-foreground mt-1">总预测</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-2xl font-bold text-success font-mono">{stats?.correctPredictions || 0}</p>
+            <p className="text-xs text-muted-foreground mt-1">命中</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-2xl font-bold text-destructive font-mono">
+              {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">未中</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className={`text-2xl font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">盈亏</p>
+          </div>
+        </div>
+
+        {/* 钱包余额 */}
+        <div className="p-4 bg-muted/30 border-t border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Wallet className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">虚拟钱包余额</p>
+                <p className="text-xl font-bold text-foreground font-mono">
+                  ${stats?.balance?.toLocaleString() || 10000}
+                </p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+              开始预测
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="history" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-2 h-12">
+          <TabsTrigger value="history" className="flex items-center gap-2 text-sm">
             <History className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('purchase_history') || '购买记录'}</span>
-            <span className="sm:hidden">记录</span>
+            购买记录
           </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-2">
+          <TabsTrigger value="copy-trade" className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('copy_trade_records') || '跟单记录'}</span>
-            <span className="sm:hidden">跟单</span>
+            跟单记录
           </TabsTrigger>
         </TabsList>
 
         {/* 购买记录标签页 */}
         <TabsContent value="history" className="mt-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <History className="h-5 w-5 text-primary" />
-                {t('my_purchase_history') || '我的购买记录'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h3 className="font-semibold text-foreground">购买记录</h3>
+              <p className="text-xs text-muted-foreground mt-1">您的预测历史</p>
+            </div>
+            <div className="divide-y divide-border">
               {stats?.recentPredictions && stats.recentPredictions.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.recentPredictions.map((pred) => (
-                    <div 
-                      key={pred.id}
-                      className={`p-4 rounded-lg border transition-colors ${
+                stats.recentPredictions.map((pred) => (
+                  <div key={pred.id} className="p-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(pred.created_at), 'MM-dd HH:mm')}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                         pred.result === 'win' 
-                          ? 'bg-success/10 border-success/30' 
+                          ? 'bg-success/10 text-success' 
                           : pred.result === 'loss'
-                            ? 'bg-destructive/10 border-destructive/30'
-                            : 'bg-muted/30 border-border'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(pred.created_at), 'yyyy-MM-dd HH:mm')}
-                          </span>
-                        </div>
-                        <div className={`px-2 py-0.5 rounded text-xs font-bold ${
-                          pred.result === 'win' 
-                            ? 'bg-success/20 text-success' 
-                            : pred.result === 'loss'
-                              ? 'bg-destructive/20 text-destructive'
-                              : 'bg-muted text-muted-foreground'
+                            ? 'bg-destructive/10 text-destructive'
+                            : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {pred.result === 'win' ? '胜' : pred.result === 'loss' ? '负' : '进行中'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-foreground text-sm">
+                        {pred.match?.home_team_name || '主队'} vs {pred.match?.away_team_name || '客队'}
+                      </span>
+                      {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && (
+                        <span className="text-sm font-mono text-muted-foreground">
+                          {pred.match.goals_home} : {pred.match.goals_away}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        预测: <span className="text-foreground">{pred.prediction}</span>
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-muted-foreground font-mono text-xs">
+                          ${pred.bet_amount}
+                        </span>
+                        <span className={`font-bold font-mono ${
+                          pred.result === 'win' ? 'text-success' : 'text-destructive'
                         }`}>
-                          {pred.result === 'win' ? '胜' : pred.result === 'loss' ? '负' : '进行中'}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium">
-                          {pred.match?.home_team_name || '主队'} vs {pred.match?.away_team_name || '客队'}
-                        </div>
-                        {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && (
-                          <div className="text-sm font-mono-data">
-                            {pred.match.goals_home} : {pred.match.goals_away}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="text-muted-foreground">
-                          预测: <span className="text-foreground font-medium">{pred.prediction}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-muted-foreground">
-                            投注: <span className="font-mono-data">${pred.bet_amount}</span>
-                          </span>
-                          <span className={pred.result === 'win' ? 'text-success font-bold' : 'text-destructive font-bold'}>
-                            {pred.result === 'win' ? '+' : ''}{(pred.actual_payout - pred.bet_amount).toFixed(0)}
-                          </span>
-                        </div>
+                          {pred.result === 'win' ? '+' : ''}{(pred.actual_payout - pred.bet_amount).toFixed(0)}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="p-8 text-center text-muted-foreground">
                   暂无购买记录
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* 跟单记录标签页 */}
         <TabsContent value="copy-trade" className="mt-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="h-5 w-5 text-primary" />
-                {t('my_copy_trade_records') || '我的跟单记录'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {copyTradeRecords.length > 0 ? (
-                <div className="space-y-3">
-                  {/* 跟单统计摘要 */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-muted/30 rounded-lg p-3 text-center">
-                      <p className="text-xs text-muted-foreground mb-1">跟单次数</p>
-                      <p className="text-xl font-bold font-mono-data">{copyTradeRecords.length}</p>
-                    </div>
-                    <div className="bg-success/10 rounded-lg p-3 text-center">
-                      <p className="text-xs text-muted-foreground mb-1">盈利次数</p>
-                      <p className="text-xl font-bold font-mono-data text-success">
-                        {copyTradeRecords.filter(r => r.result === 'win').length}
-                      </p>
-                    </div>
-                    <div className={`rounded-lg p-3 text-center ${
-                      copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 
-                        ? 'bg-success/10' 
-                        : 'bg-destructive/10'
-                    }`}>
-                      <p className="text-xs text-muted-foreground mb-1">总盈亏</p>
-                      <p className={`text-xl font-bold font-mono-data ${
-                        copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 
-                          ? 'text-success' 
-                          : 'text-destructive'
-                      }`}>
-                        {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
-                        ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toFixed(0)}
-                      </p>
-                    </div>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h3 className="font-semibold text-foreground">跟单记录</h3>
+              <p className="text-xs text-muted-foreground mt-1">您跟随其他玩家的预测</p>
+            </div>
+            
+            {copyTradeRecords.length > 0 ? (
+              <>
+                {/* 跟单统计 */}
+                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+                  <div className="p-3 text-center">
+                    <p className="text-lg font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
+                    <p className="text-xs text-muted-foreground">跟单次数</p>
                   </div>
+                  <div className="p-3 text-center">
+                    <p className="text-lg font-bold font-mono text-success">
+                      {copyTradeRecords.filter(r => r.result === 'win').length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">盈利次数</p>
+                  </div>
+                  <div className="p-3 text-center">
+                    <p className={`text-lg font-bold font-mono ${
+                      copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
+                    }`}>
+                      {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
+                      ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toFixed(0)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">总盈亏</p>
+                  </div>
+                </div>
 
-                  {/* 跟单记录列表 */}
+                {/* 跟单列表 */}
+                <div className="divide-y divide-border">
                   {copyTradeRecords.map((record) => (
-                    <div 
-                      key={record.id}
-                      className={`p-4 rounded-lg border transition-colors ${
-                        record.result === 'win' 
-                          ? 'bg-success/10 border-success/30' 
-                          : record.result === 'loss'
-                            ? 'bg-destructive/10 border-destructive/30'
-                            : 'bg-muted/30 border-border'
-                      }`}
-                    >
-                      {/* 跟单的玩家信息 */}
+                    <div key={record.id} className="p-4 hover:bg-muted/30 transition-colors">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8 border border-border">
                             <AvatarImage src={record.followed_player_avatar} />
-                            <AvatarFallback>{record.followed_player_name.charAt(0)}</AvatarFallback>
+                            <AvatarFallback className="text-xs">{record.followed_player_name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-sm font-medium">{record.followed_player_name}</p>
+                            <p className="text-sm font-medium text-foreground">{record.followed_player_name}</p>
                             <p className="text-xs text-muted-foreground">跟单对象</p>
                           </div>
                         </div>
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-bold ${
+                        <span className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
                           record.result === 'win' 
-                            ? 'bg-success/20 text-success' 
+                            ? 'bg-success/10 text-success' 
                             : record.result === 'loss'
-                              ? 'bg-destructive/20 text-destructive'
+                              ? 'bg-destructive/10 text-destructive'
                               : 'bg-muted text-muted-foreground'
                         }`}>
                           {record.result === 'win' ? (
@@ -809,32 +717,23 @@ const MyPredictions = () => {
                           ) : (
                             '进行中'
                           )}
-                        </div>
+                        </span>
                       </div>
                       
-                      {/* 比赛信息 */}
-                      <div className="bg-background/50 rounded-md p-2 mb-2">
-                        <div className="font-medium text-sm">
+                      <div className="text-sm mb-2">
+                        <span className="text-foreground font-medium">
                           {record.match_home_team} vs {record.match_away_team}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          预测: <span className="text-foreground">{record.prediction}</span>
-                        </div>
+                        </span>
+                        <span className="text-muted-foreground ml-2">· {record.prediction}</span>
                       </div>
                       
-                      {/* 投注和盈亏信息 */}
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          <span className="text-xs">
-                            {format(new Date(record.created_at), 'yyyy-MM-dd HH:mm')}
-                          </span>
-                        </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">
+                          {format(new Date(record.created_at), 'MM-dd HH:mm')}
+                        </span>
                         <div className="flex items-center gap-3">
-                          <span className="text-muted-foreground text-xs">
-                            投注: <span className="font-mono-data">${record.bet_amount}</span>
-                          </span>
-                          <span className={`font-bold font-mono-data ${
+                          <span className="text-muted-foreground font-mono">${record.bet_amount}</span>
+                          <span className={`font-bold font-mono ${
                             record.pnl >= 0 ? 'text-success' : 'text-destructive'
                           }`}>
                             {record.pnl >= 0 ? '+' : ''}${record.pnl}
@@ -844,22 +743,18 @@ const MyPredictions = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>暂无跟单记录</p>
-                  <p className="text-xs mt-2">前往排行榜跟单其他玩家</p>
-                  <Button 
-                    variant="outline" 
-                    className="mt-4"
-                    onClick={() => navigate('/leaderboard')}
-                  >
-                    查看排行榜
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </>
+            ) : (
+              <div className="p-8 text-center">
+                <Users className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
+                <p className="text-muted-foreground mb-1">暂无跟单记录</p>
+                <p className="text-xs text-muted-foreground mb-4">前往排行榜跟单其他玩家</p>
+                <Button variant="outline" size="sm" onClick={() => navigate('/leaderboard')}>
+                  查看排行榜
+                </Button>
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
