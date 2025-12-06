@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
+import PlaceBetDialog from "./PlaceBetDialog";
 import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -521,6 +522,7 @@ const MyPredictions = () => {
   const [copyTradeRecords, setCopyTradeRecords] = useState<CopyTradeRecord[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
+  const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -1045,10 +1047,16 @@ const MyPredictions = () => {
       {/* 开始预测按钮 */}
       <Button 
         className="w-full h-10 text-sm font-bold bg-primary hover:bg-primary/90 shadow-md"
-        onClick={() => navigate('/')}
+        onClick={() => setIsBetDialogOpen(true)}
       >
         {t('start_prediction')}
       </Button>
+
+      {/* 预测对话框 */}
+      <PlaceBetDialog 
+        open={isBetDialogOpen} 
+        onOpenChange={setIsBetDialogOpen} 
+      />
 
       {/* 胜率趋势图表 */}
       <WinRateTrendChart predictions={stats?.recentPredictions || []} />
