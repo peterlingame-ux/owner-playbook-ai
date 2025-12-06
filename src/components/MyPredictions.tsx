@@ -882,7 +882,7 @@ const MyPredictions = () => {
         <TabsList className="grid w-full grid-cols-2 h-12">
           <TabsTrigger value="history" className="flex items-center gap-2 text-sm">
             <History className="h-4 w-4" />
-            <span className="hidden sm:inline">完整</span>历史
+            历史纪录
           </TabsTrigger>
           <TabsTrigger value="copy-trade" className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4" />
