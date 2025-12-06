@@ -459,6 +459,7 @@ const MyPredictions = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [copyTradeRecords, setCopyTradeRecords] = useState<CopyTradeRecord[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [usdtBalance, setUsdtBalance] = useState<number>(0);
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -632,7 +633,7 @@ const MyPredictions = () => {
           setSelectedAvatar(profileData.avatar_url || '');
         }
 
-        // 获取余额
+        // 获取虚拟余额
         const { data: balanceData, error: balanceError } = await supabase
           .from('user_balances')
           .select('balance')
@@ -642,6 +643,17 @@ const MyPredictions = () => {
         // 如果查询出错且不是"无记录"错误，记录错误
         if (balanceError && balanceError.code !== 'PGRST116') {
           console.error('Error fetching balance:', balanceError);
+        }
+
+        // 获取USDT钱包余额
+        const { data: usdtData } = await supabase
+          .from('usdt_wallets')
+          .select('balance')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (usdtData) {
+          setUsdtBalance(usdtData.balance || 0);
         }
 
         // 获取预测记录
@@ -927,8 +939,9 @@ const MyPredictions = () => {
           </div>
         </div>
 
-        {/* 钱包余额 */}
-        <div className="p-4 bg-muted/30 border-t border-border">
+        {/* 钱包余额区域 */}
+        <div className="p-4 bg-muted/30 border-t border-border space-y-3">
+          {/* 虚拟钱包 */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -941,13 +954,29 @@ const MyPredictions = () => {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* USDT钱包 */}
+          <div className="flex items-center justify-between pt-3 border-t border-border/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#26A17B]/10 flex items-center justify-center">
+                <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">USDT钱包余额</p>
+                <p className="text-xl font-bold text-foreground font-mono flex items-center gap-1">
+                  <span className="text-[#26A17B]">{usdtBalance.toFixed(2)}</span>
+                  <span className="text-sm text-muted-foreground">USDT</span>
+                </p>
+              </div>
+            </div>
             
             {/* USDT钱包按钮 */}
             <USDTWalletDialog 
               trigger={
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="flex items-center gap-2 border-[#26A17B]/30 hover:bg-[#26A17B]/10">
                   <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4 h-4" />
-                  USDT充值
+                  充值
                 </Button>
               }
             />
