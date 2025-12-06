@@ -183,31 +183,76 @@ const WinRateTrendChart = ({ predictions }: { predictions: Array<{ result: strin
 };
 
 // 玩家历史记录表格组件 - 类似AI历史模板
-const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
-  id: string;
-  match_id: string;
-  prediction: string;
-  result: string;
-  bet_amount: number;
-  actual_payout: number;
-  created_at: string;
-  match?: {
-    fixture_id: number;
-    home_team_name: string;
-    away_team_name: string;
-    home_logo?: string;
-    away_logo?: string;
-    league_name?: string;
-    goals_home?: number;
-    goals_away?: number;
-  };
-}> }) => {
+const PlayerHistoryTable = ({ predictions, copyTradeRecords }: { 
+  predictions: Array<{
+    id: string;
+    match_id: string;
+    prediction: string;
+    result: string;
+    bet_amount: number;
+    actual_payout: number;
+    created_at: string;
+    match?: {
+      fixture_id: number;
+      home_team_name: string;
+      away_team_name: string;
+      home_logo?: string;
+      away_logo?: string;
+      league_name?: string;
+      goals_home?: number;
+      goals_away?: number;
+    };
+  }>;
+  copyTradeRecords: CopyTradeRecord[];
+}) => {
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
+  const [filterType, setFilterType] = useState<string>("all");
+
+  // 合并预测和跟单记录
+  const allRecords = useMemo(() => {
+    const predictionRecords = predictions.map(p => ({
+      ...p,
+      type: 'prediction' as const,
+      followed_player_name: null as string | null,
+    }));
+    
+    const copyRecords = copyTradeRecords.map(c => ({
+      id: c.id,
+      match_id: c.match_id,
+      prediction: c.prediction,
+      result: c.result,
+      bet_amount: c.bet_amount,
+      actual_payout: c.result === 'win' ? c.bet_amount + c.pnl : c.bet_amount + c.pnl,
+      created_at: c.created_at,
+      match: {
+        fixture_id: 0,
+        home_team_name: c.match_home_team,
+        away_team_name: c.match_away_team,
+      } as {
+        fixture_id: number;
+        home_team_name: string;
+        away_team_name: string;
+        home_logo?: string;
+        away_logo?: string;
+        league_name?: string;
+        goals_home?: number;
+        goals_away?: number;
+      },
+      type: 'copy-trade' as const,
+      followed_player_name: c.followed_player_name,
+    }));
+
+    return [...predictionRecords, ...copyRecords];
+  }, [predictions, copyTradeRecords]);
 
   // 过滤数据
   const filteredPredictions = useMemo(() => {
-    let filtered = [...predictions];
+    let filtered = [...allRecords];
+
+    if (filterType !== "all") {
+      filtered = filtered.filter(p => p.type === filterType);
+    }
 
     if (filterResult !== "all") {
       filtered = filtered.filter(p => 
@@ -223,13 +268,12 @@ const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
     }
 
     return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [predictions, filterResult, filterPeriod]);
+  }, [allRecords, filterResult, filterPeriod, filterType]);
 
   // 统计数据
   const totalPredictions = filteredPredictions.length;
   const winCount = filteredPredictions.filter(p => p.result === 'win').length;
   const lossCount = filteredPredictions.filter(p => p.result === 'loss').length;
-  const winRate = totalPredictions > 0 ? ((winCount / totalPredictions) * 100).toFixed(1) : "0.0";
   const totalProfit = filteredPredictions.reduce((sum, p) => sum + (p.actual_payout - p.bet_amount), 0);
 
   return (
@@ -241,7 +285,17 @@ const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
           <span className="text-sm font-medium">筛选</span>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="h-9 px-3 rounded-md border border-border bg-background text-sm"
+          >
+            <option value="all">全部类型</option>
+            <option value="prediction">自主预测</option>
+            <option value="copy-trade">跟单</option>
+          </select>
+
           <select
             value={filterResult}
             onChange={(e) => setFilterResult(e.target.value)}
@@ -293,6 +347,7 @@ const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">类型</th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">日期</th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">比赛</th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs">预测</th>
@@ -304,7 +359,7 @@ const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
             <tbody>
               {filteredPredictions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                  <td colSpan={7} className="text-center py-12 text-muted-foreground">
                     暂无记录
                   </td>
                 </tr>
@@ -314,6 +369,26 @@ const PlayerHistoryTable = ({ predictions }: { predictions: Array<{
                   
                   return (
                     <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                      <td className="py-3 px-4">
+                        {pred.type === 'prediction' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                            <Target className="h-3 w-3" />
+                            预测
+                          </span>
+                        ) : (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                              <Users className="h-3 w-3" />
+                              跟单
+                            </span>
+                            {pred.followed_player_name && (
+                              <span className="text-[10px] text-muted-foreground pl-1">
+                                跟 {pred.followed_player_name}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
                       <td className="py-3 px-4 text-xs text-muted-foreground whitespace-nowrap">
                         {format(new Date(pred.created_at), 'MM-dd')}
                       </td>
@@ -895,7 +970,7 @@ const MyPredictions = () => {
 
         {/* 完整历史记录标签页 - 类似AI历史模板 */}
         <TabsContent value="history" className="mt-4">
-          <PlayerHistoryTable predictions={stats?.recentPredictions || []} />
+          <PlayerHistoryTable predictions={stats?.recentPredictions || []} copyTradeRecords={copyTradeRecords} />
         </TabsContent>
 
         {/* 跟单记录标签页 */}
