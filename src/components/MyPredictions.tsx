@@ -5,13 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, Calendar } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "date-fns";
 
 interface UserProfile {
   display_name: string;
@@ -47,6 +49,21 @@ interface PredictionStats {
   }>;
 }
 
+interface CopyTradeRecord {
+  id: string;
+  followed_player_id: string;
+  followed_player_name: string;
+  followed_player_avatar: string;
+  match_id: string;
+  match_home_team: string;
+  match_away_team: string;
+  prediction: string;
+  bet_amount: number;
+  result: 'win' | 'loss' | 'pending';
+  pnl: number;
+  created_at: string;
+}
+
 const AVATAR_OPTIONS = [
   '/avatars/avatar-1.png',
   '/avatars/avatar-2.png',
@@ -71,6 +88,8 @@ const MyPredictions = () => {
   const [editDisplayName, setEditDisplayName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [copyTradeRecords, setCopyTradeRecords] = useState<CopyTradeRecord[]>([]);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -176,6 +195,53 @@ const MyPredictions = () => {
             }
           ]
         });
+        
+        // 模拟跟单记录
+        setCopyTradeRecords([
+          {
+            id: "ct1",
+            followed_player_id: "p1",
+            followed_player_name: "GoldenAce7788",
+            followed_player_avatar: "/avatars/avatar-3.png",
+            match_id: "m1",
+            match_home_team: "曼联",
+            match_away_team: "利物浦",
+            prediction: "主队胜",
+            bet_amount: 200,
+            result: 'win',
+            pnl: 180,
+            created_at: new Date(Date.now() - 86400000).toISOString()
+          },
+          {
+            id: "ct2",
+            followed_player_id: "p2",
+            followed_player_name: "LuckyDragon9999",
+            followed_player_avatar: "/avatars/avatar-5.png",
+            match_id: "m2",
+            match_home_team: "巴塞罗那",
+            match_away_team: "皇家马德里",
+            prediction: "大球 2.5",
+            bet_amount: 300,
+            result: 'loss',
+            pnl: -300,
+            created_at: new Date(Date.now() - 172800000).toISOString()
+          },
+          {
+            id: "ct3",
+            followed_player_id: "p1",
+            followed_player_name: "GoldenAce7788",
+            followed_player_avatar: "/avatars/avatar-3.png",
+            match_id: "m3",
+            match_home_team: "拜仁",
+            match_away_team: "多特蒙德",
+            prediction: "平局",
+            bet_amount: 150,
+            result: 'win',
+            pnl: 270,
+            created_at: new Date(Date.now() - 259200000).toISOString()
+          }
+        ]);
+        
         setIsLoading(false);
         return;
       }
@@ -571,6 +637,231 @@ const MyPredictions = () => {
           </div>
         </div>
       </Card>
+
+      {/* 标签页：历史购买记录和跟单记录 */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('purchase_history') || '购买记录'}</span>
+            <span className="sm:hidden">记录</span>
+          </TabsTrigger>
+          <TabsTrigger value="copy-trade" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('copy_trade_records') || '跟单记录'}</span>
+            <span className="sm:hidden">跟单</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* 购买记录标签页 */}
+        <TabsContent value="history" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <History className="h-5 w-5 text-primary" />
+                {t('my_purchase_history') || '我的购买记录'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats?.recentPredictions && stats.recentPredictions.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.recentPredictions.map((pred) => (
+                    <div 
+                      key={pred.id}
+                      className={`p-4 rounded-lg border transition-colors ${
+                        pred.result === 'win' 
+                          ? 'bg-success/10 border-success/30' 
+                          : pred.result === 'loss'
+                            ? 'bg-destructive/10 border-destructive/30'
+                            : 'bg-muted/30 border-border'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(pred.created_at), 'yyyy-MM-dd HH:mm')}
+                          </span>
+                        </div>
+                        <div className={`px-2 py-0.5 rounded text-xs font-bold ${
+                          pred.result === 'win' 
+                            ? 'bg-success/20 text-success' 
+                            : pred.result === 'loss'
+                              ? 'bg-destructive/20 text-destructive'
+                              : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {pred.result === 'win' ? '胜' : pred.result === 'loss' ? '负' : '进行中'}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium">
+                          {pred.match?.home_team_name || '主队'} vs {pred.match?.away_team_name || '客队'}
+                        </div>
+                        {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && (
+                          <div className="text-sm font-mono-data">
+                            {pred.match.goals_home} : {pred.match.goals_away}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="text-muted-foreground">
+                          预测: <span className="text-foreground font-medium">{pred.prediction}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-muted-foreground">
+                            投注: <span className="font-mono-data">${pred.bet_amount}</span>
+                          </span>
+                          <span className={pred.result === 'win' ? 'text-success font-bold' : 'text-destructive font-bold'}>
+                            {pred.result === 'win' ? '+' : ''}{(pred.actual_payout - pred.bet_amount).toFixed(0)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  暂无购买记录
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 跟单记录标签页 */}
+        <TabsContent value="copy-trade" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Users className="h-5 w-5 text-primary" />
+                {t('my_copy_trade_records') || '我的跟单记录'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {copyTradeRecords.length > 0 ? (
+                <div className="space-y-3">
+                  {/* 跟单统计摘要 */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="bg-muted/30 rounded-lg p-3 text-center">
+                      <p className="text-xs text-muted-foreground mb-1">跟单次数</p>
+                      <p className="text-xl font-bold font-mono-data">{copyTradeRecords.length}</p>
+                    </div>
+                    <div className="bg-success/10 rounded-lg p-3 text-center">
+                      <p className="text-xs text-muted-foreground mb-1">盈利次数</p>
+                      <p className="text-xl font-bold font-mono-data text-success">
+                        {copyTradeRecords.filter(r => r.result === 'win').length}
+                      </p>
+                    </div>
+                    <div className={`rounded-lg p-3 text-center ${
+                      copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 
+                        ? 'bg-success/10' 
+                        : 'bg-destructive/10'
+                    }`}>
+                      <p className="text-xs text-muted-foreground mb-1">总盈亏</p>
+                      <p className={`text-xl font-bold font-mono-data ${
+                        copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 
+                          ? 'text-success' 
+                          : 'text-destructive'
+                      }`}>
+                        {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
+                        ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toFixed(0)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 跟单记录列表 */}
+                  {copyTradeRecords.map((record) => (
+                    <div 
+                      key={record.id}
+                      className={`p-4 rounded-lg border transition-colors ${
+                        record.result === 'win' 
+                          ? 'bg-success/10 border-success/30' 
+                          : record.result === 'loss'
+                            ? 'bg-destructive/10 border-destructive/30'
+                            : 'bg-muted/30 border-border'
+                      }`}
+                    >
+                      {/* 跟单的玩家信息 */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8 border border-border">
+                            <AvatarImage src={record.followed_player_avatar} />
+                            <AvatarFallback>{record.followed_player_name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium">{record.followed_player_name}</p>
+                            <p className="text-xs text-muted-foreground">跟单对象</p>
+                          </div>
+                        </div>
+                        <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-bold ${
+                          record.result === 'win' 
+                            ? 'bg-success/20 text-success' 
+                            : record.result === 'loss'
+                              ? 'bg-destructive/20 text-destructive'
+                              : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {record.result === 'win' ? (
+                            <><TrendingUp className="h-3 w-3" /> 盈利</>
+                          ) : record.result === 'loss' ? (
+                            <><TrendingDown className="h-3 w-3" /> 亏损</>
+                          ) : (
+                            '进行中'
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* 比赛信息 */}
+                      <div className="bg-background/50 rounded-md p-2 mb-2">
+                        <div className="font-medium text-sm">
+                          {record.match_home_team} vs {record.match_away_team}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          预测: <span className="text-foreground">{record.prediction}</span>
+                        </div>
+                      </div>
+                      
+                      {/* 投注和盈亏信息 */}
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Calendar className="h-3 w-3" />
+                          <span className="text-xs">
+                            {format(new Date(record.created_at), 'yyyy-MM-dd HH:mm')}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-muted-foreground text-xs">
+                            投注: <span className="font-mono-data">${record.bet_amount}</span>
+                          </span>
+                          <span className={`font-bold font-mono-data ${
+                            record.pnl >= 0 ? 'text-success' : 'text-destructive'
+                          }`}>
+                            {record.pnl >= 0 ? '+' : ''}${record.pnl}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                  <p>暂无跟单记录</p>
+                  <p className="text-xs mt-2">前往排行榜跟单其他玩家</p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => navigate('/leaderboard')}
+                  >
+                    查看排行榜
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
