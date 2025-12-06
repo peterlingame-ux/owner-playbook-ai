@@ -60,7 +60,7 @@ interface TodayPrediction {
 const PlayerLeaderboardTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userBalance, refreshBalance } = useAuth();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
@@ -71,8 +71,10 @@ const PlayerLeaderboardTable = () => {
   // Copy trade state
   const [copyTradeDialog, setCopyTradeDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
-  const [userBalance, setUserBalance] = useState(10000);
   const [isCopying, setIsCopying] = useState(false);
+  
+  // Get real balance from auth context
+  const realBalance = userBalance?.balance ?? 10000;
 
   // Get current user's rank
   const currentUserRank = user ? allPlayers.find(p => p.id === user.id) : null;
@@ -452,9 +454,12 @@ const PlayerLeaderboardTable = () => {
   };
 
   const confirmCopyTrade = async () => {
-    if (!copyTradeDialog) return;
+    if (!copyTradeDialog || !user) {
+      toast.error('请先登录');
+      return;
+    }
     
-    if (copyBetAmount > userBalance) {
+    if (copyBetAmount > realBalance) {
       toast.error('余额不足，无法跟单');
       return;
     }
@@ -466,29 +471,62 @@ const PlayerLeaderboardTable = () => {
 
     setIsCopying(true);
     
-    // 模拟跟单过程
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // 更新虚拟余额
-    setUserBalance(prev => prev - copyBetAmount);
-    
-    toast.success(
-      <div className="space-y-1">
-        <p className="font-medium">跟单成功！</p>
-        <p className="text-xs text-muted-foreground">
-          已跟随 {copyTradeDialog.player.displayName} 下注 ¥{copyBetAmount}
-        </p>
-        <p className="text-xs">
-          {copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}
-        </p>
-        <p className="text-xs text-primary">
-          预测: {copyTradeDialog.prediction.prediction}
-        </p>
-      </div>
-    );
-    
-    setIsCopying(false);
-    setCopyTradeDialog(null);
+    try {
+      // 使用 place_bet 函数进行跟单下注
+      const potentialPayout = copyBetAmount * 1.8;
+      const matchDate = new Date().toISOString();
+      
+      const { data, error } = await supabase.rpc('place_bet', {
+        p_user_id: user.id,
+        p_match_id: copyTradeDialog.prediction.match_id,
+        p_prediction_type: copyTradeDialog.prediction.prediction_type,
+        p_prediction: `跟单-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
+        p_bet_amount: copyBetAmount,
+        p_potential_payout: potentialPayout,
+        p_match_date: matchDate,
+      });
+
+      if (error) {
+        console.error('Copy trade error:', error);
+        toast.error('跟单失败：' + error.message);
+        return;
+      }
+
+      const result = data as { success: boolean; error?: string; new_balance?: number };
+      
+      if (!result.success) {
+        toast.error(result.error || '跟单失败');
+        return;
+      }
+
+      // 刷新余额
+      await refreshBalance();
+      
+      toast.success(
+        <div className="space-y-1">
+          <p className="font-medium">跟单成功！</p>
+          <p className="text-xs text-muted-foreground">
+            已跟随 {copyTradeDialog.player.displayName} 下注 ¥{copyBetAmount}
+          </p>
+          <p className="text-xs">
+            {copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}
+          </p>
+          <p className="text-xs text-primary">
+            预测: {copyTradeDialog.prediction.prediction}
+          </p>
+          <p className="text-xs text-success">
+            新余额: ¥{result.new_balance?.toLocaleString()}
+          </p>
+        </div>
+      );
+      
+      setCopyTradeDialog(null);
+    } catch (error) {
+      console.error('Copy trade error:', error);
+      toast.error('跟单失败，请稍后重试');
+    } finally {
+      setIsCopying(false);
+    }
   };
 
   const getRankColor = (rank: number) => {
@@ -1216,7 +1254,7 @@ const PlayerLeaderboardTable = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">跟单金额</span>
                   <span className="text-xs text-muted-foreground">
-                    可用余额: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
+                    可用余额: <span className="text-foreground font-medium">¥{realBalance.toLocaleString()}</span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1240,7 +1278,7 @@ const PlayerLeaderboardTable = () => {
                     onChange={(e) => setCopyBetAmount(Number(e.target.value))}
                     className="flex-1 h-8"
                     min={10}
-                    max={userBalance}
+                    max={realBalance}
                   />
                 </div>
               </div>
@@ -1259,7 +1297,7 @@ const PlayerLeaderboardTable = () => {
               <Button 
                 className="w-full" 
                 onClick={confirmCopyTrade}
-                disabled={isCopying || copyBetAmount > userBalance || copyBetAmount < 10}
+                disabled={isCopying || copyBetAmount > realBalance || copyBetAmount < 10 || !user}
               >
                 {isCopying ? (
                   <div className="flex items-center gap-2">
