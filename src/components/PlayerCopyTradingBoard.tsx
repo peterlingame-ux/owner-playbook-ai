@@ -40,6 +40,12 @@ interface TodayPrediction {
   actual_payout: number | null;
   result: string | null;
   created_at: string;
+  // 比赛详情
+  home_team?: string;
+  away_team?: string;
+  home_score?: number | null;
+  away_score?: number | null;
+  match_status?: string;
 }
 
 const PlayerCopyTradingBoard = () => {
@@ -214,6 +220,18 @@ const PlayerCopyTradingBoard = () => {
   }, []);
 
   const fetchTodayPredictions = async (player: PlayerData) => {
+    // 模拟球队名称
+    const mockTeams = [
+      { home: '皇家马德里', away: '巴塞罗那', homeScore: 2, awayScore: 1 },
+      { home: '曼城', away: '利物浦', homeScore: 3, awayScore: 2 },
+      { home: '拜仁慕尼黑', away: '多特蒙德', homeScore: 1, awayScore: 1 },
+      { home: '巴黎圣日耳曼', away: '马赛', homeScore: 2, awayScore: 0 },
+      { home: '尤文图斯', away: 'AC米兰', homeScore: 0, awayScore: 1 },
+      { home: '切尔西', away: '阿森纳', homeScore: 2, awayScore: 2 },
+      { home: '国际米兰', away: '那不勒斯', homeScore: 3, awayScore: 1 },
+      { home: '马德里竞技', away: '塞维利亚', homeScore: 1, awayScore: 0 },
+    ];
+
     if (player.isVirtual) {
       // 为虚拟玩家生成模拟数据
       const stats = todayStats.get(player.id);
@@ -222,6 +240,7 @@ const PlayerCopyTradingBoard = () => {
       const correct = stats?.correct || 3;
       
       for (let i = 0; i < total; i++) {
+        const teamInfo = mockTeams[i % mockTeams.length];
         mockPredictions.push({
           id: `mock-${i}`,
           match_id: `match-${1000 + i}`,
@@ -231,7 +250,12 @@ const PlayerCopyTradingBoard = () => {
           potential_payout: Math.floor(Math.random() * 800) + 200,
           actual_payout: i < correct ? Math.floor(Math.random() * 800) + 200 : 0,
           result: i < correct ? 'win' : 'loss',
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          home_team: teamInfo.home,
+          away_team: teamInfo.away,
+          home_score: teamInfo.homeScore,
+          away_score: teamInfo.awayScore,
+          match_status: 'FT'
         });
       }
       
@@ -253,8 +277,21 @@ const PlayerCopyTradingBoard = () => {
       toast.error('获取今日记录失败');
       return;
     }
+
+    // 为真实玩家的预测添加模拟比赛信息（实际应从API获取）
+    const predictionsWithDetails: TodayPrediction[] = (data || []).map((pred, index) => {
+      const teamInfo = mockTeams[index % mockTeams.length];
+      return {
+        ...pred,
+        home_team: teamInfo.home,
+        away_team: teamInfo.away,
+        home_score: pred.result ? teamInfo.homeScore : null,
+        away_score: pred.result ? teamInfo.awayScore : null,
+        match_status: pred.result ? 'FT' : 'NS'
+      };
+    });
     
-    setSelectedPlayer({ player, predictions: data || [] });
+    setSelectedPlayer({ player, predictions: predictionsWithDetails });
   };
 
   // 按最佳连胜排序
@@ -457,14 +494,27 @@ const PlayerCopyTradingBoard = () => {
                   今日暂无预测记录
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {selectedPlayer.predictions.map((pred) => (
-                    <div key={pred.id} className="p-3 rounded-lg bg-muted/30 space-y-2">
+                    <div key={pred.id} className="p-3 rounded-lg bg-muted/30 space-y-3 border border-border/30">
+                      {/* 比赛信息 */}
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          比赛ID: {pred.match_id}
-                        </span>
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                        <div className="flex-1">
+                          <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                            <span className="text-right flex-1 truncate">{pred.home_team || '主队'}</span>
+                            <div className="flex items-center gap-1 px-2 py-1 rounded bg-background/50 min-w-[60px] justify-center">
+                              {pred.match_status === 'FT' || pred.result ? (
+                                <span className="font-bold text-base">
+                                  {pred.home_score ?? '-'} : {pred.away_score ?? '-'}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">未开始</span>
+                              )}
+                            </div>
+                            <span className="text-left flex-1 truncate">{pred.away_team || '客队'}</span>
+                          </div>
+                        </div>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ml-2 flex-shrink-0 ${
                           pred.result === 'win' ? 'bg-success/20 text-success' :
                           pred.result === 'loss' ? 'bg-destructive/20 text-destructive' :
                           'bg-muted text-muted-foreground'
@@ -472,18 +522,22 @@ const PlayerCopyTradingBoard = () => {
                           {pred.result === 'win' ? '赢' : pred.result === 'loss' ? '输' : '待定'}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span>
+                      
+                      {/* 预测详情 */}
+                      <div className="flex items-center justify-between text-sm border-t border-border/20 pt-2">
+                        <span className="text-muted-foreground">
                           {pred.prediction_type === 'over_under' ? '大小球' : '让球'}: 
-                          <span className="font-medium ml-1">{pred.prediction}</span>
+                          <span className="font-medium ml-1 text-foreground">{pred.prediction}</span>
                         </span>
                         <span className="text-muted-foreground">
-                          下注: ¥{pred.bet_amount}
+                          下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span>
                         </span>
                       </div>
+                      
+                      {/* 盈亏结果 */}
                       {pred.result && pred.result !== 'pending' && (
-                        <div className="text-xs text-right">
-                          <span className={pred.result === 'win' ? 'text-success' : 'text-destructive'}>
+                        <div className="text-sm text-right border-t border-border/20 pt-2">
+                          <span className={`font-bold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
                             {pred.result === 'win' ? `+¥${pred.actual_payout || pred.potential_payout}` : `-¥${pred.bet_amount}`}
                           </span>
                         </div>
