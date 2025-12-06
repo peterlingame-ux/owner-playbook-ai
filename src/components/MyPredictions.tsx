@@ -436,8 +436,10 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                           <CheckCircle2 className="h-3 w-3 text-success inline-block" />
                         ) : pred.result === 'loss' ? (
                           <XCircle className="h-3 w-3 text-destructive inline-block" />
+                        ) : pred.result === 'pending' ? (
+                          <span className="text-[10px] text-amber-500 font-medium">{t('in_progress')}</span>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground">-</span>
+                          <span className="text-[10px] text-amber-500 font-medium">{t('in_progress')}</span>
                         )}
                       </td>
                     </tr>

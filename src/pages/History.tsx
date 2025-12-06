@@ -33,6 +33,7 @@ type HistoryRecord = {
   prediction: "HOME_WIN" | "AWAY_WIN" | "DRAW";
   actualResult?: "HOME_WIN" | "AWAY_WIN" | "DRAW";
   correct: boolean;
+  pending?: boolean; // 是否进行中
   confidence: number;
   date: string;
   betType: "handicap" | "over_under";
@@ -798,7 +799,11 @@ const History = () => {
                         </TableCell>
                         
                         <TableCell className="text-center px-2 sm:px-4 py-3 sm:py-4">
-                          {prediction.correct ? (
+                          {prediction.pending ? (
+                            <Badge className="gap-1 sm:gap-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
+                              <span>{t('in_progress')}</span>
+                            </Badge>
+                          ) : prediction.correct ? (
                             <Badge className="gap-1 sm:gap-1.5 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
                               <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                               <span className="hidden xs:inline">{t('correct')}</span>
@@ -1005,7 +1010,11 @@ const History = () => {
                             </TableCell>
                             
                             <TableCell className="text-center px-2 sm:px-4 py-3 sm:py-4">
-                              {prediction.correct ? (
+                              {prediction.pending ? (
+                                <Badge className="gap-1 sm:gap-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
+                                  <span>{t('in_progress')}</span>
+                                </Badge>
+                              ) : prediction.correct ? (
                                 <Badge className="gap-1 sm:gap-1.5 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
                                   <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                   <span className="hidden xs:inline">{t('correct')}</span>
