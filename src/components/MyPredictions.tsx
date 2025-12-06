@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import USDTWalletDialog from "./USDTWalletDialog";
 import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -928,16 +929,28 @@ const MyPredictions = () => {
 
         {/* 钱包余额 */}
         <div className="p-4 bg-muted/30 border-t border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Wallet className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">虚拟钱包余额</p>
+                <p className="text-xl font-bold text-foreground font-mono">
+                  ${stats?.balance?.toLocaleString() || 10000}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">虚拟钱包余额</p>
-              <p className="text-xl font-bold text-foreground font-mono">
-                ${stats?.balance?.toLocaleString() || 10000}
-              </p>
-            </div>
+            
+            {/* USDT钱包按钮 */}
+            <USDTWalletDialog 
+              trigger={
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4" />
+                  USDT充值
+                </Button>
+              }
+            />
           </div>
         </div>
       </div>
