@@ -1058,12 +1058,12 @@ const MyPredictions = () => {
                             {record.result === 'win' ? (
                               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
                                 <CheckCircle2 className="h-3 w-3" />
-                                胜
+                                正确
                               </span>
                             ) : record.result === 'loss' ? (
                               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
                                 <XCircle className="h-3 w-3" />
-                                负
+                                错误
                               </span>
                             ) : (
                               <span className="text-xs text-muted-foreground">进行中</span>
