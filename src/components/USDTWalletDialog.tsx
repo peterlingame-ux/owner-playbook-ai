@@ -569,14 +569,26 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                     TRC20
                   </span>
                 </Label>
-                <Input
-                  id="withdraw-address"
-                  type="text"
-                  placeholder="输入 TRC20 钱包地址"
-                  value={withdrawAddress}
-                  onChange={(e) => setWithdrawAddress(e.target.value)}
-                  className="font-mono text-sm"
-                />
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#26A17B]/20 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-[#26A17B]">T</span>
+                  </div>
+                  <Input
+                    id="withdraw-address"
+                    type="text"
+                    placeholder="请输入您的 TRC20 钱包地址 (以 T 开头)"
+                    value={withdrawAddress}
+                    onChange={(e) => setWithdrawAddress(e.target.value)}
+                    className="pl-10 font-mono text-sm h-12 bg-background border-2 focus:border-[#26A17B] transition-colors"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </div>
+                {withdrawAddress && withdrawAddress.length > 0 && (
+                  <p className={`text-xs ${withdrawAddress.length >= 34 ? 'text-success' : 'text-muted-foreground'}`}>
+                    已输入 {withdrawAddress.length} 个字符 {withdrawAddress.length >= 34 ? '✓' : '(TRC20地址通常为34个字符)'}
+                  </p>
+                )}
               </div>
 
               {/* 重要提示 */}
