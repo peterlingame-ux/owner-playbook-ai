@@ -14,6 +14,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
+// AI模型图标映射
+import gpt5Icon from "@/assets/ai-icon-chatgpt.png";
+import claudeIcon from "@/assets/ai-icon-claude.png";
+import geminiIcon from "@/assets/ai-icon-gemini.png";
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import grokIcon from "@/assets/ai-icon-grok.png";
+import hunsoccerIcon from "@/assets/ai-icon-hunsoccer.png";
+
+const AI_ICONS: Record<string, string> = {
+  "GPT-5": gpt5Icon,
+  "Claude": claudeIcon,
+  "Gemini": geminiIcon,
+  "DeepSeek": deepseekIcon,
+  "Grok": grokIcon,
+  "HUNSOCCER": hunsoccerIcon,
+};
+
 interface Match {
   fixture_id: number;
   home_team_id?: number;
@@ -603,9 +620,22 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                                 </span>
                               </div>
                             </div>
-                            <Badge variant="secondary" className="text-[10px] shrink-0">
-                              {m.ai_count}AI已预测
-                            </Badge>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <div className="flex -space-x-1.5">
+                                {m.ai_models.slice(0, 5).map((model, idx) => (
+                                  <img 
+                                    key={idx}
+                                    src={AI_ICONS[model] || gpt5Icon} 
+                                    alt={model}
+                                    className="w-5 h-5 rounded-full border border-background object-cover"
+                                    title={model}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-muted-foreground ml-1">
+                                {m.ai_count}AI
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );
