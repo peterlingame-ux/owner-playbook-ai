@@ -776,31 +776,78 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
 
               {/* 投注类型选择 */}
               <div className="space-y-3">
-                <Tabs value={selectedBetType} onValueChange={setSelectedBetType}>
-                  <TabsList className="w-full h-8">
-                    <TabsTrigger value="handicap" className="flex-1 text-xs h-7">让球</TabsTrigger>
-                    <TabsTrigger value="over_under" className="flex-1 text-xs h-7">大小球</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                {/* 盘口类型切换 */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setSelectedBetType("handicap")}
+                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                      selectedBetType === "handicap"
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-lg font-bold mb-0.5">让球盘</div>
+                      <div className="text-[10px] text-muted-foreground">Handicap</div>
+                    </div>
+                    {selectedBetType === "handicap" && (
+                      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setSelectedBetType("over_under")}
+                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                      selectedBetType === "over_under"
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-lg font-bold mb-0.5">大小球</div>
+                      <div className="text-[10px] text-muted-foreground">Over/Under</div>
+                    </div>
+                    {selectedBetType === "over_under" && (
+                      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+                    )}
+                  </button>
+                </div>
 
                 {/* 赔率选项 */}
-                <div className="grid grid-cols-2 gap-2">
-                  {getBetOptions().map((option) => (
-                    <div
-                      key={option.value}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        selectedBetOption === option.value
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                      onClick={() => setSelectedBetOption(option.value)}
-                    >
-                      <div className="text-center">
-                        <p className="font-medium text-sm">{option.label}</p>
-                        <p className="text-lg font-bold text-success">{option.odds.toFixed(2)}</p>
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="bg-muted/50 px-3 py-1.5 border-b border-border">
+                    <span className="text-[10px] text-muted-foreground font-medium">
+                      {selectedBetType === "handicap" ? "让球盘口" : "大小球盘口"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 divide-x divide-border">
+                    {getBetOptions().map((option) => (
+                      <div
+                        key={option.value}
+                        className={`p-3 cursor-pointer transition-all ${
+                          selectedBetOption === option.value
+                            ? 'bg-primary/15'
+                            : 'hover:bg-muted/50'
+                        }`}
+                        onClick={() => setSelectedBetOption(option.value)}
+                      >
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            {option.value.includes("home") || option.value.includes("over") 
+                              ? (selectedBetType === "handicap" ? "主让" : "大球") 
+                              : (selectedBetType === "handicap" ? "客让" : "小球")}
+                          </p>
+                          <p className="font-bold text-sm mb-1">{option.label}</p>
+                          <div className={`inline-block px-2 py-0.5 rounded text-sm font-bold ${
+                            selectedBetOption === option.value
+                              ? 'bg-success text-success-foreground'
+                              : 'bg-success/20 text-success'
+                          }`}>
+                            {option.odds.toFixed(2)}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
