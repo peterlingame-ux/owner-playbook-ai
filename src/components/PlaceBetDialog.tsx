@@ -181,6 +181,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const [aiMatches, setAiMatches] = useState<AIMatchWithDetails[]>([]);
   const [isLoadingMatches, setIsLoadingMatches] = useState(false);
   const [showMatchSelection, setShowMatchSelection] = useState(!match);
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   // Update selectedMatch when match prop changes
   useEffect(() => {
@@ -207,6 +208,17 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       fetchMatchStats(selectedMatch);
     }
   }, [open, selectedMatch, showMatchSelection]);
+
+  // 实时倒计时更新
+  useEffect(() => {
+    if (!open) return;
+    
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [open]);
 
   useEffect(() => {
     if (selectedMatch) {
@@ -693,15 +705,15 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                     <div className="text-center">
                       {(() => {
                         const kickoffTime = new Date(selectedMatch.kickoff_at).getTime();
-                        const now = Date.now();
-                        const diff = kickoffTime - now;
+                        const diff = kickoffTime - currentTime;
                         
                         if (diff <= 0) {
-                          return <span className="text-amber-400 text-xs">已开赛</span>;
+                          return <span className="text-amber-400 text-xs animate-pulse">已开赛</span>;
                         }
                         
                         const hours = Math.floor(diff / (1000 * 60 * 60));
                         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
                         
                         if (hours > 24) {
                           const days = Math.floor(hours / 24);
@@ -710,7 +722,10 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         
                         return (
                           <span className="text-primary text-xs font-mono">
-                            {hours > 0 ? `${hours}时${minutes}分` : `${minutes}分钟`}
+                            {hours > 0 
+                              ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                              : `${minutes}:${seconds.toString().padStart(2, '0')}`
+                            }
                           </span>
                         );
                       })()}
