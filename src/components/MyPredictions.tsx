@@ -371,19 +371,17 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                     <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                       <td className="py-3 px-4">
                         {pred.type === 'prediction' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                            <Target className="h-3 w-3" />
+                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
                             预测
                           </span>
                         ) : (
                           <div className="flex flex-col gap-0.5">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                              <Users className="h-3 w-3" />
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">
                               跟单
                             </span>
                             {pred.followed_player_name && (
-                              <span className="text-[10px] text-muted-foreground pl-1">
-                                跟 {pred.followed_player_name}
+                              <span className="text-[10px] text-muted-foreground">
+                                {pred.followed_player_name}
                               </span>
                             )}
                           </div>
