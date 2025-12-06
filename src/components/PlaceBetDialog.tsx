@@ -618,45 +618,47 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                           className="p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
                           onClick={() => handleSelectMatch(m)}
                         >
+                          {/* 球队对阵 - 居中布局 */}
                           <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              {/* 主队logo */}
+                            {/* 主队 */}
+                            <div className="flex items-center gap-1.5 w-[90px]">
                               {m.home_logo && (
                                 <img src={m.home_logo} alt="" className="w-6 h-6 object-contain shrink-0" />
                               )}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 text-sm font-medium truncate">
-                                  <span>{m.home_team_name}</span>
-                                  <span className="text-muted-foreground text-xs">vs</span>
-                                  <span>{m.away_team_name}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground">
-                                  <span>{m.league_name}</span>
-                                  <span>·</span>
-                                  <span className={isStarted ? "text-destructive" : "text-primary"}>
-                                    {countdown}
-                                  </span>
-                                </div>
-                              </div>
-                              {/* 客队logo */}
+                              <span className="text-xs font-medium truncate">{m.home_team_name}</span>
+                            </div>
+                            
+                            {/* 中间信息 */}
+                            <div className="flex flex-col items-center flex-1">
+                              <span className="text-[10px] text-muted-foreground">{m.league_name}</span>
+                              <span className={`text-[10px] font-mono ${isStarted ? "text-destructive" : "text-primary"}`}>
+                                {countdown}
+                              </span>
+                            </div>
+                            
+                            {/* 客队 */}
+                            <div className="flex items-center justify-end gap-1.5 w-[90px]">
+                              <span className="text-xs font-medium truncate text-right">{m.away_team_name}</span>
                               {m.away_logo && (
                                 <img src={m.away_logo} alt="" className="w-6 h-6 object-contain shrink-0" />
                               )}
                             </div>
-                            <div className="flex items-center gap-0.5 shrink-0">
-                              {m.ai_models.slice(0, 5).map((model, idx) => (
-                                <img 
-                                  key={idx}
-                                  src={AI_ICONS[model] || gpt5Icon} 
-                                  alt={model}
-                                  className="w-3.5 h-3.5 rounded-full object-cover"
-                                  title={model}
-                                />
-                              ))}
-                              {m.ai_models.length > 5 && (
-                                <span className="text-[9px] text-muted-foreground">+{m.ai_models.length - 5}</span>
-                              )}
-                            </div>
+                          </div>
+                          
+                          {/* AI图标 */}
+                          <div className="flex items-center justify-center gap-0.5 mt-1.5">
+                            {m.ai_models.slice(0, 5).map((model, idx) => (
+                              <img 
+                                key={idx}
+                                src={AI_ICONS[model] || gpt5Icon} 
+                                alt={model}
+                                className="w-3.5 h-3.5 rounded-full object-cover"
+                                title={model}
+                              />
+                            ))}
+                            {m.ai_models.length > 5 && (
+                              <span className="text-[9px] text-muted-foreground ml-0.5">+{m.ai_models.length - 5}</span>
+                            )}
                           </div>
                         </div>
                       );
