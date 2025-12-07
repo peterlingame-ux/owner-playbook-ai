@@ -1670,8 +1670,8 @@ const PlayerLeaderboardTable = () => {
                 
                 return (
                   <div className="space-y-3">
-                    {/* 待开赛推荐 - 隐藏 */}
-                    {/* <div>
+                    {/* 待开赛推荐 */}
+                    <div>
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
                           今日推荐
@@ -1688,15 +1688,111 @@ const PlayerLeaderboardTable = () => {
                       ) : (
                         <div className="space-y-2">
                           {upcomingPredictions.slice(0, 3).map((pred, index) => {
+                            // 解析推荐内容 - 只有大小球和让分胜负两种类型
+                            const getRecommendedInfo = () => {
+                              const prediction = pred.prediction;
+                              // 大小球
+                              if (prediction.includes('大') || prediction.toLowerCase().includes('over')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return { label: `大 ${line}球`, type: 'over_under' };
+                              } else if (prediction.includes('小') || prediction.toLowerCase().includes('under')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return { label: `小 ${line}球`, type: 'over_under' };
+                              } 
+                              // 让分胜负
+                              else if (prediction.includes('让分主胜') || prediction.includes('主让')) {
+                                const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
+                                return { label: `${pred.home_team || '主队'} (${line})`, type: 'handicap' };
+                              } else if (prediction.includes('让分客胜') || prediction.includes('客让')) {
+                                const line = prediction.match(/\+?[\d.]+/)?.[0] || '+0.5';
+                                return { label: `${pred.away_team || '客队'} (+${line.replace('+', '')})`, type: 'handicap' };
+                              }
+                              return { label: prediction, type: 'other' };
+                            };
+                            const recommended = getRecommendedInfo();
+                            
                             return (
-                              <div key={pred.id} className="bg-card border border-border/50 rounded-lg p-2.5">
-                                比赛信息
+                              <div 
+                                key={pred.id} 
+                                className="bg-card border border-border/50 rounded-lg p-2.5"
+                              >
+                                {/* 比赛对阵 - 带球队logo */}
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      {getTeamLogo(pred.home_team || '') ? (
+                                        <img 
+                                          src={getTeamLogo(pred.home_team || '') || ''} 
+                                          alt={pred.home_team} 
+                                          className="w-5 h-5 object-contain flex-shrink-0"
+                                        />
+                                      ) : (
+                                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground flex-shrink-0">
+                                          {(pred.home_team || '主')[0]}
+                                        </div>
+                                      )}
+                                      <span className="text-xs font-medium truncate max-w-[60px]">
+                                        {pred.home_team || '主队'}
+                                      </span>
+                                    </div>
+                                    
+                                    <span className="text-[10px] text-muted-foreground font-bold">VS</span>
+                                    
+                                    {/* 客队 */}
+                                    <div className="flex items-center gap-1.5">
+                                      {getTeamLogo(pred.away_team || '') ? (
+                                        <img 
+                                          src={getTeamLogo(pred.away_team || '') || ''} 
+                                          alt={pred.away_team} 
+                                          className="w-5 h-5 object-contain flex-shrink-0"
+                                        />
+                                      ) : (
+                                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground flex-shrink-0">
+                                          {(pred.away_team || '客')[0]}
+                                        </div>
+                                      )}
+                                      <span className="text-xs font-medium truncate max-w-[60px]">
+                                        {pred.away_team || '客队'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
+                                    待开赛
+                                  </span>
+                                </div>
+                                
+                                {/* 推荐信息 - 简洁显示 */}
+                                <div className="bg-muted/30 rounded-md p-2">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                        {recommended.type === 'over_under' ? '大小球' : '让分'}
+                                      </span>
+                                      <span className="text-xs font-bold text-foreground">
+                                        {recommended.label}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px]">
+                                      <span className="text-muted-foreground">
+                                        赔率 <span className="text-foreground font-medium">1.80</span>
+                                      </span>
+                                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                                        85%
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             );
                           })}
+                          {upcomingPredictions.length > 3 && (
+                            <p className="text-[10px] text-center text-muted-foreground">
+                              还有 {upcomingPredictions.length - 3} 场推荐...
+                            </p>
+                          )}
                         </div>
                       )}
-                    </div> */}
+                    </div>
                     
                     {/* 已完成比赛 - 紧凑版 */}
                     {completedPredictions.length > 0 && (
@@ -1783,10 +1879,12 @@ const PlayerLeaderboardTable = () => {
                                   </span>
                                 </div>
                                 
-                                {/* 预测内容 + 盈亏金额 - 隐藏类别标签 */}
+                                {/* 预测类别和内容 + 盈亏金额 */}
                                 <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/30">
                                   <div className="flex items-center gap-1.5">
-                                    {/* 类别标签已隐藏 */}
+                                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                      {pred.prediction_type === 'over_under' ? '大小球' : '让分'}
+                                    </span>
                                     <span className="font-medium text-foreground">
                                       {getPredictionLabel()}
                                     </span>
