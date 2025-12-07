@@ -991,20 +991,20 @@ const PlayerLeaderboardTable = () => {
                           {/* 总预测、正确、错误 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">总预测:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">总:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('total_predictions_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('total_predictions_count').charAt(0)}:</span>
                               <span className="text-foreground font-medium">{player.totalPredictions}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">正确:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">对:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('correct_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('correct_count').charAt(0)}:</span>
                               <span className="text-success font-medium">{player.correctPredictions}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">错误:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">错:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('wrong_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('wrong_count').charAt(0)}:</span>
                               <span className="text-destructive font-medium">{player.totalPredictions - player.correctPredictions}</span>
                             </span>
                           </div>
@@ -1012,21 +1012,21 @@ const PlayerLeaderboardTable = () => {
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
-                              <span className="text-muted-foreground/70 hidden sm:inline">{t('current_streak') || '连红'}</span>
-                              <span className="text-muted-foreground/70 sm:hidden">连</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('current_streak')}</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('streak_label').charAt(0)}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('win_rate').charAt(0)}:</span>
                               <span className="text-destructive font-medium">
                                 {player.winRate.toFixed(1)}%
                               </span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi') || '盈利率'}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('roi').charAt(0)}:</span>
                               <span className="text-destructive font-medium">
                                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
                               </span>
@@ -1163,28 +1163,28 @@ const PlayerLeaderboardTable = () => {
                           {/* 总预测、正确、错误 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">总预测:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">总:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('total_predictions_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('total_predictions_count').charAt(0)}:</span>
                               <span className="text-foreground font-medium">{player.totalPredictions}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">正确:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">对:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('correct_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('correct_count').charAt(0)}:</span>
                               <span className="text-success font-medium">{player.correctPredictions}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">错误:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">错:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('wrong_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('wrong_count').charAt(0)}:</span>
                               <span className="text-destructive font-medium">{player.totalPredictions - player.correctPredictions}</span>
                             </span>
                           </div>
                           {/* 盈利金额和胜率 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">盈利:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_label')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('profit_label').charAt(0)}:</span>
                               <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-amber-500' : 'text-amber-500/60'}`}>
                                 {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
@@ -1192,7 +1192,7 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('win_rate').charAt(0)}:</span>
                               <span className="text-amber-500 font-medium">
                                 {player.winRate.toFixed(1)}%
                               </span>
@@ -1325,20 +1325,20 @@ const PlayerLeaderboardTable = () => {
                           {/* 总预测、正确、错误 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">总预测:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">总:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('total_predictions_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('total_predictions_count').charAt(0)}:</span>
                               <span className="text-foreground font-medium">{player.totalPredictions}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">正确:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">对:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('correct_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('correct_count').charAt(0)}:</span>
                               <span className="text-success font-medium">{player.correctPredictions}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">错误:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">错:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('wrong_count')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('wrong_count').charAt(0)}:</span>
                               <span className="text-destructive font-medium">{player.totalPredictions - player.correctPredictions}</span>
                             </span>
                           </div>
@@ -1346,21 +1346,21 @@ const PlayerLeaderboardTable = () => {
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-success font-bold">{player.worstStreak || 0}</span>
-                              <span className="text-muted-foreground/70 hidden sm:inline">{t('worst_streak') || '连黑'}</span>
-                              <span className="text-muted-foreground/70 sm:hidden">黑</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('worst_streak')}</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('worst_streak').charAt(0)}</span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('win_rate').charAt(0)}:</span>
                               <span className="text-success font-medium">
                                 {player.winRate.toFixed(1)}%
                               </span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi') || '盈利率'}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">{t('roi').charAt(0)}:</span>
                               <span className="text-success font-medium">
                                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
                               </span>
