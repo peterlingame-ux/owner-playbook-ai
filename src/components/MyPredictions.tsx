@@ -511,7 +511,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
 
 const MyPredictions = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, userProfile: authUserProfile, refreshUserProfile } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<PredictionStats | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -525,6 +525,19 @@ const MyPredictions = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
+
+  // 同步AuthContext中的用户资料到本地状态
+  useEffect(() => {
+    if (authUserProfile) {
+      setUserProfile(prev => ({
+        ...prev,
+        display_name: authUserProfile.display_name,
+        avatar_url: authUserProfile.avatar_url,
+      }));
+      setEditDisplayName(authUserProfile.display_name || '');
+      setSelectedAvatar(authUserProfile.avatar_url || '');
+    }
+  }, [authUserProfile]);
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -802,10 +815,14 @@ const MyPredictions = () => {
 
       if (error) throw error;
 
+      // 更新本地状态
       setUserProfile({
         display_name: editDisplayName,
         avatar_url: selectedAvatar,
       });
+      
+      // 刷新全局用户资料状态，确保其他组件同步
+      await refreshUserProfile();
       
       setIsEditDialogOpen(false);
       toast.success("个人资料已更新！");
