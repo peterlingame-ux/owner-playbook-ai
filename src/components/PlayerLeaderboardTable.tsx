@@ -900,7 +900,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  1天
+                  {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
@@ -910,7 +910,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  7天
+                  {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
@@ -920,7 +920,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  30天
+                  {t('time_filter_30d') || '月'}
                 </button>
               </div>
             </div>
@@ -1072,7 +1072,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  1天
+                  {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
@@ -1082,7 +1082,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  7天
+                  {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
@@ -1092,7 +1092,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  30天
+                  {t('time_filter_30d') || '月'}
                 </button>
               </div>
             </div>
@@ -1238,7 +1238,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  1天
+                  {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
@@ -1248,7 +1248,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  7天
+                  {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
@@ -1258,7 +1258,7 @@ const PlayerLeaderboardTable = () => {
                       : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  30天
+                  {t('time_filter_30d') || '月'}
                 </button>
               </div>
             </div>
