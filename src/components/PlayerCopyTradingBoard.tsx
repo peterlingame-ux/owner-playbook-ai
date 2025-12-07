@@ -420,12 +420,12 @@ const PlayerCopyTradingBoard = () => {
     rank?: number;
   }) => (
     <div 
-      className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+      className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
       onClick={() => navigate(`/player/${player.id}`)}
     >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
         {rank !== undefined && (
-          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+          <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
             rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
             rank === 2 ? 'bg-gray-400/20 text-gray-400' :
             rank === 3 ? 'bg-orange-600/20 text-orange-600' :
@@ -434,31 +434,34 @@ const PlayerCopyTradingBoard = () => {
             {rank}
           </div>
         )}
-        <Avatar className="w-10 h-10 border-2 border-border/40 flex-shrink-0">
+        <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-border/40 flex-shrink-0">
           <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-          <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+          <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-            <span className="flex items-center gap-1">
-              <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+            <span className="flex items-center gap-0.5 sm:gap-1">
+              <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
+              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
               <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {player.winRate.toFixed(1)}%
               </span>
             </span>
-            <span className="text-border">|</span>
-            <span className="flex items-center gap-1">
-              <span className="text-muted-foreground/70">{t('profit_label')}:</span>
+            <span className="text-border hidden sm:inline">|</span>
+            <span className="flex items-center gap-0.5 sm:gap-1">
+              <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_label')}:</span>
+              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
               <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
               </span>
             </span>
             {showStreak && (
               <>
-                <span className="text-border">|</span>
-                <span className="flex items-center gap-1">
-                  <span className="text-muted-foreground/70">{streakType === 'best' ? t('best_streak') : t('worst_streak')}:</span>
+                <span className="text-border hidden sm:inline">|</span>
+                <span className="flex items-center gap-0.5 sm:gap-1">
+                  <span className="text-muted-foreground/70 hidden sm:inline">{streakType === 'best' ? t('best_streak') : t('worst_streak')}:</span>
+                  <span className="text-muted-foreground/70 sm:hidden">{streakType === 'best' ? '连' : '黑'}:</span>
                   <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
                     {streakType === 'best' ? player.bestStreak : player.worstStreak}{t('matches_unit')}
                   </span>
@@ -469,40 +472,40 @@ const PlayerCopyTradingBoard = () => {
         </div>
       </div>
       <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-        {/* 今日预测按钮 */}
+        {/* 今日预测按钮 - 手机端隐藏文字，只显示图标 */}
         <Button
           size="sm"
           variant="ghost"
-          className="text-xs gap-1 px-2"
+          className="text-xs gap-1 px-2 sm:px-2"
           onClick={(e) => {
             e.stopPropagation();
             fetchTodayPredictions(player);
           }}
         >
-          <Calendar className="h-3 w-3" />
-          <span className="text-muted-foreground">{t('yesterday_predictions')}:</span>
+          <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden sm:inline text-muted-foreground">{t('yesterday_predictions')}:</span>
           {(() => {
             const stats = todayStats.get(player.id);
-            if (!stats || stats.total === 0) return '-';
+            if (!stats || stats.total === 0) return <span className="hidden sm:inline">-</span>;
             return (
-              <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
+              <span className={`${streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'} hidden sm:inline`}>
                 {stats.correct}/{stats.total} {stats.winRate.toFixed(0)}%
               </span>
             );
           })()}
         </Button>
-        {/* 跟单按钮 */}
+        {/* 跟单按钮 - 手机端只显示图标 */}
         <Button
           size="sm"
           variant="outline"
-          className="text-xs gap-1"
+          className="text-xs gap-1 px-2 sm:px-3"
           onClick={(e) => {
             e.stopPropagation();
             handleCopyTrade(player);
           }}
         >
-          <UserPlus className="h-3 w-3" />
-          {t('view') || '查看'}
+          <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden sm:inline">{t('view') || '查看'}</span>
         </Button>
       </div>
     </div>
@@ -595,23 +598,23 @@ const PlayerCopyTradingBoard = () => {
               
               <div className="space-y-2 sm:space-y-3">
                 <div>
-                  <p className="text-xs text-white/70 mb-0.5">{t('best_streak') || '最佳连胜'}</p>
-                  <p className="text-xl sm:text-2xl font-bold font-mono text-destructive">
+                  <p className="text-[10px] sm:text-xs text-white/70 mb-0.5">{t('best_streak') || '最佳连胜'}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold font-mono text-destructive">
                     {topStreakPlayers[0]?.bestStreak || 0} {t('matches_unit') || '场'}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-white/70 mb-0.5">{t('total_profit') || '总盈利'}</p>
-                  <p className="text-lg sm:text-xl font-bold font-mono text-destructive flex items-center gap-1">
-                    <TrendingUp className="h-4 w-4" />
+                  <p className="text-[10px] sm:text-xs text-white/70 mb-0.5">{t('total_profit') || '总盈利'}</p>
+                  <p className="text-sm sm:text-lg lg:text-xl font-bold font-mono text-destructive flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
                     +¥{Math.abs(topStreakPlayers[0]?.profit || 0).toLocaleString()}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-white/70 mb-0.5">{t('win_rate') || '胜率'}</p>
-                  <p className="text-base sm:text-lg font-bold text-white">
+                  <p className="text-[10px] sm:text-xs text-white/70 mb-0.5">{t('win_rate') || '胜率'}</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-bold text-white">
                     {topStreakPlayers[0]?.winRate?.toFixed(1) || 0}%
                   </p>
                 </div>
@@ -623,12 +626,12 @@ const PlayerCopyTradingBoard = () => {
           <Card className="lg:col-span-1 relative overflow-hidden animate-fade-in">
             <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-transparent" />
             
-            <CardContent className="p-4 sm:p-6 relative z-10">
-              <h3 className="text-sm sm:text-base font-bold mb-4 flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-primary animate-pulse" />
+            <CardContent className="p-3 sm:p-4 lg:p-6 relative z-10">
+              <h3 className="text-xs sm:text-sm lg:text-base font-bold mb-3 sm:mb-4 flex items-center gap-2">
+                <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary animate-pulse" />
                 {t('profit_comparison') || '盈亏对比'}
               </h3>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={200} className="!h-[120px] sm:!h-[150px] lg:!h-[200px]">
                 <BarChart 
                   data={[
                     { 
@@ -691,16 +694,16 @@ const PlayerCopyTradingBoard = () => {
               </ResponsiveContainer>
               
               {/* Summary Stats */}
-              <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                <div className="p-2 rounded-lg bg-destructive/10 border border-destructive/20">
-                  <p className="text-[10px] text-muted-foreground">{t('total_earned') || '总赚取'}</p>
-                  <p className="text-sm font-bold text-destructive">
+              <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2 text-center">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('total_earned') || '总赚取'}</p>
+                  <p className="text-xs sm:text-sm font-bold text-destructive">
                     <AnimatedAmount value={topStreakPlayers[0]?.profit || 1500} prefix="+" duration={1800} />
                   </p>
                 </div>
-                <div className="p-2 rounded-lg bg-success/10 border border-success/20">
-                  <p className="text-[10px] text-muted-foreground">{t('total_lost') || '总亏损'}</p>
-                  <p className="text-sm font-bold text-success">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-success/10 border border-success/20">
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('total_lost') || '总亏损'}</p>
+                  <p className="text-xs sm:text-sm font-bold text-success">
                     <AnimatedAmount value={worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200} prefix="" duration={1800} />
                   </p>
                 </div>
@@ -739,23 +742,23 @@ const PlayerCopyTradingBoard = () => {
               
               <div className="space-y-2 sm:space-y-3">
                 <div>
-                  <p className="text-xs text-white/70 mb-0.5">{t('worst_streak') || '最差连败'}</p>
-                  <p className="text-xl sm:text-2xl font-bold font-mono text-success">
+                  <p className="text-[10px] sm:text-xs text-white/70 mb-0.5">{t('worst_streak') || '最差连败'}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold font-mono text-success">
                     {worstStreakPlayers[0]?.worstStreak || 0} {t('matches_unit') || '场'}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-white/70 mb-0.5">{t('total_loss') || '总亏损'}</p>
-                  <p className="text-lg sm:text-xl font-bold font-mono text-success flex items-center gap-1">
-                    <TrendingDown className="h-4 w-4" />
+                  <p className="text-[10px] sm:text-xs text-white/70 mb-0.5">{t('total_loss') || '总亏损'}</p>
+                  <p className="text-sm sm:text-lg lg:text-xl font-bold font-mono text-success flex items-center gap-1">
+                    <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4" />
                     ¥{Math.abs(worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200).toLocaleString()}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-white/70 mb-0.5">{t('win_rate') || '胜率'}</p>
-                  <p className="text-base sm:text-lg font-bold text-white">
+                  <p className="text-[10px] sm:text-xs text-white/70 mb-0.5">{t('win_rate') || '胜率'}</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-bold text-white">
                     {worstStreakPlayers[0]?.winRate?.toFixed(1) || 0}%
                   </p>
                 </div>
