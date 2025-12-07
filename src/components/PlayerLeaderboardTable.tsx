@@ -891,33 +891,33 @@ const PlayerLeaderboardTable = () => {
                 </div>
               </div>
               {/* Time Range Filter */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
                 <button
                   onClick={() => setTimeRange(1)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 1
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 7
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 30
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_30d') || '月'}
@@ -1063,33 +1063,33 @@ const PlayerLeaderboardTable = () => {
                 </div>
               </div>
               {/* Time Range Filter */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
                 <button
                   onClick={() => setTimeRange(1)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 1
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 7
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 30
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_30d') || '月'}
@@ -1229,33 +1229,33 @@ const PlayerLeaderboardTable = () => {
                 </div>
               </div>
               {/* Time Range Filter */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
                 <button
                   onClick={() => setTimeRange(1)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 1
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 7
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 30
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   {t('time_filter_30d') || '月'}
