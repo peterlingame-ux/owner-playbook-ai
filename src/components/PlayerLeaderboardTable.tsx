@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -138,6 +138,9 @@ const PlayerLeaderboardTable = () => {
     betAmount: number;
     playerName: string;
   } | null>(null);
+  
+  // 已跟单的预测ID集合 - 跟单后才能看到具体盘口
+  const [copiedPredictions, setCopiedPredictions] = useState<Set<string>>(new Set());
   
   // Get real balance from auth context
   const realBalance = userBalance?.balance ?? 10000;
@@ -698,6 +701,13 @@ const PlayerLeaderboardTable = () => {
 
       // 刷新余额
       await refreshBalance();
+      
+      // 将该预测添加到已跟单列表，解锁显示
+      setCopiedPredictions(prev => {
+        const newSet = new Set(prev);
+        newSet.add(copyTradeDialog.prediction.id);
+        return newSet;
+      });
       
       // 显示成功动画
       setCopySuccess({
@@ -1770,38 +1780,73 @@ const PlayerLeaderboardTable = () => {
                                   </span>
                                 </div>
                                 
-                                {/* 推荐信息 - 显示完整内容 */}
+                                {/* 推荐信息 - 根据跟单状态显示 */}
                                 <div className="bg-muted/30 rounded-md p-2">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-1.5">
                                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                                         {recommended.type === 'over_under' ? '大小球' : '让分'}
                                       </span>
-                                      <span className="text-xs font-bold text-foreground">
-                                        {recommended.label}
-                                      </span>
+                                      {copiedPredictions.has(pred.id) ? (
+                                        // 已跟单 - 显示完整内容
+                                        <span className="text-xs font-bold text-foreground">
+                                          {recommended.label}
+                                        </span>
+                                      ) : (
+                                        // 未跟单 - 显示锁定状态
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                          <Lock className="h-3 w-3" />
+                                          <span className="blur-sm select-none font-bold">
+                                            {recommended.type === 'over_under' ? '大 2.5球' : '主队 (-0.5)'}
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px]">
-                                      <span className="text-muted-foreground">
-                                        赔率 <span className="text-foreground font-medium">1.80</span>
-                                      </span>
-                                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
-                                        85%
-                                      </span>
+                                      {copiedPredictions.has(pred.id) ? (
+                                        // 已跟单 - 显示完整赔率和置信度
+                                        <>
+                                          <span className="text-muted-foreground">
+                                            赔率 <span className="text-foreground font-medium">1.80</span>
+                                          </span>
+                                          <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                                            85%
+                                          </span>
+                                        </>
+                                      ) : (
+                                        // 未跟单 - 锁定显示
+                                        <>
+                                          <span className="text-muted-foreground flex items-center gap-0.5">
+                                            赔率 <span className="blur-sm">1.80</span>
+                                          </span>
+                                          <span className="px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-0.5">
+                                            <Lock className="h-2.5 w-2.5" />
+                                            <span className="blur-sm">85%</span>
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
                                 
                                 {/* 跟单按钮 */}
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full mt-2 h-7 text-xs gap-1.5"
-                                  onClick={() => handleCopyTradeFromHistory(pred)}
-                                >
-                                  <UserPlus className="h-3 w-3" />
-                                  跟单
-                                </Button>
+                                {copiedPredictions.has(pred.id) ? (
+                                  // 已跟单状态
+                                  <div className="w-full mt-2 h-7 flex items-center justify-center gap-1.5 text-xs text-success bg-success/10 rounded-md border border-success/20">
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    已跟单
+                                  </div>
+                                ) : (
+                                  // 跟单按钮
+                                  <Button
+                                    size="sm"
+                                    className="w-full mt-2 h-7 text-xs gap-1.5"
+                                    onClick={() => handleCopyTradeFromHistory(pred)}
+                                  >
+                                    <Lock className="h-3 w-3" />
+                                    跟单解锁
+                                  </Button>
+                                )}
                               </div>
                             );
                           })}
