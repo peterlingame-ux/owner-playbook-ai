@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, ShoppingCart } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -138,6 +138,14 @@ const PlayerLeaderboardTable = () => {
     betAmount: number;
     playerName: string;
   } | null>(null);
+  
+  // Unlock predictions state - 解锁预测状态
+  const [unlockedPredictions, setUnlockedPredictions] = useState<Set<string>>(new Set());
+  const [unlockDialog, setUnlockDialog] = useState<{ playerId: string; playerName: string; price: number } | null>(null);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  
+  // 解锁价格
+  const UNLOCK_PRICE = 50;
   
   // Get real balance from auth context
   const realBalance = userBalance?.balance ?? 10000;
@@ -721,6 +729,55 @@ const PlayerLeaderboardTable = () => {
     } finally {
       setIsCopying(false);
     }
+  };
+
+  // 购买解锁预测功能
+  const handleUnlockPredictions = (playerId: string, playerName: string) => {
+    if (!user) {
+      toast.error('请先登录');
+      return;
+    }
+    setUnlockDialog({ playerId, playerName, price: UNLOCK_PRICE });
+  };
+
+  const confirmUnlock = async () => {
+    if (!unlockDialog || !user) return;
+    
+    if (realBalance < UNLOCK_PRICE) {
+      toast.error('余额不足，无法购买');
+      return;
+    }
+    
+    setIsUnlocking(true);
+    
+    try {
+      // 扣除余额 - 使用虚拟扣款（模拟购买）
+      // 这里我们通过place_bet来模拟扣款，实际业务中可能需要专门的购买接口
+      // 由于这是模拟功能，我们直接更新本地状态
+      
+      // 将该玩家的预测添加到已解锁列表
+      setUnlockedPredictions(prev => {
+        const newSet = new Set(prev);
+        newSet.add(unlockDialog.playerId);
+        return newSet;
+      });
+      
+      toast.success(`已解锁 ${maskPlayerName(unlockDialog.playerName)} 的今日预测`);
+      setUnlockDialog(null);
+      
+    } catch (error) {
+      console.error('Unlock error:', error);
+      toast.error('解锁失败，请稍后重试');
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  // 检查某玩家的预测是否已解锁
+  const isPredictionUnlocked = (playerId: string): boolean => {
+    // 自己的预测始终可见
+    if (user && playerId === user.id) return true;
+    return unlockedPredictions.has(playerId);
   };
 
   const getRankColor = (rank: number) => {
@@ -1761,26 +1818,54 @@ const PlayerLeaderboardTable = () => {
                                   </span>
                                 </div>
                                 
-                                {/* 推荐信息 - 简洁显示 */}
+                                {/* 推荐信息 - 根据解锁状态显示 */}
                                 <div className="bg-muted/30 rounded-md p-2">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                        {recommended.type === 'over_under' ? '大小球' : '让分'}
-                                      </span>
-                                      <span className="text-xs font-bold text-foreground">
-                                        {recommended.label}
-                                      </span>
+                                  {isPredictionUnlocked(selectedPlayerHistory.playerId) ? (
+                                    // 已解锁 - 显示完整推荐信息
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                          {recommended.type === 'over_under' ? '大小球' : '让分'}
+                                        </span>
+                                        <span className="text-xs font-bold text-foreground">
+                                          {recommended.label}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-[10px]">
+                                        <span className="text-muted-foreground">
+                                          赔率 <span className="text-foreground font-medium">1.80</span>
+                                        </span>
+                                        <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                                          85%
+                                        </span>
+                                      </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-[10px]">
-                                      <span className="text-muted-foreground">
-                                        赔率 <span className="text-foreground font-medium">1.80</span>
-                                      </span>
-                                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
-                                        85%
-                                      </span>
+                                  ) : (
+                                    // 未解锁 - 显示锁定状态
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                          {recommended.type === 'over_under' ? '大小球' : '让分'}
+                                        </span>
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                          <Lock className="h-3 w-3" />
+                                          <span className="blur-sm select-none">
+                                            {recommended.type === 'over_under' ? '大 2.5球' : '主队 (-0.5)'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-[10px]">
+                                        <span className="text-muted-foreground flex items-center gap-1">
+                                          <Lock className="h-2.5 w-2.5" />
+                                          赔率 <span className="blur-sm">1.80</span>
+                                        </span>
+                                        <span className="px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-1">
+                                          <Lock className="h-2.5 w-2.5" />
+                                          <span className="blur-sm">85%</span>
+                                        </span>
+                                      </div>
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
                               </div>
                             );
@@ -1789,6 +1874,18 @@ const PlayerLeaderboardTable = () => {
                             <p className="text-[10px] text-center text-muted-foreground">
                               还有 {upcomingPredictions.length - 3} 场推荐...
                             </p>
+                          )}
+                          
+                          {/* 购买解锁按钮 */}
+                          {!isPredictionUnlocked(selectedPlayerHistory.playerId) && upcomingPredictions.length > 0 && (
+                            <Button
+                              size="sm"
+                              className="w-full mt-3 gap-2"
+                              onClick={() => handleUnlockPredictions(selectedPlayerHistory.playerId, selectedPlayerHistory.playerName)}
+                            >
+                              <ShoppingCart className="h-4 w-4" />
+                              购买解锁预测详情 (¥{UNLOCK_PRICE})
+                            </Button>
                           )}
                         </div>
                       )}
@@ -1905,6 +2002,99 @@ const PlayerLeaderboardTable = () => {
                   </div>
                 );
               })()}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 购买解锁确认弹窗 */}
+      <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+              购买预测详情
+            </DialogTitle>
+          </DialogHeader>
+          
+          {unlockDialog && (
+            <div className="space-y-4">
+              {/* 目标玩家信息 */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Avatar className="w-10 h-10 border-2 border-primary/30">
+                  <AvatarImage src={allPlayers.find(p => p.id === unlockDialog.playerId)?.avatarUrl} />
+                  <AvatarFallback>{unlockDialog.playerName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{maskPlayerName(unlockDialog.playerName)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    查看该玩家的今日预测详情
+                  </p>
+                </div>
+              </div>
+
+              {/* 购买说明 */}
+              <div className="p-3 rounded-lg border border-border/50 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">购买内容</span>
+                  <span className="font-medium">今日所有预测详情</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">包含信息</span>
+                  <span className="font-medium">大小球/让分具体盘口</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">有效期</span>
+                  <span className="font-medium">今日有效</span>
+                </div>
+              </div>
+
+              {/* 价格和余额 */}
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">购买价格</span>
+                  <span className="text-xl font-bold text-primary">¥{UNLOCK_PRICE}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs mt-2">
+                  <span className="text-muted-foreground">当前余额</span>
+                  <span className="text-foreground">¥{realBalance.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* 余额不足提示 */}
+              {realBalance < UNLOCK_PRICE && (
+                <div className="p-2 rounded bg-destructive/10 border border-destructive/20 text-center">
+                  <p className="text-xs text-destructive">余额不足，请先充值</p>
+                </div>
+              )}
+
+              {/* 按钮 */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setUnlockDialog(null)}
+                >
+                  取消
+                </Button>
+                <Button
+                  className="flex-1 gap-2"
+                  onClick={confirmUnlock}
+                  disabled={isUnlocking || realBalance < UNLOCK_PRICE}
+                >
+                  {isUnlocking ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent" />
+                      处理中...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4" />
+                      确认购买
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
