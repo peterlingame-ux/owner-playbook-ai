@@ -20,9 +20,8 @@ interface UserStats {
 
 const UserModelCard = () => {
   const { t } = useTranslation();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, userProfile } = useAuth();
   const navigate = useNavigate();
-  const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
   const [stats, setStats] = useState<UserStats>({
     totalPredictions: 0,
     correctPredictions: 0,
@@ -32,16 +31,6 @@ const UserModelCard = () => {
 
   useEffect(() => {
     if (user) {
-      // Fetch user profile
-      const fetchProfile = async () => {
-        const { data } = await supabase
-          .from('users')
-          .select('display_name, avatar_url')
-          .eq('id', user.id)
-          .single();
-        if (data) setUserProfile(data);
-      };
-
       // Fetch user predictions stats
       const fetchStats = async () => {
         const { data: predictions } = await supabase
@@ -64,7 +53,6 @@ const UserModelCard = () => {
         }
       };
 
-      fetchProfile();
       fetchStats();
     }
   }, [user]);
