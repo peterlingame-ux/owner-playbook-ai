@@ -45,7 +45,8 @@ interface TodayPosition {
   status: string;
   result?: string;
   pnl?: number;
-  created_at: string;
+  created_at?: string;
+  settled_at?: string;
 }
 const LeaderboardTable = () => {
   const { t } = useTranslation();
@@ -392,7 +393,7 @@ const LeaderboardTable = () => {
             status: 'settled',
             result: isWin ? 'win' : 'loss',
             pnl: isWin ? amount * (parseFloat(odds) - 1) : -amount,
-            settled_at: new Date(Date.now() - i * 3600000).toISOString(),
+            created_at: new Date(Date.now() - i * 3600000).toISOString(),
           });
         }
         setSelectedModelHistory({ modelId, modelName, positions: mockPositions });
