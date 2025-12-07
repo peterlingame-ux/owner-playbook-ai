@@ -1840,13 +1840,12 @@ const PlayerLeaderboardTable = () => {
                                         )}
                                       </AnimatePresence>
                                     </div>
-                                    <div className="flex items-center gap-2 text-[10px]">
+                                    <div className="flex items-center text-[10px]">
                                       <AnimatePresence mode="wait">
                                         {copiedPredictions.has(pred.id) ? (
-                                          // 已跟单 - 显示完整赔率和置信度
+                                          // 已跟单 - 显示完整赔率
                                           <motion.div
                                             key="unlocked-stats"
-                                            className="flex items-center gap-2"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.3, delay: 0.2 }}
@@ -1854,28 +1853,15 @@ const PlayerLeaderboardTable = () => {
                                             <span className="text-muted-foreground">
                                               赔率 <span className="text-foreground font-medium">1.80</span>
                                             </span>
-                                            <motion.span 
-                                              className="px-1.5 py-0.5 rounded bg-success/20 text-success font-medium"
-                                              initial={{ scale: 0 }}
-                                              animate={{ scale: 1 }}
-                                              transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.3 }}
-                                            >
-                                              85%
-                                            </motion.span>
                                           </motion.div>
                                         ) : (
                                           // 未跟单 - 锁定显示
                                           <motion.div
                                             key="locked-stats"
-                                            className="flex items-center gap-2"
                                             exit={{ opacity: 0 }}
                                           >
                                             <span className="text-muted-foreground flex items-center gap-0.5">
                                               赔率 <span className="blur-sm">1.80</span>
-                                            </span>
-                                            <span className="px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-0.5">
-                                              <Lock className="h-2.5 w-2.5" />
-                                              <span className="blur-sm">85%</span>
                                             </span>
                                           </motion.div>
                                         )}
