@@ -961,7 +961,32 @@ const PlayerLeaderboardTable = () => {
                         <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                          {/* 胜率趋势图标 */}
+                          {(() => {
+                            const todayData = todayWinRates.get(player.id);
+                            if (todayData && todayData.total > 0) {
+                              const trend = todayData.winRate - player.winRate;
+                              if (trend > 3) {
+                                return (
+                                  <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-success/20 text-success text-[9px] font-bold">
+                                    <TrendingUp className="h-2.5 w-2.5" />
+                                    <span className="hidden sm:inline">↑</span>
+                                  </span>
+                                );
+                              } else if (trend < -3) {
+                                return (
+                                  <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-destructive/20 text-destructive text-[9px] font-bold">
+                                    <TrendingDown className="h-2.5 w-2.5" />
+                                    <span className="hidden sm:inline">↓</span>
+                                  </span>
+                                );
+                              }
+                            }
+                            return null;
+                          })()}
+                        </div>
                         <div className="flex flex-col gap-0.5 sm:gap-1">
                           {/* 总预测、正确、错误 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
@@ -1108,7 +1133,32 @@ const PlayerLeaderboardTable = () => {
                         <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                          {/* 胜率趋势图标 */}
+                          {(() => {
+                            const todayData = todayWinRates.get(player.id);
+                            if (todayData && todayData.total > 0) {
+                              const trend = todayData.winRate - player.winRate;
+                              if (trend > 3) {
+                                return (
+                                  <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-success/20 text-success text-[9px] font-bold">
+                                    <TrendingUp className="h-2.5 w-2.5" />
+                                    <span className="hidden sm:inline">↑</span>
+                                  </span>
+                                );
+                              } else if (trend < -3) {
+                                return (
+                                  <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-destructive/20 text-destructive text-[9px] font-bold">
+                                    <TrendingDown className="h-2.5 w-2.5" />
+                                    <span className="hidden sm:inline">↓</span>
+                                  </span>
+                                );
+                              }
+                            }
+                            return null;
+                          })()}
+                        </div>
                         <div className="flex flex-col gap-0.5 sm:gap-1">
                           {/* 总预测、正确、错误 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
@@ -1245,7 +1295,32 @@ const PlayerLeaderboardTable = () => {
                         <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                          {/* 胜率趋势图标 */}
+                          {(() => {
+                            const todayData = todayWinRates.get(player.id);
+                            if (todayData && todayData.total > 0) {
+                              const trend = todayData.winRate - player.winRate;
+                              if (trend > 3) {
+                                return (
+                                  <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-success/20 text-success text-[9px] font-bold">
+                                    <TrendingUp className="h-2.5 w-2.5" />
+                                    <span className="hidden sm:inline">↑</span>
+                                  </span>
+                                );
+                              } else if (trend < -3) {
+                                return (
+                                  <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-destructive/20 text-destructive text-[9px] font-bold">
+                                    <TrendingDown className="h-2.5 w-2.5" />
+                                    <span className="hidden sm:inline">↓</span>
+                                  </span>
+                                );
+                              }
+                            }
+                            return null;
+                          })()}
+                        </div>
                         <div className="flex flex-col gap-0.5 sm:gap-1">
                           {/* 总预测、正确、错误 */}
                           <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
