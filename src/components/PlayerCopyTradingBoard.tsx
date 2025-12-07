@@ -12,6 +12,20 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
+// 球队Logo导入
+import teamRealMadrid from "@/assets/team-real-madrid.png";
+import teamBarcelona from "@/assets/team-barcelona.png";
+import teamManchesterCity from "@/assets/team-manchester-city.png";
+import teamLiverpool from "@/assets/team-liverpool.png";
+import teamBayern from "@/assets/team-bayern.png";
+import teamDortmund from "@/assets/team-dortmund.png";
+import teamPsg from "@/assets/team-psg.png";
+import teamMarseille from "@/assets/team-marseille.png";
+import teamAcmilan from "@/assets/team-acmilan.png";
+import teamArsenal from "@/assets/team-arsenal.png";
+import teamInter from "@/assets/team-inter.png";
+import teamAtletico from "@/assets/team-atletico.png";
+import teamManchesterUnited from "@/assets/team-manchester-united.png";
 
 interface PlayerData {
   id: string;
@@ -23,6 +37,8 @@ interface PlayerData {
   balance: number;
   profit: number;
   changePercent: number;
+  totalBetAmount?: number;
+  profitAmount?: number;
   bestStreak: number;
   worstStreak: number;
   currentStreak: number;
@@ -46,6 +62,8 @@ interface TodayPrediction {
   // 比赛详情
   home_team?: string;
   away_team?: string;
+  home_logo?: string | null;
+  away_logo?: string | null;
   home_score?: number | null;
   away_score?: number | null;
   match_status?: string;
@@ -56,6 +74,34 @@ interface CopyTradeData {
   prediction: TodayPrediction;
   betAmount: number;
 }
+
+// 球队Logo映射
+const teamLogoMap: Record<string, string> = {
+  '皇家马德里': teamRealMadrid,
+  '巴塞罗那': teamBarcelona,
+  '曼城': teamManchesterCity,
+  '利物浦': teamLiverpool,
+  '拜仁慕尼黑': teamBayern,
+  '多特蒙德': teamDortmund,
+  '巴黎圣日耳曼': teamPsg,
+  '马赛': teamMarseille,
+  'AC米兰': teamAcmilan,
+  '尤文图斯': teamInter, // 使用国米logo暂代
+  '切尔西': teamManchesterCity, // 暂代
+  '阿森纳': teamArsenal,
+  '国际米兰': teamInter,
+  '那不勒斯': teamAcmilan, // 暂代
+  '马德里竞技': teamAtletico,
+  '塞维利亚': teamAtletico, // 暂代
+  '曼联': teamManchesterUnited,
+  '热刺': teamArsenal, // 暂代
+  '纽卡斯尔': teamLiverpool, // 暂代
+};
+
+// 获取球队Logo
+const getTeamLogo = (teamName: string): string | null => {
+  return teamLogoMap[teamName] || null;
+};
 
 // 隐藏玩家名字中间部分
 const maskPlayerName = (name: string): string => {
@@ -77,6 +123,7 @@ const PlayerCopyTradingBoard = () => {
   const [todayStats, setTodayStats] = useState<Map<string, { total: number; correct: number; winRate: number }>>(new Map());
   const [selectedPlayer, setSelectedPlayer] = useState<{ player: PlayerData; predictions: TodayPrediction[] } | null>(null);
   const [copyTradeDialog, setCopyTradeDialog] = useState<CopyTradeData | null>(null);
+  const [copySuccessDialog, setCopySuccessDialog] = useState<CopyTradeData | null>(null);
   const [userBalance, setUserBalance] = useState(10000);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
@@ -90,14 +137,24 @@ const PlayerCopyTradingBoard = () => {
         // 将虚拟玩家转换为 PlayerData 格式（只选择允许跟单的玩家）
         const virtualPlayersData: PlayerData[] = virtualPlayers
           .filter(player => player.allowCopyTrade !== false) // 只选择允许跟单的玩家
-          .map((player) => ({
-            ...player,
-            bestStreak: player.bestStreak || 0,
-            worstStreak: player.worstStreak || 0,
-            currentStreak: 0,
-            isVirtual: true,
-            allowCopyTrade: player.allowCopyTrade ?? true,
-          }));
+          .map((player) => {
+            // 为虚拟玩家计算投注金额和盈利金额
+            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
+            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
+            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
+            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
+            
+            return {
+              ...player,
+              totalBetAmount,
+              profitAmount,
+              bestStreak: player.bestStreak || 0,
+              worstStreak: player.worstStreak || 0,
+              currentStreak: 0,
+              isVirtual: true,
+              allowCopyTrade: player.allowCopyTrade ?? true,
+            };
+          });
         
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
@@ -122,7 +179,7 @@ const PlayerCopyTradingBoard = () => {
         // 获取所有用户的预测统计
         const { data: predictionsData, error: predictionsError } = await supabase
           .from('user_predictions')
-          .select('user_id, result');
+          .select('user_id, result, bet_amount, actual_payout');
         
         if (predictionsError) throw predictionsError;
         
@@ -135,6 +192,16 @@ const PlayerCopyTradingBoard = () => {
           const totalPredictions = userPredictions.length;
           const correctPredictions = userPredictions.filter(p => p.result === 'win').length;
           const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+          
+          // 计算投注金额和盈利金额
+          const totalBetAmount = userPredictions.reduce((sum, p) => sum + (p.bet_amount || 0), 0);
+          const validAmount = userPredictions.reduce((sum, p) => {
+            if (p.result === 'win') {
+              return sum + (p.actual_payout || p.bet_amount || 0);
+            }
+            return sum;
+          }, 0);
+          const profitAmount = validAmount - totalBetAmount;
           
           const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
           const profit = balance - INITIAL_BALANCE;
@@ -178,6 +245,8 @@ const PlayerCopyTradingBoard = () => {
             balance,
             profit,
             changePercent,
+            totalBetAmount,
+            profitAmount,
             bestStreak,
             worstStreak,
             currentStreak,
@@ -193,14 +262,24 @@ const PlayerCopyTradingBoard = () => {
         console.error('Error fetching all players:', error);
         const virtualPlayersData: PlayerData[] = virtualPlayers
           .filter(player => player.allowCopyTrade !== false)
-          .map((player) => ({
-            ...player,
-            bestStreak: player.bestStreak || 0,
-            worstStreak: player.worstStreak || 0,
-            currentStreak: 0,
-            isVirtual: true,
-            allowCopyTrade: player.allowCopyTrade ?? true,
-          }));
+          .map((player) => {
+            // 为虚拟玩家计算投注金额和盈利金额
+            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
+            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
+            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
+            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
+            
+            return {
+              ...player,
+              totalBetAmount,
+              profitAmount,
+              bestStreak: player.bestStreak || 0,
+              worstStreak: player.worstStreak || 0,
+              currentStreak: 0,
+              isVirtual: true,
+              allowCopyTrade: player.allowCopyTrade ?? true,
+            };
+          });
         setAllPlayers(virtualPlayersData);
       } finally {
         setIsLoading(false);
@@ -359,6 +438,8 @@ const PlayerCopyTradingBoard = () => {
       created_at: new Date().toISOString(),
       home_team: randomMatch.home,
       away_team: randomMatch.away,
+      home_logo: getTeamLogo(randomMatch.home),
+      away_logo: getTeamLogo(randomMatch.away),
       home_score: null,
       away_score: null,
       match_status: 'NS'
@@ -389,21 +470,8 @@ const PlayerCopyTradingBoard = () => {
     // 更新虚拟余额
     setUserBalance(prev => prev - copyBetAmount);
     
-    toast.success(
-      <div className="space-y-1">
-        <p className="font-medium">{t('copy_success')}</p>
-        <p className="text-xs text-muted-foreground">
-          {t('followed_bet')} {copyTradeDialog.player.displayName} ¥{copyBetAmount}
-        </p>
-        <p className="text-xs">
-          {copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}
-        </p>
-        <p className="text-xs text-primary">
-          {t('prediction')}: {copyTradeDialog.prediction.prediction}
-        </p>
-      </div>
-    );
-    
+    // 显示成功对话框
+    setCopySuccessDialog({ ...copyTradeDialog, betAmount: copyBetAmount });
     setIsCopying(false);
     setCopyTradeDialog(null);
   };
@@ -440,34 +508,55 @@ const PlayerCopyTradingBoard = () => {
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
-          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
-            <span className="flex items-center gap-0.5 sm:gap-1">
-              <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
-              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
-              <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                {player.winRate.toFixed(1)}%
-              </span>
-            </span>
-            <span className="text-border hidden sm:inline">|</span>
-            <span className="flex items-center gap-0.5 sm:gap-1">
-              <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_label')}:</span>
-              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
-              <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
-              </span>
-            </span>
-            {showStreak && (
-              <>
-                <span className="text-border hidden sm:inline">|</span>
-                <span className="flex items-center gap-0.5 sm:gap-1">
-                  <span className="text-muted-foreground/70 hidden sm:inline">{streakType === 'best' ? t('best_streak') : t('worst_streak')}:</span>
-                  <span className="text-muted-foreground/70 sm:hidden">{streakType === 'best' ? '连' : '黑'}:</span>
-                  <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                    {streakType === 'best' ? player.bestStreak : player.worstStreak}{t('matches_unit')}
-                  </span>
+          <div className="flex flex-col gap-0.5 sm:gap-1">
+            {/* 盈利金额和投注金额 - 在胜率和盈利率上面 */}
+            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_amount') || '盈利金额'}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">盈:</span>
+                <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? (streakType === 'best' ? 'text-destructive' : 'text-success') : (streakType === 'best' ? 'text-destructive/60' : 'text-success/60')}`}>
+                  {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
-              </>
-            )}
+              </span>
+              <span className="text-border hidden sm:inline">|</span>
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注金额'}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">投:</span>
+                <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
+                  ${((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>
+              </span>
+            </div>
+            {/* 胜率和盈利率 */}
+            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">胜:</span>
+                <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
+                  {player.winRate.toFixed(1)}%
+                </span>
+              </span>
+              <span className="text-border hidden sm:inline">|</span>
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_label')}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">盈:</span>
+                <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
+                  {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                </span>
+              </span>
+              {showStreak && (
+                <>
+                  <span className="text-border hidden sm:inline">|</span>
+                  <span className="flex items-center gap-0.5 sm:gap-1">
+                    <span className="text-muted-foreground/70 hidden sm:inline">{streakType === 'best' ? t('best_streak') : t('worst_streak')}:</span>
+                    <span className="text-muted-foreground/70 sm:hidden">{streakType === 'best' ? '连' : '黑'}:</span>
+                    <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
+                      {streakType === 'best' ? player.bestStreak : player.worstStreak}{t('matches_unit')}
+                    </span>
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -505,7 +594,7 @@ const PlayerCopyTradingBoard = () => {
           }}
         >
           <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          <span className="hidden sm:inline">{t('view') || '查看'}</span>
+          <span className="hidden sm:inline">{t('copy_trade_btn') || '跟单'}</span>
         </Button>
       </div>
     </div>
@@ -888,17 +977,62 @@ const PlayerCopyTradingBoard = () => {
               </div>
 
               {/* 跟单比赛信息 */}
-              <div className="p-3 rounded-lg border border-border/50 space-y-2">
+              <div className="p-3 rounded-lg border border-border/50 space-y-3">
                 <div className="text-xs text-muted-foreground mb-2">{t('copy_match')}</div>
-                <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                  <span className="text-right flex-1">{copyTradeDialog.prediction.home_team}</span>
+                
+                {/* 球队名 */}
+                <div className="flex items-center justify-center gap-4 text-sm font-medium">
+                  <div className="flex-1 flex flex-col items-end gap-1.5">
+                    {copyTradeDialog.prediction.home_logo && (
+                      <img 
+                        src={copyTradeDialog.prediction.home_logo} 
+                        alt={copyTradeDialog.prediction.home_team || ''} 
+                        className="w-8 h-8 object-contain flex-shrink-0" 
+                      />
+                    )}
+                    <span className="text-right">{copyTradeDialog.prediction.home_team}</span>
+                  </div>
                   <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
-                  <span className="text-left flex-1">{copyTradeDialog.prediction.away_team}</span>
+                  <div className="flex-1 flex flex-col items-start gap-1.5">
+                    {copyTradeDialog.prediction.away_logo && (
+                      <img 
+                        src={copyTradeDialog.prediction.away_logo} 
+                        alt={copyTradeDialog.prediction.away_team || ''} 
+                        className="w-8 h-8 object-contain flex-shrink-0" 
+                      />
+                    )}
+                    <span className="text-left">{copyTradeDialog.prediction.away_team}</span>
+                  </div>
                 </div>
-                <div className="text-center text-xs text-muted-foreground mt-2">
-                  {t('prediction')}: <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
-                  <span className="mx-2">|</span>
-                  {t('type_column')}: {copyTradeDialog.prediction.prediction_type === 'over_under' ? t('over_under_type') : t('handicap_type')}
+                
+                {/* 类型 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{t('type_column')}:</span>
+                  <span className="text-foreground font-medium">
+                    {copyTradeDialog.prediction.prediction_type === 'over_under' ? t('over_under_type') : t('handicap_type')}
+                  </span>
+                </div>
+                
+                {/* 预测 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{t('prediction')}:</span>
+                  <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
+                </div>
+                
+                {/* 赔率 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{t('odds')}:</span>
+                  <span className="text-foreground font-medium">
+                    {copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount
+                      ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2)
+                      : '-'}
+                  </span>
+                </div>
+                
+                {/* 下注金额 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{t('bet_amount')}:</span>
+                  <span className="text-foreground font-medium">¥{copyTradeDialog.prediction.bet_amount}</span>
                 </div>
               </div>
 
@@ -960,6 +1094,81 @@ const PlayerCopyTradingBoard = () => {
               <p className="text-[10px] text-muted-foreground text-center">
                 {t('copy_disclaimer')}
               </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 跟单成功对话框 */}
+      <Dialog open={!!copySuccessDialog} onOpenChange={() => setCopySuccessDialog(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-lg font-bold text-success">{t('copy_success')}</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {copySuccessDialog && (
+            <div className="space-y-4">
+              {/* 跟单金额 */}
+              <div className="text-center py-2">
+                <p className="text-sm text-muted-foreground mb-1">{t('followed_bet')}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {maskPlayerName(copySuccessDialog.player.displayName)} <span className="text-primary">¥{copySuccessDialog.betAmount}</span>
+                </p>
+              </div>
+
+              {/* 比赛信息 */}
+              <div className="p-3 rounded-lg border border-border/50 space-y-3">
+                {/* 球队名 */}
+                <div className="flex items-center justify-center gap-4 text-sm font-medium">
+                  <div className="flex-1 flex flex-col items-end gap-1.5">
+                    {copySuccessDialog.prediction.home_logo && (
+                      <img 
+                        src={copySuccessDialog.prediction.home_logo} 
+                        alt={copySuccessDialog.prediction.home_team || ''} 
+                        className="w-8 h-8 object-contain flex-shrink-0" 
+                      />
+                    )}
+                    <span className="text-right">{copySuccessDialog.prediction.home_team}</span>
+                  </div>
+                  <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
+                  <div className="flex-1 flex flex-col items-start gap-1.5">
+                    {copySuccessDialog.prediction.away_logo && (
+                      <img 
+                        src={copySuccessDialog.prediction.away_logo} 
+                        alt={copySuccessDialog.prediction.away_team || ''} 
+                        className="w-8 h-8 object-contain flex-shrink-0" 
+                      />
+                    )}
+                    <span className="text-left">{copySuccessDialog.prediction.away_team}</span>
+                  </div>
+                </div>
+                
+                {/* 预测 */}
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-border/30">
+                  <span className="text-muted-foreground">{t('prediction')}:</span>
+                  <span className="text-primary font-medium">{copySuccessDialog.prediction.prediction}</span>
+                </div>
+                
+                {/* 下注金额 */}
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-border/30">
+                  <span className="text-muted-foreground">{t('bet_amount')}:</span>
+                  <span className="text-foreground font-medium">¥{copySuccessDialog.prediction.bet_amount}</span>
+                </div>
+              </div>
+
+              <Button
+                className="w-full"
+                onClick={() => setCopySuccessDialog(null)}
+              >
+                {t('confirm_copy') || '确定'}
+              </Button>
             </div>
           )}
         </DialogContent>

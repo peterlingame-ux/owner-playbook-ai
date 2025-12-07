@@ -33,7 +33,6 @@ const Leaderboard = () => {
           </TabsList>
           
           <TabsContent value="ai">
-            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('all_models')}</h2>
             <LeaderboardTable />
           </TabsContent>
           

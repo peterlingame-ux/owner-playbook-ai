@@ -87,6 +87,8 @@ interface PlayerData {
   balance: number;
   profit: number;
   changePercent: number;
+  totalBetAmount?: number;
+  profitAmount?: number;
   rank: number;
   bestStreak?: number;
   currentStreak?: number;
@@ -120,6 +122,7 @@ const PlayerLeaderboardTable = () => {
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
+  const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
   const [selectedPlayerHistory, setSelectedPlayerHistory] = useState<{ playerId: string; playerName: string; predictions: TodayPrediction[] } | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -171,12 +174,22 @@ const PlayerLeaderboardTable = () => {
         // 将虚拟玩家转换为 PlayerData 格式（只选择推荐者）
         const virtualPlayersData: PlayerData[] = virtualPlayers
           .filter(player => player.isRecommender !== false) // 只选择推荐者
-          .map((player, index) => ({
-            ...player,
-            rank: index + 1,
-            isVirtual: true,
-            isRecommender: player.isRecommender ?? true,
-          }));
+          .map((player, index) => {
+            // 为虚拟玩家计算投注金额和盈利金额
+            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
+            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
+            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
+            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
+            
+            return {
+              ...player,
+              totalBetAmount,
+              profitAmount,
+              rank: index + 1,
+              isVirtual: true,
+              isRecommender: player.isRecommender ?? true,
+            };
+          });
         
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
@@ -198,10 +211,15 @@ const PlayerLeaderboardTable = () => {
         
         if (balancesError) throw balancesError;
         
-        // 获取所有用户的预测统计
+        // 获取所有用户的预测统计 - 根据时间范围筛选
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - timeRange);
+        startDate.setHours(0, 0, 0, 0);
+        
         const { data: predictionsData, error: predictionsError } = await supabase
           .from('user_predictions')
-          .select('user_id, result, confidence');
+          .select('user_id, result, confidence, created_at, bet_amount, actual_payout')
+          .gte('created_at', startDate.toISOString());
         
         if (predictionsError) throw predictionsError;
         
@@ -214,6 +232,16 @@ const PlayerLeaderboardTable = () => {
           const totalPredictions = userPredictions.length;
           const correctPredictions = userPredictions.filter(p => p.result === 'win').length;
           const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+          
+          // 计算投注金额和盈利金额
+          const totalBetAmount = userPredictions.reduce((sum, p) => sum + (p.bet_amount || 0), 0);
+          const validAmount = userPredictions.reduce((sum, p) => {
+            if (p.result === 'win') {
+              return sum + (p.actual_payout || p.bet_amount || 0);
+            }
+            return sum;
+          }, 0);
+          const profitAmount = validAmount - totalBetAmount;
           
           const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
           const profit = balance - INITIAL_BALANCE;
@@ -257,6 +285,8 @@ const PlayerLeaderboardTable = () => {
             balance,
             profit,
             changePercent,
+            totalBetAmount,
+            profitAmount,
             rank: 0,
             bestStreak,
             currentStreak,
@@ -283,12 +313,22 @@ const PlayerLeaderboardTable = () => {
         // 出错时使用虚拟玩家（只选择推荐者）
         const virtualPlayersData: PlayerData[] = virtualPlayers
           .filter(player => player.isRecommender !== false)
-          .map((player, index) => ({
-            ...player,
-            rank: index + 1,
-            isVirtual: true,
-            isRecommender: player.isRecommender ?? true,
-          }));
+          .map((player, index) => {
+            // 为虚拟玩家计算投注金额和盈利金额
+            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
+            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
+            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
+            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
+            
+            return {
+              ...player,
+              totalBetAmount,
+              profitAmount,
+              rank: index + 1,
+              isVirtual: true,
+              isRecommender: player.isRecommender ?? true,
+            };
+          });
         setAllPlayers(virtualPlayersData);
       } finally {
         setIsLoading(false);
@@ -334,7 +374,7 @@ const PlayerLeaderboardTable = () => {
       supabase.removeChannel(predictionsChannel);
       supabase.removeChannel(balancesChannel);
     };
-  }, []);
+  }, [timeRange]);
 
   // 获取今日胜率数据
   useEffect(() => {
@@ -843,13 +883,45 @@ const PlayerLeaderboardTable = () => {
         {/* Left Column: 连红榜 (Hot Streak) */}
         <Card className="border-destructive/40 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-destructive/30 to-destructive/20">
-                <TrendingUp className="h-5 w-5 text-destructive" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div>
+                  <h3 className="font-bold text-lg bg-gradient-to-r from-destructive to-red-500 bg-clip-text text-transparent">{t('hot_streak_board') || '连红榜'}</h3>
+                  <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜玩家'}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-lg bg-gradient-to-r from-destructive to-red-500 bg-clip-text text-transparent">{t('hot_streak_board') || '连红榜'}</h3>
-                <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜玩家'}</p>
+              {/* Time Range Filter */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  1天
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  7天
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  30天
+                </button>
               </div>
             </div>
             <div className="space-y-2">
@@ -890,25 +962,44 @@ const PlayerLeaderboardTable = () => {
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                          <span className="flex items-center gap-1">
-                            <span className="text-destructive font-bold">🔥 {player.currentStreak || 0}</span>
-                            <span className="text-muted-foreground/70">{t('current_streak') || '连红'}</span>
-                          </span>
-                          <span className="text-border">|</span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">{t('win_rate')}:</span>
-                            <span className="text-destructive font-medium">
-                              {player.winRate.toFixed(1)}%
+                        <div className="flex flex-col gap-1">
+                          {/* 盈利金额和投注金额 - 在胜率和盈利率上面 */}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('profit_amount') || '盈利金额'}:</span>
+                              <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? 'text-destructive' : 'text-destructive/60'}`}>
+                                {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
                             </span>
-                          </span>
-                          <span className="text-border">|</span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
-                            <span className="text-destructive font-medium">
-                              {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                            <span className="text-border">|</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('bet_amount') || '投注金额'}:</span>
+                              <span className="text-destructive font-medium">
+                                ${((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
                             </span>
-                          </span>
+                          </div>
+                          {/* 胜率和盈利率 */}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
+                              <span className="text-muted-foreground/70">{t('current_streak') || '连红'}</span>
+                            </span>
+                            <span className="text-border">|</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+                              <span className="text-destructive font-medium">
+                                {player.winRate.toFixed(1)}%
+                              </span>
+                            </span>
+                            <span className="text-border">|</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
+                              <span className="text-destructive font-medium">
+                                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                              </span>
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -931,13 +1022,45 @@ const PlayerLeaderboardTable = () => {
         {/* Right Column: 连黑榜 (Cold Streak) */}
         <Card className="border-success/40 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-success/30 to-success/20">
-                <TrendingDown className="h-5 w-5 text-success" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div>
+                  <h3 className="font-bold text-lg bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{t('cold_streak_board') || '连黑榜'}</h3>
+                  <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连黑玩家'}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-lg bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{t('cold_streak_board') || '连黑榜'}</h3>
-                <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连黑玩家'}</p>
+              {/* Time Range Filter */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  1天
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  7天
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  30天
+                </button>
               </div>
             </div>
             <div className="space-y-2">
@@ -974,25 +1097,44 @@ const PlayerLeaderboardTable = () => {
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                          <span className="flex items-center gap-1">
-                            <span className="text-success font-bold">💀 {player.worstStreak || 0}</span>
-                            <span className="text-muted-foreground/70">{t('worst_streak') || '连黑'}</span>
-                          </span>
-                          <span className="text-border">|</span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">{t('win_rate')}:</span>
-                            <span className="text-success font-medium">
-                              {player.winRate.toFixed(1)}%
+                        <div className="flex flex-col gap-1">
+                          {/* 盈利金额和投注金额 - 在胜率和盈利率上面 */}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('profit_amount') || '盈利金额'}:</span>
+                              <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-success/60'}`}>
+                                {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
                             </span>
-                          </span>
-                          <span className="text-border">|</span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
-                            <span className="text-success font-medium">
-                              {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                            <span className="text-border">|</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('bet_amount') || '投注金额'}:</span>
+                              <span className="text-success font-medium">
+                                ${((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
                             </span>
-                          </span>
+                          </div>
+                          {/* 胜率和盈利率 */}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <span className="text-success font-bold">{player.worstStreak || 0}</span>
+                              <span className="text-muted-foreground/70">{t('worst_streak') || '连黑'}</span>
+                            </span>
+                            <span className="text-border">|</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+                              <span className="text-success font-medium">
+                                {player.winRate.toFixed(1)}%
+                              </span>
+                            </span>
+                            <span className="text-border">|</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
+                              <span className="text-success font-medium">
+                                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                              </span>
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -54,6 +54,7 @@ const LeaderboardTable = () => {
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
+  const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
   const [selectedModelHistory, setSelectedModelHistory] = useState<{ modelId: string; modelName: string; positions: TodayPosition[] } | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -82,76 +83,140 @@ const LeaderboardTable = () => {
       try {
         setIsLoading(true);
         
-        // 并行查询：胜率数据、统计数据和余额数据
-        const [winRatesResult, statisticsResult, balancesResult] = await Promise.all([
-          supabase.from('ai_win_rates_overall' as any).select('*'),
-          supabase.from('ai_statistics' as any).select('*'),
-          supabase.from('ai_balances' as any).select('*'),
-        ]);
-
-        if (winRatesResult.error) {
-          console.error('Error fetching win rates:', winRatesResult.error);
+        // 计算时间范围的起始日期
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - timeRange);
+        startDate.setHours(0, 0, 0, 0);
+        
+        // 查询指定时间范围内的sim_positions数据
+        const { data: positionsData, error: positionsError } = await supabase
+          .from('sim_positions' as any)
+          .select('ai_id, metadata, settled_at, status, pnl, stake_amount, payout_amount')
+          .gte('settled_at', startDate.toISOString())
+          .eq('status', 'settled')
+          .not('settled_at', 'is', null);
+        
+        if (positionsError) {
+          console.error('Error fetching positions:', positionsError);
         }
-        if (statisticsResult.error) {
-          console.error('Error fetching statistics:', statisticsResult.error);
-        }
+        
+        // 并行查询：余额数据
+        const balancesResult = await supabase.from('ai_balances' as any).select('*');
 
-        // 将查询结果转换为 Map 以便快速查找
-        const winRatesMap = new Map<string, { winRate: number; totalPredictions: number; correctPredictions: number }>();
-        if (winRatesResult.data) {
-          winRatesResult.data.forEach((item: any) => {
-            winRatesMap.set(item.ai_id, {
-              winRate: item.win_rate || 0,
-              totalPredictions: item.total_predictions || 0,
-              correctPredictions: item.correct_predictions || 0,
+        // 根据时间范围计算每个AI的统计数据
+        const winRatesMap = new Map<string, { 
+          winRate: number; 
+          totalPredictions: number; 
+          correctPredictions: number;
+          totalBetAmount: number; // 投注金额
+          validAmount: number; // 有效金额（赢的场次返还）
+          profitAmount: number; // 盈利金额
+          profitRate: number; // 盈利率
+        }>();
+        
+        // 按AI ID分组处理数据
+        const aiDataMap = new Map<string, Array<{ 
+          result: string; 
+          confidence: number; 
+          settled_at: string;
+          stake_amount: number;
+          payout_amount: number;
+          pnl: number;
+        }>>();
+        
+        if (positionsData) {
+          positionsData.forEach((pos: any) => {
+            if (!pos.ai_id || !pos.settled_at) return;
+            
+            // 从metadata中提取result，如果没有则根据pnl判断
+            let result: string = 'loss';
+            if (pos.metadata?.settlement?.result) {
+              result = pos.metadata.settlement.result;
+            } else if (pos.pnl !== undefined && pos.pnl > 0) {
+              result = 'win';
+            } else if (pos.pnl !== undefined && pos.pnl < 0) {
+              result = 'loss';
+            }
+            
+            // 跳过push和void的结果
+            if (result === 'push' || result === 'void') {
+              return;
+            }
+            
+            if (!aiDataMap.has(pos.ai_id)) {
+              aiDataMap.set(pos.ai_id, []);
+            }
+            
+            // 从metadata中提取confidence，如果没有则使用默认值
+            const confidence = pos.metadata?.confidence || pos.metadata?.settlement?.confidence || 0;
+            const stakeAmount = pos.stake_amount || 0;
+            const payoutAmount = pos.payout_amount || (result === 'win' ? stakeAmount + (pos.pnl || 0) : 0);
+            const pnl = pos.pnl || 0;
+            
+            aiDataMap.get(pos.ai_id)!.push({
+              result,
+              confidence,
+              settled_at: pos.settled_at,
+              stake_amount: stakeAmount,
+              payout_amount: payoutAmount,
+              pnl,
             });
           });
         }
-
-        const statisticsMap = new Map<string, { currentStreak: number; bestStreak: number; worstStreak: number; avgConfidence: number }>();
-        if (statisticsResult.data) {
-          statisticsResult.data.forEach((item: any) => {
-            statisticsMap.set(item.ai_id, {
-              currentStreak: item.current_streak || 0,
-              bestStreak: item.best_streak || 0,
-              worstStreak: item.worst_streak || 0,
-              avgConfidence: item.avg_confidence || 0,
-            });
+        
+        // 计算每个AI的统计数据
+        aiDataMap.forEach((positions, aiId) => {
+          // 按时间排序
+          const sortedPositions = positions.sort((a, b) => 
+            new Date(a.settled_at).getTime() - new Date(b.settled_at).getTime()
+          );
+          
+          const total = sortedPositions.length;
+          const correct = sortedPositions.filter(p => p.result === 'win').length;
+          const winRate = total > 0 ? (correct / total) * 100 : 0;
+          
+          // 计算投注金额（总投入）
+          const totalBetAmount = sortedPositions.reduce((sum, p) => sum + p.stake_amount, 0);
+          
+          // 计算有效金额（赢的场次返还）
+          const validAmount = sortedPositions.reduce((sum, p) => {
+            if (p.result === 'win') {
+              return sum + p.payout_amount;
+            }
+            return sum;
+          }, 0);
+          
+          // 计算盈利金额
+          const profitAmount = validAmount - totalBetAmount;
+          
+          // 计算盈利率
+          const profitRate = totalBetAmount > 0 ? (profitAmount / totalBetAmount) * 100 : 0;
+          
+          winRatesMap.set(aiId, {
+            winRate,
+            totalPredictions: total,
+            correctPredictions: correct,
+            totalBetAmount,
+            validAmount,
+            profitAmount,
+            profitRate,
           });
-        }
-
-        // 处理余额数据，计算盈利率
-        const INITIAL_BALANCE = 10000;
-        const roiMap = new Map<string, number>();
-        if (!balancesResult.error && balancesResult.data) {
-          balancesResult.data.forEach((item: any) => {
-            const totalBalance = (item.available_balance || 0) + (item.locked_balance || 0);
-            const profit = totalBalance - INITIAL_BALANCE;
-            const roi = (profit / INITIAL_BALANCE) * 100;
-            roiMap.set(item.ai_id, roi);
-          });
-        }
+        });
 
         // 更新每个模型的数据
         const updatedModels = aiModels.map(model => {
           const winRateData = winRatesMap.get(model.id);
-          const statsData = statisticsMap.get(model.id);
-          const roi = roiMap.get(model.id) ?? 0;
-          
-          const wrongPredictions = (winRateData?.totalPredictions || 0) - (winRateData?.correctPredictions || 0);
           
           return {
             ...model,
             winRate: winRateData?.winRate ?? 0,
             totalPredictions: winRateData?.totalPredictions ?? 0,
             correctPredictions: winRateData?.correctPredictions ?? 0,
-            wrongPredictions,
-            currentStreak: statsData?.currentStreak ?? 0,
-            bestStreak: statsData?.bestStreak ?? 0,
-            worstStreak: statsData?.worstStreak ?? 0,
+            totalBetAmount: winRateData?.totalBetAmount ?? 0,
+            validAmount: winRateData?.validAmount ?? 0,
+            profitAmount: winRateData?.profitAmount ?? 0,
+            profitRate: winRateData?.profitRate ?? 0,
             accuracy: winRateData?.winRate || 0,
-            avgConfidence: statsData?.avgConfidence ? statsData.avgConfidence.toFixed(1) : '0',
-            roi,
           };
         });
 
@@ -164,13 +229,11 @@ const LeaderboardTable = () => {
           winRate: 0,
           totalPredictions: 0,
           correctPredictions: 0,
-          wrongPredictions: 0,
-          currentStreak: 0,
-          bestStreak: 0,
-          worstStreak: 0,
+          totalBetAmount: 0,
+          validAmount: 0,
+          profitAmount: 0,
+          profitRate: 0,
           accuracy: 0,
-          avgConfidence: '0',
-          roi: 0,
         }));
         setModelsWithRealData(zeroModels);
       } finally {
@@ -202,7 +265,7 @@ const LeaderboardTable = () => {
     return () => {
       supabase.removeChannel(positionsChannel);
     };
-  }, []);
+  }, [timeRange]);
 
   // 获取今日胜率数据
   useEffect(() => {
@@ -215,8 +278,10 @@ const LeaderboardTable = () => {
         // 查询今日的 sim_positions
         const { data, error } = await supabase
           .from('sim_positions' as any)
-          .select('ai_id, status, result')
-          .gte('created_at', todayStr);
+          .select('ai_id, status, metadata, pnl, settled_at')
+          .gte('settled_at', todayStr)
+          .eq('status', 'settled')
+          .not('settled_at', 'is', null);
 
         if (error) {
           console.error('Error fetching today positions:', error);
@@ -234,9 +299,22 @@ const LeaderboardTable = () => {
             }
             const stats = todayStats.get(aiId)!;
             if (pos.status === 'settled') {
-              stats.total++;
-              if (pos.result === 'win') {
-                stats.correct++;
+              // 从metadata中提取result，如果没有则根据pnl判断
+              let result: string = 'loss';
+              if (pos.metadata?.settlement?.result) {
+                result = pos.metadata.settlement.result;
+              } else if (pos.pnl !== undefined && pos.pnl > 0) {
+                result = 'win';
+              } else if (pos.pnl !== undefined && pos.pnl < 0) {
+                result = 'loss';
+              }
+              
+              // 只统计win和loss，跳过push和void
+              if (result === 'win' || result === 'loss') {
+                stats.total++;
+                if (result === 'win') {
+                  stats.correct++;
+                }
               }
             }
           });
@@ -281,8 +359,10 @@ const LeaderboardTable = () => {
         .from('sim_positions' as any)
         .select('*')
         .eq('ai_id', modelId)
-        .gte('created_at', todayStr)
-        .order('created_at', { ascending: false });
+        .eq('status', 'settled')
+        .gte('settled_at', todayStr)
+        .not('settled_at', 'is', null)
+        .order('settled_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching today history:', error);
@@ -312,25 +392,37 @@ const LeaderboardTable = () => {
             status: 'settled',
             result: isWin ? 'win' : 'loss',
             pnl: isWin ? amount * (parseFloat(odds) - 1) : -amount,
-            created_at: new Date(Date.now() - i * 3600000).toISOString(),
+            settled_at: new Date(Date.now() - i * 3600000).toISOString(),
           });
         }
         setSelectedModelHistory({ modelId, modelName, positions: mockPositions });
       } else {
-        const positions: TodayPosition[] = data.map((pos: any) => ({
-          id: pos.id,
-          match_id: pos.match_id,
-          home_team: pos.home_team || 'Home Team',
-          away_team: pos.away_team || 'Away Team',
-          bet_type: pos.bet_type,
-          prediction: pos.prediction,
-          amount: pos.amount,
-          odds: pos.odds,
-          status: pos.status,
-          result: pos.result,
-          pnl: pos.pnl,
-          created_at: pos.created_at,
-        }));
+        const positions: TodayPosition[] = data.map((pos: any) => {
+          // 从metadata中提取result，如果没有则根据pnl判断
+          let result: string = 'loss';
+          if (pos.metadata?.settlement?.result) {
+            result = pos.metadata.settlement.result;
+          } else if (pos.pnl !== undefined && pos.pnl > 0) {
+            result = 'win';
+          } else if (pos.pnl !== undefined && pos.pnl < 0) {
+            result = 'loss';
+          }
+          
+          return {
+            id: pos.id,
+            match_id: pos.match_id,
+            home_team: pos.home_team || 'Home Team',
+            away_team: pos.away_team || 'Away Team',
+            bet_type: pos.bet_type,
+            prediction: pos.prediction,
+            amount: pos.stake_amount || pos.amount,
+            odds: pos.odds,
+            status: pos.status,
+            result: result === 'push' || result === 'void' ? 'loss' : result,
+            pnl: pos.pnl,
+            settled_at: pos.settled_at,
+          };
+        });
         setSelectedModelHistory({ modelId, modelName, positions });
       }
     } catch (error) {
@@ -345,13 +437,12 @@ const LeaderboardTable = () => {
   const enhancedModels = modelsWithRealData
     .map(model => ({
       ...model,
-      wrongPredictions: (model as any).wrongPredictions || (model.totalPredictions - model.correctPredictions),
-      currentStreak: (model as any).currentStreak || 0,
-      bestStreak: (model as any).bestStreak || 0,
-      worstStreak: (model as any).worstStreak || 0,
+      correctPredictions: (model as any).correctPredictions || 0,
+      totalBetAmount: (model as any).totalBetAmount || 0,
+      validAmount: (model as any).validAmount || 0,
+      profitAmount: (model as any).profitAmount || 0,
+      profitRate: (model as any).profitRate || 0,
       accuracy: (model as any).accuracy || model.winRate,
-      avgConfidence: (model as any).avgConfidence || '0',
-      roi: (model as any).roi || 0,
     }))
     .sort((a, b) => b.winRate - a.winRate);
 
@@ -378,7 +469,8 @@ const LeaderboardTable = () => {
     if (model.id === 'hunsoccermax') {
       return user && userProfile?.display_name ? userProfile.display_name : (t('demo_player') || '体验玩家');
     }
-    return model.displayName;
+    // 只显示第一个单词（基础名字），不显示版本号，与 ModelCard 和首页一致
+    return model.displayName.split(' ')[0];
   };
 
   const getExpertImage = (modelId: string) => {
@@ -427,6 +519,44 @@ const LeaderboardTable = () => {
     <div className="space-y-6">
       {/* Leaderboard Table */}
       <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
+        <CardHeader className="px-3 sm:px-4 py-3 sm:py-4 border-b border-border/50">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg sm:text-xl font-bold">{t('all_models')}</CardTitle>
+            {/* Time Range Filter - 时间筛选按钮 */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <button
+                onClick={() => setTimeRange(1)}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  timeRange === 1
+                    ? 'bg-foreground text-background' 
+                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                1天
+              </button>
+              <button
+                onClick={() => setTimeRange(7)}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  timeRange === 7
+                    ? 'bg-foreground text-background' 
+                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                7天
+              </button>
+              <button
+                onClick={() => setTimeRange(30)}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  timeRange === 30
+                    ? 'bg-foreground text-background' 
+                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                30天
+              </button>
+            </div>
+          </div>
+        </CardHeader>
         <CardContent className="p-0">
           {/* 滚动提示 - 仅移动端显示 */}
           <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
@@ -444,17 +574,17 @@ const LeaderboardTable = () => {
                   <TableRow className="border-b-2 border-border/60 hover:bg-transparent bg-muted/40">
                     <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase text-center">#</TableHead>
                     <TableHead className="py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0">{t('model')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('total_predictions') || '总预测'}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
                       <div className="flex items-center justify-center gap-1.5">
                         {t('win_rate')} <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       </div>
                     </TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('predictions')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('correct')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('best_streak')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('worst_streak')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('roi') || 'ROI'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('correct') || '正确'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong') || '错误'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('bet_amount') || '投注金额'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_rate') || '盈利率'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_amount') || '盈利金额'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -475,10 +605,20 @@ const LeaderboardTable = () => {
                       <TableCell className="py-3 sm:py-4">
                         <div className="flex items-center gap-2 sm:gap-3">
                           <div className={`w-7 h-7 sm:w-9 sm:h-9 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
-                            <img src={getModelIcon(model.id)} alt={model.name} className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`} />
+                            <img 
+                              src={getModelIcon(model.id)} 
+                              alt={model.name} 
+                              className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                              style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                            />
                           </div>
                           <span className="font-bold text-sm sm:text-base truncate">{getModelDisplayName(model)}</span>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                          {model.locked ? '???' : model.totalPredictions}
+                        </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <AnimatedWinRate 
@@ -488,35 +628,32 @@ const LeaderboardTable = () => {
                         />
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
-                          {model.locked ? '???' : model.totalPredictions}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
                         <span className="font-mono-data font-bold text-sm sm:text-base text-success">
-                          {model.locked ? '???' : model.correctPredictions}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-foreground/40">
-                          {model.locked ? '???' : model.wrongPredictions}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-success/80">
-                          {model.locked ? '???' : '+' + model.bestStreak}
+                          {model.locked ? '???' : (model as any).correctPredictions || 0}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
-                          {model.locked ? '???' : model.worstStreak}
+                          {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-foreground">
+                          {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                          (model as any).roi >= 0 ? 'text-success' : 'text-destructive'
+                          ((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
-                          {model.locked ? '???' : `${(model as any).roi >= 0 ? '+' : ''}${((model as any).roi || 0).toFixed(2)}%`}
+                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className={`font-mono-data font-bold text-sm sm:text-base ${
+                          ((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'
+                        }`}>
+                          {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -547,7 +684,12 @@ const LeaderboardTable = () => {
               <CardContent className="p-4 sm:p-6 relative z-10">
                 <h3 className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 text-white/80">{t('winning_model').toUpperCase()}</h3>
                 <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                  <img src={getModelIcon(winningModel.id)} alt={winningModel.name} className={`h-8 w-8 sm:h-10 sm:w-10 ${winningModel.id === 'hunsoccermax' && user ? 'rounded-full object-cover' : ''}`} />
+                  <img 
+                    src={getModelIcon(winningModel.id)} 
+                    alt={winningModel.name} 
+                    className={`h-8 w-8 sm:h-10 sm:w-10 ${winningModel.id === 'hunsoccermax' && user ? 'rounded-full object-cover' : ''}`}
+                    style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                  />
                   <span className="text-lg sm:text-xl font-bold text-white">{getModelDisplayName(winningModel)}</span>
                 </div>
                 
@@ -635,6 +777,7 @@ const LeaderboardTable = () => {
                               src={getModelIcon(model.id)} 
                               alt={model.name}
                               className="h-5 w-5 sm:h-8 sm:w-8 object-contain"
+                              style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                             />
                           </div>
                           <div className="text-[9px] sm:text-xs text-center font-medium text-muted-foreground truncate max-w-full px-1">
