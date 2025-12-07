@@ -1466,122 +1466,193 @@ const PlayerLeaderboardTable = () => {
         </Card>
       </div>
 
-      {/* Bottom Section: Leading Player + Bar Chart */}
-      {!isLoading && allPlayers.length >= 3 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Leading Player Card */}
-          <Card className="relative overflow-hidden">
-            {/* Background Image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${winner?.avatarUrl})` }}
-            />
-            
-            {/* Color Tint Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(45,100%,55%)]/80 to-[hsl(45,100%,40%)]/80" />
-            
-            {/* Dark gradient for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
-            
-            <CardContent className="p-4 sm:p-6 relative z-10">
-              <h3 className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 text-white/80">{t('leading_player')?.toUpperCase() || 'LEADING PLAYER'}</h3>
+      {/* Bottom Section: Three Champions Cards */}
+      {!isLoading && allPlayers.length >= 3 && (() => {
+        // 计算三个榜单的冠军
+        const hotStreakChampion = [...allPlayers].sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))[0];
+        const profitChampion = [...allPlayers].sort((a, b) => (b.profitAmount || 0) - (a.profitAmount || 0))[0];
+        const coldStreakChampion = [...allPlayers].sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))[0];
+        
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* 连红榜冠军 */}
+            <Card className="relative overflow-hidden border-destructive/40">
               <div 
-                className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 cursor-pointer"
-                onClick={() => winner && navigate(`/player/${winner.id}`)}
-              >
-                <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-white/50">
-                  <AvatarImage src={winner?.avatarUrl} alt={winner?.displayName} />
-                  <AvatarFallback>{winner?.displayName?.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="text-lg sm:text-xl font-bold text-white">{winner?.displayName}</span>
-              </div>
+                className="absolute inset-0 bg-cover bg-center opacity-30"
+                style={{ backgroundImage: `url(${hotStreakChampion?.avatarUrl})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-destructive/60 to-red-600/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
               
-              <div className="space-y-3 sm:space-y-4">
-                <div>
-                  <p className="text-xs sm:text-sm text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
-                  <p className="text-xl sm:text-2xl font-bold font-mono-data text-white">
-                    <AnimatedWinRate 
-                      value={winner?.winRate || 0}
-                      className="text-xl sm:text-2xl font-bold font-mono-data text-white"
-                    />
-                  </p>
+              <CardContent className="p-4 sm:p-5 relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-yellow-500/30 flex items-center justify-center">
+                    <Trophy className="h-3.5 w-3.5 text-yellow-400" />
+                  </div>
+                  <h3 className="text-xs font-bold text-white/90 uppercase tracking-wide">连红榜冠军</h3>
                 </div>
                 
-                <div>
-                  <p className="text-xs sm:text-sm text-white/70 mb-1">{t('correct_predictions_label').toUpperCase()}</p>
-                  <p className="text-lg sm:text-xl font-bold font-mono-data text-success">
-                    {winner?.correctPredictions || 0} / {winner?.totalPredictions || 0}
-                  </p>
+                <div 
+                  className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => hotStreakChampion && navigate(`/player/${hotStreakChampion.id}`)}
+                >
+                  <Avatar className="w-12 h-12 border-2 border-white/50 shadow-lg">
+                    <AvatarImage src={hotStreakChampion?.avatarUrl} alt={hotStreakChampion?.displayName} />
+                    <AvatarFallback className="bg-destructive text-white">{hotStreakChampion?.displayName?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg font-bold text-white">{maskPlayerName(hotStreakChampion?.displayName || '')}</p>
+                    <p className="text-xs text-white/70">最佳连胜玩家</p>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-xs sm:text-sm text-white/70 mb-1">{t('profit').toUpperCase()}</p>
-                  <p className={`text-lg sm:text-xl font-bold font-mono-data ${(winner?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {formatProfit(winner?.profit || 0)}
-                  </p>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-destructive font-mono-data">{hotStreakChampion?.currentStreak || 0}</p>
+                    <p className="text-[10px] text-white/70">连胜</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-white font-mono-data">{hotStreakChampion?.winRate?.toFixed(1) || 0}%</p>
+                    <p className="text-[10px] text-white/70">胜率</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-white font-mono-data">{hotStreakChampion?.totalPredictions || 0}</p>
+                    <p className="text-[10px] text-white/70">总预测</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+                
+                <button
+                  className="w-full mt-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition-colors border border-white/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (hotStreakChampion) fetchTodayHistory(hotStreakChampion.id, hotStreakChampion.displayName, hotStreakChampion.isVirtual || false);
+                  }}
+                >
+                  查看今日预测
+                </button>
+              </CardContent>
+            </Card>
 
-          {/* Bar Chart */}
-          <Card className="lg:col-span-2 relative overflow-hidden">
-            {/* Grass texture background */}
-            <div 
-              className="absolute inset-0 opacity-20"
-              style={{ 
-                backgroundImage: `url(${grassTexture})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-            {/* Dark overlay for contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
-            
-            <CardContent className="p-4 sm:p-6 relative z-10">
-              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-primary" />
-                {t('top_players_comparison')}
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="hsl(var(--muted-foreground))" 
-                    style={{ fontSize: '11px' }}
-                    angle={-30}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
-                    style={{ fontSize: '12px' }}
-                    domain={[0, 100]}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }}
-                    formatter={(value: number) => [`${value.toFixed(1)}%`, t('win_rate')]}
-                  />
-                  <Bar dataKey="winRate" radius={[4, 4, 0, 0]}>
-                    {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={getRankColor(entry.rank)}
-                        opacity={0.9}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            {/* 盈利榜冠军 */}
+            <Card className="relative overflow-hidden border-amber-500/40">
+              <div 
+                className="absolute inset-0 bg-cover bg-center opacity-30"
+                style={{ backgroundImage: `url(${profitChampion?.avatarUrl})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/60 to-yellow-600/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              
+              <CardContent className="p-4 sm:p-5 relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-yellow-500/30 flex items-center justify-center">
+                    <Trophy className="h-3.5 w-3.5 text-yellow-400" />
+                  </div>
+                  <h3 className="text-xs font-bold text-white/90 uppercase tracking-wide">盈利榜冠军</h3>
+                </div>
+                
+                <div 
+                  className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => profitChampion && navigate(`/player/${profitChampion.id}`)}
+                >
+                  <Avatar className="w-12 h-12 border-2 border-white/50 shadow-lg">
+                    <AvatarImage src={profitChampion?.avatarUrl} alt={profitChampion?.displayName} />
+                    <AvatarFallback className="bg-amber-500 text-white">{profitChampion?.displayName?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg font-bold text-white">{maskPlayerName(profitChampion?.displayName || '')}</p>
+                    <p className="text-xs text-white/70">最高盈利玩家</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className={`text-lg font-bold font-mono-data ${(profitChampion?.profitAmount || 0) >= 0 ? 'text-amber-400' : 'text-amber-400/60'}`}>
+                      {(profitChampion?.profitAmount || 0) >= 0 ? '+' : ''}${((profitChampion?.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-[10px] text-white/70">盈利</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-white font-mono-data">{profitChampion?.winRate?.toFixed(1) || 0}%</p>
+                    <p className="text-[10px] text-white/70">胜率</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-white font-mono-data">{profitChampion?.totalPredictions || 0}</p>
+                    <p className="text-[10px] text-white/70">总预测</p>
+                  </div>
+                </div>
+                
+                <button
+                  className="w-full mt-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition-colors border border-white/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (profitChampion) fetchTodayHistory(profitChampion.id, profitChampion.displayName, profitChampion.isVirtual || false);
+                  }}
+                >
+                  查看今日预测
+                </button>
+              </CardContent>
+            </Card>
+
+            {/* 连黑榜冠军 */}
+            <Card className="relative overflow-hidden border-success/40">
+              <div 
+                className="absolute inset-0 bg-cover bg-center opacity-30"
+                style={{ backgroundImage: `url(${coldStreakChampion?.avatarUrl})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-success/60 to-emerald-600/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              
+              <CardContent className="p-4 sm:p-5 relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-success/30 flex items-center justify-center">
+                    <Trophy className="h-3.5 w-3.5 text-emerald-400" />
+                  </div>
+                  <h3 className="text-xs font-bold text-white/90 uppercase tracking-wide">连黑榜冠军</h3>
+                </div>
+                
+                <div 
+                  className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => coldStreakChampion && navigate(`/player/${coldStreakChampion.id}`)}
+                >
+                  <Avatar className="w-12 h-12 border-2 border-white/50 shadow-lg">
+                    <AvatarImage src={coldStreakChampion?.avatarUrl} alt={coldStreakChampion?.displayName} />
+                    <AvatarFallback className="bg-success text-white">{coldStreakChampion?.displayName?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg font-bold text-white">{maskPlayerName(coldStreakChampion?.displayName || '')}</p>
+                    <p className="text-xs text-white/70">最差连黑玩家</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-success font-mono-data">{coldStreakChampion?.worstStreak || 0}</p>
+                    <p className="text-[10px] text-white/70">连黑</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-white font-mono-data">{coldStreakChampion?.winRate?.toFixed(1) || 0}%</p>
+                    <p className="text-[10px] text-white/70">胜率</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-2">
+                    <p className="text-lg font-bold text-white font-mono-data">{coldStreakChampion?.totalPredictions || 0}</p>
+                    <p className="text-[10px] text-white/70">总预测</p>
+                  </div>
+                </div>
+                
+                <button
+                  className="w-full mt-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition-colors border border-white/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (coldStreakChampion) fetchTodayHistory(coldStreakChampion.id, coldStreakChampion.displayName, coldStreakChampion.isVirtual || false);
+                  }}
+                >
+                  查看今日预测
+                </button>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
 
       {/* Today Recommendations Dialog - Compact Design */}
       <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
