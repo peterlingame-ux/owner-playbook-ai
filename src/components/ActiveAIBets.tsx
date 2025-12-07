@@ -294,6 +294,15 @@ const ActiveAIBets = () => {
   // Get AI models (exclude locked ones like mystery and boospot, and hunsoccermax which is replaced by player's model)
   const activeAIs = aiModels.filter(ai => !ai.locked && ai.id !== 'hunsoccermax');
 
+  // Helper function to get model display name (same as ModelCard - only show base name without version)
+  const getModelDisplayName = (model: typeof aiModels[0]) => {
+    if (model.id === 'hunsoccermax') {
+      return user && userProfile?.display_name ? userProfile.display_name : (t('demo_player') || '体验玩家');
+    }
+    // Only show the first word (base name) without version number, same as ModelCard
+    return model.displayName.split(' ')[0];
+  };
+
   // State for real data
   const [matches, setMatches] = useState<DailyMatch[]>([]);
   const [autoBets, setAutoBets] = useState<AutoBet[]>([]);
@@ -907,7 +916,7 @@ const ActiveAIBets = () => {
                       <AvatarFallback className="text-xs font-bold bg-primary/20">{aiModel.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold">{aiModel.displayName}</span>
+                      <span className="text-xs font-semibold">{getModelDisplayName(aiModel)}</span>
                       <span className="text-[10px] font-mono-data text-muted-foreground">{balanceValue}</span>
                     </div>
                   </div>

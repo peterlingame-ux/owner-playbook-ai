@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
-import { Trophy, PlayCircle } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -248,10 +248,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
               onClick={handleFollowPlayer}
               className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px]" />
-                <span>{t('copy_trade_player')}</span>
-              </div>
+              <span>{t('copy_trade_player')}</span>
             </Button>
           </div>
         </div>

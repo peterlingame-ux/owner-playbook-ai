@@ -524,27 +524,36 @@ const PlayerExclusiveModelCard = ({
           </div>
         )}
 
-        {/* Training Count Badge */}
-        {trainingCount > 0 && (
-          <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-20">
-            <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
-              <History className="h-2.5 w-2.5 mr-1" />
-              {trainingCount}次训练
-            </Badge>
-          </div>
-        )}
-
-        {/* No Bets Indicator */}
-        {matchEntries.length === 0 && (
-          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
+        {/* Training Count Badge, AI Feed Badge and No Bets Indicator */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-start gap-1.5 sm:gap-2">
+          {/* Training Count and AI Feed - Vertical Stack */}
+          {trainingCount > 0 && (
+            <div className="flex flex-col gap-1 sm:gap-1.5">
+              <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
+                {trainingCount}{t('times_training')}
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400 cursor-pointer hover:bg-amber-500/20 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFeedDialog(true);
+                }}
+              >
+                {t('data_feeding')}
+              </Badge>
+            </div>
+          )}
+          {/* No Bets Indicator - Separate, not affected by training badges */}
+          {matchEntries.length === 0 && (
             <Badge 
               variant="outline"
               className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-muted/80 text-muted-foreground"
             >
               {t('no_bets')}
             </Badge>
-          </div>
-        )}
+          )}
+        </div>
         
         {/* Content */}
         <div className="relative z-10 space-y-3">

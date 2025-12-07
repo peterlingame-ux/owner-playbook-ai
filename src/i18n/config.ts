@@ -15,6 +15,7 @@ const resources = {
       "nav_blog": "ABOUT",
       "nav_models": "MATCHES",
       "nav_my": "My",
+      "nav_personal_center": "Personal Center",
       "nav_prize": "PRIZE",
       
       // Prize/Waitlist page
@@ -68,7 +69,7 @@ const resources = {
       "correct_predictions": "correct predictions",
       
       // Performance Chart
-      "performance_over_time": "Win Rate Trends",
+      "performance_over_time": "AI Win Rate Trends",
       "win_rate": "Win Rate (%)",
       
       // Live Matches
@@ -438,6 +439,8 @@ const resources = {
       "active_ai_predictions": "AI Match Predictions Today",
       "view_analysis": "Analysis",
       "model_training": "Model Training",
+      "data_feeding": "Data Feeding",
+      "times_training": "times training",
       "demo_player": "Demo Player",
       "my_exclusive_model": "My Exclusive Model",
       "login_to_create_model": "Login to Create Exclusive Model",
@@ -612,6 +615,7 @@ const resources = {
       "nav_blog": "平台介绍",
       "nav_models": "赛事中心",
       "nav_my": "我的",
+      "nav_personal_center": "个人中心",
       "nav_prize": "奖金",
       
       // Prize/Waitlist page
@@ -665,7 +669,7 @@ const resources = {
       "correct_predictions": "次正确预测",
       
       // Performance Chart
-      "performance_over_time": "胜率走势",
+      "performance_over_time": "AI胜率走势",
       "win_rate": "胜率 (%)",
       
       // Live Matches
@@ -1034,6 +1038,8 @@ const resources = {
       "active_ai_predictions": "AI今日赛事预测",
       "view_analysis": "分析",
       "model_training": "模型训练",
+      "data_feeding": "数据投喂",
+      "times_training": "次训练",
       "demo_player": "体验玩家",
       "my_exclusive_model": "我的专属模型",
       "login_to_create_model": "登录后生成专属模型",

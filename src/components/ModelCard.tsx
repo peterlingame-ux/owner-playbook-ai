@@ -148,6 +148,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
                 src={getModelIcon(model.id)} 
                 alt={model.name}
                 className="w-full h-full object-contain"
+                style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
               />
             </div>
             <div className="min-w-0 flex-1 text-center sm:text-left">

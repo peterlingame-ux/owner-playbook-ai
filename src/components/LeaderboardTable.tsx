@@ -509,7 +509,7 @@ const LeaderboardTable = () => {
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
-                          {model.locked ? '???' : '-' + model.worstStreak}
+                          {model.locked ? '???' : model.worstStreak}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">

@@ -701,7 +701,7 @@ const PlayerCopyTradingBoard = () => {
                 <div className="p-2 rounded-lg bg-success/10 border border-success/20">
                   <p className="text-[10px] text-muted-foreground">{t('total_lost') || '总亏损'}</p>
                   <p className="text-sm font-bold text-success">
-                    <AnimatedAmount value={worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200} prefix="-" duration={1800} />
+                    <AnimatedAmount value={worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200} prefix="" duration={1800} />
                   </p>
                 </div>
               </div>
@@ -749,7 +749,7 @@ const PlayerCopyTradingBoard = () => {
                   <p className="text-xs text-white/70 mb-0.5">{t('total_loss') || '总亏损'}</p>
                   <p className="text-lg sm:text-xl font-bold font-mono text-success flex items-center gap-1">
                     <TrendingDown className="h-4 w-4" />
-                    -¥{Math.abs(worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200).toLocaleString()}
+                    ¥{Math.abs(worstStreakPlayers[0]?.profit < 0 ? worstStreakPlayers[0]?.profit : 1200).toLocaleString()}
                   </p>
                 </div>
                 

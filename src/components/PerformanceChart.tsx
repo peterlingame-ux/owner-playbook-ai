@@ -349,19 +349,19 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       <div className="mb-4 sm:mb-5 py-2 px-3 sm:px-4 bg-secondary/20 rounded-md">
         <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
           <div className="flex items-center gap-1.5">
-            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-muted-foreground/50" />
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[hsl(var(--gpt))]" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">
               {t('owners_analysis')}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-muted-foreground/50" />
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[hsl(var(--gpt))]" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">
               {t('tech_breakdown')}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-muted-foreground/50" />
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[hsl(var(--gpt))]" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">
               {t('odds_monitoring')}
             </span>

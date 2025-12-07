@@ -206,7 +206,7 @@ const UserModelCard = () => {
                     e.stopPropagation();
                     handleActivate();
                   }}
-                  className="w-full h-9 sm:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
+                  className="w-full h-9 sm:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-white font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
                 >
                   <span>{t('login_to_create_model') || '登录后生成专属模型'}</span>
                 </Button>
@@ -285,7 +285,9 @@ const UserModelCard = () => {
               </motion.div>
               <div className="min-w-0 flex-1 text-center sm:text-left">
                 <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
-                  {userProfile?.display_name ? `${userProfile.display_name}的模型` : t('my_exclusive_model') || '我的专属模型'}
+                  {user && userProfile?.display_name 
+                    ? `${userProfile.display_name}的模型` 
+                    : t('my_exclusive_model') || '我的专属模型'}
                 </h3>
               </div>
             </div>
