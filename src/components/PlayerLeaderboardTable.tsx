@@ -1704,9 +1704,19 @@ const PlayerLeaderboardTable = () => {
                                 {/* 比赛对阵 */}
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-2 text-sm">
-                                    <span className="font-medium">{pred.home_team || '主队'}</span>
+                                    <div className="flex items-center gap-1.5">
+                                      {getTeamLogo(pred.home_team || '') && (
+                                        <img src={getTeamLogo(pred.home_team || '')!} alt="" className="w-5 h-5 object-contain" />
+                                      )}
+                                      <span className="font-medium">{pred.home_team || '主队'}</span>
+                                    </div>
                                     <span className="text-muted-foreground text-xs">vs</span>
-                                    <span className="font-medium">{pred.away_team || '客队'}</span>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-medium">{pred.away_team || '客队'}</span>
+                                      {getTeamLogo(pred.away_team || '') && (
+                                        <img src={getTeamLogo(pred.away_team || '')!} alt="" className="w-5 h-5 object-contain" />
+                                      )}
+                                    </div>
                                   </div>
                                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                                     待开赛
@@ -1811,8 +1821,16 @@ const PlayerLeaderboardTable = () => {
                                     {pred.result === 'win' ? '✓' : '✗'}
                                   </span>
                                   <div>
-                                    <div className="text-xs font-medium">
-                                      {pred.home_team} {pred.home_score ?? 0}-{pred.away_score ?? 0} {pred.away_team}
+                                    <div className="text-xs font-medium flex items-center gap-1.5">
+                                      {getTeamLogo(pred.home_team || '') && (
+                                        <img src={getTeamLogo(pred.home_team || '')!} alt="" className="w-4 h-4 object-contain" />
+                                      )}
+                                      <span>{pred.home_team}</span>
+                                      <span className="text-muted-foreground">{pred.home_score ?? 0}-{pred.away_score ?? 0}</span>
+                                      <span>{pred.away_team}</span>
+                                      {getTeamLogo(pred.away_team || '') && (
+                                        <img src={getTeamLogo(pred.away_team || '')!} alt="" className="w-4 h-4 object-contain" />
+                                      )}
                                     </div>
                                     <div className="text-[10px] text-muted-foreground">
                                       {pred.prediction_type === 'over_under' ? '大小球' : '让分'}: {getPredictionLabel()}
@@ -1872,10 +1890,20 @@ const PlayerLeaderboardTable = () => {
               {/* 跟单比赛信息 */}
               <div className="p-3 rounded-lg border border-border/50 space-y-2">
                 <div className="text-xs text-muted-foreground mb-2">跟单比赛</div>
-                <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                  <span className="text-right flex-1">{copyTradeDialog.prediction.home_team}</span>
+                <div className="flex items-center justify-center gap-3 text-sm font-medium">
+                  <div className="flex items-center gap-2 flex-1 justify-end">
+                    <span>{copyTradeDialog.prediction.home_team}</span>
+                    {getTeamLogo(copyTradeDialog.prediction.home_team || '') && (
+                      <img src={getTeamLogo(copyTradeDialog.prediction.home_team || '')!} alt="" className="w-6 h-6 object-contain" />
+                    )}
+                  </div>
                   <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
-                  <span className="text-left flex-1">{copyTradeDialog.prediction.away_team}</span>
+                  <div className="flex items-center gap-2 flex-1">
+                    {getTeamLogo(copyTradeDialog.prediction.away_team || '') && (
+                      <img src={getTeamLogo(copyTradeDialog.prediction.away_team || '')!} alt="" className="w-6 h-6 object-contain" />
+                    )}
+                    <span>{copyTradeDialog.prediction.away_team}</span>
+                  </div>
                 </div>
                 <div className="text-center text-xs text-muted-foreground mt-2">
                   预测: <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
