@@ -1531,7 +1531,7 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                   
                   <motion.div 
-                    className="grid grid-cols-4 gap-2 text-center"
+                    className="grid grid-cols-3 gap-2 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -1556,15 +1556,6 @@ const PlayerLeaderboardTable = () => {
                     >
                       <p className="text-lg font-bold text-white font-mono-data">{hotStreakChampion?.totalPredictions || 0}</p>
                       <p className="text-[10px] text-white/70">总预测</p>
-                    </motion.div>
-                    <motion.div 
-                      className="bg-white/10 rounded-lg p-2"
-                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-                    >
-                      <p className="text-lg font-bold text-amber-400 font-mono-data">
-                        +¥{((hotStreakChampion?.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
-                      </p>
-                      <p className="text-[10px] text-white/70">盈利</p>
                     </motion.div>
                   </motion.div>
                   
@@ -1746,7 +1737,7 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                   
                   <motion.div 
-                    className="grid grid-cols-4 gap-2 text-center"
+                    className="grid grid-cols-3 gap-2 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
@@ -1771,15 +1762,6 @@ const PlayerLeaderboardTable = () => {
                     >
                       <p className="text-lg font-bold text-white font-mono-data">{coldStreakChampion?.totalPredictions || 0}</p>
                       <p className="text-[10px] text-white/70">总预测</p>
-                    </motion.div>
-                    <motion.div 
-                      className="bg-white/10 rounded-lg p-2"
-                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-                    >
-                      <p className="text-lg font-bold text-red-400 font-mono-data">
-                        -¥{Math.abs((coldStreakChampion?.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
-                      </p>
-                      <p className="text-[10px] text-white/70">亏损</p>
                     </motion.div>
                   </motion.div>
                   
