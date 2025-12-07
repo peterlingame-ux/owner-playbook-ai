@@ -280,7 +280,6 @@ const resources = {
       "model_not_found": "Model not found",
       "back_to_models": "Back to Models",
       "total_predictions_label": "Total Predictions",
-      "total_predictions": "Total Predictions",
       "prediction_history": "Prediction History",
       "current_balance": "Current Balance",
       "home_team": "Home",
