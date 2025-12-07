@@ -584,8 +584,8 @@ const LeaderboardTable = () => {
                       </div>
                     </TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('bet_amount') || '投注金额'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_amount') || '盈利金额'}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_rate') || '盈利率'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_amount') || '盈利金额'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -645,16 +645,16 @@ const LeaderboardTable = () => {
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                          ((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'
+                          ((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
-                          {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                          ((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'
+                          ((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
-                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
+                          {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                     </TableRow>
