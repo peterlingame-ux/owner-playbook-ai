@@ -1781,72 +1781,154 @@ const PlayerLeaderboardTable = () => {
                                 </div>
                                 
                                 {/* 推荐信息 - 根据跟单状态显示 */}
-                                <div className="bg-muted/30 rounded-md p-2">
-                                  <div className="flex items-center justify-between">
+                                <motion.div 
+                                  className="bg-muted/30 rounded-md p-2 relative overflow-hidden"
+                                  animate={copiedPredictions.has(pred.id) ? {
+                                    backgroundColor: ['hsl(var(--muted)/0.3)', 'hsl(var(--success)/0.1)', 'hsl(var(--muted)/0.3)']
+                                  } : {}}
+                                  transition={{ duration: 0.8 }}
+                                >
+                                  {/* 解锁闪光效果 */}
+                                  <AnimatePresence>
+                                    {copiedPredictions.has(pred.id) && (
+                                      <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-success/20 to-transparent"
+                                        initial={{ x: '-100%' }}
+                                        animate={{ x: '100%' }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.6, ease: 'easeOut' }}
+                                      />
+                                    )}
+                                  </AnimatePresence>
+                                  
+                                  <div className="flex items-center justify-between relative z-10">
                                     <div className="flex items-center gap-1.5">
                                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                                         {recommended.type === 'over_under' ? '大小球' : '让分'}
                                       </span>
-                                      {copiedPredictions.has(pred.id) ? (
-                                        // 已跟单 - 显示完整内容
-                                        <span className="text-xs font-bold text-foreground">
-                                          {recommended.label}
-                                        </span>
-                                      ) : (
-                                        // 未跟单 - 显示锁定状态
-                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                          <Lock className="h-3 w-3" />
-                                          <span className="blur-sm select-none font-bold">
-                                            {recommended.type === 'over_under' ? '大 2.5球' : '主队 (-0.5)'}
-                                          </span>
-                                        </div>
-                                      )}
+                                      <AnimatePresence mode="wait">
+                                        {copiedPredictions.has(pred.id) ? (
+                                          // 已跟单 - 显示完整内容
+                                          <motion.span 
+                                            key="unlocked"
+                                            className="text-xs font-bold text-success"
+                                            initial={{ opacity: 0, scale: 0.8, filter: 'blur(4px)' }}
+                                            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                                            transition={{ duration: 0.4, ease: 'easeOut' }}
+                                          >
+                                            {recommended.label}
+                                          </motion.span>
+                                        ) : (
+                                          // 未跟单 - 显示锁定状态
+                                          <motion.div 
+                                            key="locked"
+                                            className="flex items-center gap-1 text-xs text-muted-foreground"
+                                            initial={{ opacity: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            transition={{ duration: 0.2 }}
+                                          >
+                                            <motion.div
+                                              animate={{ rotate: [0, -10, 10, -10, 0] }}
+                                              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
+                                            >
+                                              <Lock className="h-3 w-3" />
+                                            </motion.div>
+                                            <span className="blur-sm select-none font-bold">
+                                              {recommended.type === 'over_under' ? '大 2.5球' : '主队 (-0.5)'}
+                                            </span>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px]">
-                                      {copiedPredictions.has(pred.id) ? (
-                                        // 已跟单 - 显示完整赔率和置信度
-                                        <>
-                                          <span className="text-muted-foreground">
-                                            赔率 <span className="text-foreground font-medium">1.80</span>
-                                          </span>
-                                          <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
-                                            85%
-                                          </span>
-                                        </>
-                                      ) : (
-                                        // 未跟单 - 锁定显示
-                                        <>
-                                          <span className="text-muted-foreground flex items-center gap-0.5">
-                                            赔率 <span className="blur-sm">1.80</span>
-                                          </span>
-                                          <span className="px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-0.5">
-                                            <Lock className="h-2.5 w-2.5" />
-                                            <span className="blur-sm">85%</span>
-                                          </span>
-                                        </>
-                                      )}
+                                      <AnimatePresence mode="wait">
+                                        {copiedPredictions.has(pred.id) ? (
+                                          // 已跟单 - 显示完整赔率和置信度
+                                          <motion.div
+                                            key="unlocked-stats"
+                                            className="flex items-center gap-2"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: 0.2 }}
+                                          >
+                                            <span className="text-muted-foreground">
+                                              赔率 <span className="text-foreground font-medium">1.80</span>
+                                            </span>
+                                            <motion.span 
+                                              className="px-1.5 py-0.5 rounded bg-success/20 text-success font-medium"
+                                              initial={{ scale: 0 }}
+                                              animate={{ scale: 1 }}
+                                              transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.3 }}
+                                            >
+                                              85%
+                                            </motion.span>
+                                          </motion.div>
+                                        ) : (
+                                          // 未跟单 - 锁定显示
+                                          <motion.div
+                                            key="locked-stats"
+                                            className="flex items-center gap-2"
+                                            exit={{ opacity: 0 }}
+                                          >
+                                            <span className="text-muted-foreground flex items-center gap-0.5">
+                                              赔率 <span className="blur-sm">1.80</span>
+                                            </span>
+                                            <span className="px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-0.5">
+                                              <Lock className="h-2.5 w-2.5" />
+                                              <span className="blur-sm">85%</span>
+                                            </span>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
                                   </div>
-                                </div>
+                                </motion.div>
                                 
                                 {/* 跟单按钮 */}
-                                {copiedPredictions.has(pred.id) ? (
-                                  // 已跟单状态
-                                  <div className="w-full mt-2 h-7 flex items-center justify-center gap-1.5 text-xs text-success bg-success/10 rounded-md border border-success/20">
-                                    <CheckCircle2 className="h-3 w-3" />
-                                    已跟单
-                                  </div>
-                                ) : (
-                                  // 跟单按钮
-                                  <Button
-                                    size="sm"
-                                    className="w-full mt-2 h-7 text-xs gap-1.5"
-                                    onClick={() => handleCopyTradeFromHistory(pred)}
-                                  >
-                                    <Lock className="h-3 w-3" />
-                                    跟单解锁
-                                  </Button>
-                                )}
+                                <AnimatePresence mode="wait">
+                                  {copiedPredictions.has(pred.id) ? (
+                                    // 已跟单状态
+                                    <motion.div 
+                                      key="copied"
+                                      className="w-full mt-2 h-7 flex items-center justify-center gap-1.5 text-xs text-success bg-success/10 rounded-md border border-success/20"
+                                      initial={{ opacity: 0, scale: 0.9 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      transition={{ duration: 0.3, type: 'spring', stiffness: 300 }}
+                                    >
+                                      <motion.div
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.1 }}
+                                      >
+                                        <CheckCircle2 className="h-3 w-3" />
+                                      </motion.div>
+                                      <motion.span
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                      >
+                                        已跟单 · 已解锁
+                                      </motion.span>
+                                    </motion.div>
+                                  ) : (
+                                    // 跟单按钮
+                                    <motion.div
+                                      key="copy-btn"
+                                      initial={{ opacity: 1 }}
+                                      exit={{ opacity: 0, scale: 0.9 }}
+                                      transition={{ duration: 0.2 }}
+                                    >
+                                      <Button
+                                        size="sm"
+                                        className="w-full mt-2 h-7 text-xs gap-1.5"
+                                        onClick={() => handleCopyTradeFromHistory(pred)}
+                                      >
+                                        <Lock className="h-3 w-3" />
+                                        跟单解锁
+                                      </Button>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
                               </div>
                             );
                           })}
