@@ -1609,75 +1609,41 @@ const PlayerLeaderboardTable = () => {
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
             </div>
           ) : selectedPlayerHistory && (
-            <div className="p-4 space-y-3">
-              {/* 玩家数据面板 - 紧凑版 */}
+            <div className="p-4 space-y-4">
+              {/* 玩家核心数据 */}
               {(() => {
                 const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
-                const completedPreds = selectedPlayerHistory.predictions.filter(p => p.result);
-                // 计算投注金额（总投入）
-                const totalBetAmount = completedPreds.reduce((acc, pred) => acc + pred.bet_amount, 0);
-                // 计算有效金额（赢的场次返还）
-                const validAmount = completedPreds.reduce((acc, pred) => {
-                  if (pred.result === 'win') {
-                    return acc + ((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number);
-                  }
-                  return acc;
-                }, 0);
-                // 计算今日盈亏
-                const todayProfitLoss = validAmount - totalBetAmount;
                 
                 return (
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-4 gap-2">
-                      <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold text-foreground font-mono-data">
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <div className="text-lg font-bold font-mono-data text-foreground">
                           {player?.winRate.toFixed(0)}%
                         </div>
                         <div className="text-[10px] text-muted-foreground">胜率</div>
                       </div>
-                      <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold font-mono-data text-foreground">
+                      <div className="w-px h-8 bg-border/50" />
+                      <div className="text-center">
+                        <div className="text-lg font-bold font-mono-data text-foreground">
                           {player?.totalPredictions || 0}
                         </div>
                         <div className="text-[10px] text-muted-foreground">预测</div>
                       </div>
-                      <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold text-foreground font-mono-data">
+                      <div className="w-px h-8 bg-border/50" />
+                      <div className="text-center">
+                        <div className="text-lg font-bold font-mono-data text-foreground">
                           {player?.bestStreak || 0}
                         </div>
                         <div className="text-[10px] text-muted-foreground">连胜</div>
                       </div>
-                      <div className="bg-muted/30 rounded-lg p-2 text-center">
-                        <div className="text-sm font-bold font-mono-data text-foreground">
-                          {(player?.profit || 0) >= 0 ? '+' : ''}{((player?.profit || 0) / 100).toFixed(0)}%
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">收益</div>
-                      </div>
                     </div>
-                    
-                    {/* 今日投注统计 */}
-                    {completedPreds.length > 0 && (
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="bg-muted/30 rounded-lg p-2 text-center">
-                          <div className="text-sm font-bold font-mono-data text-foreground">
-                            ¥{totalBetAmount.toFixed(0)}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">投注金额</div>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg p-2 text-center">
-                          <div className="text-sm font-bold font-mono-data text-foreground">
-                            ¥{validAmount.toFixed(0)}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">有效金额</div>
-                        </div>
-                        <div className={`rounded-lg p-2 text-center ${todayProfitLoss >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                          <div className={`text-sm font-bold font-mono-data ${todayProfitLoss >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            {todayProfitLoss >= 0 ? '+' : ''}¥{todayProfitLoss.toFixed(0)}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">今日盈亏</div>
-                        </div>
+                    <div className={`text-right ${(player?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      <div className="text-lg font-bold font-mono-data">
+                        {(player?.profit || 0) >= 0 ? '+' : ''}{((player?.profit || 0) / 100).toFixed(0)}%
                       </div>
-                    )}
+                      <div className="text-[10px] text-muted-foreground">收益率</div>
+                    </div>
                   </div>
                 );
               })()}
@@ -1733,188 +1699,64 @@ const PlayerLeaderboardTable = () => {
                             return (
                               <div 
                                 key={pred.id} 
-                                className="bg-card border border-border/50 rounded-lg p-2.5"
+                                className="border border-border/50 rounded-lg p-3"
                               >
-                                {/* 比赛对阵 - 带球队logo */}
-                                <div className="flex items-center justify-between gap-2 mb-2">
-                                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                      {getTeamLogo(pred.home_team || '') ? (
-                                        <img 
-                                          src={getTeamLogo(pred.home_team || '') || ''} 
-                                          alt={pred.home_team} 
-                                          className="w-5 h-5 object-contain flex-shrink-0"
-                                        />
-                                      ) : (
-                                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground flex-shrink-0">
-                                          {(pred.home_team || '主')[0]}
-                                        </div>
-                                      )}
-                                      <span className="text-xs font-medium truncate max-w-[60px]">
-                                        {pred.home_team || '主队'}
-                                      </span>
-                                    </div>
-                                    
-                                    <span className="text-[10px] text-muted-foreground font-bold">VS</span>
-                                    
-                                    {/* 客队 */}
-                                    <div className="flex items-center gap-1.5">
-                                      {getTeamLogo(pred.away_team || '') ? (
-                                        <img 
-                                          src={getTeamLogo(pred.away_team || '') || ''} 
-                                          alt={pred.away_team} 
-                                          className="w-5 h-5 object-contain flex-shrink-0"
-                                        />
-                                      ) : (
-                                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground flex-shrink-0">
-                                          {(pred.away_team || '客')[0]}
-                                        </div>
-                                      )}
-                                      <span className="text-xs font-medium truncate max-w-[60px]">
-                                        {pred.away_team || '客队'}
-                                      </span>
-                                    </div>
+                                {/* 比赛对阵 */}
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <span className="font-medium">{pred.home_team || '主队'}</span>
+                                    <span className="text-muted-foreground text-xs">vs</span>
+                                    <span className="font-medium">{pred.away_team || '客队'}</span>
                                   </div>
-                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 flex-shrink-0">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                                     待开赛
                                   </span>
                                 </div>
                                 
-                                {/* 推荐信息 - 根据跟单状态显示 */}
-                                <motion.div 
-                                  className="bg-muted/30 rounded-md p-2 relative overflow-hidden"
-                                  animate={copiedPredictions.has(pred.id) ? {
-                                    backgroundColor: ['hsl(var(--muted)/0.3)', 'hsl(var(--success)/0.1)', 'hsl(var(--muted)/0.3)']
-                                  } : {}}
-                                  transition={{ duration: 0.8 }}
-                                >
-                                  {/* 解锁闪光效果 */}
-                                  <AnimatePresence>
-                                    {copiedPredictions.has(pred.id) && (
-                                      <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-success/20 to-transparent"
-                                        initial={{ x: '-100%' }}
-                                        animate={{ x: '100%' }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.6, ease: 'easeOut' }}
-                                      />
-                                    )}
-                                  </AnimatePresence>
-                                  
-                                  <div className="flex items-center justify-between relative z-10">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                        {recommended.type === 'over_under' ? '大小球' : '让分'}
+                                {/* 推荐信息 */}
+                                <div className="flex items-center justify-between py-2 border-t border-border/30">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                      {recommended.type === 'over_under' ? '大小球' : '让分'}
+                                    </span>
+                                    {copiedPredictions.has(pred.id) ? (
+                                      <span className="text-xs font-semibold text-foreground">
+                                        {recommended.label}
                                       </span>
-                                      <AnimatePresence mode="wait">
-                                        {copiedPredictions.has(pred.id) ? (
-                                          // 已跟单 - 显示完整内容
-                                          <motion.span 
-                                            key="unlocked"
-                                            className="text-xs font-bold text-success"
-                                            initial={{ opacity: 0, scale: 0.8, filter: 'blur(4px)' }}
-                                            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                                            transition={{ duration: 0.4, ease: 'easeOut' }}
-                                          >
-                                            {recommended.label}
-                                          </motion.span>
-                                        ) : (
-                                          // 未跟单 - 显示锁定状态
-                                          <motion.div 
-                                            key="locked"
-                                            className="flex items-center gap-1 text-xs text-muted-foreground"
-                                            initial={{ opacity: 1 }}
-                                            exit={{ opacity: 0, scale: 0.8 }}
-                                            transition={{ duration: 0.2 }}
-                                          >
-                                            <motion.div
-                                              animate={{ rotate: [0, -10, 10, -10, 0] }}
-                                              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
-                                            >
-                                              <Lock className="h-3 w-3" />
-                                            </motion.div>
-                                            <span className="blur-sm select-none font-bold">
-                                              {recommended.type === 'over_under' ? '大 2.5球' : '主队 (-0.5)'}
-                                            </span>
-                                          </motion.div>
-                                        )}
-                                      </AnimatePresence>
-                                    </div>
-                                    <div className="flex items-center text-[10px]">
-                                      <AnimatePresence mode="wait">
-                                        {copiedPredictions.has(pred.id) ? (
-                                          // 已跟单 - 显示完整赔率
-                                          <motion.div
-                                            key="unlocked-stats"
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: 0.2 }}
-                                          >
-                                            <span className="text-muted-foreground">
-                                              赔率 <span className="text-foreground font-medium">1.80</span>
-                                            </span>
-                                          </motion.div>
-                                        ) : (
-                                          // 未跟单 - 锁定显示
-                                          <motion.div
-                                            key="locked-stats"
-                                            exit={{ opacity: 0 }}
-                                          >
-                                            <span className="text-muted-foreground flex items-center gap-0.5">
-                                              赔率 <span className="blur-sm">1.80</span>
-                                            </span>
-                                          </motion.div>
-                                        )}
-                                      </AnimatePresence>
-                                    </div>
+                                    ) : (
+                                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <Lock className="h-3 w-3" />
+                                        <span className="blur-sm select-none">
+                                          {recommended.type === 'over_under' ? '大 2.5球' : '主队 (-0.5)'}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
-                                </motion.div>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    赔率 {copiedPredictions.has(pred.id) ? (
+                                      <span className="font-medium text-foreground">1.80</span>
+                                    ) : (
+                                      <span className="blur-sm">1.80</span>
+                                    )}
+                                  </span>
+                                </div>
                                 
                                 {/* 跟单按钮 */}
-                                <AnimatePresence mode="wait">
-                                  {copiedPredictions.has(pred.id) ? (
-                                    // 已跟单状态
-                                    <motion.div 
-                                      key="copied"
-                                      className="w-full mt-2 h-7 flex items-center justify-center gap-1.5 text-xs text-success bg-success/10 rounded-md border border-success/20"
-                                      initial={{ opacity: 0, scale: 0.9 }}
-                                      animate={{ opacity: 1, scale: 1 }}
-                                      transition={{ duration: 0.3, type: 'spring', stiffness: 300 }}
-                                    >
-                                      <motion.div
-                                        initial={{ scale: 0, rotate: -180 }}
-                                        animate={{ scale: 1, rotate: 0 }}
-                                        transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.1 }}
-                                      >
-                                        <CheckCircle2 className="h-3 w-3" />
-                                      </motion.div>
-                                      <motion.span
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                      >
-                                        已跟单 · 已解锁
-                                      </motion.span>
-                                    </motion.div>
-                                  ) : (
-                                    // 跟单按钮
-                                    <motion.div
-                                      key="copy-btn"
-                                      initial={{ opacity: 1 }}
-                                      exit={{ opacity: 0, scale: 0.9 }}
-                                      transition={{ duration: 0.2 }}
-                                    >
-                                      <Button
-                                        size="sm"
-                                        className="w-full mt-2 h-7 text-xs gap-1.5"
-                                        onClick={() => handleCopyTradeFromHistory(pred)}
-                                      >
-                                        <Lock className="h-3 w-3" />
-                                        跟单解锁
-                                      </Button>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
+                                {copiedPredictions.has(pred.id) ? (
+                                  <div className="mt-2 h-8 flex items-center justify-center gap-1.5 text-xs text-success bg-success/5 rounded border border-success/20">
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    已跟单
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full mt-2 h-8 text-xs"
+                                    onClick={() => handleCopyTradeFromHistory(pred)}
+                                  >
+                                    跟单解锁
+                                  </Button>
+                                )}
                               </div>
                             );
                           })}
@@ -1927,34 +1769,27 @@ const PlayerLeaderboardTable = () => {
                       )}
                     </div>
                     
-                    {/* 已完成比赛 - 紧凑版 */}
+                    {/* 已完成比赛 */}
                     {completedPredictions.length > 0 && (
-                      <div>
+                      <div className="mt-4 pt-4 border-t border-border/50">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-xs font-semibold flex items-center gap-1.5">
-                            <History className="h-3 w-3 text-muted-foreground" />
-                            已完赛
-                          </h4>
-                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                            {completedPredictions.filter(p => p.result === 'win').length}/{completedPredictions.length}
+                          <h4 className="text-xs font-medium text-muted-foreground">已完赛</h4>
+                          <span className="text-[10px] text-muted-foreground">
+                            {completedPredictions.filter(p => p.result === 'win').length}/{completedPredictions.length} 正确
                           </span>
                         </div>
                         
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                           {completedPredictions.slice(0, 2).map((pred) => {
-                            // 解析预测 - 只有大小球和让分胜负两种类型
                             const getPredictionLabel = () => {
                               const prediction = pred.prediction;
-                              // 大小球
                               if (prediction.includes('大') || prediction.toLowerCase().includes('over')) {
                                 const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
                                 return `大 ${line}球`;
                               } else if (prediction.includes('小') || prediction.toLowerCase().includes('under')) {
                                 const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
                                 return `小 ${line}球`;
-                              } 
-                              // 让分胜负
-                              else if (prediction.includes('让分主胜') || prediction.includes('主让')) {
+                              } else if (prediction.includes('让分主胜') || prediction.includes('主让')) {
                                 const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
                                 return `${pred.home_team || '主队'} (${line})`;
                               } else if (prediction.includes('让分客胜') || prediction.includes('客让')) {
@@ -1963,72 +1798,33 @@ const PlayerLeaderboardTable = () => {
                               }
                               return prediction;
                             };
+                            
                             return (
-                                <div 
+                              <div 
                                 key={pred.id} 
-                                className={`rounded-lg p-2 border ${pred.result === 'win' ? 'bg-success/5 border-success/20' : 'bg-destructive/5 border-destructive/20'}`}
+                                className="flex items-center justify-between py-2 border-b border-border/30 last:border-0"
                               >
-                                {/* 比赛信息行 */}
-                                <div className="flex items-center justify-between mb-1.5">
-                                  <div className="flex items-center gap-2 text-xs">
-                                    {/* 主队 */}
-                                    <div className="flex items-center gap-1">
-                                      {getTeamLogo(pred.home_team || '') ? (
-                                        <img 
-                                          src={getTeamLogo(pred.home_team || '') || ''} 
-                                          alt={pred.home_team} 
-                                          className="w-4 h-4 object-contain"
-                                        />
-                                      ) : (
-                                        <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-[7px] font-bold text-muted-foreground">
-                                          {(pred.home_team || '主')[0]}
-                                        </div>
-                                      )}
-                                      <span className="truncate max-w-[45px]">{pred.home_team}</span>
-                                    </div>
-                                    <span className="font-bold px-1.5 py-0.5 rounded bg-muted text-xs">
-                                      {pred.home_score ?? 0}-{pred.away_score ?? 0}
-                                    </span>
-                                    {/* 客队 */}
-                                    <div className="flex items-center gap-1">
-                                      {getTeamLogo(pred.away_team || '') ? (
-                                        <img 
-                                          src={getTeamLogo(pred.away_team || '') || ''} 
-                                          alt={pred.away_team} 
-                                          className="w-4 h-4 object-contain"
-                                        />
-                                      ) : (
-                                        <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-[7px] font-bold text-muted-foreground">
-                                          {(pred.away_team || '客')[0]}
-                                        </div>
-                                      )}
-                                      <span className="truncate max-w-[45px]">{pred.away_team}</span>
-                                    </div>
-                                  </div>
-                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                <div className="flex items-center gap-3">
+                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
                                     pred.result === 'win' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
                                   }`}>
-                                    {pred.result === 'win' ? '✓ 正确' : '✗ 错误'}
+                                    {pred.result === 'win' ? '✓' : '✗'}
                                   </span>
-                                </div>
-                                
-                                {/* 预测类别和内容 + 盈亏金额 */}
-                                <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/30">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                      {pred.prediction_type === 'over_under' ? '大小球' : '让分'}
-                                    </span>
-                                    <span className="font-medium text-foreground">
-                                      {getPredictionLabel()}
-                                    </span>
+                                  <div>
+                                    <div className="text-xs font-medium">
+                                      {pred.home_team} {pred.home_score ?? 0}-{pred.away_score ?? 0} {pred.away_team}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">
+                                      {pred.prediction_type === 'over_under' ? '大小球' : '让分'}: {getPredictionLabel()}
+                                    </div>
                                   </div>
-                                  <span className={`font-bold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
-                                    {pred.result === 'win' 
-                                      ? `+¥${((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number).toFixed(0)}` 
-                                      : `-¥${pred.bet_amount}`
-                                    }
-                                  </span>
                                 </div>
+                                <span className={`text-xs font-medium ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                                  {pred.result === 'win' 
+                                    ? `+¥${((pred.actual_payout || pred.potential_payout || pred.bet_amount * 1.8) as number).toFixed(0)}` 
+                                    : `-¥${pred.bet_amount}`
+                                  }
+                                </span>
                               </div>
                             );
                           })}
