@@ -925,24 +925,42 @@ const PlayerLeaderboardTable = () => {
               </div>
             </div>
             <div className="space-y-2">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive" />
-                </div>
-              ) : (
-                [...allPlayers]
-                  .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
-                  .slice(0, 10)
-                  .map((player, index) => (
-                  <div 
-                    key={player.id}
-                    className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
-                      user && player.id === user.id 
-                        ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
-                        : 'bg-muted/30 hover:bg-muted/50'
-                    }`}
-                    onClick={() => navigate(`/player/${player.id}`)}
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
                   >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`hot-streak-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {[...allPlayers]
+                      .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
+                      .slice(0, 10)
+                      .map((player, index) => (
+                      <motion.div
+                        key={player.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: index * 0.03 }}
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
+                          user && player.id === user.id 
+                            ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
+                            : 'bg-muted/30 hover:bg-muted/50'
+                        }`}
+                        onClick={() => navigate(`/player/${player.id}`)}
+                      >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
                         index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
@@ -1045,9 +1063,11 @@ const PlayerLeaderboardTable = () => {
                       <span className="hidden sm:inline">{t('today_prediction') || '今日预测'}</span>
                       <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 sm:hidden" />
                     </button>
-                  </div>
-                ))
-              )}
+                  </motion.div>
+                ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </CardContent>
         </Card>
@@ -1097,24 +1117,42 @@ const PlayerLeaderboardTable = () => {
               </div>
             </div>
             <div className="space-y-2">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
-                </div>
-              ) : (
-                [...allPlayers]
-                  .sort((a, b) => (b.profitAmount || 0) - (a.profitAmount || 0))
-                  .slice(0, 10)
-                  .map((player, index) => (
-                  <div 
-                    key={player.id}
-                    className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
-                      user && player.id === user.id 
-                        ? 'bg-amber-500/20 border-2 border-amber-500/40 hover:bg-amber-500/30' 
-                        : 'bg-muted/30 hover:bg-muted/50'
-                    }`}
-                    onClick={() => navigate(`/player/${player.id}`)}
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading-profit"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
                   >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`profit-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {[...allPlayers]
+                      .sort((a, b) => (b.profitAmount || 0) - (a.profitAmount || 0))
+                      .slice(0, 10)
+                      .map((player, index) => (
+                      <motion.div
+                        key={player.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: index * 0.03 }}
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
+                          user && player.id === user.id 
+                            ? 'bg-amber-500/20 border-2 border-amber-500/40 hover:bg-amber-500/30' 
+                            : 'bg-muted/30 hover:bg-muted/50'
+                        }`}
+                        onClick={() => navigate(`/player/${player.id}`)}
+                      >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
                         index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
@@ -1211,9 +1249,11 @@ const PlayerLeaderboardTable = () => {
                       <span className="hidden sm:inline">{t('today_prediction') || '今日预测'}</span>
                       <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 sm:hidden" />
                     </button>
-                  </div>
-                ))
-              )}
+                  </motion.div>
+                ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </CardContent>
         </Card>
@@ -1263,24 +1303,42 @@ const PlayerLeaderboardTable = () => {
               </div>
             </div>
             <div className="space-y-2">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-success" />
-                </div>
-              ) : (
-                [...allPlayers]
-                  .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
-                  .slice(0, 10)
-                  .map((player, index) => (
-                  <div 
-                    key={player.id}
-                    className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
-                      user && player.id === user.id 
-                        ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
-                        : 'bg-muted/30 hover:bg-muted/50'
-                    }`}
-                    onClick={() => navigate(`/player/${player.id}`)}
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading-cold"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
                   >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-success" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`cold-streak-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {[...allPlayers]
+                      .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
+                      .slice(0, 10)
+                      .map((player, index) => (
+                      <motion.div
+                        key={player.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: index * 0.03 }}
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
+                          user && player.id === user.id 
+                            ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
+                            : 'bg-muted/30 hover:bg-muted/50'
+                        }`}
+                        onClick={() => navigate(`/player/${player.id}`)}
+                      >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
                         index === 0 ? 'bg-success/30 text-success' :
@@ -1379,9 +1437,11 @@ const PlayerLeaderboardTable = () => {
                       <span className="hidden sm:inline">{t('today_prediction') || '今日预测'}</span>
                       <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 sm:hidden" />
                     </button>
-                  </div>
-                ))
-              )}
+                  </motion.div>
+                ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </CardContent>
         </Card>
