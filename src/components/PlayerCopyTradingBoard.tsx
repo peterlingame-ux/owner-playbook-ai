@@ -127,6 +127,7 @@ const PlayerCopyTradingBoard = () => {
   const [userBalance, setUserBalance] = useState(10000);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
+  const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -615,13 +616,48 @@ const PlayerCopyTradingBoard = () => {
         {/* 连红榜 - Winning Streak */}
         <Card className="border-destructive/30 bg-gradient-to-br from-destructive/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-destructive/20">
-                <Flame className="h-5 w-5 text-destructive" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-destructive/20">
+                  <Flame className="h-5 w-5 text-destructive" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{t('hot_streak_board') || '连红榜'}</h3>
+                  <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜纪录'}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-lg">{t('hot_streak_board') || '连红榜'}</h3>
-                <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜纪录'}</p>
+              {/* Time Range Filter */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  1天
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  7天
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  30天
+                </button>
               </div>
             </div>
             <div className="space-y-2">
@@ -635,13 +671,48 @@ const PlayerCopyTradingBoard = () => {
         {/* 连黑榜 - Losing Streak */}
         <Card className="border-success/30 bg-gradient-to-br from-success/5 to-transparent">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-success/20">
-                <Skull className="h-5 w-5 text-success" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-success/20">
+                  <Skull className="h-5 w-5 text-success" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{t('cold_streak_board') || '连黑榜'}</h3>
+                  <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连败纪录'}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-lg">{t('cold_streak_board') || '连黑榜'}</h3>
-                <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连败纪录'}</p>
+              {/* Time Range Filter */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  1天
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  7天
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background' 
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  30天
+                </button>
               </div>
             </div>
             <div className="space-y-2">

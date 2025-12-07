@@ -936,65 +936,70 @@ const PlayerLeaderboardTable = () => {
                   .map((player, index) => (
                   <div 
                     key={player.id}
-                    className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
+                    className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
                       user && player.id === user.id 
                         ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
                         : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
                         index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
                         index === 1 ? 'bg-gray-400/20 text-gray-400' :
                         index === 2 ? 'bg-orange-600/20 text-orange-600' :
                         'bg-muted text-muted-foreground'
                       }`}>
                         {index < 3 ? (
-                          <Trophy className="h-3.5 w-3.5" style={{ color: getRankColor(index + 1) }} />
+                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: getRankColor(index + 1) }} />
                         ) : (
                           index + 1
                         )}
                       </div>
-                      <Avatar className="w-10 h-10 border-2 border-destructive/40 flex-shrink-0">
+                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-destructive/40 flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-                        <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
-                        <div className="flex flex-col gap-1">
+                        <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                        <div className="flex flex-col gap-0.5 sm:gap-1">
                           {/* 盈利金额和投注金额 - 在胜率和盈利率上面 */}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('profit_amount') || '盈利金额'}:</span>
+                          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_amount') || '盈利金额'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
                               <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? 'text-destructive' : 'text-destructive/60'}`}>
                                 {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </span>
-                            <span className="text-border">|</span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('bet_amount') || '投注金额'}:</span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注金额'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">投:</span>
                               <span className="text-destructive font-medium">
                                 ${((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </span>
                           </div>
                           {/* 胜率和盈利率 */}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                            <span className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
-                              <span className="text-muted-foreground/70">{t('current_streak') || '连红'}</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('current_streak') || '连红'}</span>
+                              <span className="text-muted-foreground/70 sm:hidden">连</span>
                             </span>
-                            <span className="text-border">|</span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
                               <span className="text-destructive font-medium">
                                 {player.winRate.toFixed(1)}%
                               </span>
                             </span>
-                            <span className="text-border">|</span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi') || '盈利率'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
                               <span className="text-destructive font-medium">
                                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
                               </span>
@@ -1004,13 +1009,14 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-2 border border-destructive/20 flex items-center gap-1"
+                      className="text-xs px-2 sm:px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-2 border border-destructive/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      {t('today_prediction') || '今日预测'}
+                      <span className="hidden sm:inline">{t('today_prediction') || '今日预测'}</span>
+                      <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 sm:hidden" />
                     </button>
                   </div>
                 ))
@@ -1075,15 +1081,15 @@ const PlayerLeaderboardTable = () => {
                   .map((player, index) => (
                   <div 
                     key={player.id}
-                    className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
+                    className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
                       user && player.id === user.id 
                         ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
                         : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                     onClick={() => navigate(`/player/${player.id}`)}
                   >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
                         index === 0 ? 'bg-success/30 text-success' :
                         index === 1 ? 'bg-success/20 text-success/80' :
                         index === 2 ? 'bg-success/10 text-success/60' :
@@ -1091,45 +1097,50 @@ const PlayerLeaderboardTable = () => {
                       }`}>
                         {index + 1}
                       </div>
-                      <Avatar className="w-10 h-10 border-2 border-success/40 flex-shrink-0">
+                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-success/40 flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-                        <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-sm truncate">{maskPlayerName(player.displayName)}</p>
-                        <div className="flex flex-col gap-1">
+                        <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                        <div className="flex flex-col gap-0.5 sm:gap-1">
                           {/* 盈利金额和投注金额 - 在胜率和盈利率上面 */}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('profit_amount') || '盈利金额'}:</span>
+                          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_amount') || '盈利金额'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
                               <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-success/60'}`}>
                                 {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </span>
-                            <span className="text-border">|</span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('bet_amount') || '投注金额'}:</span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注金额'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">投:</span>
                               <span className="text-success font-medium">
                                 ${((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </span>
                           </div>
                           {/* 胜率和盈利率 */}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                            <span className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-0.5 sm:gap-1">
                               <span className="text-success font-bold">{player.worstStreak || 0}</span>
-                              <span className="text-muted-foreground/70">{t('worst_streak') || '连黑'}</span>
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('worst_streak') || '连黑'}</span>
+                              <span className="text-muted-foreground/70 sm:hidden">黑</span>
                             </span>
-                            <span className="text-border">|</span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('win_rate')}:</span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">胜:</span>
                               <span className="text-success font-medium">
                                 {player.winRate.toFixed(1)}%
                               </span>
                             </span>
-                            <span className="text-border">|</span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-muted-foreground/70">{t('roi') || '盈利率'}:</span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi') || '盈利率'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">盈:</span>
                               <span className="text-success font-medium">
                                 {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
                               </span>
@@ -1139,13 +1150,14 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-3 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-2 border border-success/20 flex items-center gap-1"
+                      className="text-xs px-2 sm:px-3 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-2 border border-success/20 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      {t('today_prediction') || '今日预测'}
+                      <span className="hidden sm:inline">{t('today_prediction') || '今日预测'}</span>
+                      <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 sm:hidden" />
                     </button>
                   </div>
                 ))
