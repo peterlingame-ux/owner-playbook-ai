@@ -529,11 +529,19 @@ const MyPredictions = () => {
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
     if (authUserProfile) {
-      setUserProfile(prev => ({
-        ...prev,
-        display_name: authUserProfile.display_name,
-        avatar_url: authUserProfile.avatar_url,
-      }));
+      setUserProfile(prev => {
+        if (prev) {
+          return {
+            ...prev,
+            display_name: authUserProfile.display_name,
+            avatar_url: authUserProfile.avatar_url,
+          };
+        }
+        return {
+          display_name: authUserProfile.display_name,
+          avatar_url: authUserProfile.avatar_url,
+        };
+      });
       setEditDisplayName(authUserProfile.display_name || '');
       setSelectedAvatar(authUserProfile.avatar_url || '');
     }
