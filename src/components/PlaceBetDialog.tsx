@@ -549,9 +549,9 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 <ScrollArea className="h-[320px]">
                   <div className="space-y-1.5 pr-2">
                     {aiMatches.map((m) => {
-                      const kickoffTime = new Date(m.kickoff_at).getTime();
+                      const kickoffTimestamp = new Date(m.kickoff_at).getTime();
                       const now = Date.now();
-                      const diff = kickoffTime - now;
+                      const diff = kickoffTimestamp - now;
                       const isStarted = diff <= 0;
                       
                       let countdown = "";
@@ -570,49 +570,62 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         }
                       }
                       
+                      const kickoffTime = format(new Date(m.kickoff_at), 'HH:mm');
+                      
                       return (
                         <div 
                           key={m.fixture_id}
                           className="p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
                           onClick={() => handleSelectMatch(m)}
                         >
-                          {/* 球队对阵 - 居中布局 */}
+                          {/* 联赛和时间 */}
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[10px] text-muted-foreground">{m.league_name}</span>
+                            <span className={`text-[10px] font-mono ${isStarted ? 'text-amber-500' : 'text-muted-foreground'}`}>
+                              {isStarted ? '已开赛' : kickoffTime}
+                            </span>
+                          </div>
+                          
+                          {/* 球队对阵 */}
                           <div className="flex items-center justify-between gap-2">
                             {/* 主队 */}
-                            <div className="flex items-center gap-1.5 w-[90px]">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
                               {m.home_logo && (
-                                <img src={m.home_logo} alt="" className="w-6 h-6 object-contain shrink-0" />
+                                <img src={m.home_logo} alt="" className="w-5 h-5 object-contain shrink-0" />
                               )}
                               <span className="text-xs font-medium truncate">{m.home_team_name}</span>
                             </div>
                             
-                            {/* 中间信息 */}
-                            <div className="flex flex-col items-center flex-1">
-                              <span className="text-[10px] text-muted-foreground">{m.league_name}</span>
-                            </div>
+                            {/* VS */}
+                            <span className="text-[10px] text-muted-foreground px-2">vs</span>
                             
                             {/* 客队 */}
-                            <div className="flex items-center justify-end gap-1.5 w-[90px]">
+                            <div className="flex items-center justify-end gap-1.5 flex-1 min-w-0">
                               <span className="text-xs font-medium truncate text-right">{m.away_team_name}</span>
                               {m.away_logo && (
-                                <img src={m.away_logo} alt="" className="w-6 h-6 object-contain shrink-0" />
+                                <img src={m.away_logo} alt="" className="w-5 h-5 object-contain shrink-0" />
                               )}
                             </div>
                           </div>
                           
-                          {/* AI图标 */}
-                          <div className="flex items-center justify-center gap-0.5 mt-1.5">
-                            {m.ai_models.slice(0, 5).map((model, idx) => (
-                              <img 
-                                key={idx}
-                                src={AI_ICONS[model] || gpt5Icon} 
-                                alt={model}
-                                className="w-3.5 h-3.5 rounded-full object-cover"
-                                title={model}
-                              />
-                            ))}
-                            {m.ai_models.length > 5 && (
-                              <span className="text-[9px] text-muted-foreground ml-0.5">+{m.ai_models.length - 5}</span>
+                          {/* AI图标和倒计时 */}
+                          <div className="flex items-center justify-between mt-1.5">
+                            <div className="flex items-center gap-0.5">
+                              {m.ai_models.slice(0, 4).map((model, idx) => (
+                                <img 
+                                  key={idx}
+                                  src={AI_ICONS[model] || gpt5Icon} 
+                                  alt={model}
+                                  className="w-3.5 h-3.5 rounded-full object-cover"
+                                  title={model}
+                                />
+                              ))}
+                              {m.ai_models.length > 4 && (
+                                <span className="text-[9px] text-muted-foreground ml-0.5">+{m.ai_models.length - 4}</span>
+                              )}
+                            </div>
+                            {!isStarted && (
+                              <span className="text-[9px] text-muted-foreground">{countdown}</span>
                             )}
                           </div>
                         </div>
