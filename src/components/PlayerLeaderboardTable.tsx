@@ -735,7 +735,7 @@ const PlayerLeaderboardTable = () => {
         return newSet;
       });
       
-      // 显示成功动画
+      // 显示成功动画 - 不自动关闭，由用户手动关闭
       setCopySuccess({
         show: true,
         oldBalance,
@@ -748,11 +748,6 @@ const PlayerLeaderboardTable = () => {
       });
       
       setCopyTradeDialog(null);
-      
-      // 3秒后自动关闭成功动画
-      setTimeout(() => {
-        setCopySuccess(null);
-      }, 3500);
       
     } catch (error) {
       console.error('Copy trade error:', error);
@@ -2356,18 +2351,29 @@ const PlayerLeaderboardTable = () => {
                   </div>
                 </motion.div>
 
-                {/* 关闭按钮 */}
+                {/* 操作按钮 */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.9 }}
+                  className="space-y-2"
                 >
+                  <Button 
+                    className="w-full"
+                    onClick={() => {
+                      setCopySuccess(null);
+                      navigate('/my-predictions');
+                    }}
+                  >
+                    <History className="h-4 w-4 mr-2" />
+                    查看我的跟单记录
+                  </Button>
                   <Button 
                     variant="outline" 
                     className="w-full"
                     onClick={() => setCopySuccess(null)}
                   >
-                    确定
+                    关闭
                   </Button>
                 </motion.div>
               </motion.div>
