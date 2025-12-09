@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -164,6 +164,8 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const [isLoadingMatches, setIsLoadingMatches] = useState(false);
   const [showMatchSelection, setShowMatchSelection] = useState(!match);
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ amount: number; payout: number } | null>(null);
 
   // Update selectedMatch when match prop changes
   useEffect(() => {
@@ -387,9 +389,21 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   };
 
   const handlePlaceBet = async () => {
-    // 演示模式下提示登录
+    // 演示模式下也显示成功动画
     if (isDemo) {
-      toast.info("演示模式：请登录后进行真实下注");
+      const amount = parseFloat(betAmount) || 100;
+      const options = getBetOptions();
+      const selected = options.find(opt => opt.value === selectedBetOption);
+      const odds = selected?.odds || 1.9;
+      
+      setSuccessData({ amount, payout: amount * odds });
+      setShowSuccess(true);
+      
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSuccessData(null);
+        toast.info("演示模式：请登录后进行真实下注");
+      }, 1500);
       return;
     }
     
@@ -427,13 +441,21 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       if (error) throw error;
       const result = data as { success: boolean; error?: string };
       if (result?.success) {
-        toast.success("下注成功！开始与AI的PK之旅！");
-        onOpenChange(false);
-        setBetAmount("100");
-        setSelectedBetOption("");
-        setShowMatchSelection(true);
-        setSelectedMatch(null);
-        if (onBetPlaced) onBetPlaced();
+        // 显示成功动画
+        setSuccessData({ amount, payout: amount * selected.odds });
+        setShowSuccess(true);
+        
+        // 延迟关闭弹窗
+        setTimeout(() => {
+          setShowSuccess(false);
+          setSuccessData(null);
+          onOpenChange(false);
+          setBetAmount("100");
+          setSelectedBetOption("");
+          setShowMatchSelection(true);
+          setSelectedMatch(null);
+          if (onBetPlaced) onBetPlaced();
+        }, 1500);
       } else {
         toast.error(result?.error || "下注失败");
       }
@@ -455,6 +477,33 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       onOpenChange(isOpen);
     }}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto p-4">
+        {/* 成功动画覆盖层 */}
+        {showSuccess && successData && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 animate-fade-in">
+            <div className="flex flex-col items-center gap-4">
+              {/* 成功图标 */}
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
+                  <CheckCircle className="w-10 h-10 text-primary" strokeWidth={2} />
+                </div>
+                {/* 扩散圆环 */}
+                <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
+              </div>
+              
+              {/* 文字 */}
+              <div className="text-center space-y-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <p className="text-lg font-bold">投注成功</p>
+                <p className="text-sm text-muted-foreground">
+                  投注 <span className="font-mono font-medium text-foreground">${successData.amount}</span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  预期返还 <span className="font-mono font-medium text-primary">${successData.payout.toFixed(2)}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <DialogHeader className="pb-2">
           <DialogTitle className="text-lg font-bold">
             {showMatchSelection ? "选择比赛" : "下注"}
