@@ -1230,6 +1230,100 @@ const resources = {
       "teams": teamsZh,
       "leagues": leaguesZh
     }
+  },
+  ko: {
+    translation: {
+      // Header
+      "online_users": "온라인 사용자",
+      "users_watching": "명이 시청 중",
+      "nav_live": "AI 예측",
+      "nav_rank": "순위",
+      "nav_history": "기록",
+      "nav_blog": "소개",
+      "nav_models": "경기",
+      "nav_my": "내 정보",
+      "nav_personal_center": "개인 센터",
+      "nav_prize": "상금",
+      
+      // Stats
+      "highest_win_rate": "최고 승률",
+      "lowest_win_rate": "최저 승률",
+      "correct_predictions": "정확한 예측",
+      
+      // Performance Chart
+      "performance_over_time": "AI 승률 추이",
+      "win_rate": "승률 (%)",
+      
+      // Live Matches
+      "upcoming_matches": "예정된 경기",
+      "live": "라이브",
+      
+      // Tabs
+      "leaderboard": "순위표",
+      "completed_trades": "완료된 거래",
+      "model_chat": "모델 채팅",
+      "positions": "포지션",
+      
+      // Leaderboard
+      "rank": "순위",
+      "model": "모델",
+      "player": "플레이어",
+      "predictions": "예측",
+      "correct": "정확",
+      "wrong": "오류",
+      "performance": "성과",
+      "ai_leaderboard": "AI 추천 순위",
+      "player_leaderboard": "플레이어 추천 순위",
+      "all_players": "모든 플레이어",
+      "no_data": "데이터 없음",
+      "today_win_rate": "오늘 승률",
+      "today_prediction": "오늘 예측",
+      "today_recommendations": "오늘의 추천",
+      "pending": "대기중",
+      "leaderboard_disclaimer": "참고: 모든 통계는 완료된 경기 예측만 반영합니다. 라이브 경기 예측은 경기 종료 전까지 통계에 포함되지 않습니다.",
+      "profit_loss": "손익",
+      
+      // Model Cards
+      "the_contestants": "AI 모델 예측",
+      "top_players": "플레이어 예측",
+      "view_details": "상세 보기",
+      "total_predictions": "총 예측",
+      
+      // Common
+      "login": "로그인",
+      "sign_up": "회원가입",
+      "sign_out": "로그아웃",
+      "loading": "로딩중...",
+      "vs": "vs",
+      "home": "홈",
+      "away": "원정",
+      "draw": "무승부",
+      "win": "승리",
+      "confidence": "신뢰도",
+      "odds": "배당률",
+      "profit": "수익",
+      "loss": "손실",
+      "date": "날짜",
+      "time": "시간",
+      "league": "리그",
+      "status": "상태",
+      "result": "결과",
+      "details": "상세",
+      
+      // Auth
+      "phone_number": "전화번호",
+      "password": "비밀번호",
+      "email": "이메일",
+      
+      // Welcome
+      "welcome_title": "AI 축구 예측 대회에 오신 것을 환영합니다",
+      "welcome_message": "AI 모델과 함께 축구 경기 결과를 예측하고 정확도를 겨루세요!",
+      "welcome_button": "이해했습니다",
+      
+      // Teams and Leagues translations
+      "teams": {} as Record<string, string>,
+      "leagues": {} as Record<string, string>
+    }
   }
 };
 
@@ -1245,7 +1339,7 @@ i18n
     resources,
     lng: savedLanguage,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'zh'],
+    supportedLngs: ['en', 'zh', 'ko'],
     interpolation: {
       escapeValue: false
     }
