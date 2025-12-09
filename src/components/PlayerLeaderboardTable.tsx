@@ -1064,7 +1064,10 @@ const PlayerLeaderboardTable = () => {
               <div className="flex items-center gap-2">
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{t('hot_streak_board') || '高胜率榜'}</h3>
-                  <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜玩家'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('best_win_streak') || '最佳连胜玩家'}
+                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
+                  </p>
                 </div>
               </div>
               {/* Time Range Filter */}
@@ -1226,7 +1229,10 @@ const PlayerLeaderboardTable = () => {
               <div className="flex items-center gap-2">
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{t('profit_board') || '高盈利榜'}</h3>
-                  <p className="text-xs text-muted-foreground">{t('highest_profit_players') || '最高盈利玩家'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('highest_profit_players') || '最高盈利玩家'}
+                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
+                  </p>
                 </div>
               </div>
               {/* Time Range Filter */}
@@ -1390,7 +1396,10 @@ const PlayerLeaderboardTable = () => {
               <div className="flex items-center gap-2">
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{t('cold_streak_board') || '低胜率榜'}</h3>
-                  <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连黑玩家'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('worst_lose_streak') || '最差连黑玩家'}
+                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
+                  </p>
                 </div>
               </div>
               {/* Time Range Filter */}
