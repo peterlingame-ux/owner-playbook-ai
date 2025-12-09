@@ -899,13 +899,13 @@ const PlayerLeaderboardTable = () => {
       )}
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Left Column: 连红榜 (Hot Streak) */}
-        <Card className="border-destructive/40 bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent">
+        {/* Left Column: 高胜率榜 (Hot Streak) */}
+        <Card className="border-border/50 bg-card/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
-                  <h3 className="font-bold text-lg bg-gradient-to-r from-destructive to-red-500 bg-clip-text text-transparent">{t('hot_streak_board') || '连红榜'}</h3>
+                  <h3 className="font-bold text-lg text-foreground">{t('hot_streak_board') || '高胜率榜'}</h3>
                   <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜玩家'}</p>
                 </div>
               </div>
@@ -953,7 +953,7 @@ const PlayerLeaderboardTable = () => {
                     exit={{ opacity: 0 }}
                     className="flex items-center justify-center py-8"
                   >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -975,39 +975,39 @@ const PlayerLeaderboardTable = () => {
                         transition={{ duration: 0.2, delay: index * 0.03 }}
                         className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
                           user && player.id === user.id 
-                            ? 'bg-destructive/20 border-2 border-destructive/40 hover:bg-destructive/30' 
-                            : 'bg-muted/30 hover:bg-muted/50'
+                            ? 'bg-primary/10 border border-primary/30 hover:bg-primary/15' 
+                            : 'bg-muted/20 hover:bg-muted/40'
                         }`}
                         onClick={() => navigate(`/player/${player.id}`)}
                       >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
-                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
-                        index === 2 ? 'bg-orange-600/20 text-orange-600' :
-                        'bg-muted text-muted-foreground'
+                        index === 0 ? 'bg-primary/20 text-primary' :
+                        index === 1 ? 'bg-muted text-muted-foreground' :
+                        index === 2 ? 'bg-muted text-muted-foreground' :
+                        'bg-muted/50 text-muted-foreground'
                       }`}>
                         {index < 3 ? (
-                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: getRankColor(index + 1) }} />
+                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         ) : (
                           index + 1
                         )}
                       </div>
-                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-destructive/40 flex-shrink-0">
+                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border border-border flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                          <p className="font-semibold text-xs sm:text-sm truncate text-foreground">{maskPlayerName(player.displayName)}</p>
                           {(() => {
                             const todayData = todayWinRates.get(player.id);
                             if (todayData && todayData.total > 0) {
                               const trend = todayData.winRate - player.winRate;
                               if (trend > 3) {
-                                return <TrendingUp className="h-3 w-3 text-success flex-shrink-0" />;
+                                return <TrendingUp className="h-3 w-3 text-muted-foreground flex-shrink-0" />;
                               } else if (trend < -3) {
-                                return <TrendingDown className="h-3 w-3 text-destructive flex-shrink-0" />;
+                                return <TrendingDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />;
                               }
                             }
                             return null;
@@ -1016,31 +1016,31 @@ const PlayerLeaderboardTable = () => {
                         {/* 统计数据网格 - 更整齐的布局 */}
                         <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs">
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">预测</span>
+                            <span className="text-muted-foreground">预测</span>
                             <span className="text-foreground font-medium">{player.totalPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">胜率</span>
-                            <span className="text-destructive font-medium">{player.winRate.toFixed(0)}%</span>
+                            <span className="text-muted-foreground">胜率</span>
+                            <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">连胜</span>
-                            <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
+                            <span className="text-muted-foreground">连胜</span>
+                            <span className="text-primary font-bold">{player.currentStreak || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-success">{player.correctPredictions}</span>
-                            <span className="text-muted-foreground/40">/</span>
-                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
+                            <span className="text-foreground">{player.correctPredictions}</span>
+                            <span className="text-muted-foreground">/</span>
+                            <span className="text-muted-foreground">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground/60">投注</span>
+                            <span className="text-muted-foreground">投注</span>
                             <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <button
-                      className="text-xs px-2 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 text-destructive font-medium transition-colors flex-shrink-0 ml-1 border border-destructive/20"
+                      className="text-xs px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground font-medium transition-colors flex-shrink-0 ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
@@ -1057,13 +1057,13 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Middle Column: 盈利榜 (Profit Board) */}
-        <Card className="border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent">
+        {/* Middle Column: 高盈利榜 (Profit Board) */}
+        <Card className="border-border/50 bg-card/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
-                  <h3 className="font-bold text-lg bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">{t('profit_board') || '盈利榜'}</h3>
+                  <h3 className="font-bold text-lg text-foreground">{t('profit_board') || '高盈利榜'}</h3>
                   <p className="text-xs text-muted-foreground">{t('highest_profit_players') || '最高盈利玩家'}</p>
                 </div>
               </div>
@@ -1111,7 +1111,7 @@ const PlayerLeaderboardTable = () => {
                     exit={{ opacity: 0 }}
                     className="flex items-center justify-center py-8"
                   >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -1133,39 +1133,39 @@ const PlayerLeaderboardTable = () => {
                         transition={{ duration: 0.2, delay: index * 0.03 }}
                         className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
                           user && player.id === user.id 
-                            ? 'bg-amber-500/20 border-2 border-amber-500/40 hover:bg-amber-500/30' 
-                            : 'bg-muted/30 hover:bg-muted/50'
+                            ? 'bg-primary/10 border border-primary/30 hover:bg-primary/15' 
+                            : 'bg-muted/20 hover:bg-muted/40'
                         }`}
                         onClick={() => navigate(`/player/${player.id}`)}
                       >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
-                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
-                        index === 2 ? 'bg-orange-600/20 text-orange-600' :
-                        'bg-muted text-muted-foreground'
+                        index === 0 ? 'bg-primary/20 text-primary' :
+                        index === 1 ? 'bg-muted text-muted-foreground' :
+                        index === 2 ? 'bg-muted text-muted-foreground' :
+                        'bg-muted/50 text-muted-foreground'
                       }`}>
                         {index < 3 ? (
-                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: getRankColor(index + 1) }} />
+                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         ) : (
                           index + 1
                         )}
                       </div>
-                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-amber-500/40 flex-shrink-0">
+                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border border-border flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                          <p className="font-semibold text-xs sm:text-sm truncate text-foreground">{maskPlayerName(player.displayName)}</p>
                           {(() => {
                             const todayData = todayWinRates.get(player.id);
                             if (todayData && todayData.total > 0) {
                               const trend = todayData.winRate - player.winRate;
                               if (trend > 3) {
-                                return <TrendingUp className="h-3 w-3 text-success flex-shrink-0" />;
+                                return <TrendingUp className="h-3 w-3 text-muted-foreground flex-shrink-0" />;
                               } else if (trend < -3) {
-                                return <TrendingDown className="h-3 w-3 text-destructive flex-shrink-0" />;
+                                return <TrendingDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />;
                               }
                             }
                             return null;
@@ -1174,40 +1174,39 @@ const PlayerLeaderboardTable = () => {
                         {/* 统计数据网格 - 更整齐的布局 */}
                         <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs">
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">预测</span>
+                            <span className="text-muted-foreground">预测</span>
                             <span className="text-foreground font-medium">{player.totalPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">胜率</span>
-                            <span className="text-amber-500 font-medium">{player.winRate.toFixed(0)}%</span>
+                            <span className="text-muted-foreground">胜率</span>
+                            <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">盈利</span>
-                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-amber-500' : 'text-amber-500/60'}`}>
+                            <span className="text-muted-foreground">盈利</span>
+                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-primary' : 'text-muted-foreground'}`}>
                               {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-success">{player.correctPredictions}</span>
-                            <span className="text-muted-foreground/40">/</span>
-                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
+                            <span className="text-foreground">{player.correctPredictions}</span>
+                            <span className="text-muted-foreground">/</span>
+                            <span className="text-muted-foreground">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground/60">投注</span>
+                            <span className="text-muted-foreground">投注</span>
                             <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <button
-                      className="text-xs px-2 py-1.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-medium transition-colors flex-shrink-0 ml-1 border border-amber-500/20"
+                      className="text-xs px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground font-medium transition-colors flex-shrink-0 ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      <span className="hidden sm:inline">{t('today_prediction') || '今日预测'}</span>
-                      <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 sm:hidden" />
+                      <History className="h-3.5 w-3.5" />
                     </button>
                   </motion.div>
                 ))}
@@ -1218,13 +1217,13 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Right Column: 连黑榜 (Cold Streak) */}
-        <Card className="border-success/40 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
+        {/* Right Column: 低胜率榜 (Cold Streak) */}
+        <Card className="border-border/50 bg-card/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
-                  <h3 className="font-bold text-lg bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{t('cold_streak_board') || '连黑榜'}</h3>
+                  <h3 className="font-bold text-lg text-foreground">{t('cold_streak_board') || '低胜率榜'}</h3>
                   <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连黑玩家'}</p>
                 </div>
               </div>
@@ -1272,7 +1271,7 @@ const PlayerLeaderboardTable = () => {
                     exit={{ opacity: 0 }}
                     className="flex items-center justify-center py-8"
                   >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-success" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -1294,35 +1293,35 @@ const PlayerLeaderboardTable = () => {
                         transition={{ duration: 0.2, delay: index * 0.03 }}
                         className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
                           user && player.id === user.id 
-                            ? 'bg-success/20 border-2 border-success/40 hover:bg-success/30' 
-                            : 'bg-muted/30 hover:bg-muted/50'
+                            ? 'bg-primary/10 border border-primary/30 hover:bg-primary/15' 
+                            : 'bg-muted/20 hover:bg-muted/40'
                         }`}
                         onClick={() => navigate(`/player/${player.id}`)}
                       >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-success/30 text-success' :
-                        index === 1 ? 'bg-success/20 text-success/80' :
-                        index === 2 ? 'bg-success/10 text-success/60' :
-                        'bg-muted text-muted-foreground'
+                        index === 0 ? 'bg-primary/20 text-primary' :
+                        index === 1 ? 'bg-muted text-muted-foreground' :
+                        index === 2 ? 'bg-muted text-muted-foreground' :
+                        'bg-muted/50 text-muted-foreground'
                       }`}>
                         {index + 1}
                       </div>
-                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-success/40 flex-shrink-0">
+                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border border-border flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                         <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+                          <p className="font-semibold text-xs sm:text-sm truncate text-foreground">{maskPlayerName(player.displayName)}</p>
                           {(() => {
                             const todayData = todayWinRates.get(player.id);
                             if (todayData && todayData.total > 0) {
                               const trend = todayData.winRate - player.winRate;
                               if (trend > 3) {
-                                return <TrendingUp className="h-3 w-3 text-success flex-shrink-0" />;
+                                return <TrendingUp className="h-3 w-3 text-muted-foreground flex-shrink-0" />;
                               } else if (trend < -3) {
-                                return <TrendingDown className="h-3 w-3 text-destructive flex-shrink-0" />;
+                                return <TrendingDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />;
                               }
                             }
                             return null;
@@ -1331,31 +1330,31 @@ const PlayerLeaderboardTable = () => {
                         {/* 统计数据网格 - 更整齐的布局 */}
                         <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs">
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">预测</span>
+                            <span className="text-muted-foreground">预测</span>
                             <span className="text-foreground font-medium">{player.totalPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">胜率</span>
-                            <span className="text-success font-medium">{player.winRate.toFixed(0)}%</span>
+                            <span className="text-muted-foreground">胜率</span>
+                            <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground/60">连黑</span>
-                            <span className="text-success font-bold">{player.worstStreak || 0}</span>
+                            <span className="text-muted-foreground">连黑</span>
+                            <span className="text-primary font-bold">{player.worstStreak || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-success">{player.correctPredictions}</span>
-                            <span className="text-muted-foreground/40">/</span>
-                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
+                            <span className="text-foreground">{player.correctPredictions}</span>
+                            <span className="text-muted-foreground">/</span>
+                            <span className="text-muted-foreground">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground/60">投注</span>
+                            <span className="text-muted-foreground">投注</span>
                             <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <button
-                      className="text-xs px-2 py-1.5 rounded-md bg-success/10 hover:bg-success/20 text-success font-medium transition-colors flex-shrink-0 ml-1 border border-success/20"
+                      className="text-xs px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground font-medium transition-colors flex-shrink-0 ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
