@@ -492,22 +492,22 @@ const PlayerExclusiveModelCard = ({
       >
         {/* Match Counter - Bottom Right */}
         {matchEntries.length > 1 && (
-          <div className="absolute bottom-2 right-1 sm:bottom-3 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
+          <div className="absolute bottom-0 right-1 sm:bottom-0 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-0.5 opacity-70 hover:opacity-100 transition-opacity">
             <Button
               size="sm"
               variant="ghost"
-              className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
+              className="h-3 w-3 sm:h-4 sm:w-4 p-0 bg-background/60 hover:bg-background/80"
               onClick={(e) => {
                 e.stopPropagation();
                 if (onPrevMatch) onPrevMatch(e);
               }}
               title={t('previous_match') || '上一场'}
             >
-              <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              <ChevronLeft className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
             </Button>
             <Badge 
               variant="secondary"
-              className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80 cursor-pointer hover:bg-background/90 transition-colors"
+              className="text-[6px] sm:text-[8px] font-bold px-0.5 sm:px-1 py-0 bg-background/60 cursor-pointer hover:bg-background/80 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 if (onNextMatch) onNextMatch(e);
@@ -519,16 +519,16 @@ const PlayerExclusiveModelCard = ({
             <Button
               size="sm"
               variant="ghost"
-              className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
+              className="h-3 w-3 sm:h-4 sm:w-4 p-0 bg-background/60 hover:bg-background/80"
               onClick={(e) => {
                 e.stopPropagation();
                 if (onNextMatch) onNextMatch(e);
               }}
               title={t('next_match') || '下一场'}
             >
-              <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              <ChevronRight className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
             </Button>
-            <span className="text-[8px] sm:text-[10px] text-muted-foreground/70 ml-1 hidden sm:inline">
+            <span className="text-[6px] sm:text-[8px] text-muted-foreground/60 ml-0.5 hidden sm:inline">
               {t('click_to_switch_next') || '点击切换下一页'}
             </span>
           </div>
