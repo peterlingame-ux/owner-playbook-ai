@@ -667,7 +667,7 @@ const PlayerCopyTradingBoard = () => {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-bold text-lg text-foreground">玩家连红榜</h3>
-                <p className="text-xs text-muted-foreground">最佳连胜纪录</p>
+                <p className="text-xs text-muted-foreground">胜率最高玩家</p>
               </div>
               {/* Time Range Filter */}
               <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
@@ -717,7 +717,7 @@ const PlayerCopyTradingBoard = () => {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-bold text-lg text-foreground">玩家连黑榜</h3>
-                <p className="text-xs text-muted-foreground">最差连败纪录</p>
+                <p className="text-xs text-muted-foreground">胜率最低玩家</p>
               </div>
               {/* Time Range Filter */}
               <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
