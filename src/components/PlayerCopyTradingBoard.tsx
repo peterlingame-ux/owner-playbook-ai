@@ -649,8 +649,8 @@ const PlayerCopyTradingBoard = () => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-bold text-lg text-foreground">{t('hot_streak_board') || '连红榜'}</h3>
-                <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜纪录'}</p>
+                <h3 className="font-bold text-lg text-foreground">玩家连红榜</h3>
+                <p className="text-xs text-muted-foreground">最佳连胜纪录</p>
               </div>
               {/* Time Range Filter */}
               <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
@@ -699,8 +699,8 @@ const PlayerCopyTradingBoard = () => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-bold text-lg text-foreground">{t('cold_streak_board') || '连黑榜'}</h3>
-                <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连败纪录'}</p>
+                <h3 className="font-bold text-lg text-foreground">玩家连黑榜</h3>
+                <p className="text-xs text-muted-foreground">最差连败纪录</p>
               </div>
               {/* Time Range Filter */}
               <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
