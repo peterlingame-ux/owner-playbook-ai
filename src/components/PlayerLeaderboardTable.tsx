@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import usdtIcon from "@/assets/usdt-icon.png";
 // 球队Logo导入
@@ -2435,7 +2436,7 @@ const PlayerLeaderboardTable = () => {
       {/* Total Players Count */}
       <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
         <Users className="h-4 w-4" />
-        <span>平台总玩家数: <span className="font-mono font-medium text-foreground">{allPlayers.length.toLocaleString()}</span> 人</span>
+        <span>平台总玩家数: <AnimatedPlayerCount count={allPlayers.length} /> 人</span>
       </div>
 
       {/* Disclaimer */}
@@ -2445,6 +2446,23 @@ const PlayerLeaderboardTable = () => {
         </p>
       </div>
     </div>
+  );
+};
+
+// 玩家数量动画组件
+const AnimatedPlayerCount = ({ count }: { count: number }) => {
+  const animatedCount = useCountAnimation(count, { duration: 1200, startValue: 0 });
+  
+  return (
+    <motion.span 
+      className="font-mono font-medium text-foreground"
+      initial={{ scale: 1 }}
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 0.3 }}
+      key={Math.round(animatedCount)}
+    >
+      {Math.round(animatedCount).toLocaleString()}
+    </motion.span>
   );
 };
 
