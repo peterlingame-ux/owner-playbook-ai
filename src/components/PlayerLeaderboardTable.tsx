@@ -1531,7 +1531,7 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                   
                   <motion.div 
-                    className="grid grid-cols-3 gap-2 text-center"
+                    className="grid grid-cols-4 gap-2 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -1555,7 +1555,14 @@ const PlayerLeaderboardTable = () => {
                       whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                     >
                       <p className="text-lg font-bold text-white font-mono-data">{hotStreakChampion?.totalPredictions || 0}</p>
-                      <p className="text-[10px] text-white/70">总预测</p>
+                      <p className="text-[10px] text-white/70">预测</p>
+                    </motion.div>
+                    <motion.div 
+                      className="bg-white/10 rounded-lg p-2"
+                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                    >
+                      <p className="text-lg font-bold text-white font-mono-data">¥{((hotStreakChampion?.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</p>
+                      <p className="text-[10px] text-white/70">投注</p>
                     </motion.div>
                   </motion.div>
                   
@@ -1633,7 +1640,7 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                   
                   <motion.div 
-                    className="grid grid-cols-3 gap-2 text-center"
+                    className="grid grid-cols-4 gap-2 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.65 }}
@@ -1643,7 +1650,7 @@ const PlayerLeaderboardTable = () => {
                       whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                     >
                       <p className={`text-lg font-bold font-mono-data ${(profitChampion?.profitAmount || 0) >= 0 ? 'text-amber-400' : 'text-amber-400/60'}`}>
-                        {(profitChampion?.profitAmount || 0) >= 0 ? '+' : ''}${((profitChampion?.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
+                        {(profitChampion?.profitAmount || 0) >= 0 ? '+' : ''}¥{((profitChampion?.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
                       </p>
                       <p className="text-[10px] text-white/70">盈利</p>
                     </motion.div>
@@ -1659,7 +1666,14 @@ const PlayerLeaderboardTable = () => {
                       whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                     >
                       <p className="text-lg font-bold text-white font-mono-data">{profitChampion?.totalPredictions || 0}</p>
-                      <p className="text-[10px] text-white/70">总预测</p>
+                      <p className="text-[10px] text-white/70">预测</p>
+                    </motion.div>
+                    <motion.div 
+                      className="bg-white/10 rounded-lg p-2"
+                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                    >
+                      <p className="text-lg font-bold text-white font-mono-data">¥{((profitChampion?.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</p>
+                      <p className="text-[10px] text-white/70">投注</p>
                     </motion.div>
                   </motion.div>
                   
@@ -1737,7 +1751,7 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                   
                   <motion.div 
-                    className="grid grid-cols-3 gap-2 text-center"
+                    className="grid grid-cols-4 gap-2 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
@@ -1761,7 +1775,14 @@ const PlayerLeaderboardTable = () => {
                       whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                     >
                       <p className="text-lg font-bold text-white font-mono-data">{coldStreakChampion?.totalPredictions || 0}</p>
-                      <p className="text-[10px] text-white/70">总预测</p>
+                      <p className="text-[10px] text-white/70">预测</p>
+                    </motion.div>
+                    <motion.div 
+                      className="bg-white/10 rounded-lg p-2"
+                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                    >
+                      <p className="text-lg font-bold text-white font-mono-data">¥{((coldStreakChampion?.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</p>
+                      <p className="text-[10px] text-white/70">投注</p>
                     </motion.div>
                   </motion.div>
                   
