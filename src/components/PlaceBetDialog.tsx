@@ -654,80 +654,53 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 </div>
               </div>
 
-              {/* 盘口市场选择 - 专业博彩风格 */}
+              {/* 盘口市场选择 */}
               <div className="space-y-2">
                 {/* 市场标签 */}
-                <div className="flex gap-1">
+                <div className="flex border-b border-border">
                   <button
                     onClick={() => setSelectedBetType("handicap")}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
+                    className={`px-4 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
                       selectedBetType === "handicap"
-                        ? 'bg-[#1a472a] text-white'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        ? 'border-foreground text-foreground'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     让球
                   </button>
                   <button
                     onClick={() => setSelectedBetType("over_under")}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
+                    className={`px-4 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
                       selectedBetType === "over_under"
-                        ? 'bg-[#1a472a] text-white'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        ? 'border-foreground text-foreground'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     大小球
                   </button>
                 </div>
 
-                {/* 盘口表格 - 专业样式 */}
-                <div className="rounded-lg overflow-hidden border border-border bg-card">
-                  {/* 表头 */}
-                  <div className="grid grid-cols-3 bg-muted/70 text-[10px] text-muted-foreground font-medium">
-                    <div className="px-3 py-2 text-center border-r border-border">盘口</div>
-                    <div className="px-3 py-2 text-center border-r border-border">选项</div>
-                    <div className="px-3 py-2 text-center">赔率</div>
-                  </div>
-                  
-                  {/* 盘口行 */}
-                  {getBetOptions().map((option, index) => {
+                {/* 盘口选项 */}
+                <div className="space-y-1.5">
+                  {getBetOptions().map((option) => {
                     const isSelected = selectedBetOption === option.value;
-                    const isHome = option.value.includes("home") || option.value.includes("over");
                     
                     return (
                       <div
                         key={option.value}
                         onClick={() => setSelectedBetOption(option.value)}
-                        className={`grid grid-cols-3 cursor-pointer transition-all border-t border-border ${
+                        className={`flex items-center justify-between p-3 rounded border cursor-pointer transition-all ${
                           isSelected 
-                            ? 'bg-[#ffcc00]/20 border-l-2 border-l-[#ffcc00]' 
-                            : 'hover:bg-muted/30'
+                            ? 'border-foreground bg-foreground/5' 
+                            : 'border-border hover:border-muted-foreground'
                         }`}
                       >
-                        <div className="px-3 py-3 text-center border-r border-border">
-                          <span className={`text-xs font-mono font-bold ${
-                            isHome ? 'text-destructive' : 'text-blue-500'
-                          }`}>
-                            {option.line && option.line > 0 ? `+${option.line}` : option.line}
-                          </span>
-                        </div>
-                        <div className="px-3 py-3 text-center border-r border-border">
-                          <span className="text-xs font-medium">
-                            {selectedBetType === "handicap" 
-                              ? (isHome ? selectedMatch?.home_team_name : selectedMatch?.away_team_name)
-                              : (isHome ? "大" : "小")
-                            }
-                          </span>
-                        </div>
-                        <div className="px-3 py-3 text-center">
-                          <span className={`inline-flex items-center justify-center min-w-[48px] px-2 py-1 rounded text-xs font-bold font-mono ${
-                            isSelected
-                              ? 'bg-[#ffcc00] text-black'
-                              : 'bg-[#1a472a] text-[#7fff00]'
-                          }`}>
-                            {option.odds.toFixed(2)}
-                          </span>
-                        </div>
+                        <span className="text-sm font-medium">{option.label}</span>
+                        <span className={`text-sm font-mono font-bold ${
+                          isSelected ? 'text-foreground' : 'text-muted-foreground'
+                        }`}>
+                          {option.odds.toFixed(2)}
+                        </span>
                       </div>
                     );
                   })}
@@ -736,20 +709,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
 
               {/* 投注面板 */}
               {selectedBetOption && (
-                <div className="space-y-3 p-3 rounded-lg bg-muted/30 border border-border">
-                  {/* 已选投注 */}
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">已选:</span>
-                    <span className="font-medium">
-                      {getBetOptions().find(o => o.value === selectedBetOption)?.label}
-                      <span className="ml-2 text-[#7fff00] font-mono">
-                        @{getCurrentOdds().toFixed(2)}
-                      </span>
-                    </span>
-                  </div>
-                  
-                  <Separator className="bg-border/50" />
-                  
+                <div className="space-y-3 pt-3 border-t border-border">
                   {/* 投注金额 */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -759,7 +719,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       </span>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                       <Input
                         type="number"
                         value={betAmount}
@@ -767,21 +727,17 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         placeholder="0"
                         min="1"
                         max={userBalance}
-                        className="h-10 pl-7 text-right font-mono font-bold text-lg bg-background"
+                        className="h-10 pl-7 text-right font-mono font-medium"
                       />
                     </div>
-                    <div className="grid grid-cols-4 gap-1">
+                    <div className="grid grid-cols-4 gap-1.5">
                       {[100, 500, 1000, 2000].map((amount) => (
                         <Button
                           key={amount}
-                          variant="outline"
+                          variant={betAmount === amount.toString() ? "default" : "outline"}
                           size="sm"
                           onClick={() => setBetAmount(amount.toString())}
-                          className={`h-7 text-[10px] font-mono ${
-                            betAmount === amount.toString() 
-                              ? 'border-primary bg-primary/10' 
-                              : ''
-                          }`}
+                          className="h-7 text-[10px] font-mono"
                           disabled={amount > userBalance}
                         >
                           {amount}
@@ -791,26 +747,18 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                   </div>
 
                   {/* 收益预览 */}
-                  <div className="p-2 rounded bg-[#1a472a]/50 border border-[#1a472a]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">预期返还</span>
-                      <span className="text-xl font-bold text-[#7fff00] font-mono">
-                        ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-[10px] text-muted-foreground">净利润</span>
-                      <span className="text-xs text-[#7fff00] font-mono">
-                        +${(((parseFloat(betAmount) || 0) * getCurrentOdds()) - (parseFloat(betAmount) || 0)).toFixed(2)}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between py-2 px-3 rounded bg-muted/50">
+                    <span className="text-xs text-muted-foreground">预期返还</span>
+                    <span className="text-lg font-bold font-mono">
+                      ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
+                    </span>
                   </div>
 
                   {/* 确认按钮 */}
                   <Button
                     onClick={handlePlaceBet}
                     disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
-                    className="w-full h-10 text-sm font-bold bg-[#ffcc00] hover:bg-[#e6b800] text-black"
+                    className="w-full h-10 text-sm font-medium"
                   >
                     {isSubmitting ? "处理中..." : isDemo ? "体验投注" : "确认投注"}
                   </Button>
