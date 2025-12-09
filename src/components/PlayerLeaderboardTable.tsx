@@ -1708,44 +1708,55 @@ const PlayerLeaderboardTable = () => {
                           };
                           const recommended = getRecommendedInfo();
                           
+                          // 计算赔率
+                          const odds = pred.potential_payout && pred.bet_amount 
+                            ? (pred.potential_payout / pred.bet_amount).toFixed(2) 
+                            : '1.85';
+                          
                           return (
                             <div key={pred.id} className="px-4 py-3">
-                              {/* Match Row */}
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2 text-sm font-medium">
-                                  <span>{pred.home_team || '主队'}</span>
-                                  <span className="text-muted-foreground text-xs">vs</span>
-                                  <span>{pred.away_team || '客队'}</span>
-                                </div>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 font-medium">
-                                  未开赛
-                                </span>
-                              </div>
-                              
-                              {/* Bet Info Row */}
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                    {recommended.type}
-                                  </span>
-                                  {copiedPredictions.has(pred.id) ? (
-                                    <span className="text-sm font-bold text-primary">
-                                      {recommended.label}
-                                    </span>
-                                  ) : (
-                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                      <Lock className="h-3 w-3" />
-                                      <span className="blur-[3px] select-none font-medium">大2.5</span>
+                              {copiedPredictions.has(pred.id) ? (
+                                // 已跟单 - 显示完整比赛信息
+                                <>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2 text-sm font-medium">
+                                      <span>{pred.home_team || '主队'}</span>
+                                      <span className="text-muted-foreground text-xs">vs</span>
+                                      <span>{pred.away_team || '客队'}</span>
                                     </div>
-                                  )}
-                                </div>
-                                
-                                {copiedPredictions.has(pred.id) ? (
-                                  <div className="flex items-center gap-1 text-xs text-success">
-                                    <CheckCircle2 className="h-3.5 w-3.5" />
-                                    已跟单
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 font-medium">
+                                      未开赛
+                                    </span>
                                   </div>
-                                ) : (
+                                  
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                        {recommended.type}
+                                      </span>
+                                      <span className="text-sm font-bold text-primary">
+                                        {recommended.label}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-xs text-success">
+                                      <CheckCircle2 className="h-3.5 w-3.5" />
+                                      已跟单
+                                    </div>
+                                  </div>
+                                  
+                                  {/* 跟单详情 */}
+                                  <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                                    <span>玩家下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span></span>
+                                    <span>赔率: <span className="text-foreground font-medium">{odds}</span></span>
+                                  </div>
+                                </>
+                              ) : (
+                                // 未跟单 - 隐藏比赛信息，只显示跟单按钮
+                                <div className="flex items-center justify-between py-1">
+                                  <div className="flex items-center gap-2">
+                                    <Lock className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">跟单后查看比赛详情</span>
+                                  </div>
                                   <Button
                                     size="sm"
                                     className="h-7 px-3 text-xs"
@@ -1753,8 +1764,8 @@ const PlayerLeaderboardTable = () => {
                                   >
                                     跟单
                                   </Button>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
