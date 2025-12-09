@@ -1356,8 +1356,8 @@ const PlayerLeaderboardTable = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">盈利</span>
-                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-primary' : 'text-muted-foreground'}`}>
-                              {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
+                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                              {((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
