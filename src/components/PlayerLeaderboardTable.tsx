@@ -12,6 +12,7 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import grassTexture from "@/assets/grass-texture.jpg";
+import usdtIcon from "@/assets/usdt-icon.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1765,8 +1766,9 @@ const PlayerLeaderboardTable = () => {
                           <span>胜率 <span className="text-foreground font-semibold">{player?.winRate.toFixed(0)}%</span></span>
                           <span>连胜 <span className="text-foreground font-semibold">{player?.currentStreak || 0}</span></span>
                           {unlockPrice > 0 ? (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-600 font-medium">
-                              {unlockPrice} USDT
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                              <img src={usdtIcon} alt="USDT" className="w-3.5 h-3.5" />
+                              <span className="text-[10px] font-semibold text-foreground">{unlockPrice}</span>
                             </span>
                           ) : (
                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
@@ -1997,12 +1999,16 @@ const PlayerLeaderboardTable = () => {
               <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">解锁费用</span>
-                  <span className="font-semibold">{unlockDialog.player.unlockPrice} USDT</span>
+                  <span className="inline-flex items-center gap-1.5 font-semibold">
+                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
+                    {unlockDialog.player.unlockPrice}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">当前余额</span>
-                  <span className={usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}>
-                    {usdtBalance.toFixed(2)} USDT
+                  <span className={`inline-flex items-center gap-1.5 ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}`}>
+                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
+                    {usdtBalance.toFixed(2)}
                   </span>
                 </div>
                 
