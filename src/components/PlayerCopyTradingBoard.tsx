@@ -528,8 +528,14 @@ const PlayerCopyTradingBoard = () => {
                 </span>
               </span>
             </div>
-            {/* 胜率和盈利率 */}
+            {/* 预测场数、胜率和盈利率 */}
             <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('total_predictions') || '预测'}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">预:</span>
+                <span className="text-foreground font-medium">{player.totalPredictions}</span>
+              </span>
+              <span className="text-border hidden sm:inline">|</span>
               <span className="flex items-center gap-0.5 sm:gap-1">
                 <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
                 <span className="text-muted-foreground/70 sm:hidden">胜:</span>
