@@ -2196,19 +2196,26 @@ const PlayerLeaderboardTable = () => {
                 transition={{ type: "spring", duration: 0.5 }}
                 className="text-center space-y-4"
               >
-                {/* 成功图标动画 */}
+                {/* 跟随玩家头像 */}
                 <motion.div 
-                  className="mx-auto w-20 h-20 rounded-full bg-success/20 flex items-center justify-center relative"
+                  className="mx-auto w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center relative border-2 border-primary"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", delay: 0.2, duration: 0.6 }}
                 >
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={allPlayers.find(p => p.displayName === copySuccess.playerName)?.avatarUrl} />
+                    <AvatarFallback className="text-xl">{copySuccess.playerName?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  
+                  {/* 成功勾选标记 */}
                   <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", delay: 0.4, duration: 0.6 }}
+                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-success flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.5, duration: 0.4 }}
                   >
-                    <CheckCircle2 className="h-10 w-10 text-success" />
+                    <CheckCircle2 className="h-4 w-4 text-white" />
                   </motion.div>
                   
                   {/* 闪烁星星效果 */}
@@ -2292,41 +2299,22 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                 )}
 
-                {/* 余额变化动画 */}
+                {/* 跟单金额显示 */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6 }}
                   className="p-4 rounded-lg bg-muted/50 border border-border/50"
                 >
-                  <p className="text-xs text-muted-foreground mb-2">账户余额变化</p>
-                  <div className="flex items-center justify-center gap-3">
+                  <p className="text-xs text-muted-foreground mb-2">您的跟单金额</p>
+                  <div className="flex items-center justify-center">
                     <motion.div
-                      initial={{ opacity: 1 }}
-                      animate={{ opacity: 0.5 }}
-                      transition={{ delay: 1.2 }}
-                      className="text-lg font-mono"
-                    >
-                      ¥{copySuccess.oldBalance.toLocaleString()}
-                    </motion.div>
-                    
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: 0.8, type: "spring" }}
-                      className="flex items-center gap-1 px-2 py-1 rounded-full bg-destructive/20"
+                      className="text-2xl font-bold font-mono text-primary"
                     >
-                      <TrendingDown className="h-3 w-3 text-destructive" />
-                      <span className="text-xs font-bold text-destructive">-¥{copySuccess.betAmount}</span>
-                    </motion.div>
-                    
-                    <motion.div
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1.2 }}
-                      className="text-lg font-mono font-bold text-primary"
-                    >
-                      ¥{copySuccess.newBalance.toLocaleString()}
+                      ¥{copySuccess.betAmount.toLocaleString()}
                     </motion.div>
                   </div>
                 </motion.div>
