@@ -519,38 +519,38 @@ const LeaderboardTable = () => {
   return (
     <div className="space-y-6">
       {/* Leaderboard Table */}
-      <Card className="border-border bg-card overflow-hidden">
-        <CardHeader className="px-4 sm:px-6 py-4 border-b border-border">
+      <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
+        <CardHeader className="px-3 sm:px-4 py-3 sm:py-4 border-b border-border/50">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base sm:text-lg font-semibold text-foreground">{t('all_models')}</CardTitle>
-            {/* Time Range Filter */}
-            <div className="flex items-center gap-1">
+            <CardTitle className="text-lg sm:text-xl font-bold">{t('all_models')}</CardTitle>
+            {/* Time Range Filter - 时间筛选按钮 */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
               <button
                 onClick={() => setTimeRange(1)}
-                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
                   timeRange === 1
                     ? 'bg-foreground text-background' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                 }`}
               >
                 1天
               </button>
               <button
                 onClick={() => setTimeRange(7)}
-                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
                   timeRange === 7
                     ? 'bg-foreground text-background' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                 }`}
               >
                 7天
               </button>
               <button
                 onClick={() => setTimeRange(30)}
-                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
                   timeRange === 30
                     ? 'bg-foreground text-background' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
                 }`}
               >
                 30天
@@ -559,38 +559,53 @@ const LeaderboardTable = () => {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* 滚动提示 - 仅移动端显示 */}
+          <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
+            </div>
+          </div>
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <Table className="min-w-[800px]">
                 <TableHeader>
-                  <TableRow className="border-b border-border hover:bg-transparent bg-muted/30">
-                    <TableHead className="w-12 py-3 text-muted-foreground font-medium text-xs text-center">#</TableHead>
-                    <TableHead className="py-3 text-muted-foreground font-medium text-xs min-w-[140px]">{t('model')}</TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">{t('total_predictions') || '预测'}</TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">{t('correct') || '正确'}</TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">{t('wrong') || '错误'}</TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">
-                      <div className="flex items-center justify-center gap-1">
-                        {t('win_rate')} <ArrowDown className="h-3 w-3" />
+                  <TableRow className="border-b-2 border-border/60 hover:bg-transparent bg-muted/40">
+                    <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase text-center">#</TableHead>
+                    <TableHead className="py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0">{t('model')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('total_predictions') || '总预测'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('correct') || '正确'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong') || '错误'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {t('win_rate')} <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       </div>
                     </TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">{t('bet_amount') || '投注金额'}</TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">{t('profit_amount') || '盈利金额'}</TableHead>
-                    <TableHead className="text-center py-3 text-muted-foreground font-medium text-xs">{t('profit_rate') || '盈利率'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('bet_amount') || '投注金额'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_amount') || '盈利金额'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_rate') || '盈利率'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {enhancedModels.map((model, index) => (
                     <TableRow 
                       key={model.id}
-                      className="border-b border-border/50 hover:bg-muted/20 transition-colors"
+                      className="border-b border-border/30 hover:bg-accent/30 transition-all duration-300 animate-fade-in opacity-0"
+                      style={{ 
+                        animationDelay: `${index * 80}ms`,
+                        animationFillMode: 'forwards'
+                      }}
                     >
-                      <TableCell className="py-3 text-center">
-                        <span className="font-medium text-sm text-muted-foreground">{index + 1}</span>
+                      <TableCell className="py-3 sm:py-4 text-center">
+                        <div className="flex items-center justify-center">
+                          <span className="font-black text-sm sm:text-base text-foreground/70">{index + 1}</span>
+                        </div>
                       </TableCell>
-                      <TableCell className="py-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className={`w-8 h-8 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded'} bg-muted p-1.5 flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+                      <TableCell className="py-3 sm:py-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className={`w-7 h-7 sm:w-9 sm:h-9 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
                             <img 
                               src={getModelIcon(model.id)} 
                               alt={model.name} 
@@ -598,46 +613,48 @@ const LeaderboardTable = () => {
                               style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                             />
                           </div>
-                          <span className="font-medium text-sm text-foreground">{getModelDisplayName(model)}</span>
+                          <span className="font-bold text-sm sm:text-base truncate">{getModelDisplayName(model)}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className="font-mono text-sm text-muted-foreground">
-                          {model.locked ? '---' : model.totalPredictions}
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                          {model.locked ? '???' : model.totalPredictions}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className="font-mono text-sm text-success">
-                          {model.locked ? '---' : (model as any).correctPredictions || 0}
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-success">
+                          {model.locked ? '???' : (model as any).correctPredictions || 0}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className="font-mono text-sm text-destructive">
-                          {model.locked ? '---' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
+                          {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className="font-mono font-semibold text-sm text-foreground">
-                          {model.locked ? '---' : `${model.winRate.toFixed(1)}%`}
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <AnimatedWinRate 
+                          value={model.winRate}
+                          className="font-mono-data font-black text-base sm:text-lg"
+                          style={{ color: `hsl(var(--${model.color}))` }}
+                        />
+                      </TableCell>
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-foreground">
+                          {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className="font-mono text-sm text-muted-foreground">
-                          {model.locked ? '---' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className={`font-mono text-sm ${
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className={`font-mono-data font-bold text-sm sm:text-base ${
                           ((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
-                          {model.locked ? '---' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className={`font-mono text-sm ${
+                      <TableCell className="text-center py-3 sm:py-4">
+                        <span className={`font-mono-data font-bold text-sm sm:text-base ${
                           ((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
-                          {model.locked ? '---' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(1)}%`}
+                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -649,101 +666,137 @@ const LeaderboardTable = () => {
         </CardContent>
       </Card>
 
-      {/* Bottom Section: Winning Model + Bar Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Winning Model Card */}
-        <Card className="border-border bg-card">
-          <CardContent className="p-5">
-            <h3 className="text-xs font-medium mb-4 text-muted-foreground uppercase tracking-wide">{t('winning_model')}</h3>
-            <div className="flex items-center gap-3 mb-5">
-              <div className={`w-10 h-10 ${winningModel.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded'} bg-muted p-1.5 flex items-center justify-center overflow-hidden`}>
-                <img 
-                  src={getModelIcon(winningModel.id)} 
-                  alt={winningModel.name} 
-                  className={`w-full h-full ${winningModel.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                  style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                />
-              </div>
-              <span className="text-base font-semibold text-foreground">{getModelDisplayName(winningModel)}</span>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-xs text-muted-foreground">{t('win_rate_label')}</span>
-                <span className="font-mono font-semibold text-foreground">
-                  {winningModel.winRate.toFixed(1)}%
-                </span>
-              </div>
+          {/* Bottom Section: Winning Model + Bar Chart */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Winning Model Card */}
+            <Card className="relative overflow-hidden">
+              {/* Background Image */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${getExpertImage(winningModel.id)})` }}
+              />
               
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-xs text-muted-foreground">{t('correct_predictions_label')}</span>
-                <span className="font-mono text-success">
-                  {winningModel.correctPredictions} / {winningModel.totalPredictions}
-                </span>
-              </div>
+              {/* Color Tint Overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${getColorTint(winningModel.id)}`} />
               
-              <div className="pt-2">
-                <span className="text-xs text-muted-foreground">{t('active_matches')}</span>
-                <div className="flex gap-1.5 flex-wrap mt-2">
-                  <span className="px-2 py-1 rounded bg-muted text-xs text-muted-foreground">Premier League</span>
-                  <span className="px-2 py-1 rounded bg-muted text-xs text-muted-foreground">La Liga</span>
-                  <span className="px-2 py-1 rounded bg-muted text-xs text-muted-foreground hidden sm:inline">Bundesliga</span>
+              {/* Dark gradient for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+              
+              <CardContent className="p-4 sm:p-6 relative z-10">
+                <h3 className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 text-white/80">{t('winning_model').toUpperCase()}</h3>
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <img 
+                    src={getModelIcon(winningModel.id)} 
+                    alt={winningModel.name} 
+                    className={`h-8 w-8 sm:h-10 sm:w-10 ${winningModel.id === 'hunsoccermax' && user ? 'rounded-full object-cover' : ''}`}
+                    style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                  />
+                  <span className="text-lg sm:text-xl font-bold text-white">{getModelDisplayName(winningModel)}</span>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Bar Chart */}
-        <Card className="lg:col-span-2 border-border bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-end gap-3 h-[280px]">
-              {(() => {
-                const maxHeight = 220;
-                const minHeight = 40;
-                const baseWinRate = 100;
                 
-                return enhancedModels.map((model) => {
-                  const heightRatio = Math.min(model.winRate / baseWinRate, 1);
-                  const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('win_rate_label').toUpperCase()}</p>
+                    <p className="text-xl sm:text-2xl font-bold font-mono-data text-white">
+                      <AnimatedWinRate 
+                        value={winningModel.winRate}
+                        className="text-xl sm:text-2xl font-bold font-mono-data text-white"
+                      />
+                    </p>
+                  </div>
                   
-                  return (
-                    <div key={model.id} className="flex-1 flex flex-col items-center gap-2 min-w-0">
-                      <span className="text-xs font-mono text-muted-foreground">
-                        {model.winRate.toFixed(0)}%
-                      </span>
-                      <div 
-                        className="w-full rounded-t flex items-end justify-center pb-3 transition-colors hover:opacity-80"
-                        style={{ 
-                          height: `${heightPx}px`,
-                          backgroundColor: 'hsl(var(--muted-foreground) / 0.3)',
-                        }}
-                      >
-                        <div className={`w-6 h-6 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded'} bg-background p-1 flex items-center justify-center overflow-hidden`}>
-                          <img 
-                            src={getModelIcon(model.id)} 
-                            alt={model.name}
-                            className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                            style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                          />
-                        </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-white/70 mb-1">{t('correct_predictions_label').toUpperCase()}</p>
+                    <p className="text-lg sm:text-xl font-bold font-mono-data text-success">
+                      {winningModel.correctPredictions} / {winningModel.totalPredictions}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs sm:text-sm text-white/70 mb-2 sm:mb-3">{t('active_matches').toUpperCase()}</p>
+                    <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white">
+                        ⚽ Premier League
                       </div>
-                      <span className="text-[10px] text-center text-muted-foreground truncate max-w-full">
-                        {model.displayName.split(' ')[0]}
-                      </span>
+                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white">
+                        ⚽ La Liga
+                      </div>
+                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white hidden sm:inline-flex">
+                        ⚽ Bundesliga
+                      </div>
                     </div>
-                  );
-                });
-              })()}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Note */}
-      <p className="text-xs text-muted-foreground">
-        <span className="font-medium">{t('note')}:</span> {t('statistics_note')}
-      </p>
+            {/* Bar Chart */}
+            <Card className="lg:col-span-2 relative overflow-hidden">
+              {/* Grass texture background */}
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{ 
+                  backgroundImage: `url(${grassTexture})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              {/* Dark overlay for contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
+              
+              <CardContent className="p-4 sm:p-6 relative z-10">
+                <div className="flex items-end gap-2 sm:gap-4 h-[240px] sm:h-[320px]">
+                  {(() => {
+                    // 固定基准：100% 胜率对应最大高度
+                    const maxHeight = 240; // 最大高度（px），对应容器高度
+                    const minHeight = 40; // 最小高度（px），确保即使胜率为0也可见
+                    const baseWinRate = 100; // 基准胜率（100%）
+                    
+                    return enhancedModels.map((model) => {
+                      // 基于胜率百分比直接计算高度
+                      // 100% 胜率对应 maxHeight，0% 对应 minHeight
+                      // 公式：height = (winRate / 100) * (maxHeight - minHeight) + minHeight
+                      const heightRatio = Math.min(model.winRate / baseWinRate, 1); // 限制最大为1（100%）
+                      const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
+                      
+                      return (
+                        <div key={model.id} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
+                          <div className="text-[10px] sm:text-sm font-mono-data font-bold mb-1 sm:mb-2">
+                            <AnimatedWinRate 
+                              value={model.winRate}
+                              className="text-[10px] sm:text-sm font-mono-data font-bold"
+                            />
+                          </div>
+                          <div 
+                            className="w-full rounded-t-lg relative flex items-end justify-center pb-2 sm:pb-4 transition-all duration-300 hover:opacity-80 shadow-lg"
+                            style={{ 
+                              height: `${heightPx}px`,
+                              backgroundColor: `hsl(var(--${model.color}))`,
+                            }}
+                          >
+                            <img 
+                              src={getModelIcon(model.id)} 
+                              alt={model.name}
+                              className="h-5 w-5 sm:h-8 sm:w-8 object-contain"
+                              style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                            />
+                          </div>
+                          <div className="text-[9px] sm:text-xs text-center font-medium text-muted-foreground truncate max-w-full px-1">
+                            {model.displayName.split(' ')[0]}...
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Note */}
+          <p className="text-sm text-muted-foreground">
+            <span className="font-bold">{t('note')}:</span> {t('statistics_note')}
+          </p>
 
       {/* Today History Dialog */}
       <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
