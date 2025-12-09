@@ -530,20 +530,20 @@ const MyPredictions = () => {
   useEffect(() => {
     if (authUserProfile) {
       setUserProfile(prev => {
+        const baseProfile: UserProfile = {
+          display_name: authUserProfile.display_name || '',
+          avatar_url: authUserProfile.avatar_url || '/avatars/avatar-1.png',
+        };
         if (prev) {
           return {
             ...prev,
-            display_name: authUserProfile.display_name,
-            avatar_url: authUserProfile.avatar_url,
+            ...baseProfile,
           };
         }
-        return {
-          display_name: authUserProfile.display_name,
-          avatar_url: authUserProfile.avatar_url,
-        };
+        return baseProfile;
       });
       setEditDisplayName(authUserProfile.display_name || '');
-      setSelectedAvatar(authUserProfile.avatar_url || '');
+      setSelectedAvatar(authUserProfile.avatar_url || '/avatars/avatar-1.png');
     }
   }, [authUserProfile]);
 
