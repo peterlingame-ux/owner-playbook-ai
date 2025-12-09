@@ -1931,6 +1931,20 @@ const PlayerLeaderboardTable = () => {
                     placeholder="输入金额"
                   />
                 </div>
+                
+                {/* 验证错误提示 */}
+                {copyBetAmount > realBalance && (
+                  <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+                    <span>⚠️</span>
+                    <span>余额不足，当前可用余额为 ¥{realBalance.toLocaleString()}</span>
+                  </div>
+                )}
+                {copyBetAmount > 0 && copyBetAmount < 10 && (
+                  <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+                    <span>⚠️</span>
+                    <span>最低跟单金额为 ¥10</span>
+                  </div>
+                )}
               </div>
 
               {/* 预期收益 */}
