@@ -108,6 +108,8 @@ interface TodayPrediction {
   actual_payout: number | null;
   created_at: string;
   match_date: string;
+  handicap_line?: number | null;
+  over_under_line?: number | null;
   // 比赛详情
   home_team?: string;
   away_team?: string;
@@ -1802,12 +1804,41 @@ const PlayerLeaderboardTable = () => {
                         </div>
                         <div className="divide-y divide-border/30">
                           {completedPredictions.slice(0, 5).map((pred) => {
-                            // 解析预测类型和赔率
+                            // 解析预测类型和具体盘口
                             const isOverUnder = pred.prediction_type === 'over_under';
-                            const typeLabel = isOverUnder ? '大小' : '让球';
+                            const typeLabel = isOverUnder ? '大小球' : '让球';
                             const odds = pred.potential_payout && pred.bet_amount 
                               ? (pred.potential_payout / pred.bet_amount).toFixed(2) 
                               : '1.85';
+                            
+                            // 解析具体预测内容
+                            let predictionDetail = '';
+                            const prediction = pred.prediction;
+                            if (isOverUnder) {
+                              // 大小球：解析大/小和盘口
+                              if (prediction.includes('大') || prediction.toLowerCase().includes('over')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                predictionDetail = `大${line}球`;
+                              } else if (prediction.includes('小') || prediction.toLowerCase().includes('under')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                predictionDetail = `小${line}球`;
+                              } else {
+                                predictionDetail = prediction;
+                              }
+                            } else {
+                              // 让球：解析让球方和让球数
+                              if (prediction.includes('主') || prediction.includes('home')) {
+                                const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
+                                predictionDetail = `主让${line}`;
+                              } else if (prediction.includes('客') || prediction.includes('away')) {
+                                const line = prediction.match(/\+?[\d.]+/)?.[0] || '+0.5';
+                                predictionDetail = `客让+${line.replace('+', '')}`;
+                              } else {
+                                // 从handicap_line获取
+                                const line = pred.handicap_line ?? 0;
+                                predictionDetail = line < 0 ? `主让${line}` : `客让+${Math.abs(line)}`;
+                              }
+                            }
                             
                             return (
                               <div key={pred.id} className="px-4 py-2.5">
@@ -1828,8 +1859,9 @@ const PlayerLeaderboardTable = () => {
                                     {pred.result === 'win' ? '+' : '-'}¥{pred.bet_amount}
                                   </span>
                                 </div>
-                                <div className="flex items-center gap-3 ml-7 text-[10px] text-muted-foreground">
+                                <div className="flex items-center gap-2 ml-7 text-[10px] text-muted-foreground flex-wrap">
                                   <span className="px-1.5 py-0.5 rounded bg-muted/50">{typeLabel}</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">{predictionDetail}</span>
                                   <span>赔率: <span className="text-foreground font-medium">{odds}</span></span>
                                   <span>下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span></span>
                                 </div>
