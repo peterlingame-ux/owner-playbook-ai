@@ -664,8 +664,7 @@ const PlayerLeaderboardTable = () => {
   };
 
   const confirmCopyTrade = async () => {
-    if (!copyTradeDialog || !user) {
-      toast.error('请先登录');
+    if (!copyTradeDialog) {
       return;
     }
     
@@ -684,35 +683,50 @@ const PlayerLeaderboardTable = () => {
     setIsCopying(true);
     
     try {
-      // 使用 place_bet 函数进行跟单下注
-      const potentialPayout = copyBetAmount * 1.8;
-      const matchDate = new Date().toISOString();
+      // 计算赔率和预测类型
+      const odds = copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount 
+        ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2) 
+        : '1.85';
+      const predictionType = copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球';
       
-      const { data, error } = await supabase.rpc('place_bet', {
-        p_user_id: user.id,
-        p_match_id: copyTradeDialog.prediction.match_id,
-        p_prediction_type: copyTradeDialog.prediction.prediction_type,
-        p_prediction: `跟单-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
-        p_bet_amount: copyBetAmount,
-        p_potential_payout: potentialPayout,
-        p_match_date: matchDate,
-      });
-
-      if (error) {
-        console.error('Copy trade error:', error);
-        toast.error('跟单失败：' + error.message);
-        return;
-      }
-
-      const result = data as { success: boolean; error?: string; new_balance?: number };
+      let newBalance = oldBalance - copyBetAmount;
       
-      if (!result.success) {
-        toast.error(result.error || '跟单失败');
-        return;
-      }
+      // 如果用户已登录，使用真实数据库操作
+      if (user) {
+        const potentialPayout = copyBetAmount * 1.8;
+        const matchDate = new Date().toISOString();
+        
+        const { data, error } = await supabase.rpc('place_bet', {
+          p_user_id: user.id,
+          p_match_id: copyTradeDialog.prediction.match_id,
+          p_prediction_type: copyTradeDialog.prediction.prediction_type,
+          p_prediction: `跟单-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
+          p_bet_amount: copyBetAmount,
+          p_potential_payout: potentialPayout,
+          p_match_date: matchDate,
+        });
 
-      // 刷新余额
-      await refreshBalance();
+        if (error) {
+          console.error('Copy trade error:', error);
+          toast.error('跟单失败：' + error.message);
+          return;
+        }
+
+        const result = data as { success: boolean; error?: string; new_balance?: number };
+        
+        if (!result.success) {
+          toast.error(result.error || '跟单失败');
+          return;
+        }
+
+        // 刷新余额
+        await refreshBalance();
+        newBalance = result.new_balance || newBalance;
+      } else {
+        // 演示模式：模拟延迟
+        await new Promise(resolve => setTimeout(resolve, 500));
+        toast.success('演示模式：跟单成功');
+      }
       
       // 将该预测添加到已跟单列表，解锁显示
       setCopiedPredictions(prev => {
@@ -721,17 +735,11 @@ const PlayerLeaderboardTable = () => {
         return newSet;
       });
       
-      // 计算赔率和预测类型
-      const odds = copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount 
-        ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2) 
-        : '1.85';
-      const predictionType = copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球';
-      
       // 显示成功动画
       setCopySuccess({
         show: true,
         oldBalance,
-        newBalance: result.new_balance || (oldBalance - copyBetAmount),
+        newBalance,
         betAmount: copyBetAmount,
         playerName: copyTradeDialog.player.displayName,
         prediction: copyTradeDialog.prediction,
@@ -791,34 +799,43 @@ const PlayerLeaderboardTable = () => {
   
   // 确认USDT解锁
   const confirmUnlock = async () => {
-    if (!unlockDialog || !user) {
-      toast.error('请先登录');
+    if (!unlockDialog) {
       return;
     }
     
     const unlockPrice = unlockDialog.player.unlockPrice ?? 0;
     
-    if (usdtBalance < unlockPrice) {
-      toast.error(`USDT余额不足，需要 ${unlockPrice} USDT，当前余额 ${usdtBalance} USDT`);
-      return;
-    }
-    
     setIsUnlocking(true);
     
     try {
-      // 扣除USDT
-      const { error } = await supabase
-        .from('usdt_wallets')
-        .update({ balance: usdtBalance - unlockPrice })
-        .eq('user_id', user.id);
-      
-      if (error) {
-        toast.error('扣款失败：' + error.message);
-        return;
+      // 如果用户已登录，使用真实数据库操作
+      if (user) {
+        if (usdtBalance < unlockPrice) {
+          toast.error(`USDT余额不足，需要 ${unlockPrice} USDT，当前余额 ${usdtBalance} USDT`);
+          setIsUnlocking(false);
+          return;
+        }
+        
+        // 扣除USDT
+        const { error } = await supabase
+          .from('usdt_wallets')
+          .update({ balance: usdtBalance - unlockPrice })
+          .eq('user_id', user.id);
+        
+        if (error) {
+          toast.error('扣款失败：' + error.message);
+          setIsUnlocking(false);
+          return;
+        }
+        
+        // 更新本地USDT余额
+        setUsdtBalance(prev => prev - unlockPrice);
+        toast.success(`已扣除 ${unlockPrice} USDT，预测已解锁`);
+      } else {
+        // 演示模式：模拟延迟
+        await new Promise(resolve => setTimeout(resolve, 300));
+        toast.success('演示模式：预测已解锁');
       }
-      
-      // 更新本地USDT余额
-      setUsdtBalance(prev => prev - unlockPrice);
       
       // 将预测添加到已解锁列表
       setCopiedPredictions(prev => {
@@ -826,8 +843,6 @@ const PlayerLeaderboardTable = () => {
         newSet.add(unlockDialog.prediction.id);
         return newSet;
       });
-      
-      toast.success(`已扣除 ${unlockPrice} USDT，预测已解锁`);
       
       // 关闭解锁弹窗，进入跟单流程
       setUnlockDialog(null);
@@ -2031,9 +2046,9 @@ const PlayerLeaderboardTable = () => {
                   size="sm"
                   className="flex-1"
                   onClick={confirmUnlock}
-                  disabled={isUnlocking || usdtBalance < (unlockDialog.player.unlockPrice ?? 0) || !user}
+                  disabled={isUnlocking || (user && usdtBalance < (unlockDialog.player.unlockPrice ?? 0))}
                 >
-                  {isUnlocking ? '处理中...' : '确认'}
+                  {isUnlocking ? '处理中...' : (user ? '确认' : '演示解锁')}
                 </Button>
               </div>
             </>
@@ -2155,7 +2170,7 @@ const PlayerLeaderboardTable = () => {
               <Button 
                 className="w-full" 
                 onClick={confirmCopyTrade}
-                disabled={isCopying || copyBetAmount > realBalance || copyBetAmount < 10 || !user}
+                disabled={isCopying || copyBetAmount > realBalance || copyBetAmount < 10}
               >
                 {isCopying ? (
                   <div className="flex items-center gap-2">
@@ -2165,7 +2180,7 @@ const PlayerLeaderboardTable = () => {
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    确认跟单 ¥{copyBetAmount}
+                    {user ? `确认跟单 ¥${copyBetAmount}` : `演示跟单 ¥${copyBetAmount}`}
                   </>
                 )}
               </Button>
