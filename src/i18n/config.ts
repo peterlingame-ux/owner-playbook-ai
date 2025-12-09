@@ -729,7 +729,7 @@ const resources = {
       "the_contestants": "AI模型排行榜",
       "top_players": "玩家模型TOP3排行榜",
       "view_details": "查看详情",
-      "total_predictions": "总预测",
+      "total_predictions": "预测",
       
       // AI Chat
       "ai_assistant": "HUNSOCCER ROBOT",
