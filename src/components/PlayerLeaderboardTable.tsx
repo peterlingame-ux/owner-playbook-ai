@@ -1966,82 +1966,61 @@ const PlayerLeaderboardTable = () => {
 
       {/* USDT解锁确认弹窗 */}
       <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-amber-500" />
-              解锁预测
-            </DialogTitle>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-xs p-0 gap-0">
           {unlockDialog && (
-            <div className="space-y-4">
-              {/* 玩家信息 */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Avatar className="w-10 h-10 border-2 border-amber-500/30">
-                  <AvatarImage src={unlockDialog.player.avatarUrl} />
-                  <AvatarFallback>{unlockDialog.player.displayName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{maskPlayerName(unlockDialog.player.displayName)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    胜率: <span className={unlockDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
-                      {unlockDialog.player.winRate.toFixed(1)}%
-                    </span>
-                  </p>
+            <>
+              {/* 头部 */}
+              <div className="p-4 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-9 h-9">
+                    <AvatarImage src={unlockDialog.player.avatarUrl} />
+                    <AvatarFallback>{unlockDialog.player.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{maskPlayerName(unlockDialog.player.displayName)}</p>
+                    <p className="text-xs text-muted-foreground">胜率 {unlockDialog.player.winRate.toFixed(1)}%</p>
+                  </div>
                 </div>
               </div>
-
-              {/* 解锁费用 */}
-              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
-                <p className="text-sm text-muted-foreground mb-2">解锁此玩家预测需要</p>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-2xl font-bold text-amber-500">{unlockDialog.player.unlockPrice}</span>
-                  <span className="text-lg font-medium text-amber-500">USDT</span>
+              
+              {/* 内容 */}
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">解锁费用</span>
+                  <span className="font-semibold">{unlockDialog.player.unlockPrice} USDT</span>
                 </div>
-              </div>
-
-              {/* USDT余额 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 text-sm">
-                <span className="text-muted-foreground">您的USDT余额</span>
-                <span className={`font-medium ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-success' : 'text-destructive'}`}>
-                  {usdtBalance.toFixed(2)} USDT
-                </span>
-              </div>
-
-              {/* 余额不足提示 */}
-              {usdtBalance < (unlockDialog.player.unlockPrice ?? 0) && (
-                <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
-                  <span>⚠️</span>
-                  <span>USDT余额不足，请先充值</span>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">当前余额</span>
+                  <span className={usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}>
+                    {usdtBalance.toFixed(2)} USDT
+                  </span>
                 </div>
-              )}
-
-              {/* 操作按钮 */}
-              <div className="flex gap-2">
+                
+                {usdtBalance < (unlockDialog.player.unlockPrice ?? 0) && (
+                  <p className="text-xs text-destructive">余额不足，请先充值</p>
+                )}
+              </div>
+              
+              {/* 按钮 */}
+              <div className="p-4 pt-0 flex gap-2">
                 <Button 
                   variant="outline" 
+                  size="sm"
                   className="flex-1"
                   onClick={() => setUnlockDialog(null)}
                 >
                   取消
                 </Button>
                 <Button 
-                  className="flex-1 bg-amber-500 hover:bg-amber-600"
+                  size="sm"
+                  className="flex-1"
                   onClick={confirmUnlock}
                   disabled={isUnlocking || usdtBalance < (unlockDialog.player.unlockPrice ?? 0) || !user}
                 >
-                  {isUnlocking ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                      解锁中...
-                    </div>
-                  ) : (
-                    <>确认解锁</>
-                  )}
+                  {isUnlocking ? '处理中...' : '确认'}
                 </Button>
               </div>
-            </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
