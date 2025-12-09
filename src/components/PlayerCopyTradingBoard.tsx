@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
-import usdtIcon from "@/assets/usdt-icon.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -49,7 +48,6 @@ interface PlayerData {
   todayCorrect?: number;
   todayWinRate?: number;
   allowCopyTrade?: boolean;
-  unlockPrice?: number; // USDT解锁价格，0或undefined表示免费
 }
 
 interface TodayPrediction {
@@ -166,7 +164,6 @@ const PlayerCopyTradingBoard = () => {
               currentStreak: 0,
               isVirtual: true,
               allowCopyTrade: player.allowCopyTrade ?? true,
-              unlockPrice: player.unlockPrice,
             };
           });
         
@@ -1146,20 +1143,8 @@ const PlayerCopyTradingBoard = () => {
                   <AvatarImage src={copyTradeDialog.player.avatarUrl} />
                   <AvatarFallback className="bg-muted">{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium text-foreground">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
-                    {(copyTradeDialog.player.unlockPrice ?? 0) > 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted/50">
-                        <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
-                        <span className="text-xs font-semibold text-foreground">{copyTradeDialog.player.unlockPrice}</span>
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded text-xs bg-success/10 text-success font-medium">
-                        免费
-                      </span>
-                    )}
-                  </div>
+                <div>
+                  <p className="font-medium text-foreground">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
                   <p className="text-xs text-muted-foreground">
                     {t('win_rate')}: <span className="text-foreground font-medium">{copyTradeDialog.player.winRate.toFixed(1)}%</span>
                     <span className="mx-2 text-border">|</span>
@@ -1176,102 +1161,67 @@ const PlayerCopyTradingBoard = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium text-foreground">比赛详情已锁定</p>
-                    <p className="text-xs text-muted-foreground mt-1">选择下方方式解锁查看完整信息</p>
+                    <p className="text-xs text-muted-foreground mt-1">确认跟单后解锁查看完整信息</p>
                   </div>
                 </div>
               </div>
 
-              {/* 解锁方式选择 */}
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-foreground">选择解锁方式</p>
-                
-                {/* 免费跟单 - 使用虚拟余额 */}
-                <div className="p-3 rounded-lg border border-border/30 bg-muted/10 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-success/10 flex items-center justify-center">
-                        <span className="text-success text-xs font-bold">免</span>
-                      </div>
-                      <span className="text-sm font-medium text-foreground">虚拟余额跟单</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      余额: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
-                    </span>
-                  </div>
-                  
-                  {/* 跟单金额设置 */}
-                  <div className="flex gap-2">
-                    {[50, 100, 200, 500].map((amount) => (
-                      <Button
-                        key={amount}
-                        variant={copyBetAmount === amount ? "default" : "outline"}
-                        size="sm"
-                        className="flex-1 h-8 text-xs"
-                        onClick={() => setCopyBetAmount(amount)}
-                      >
-                        ¥{amount}
-                      </Button>
-                    ))}
-                  </div>
-                  
-                  {/* 预期收益 */}
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{t('expected_profit')}</span>
-                    <span className="font-medium text-foreground">
-                      +¥{(copyBetAmount * 0.8).toFixed(0)} ~ +¥{(copyBetAmount * 1.2).toFixed(0)}
-                    </span>
-                  </div>
-                  
-                  <Button
-                    className="w-full"
-                    onClick={confirmCopyTrade}
-                    disabled={isCopying || copyBetAmount > userBalance}
-                  >
-                    {isCopying ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                        {t('copying')}
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="h-4 w-4 mr-1" />
-                        免费跟单解锁
-                      </>
-                    )}
-                  </Button>
+              {/* 跟单金额设置 */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{t('copy_amount')}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t('available_balance_label')}: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
+                  </span>
                 </div>
-
-                {/* USDT付费解锁 */}
-                {(copyTradeDialog.player.unlockPrice ?? 0) > 0 && (
-                  <div className="p-3 rounded-lg border border-[#26A17B]/30 bg-[#26A17B]/5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <img src={usdtIcon} alt="USDT" className="w-6 h-6" />
-                        <span className="text-sm font-medium text-foreground">USDT 付费解锁</span>
-                      </div>
-                      <span className="text-xs text-[#26A17B] font-bold">
-                        仅需 {copyTradeDialog.player.unlockPrice} USDT
-                      </span>
-                    </div>
-                    
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>• 无需消耗虚拟余额</p>
-                      <p>• 直接查看完整预测详情</p>
-                      <p>• 支持 TRC20 网络</p>
-                    </div>
-                    
+                <div className="flex gap-2">
+                  {[50, 100, 200, 500].map((amount) => (
                     <Button
-                      variant="outline"
-                      className="w-full border-[#26A17B]/50 text-[#26A17B] hover:bg-[#26A17B]/10"
-                      onClick={() => {
-                        toast.info("USDT解锁功能即将上线，敬请期待！");
-                      }}
+                      key={amount}
+                      variant={copyBetAmount === amount ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setCopyBetAmount(amount)}
                     >
-                      <img src={usdtIcon} alt="USDT" className="w-4 h-4 mr-1" />
-                      {copyTradeDialog.player.unlockPrice} USDT 解锁
+                      ¥{amount}
                     </Button>
-                  </div>
-                )}
+                  ))}
+                </div>
+              </div>
+
+              {/* 预期收益 */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
+                <span className="text-sm text-muted-foreground">{t('expected_profit')}</span>
+                <span className="font-bold text-foreground font-mono">
+                  +¥{(copyBetAmount * 0.8).toFixed(0)} ~ +¥{(copyBetAmount * 1.2).toFixed(0)}
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setCopyTradeDialog(null)}
+                >
+                  {t('cancel')}
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={confirmCopyTrade}
+                  disabled={isCopying || copyBetAmount > userBalance}
+                >
+                  {isCopying ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      {t('copying')}
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4 mr-1" />
+                      确认跟单解锁
+                    </>
+                  )}
+                </Button>
               </div>
 
               <p className="text-[10px] text-muted-foreground text-center">
