@@ -217,7 +217,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
           <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
             <div>
               <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('best_streak') || '连胜'}</p>
-              <p className="text-xs sm:text-sm font-bold font-mono-data text-orange-500">
+              <p className="text-xs sm:text-sm font-bold font-mono-data text-success">
                 {player.bestStreak || Math.floor(Math.random() * 8) + 3}
               </p>
             </div>
@@ -248,7 +248,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
               onClick={handleFollowPlayer}
               className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              <span>{t('copy_trade_player')}</span>
+                <span>{t('copy_trade_player')}</span>
             </Button>
           </div>
         </div>

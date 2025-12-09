@@ -618,12 +618,12 @@ const LeaderboardTable = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-success">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : (model as any).correctPredictions || 0}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-destructive/80">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
                         </span>
                       </TableCell>
@@ -635,21 +635,17 @@ const LeaderboardTable = () => {
                         />
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-foreground">
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                          ((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'
-                        }`}>
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className={`font-mono-data font-bold text-sm sm:text-base ${
-                          ((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'
-                        }`}>
+                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
                         </span>
                       </TableCell>

@@ -1030,15 +1030,7 @@ const PlayerLeaderboardTable = () => {
               </div>
               
               {/* 统计数据 */}
-              <div className="flex-1 grid grid-cols-4 gap-2 sm:gap-4">
-                <div className="text-center p-2 rounded-lg bg-muted/30">
-                  <p className="text-xs text-muted-foreground mb-0.5">余额</p>
-                  <p className="font-bold text-sm font-mono text-primary">¥{realBalance.toLocaleString()}</p>
-                </div>
-                <div className="text-center p-2 rounded-lg bg-muted/30">
-                  <p className="text-xs text-muted-foreground mb-0.5">预测</p>
-                  <p className="font-bold text-sm font-mono">{currentUserRank?.totalPredictions || 0}</p>
-                </div>
+              <div className="flex-1 grid grid-cols-3 gap-2 sm:gap-4">
                 <div className="text-center p-2 rounded-lg bg-muted/30">
                   <p className="text-xs text-muted-foreground mb-0.5">胜率</p>
                   <p className={`font-bold text-sm font-mono ${(currentUserRank?.winRate || 0) >= 50 ? 'text-success' : 'text-destructive'}`}>
@@ -1049,6 +1041,12 @@ const PlayerLeaderboardTable = () => {
                   <p className="text-xs text-muted-foreground mb-0.5">盈利率</p>
                   <p className={`font-bold text-sm font-mono ${(currentUserRank?.changePercent || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {(currentUserRank?.changePercent || 0) >= 0 ? '+' : ''}{(currentUserRank?.changePercent || 0).toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center p-2 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-0.5">盈利金额</p>
+                  <p className={`font-bold text-sm font-mono ${((currentUserRank?.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive')}`}>
+                    {((currentUserRank?.profitAmount || 0) >= 0 ? '+' : '')}${(((currentUserRank?.profitAmount || 0) / 100).toFixed(2))}
                   </p>
                 </div>
               </div>
@@ -1194,9 +1192,9 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-primary font-bold">{player.currentStreak || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-foreground">{player.correctPredictions}</span>
+                            <span className="text-success">{player.correctPredictions}</span>
                             <span className="text-muted-foreground">/</span>
-                            <span className="text-muted-foreground">{player.totalPredictions - player.correctPredictions}</span>
+                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
                             <span className="text-muted-foreground">投注</span>
@@ -1361,9 +1359,9 @@ const PlayerLeaderboardTable = () => {
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-foreground">{player.correctPredictions}</span>
+                            <span className="text-success">{player.correctPredictions}</span>
                             <span className="text-muted-foreground">/</span>
-                            <span className="text-muted-foreground">{player.totalPredictions - player.correctPredictions}</span>
+                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
                             <span className="text-muted-foreground">投注</span>
@@ -1526,9 +1524,9 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-primary font-bold">{player.worstStreak || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-foreground">{player.correctPredictions}</span>
+                            <span className="text-success">{player.correctPredictions}</span>
                             <span className="text-muted-foreground">/</span>
-                            <span className="text-muted-foreground">{player.totalPredictions - player.correctPredictions}</span>
+                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
                             <span className="text-muted-foreground">投注</span>
@@ -1994,14 +1992,14 @@ const PlayerLeaderboardTable = () => {
                               // 让球：解析让球方和让球数
                               if (prediction.includes('主') || prediction.includes('home')) {
                                 const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
-                                predictionDetail = `主让${line}`;
+                                predictionDetail = `${pred.home_team}${line}`;
                               } else if (prediction.includes('客') || prediction.includes('away')) {
                                 const line = prediction.match(/\+?[\d.]+/)?.[0] || '+0.5';
-                                predictionDetail = `客让+${line.replace('+', '')}`;
+                                predictionDetail = `${pred.away_team}+${line.replace('+', '')}`;
                               } else {
                                 // 从handicap_line获取
                                 const line = pred.handicap_line ?? 0;
-                                predictionDetail = line < 0 ? `主让${line}` : `客让+${Math.abs(line)}`;
+                                predictionDetail = line < 0 ? `${pred.home_team}${line}` : `${pred.away_team}+${Math.abs(line)}`;
                               }
                             }
                             

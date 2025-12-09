@@ -490,9 +490,9 @@ const PlayerExclusiveModelCard = ({
         className={`relative rounded-lg p-3 sm:p-4 bg-card border border-amber-500/30 hover:border-amber-500/50 transition-all duration-300 overflow-hidden cursor-pointer ${className}`}
         onClick={onNextMatch}
       >
-        {/* Match Counter - Top Right */}
+        {/* Match Counter - Bottom Right */}
         {matchEntries.length > 1 && (
-          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
+          <div className="absolute bottom-2 right-1 sm:bottom-3 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
             <Button
               size="sm"
               variant="ghost"
@@ -501,12 +501,18 @@ const PlayerExclusiveModelCard = ({
                 e.stopPropagation();
                 if (onPrevMatch) onPrevMatch(e);
               }}
+              title={t('previous_match') || '上一场'}
             >
               <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </Button>
             <Badge 
               variant="secondary"
-              className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80"
+              className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80 cursor-pointer hover:bg-background/90 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onNextMatch) onNextMatch(e);
+              }}
+              title={t('next_match') || '下一场'}
             >
               {matchIndex + 1}/{matchEntries.length}
             </Badge>
@@ -518,42 +524,27 @@ const PlayerExclusiveModelCard = ({
                 e.stopPropagation();
                 if (onNextMatch) onNextMatch(e);
               }}
+              title={t('next_match') || '下一场'}
             >
               <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </Button>
+            <span className="text-[8px] sm:text-[10px] text-muted-foreground/70 ml-1 hidden sm:inline">
+              {t('click_to_switch_next') || '点击切换下一页'}
+            </span>
           </div>
         )}
 
-        {/* Training Count Badge, AI Feed Badge and No Bets Indicator */}
-        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-start gap-1.5 sm:gap-2">
-          {/* Training Count and AI Feed - Vertical Stack */}
-          {trainingCount > 0 && (
-            <div className="flex flex-col gap-1 sm:gap-1.5">
-              <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
-                {trainingCount}{t('times_training')}
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400 cursor-pointer hover:bg-amber-500/20 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFeedDialog(true);
-                }}
-              >
-                {t('data_feeding')}
-              </Badge>
-            </div>
-          )}
-          {/* No Bets Indicator - Separate, not affected by training badges */}
-          {matchEntries.length === 0 && (
+        {/* No Bets Indicator */}
+        {matchEntries.length === 0 && (
+          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
             <Badge 
               variant="outline"
               className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-muted/80 text-muted-foreground"
             >
               {t('no_bets')}
             </Badge>
-          )}
-        </div>
+          </div>
+        )}
         
         {/* Content */}
         <div className="relative z-10 space-y-3">
@@ -573,17 +564,23 @@ const PlayerExclusiveModelCard = ({
             
             {/* Action Buttons */}
             <div className="flex items-center gap-1.5">
-              {currentMatchData && onOpenPKDialog && (
-                <Button
-                  size="sm"
-                  className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenPKDialog(currentMatchData.match);
-                  }}
-                >
-                  <span className="text-[10px]">AI竞赛</span>
-                </Button>
+              {/* Training Count and Data Feeding - Left of Analysis */}
+              {trainingCount > 0 && (
+                <>
+                  <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
+                    {trainingCount}{t('times_training')}
+                  </Badge>
+                  <Badge 
+                    variant="outline" 
+                    className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400 cursor-pointer hover:bg-amber-500/20 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowFeedDialog(true);
+                    }}
+                  >
+                    {t('model_training') || '模型训练'}
+                  </Badge>
+                </>
               )}
               {bet && currentMatchData && onOpenAnalysis && (
                 <Button
@@ -611,22 +608,13 @@ const PlayerExclusiveModelCard = ({
           {currentMatchData ? (
             <div className="space-y-1.5 py-1">
               {/* League & Status Row */}
-              <div className="flex items-center justify-between gap-2">
-                <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[60%]">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[80%]">
                   {safeGetLeagueName(currentMatchData.match)}
                 </Badge>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button
-                    size="sm"
-                    className="h-7 px-3 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-bold"
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      setShowFeedDialog(true); 
-                    }}
-                  >
-                    {t('model_training') || '模型训练'}
-                  </Button>
-                  {/* Match Status Indicator */}
+              </div>
+              {/* Match Status Indicator */}
+              <div className="flex items-center justify-end gap-2 flex-shrink-0 mb-2">
                 {(() => {
                   const status = currentMatchData.match.status_short;
                   const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'P', 'BREAK'];
@@ -648,7 +636,6 @@ const PlayerExclusiveModelCard = ({
                   }
                   return null;
                 })()}
-                </div>
               </div>
               
               {/* Teams with Logos */}

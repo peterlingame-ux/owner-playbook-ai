@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import usdtIcon from "@/assets/usdt-icon.png";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
@@ -49,6 +51,7 @@ interface PlayerData {
   todayCorrect?: number;
   todayWinRate?: number;
   allowCopyTrade?: boolean;
+  unlockPrice?: number; // USDT解锁价格，0或undefined表示免费
 }
 
 interface TodayPrediction {
@@ -122,6 +125,7 @@ const maskPlayerName = (name: string): string => {
 const PlayerCopyTradingBoard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [todayStats, setTodayStats] = useState<Map<string, { total: number; correct: number; winRate: number }>>(new Map());
@@ -139,6 +143,13 @@ const PlayerCopyTradingBoard = () => {
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
   const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
+  
+  // USDT解锁弹窗状态
+  const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  
+  // 获取用户USDT余额
+  const [usdtBalance, setUsdtBalance] = useState(0);
 
   useEffect(() => {
     const fetchAllPlayers = async () => {
@@ -264,6 +275,7 @@ const PlayerCopyTradingBoard = () => {
             currentStreak,
             isVirtual: false,
             allowCopyTrade: true, // 真实玩家默认允许跟单
+            unlockPrice: 0, // 真实玩家默认免费，可以根据需要从数据库获取
           };
         }).filter(player => player.totalPredictions > 0);
         
@@ -341,6 +353,22 @@ const PlayerCopyTradingBoard = () => {
     
     fetchTodayStats();
   }, []);
+
+  // 获取用户USDT余额
+  useEffect(() => {
+    const fetchUsdtBalance = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('usdt_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) {
+        setUsdtBalance(data.balance);
+      }
+    };
+    fetchUsdtBalance();
+  }, [user]);
 
   const fetchTodayPredictions = async (player: PlayerData) => {
     // 模拟球队名称和联赛信息
@@ -466,8 +494,16 @@ const PlayerCopyTradingBoard = () => {
       match_status: 'NS'
     };
     
-    setCopyTradeDialog({ player, prediction, betAmount: 100 });
-    setCopyBetAmount(100);
+    // 检查是否需要付费解锁
+    const unlockPrice = player.unlockPrice ?? 0;
+    if (unlockPrice > 0) {
+      // 需要付费，显示解锁弹窗
+      setUnlockDialog({ player, prediction });
+    } else {
+      // 免费，直接进入跟单流程
+      setCopyTradeDialog({ player, prediction, betAmount: 100 });
+      setCopyBetAmount(100);
+    }
   };
 
   const confirmCopyTrade = async () => {
@@ -506,6 +542,59 @@ const PlayerCopyTradingBoard = () => {
     });
     setIsCopying(false);
     setCopyTradeDialog(null);
+  };
+
+  // 确认USDT解锁
+  const confirmUnlock = async () => {
+    if (!unlockDialog) {
+      return;
+    }
+    
+    const unlockPrice = unlockDialog.player.unlockPrice ?? 0;
+    
+    setIsUnlocking(true);
+    
+    try {
+      // 如果用户已登录，使用真实数据库操作
+      if (user) {
+        if (usdtBalance < unlockPrice) {
+          toast.error(`USDT余额不足，需要 ${unlockPrice} USDT，当前余额 ${usdtBalance} USDT`);
+          setIsUnlocking(false);
+          return;
+        }
+        
+        // 扣除USDT
+        const { error } = await supabase
+          .from('usdt_wallets')
+          .update({ balance: usdtBalance - unlockPrice })
+          .eq('user_id', user.id);
+        
+        if (error) {
+          toast.error('扣款失败：' + error.message);
+          setIsUnlocking(false);
+          return;
+        }
+        
+        // 更新本地USDT余额
+        setUsdtBalance(prev => prev - unlockPrice);
+        toast.success(`已扣除 ${unlockPrice} USDT，预测已解锁`);
+      } else {
+        // 演示模式：模拟延迟
+        await new Promise(resolve => setTimeout(resolve, 300));
+        toast.success('演示模式：预测已解锁');
+      }
+      
+      // 关闭解锁弹窗，进入跟单流程
+      setUnlockDialog(null);
+      setCopyTradeDialog({ player: unlockDialog.player, prediction: unlockDialog.prediction, betAmount: 100 });
+      setCopyBetAmount(100);
+      
+    } catch (error) {
+      console.error('Unlock error:', error);
+      toast.error('解锁失败，请稍后重试');
+    } finally {
+      setIsUnlocking(false);
+    }
   };
 
   const PlayerCard = ({ 
@@ -1129,6 +1218,71 @@ const PlayerCopyTradingBoard = () => {
               </>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* USDT解锁确认弹窗 */}
+      <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
+        <DialogContent className="max-w-xs p-0 gap-0">
+          {unlockDialog && (
+            <>
+              {/* 头部 */}
+              <div className="p-4 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-9 h-9">
+                    <AvatarImage src={unlockDialog.player.avatarUrl} />
+                    <AvatarFallback>{unlockDialog.player.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{maskPlayerName(unlockDialog.player.displayName)}</p>
+                    <p className="text-xs text-muted-foreground">胜率 {unlockDialog.player.winRate.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 内容 */}
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">解锁费用</span>
+                  <span className="inline-flex items-center gap-1.5 font-semibold">
+                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
+                    {unlockDialog.player.unlockPrice}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">当前余额</span>
+                  <span className={`inline-flex items-center gap-1.5 ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}`}>
+                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
+                    {usdtBalance.toFixed(2)}
+                  </span>
+                </div>
+                
+                {usdtBalance < (unlockDialog.player.unlockPrice ?? 0) && (
+                  <p className="text-xs text-destructive">余额不足，请先充值</p>
+                )}
+              </div>
+              
+              {/* 按钮 */}
+              <div className="p-4 pt-0 flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setUnlockDialog(null)}
+                >
+                  取消
+                </Button>
+                <Button 
+                  size="sm"
+                  className="flex-1"
+                  onClick={confirmUnlock}
+                  disabled={isUnlocking || (user && usdtBalance < (unlockDialog.player.unlockPrice ?? 0))}
+                >
+                  {isUnlocking ? '处理中...' : (user ? '确认' : '演示解锁')}
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 

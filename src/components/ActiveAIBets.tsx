@@ -865,20 +865,23 @@ const ActiveAIBets = () => {
               className="relative rounded-lg p-3 sm:p-4 bg-card border border-border/30 hover:border-border/50 transition-all duration-300 overflow-hidden cursor-pointer"
               onClick={nextMatch}
             >
-              {/* Match Counter - Top Right */}
+              {/* Match Counter - Bottom Right */}
               {matchEntries.length > 1 && (
-                <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
+                <div className="absolute bottom-2 right-1 sm:bottom-3 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-1">
                   <Button
                     size="sm"
                     variant="ghost"
                     className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
                     onClick={prevMatch}
+                    title={t('previous_match') || '上一场'}
                   >
                     <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   </Button>
                   <Badge 
                     variant="secondary"
-                    className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80"
+                    className="text-[8px] sm:text-[10px] font-bold px-1 sm:px-2 py-0.5 bg-background/80 cursor-pointer hover:bg-background/90 transition-colors"
+                    onClick={nextMatch}
+                    title={t('next_match') || '下一场'}
                   >
                     {matchIndex + 1}/{matchEntries.length}
                   </Badge>
@@ -887,9 +890,13 @@ const ActiveAIBets = () => {
                     variant="ghost"
                     className="h-4 w-4 sm:h-5 sm:w-5 p-0 bg-background/80 hover:bg-background"
                     onClick={nextMatch}
+                    title={t('next_match') || '下一场'}
                   >
                     <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   </Button>
+                  <span className="text-[8px] sm:text-[10px] text-muted-foreground/70 ml-1 hidden sm:inline">
+                    {t('click_to_switch_next') || '点击切换下一页'}
+                  </span>
                 </div>
               )}
 
@@ -923,18 +930,6 @@ const ActiveAIBets = () => {
                   
                   {/* Action Buttons */}
                   <div className="flex items-center gap-1.5">
-                    {currentMatchData && (
-                      <Button
-                        size="sm"
-                        className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenPKDialog(currentMatchData.match);
-                        }}
-                      >
-                        <span className="text-[10px]">AI竞赛</span>
-                      </Button>
-                    )}
                     {(moneylineBet || handicapBet || overUnderBet) && (
                       <Button
                         size="sm"
@@ -963,32 +958,11 @@ const ActiveAIBets = () => {
                 {currentMatchData ? (
                   <div className="space-y-1.5 py-1">
                     {/* League & Status Row */}
-                    <div className="flex items-center justify-between gap-2">
-                      <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[60%]">
+                    <div className="flex items-center justify-center gap-2">
+                      <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[80%]">
                         {getLeagueName(currentMatchData.match)}
                       </Badge>
-                      {/* Match Status Indicator */}
-                      {(() => {
-                        const status = currentMatchData.match.status_short;
-                        const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'P', 'BREAK'];
-                        const finishedStatuses = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
-                        
-                        if (liveStatuses.includes(status)) {
-                          return (
-                            <Badge className="text-[8px] px-1.5 py-0 bg-success/20 text-success border-success/40 animate-pulse">
-                              <span className="w-1.5 h-1.5 rounded-full bg-success mr-1" />
-                              {t('live') || 'LIVE'}
-                            </Badge>
-                          );
-                        } else if (finishedStatuses.includes(status)) {
-                          return (
-                            <Badge variant="secondary" className="text-[8px] px-1.5 py-0 text-muted-foreground">
-                              {t('finished') || '已结束'}
-                            </Badge>
-                          );
-                        }
-                        return null;
-                      })()}
+                      {/* Match Status Indicator - 已删除直播中显示 */}
                     </div>
                   
                     {/* Teams with Logos */}

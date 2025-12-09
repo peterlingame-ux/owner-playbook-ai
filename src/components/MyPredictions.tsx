@@ -895,15 +895,7 @@ const MyPredictions = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">{t('loading_data')}</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // 移除加载状态显示，直接显示内容
 
   if (!stats) {
     return (

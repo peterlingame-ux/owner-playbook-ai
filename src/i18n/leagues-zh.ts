@@ -4,7 +4,7 @@ export const leaguesZh: Record<string, string> = {
   "1. Lig": "土耳其甲级联赛",
   "2. Bundesliga": "德国乙级联赛",
   "A-League": "澳大利亚足球超级联赛",
-  "AFC Champions League": "亚足联冠军联赛",
+  "AFC Champions League": "亚足联精英冠军联赛",
   "AFC Cup": "亚冠二级联赛",
   "Allsvenskan": "瑞典超级联赛",
   "Bundesliga": "奥地利甲级联赛",

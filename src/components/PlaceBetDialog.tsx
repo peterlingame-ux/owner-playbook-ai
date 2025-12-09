@@ -13,6 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { teamsZh } from "@/i18n/teams-zh";
+import { leaguesZh } from "@/i18n/leagues-zh";
 
 // AI模型图标映射
 import gpt5Icon from "@/assets/ai-icon-chatgpt.png";
@@ -21,7 +24,7 @@ import geminiIcon from "@/assets/ai-icon-gemini.png";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import grokIcon from "@/assets/ai-icon-grok.png";
 import hunsoccerIcon from "@/assets/ai-icon-hunsoccer.png";
-import footballFieldBg from "@/assets/football-field-bg.jpg";
+import greencourtBg from "@/assets/icon_greencourt.jpg";
 
 const AI_ICONS: Record<string, string> = {
   "GPT-5": gpt5Icon,
@@ -148,6 +151,23 @@ interface PlaceBetDialogProps {
 
 export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: PlaceBetDialogProps) => {
   const { user } = useAuth();
+  const { i18n } = useTranslation();
+  
+  // 获取中文球队名
+  const getTeamNameZh = (teamName: string): string => {
+    if (i18n.language === 'zh') {
+      return teamsZh[teamName] || teamName;
+    }
+    return teamName;
+  };
+  
+  // 获取中文联赛名
+  const getLeagueNameZh = (leagueName: string): string => {
+    if (i18n.language === 'zh') {
+      return leaguesZh[leagueName] || leagueName;
+    }
+    return leagueName;
+  };
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(match);
   const [aiPredictions, setAiPredictions] = useState<AIBet[]>([]);
   const [selectedBetType, setSelectedBetType] = useState<string>("handicap");
@@ -357,8 +377,8 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const getBetOptions = (): BetOption[] => {
     if (selectedBetType === "handicap") {
       return [
-        { label: `${selectedMatch?.home_team_name} -1.5`, value: "home_-1.5", odds: 2.10, line: -1.5 },
-        { label: `${selectedMatch?.away_team_name} +1.5`, value: "away_+1.5", odds: 1.75, line: 1.5 },
+        { label: `${selectedMatch ? getTeamNameZh(selectedMatch.home_team_name) : ''} -1.5`, value: "home_-1.5", odds: 2.10, line: -1.5 },
+        { label: `${selectedMatch ? getTeamNameZh(selectedMatch.away_team_name) : ''} +1.5`, value: "away_+1.5", odds: 1.75, line: 1.5 },
       ];
     } else {
       // over_under
@@ -580,7 +600,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         >
                           {/* 联赛和时间 */}
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] text-muted-foreground">{m.league_name}</span>
+                            <span className="text-[10px] text-muted-foreground">{getLeagueNameZh(m.league_name)}</span>
                             <span className={`text-[10px] font-mono ${isStarted ? 'text-amber-500' : 'text-muted-foreground'}`}>
                               {isStarted ? '已开赛' : kickoffTime}
                             </span>
@@ -593,40 +613,64 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                               {m.home_logo && (
                                 <img src={m.home_logo} alt="" className="w-5 h-5 object-contain shrink-0" />
                               )}
-                              <span className="text-xs font-medium truncate">{m.home_team_name}</span>
+                              <span className="text-xs font-medium truncate">{getTeamNameZh(m.home_team_name)}</span>
                             </div>
                             
-                            {/* VS */}
-                            <span className="text-[10px] text-muted-foreground px-2">vs</span>
+                            {/* VS - 包含AI图标在下方 */}
+                            <div className="flex flex-col items-center justify-center gap-1 shrink-0">
+                              <span className="text-[10px] text-muted-foreground px-2">vs</span>
+                              {!isStarted && (
+                                <span className="text-[9px] text-muted-foreground">{countdown}</span>
+                              )}
+                              {/* AI图标 - 居中显示在VS下方 */}
+                              <div className="flex items-center justify-center gap-0.5 mt-0.5">
+                                {m.ai_models.slice(0, 4).map((model, idx) => {
+                                  // 尝试匹配不同的AI模型名称
+                                  const getAIIcon = (modelName: string) => {
+                                    const normalized = modelName.toUpperCase();
+                                    if (normalized.includes('GPT') || normalized.includes('OPENAI') || normalized.includes('CHATGPT')) {
+                                      return AI_ICONS["GPT-5"] || gpt5Icon;
+                                    } else if (normalized.includes('CLAUDE')) {
+                                      return AI_ICONS["Claude"] || claudeIcon;
+                                    } else if (normalized.includes('GEMINI')) {
+                                      return AI_ICONS["Gemini"] || geminiIcon;
+                                    } else if (normalized.includes('DEEPSEEK')) {
+                                      return AI_ICONS["DeepSeek"] || deepseekIcon;
+                                    } else if (normalized.includes('GROK')) {
+                                      return AI_ICONS["Grok"] || grokIcon;
+                                    } else if (normalized.includes('HUNSOCCER')) {
+                                      return AI_ICONS["HUNSOCCER"] || hunsoccerIcon;
+                                    }
+                                    // 如果直接匹配AI_ICONS中的key
+                                    if (AI_ICONS[model]) {
+                                      return AI_ICONS[model];
+                                    }
+                                    // 默认返回不同的图标（根据索引循环使用）
+                                    const iconKeys = ["GPT-5", "Claude", "Gemini", "DeepSeek", "Grok", "HUNSOCCER"];
+                                    const iconKey = iconKeys[idx % iconKeys.length];
+                                    return AI_ICONS[iconKey] || gpt5Icon;
+                                  };
+                                  
+                                  return (
+                                    <img 
+                                      key={idx}
+                                      src={getAIIcon(model)} 
+                                      alt={model}
+                                      className="w-3.5 h-3.5 rounded-full object-cover border border-border/30"
+                                      title={model}
+                                    />
+                                  );
+                                })}
+                              </div>
+                            </div>
                             
                             {/* 客队 */}
                             <div className="flex items-center justify-end gap-1.5 flex-1 min-w-0">
-                              <span className="text-xs font-medium truncate text-right">{m.away_team_name}</span>
+                              <span className="text-xs font-medium truncate text-right">{getTeamNameZh(m.away_team_name)}</span>
                               {m.away_logo && (
                                 <img src={m.away_logo} alt="" className="w-5 h-5 object-contain shrink-0" />
                               )}
                             </div>
-                          </div>
-                          
-                          {/* AI图标和倒计时 */}
-                          <div className="flex items-center justify-between mt-1.5">
-                            <div className="flex items-center gap-0.5">
-                              {m.ai_models.slice(0, 4).map((model, idx) => (
-                                <img 
-                                  key={idx}
-                                  src={AI_ICONS[model] || gpt5Icon} 
-                                  alt={model}
-                                  className="w-3.5 h-3.5 rounded-full object-cover"
-                                  title={model}
-                                />
-                              ))}
-                              {m.ai_models.length > 4 && (
-                                <span className="text-[9px] text-muted-foreground ml-0.5">+{m.ai_models.length - 4}</span>
-                              )}
-                            </div>
-                            {!isStarted && (
-                              <span className="text-[9px] text-muted-foreground">{countdown}</span>
-                            )}
                           </div>
                         </div>
                       );
@@ -657,7 +701,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
               <div 
                 className="relative rounded-lg overflow-hidden"
                 style={{
-                  backgroundImage: `url(${footballFieldBg})`,
+                  backgroundImage: `url(${greencourtBg})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}
@@ -667,28 +711,29 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                   {/* 联赛信息 */}
                   <div className="text-center mb-3">
                     <span className="text-[10px] text-white/70 bg-black/30 px-2 py-0.5 rounded">
-                      {selectedMatch.league_name}
+                      {getLeagueNameZh(selectedMatch.league_name)}
                     </span>
                   </div>
                   
                   {/* 球队对阵 */}
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="flex items-center justify-between gap-6 px-4">
                     {/* 主队 */}
                     <div className="flex flex-col items-center gap-1">
                       {selectedMatch.home_logo && (
                         <img src={selectedMatch.home_logo} alt="" className="w-12 h-12 object-contain" />
                       )}
-                      <span className="text-white font-medium text-sm">{selectedMatch.home_team_name}</span>
+                      <span className="text-white font-medium text-sm">{getTeamNameZh(selectedMatch.home_team_name)}</span>
                     </div>
                     
                     {/* VS 和倒计时 */}
-                    <div className="text-center">
+                    <div className="text-center flex-shrink-0">
                       {(() => {
                         const kickoffTime = new Date(selectedMatch.kickoff_at).getTime();
                         const diff = kickoffTime - currentTime;
                         
+                        // 移除"已开赛"显示
                         if (diff <= 0) {
-                          return <span className="text-amber-400 text-xs animate-pulse">已开赛</span>;
+                          return null;
                         }
                         
                         const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -718,7 +763,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       {selectedMatch.away_logo && (
                         <img src={selectedMatch.away_logo} alt="" className="w-12 h-12 object-contain" />
                       )}
-                      <span className="text-white font-medium text-sm">{selectedMatch.away_team_name}</span>
+                      <span className="text-white font-medium text-sm">{getTeamNameZh(selectedMatch.away_team_name)}</span>
                     </div>
                   </div>
                 </div>
@@ -777,63 +822,64 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 </div>
               </div>
 
-              {/* 投注面板 */}
-              {selectedBetOption && (
-                <div className="space-y-3 pt-3 border-t border-border">
-                  {/* 投注金额 */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs text-muted-foreground">投注金额</Label>
-                      <span className="text-[10px] text-muted-foreground">
-                        余额: <span className="font-mono">${userBalance.toFixed(0)}</span>
-                      </span>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                      <Input
-                        type="number"
-                        value={betAmount}
-                        onChange={(e) => setBetAmount(e.target.value)}
-                        placeholder="0"
-                        min="1"
-                        max={userBalance}
-                        className="h-10 pl-7 text-right font-mono font-medium"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[100, 500, 1000, 2000].map((amount) => (
-                        <Button
-                          key={amount}
-                          variant={betAmount === amount.toString() ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setBetAmount(amount.toString())}
-                          className="h-7 text-[10px] font-mono"
-                          disabled={amount > userBalance}
-                        >
-                          {amount}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 收益预览 */}
-                  <div className="flex items-center justify-between py-2 px-3 rounded bg-muted/50">
-                    <span className="text-xs text-muted-foreground">预期返还</span>
-                    <span className="text-lg font-bold font-mono">
-                      ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
+              {/* 投注面板 - 默认显示 */}
+              <div className="space-y-3 pt-3 border-t border-border">
+                {/* 投注金额 */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">投注金额</Label>
+                    <span className="text-[10px] text-muted-foreground">
+                      余额: <span className="font-mono">${userBalance.toFixed(0)}</span>
                     </span>
                   </div>
-
-                  {/* 确认按钮 */}
-                  <Button
-                    onClick={handlePlaceBet}
-                    disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
-                    className="w-full h-10 text-sm font-medium"
-                  >
-                    {isSubmitting ? "处理中..." : isDemo ? "体验投注" : "确认投注"}
-                  </Button>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                    <Input
+                      type="number"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                      placeholder="0"
+                      min="1"
+                      max={userBalance}
+                      className="h-10 pl-7 text-right font-mono font-medium"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[100, 500, 1000, 2000].map((amount) => (
+                      <Button
+                        key={amount}
+                        variant={betAmount === amount.toString() ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setBetAmount(amount.toString())}
+                        className="h-7 text-[10px] font-mono"
+                        disabled={amount > userBalance}
+                      >
+                        {amount}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              )}
+
+                {/* 收益预览 */}
+                <div className="flex items-center justify-between py-2 px-3 rounded bg-muted/50">
+                  <span className="text-xs text-muted-foreground">预期返还</span>
+                  <span className="text-lg font-bold font-mono">
+                    {selectedBetOption 
+                      ? `$${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}`
+                      : "$0.00"
+                    }
+                  </span>
+                </div>
+
+                {/* 确认按钮 */}
+                <Button
+                  onClick={handlePlaceBet}
+                  disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0 || !selectedBetOption}
+                  className="w-full h-10 text-sm font-medium"
+                >
+                  {isSubmitting ? "处理中..." : isDemo ? "体验投注" : "确认投注"}
+                </Button>
+              </div>
             </>
           )}
         </div>
