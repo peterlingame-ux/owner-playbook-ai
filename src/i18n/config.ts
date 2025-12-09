@@ -9,7 +9,7 @@ const resources = {
       // Header
       "online_users": "ONLINE USERS",
       "users_watching": "users watching now",
-      "nav_live": "LIVE",
+      "nav_live": "AI PREDICTIONS",
       "nav_rank": "RANK",
       "nav_history": "HISTORY",
       "nav_blog": "ABOUT",
@@ -622,7 +622,7 @@ const resources = {
       // Header
       "online_users": "在线用户",
       "users_watching": "位用户正在观看",
-      "nav_live": "直播数据",
+      "nav_live": "AI预测",
       "nav_rank": "排行榜",
       "nav_history": "历史记录",
       "nav_blog": "平台介绍",
