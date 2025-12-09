@@ -611,52 +611,47 @@ const PlayerCopyTradingBoard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Section: Win Rate Leaders */}
+      {/* Leaderboard Table - Split into Hot Streak and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 连红榜 - Winning Streak */}
-        <Card className="border-destructive/30 bg-gradient-to-br from-destructive/5 to-transparent">
+        <Card className="border-border/50 bg-card/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-destructive/20">
-                  <Flame className="h-5 w-5 text-destructive" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">{t('hot_streak_board') || '连红榜'}</h3>
-                  <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜纪录'}</p>
-                </div>
+              <div>
+                <h3 className="font-bold text-lg text-foreground">{t('hot_streak_board') || '连红榜'}</h3>
+                <p className="text-xs text-muted-foreground">{t('best_win_streak') || '最佳连胜纪录'}</p>
               </div>
               {/* Time Range Filter */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
                 <button
                   onClick={() => setTimeRange(1)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 1
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  1天
+                  {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 7
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  7天
+                  {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 30
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  30天
+                  {t('time_filter_30d') || '月'}
                 </button>
               </div>
             </div>
@@ -669,49 +664,44 @@ const PlayerCopyTradingBoard = () => {
         </Card>
 
         {/* 连黑榜 - Losing Streak */}
-        <Card className="border-success/30 bg-gradient-to-br from-success/5 to-transparent">
+        <Card className="border-border/50 bg-card/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-success/20">
-                  <Skull className="h-5 w-5 text-success" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">{t('cold_streak_board') || '连黑榜'}</h3>
-                  <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连败纪录'}</p>
-                </div>
+              <div>
+                <h3 className="font-bold text-lg text-foreground">{t('cold_streak_board') || '连黑榜'}</h3>
+                <p className="text-xs text-muted-foreground">{t('worst_lose_streak') || '最差连败纪录'}</p>
               </div>
               {/* Time Range Filter */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
                 <button
                   onClick={() => setTimeRange(1)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 1
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  1天
+                  {t('time_filter_1d') || '日'}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 7
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  7天
+                  {t('time_filter_7d') || '周'}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
-                  className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
                     timeRange === 30
-                      ? 'bg-foreground text-background' 
-                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background shadow-sm scale-105' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  30天
+                  {t('time_filter_30d') || '月'}
                 </button>
               </div>
             </div>
