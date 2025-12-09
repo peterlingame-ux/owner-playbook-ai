@@ -1759,10 +1759,20 @@ const PlayerLeaderboardTable = () => {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     {(() => {
                       const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+                      const unlockPrice = player?.unlockPrice ?? 0;
                       return (
                         <>
                           <span>胜率 <span className="text-foreground font-semibold">{player?.winRate.toFixed(0)}%</span></span>
                           <span>连胜 <span className="text-foreground font-semibold">{player?.currentStreak || 0}</span></span>
+                          {unlockPrice > 0 ? (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-600 font-medium">
+                              {unlockPrice} USDT
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
+                              免费
+                            </span>
+                          )}
                         </>
                       );
                     })()}
