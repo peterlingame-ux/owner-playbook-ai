@@ -1865,28 +1865,14 @@ const PlayerLeaderboardTable = () => {
                 </div>
               </div>
 
-              {/* 跟单比赛信息 */}
-              <div className="p-3 rounded-lg border border-border/50 space-y-2">
-                <div className="text-xs text-muted-foreground mb-2">跟单比赛</div>
-                <div className="flex items-center justify-center gap-3 text-sm font-medium">
-                  <div className="flex items-center gap-2 flex-1 justify-end">
-                    <span>{copyTradeDialog.prediction.home_team}</span>
-                    {getTeamLogo(copyTradeDialog.prediction.home_team || '') && (
-                      <img src={getTeamLogo(copyTradeDialog.prediction.home_team || '')!} alt="" className="w-6 h-6 object-contain" />
-                    )}
+              {/* 跟单比赛信息 - 锁定状态 */}
+              <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                <div className="flex items-center justify-center gap-3 py-4">
+                  <Lock className="h-8 w-8 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-muted-foreground">比赛详情已锁定</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">确认跟单后解锁查看完整信息</p>
                   </div>
-                  <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
-                  <div className="flex items-center gap-2 flex-1">
-                    {getTeamLogo(copyTradeDialog.prediction.away_team || '') && (
-                      <img src={getTeamLogo(copyTradeDialog.prediction.away_team || '')!} alt="" className="w-6 h-6 object-contain" />
-                    )}
-                    <span>{copyTradeDialog.prediction.away_team}</span>
-                  </div>
-                </div>
-                <div className="text-center text-xs text-muted-foreground mt-2">
-                  预测: <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
-                  <span className="mx-2">|</span>
-                  类型: {copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球'}
                 </div>
               </div>
 
