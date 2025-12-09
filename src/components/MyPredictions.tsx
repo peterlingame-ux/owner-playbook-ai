@@ -46,6 +46,7 @@ interface PredictionStats {
     id: string;
     match_id: string;
     prediction: string;
+    prediction_type?: string;
     result: string;
     bet_amount: number;
     actual_payout: number;
@@ -195,6 +196,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
     id: string;
     match_id: string;
     prediction: string;
+    prediction_type?: string;
     result: string;
     bet_amount: number;
     actual_payout: number;
@@ -224,7 +226,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
     const predictionRecords = predictions.map(p => ({
       ...p,
       type: 'prediction' as const,
-      prediction_type: null as ('handicap' | 'over_under' | null),
+      prediction_type: (p.prediction_type || null) as (string | null),
       followed_player_name: null as string | null,
     }));
     
@@ -629,7 +631,8 @@ const MyPredictions = () => {
             {
               id: "1",
               match_id: "m1",
-              prediction: "主队胜",
+              prediction: "主+0.5",
+              prediction_type: 'handicap',
               result: "win",
               bet_amount: 500,
               actual_payout: 950,
@@ -639,7 +642,8 @@ const MyPredictions = () => {
             {
               id: "2",
               match_id: "m2",
-              prediction: "大球 2.5",
+              prediction: "大 2.5",
+              prediction_type: 'over_under',
               result: "win",
               bet_amount: 300,
               actual_payout: 600,
@@ -649,7 +653,8 @@ const MyPredictions = () => {
             {
               id: "3",
               match_id: "m3",
-              prediction: "平局",
+              prediction: "客-0.5",
+              prediction_type: 'handicap',
               result: "loss",
               bet_amount: 400,
               actual_payout: 0,
@@ -659,7 +664,8 @@ const MyPredictions = () => {
             {
               id: "4",
               match_id: "m4",
-              prediction: "客队胜",
+              prediction: "小 2.5",
+              prediction_type: 'over_under',
               result: "win",
               bet_amount: 600,
               actual_payout: 1200,
