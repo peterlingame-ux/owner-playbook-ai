@@ -528,12 +528,24 @@ const PlayerCopyTradingBoard = () => {
                 </span>
               </span>
             </div>
-            {/* 预测场数、胜率和盈利率 */}
+            {/* 预测场数、正确、错误、胜率和盈利率 */}
             <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
               <span className="flex items-center gap-0.5 sm:gap-1">
                 <span className="text-muted-foreground/70 hidden sm:inline">{t('total_predictions') || '预测'}:</span>
                 <span className="text-muted-foreground/70 sm:hidden">预:</span>
                 <span className="text-foreground font-medium">{player.totalPredictions}</span>
+              </span>
+              <span className="text-border hidden sm:inline">|</span>
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('correct') || '正确'}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">对:</span>
+                <span className="text-success font-medium">{player.correctPredictions}</span>
+              </span>
+              <span className="text-border hidden sm:inline">|</span>
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <span className="text-muted-foreground/70 hidden sm:inline">{t('incorrect') || '错误'}:</span>
+                <span className="text-muted-foreground/70 sm:hidden">错:</span>
+                <span className="text-destructive font-medium">{player.totalPredictions - player.correctPredictions}</span>
               </span>
               <span className="text-border hidden sm:inline">|</span>
               <span className="flex items-center gap-0.5 sm:gap-1">
