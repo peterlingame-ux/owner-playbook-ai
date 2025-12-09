@@ -978,23 +978,19 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
 
-      {/* Demo Player Card - Show when not logged in or no predictions */}
+      {/* Demo Player Card - Show when not logged in */}
       {!user && (
         <Card className="border-muted/40 bg-gradient-to-br from-muted/10 via-muted/5 to-transparent">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold bg-muted/20 text-muted-foreground">
-                  ?
-                </div>
-                <div className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12 border-2 border-muted/40">
-                    <AvatarFallback>体</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-bold text-lg">{t('demo_player') || '体验玩家'}</p>
-                    <p className="text-sm text-muted-foreground">{t('login_to_see_rank') || '登录后查看您的排名'}</p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <Avatar className="w-12 h-12 border-2 border-muted/40">
+                  <AvatarImage src="/avatars/avatar-1.png" />
+                  <AvatarFallback>玩</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-bold text-lg">{t('demo_player') || '玩家专属模型'}</p>
+                  <p className="text-sm text-muted-foreground">{t('login_to_see_rank') || '登录后查看您的排名'}</p>
                 </div>
               </div>
               <button
@@ -1003,6 +999,58 @@ const PlayerLeaderboardTable = () => {
               >
                 {t('login') || '登录'}
               </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Logged-in User Stats Card - Show when logged in */}
+      {user && (
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* 用户基本信息 */}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Avatar className="w-14 h-14 border-2 border-primary/50">
+                    <AvatarImage src={currentUserRank?.avatarUrl || '/avatars/avatar-1.png'} />
+                    <AvatarFallback>{currentUserRank?.displayName?.charAt(0) || '玩'}</AvatarFallback>
+                  </Avatar>
+                  {currentUserRank && (
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+                      #{currentUserRank.rank}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="font-bold text-lg">{currentUserRank?.displayName || '我的模型'}</p>
+                  <p className="text-sm text-muted-foreground">排名 #{currentUserRank?.rank || '--'}</p>
+                </div>
+              </div>
+              
+              {/* 统计数据 */}
+              <div className="flex-1 grid grid-cols-4 gap-2 sm:gap-4">
+                <div className="text-center p-2 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-0.5">余额</p>
+                  <p className="font-bold text-sm font-mono text-primary">¥{realBalance.toLocaleString()}</p>
+                </div>
+                <div className="text-center p-2 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-0.5">预测</p>
+                  <p className="font-bold text-sm font-mono">{currentUserRank?.totalPredictions || 0}</p>
+                </div>
+                <div className="text-center p-2 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-0.5">胜率</p>
+                  <p className={`font-bold text-sm font-mono ${(currentUserRank?.winRate || 0) >= 50 ? 'text-success' : 'text-destructive'}`}>
+                    {(currentUserRank?.winRate || 0).toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center p-2 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-0.5">盈利率</p>
+                  <p className={`font-bold text-sm font-mono ${(currentUserRank?.changePercent || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {(currentUserRank?.changePercent || 0) >= 0 ? '+' : ''}{(currentUserRank?.changePercent || 0).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
