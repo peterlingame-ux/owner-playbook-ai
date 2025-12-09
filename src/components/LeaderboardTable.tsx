@@ -519,38 +519,38 @@ const LeaderboardTable = () => {
   return (
     <div className="space-y-6">
       {/* Leaderboard Table */}
-      <Card className="border-border/50 bg-card/95 backdrop-blur overflow-hidden">
-        <CardHeader className="px-3 sm:px-4 py-3 sm:py-4 border-b border-border/50">
+      <Card className="border-border/30 bg-card overflow-hidden shadow-sm">
+        <CardHeader className="px-3 sm:px-4 py-3 sm:py-4 border-b border-border/30 bg-muted/20">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg sm:text-xl font-bold">{t('all_models')}</CardTitle>
+            <CardTitle className="text-lg sm:text-xl font-semibold text-foreground">{t('all_models')}</CardTitle>
             {/* Time Range Filter - 时间筛选按钮 */}
             <div className="flex items-center gap-1 sm:gap-1.5">
               <button
                 onClick={() => setTimeRange(1)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
                   timeRange === 1
                     ? 'bg-foreground text-background' 
-                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
                 1天
               </button>
               <button
                 onClick={() => setTimeRange(7)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
                   timeRange === 7
                     ? 'bg-foreground text-background' 
-                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
                 7天
               </button>
               <button
                 onClick={() => setTimeRange(30)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
                   timeRange === 30
                     ? 'bg-foreground text-background' 
-                    : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
                 30天
@@ -560,19 +560,19 @@ const LeaderboardTable = () => {
         </CardHeader>
         <CardContent className="p-0">
           {/* 滚动提示 - 仅移动端显示 */}
-          <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
+          <div className="sm:hidden bg-muted/20 px-3 py-2 border-b border-border/30 flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
             <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
+              <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+              <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+              <div className="w-1 h-1 rounded-full bg-muted-foreground/20" />
             </div>
           </div>
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <Table className="min-w-[800px]">
                 <TableHeader>
-                  <TableRow className="border-b-2 border-border/60 hover:bg-transparent bg-muted/40">
+                  <TableRow className="border-b border-border/40 hover:bg-transparent bg-muted/10">
                     <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase text-center">#</TableHead>
                     <TableHead className="py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0">{t('model')}</TableHead>
                     <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('total_predictions') || '总预测'}</TableHead>
@@ -592,11 +592,7 @@ const LeaderboardTable = () => {
                   {enhancedModels.map((model, index) => (
                     <TableRow 
                       key={model.id}
-                      className="border-b border-border/30 hover:bg-accent/30 transition-all duration-300 animate-fade-in opacity-0"
-                      style={{ 
-                        animationDelay: `${index * 80}ms`,
-                        animationFillMode: 'forwards'
-                      }}
+                      className="border-b border-border/20 hover:bg-muted/30 transition-colors"
                     >
                       <TableCell className="py-3 sm:py-4 text-center">
                         <div className="flex items-center justify-center">
