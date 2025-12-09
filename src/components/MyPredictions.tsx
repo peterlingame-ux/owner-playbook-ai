@@ -1235,6 +1235,9 @@ const MyPredictions = () => {
                       <tr className="border-b border-border bg-muted/30">
                         <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player')}</th>
                         <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_type_label')}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column')}</th>
+                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('odds_label')}</th>
                         <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('follow_amount')}</th>
                         <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
                         <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column')}</th>
@@ -1257,7 +1260,21 @@ const MyPredictions = () => {
                           </td>
                           <td className="py-1.5 px-2">
                             <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
-                            <p className="text-[9px] text-muted-foreground">{record.prediction}</p>
+                          </td>
+                          <td className="py-1.5 px-2">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                              record.prediction_type === 'handicap' 
+                                ? 'bg-blue-500/20 text-blue-400' 
+                                : 'bg-purple-500/20 text-purple-400'
+                            }`}>
+                              {record.prediction_type === 'handicap' ? t('handicap') : t('over_under')}
+                            </span>
+                          </td>
+                          <td className="py-1.5 px-2 text-[10px] text-foreground">
+                            {record.prediction}
+                          </td>
+                          <td className="py-1.5 px-2 text-center">
+                            <span className="text-[10px] font-mono text-amber-400 font-medium">{record.odds.toFixed(2)}</span>
                           </td>
                           <td className="py-1.5 px-2 text-right">
                             <p className="text-[10px] font-mono font-bold text-foreground">${record.bet_amount}</p>
