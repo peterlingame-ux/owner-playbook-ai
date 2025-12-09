@@ -2357,7 +2357,6 @@ const PlayerLeaderboardTable = () => {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.9 }}
-                  className="space-y-2"
                 >
                   <Button 
                     className="w-full"
@@ -2368,13 +2367,6 @@ const PlayerLeaderboardTable = () => {
                   >
                     <History className="h-4 w-4 mr-2" />
                     查看我的跟单记录
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setCopySuccess(null)}
-                  >
-                    关闭
                   </Button>
                 </motion.div>
               </motion.div>
