@@ -1044,13 +1044,13 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground font-medium transition-colors flex-shrink-0 ml-1"
+                      className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      <History className="h-3.5 w-3.5" />
+                      今日推荐
                     </button>
                   </motion.div>
                 ))}
@@ -1208,13 +1208,13 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground font-medium transition-colors flex-shrink-0 ml-1"
+                      className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      <History className="h-3.5 w-3.5" />
+                      今日推荐
                     </button>
                   </motion.div>
                 ))}
@@ -1370,13 +1370,13 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     </div>
                     <button
-                      className="text-xs px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground font-medium transition-colors flex-shrink-0 ml-1"
+                      className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
                     >
-                      <History className="h-3.5 w-3.5" />
+                      今日推荐
                     </button>
                   </motion.div>
                 ))}
