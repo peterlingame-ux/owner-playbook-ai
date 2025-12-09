@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown } from "lucide-react";
+import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -126,6 +126,7 @@ const PlayerCopyTradingBoard = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<{ player: PlayerData; predictions: TodayPrediction[] } | null>(null);
   const [copyTradeDialog, setCopyTradeDialog] = useState<CopyTradeData | null>(null);
   const [copySuccessDialog, setCopySuccessDialog] = useState<CopyTradeData | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [userBalance, setUserBalance] = useState(10000);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
@@ -457,6 +458,7 @@ const PlayerCopyTradingBoard = () => {
       match_status: 'NS'
     };
     
+    setIsUnlocked(false);
     setCopyTradeDialog({ player, prediction, betAmount: 100 });
     setCopyBetAmount(100);
   };
@@ -1107,11 +1109,11 @@ const PlayerCopyTradingBoard = () => {
       </Dialog>
 
       {/* 跟单确认弹窗 */}
-      <Dialog open={!!copyTradeDialog} onOpenChange={() => setCopyTradeDialog(null)}>
+      <Dialog open={!!copyTradeDialog} onOpenChange={() => { setCopyTradeDialog(null); setIsUnlocked(false); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-primary" />
+              <UserPlus className="h-5 w-5 text-muted-foreground" />
               {t('one_click_copy')}
             </DialogTitle>
           </DialogHeader>
@@ -1119,81 +1121,85 @@ const PlayerCopyTradingBoard = () => {
           {copyTradeDialog && (
             <div className="space-y-4">
               {/* 跟单目标玩家 */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Avatar className="w-10 h-10 border-2 border-primary/30">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+                <Avatar className="w-10 h-10 border border-border/50">
                   <AvatarImage src={copyTradeDialog.player.avatarUrl} />
-                  <AvatarFallback>{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="bg-muted">{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
+                  <p className="font-medium text-foreground">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('win_rate')}: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
-                      {copyTradeDialog.player.winRate.toFixed(1)}%
-                    </span>
-                    <span className="mx-2">|</span>
-                    {t('best_streak')}: <span className="text-success">{copyTradeDialog.player.bestStreak}{t('matches_unit')}</span>
+                    {t('win_rate')}: <span className="text-foreground font-medium">{copyTradeDialog.player.winRate.toFixed(1)}%</span>
+                    <span className="mx-2 text-border">|</span>
+                    {t('best_streak')}: <span className="text-foreground font-medium">{copyTradeDialog.player.bestStreak}{t('matches_unit')}</span>
                   </p>
                 </div>
               </div>
 
-              {/* 跟单比赛信息 */}
-              <div className="p-3 rounded-lg border border-border/50 space-y-3">
-                <div className="text-xs text-muted-foreground mb-2">{t('copy_match')}</div>
-                
-                {/* 球队名 */}
-                <div className="flex items-center justify-center gap-4 text-sm font-medium">
-                  <div className="flex-1 flex flex-col items-end gap-1.5">
-                    {copyTradeDialog.prediction.home_logo && (
-                      <img 
-                        src={copyTradeDialog.prediction.home_logo} 
-                        alt={copyTradeDialog.prediction.home_team || ''} 
-                        className="w-8 h-8 object-contain flex-shrink-0" 
-                      />
-                    )}
-                    <span className="text-right">{copyTradeDialog.prediction.home_team}</span>
+              {/* 跟单比赛信息 - 锁定/解锁状态 */}
+              <div className="p-4 rounded-lg border border-border/30 bg-muted/20">
+                {!isUnlocked ? (
+                  // 锁定状态
+                  <div className="flex flex-col items-center justify-center py-6 gap-3">
+                    <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
+                      <Lock className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-foreground">比赛详情已锁定</p>
+                      <p className="text-xs text-muted-foreground mt-1">确认跟单后解锁查看完整信息</p>
+                    </div>
                   </div>
-                  <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs">VS</span>
-                  <div className="flex-1 flex flex-col items-start gap-1.5">
-                    {copyTradeDialog.prediction.away_logo && (
-                      <img 
-                        src={copyTradeDialog.prediction.away_logo} 
-                        alt={copyTradeDialog.prediction.away_team || ''} 
-                        className="w-8 h-8 object-contain flex-shrink-0" 
-                      />
-                    )}
-                    <span className="text-left">{copyTradeDialog.prediction.away_team}</span>
+                ) : (
+                  // 解锁后显示详细信息
+                  <div className="space-y-3">
+                    {/* 联赛和时间 */}
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="px-1.5 py-0.5 rounded bg-muted/50">
+                        {copyTradeDialog.prediction.league || '西甲'}
+                      </span>
+                      <span className="font-mono">
+                        {copyTradeDialog.prediction.match_time || '03:00'}
+                      </span>
+                    </div>
+                    
+                    {/* 球队名 */}
+                    <div className="flex items-center justify-center gap-4 py-2">
+                      <div className="flex-1 text-right">
+                        <span className="text-sm font-medium text-foreground">{copyTradeDialog.prediction.home_team}</span>
+                      </div>
+                      <span className="px-2 py-1 rounded bg-muted/50 text-muted-foreground text-xs font-medium">VS</span>
+                      <div className="flex-1 text-left">
+                        <span className="text-sm font-medium text-foreground">{copyTradeDialog.prediction.away_team}</span>
+                      </div>
+                    </div>
+                    
+                    {/* 预测详情 */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/20">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">类型</span>
+                        <span className="text-foreground font-medium">
+                          {copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让分'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">预测</span>
+                        <span className="text-foreground font-medium">{copyTradeDialog.prediction.prediction}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">赔率</span>
+                        <span className="text-foreground font-medium">
+                          @{copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount
+                            ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2)
+                            : '1.80'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">参考金额</span>
+                        <span className="text-foreground font-medium">¥{copyTradeDialog.prediction.bet_amount}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                
-                {/* 类型 */}
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{t('type_column')}:</span>
-                  <span className="text-foreground font-medium">
-                    {copyTradeDialog.prediction.prediction_type === 'over_under' ? t('over_under_type') : t('handicap_type')}
-                  </span>
-                </div>
-                
-                {/* 预测 */}
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{t('prediction')}:</span>
-                  <span className="text-primary font-medium">{copyTradeDialog.prediction.prediction}</span>
-                </div>
-                
-                {/* 赔率 */}
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{t('odds')}:</span>
-                  <span className="text-foreground font-medium">
-                    {copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount
-                      ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2)
-                      : '-'}
-                  </span>
-                </div>
-                
-                {/* 下注金额 */}
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{t('bet_amount')}:</span>
-                  <span className="text-foreground font-medium">¥{copyTradeDialog.prediction.bet_amount}</span>
-                </div>
+                )}
               </div>
 
               {/* 跟单金额设置 */}
@@ -1220,9 +1226,9 @@ const PlayerCopyTradingBoard = () => {
               </div>
 
               {/* 预期收益 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-success/10 border border-success/20">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
                 <span className="text-sm text-muted-foreground">{t('expected_profit')}</span>
-                <span className="font-bold text-success">
+                <span className="font-bold text-foreground font-mono">
                   +¥{(copyBetAmount * 0.8).toFixed(0)} ~ +¥{(copyBetAmount * 1.2).toFixed(0)}
                 </span>
               </div>
@@ -1231,19 +1237,31 @@ const PlayerCopyTradingBoard = () => {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => setCopyTradeDialog(null)}
+                  onClick={() => { setCopyTradeDialog(null); setIsUnlocked(false); }}
                 >
                   {t('cancel')}
                 </Button>
                 <Button
                   className="flex-1"
-                  onClick={confirmCopyTrade}
+                  onClick={() => {
+                    if (!isUnlocked) {
+                      setIsUnlocked(true);
+                      toast.success('预测详情已解锁');
+                    } else {
+                      confirmCopyTrade();
+                    }
+                  }}
                   disabled={isCopying || copyBetAmount > userBalance}
                 >
                   {isCopying ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                       {t('copying')}
+                    </>
+                  ) : !isUnlocked ? (
+                    <>
+                      <Lock className="h-4 w-4 mr-1" />
+                      确认跟单解锁
                     </>
                   ) : (
                     <>{t('confirm_copy')} ¥{copyBetAmount}</>
