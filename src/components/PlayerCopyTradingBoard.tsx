@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1432,7 +1433,7 @@ const PlayerCopyTradingBoard = () => {
       {/* Total Players Count */}
       <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
         <Users className="h-4 w-4" />
-        <span>平台总玩家数: <span className="font-mono font-medium text-foreground">{allPlayers.length.toLocaleString()}</span> 人</span>
+        <span>平台总玩家数: <AnimatedPlayerCount count={allPlayers.length} /> 人</span>
       </div>
 
       {/* Disclaimer */}
@@ -1442,6 +1443,23 @@ const PlayerCopyTradingBoard = () => {
         </p>
       </div>
     </div>
+  );
+};
+
+// 玩家数量动画组件
+const AnimatedPlayerCount = ({ count }: { count: number }) => {
+  const animatedCount = useCountAnimation(count, { duration: 1200, startValue: 0 });
+  
+  return (
+    <motion.span 
+      className="font-mono font-medium text-foreground"
+      initial={{ scale: 1 }}
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 0.3 }}
+      key={Math.round(animatedCount)}
+    >
+      {Math.round(animatedCount).toLocaleString()}
+    </motion.span>
   );
 };
 
