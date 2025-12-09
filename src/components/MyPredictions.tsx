@@ -65,6 +65,7 @@ interface CopyTradeRecord {
   match_away_team: string;
   prediction: string;
   prediction_type: 'handicap' | 'over_under';
+  odds: number;
   bet_amount: number;
   result: 'win' | 'loss' | 'pending';
   pnl: number;
@@ -227,6 +228,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
       ...p,
       type: 'prediction' as const,
       prediction_type: (p.prediction_type || null) as (string | null),
+      odds: null as (number | null),
       followed_player_name: null as string | null,
     }));
     
@@ -235,6 +237,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
       match_id: c.match_id,
       prediction: c.prediction,
       prediction_type: c.prediction_type,
+      odds: c.odds,
       result: c.result,
       bet_amount: c.bet_amount,
       actual_payout: c.result === 'win' ? c.bet_amount + c.pnl : c.bet_amount + c.pnl,
@@ -378,6 +381,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_type_label')}</th>
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column')}</th>
+                <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('odds_label')}</th>
                 <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_column')}</th>
                 <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
                 <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column')}</th>
@@ -386,7 +390,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             <tbody>
               {paginatedPredictions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-6 text-muted-foreground text-xs">
+                  <td colSpan={9} className="text-center py-6 text-muted-foreground text-xs">
                     {t('no_records')}
                   </td>
                 </tr>
@@ -444,6 +448,13 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                       </td>
                       <td className="py-1.5 px-2 text-[10px] text-foreground">
                         {pred.prediction}
+                      </td>
+                      <td className="py-1.5 px-2 text-center text-[10px] font-mono">
+                        {pred.odds ? (
+                          <span className="text-amber-400 font-medium">{pred.odds.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
                       </td>
                       <td className="py-1.5 px-2 text-right text-[10px] font-mono text-muted-foreground">
                         ${pred.bet_amount}
@@ -687,6 +698,7 @@ const MyPredictions = () => {
             match_away_team: "利物浦",
             prediction: "主+0.5",
             prediction_type: 'handicap',
+            odds: 1.90,
             bet_amount: 200,
             result: 'win',
             pnl: 180,
@@ -702,6 +714,7 @@ const MyPredictions = () => {
             match_away_team: "皇家马德里",
             prediction: "大 2.5",
             prediction_type: 'over_under',
+            odds: 1.85,
             bet_amount: 300,
             result: 'loss',
             pnl: -300,
@@ -717,6 +730,7 @@ const MyPredictions = () => {
             match_away_team: "多特蒙德",
             prediction: "客-0.5",
             prediction_type: 'handicap',
+            odds: 2.10,
             bet_amount: 150,
             result: 'win',
             pnl: 270,
