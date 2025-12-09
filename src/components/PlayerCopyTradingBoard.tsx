@@ -67,6 +67,8 @@ interface TodayPrediction {
   home_score?: number | null;
   away_score?: number | null;
   match_status?: string;
+  league?: string;
+  match_time?: string;
 }
 
 interface CopyTradeData {
@@ -332,16 +334,16 @@ const PlayerCopyTradingBoard = () => {
   }, []);
 
   const fetchTodayPredictions = async (player: PlayerData) => {
-    // 模拟球队名称
+    // 模拟球队名称和联赛信息
     const mockTeams = [
-      { home: '皇家马德里', away: '巴塞罗那', homeScore: 2, awayScore: 1 },
-      { home: '曼城', away: '利物浦', homeScore: 3, awayScore: 2 },
-      { home: '拜仁慕尼黑', away: '多特蒙德', homeScore: 1, awayScore: 1 },
-      { home: '巴黎圣日耳曼', away: '马赛', homeScore: 2, awayScore: 0 },
-      { home: '尤文图斯', away: 'AC米兰', homeScore: 0, awayScore: 1 },
-      { home: '切尔西', away: '阿森纳', homeScore: 2, awayScore: 2 },
-      { home: '国际米兰', away: '那不勒斯', homeScore: 3, awayScore: 1 },
-      { home: '马德里竞技', away: '塞维利亚', homeScore: 1, awayScore: 0 },
+      { home: '皇家马德里', away: '巴塞罗那', homeScore: 2, awayScore: 1, league: '西甲', time: '03:00' },
+      { home: '曼城', away: '利物浦', homeScore: 3, awayScore: 2, league: '英超', time: '23:30' },
+      { home: '拜仁慕尼黑', away: '多特蒙德', homeScore: 1, awayScore: 1, league: '德甲', time: '21:30' },
+      { home: '巴黎圣日耳曼', away: '马赛', homeScore: 2, awayScore: 0, league: '法甲', time: '03:45' },
+      { home: '尤文图斯', away: 'AC米兰', homeScore: 0, awayScore: 1, league: '意甲', time: '02:45' },
+      { home: '切尔西', away: '阿森纳', homeScore: 2, awayScore: 2, league: '英超', time: '20:00' },
+      { home: '国际米兰', away: '那不勒斯', homeScore: 3, awayScore: 1, league: '意甲', time: '00:30' },
+      { home: '马德里竞技', away: '塞维利亚', homeScore: 1, awayScore: 0, league: '西甲', time: '01:00' },
     ];
 
     if (player.isVirtual) {
@@ -353,11 +355,16 @@ const PlayerCopyTradingBoard = () => {
       
       for (let i = 0; i < total; i++) {
         const teamInfo = mockTeams[i % mockTeams.length];
+        const predType = Math.random() > 0.5 ? 'over_under' : 'handicap';
+        const overUnderLine = [2.0, 2.5, 3.0, 3.5][Math.floor(Math.random() * 4)];
+        const handicapLine = [-0.5, -1, -1.5, 0.5, 1][Math.floor(Math.random() * 5)];
         mockPredictions.push({
           id: `mock-${i}`,
           match_id: `match-${1000 + i}`,
-          prediction: Math.random() > 0.5 ? 'over' : 'under',
-          prediction_type: 'over_under',
+          prediction: predType === 'over_under' 
+            ? (Math.random() > 0.5 ? `大${overUnderLine}` : `小${overUnderLine}`)
+            : (Math.random() > 0.5 ? `主让${Math.abs(handicapLine)}` : `客让${Math.abs(handicapLine)}`),
+          prediction_type: predType,
           bet_amount: Math.floor(Math.random() * 500) + 100,
           potential_payout: Math.floor(Math.random() * 800) + 200,
           actual_payout: i < correct ? Math.floor(Math.random() * 800) + 200 : 0,
@@ -367,7 +374,9 @@ const PlayerCopyTradingBoard = () => {
           away_team: teamInfo.away,
           home_score: teamInfo.homeScore,
           away_score: teamInfo.awayScore,
-          match_status: 'FT'
+          match_status: 'FT',
+          league: teamInfo.league,
+          match_time: teamInfo.time
         });
       }
       
@@ -399,7 +408,9 @@ const PlayerCopyTradingBoard = () => {
         away_team: teamInfo.away,
         home_score: pred.result ? teamInfo.homeScore : null,
         away_score: pred.result ? teamInfo.awayScore : null,
-        match_status: pred.result ? 'FT' : 'NS'
+        match_status: pred.result ? 'FT' : 'NS',
+        league: teamInfo.league,
+        match_time: teamInfo.time
       };
     });
     
@@ -970,11 +981,12 @@ const PlayerCopyTradingBoard = () => {
                 <div className="divide-y divide-border/30">
                   {/* 表头 */}
                   <div className="grid grid-cols-12 gap-1 px-3 py-2 bg-muted/30 text-[10px] font-medium text-muted-foreground sticky top-0">
-                    <div className="col-span-4">{t('match') || '比赛'}</div>
+                    <div className="col-span-3">{t('match') || '比赛'}</div>
                     <div className="col-span-2 text-center">{t('type_column') || '类型'}</div>
                     <div className="col-span-2 text-center">{t('prediction') || '预测'}</div>
                     <div className="col-span-2 text-center">{t('bet_label') || '投注'}</div>
-                    <div className="col-span-2 text-right">{t('profit_loss') || '盈亏'}</div>
+                    <div className="col-span-1 text-center hidden sm:block">{t('odds') || '赔率'}</div>
+                    <div className="col-span-2 sm:col-span-2 text-right">{t('profit_loss') || '盈亏'}</div>
                   </div>
                   
                   {/* 数据行 */}
@@ -995,9 +1007,17 @@ const PlayerCopyTradingBoard = () => {
                           index % 2 === 0 ? 'bg-transparent' : 'bg-muted/10'
                         }`}
                       >
-                        {/* 比赛 */}
-                        <div className="col-span-4">
-                          <div className="flex flex-col gap-0.5">
+                        {/* 比赛 - 包含联赛和时间 */}
+                        <div className="col-span-3">
+                          <div className="flex items-center gap-1 mb-0.5">
+                            <span className="text-[9px] px-1 py-0.5 rounded bg-primary/10 text-primary font-medium truncate">
+                              {pred.league || '联赛'}
+                            </span>
+                            <span className="text-[9px] text-muted-foreground font-mono">
+                              {pred.match_time || '00:00'}
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-0">
                             <span className="font-medium truncate text-[11px]">
                               {pred.home_team || '-'}
                             </span>
@@ -1006,13 +1026,13 @@ const PlayerCopyTradingBoard = () => {
                             </span>
                           </div>
                           {(pred.match_status === 'FT' || pred.result) && (
-                            <span className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+                            <span className="text-[10px] font-mono font-bold text-foreground">
                               {pred.home_score ?? 0} - {pred.away_score ?? 0}
                             </span>
                           )}
                         </div>
                         
-                        {/* 类型 + 具体预测 */}
+                        {/* 类型 */}
                         <div className="col-span-2 text-center">
                           <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
                             pred.prediction_type === 'over_under' 
@@ -1023,23 +1043,19 @@ const PlayerCopyTradingBoard = () => {
                           </span>
                         </div>
                         
-                        {/* 预测详情 + 赔率 */}
+                        {/* 预测详情 */}
                         <div className="col-span-2 text-center">
-                          <div className="font-medium text-[11px]">
-                            {pred.prediction_type === 'over_under' 
-                              ? (pred.prediction.toLowerCase().includes('over') || pred.prediction.includes('大') 
-                                  ? `大${pred.prediction.replace(/[^\d.]/g, '') || '2.5'}` 
-                                  : `小${pred.prediction.replace(/[^\d.]/g, '') || '2.5'}`)
-                              : (pred.prediction.includes('+') || pred.prediction.includes('主') 
-                                  ? `主让${pred.prediction.replace(/[^\d.+-]/g, '') || '0.5'}` 
-                                  : `客让${pred.prediction.replace(/[^\d.+-]/g, '').replace('-', '') || '0.5'}`)}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">@{odds}</div>
+                          <div className="font-medium text-[11px]">{pred.prediction}</div>
                         </div>
                         
                         {/* 投注金额 */}
                         <div className="col-span-2 text-center font-mono text-[11px]">
                           ¥{pred.bet_amount}
+                        </div>
+
+                        {/* 赔率 - 桌面显示 */}
+                        <div className="col-span-1 text-center font-mono text-[10px] text-muted-foreground hidden sm:block">
+                          @{odds}
                         </div>
                         
                         {/* 盈亏 */}
