@@ -1778,25 +1778,41 @@ const PlayerLeaderboardTable = () => {
                           </span>
                         </div>
                         <div className="divide-y divide-border/30">
-                          {completedPredictions.slice(0, 3).map((pred) => (
-                            <div key={pred.id} className="px-4 py-2.5 flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                                  pred.result === 'win' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-                                }`}>
-                                  {pred.result === 'win' ? '✓' : '✗'}
-                                </span>
-                                <div className="text-xs">
-                                  <span className="font-medium">{pred.home_team}</span>
-                                  <span className="text-muted-foreground mx-1">{pred.home_score ?? 0}-{pred.away_score ?? 0}</span>
-                                  <span className="font-medium">{pred.away_team}</span>
+                          {completedPredictions.slice(0, 5).map((pred) => {
+                            // 解析预测类型和赔率
+                            const isOverUnder = pred.prediction_type === 'over_under';
+                            const typeLabel = isOverUnder ? '大小' : '让球';
+                            const odds = pred.potential_payout && pred.bet_amount 
+                              ? (pred.potential_payout / pred.bet_amount).toFixed(2) 
+                              : '1.85';
+                            
+                            return (
+                              <div key={pred.id} className="px-4 py-2.5">
+                                <div className="flex items-center justify-between mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                                      pred.result === 'win' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+                                    }`}>
+                                      {pred.result === 'win' ? '✓' : '✗'}
+                                    </span>
+                                    <div className="text-xs">
+                                      <span className="font-medium">{pred.home_team}</span>
+                                      <span className="text-muted-foreground mx-1">{pred.home_score ?? 0}-{pred.away_score ?? 0}</span>
+                                      <span className="font-medium">{pred.away_team}</span>
+                                    </div>
+                                  </div>
+                                  <span className={`text-xs font-semibold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
+                                    {pred.result === 'win' ? '+' : '-'}¥{pred.bet_amount}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-3 ml-7 text-[10px] text-muted-foreground">
+                                  <span className="px-1.5 py-0.5 rounded bg-muted/50">{typeLabel}</span>
+                                  <span>赔率: <span className="text-foreground font-medium">{odds}</span></span>
+                                  <span>下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span></span>
                                 </div>
                               </div>
-                              <span className={`text-xs font-semibold ${pred.result === 'win' ? 'text-success' : 'text-destructive'}`}>
-                                {pred.result === 'win' ? '+' : '-'}¥{pred.bet_amount}
-                              </span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
