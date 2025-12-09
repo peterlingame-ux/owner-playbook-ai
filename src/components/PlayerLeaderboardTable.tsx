@@ -1062,10 +1062,10 @@ const PlayerLeaderboardTable = () => {
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi')}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">{t('roi').charAt(0)}:</span>
-                              <span className="text-destructive font-medium">
-                                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">投:</span>
+                              <span className="text-foreground font-medium">
+                                ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
                               </span>
                             </span>
                           </div>
@@ -1243,7 +1243,7 @@ const PlayerLeaderboardTable = () => {
                               <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_label')}:</span>
                               <span className="text-muted-foreground/70 sm:hidden">{t('profit_label').charAt(0)}:</span>
                               <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-amber-500' : 'text-amber-500/60'}`}>
-                                {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
@@ -1252,6 +1252,14 @@ const PlayerLeaderboardTable = () => {
                               <span className="text-muted-foreground/70 sm:hidden">{t('win_rate').charAt(0)}:</span>
                               <span className="text-amber-500 font-medium">
                                 {player.winRate.toFixed(1)}%
+                              </span>
+                            </span>
+                            <span className="text-border hidden sm:inline">|</span>
+                            <span className="flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">投:</span>
+                              <span className="text-foreground font-medium">
+                                ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
                               </span>
                             </span>
                           </div>
@@ -1436,10 +1444,10 @@ const PlayerLeaderboardTable = () => {
                             </span>
                             <span className="text-border hidden sm:inline">|</span>
                             <span className="flex items-center gap-0.5 sm:gap-1">
-                              <span className="text-muted-foreground/70 hidden sm:inline">{t('roi')}:</span>
-                              <span className="text-muted-foreground/70 sm:hidden">{t('roi').charAt(0)}:</span>
-                              <span className="text-success font-medium">
-                                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
+                              <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注'}:</span>
+                              <span className="text-muted-foreground/70 sm:hidden">投:</span>
+                              <span className="text-foreground font-medium">
+                                ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}
                               </span>
                             </span>
                           </div>
