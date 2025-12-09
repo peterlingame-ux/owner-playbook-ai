@@ -63,6 +63,7 @@ interface CopyTradeRecord {
   match_home_team: string;
   match_away_team: string;
   prediction: string;
+  prediction_type: 'handicap' | 'over_under';
   bet_amount: number;
   result: 'win' | 'loss' | 'pending';
   pnl: number;
@@ -223,6 +224,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
     const predictionRecords = predictions.map(p => ({
       ...p,
       type: 'prediction' as const,
+      prediction_type: null as ('handicap' | 'over_under' | null),
       followed_player_name: null as string | null,
     }));
     
@@ -230,6 +232,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
       id: c.id,
       match_id: c.match_id,
       prediction: c.prediction,
+      prediction_type: c.prediction_type,
       result: c.result,
       bet_amount: c.bet_amount,
       actual_payout: c.result === 'win' ? c.bet_amount + c.pnl : c.bet_amount + c.pnl,
@@ -371,6 +374,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('type_column')}</th>
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column')}</th>
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
+                <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_type_label')}</th>
                 <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column')}</th>
                 <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_column')}</th>
                 <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
@@ -380,7 +384,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             <tbody>
               {paginatedPredictions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-6 text-muted-foreground text-xs">
+                  <td colSpan={8} className="text-center py-6 text-muted-foreground text-xs">
                     {t('no_records')}
                   </td>
                 </tr>
@@ -421,6 +425,19 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                           <div className="text-[10px] text-muted-foreground font-mono">
                             {pred.match.goals_home} : {pred.match.goals_away}
                           </div>
+                        )}
+                      </td>
+                      <td className="py-1.5 px-2">
+                        {pred.prediction_type ? (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                            pred.prediction_type === 'handicap' 
+                              ? 'bg-blue-500/20 text-blue-400' 
+                              : 'bg-purple-500/20 text-purple-400'
+                          }`}>
+                            {pred.prediction_type === 'handicap' ? t('handicap') : t('over_under')}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground">-</span>
                         )}
                       </td>
                       <td className="py-1.5 px-2 text-[10px] text-foreground">
@@ -662,7 +679,8 @@ const MyPredictions = () => {
             match_id: "m1",
             match_home_team: "曼联",
             match_away_team: "利物浦",
-            prediction: "主队胜",
+            prediction: "主+0.5",
+            prediction_type: 'handicap',
             bet_amount: 200,
             result: 'win',
             pnl: 180,
@@ -676,7 +694,8 @@ const MyPredictions = () => {
             match_id: "m2",
             match_home_team: "巴塞罗那",
             match_away_team: "皇家马德里",
-            prediction: "大球 2.5",
+            prediction: "大 2.5",
+            prediction_type: 'over_under',
             bet_amount: 300,
             result: 'loss',
             pnl: -300,
@@ -690,7 +709,8 @@ const MyPredictions = () => {
             match_id: "m3",
             match_home_team: "拜仁",
             match_away_team: "多特蒙德",
-            prediction: "平局",
+            prediction: "客-0.5",
+            prediction_type: 'handicap',
             bet_amount: 150,
             result: 'win',
             pnl: 270,
