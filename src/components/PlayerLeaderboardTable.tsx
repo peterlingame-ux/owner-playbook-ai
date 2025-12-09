@@ -1411,8 +1411,8 @@ const PlayerLeaderboardTable = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Trophy className="h-3.5 w-3.5 text-primary" />
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                      <Trophy className="h-3.5 w-3.5 text-yellow-500" />
                     </div>
                     <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">高胜率榜冠军</h3>
                   </motion.div>
@@ -1491,8 +1491,8 @@ const PlayerLeaderboardTable = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.45 }}
                   >
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Trophy className="h-3.5 w-3.5 text-primary" />
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                      <Trophy className="h-3.5 w-3.5 text-yellow-500" />
                     </div>
                     <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">高盈利榜冠军</h3>
                   </motion.div>
@@ -1573,8 +1573,8 @@ const PlayerLeaderboardTable = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.6 }}
                   >
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Trophy className="h-3.5 w-3.5 text-primary" />
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                      <Trophy className="h-3.5 w-3.5 text-yellow-500" />
                     </div>
                     <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">低胜率榜冠军</h3>
                   </motion.div>
