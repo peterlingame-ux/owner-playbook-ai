@@ -1913,11 +1913,22 @@ const PlayerLeaderboardTable = () => {
                   <span className="text-sm text-muted-foreground">自定义:</span>
                   <Input
                     type="number"
-                    value={copyBetAmount}
-                    onChange={(e) => setCopyBetAmount(Number(e.target.value))}
+                    value={copyBetAmount || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        setCopyBetAmount(0);
+                      } else {
+                        const num = parseInt(val, 10);
+                        if (!isNaN(num) && num >= 0) {
+                          setCopyBetAmount(num);
+                        }
+                      }
+                    }}
                     className="flex-1 h-8"
                     min={10}
                     max={realBalance}
+                    placeholder="输入金额"
                   />
                 </div>
               </div>
