@@ -63,24 +63,7 @@ interface BetOption {
   line?: number;
 }
 
-interface MatchStats {
-  head_to_head: {
-    home_wins: number;
-    draws: number;
-    away_wins: number;
-    total_games: number;
-  };
-  team_stats: {
-    home: TeamRadarData[];
-    away: TeamRadarData[];
-  };
-}
-
-interface TeamRadarData {
-  category: string;
-  value: number;
-  fullMark: number;
-}
+// 已删除 MatchStats 和 TeamRadarData 接口
 
 interface AIMatchWithDetails extends Match {
   ai_count: number;
@@ -174,8 +157,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const [userBalance, setUserBalance] = useState<number>(10000);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
-  const [matchLoading, setMatchLoading] = useState(false);
+  // 已移除 matchStats 和 matchLoading 状态
   
   // AI预测比赛列表相关状态
   const [aiMatches, setAiMatches] = useState<AIMatchWithDetails[]>([]);
@@ -205,7 +187,6 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
     if (open && selectedMatch && !showMatchSelection) {
       fetchUserBalance();
       fetchAIPredictions(selectedMatch.fixture_id);
-      fetchMatchStats(selectedMatch);
     }
   }, [open, selectedMatch, showMatchSelection]);
 
@@ -369,85 +350,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
     }
   };
 
-  const fetchMatchStats = async (match: Match) => {
-    if (!match.home_team_id || !match.away_team_id) return;
-    setMatchLoading(true);
-    try {
-      const [headToHeadRes, homeHistoryRes, awayHistoryRes] = await Promise.all([
-        supabase.functions.invoke('football-head-to-head', {
-          body: { homeTeamId: match.home_team_id, awayTeamId: match.away_team_id },
-        }),
-        supabase.functions.invoke('football-team-history', {
-          body: { teamId: match.home_team_id },
-        }),
-        supabase.functions.invoke('football-team-history', {
-          body: { teamId: match.away_team_id },
-        }),
-      ]);
-
-      let headToHead = { home_wins: 0, draws: 0, away_wins: 0, total_games: 0 };
-      if (headToHeadRes.data && !headToHeadRes.error) {
-        headToHead = headToHeadRes.data.headToHead || headToHead;
-      }
-
-      let homeStats: TeamRadarData[] = [
-        { category: '进攻', value: 70, fullMark: 100 },
-        { category: '防守', value: 70, fullMark: 100 },
-        { category: '控球', value: 70, fullMark: 100 },
-        { category: '传球', value: 70, fullMark: 100 },
-        { category: '体能', value: 70, fullMark: 100 },
-      ];
-      let awayStats: TeamRadarData[] = [
-        { category: '进攻', value: 70, fullMark: 100 },
-        { category: '防守', value: 70, fullMark: 100 },
-        { category: '控球', value: 70, fullMark: 100 },
-        { category: '传球', value: 70, fullMark: 100 },
-        { category: '体能', value: 70, fullMark: 100 },
-      ];
-
-      if (homeHistoryRes.data?.history) {
-        const homeHistory = homeHistoryRes.data.history;
-        const wins = homeHistory.filter((h: any) => h.result === 'W').length;
-        const goalsFor = homeHistory.reduce((sum: number, h: any) => sum + (h.score?.team || 0), 0);
-        const goalsAgainst = homeHistory.reduce((sum: number, h: any) => sum + (h.score?.opponent || 0), 0);
-        const winRate = homeHistory.length > 0 ? wins / homeHistory.length : 0.5;
-        const goalDiff = goalsFor - goalsAgainst;
-        const avgGoalsFor = homeHistory.length > 0 ? goalsFor / homeHistory.length : 1.5;
-        const avgGoalsAgainst = homeHistory.length > 0 ? goalsAgainst / homeHistory.length : 1.5;
-        homeStats = [
-          { category: '进攻', value: Math.min(100, Math.max(40, avgGoalsFor * 25)), fullMark: 100 },
-          { category: '防守', value: Math.min(100, Math.max(40, 100 - avgGoalsAgainst * 25)), fullMark: 100 },
-          { category: '控球', value: Math.min(100, Math.max(40, winRate * 100)), fullMark: 100 },
-          { category: '传球', value: Math.min(100, Math.max(40, 60 + goalDiff * 5)), fullMark: 100 },
-          { category: '体能', value: Math.min(100, Math.max(40, 70 + winRate * 20)), fullMark: 100 },
-        ];
-      }
-
-      if (awayHistoryRes.data?.history) {
-        const awayHistory = awayHistoryRes.data.history;
-        const wins = awayHistory.filter((h: any) => h.result === 'W').length;
-        const goalsFor = awayHistory.reduce((sum: number, h: any) => sum + (h.score?.team || 0), 0);
-        const goalsAgainst = awayHistory.reduce((sum: number, h: any) => sum + (h.score?.opponent || 0), 0);
-        const winRate = awayHistory.length > 0 ? wins / awayHistory.length : 0.5;
-        const goalDiff = goalsFor - goalsAgainst;
-        const avgGoalsFor = awayHistory.length > 0 ? goalsFor / awayHistory.length : 1.5;
-        const avgGoalsAgainst = awayHistory.length > 0 ? goalsAgainst / awayHistory.length : 1.5;
-        awayStats = [
-          { category: '进攻', value: Math.min(100, Math.max(40, avgGoalsFor * 25)), fullMark: 100 },
-          { category: '防守', value: Math.min(100, Math.max(40, 100 - avgGoalsAgainst * 25)), fullMark: 100 },
-          { category: '控球', value: Math.min(100, Math.max(40, winRate * 100)), fullMark: 100 },
-          { category: '传球', value: Math.min(100, Math.max(40, 60 + goalDiff * 5)), fullMark: 100 },
-          { category: '体能', value: Math.min(100, Math.max(40, 70 + winRate * 20)), fullMark: 100 },
-        ];
-      }
-
-      setMatchStats({ head_to_head: headToHead, team_stats: { home: homeStats, away: awayStats } });
-    } catch (error) {
-      console.error('Error fetching match stats:', error);
-    } finally {
-      setMatchLoading(false);
-    }
-  };
+  // 已移除 fetchMatchStats 函数
 
   const getBetOptions = (): BetOption[] => {
     if (selectedBetType === "handicap") {
@@ -474,14 +377,12 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
     setSelectedMatch(m);
     setShowMatchSelection(false);
     setAiPredictions([]);
-    setMatchStats(null);
   };
 
   const handleBackToSelection = () => {
     setShowMatchSelection(true);
     setSelectedMatch(null);
     setAiPredictions([]);
-    setMatchStats(null);
     setSelectedBetOption("");
   };
 
@@ -753,150 +654,165 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 </div>
               </div>
 
-              {/* 历史交锋 */}
-              {matchStats && (
-                <div className="p-3 rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground mb-2">历史交锋（近{matchStats.head_to_head.total_games}场）</p>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <div className="text-lg font-bold text-primary">{matchStats.head_to_head.home_wins}</div>
-                      <div className="text-[10px] text-muted-foreground">主胜</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-muted-foreground">{matchStats.head_to_head.draws}</div>
-                      <div className="text-[10px] text-muted-foreground">平</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-warning">{matchStats.head_to_head.away_wins}</div>
-                      <div className="text-[10px] text-muted-foreground">客胜</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 投注类型选择 */}
-              <div className="space-y-3">
-                {/* 盘口类型切换 */}
-                <div className="grid grid-cols-2 gap-2">
+              {/* 盘口市场选择 - 专业博彩风格 */}
+              <div className="space-y-2">
+                {/* 市场标签 */}
+                <div className="flex gap-1">
                   <button
                     onClick={() => setSelectedBetType("handicap")}
-                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                    className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
                       selectedBetType === "handicap"
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:border-muted-foreground'
+                        ? 'bg-[#1a472a] text-white'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-lg font-bold mb-0.5">让球盘</div>
-                      <div className="text-[10px] text-muted-foreground">Handicap</div>
-                    </div>
-                    {selectedBetType === "handicap" && (
-                      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
-                    )}
+                    让球
                   </button>
                   <button
                     onClick={() => setSelectedBetType("over_under")}
-                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                    className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
                       selectedBetType === "over_under"
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:border-muted-foreground'
+                        ? 'bg-[#1a472a] text-white'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-lg font-bold mb-0.5">大小球</div>
-                      <div className="text-[10px] text-muted-foreground">Over/Under</div>
-                    </div>
-                    {selectedBetType === "over_under" && (
-                      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
-                    )}
+                    大小球
                   </button>
                 </div>
 
-                {/* 赔率选项 */}
-                <div className="rounded-lg border border-border overflow-hidden">
-                  <div className="bg-muted/50 px-3 py-1.5 border-b border-border">
-                    <span className="text-[10px] text-muted-foreground font-medium">
-                      {selectedBetType === "handicap" ? "让球盘口" : "大小球盘口"}
-                    </span>
+                {/* 盘口表格 - 专业样式 */}
+                <div className="rounded-lg overflow-hidden border border-border bg-card">
+                  {/* 表头 */}
+                  <div className="grid grid-cols-3 bg-muted/70 text-[10px] text-muted-foreground font-medium">
+                    <div className="px-3 py-2 text-center border-r border-border">盘口</div>
+                    <div className="px-3 py-2 text-center border-r border-border">选项</div>
+                    <div className="px-3 py-2 text-center">赔率</div>
                   </div>
-                  <div className="grid grid-cols-2 divide-x divide-border">
-                    {getBetOptions().map((option) => (
+                  
+                  {/* 盘口行 */}
+                  {getBetOptions().map((option, index) => {
+                    const isSelected = selectedBetOption === option.value;
+                    const isHome = option.value.includes("home") || option.value.includes("over");
+                    
+                    return (
                       <div
                         key={option.value}
-                        className={`p-3 cursor-pointer transition-all ${
-                          selectedBetOption === option.value
-                            ? 'bg-primary/15'
-                            : 'hover:bg-muted/50'
-                        }`}
                         onClick={() => setSelectedBetOption(option.value)}
+                        className={`grid grid-cols-3 cursor-pointer transition-all border-t border-border ${
+                          isSelected 
+                            ? 'bg-[#ffcc00]/20 border-l-2 border-l-[#ffcc00]' 
+                            : 'hover:bg-muted/30'
+                        }`}
                       >
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1">
-                            {option.value.includes("home") || option.value.includes("over") 
-                              ? (selectedBetType === "handicap" ? "主让" : "大球") 
-                              : (selectedBetType === "handicap" ? "客让" : "小球")}
-                          </p>
-                          <p className="font-bold text-sm mb-1">{option.label}</p>
-                          <div className={`inline-block px-2 py-0.5 rounded text-sm font-bold ${
-                            selectedBetOption === option.value
-                              ? 'bg-success text-success-foreground'
-                              : 'bg-success/20 text-success'
+                        <div className="px-3 py-3 text-center border-r border-border">
+                          <span className={`text-xs font-mono font-bold ${
+                            isHome ? 'text-destructive' : 'text-blue-500'
+                          }`}>
+                            {option.line && option.line > 0 ? `+${option.line}` : option.line}
+                          </span>
+                        </div>
+                        <div className="px-3 py-3 text-center border-r border-border">
+                          <span className="text-xs font-medium">
+                            {selectedBetType === "handicap" 
+                              ? (isHome ? selectedMatch?.home_team_name : selectedMatch?.away_team_name)
+                              : (isHome ? "大" : "小")
+                            }
+                          </span>
+                        </div>
+                        <div className="px-3 py-3 text-center">
+                          <span className={`inline-flex items-center justify-center min-w-[48px] px-2 py-1 rounded text-xs font-bold font-mono ${
+                            isSelected
+                              ? 'bg-[#ffcc00] text-black'
+                              : 'bg-[#1a472a] text-[#7fff00]'
                           }`}>
                             {option.odds.toFixed(2)}
-                          </div>
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* 投注金额 */}
+              {/* 投注面板 */}
               {selectedBetOption && (
-                <div className="space-y-3">
-                  <Separator />
+                <div className="space-y-3 p-3 rounded-lg bg-muted/30 border border-border">
+                  {/* 已选投注 */}
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">已选:</span>
+                    <span className="font-medium">
+                      {getBetOptions().find(o => o.value === selectedBetOption)?.label}
+                      <span className="ml-2 text-[#7fff00] font-mono">
+                        @{getCurrentOdds().toFixed(2)}
+                      </span>
+                    </span>
+                  </div>
+                  
+                  <Separator className="bg-border/50" />
+                  
+                  {/* 投注金额 */}
                   <div className="space-y-2">
-                    <Label className="text-xs">投注金额</Label>
-                    <Input
-                      type="number"
-                      value={betAmount}
-                      onChange={(e) => setBetAmount(e.target.value)}
-                      placeholder="输入金额"
-                      min="1"
-                      max={userBalance}
-                      className="h-9 text-center font-mono"
-                    />
-                    <div className="grid grid-cols-4 gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">投注金额</Label>
+                      <span className="text-[10px] text-muted-foreground">
+                        余额: <span className="font-mono">${userBalance.toFixed(0)}</span>
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                      <Input
+                        type="number"
+                        value={betAmount}
+                        onChange={(e) => setBetAmount(e.target.value)}
+                        placeholder="0"
+                        min="1"
+                        max={userBalance}
+                        className="h-10 pl-7 text-right font-mono font-bold text-lg bg-background"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
                       {[100, 500, 1000, 2000].map((amount) => (
                         <Button
                           key={amount}
-                          variant={betAmount === amount.toString() ? "default" : "outline"}
+                          variant="outline"
                           size="sm"
                           onClick={() => setBetAmount(amount.toString())}
-                          className="h-7 text-xs"
+                          className={`h-7 text-[10px] font-mono ${
+                            betAmount === amount.toString() 
+                              ? 'border-primary bg-primary/10' 
+                              : ''
+                          }`}
                           disabled={amount > userBalance}
                         >
-                          ${amount}
+                          {amount}
                         </Button>
                       ))}
                     </div>
                   </div>
-                  
-                  {/* 预期收益 */}
-                  <div className="flex items-center justify-between py-2 px-3 bg-success/10 rounded-lg">
-                    <span className="text-xs text-muted-foreground">预期收益</span>
-                    <span className="text-lg font-bold text-success font-mono">
-                      ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(0)}
-                    </span>
+
+                  {/* 收益预览 */}
+                  <div className="p-2 rounded bg-[#1a472a]/50 border border-[#1a472a]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">预期返还</span>
+                      <span className="text-xl font-bold text-[#7fff00] font-mono">
+                        ${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-[10px] text-muted-foreground">净利润</span>
+                      <span className="text-xs text-[#7fff00] font-mono">
+                        +${(((parseFloat(betAmount) || 0) * getCurrentOdds()) - (parseFloat(betAmount) || 0)).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
 
                   {/* 确认按钮 */}
                   <Button
                     onClick={handlePlaceBet}
                     disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0}
-                    className="w-full h-9 text-sm font-medium"
+                    className="w-full h-10 text-sm font-bold bg-[#ffcc00] hover:bg-[#e6b800] text-black"
                   >
-                    {isSubmitting ? "下注中..." : isDemo ? "体验下注" : "确认下注"}
+                    {isSubmitting ? "处理中..." : isDemo ? "体验投注" : "确认投注"}
                   </Button>
                 </div>
               )}
