@@ -982,13 +982,17 @@ const PlayerLeaderboardTable = () => {
                       >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-primary/20 text-primary' :
-                        index === 1 ? 'bg-muted text-muted-foreground' :
-                        index === 2 ? 'bg-muted text-muted-foreground' :
+                        index === 0 ? 'bg-yellow-500/20' :
+                        index === 1 ? 'bg-gray-400/20' :
+                        index === 2 ? 'bg-amber-600/20' :
                         'bg-muted/50 text-muted-foreground'
                       }`}>
                         {index < 3 ? (
-                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          <Trophy className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${
+                            index === 0 ? 'text-yellow-500' :
+                            index === 1 ? 'text-gray-400' :
+                            'text-amber-600'
+                          }`} />
                         ) : (
                           index + 1
                         )}
@@ -1140,13 +1144,17 @@ const PlayerLeaderboardTable = () => {
                       >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-primary/20 text-primary' :
-                        index === 1 ? 'bg-muted text-muted-foreground' :
-                        index === 2 ? 'bg-muted text-muted-foreground' :
+                        index === 0 ? 'bg-yellow-500/20' :
+                        index === 1 ? 'bg-gray-400/20' :
+                        index === 2 ? 'bg-amber-600/20' :
                         'bg-muted/50 text-muted-foreground'
                       }`}>
                         {index < 3 ? (
-                          <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          <Trophy className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${
+                            index === 0 ? 'text-yellow-500' :
+                            index === 1 ? 'text-gray-400' :
+                            'text-amber-600'
+                          }`} />
                         ) : (
                           index + 1
                         )}
@@ -1300,12 +1308,20 @@ const PlayerLeaderboardTable = () => {
                       >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-                        index === 0 ? 'bg-primary/20 text-primary' :
-                        index === 1 ? 'bg-muted text-muted-foreground' :
-                        index === 2 ? 'bg-muted text-muted-foreground' :
+                        index === 0 ? 'bg-yellow-500/20' :
+                        index === 1 ? 'bg-gray-400/20' :
+                        index === 2 ? 'bg-amber-600/20' :
                         'bg-muted/50 text-muted-foreground'
                       }`}>
-                        {index + 1}
+                        {index < 3 ? (
+                          <Trophy className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${
+                            index === 0 ? 'text-yellow-500' :
+                            index === 1 ? 'text-gray-400' :
+                            'text-amber-600'
+                          }`} />
+                        ) : (
+                          index + 1
+                        )}
                       </div>
                       <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border border-border flex-shrink-0">
                         <AvatarImage src={player.avatarUrl} alt={player.displayName} />
