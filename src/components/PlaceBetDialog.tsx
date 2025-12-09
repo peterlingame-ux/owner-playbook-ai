@@ -521,13 +521,21 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           {showMatchSelection && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">挑战AI</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">挑战AI</span>
+                  <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 bg-muted rounded">
+                    {format(new Date(), 'MM月dd日')}
+                  </span>
+                </div>
                 {isDemo && (
                   <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">
                     演示
                   </Badge>
                 )}
               </div>
+              <p className="text-[10px] text-muted-foreground">
+                以下为今日AI预测比赛，每日更新
+              </p>
               
               {isLoadingMatches ? (
                 <div className="flex items-center justify-center py-8">
