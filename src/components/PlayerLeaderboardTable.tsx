@@ -137,6 +137,9 @@ const PlayerLeaderboardTable = () => {
     newBalance: number;
     betAmount: number;
     playerName: string;
+    prediction?: TodayPrediction;
+    predictionType?: string;
+    odds?: string;
   } | null>(null);
   
   // 已跟单的预测ID集合 - 跟单后才能看到具体盘口
@@ -709,6 +712,12 @@ const PlayerLeaderboardTable = () => {
         return newSet;
       });
       
+      // 计算赔率和预测类型
+      const odds = copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount 
+        ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2) 
+        : '1.85';
+      const predictionType = copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球';
+      
       // 显示成功动画
       setCopySuccess({
         show: true,
@@ -716,6 +725,9 @@ const PlayerLeaderboardTable = () => {
         newBalance: result.new_balance || (oldBalance - copyBetAmount),
         betAmount: copyBetAmount,
         playerName: copyTradeDialog.player.displayName,
+        prediction: copyTradeDialog.prediction,
+        predictionType,
+        odds,
       });
       
       setCopyTradeDialog(null);
@@ -2005,11 +2017,57 @@ const PlayerLeaderboardTable = () => {
                   </p>
                 </motion.div>
 
+                {/* 解锁的比赛信息 */}
+                {copySuccess.prediction && (
+                  <motion.div
+                    initial={{ y: 20, opacity: 0, scale: 0.95 }}
+                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, type: "spring" }}
+                    className="p-3 rounded-lg bg-primary/5 border border-primary/20"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <motion.div
+                        initial={{ rotate: -180, scale: 0 }}
+                        animate={{ rotate: 0, scale: 1 }}
+                        transition={{ delay: 0.6, type: "spring" }}
+                      >
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                      </motion.div>
+                      <span className="text-xs font-medium text-success">比赛详情已解锁</span>
+                    </div>
+                    
+                    <div className="text-sm font-medium text-center mb-2">
+                      {copySuccess.prediction.home_team || '主队'} 
+                      <span className="text-muted-foreground mx-2">vs</span> 
+                      {copySuccess.prediction.away_team || '客队'}
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="text-center p-2 rounded bg-muted/50">
+                        <div className="text-muted-foreground mb-0.5">类型</div>
+                        <div className="font-medium">{copySuccess.predictionType}</div>
+                      </div>
+                      <div className="text-center p-2 rounded bg-muted/50">
+                        <div className="text-muted-foreground mb-0.5">预测</div>
+                        <div className="font-medium text-primary">{copySuccess.prediction.prediction}</div>
+                      </div>
+                      <div className="text-center p-2 rounded bg-muted/50">
+                        <div className="text-muted-foreground mb-0.5">赔率</div>
+                        <div className="font-medium">{copySuccess.odds}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center text-xs text-muted-foreground mt-2">
+                      玩家下注: <span className="text-foreground font-medium">¥{copySuccess.prediction.bet_amount}</span>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* 余额变化动画 */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.6 }}
                   className="p-4 rounded-lg bg-muted/50 border border-border/50"
                 >
                   <p className="text-xs text-muted-foreground mb-2">账户余额变化</p>
@@ -2017,7 +2075,7 @@ const PlayerLeaderboardTable = () => {
                     <motion.div
                       initial={{ opacity: 1 }}
                       animate={{ opacity: 0.5 }}
-                      transition={{ delay: 1 }}
+                      transition={{ delay: 1.2 }}
                       className="text-lg font-mono"
                     >
                       ¥{copySuccess.oldBalance.toLocaleString()}
