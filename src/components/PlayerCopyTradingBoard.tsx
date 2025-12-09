@@ -1012,20 +1012,28 @@ const PlayerCopyTradingBoard = () => {
                           )}
                         </div>
                         
-                        {/* 类型 */}
+                        {/* 类型 + 具体预测 */}
                         <div className="col-span-2 text-center">
                           <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
                             pred.prediction_type === 'over_under' 
                               ? 'bg-blue-500/10 text-blue-500' 
                               : 'bg-orange-500/10 text-orange-500'
                           }`}>
-                            {pred.prediction_type === 'over_under' ? '大小' : '让球'}
+                            {pred.prediction_type === 'over_under' ? '大小球' : '让分'}
                           </span>
                         </div>
                         
-                        {/* 预测 + 赔率 */}
+                        {/* 预测详情 + 赔率 */}
                         <div className="col-span-2 text-center">
-                          <div className="font-medium text-[11px]">{pred.prediction}</div>
+                          <div className="font-medium text-[11px]">
+                            {pred.prediction_type === 'over_under' 
+                              ? (pred.prediction.toLowerCase().includes('over') || pred.prediction.includes('大') 
+                                  ? `大${pred.prediction.replace(/[^\d.]/g, '') || '2.5'}` 
+                                  : `小${pred.prediction.replace(/[^\d.]/g, '') || '2.5'}`)
+                              : (pred.prediction.includes('+') || pred.prediction.includes('主') 
+                                  ? `主让${pred.prediction.replace(/[^\d.+-]/g, '') || '0.5'}` 
+                                  : `客让${pred.prediction.replace(/[^\d.+-]/g, '').replace('-', '') || '0.5'}`)}
+                          </div>
                           <div className="text-[10px] text-muted-foreground">@{odds}</div>
                         </div>
                         
