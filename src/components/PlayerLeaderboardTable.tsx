@@ -95,6 +95,7 @@ interface PlayerData {
   worstStreak?: number;
   isVirtual?: boolean;
   isRecommender?: boolean;
+  unlockPrice?: number; // USDT解锁价格，0或undefined表示免费
 }
 
 interface TodayPrediction {
@@ -147,6 +148,10 @@ const PlayerLeaderboardTable = () => {
   // 已跟单的预测ID集合 - 跟单后才能看到具体盘口
   const [copiedPredictions, setCopiedPredictions] = useState<Set<string>>(new Set());
   
+  // USDT解锁弹窗状态
+  const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  
   // Get real balance from auth context
   const realBalance = userBalance?.balance ?? 10000;
 
@@ -196,6 +201,7 @@ const PlayerLeaderboardTable = () => {
               rank: index + 1,
               isVirtual: true,
               isRecommender: player.isRecommender ?? true,
+              unlockPrice: player.unlockPrice,
             };
           });
         
@@ -752,8 +758,87 @@ const PlayerLeaderboardTable = () => {
     const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
     if (!player) return;
     
-    setCopyTradeDialog({ player, prediction: pred });
-    setCopyBetAmount(100);
+    // 检查是否需要付费解锁
+    const unlockPrice = player.unlockPrice ?? 0;
+    if (unlockPrice > 0) {
+      // 需要付费，显示解锁弹窗
+      setUnlockDialog({ player, prediction: pred });
+    } else {
+      // 免费，直接进入跟单流程
+      setCopyTradeDialog({ player, prediction: pred });
+      setCopyBetAmount(100);
+    }
+  };
+  
+  // 获取用户USDT余额
+  const [usdtBalance, setUsdtBalance] = useState(0);
+  
+  useEffect(() => {
+    const fetchUsdtBalance = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('usdt_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) {
+        setUsdtBalance(data.balance);
+      }
+    };
+    fetchUsdtBalance();
+  }, [user]);
+  
+  // 确认USDT解锁
+  const confirmUnlock = async () => {
+    if (!unlockDialog || !user) {
+      toast.error('请先登录');
+      return;
+    }
+    
+    const unlockPrice = unlockDialog.player.unlockPrice ?? 0;
+    
+    if (usdtBalance < unlockPrice) {
+      toast.error(`USDT余额不足，需要 ${unlockPrice} USDT，当前余额 ${usdtBalance} USDT`);
+      return;
+    }
+    
+    setIsUnlocking(true);
+    
+    try {
+      // 扣除USDT
+      const { error } = await supabase
+        .from('usdt_wallets')
+        .update({ balance: usdtBalance - unlockPrice })
+        .eq('user_id', user.id);
+      
+      if (error) {
+        toast.error('扣款失败：' + error.message);
+        return;
+      }
+      
+      // 更新本地USDT余额
+      setUsdtBalance(prev => prev - unlockPrice);
+      
+      // 将预测添加到已解锁列表
+      setCopiedPredictions(prev => {
+        const newSet = new Set(prev);
+        newSet.add(unlockDialog.prediction.id);
+        return newSet;
+      });
+      
+      toast.success(`已扣除 ${unlockPrice} USDT，预测已解锁`);
+      
+      // 关闭解锁弹窗，进入跟单流程
+      setUnlockDialog(null);
+      setCopyTradeDialog({ player: unlockDialog.player, prediction: unlockDialog.prediction });
+      setCopyBetAmount(100);
+      
+    } catch (error) {
+      console.error('Unlock error:', error);
+      toast.error('解锁失败，请稍后重试');
+    } finally {
+      setIsUnlocking(false);
+    }
   };
 
   const getRankColor = (rank: number) => {
@@ -1874,6 +1959,88 @@ const PlayerLeaderboardTable = () => {
                   </>
                 );
               })()}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* USDT解锁确认弹窗 */}
+      <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-amber-500" />
+              解锁预测
+            </DialogTitle>
+          </DialogHeader>
+          
+          {unlockDialog && (
+            <div className="space-y-4">
+              {/* 玩家信息 */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Avatar className="w-10 h-10 border-2 border-amber-500/30">
+                  <AvatarImage src={unlockDialog.player.avatarUrl} />
+                  <AvatarFallback>{unlockDialog.player.displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{maskPlayerName(unlockDialog.player.displayName)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    胜率: <span className={unlockDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
+                      {unlockDialog.player.winRate.toFixed(1)}%
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* 解锁费用 */}
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+                <p className="text-sm text-muted-foreground mb-2">解锁此玩家预测需要</p>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-2xl font-bold text-amber-500">{unlockDialog.player.unlockPrice}</span>
+                  <span className="text-lg font-medium text-amber-500">USDT</span>
+                </div>
+              </div>
+
+              {/* USDT余额 */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 text-sm">
+                <span className="text-muted-foreground">您的USDT余额</span>
+                <span className={`font-medium ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-success' : 'text-destructive'}`}>
+                  {usdtBalance.toFixed(2)} USDT
+                </span>
+              </div>
+
+              {/* 余额不足提示 */}
+              {usdtBalance < (unlockDialog.player.unlockPrice ?? 0) && (
+                <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+                  <span>⚠️</span>
+                  <span>USDT余额不足，请先充值</span>
+                </div>
+              )}
+
+              {/* 操作按钮 */}
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setUnlockDialog(null)}
+                >
+                  取消
+                </Button>
+                <Button 
+                  className="flex-1 bg-amber-500 hover:bg-amber-600"
+                  onClick={confirmUnlock}
+                  disabled={isUnlocking || usdtBalance < (unlockDialog.player.unlockPrice ?? 0) || !user}
+                >
+                  {isUnlocking ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                      解锁中...
+                    </div>
+                  ) : (
+                    <>确认解锁</>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

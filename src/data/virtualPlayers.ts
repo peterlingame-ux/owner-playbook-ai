@@ -14,6 +14,8 @@ export interface VirtualPlayer {
   allowCopyTrade?: boolean;
   // 是否为推荐者（用于推荐排行榜）
   isRecommender?: boolean;
+  // 解锁价格（USDT），0或undefined表示免费
+  unlockPrice?: number;
 }
 
 export const virtualPlayers: VirtualPlayer[] = [
@@ -31,6 +33,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     worstStreak: 2,
     allowCopyTrade: true,
     isRecommender: true,
+    unlockPrice: 5, // 需要5 USDT解锁
   },
   {
     id: 'virtual-2',
@@ -46,6 +49,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     worstStreak: 3,
     allowCopyTrade: true,
     isRecommender: false,
+    unlockPrice: 3, // 需要3 USDT解锁
   },
   {
     id: 'virtual-3',
@@ -61,6 +65,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     worstStreak: 3,
     allowCopyTrade: false,
     isRecommender: true,
+    unlockPrice: 0, // 免费
   },
   {
     id: 'virtual-4',
@@ -76,6 +81,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     worstStreak: 4,
     allowCopyTrade: true,
     isRecommender: true,
+    unlockPrice: 2, // 需要2 USDT解锁
   },
   {
     id: 'virtual-5',
@@ -91,6 +97,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     worstStreak: 4,
     allowCopyTrade: false,
     isRecommender: true,
+    unlockPrice: 0, // 免费
   },
   {
     id: 'virtual-6',
@@ -106,6 +113,7 @@ export const virtualPlayers: VirtualPlayer[] = [
     worstStreak: 5,
     allowCopyTrade: true,
     isRecommender: false,
+    unlockPrice: 1, // 需要1 USDT解锁
   },
   {
     id: 'virtual-7',
