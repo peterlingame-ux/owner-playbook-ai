@@ -2365,7 +2365,6 @@ const PlayerLeaderboardTable = () => {
                       navigate('/my-predictions');
                     }}
                   >
-                    <History className="h-4 w-4 mr-2" />
                     查看我的跟单记录
                   </Button>
                 </motion.div>
