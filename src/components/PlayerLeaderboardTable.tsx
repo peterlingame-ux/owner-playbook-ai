@@ -2359,6 +2359,7 @@ const PlayerLeaderboardTable = () => {
                   transition={{ delay: 0.9 }}
                 >
                   <Button 
+                    variant="outline"
                     className="w-full"
                     onClick={() => {
                       setCopySuccess(null);
