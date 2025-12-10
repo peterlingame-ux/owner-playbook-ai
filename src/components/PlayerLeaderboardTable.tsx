@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
+import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -1096,9 +1097,11 @@ const PlayerLeaderboardTable = () => {
               </div>
             </div>
             <div className="text-center sm:text-right">
-              <p className="text-2xl sm:text-3xl font-black text-warning font-mono-data">
-                ${PRIZE_POOL.toLocaleString()}
-              </p>
+              <AnimatedPrizePool 
+                value={PRIZE_POOL} 
+                className="text-2xl sm:text-3xl font-black text-warning font-mono-data"
+                duration={1500}
+              />
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                 当前符合条件玩家: <span className="font-bold text-success">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span> 人
               </p>
@@ -1256,7 +1259,7 @@ const PlayerLeaderboardTable = () => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                               const prize = calculateEstimatedPrize(player.winRate, index + 1, eligiblePlayers);
                               return prize > 0 ? (
-                                <span className="text-warning font-bold">${prize.toLocaleString()}</span>
+                                <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
                                 <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
                               );
@@ -1434,7 +1437,7 @@ const PlayerLeaderboardTable = () => {
                               const profitRank = sortedByProfit.findIndex(p => p.id === player.id) + 1;
                               const prize = calculateEstimatedPrize(player.winRate, profitRank, eligiblePlayers);
                               return prize > 0 ? (
-                                <span className="text-warning font-bold">${prize.toLocaleString()}</span>
+                                <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
                                 <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
                               );
@@ -1610,7 +1613,7 @@ const PlayerLeaderboardTable = () => {
                               const coldRank = sortedByWorstStreak.findIndex(p => p.id === player.id) + 1;
                               const prize = calculateEstimatedPrize(player.winRate, coldRank, eligiblePlayers);
                               return prize > 0 ? (
-                                <span className="text-warning font-bold">${prize.toLocaleString()}</span>
+                                <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
                                 <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
                               );
