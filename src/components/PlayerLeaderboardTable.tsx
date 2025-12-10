@@ -1234,30 +1234,23 @@ const PlayerLeaderboardTable = () => {
                           })()}
                         </div>
                         {/* 统计数据网格 - 更整齐的布局 */}
-                        <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs">
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">预测</span>
-                            <span className="text-foreground font-medium">{player.totalPredictions}</span>
+                        <div className="text-[10px] sm:text-xs space-y-1">
+                          {/* 第一行：核心数据 */}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+                            <span className="text-border">|</span>
+                            <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
+                            <span className="text-border">|</span>
+                            <span>连胜 <span className="text-primary font-bold">{player.currentStreak || 0}</span></span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">胜率</span>
-                            <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span>
+                          {/* 第二行：胜负与投注 */}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <span>战绩 <span className="text-success">{player.correctPredictions}</span><span className="text-muted-foreground/50">/</span><span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span></span>
+                            <span className="text-border">|</span>
+                            <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">连胜</span>
-                            <span className="text-primary font-bold">{player.currentStreak || 0}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-success">{player.correctPredictions}</span>
-                            <span className="text-muted-foreground">/</span>
-                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
-                          </div>
-                          <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground">投注</span>
-                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
-                          </div>
-                          <div className="flex items-center gap-1 col-span-3 mt-0.5 pt-0.5 border-t border-border/30">
-                            <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
+                          {/* 第三行：预计奖金 */}
+                          <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
                             <span className="text-muted-foreground">预计奖金</span>
                             {(() => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
@@ -1265,7 +1258,7 @@ const PlayerLeaderboardTable = () => {
                               return prize > 0 ? (
                                 <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
-                                <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                                <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
                               );
                             })()}
                           </div>
@@ -1412,32 +1405,23 @@ const PlayerLeaderboardTable = () => {
                           })()}
                         </div>
                         {/* 统计数据网格 - 更整齐的布局 */}
-                        <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs">
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">预测</span>
-                            <span className="text-foreground font-medium">{player.totalPredictions}</span>
+                        <div className="text-[10px] sm:text-xs space-y-1">
+                          {/* 第一行：核心数据 */}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+                            <span className="text-border">|</span>
+                            <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
+                            <span className="text-border">|</span>
+                            <span>盈利 <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}</span></span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">胜率</span>
-                            <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span>
+                          {/* 第二行：胜负与投注 */}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <span>战绩 <span className="text-success">{player.correctPredictions}</span><span className="text-muted-foreground/50">/</span><span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span></span>
+                            <span className="text-border">|</span>
+                            <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">盈利</span>
-                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                              {((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-success">{player.correctPredictions}</span>
-                            <span className="text-muted-foreground">/</span>
-                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
-                          </div>
-                          <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground">投注</span>
-                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
-                          </div>
-                          <div className="flex items-center gap-1 col-span-3 mt-0.5 pt-0.5 border-t border-border/30">
-                            <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
+                          {/* 第三行：预计奖金 */}
+                          <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
                             <span className="text-muted-foreground">预计奖金</span>
                             {(() => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
@@ -1447,7 +1431,7 @@ const PlayerLeaderboardTable = () => {
                               return prize > 0 ? (
                                 <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
-                                <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                                <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
                               );
                             })()}
                           </div>
@@ -1594,30 +1578,23 @@ const PlayerLeaderboardTable = () => {
                           })()}
                         </div>
                         {/* 统计数据网格 - 更整齐的布局 */}
-                        <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs">
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">预测</span>
-                            <span className="text-foreground font-medium">{player.totalPredictions}</span>
+                        <div className="text-[10px] sm:text-xs space-y-1">
+                          {/* 第一行：核心数据 */}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+                            <span className="text-border">|</span>
+                            <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
+                            <span className="text-border">|</span>
+                            <span>连黑 <span className="text-destructive font-bold">{player.worstStreak || 0}</span></span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">胜率</span>
-                            <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span>
+                          {/* 第二行：胜负与投注 */}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <span>战绩 <span className="text-success">{player.correctPredictions}</span><span className="text-muted-foreground/50">/</span><span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span></span>
+                            <span className="text-border">|</span>
+                            <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">连黑</span>
-                            <span className="text-destructive font-bold">{player.worstStreak || 0}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-success">{player.correctPredictions}</span>
-                            <span className="text-muted-foreground">/</span>
-                            <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
-                          </div>
-                          <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground">投注</span>
-                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
-                          </div>
-                          <div className="flex items-center gap-1 col-span-3 mt-0.5 pt-0.5 border-t border-border/30">
-                            <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
+                          {/* 第三行：预计奖金 */}
+                          <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
                             <span className="text-muted-foreground">预计奖金</span>
                             {(() => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
@@ -1627,7 +1604,7 @@ const PlayerLeaderboardTable = () => {
                               return prize > 0 ? (
                                 <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
-                                <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                                <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
                               );
                             })()}
                           </div>
