@@ -630,8 +630,7 @@ const LeaderboardTable = () => {
                       <TableCell className="text-center py-3 sm:py-4">
                         <AnimatedWinRate 
                           value={model.winRate}
-                          className="font-mono-data font-black text-base sm:text-lg"
-                          style={{ color: `hsl(var(--${model.color}))` }}
+                          className="font-mono-data font-black text-base sm:text-lg text-foreground"
                         />
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
@@ -640,12 +639,12 @@ const LeaderboardTable = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                        <span className={`font-mono-data font-bold text-sm sm:text-base ${((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                           {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                        <span className={`font-mono-data font-bold text-sm sm:text-base ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                           {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
                         </span>
                       </TableCell>
