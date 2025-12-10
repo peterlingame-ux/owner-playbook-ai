@@ -1253,6 +1253,10 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
+                            <span className="text-muted-foreground">投注</span>
+                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
+                          </div>
+                          <div className="flex items-center gap-1 col-span-3 mt-0.5 pt-0.5 border-t border-border/30">
                             <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
                             <span className="text-muted-foreground">预计奖金</span>
                             {(() => {
@@ -1419,7 +1423,7 @@ const PlayerLeaderboardTable = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">盈利</span>
-                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                            <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                               {((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}
                             </span>
                           </div>
@@ -1429,6 +1433,10 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
+                            <span className="text-muted-foreground">投注</span>
+                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
+                          </div>
+                          <div className="flex items-center gap-1 col-span-3 mt-0.5 pt-0.5 border-t border-border/30">
                             <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
                             <span className="text-muted-foreground">预计奖金</span>
                             {(() => {
@@ -1605,6 +1613,10 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
+                            <span className="text-muted-foreground">投注</span>
+                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
+                          </div>
+                          <div className="flex items-center gap-1 col-span-3 mt-0.5 pt-0.5 border-t border-border/30">
                             <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
                             <span className="text-muted-foreground">预计奖金</span>
                             {(() => {
