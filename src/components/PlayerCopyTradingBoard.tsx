@@ -15,7 +15,24 @@ import usdtIcon from "@/assets/usdt-icon.png";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
+import { AnimatedPrize } from "@/components/AnimatedPrize";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
+
+// 奖金池配置
+const PRIZE_POOL = 1000000;
+const AI_BENCHMARK_WIN_RATE = 58;
+
+// 计算预计奖金
+const calculateEstimatedPrize = (winRate: number, rank: number, eligiblePlayers: number): number => {
+  if (winRate <= AI_BENCHMARK_WIN_RATE) return 0;
+  if (eligiblePlayers === 0) return 0;
+  
+  const baseShare = PRIZE_POOL / eligiblePlayers;
+  const rankBonus = Math.max(0, (10 - rank) / 10) * 0.3 + 0.7;
+  const winRateBonus = 1 + ((winRate - AI_BENCHMARK_WIN_RATE) / 100);
+  
+  return Math.floor(baseShare * rankBonus * winRateBonus);
+};
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -629,72 +646,33 @@ const PlayerCopyTradingBoard = () => {
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
-          <div className="flex flex-col gap-0.5 sm:gap-1">
-            {/* 盈利金额和投注金额 - 在胜率和盈利率上面 */}
-            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_amount') || '盈利金额'}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">盈:</span>
-                <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? (streakType === 'best' ? 'text-destructive' : 'text-success') : (streakType === 'best' ? 'text-destructive/60' : 'text-success/60')}`}>
-                  {(player.profitAmount || 0) >= 0 ? '+' : ''}${((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                </span>
-              </span>
-              <span className="text-border hidden sm:inline">|</span>
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('bet_amount') || '投注金额'}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">投:</span>
-                <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                  ${((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                </span>
-              </span>
+          <div className="text-[10px] sm:text-xs space-y-1">
+            {/* 第一行：核心数据 */}
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+              <span className="text-border">|</span>
+              <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
+              <span className="text-border">|</span>
+              <span>{streakType === 'best' ? '连胜' : '连黑'} <span className={streakType === 'best' ? 'text-primary font-bold' : 'text-destructive font-bold'}>{streakType === 'best' ? player.bestStreak : player.worstStreak}</span></span>
             </div>
-            {/* 预测场数、正确、错误、胜率和盈利率 */}
-            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap">
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('total_predictions') || '预测'}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">预:</span>
-                <span className="text-foreground font-medium">{player.totalPredictions}</span>
-              </span>
-              <span className="text-border hidden sm:inline">|</span>
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('correct') || '正确'}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">对:</span>
-                <span className="text-success font-medium">{player.correctPredictions}</span>
-              </span>
-              <span className="text-border hidden sm:inline">|</span>
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('incorrect') || '错误'}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">错:</span>
-                <span className="text-destructive font-medium">{player.totalPredictions - player.correctPredictions}</span>
-              </span>
-              <span className="text-border hidden sm:inline">|</span>
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('win_rate')}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">胜:</span>
-                <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                  {player.winRate.toFixed(1)}%
-                </span>
-              </span>
-              <span className="text-border hidden sm:inline">|</span>
-              <span className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-muted-foreground/70 hidden sm:inline">{t('profit_label')}:</span>
-                <span className="text-muted-foreground/70 sm:hidden">盈:</span>
-                <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                  {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
-                </span>
-              </span>
-              {showStreak && (
-                <>
-                  <span className="text-border hidden sm:inline">|</span>
-                  <span className="flex items-center gap-0.5 sm:gap-1">
-                    <span className="text-muted-foreground/70 hidden sm:inline">{streakType === 'best' ? t('best_streak') : t('worst_streak')}:</span>
-                    <span className="text-muted-foreground/70 sm:hidden">{streakType === 'best' ? '连' : '黑'}:</span>
-                    <span className={streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'}>
-                      {streakType === 'best' ? player.bestStreak : player.worstStreak}{t('matches_unit')}
-                    </span>
-                  </span>
-                </>
-              )}
+            {/* 第二行：战绩与投注 */}
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <span>战绩 <span className="text-success">{player.correctPredictions}</span><span className="text-muted-foreground/50">/</span><span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span></span>
+              <span className="text-border">|</span>
+              <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
+            </div>
+            {/* 第三行：预计奖金 */}
+            <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
+              <span className="text-muted-foreground">预计奖金</span>
+              {(() => {
+                const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
+                return prize > 0 ? (
+                  <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
+                ) : (
+                  <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                );
+              })()}
             </div>
           </div>
         </div>
