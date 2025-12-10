@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -153,6 +153,30 @@ const PlayerLeaderboardTable = () => {
   // USDT解锁弹窗状态
   const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  
+  // 奖金池配置
+  const PRIZE_POOL = 1000000; // $1,000,000
+  const AI_BENCHMARK_WIN_RATE = 58; // AI基准胜率 58%
+  
+  // 计算预计奖金
+  const calculateEstimatedPrize = (playerWinRate: number, playerRank: number, totalEligiblePlayers: number): number => {
+    // 只有胜率超过AI的玩家才能获得奖金
+    if (playerWinRate <= AI_BENCHMARK_WIN_RATE) return 0;
+    
+    // 胜率超出AI的部分
+    const winRateSurplus = playerWinRate - AI_BENCHMARK_WIN_RATE;
+    
+    // 基础奖金计算：根据排名和胜率超出部分
+    // 排名越高，奖金越多；胜率超出越多，奖金越多
+    const rankMultiplier = Math.max(1 - (playerRank - 1) * 0.08, 0.1); // 排名1=100%, 排名10=28%
+    const surplusMultiplier = Math.min(winRateSurplus / 20, 1.5); // 胜率超出20%以上获得最高倍数
+    
+    // 基础奖金池份额
+    const baseShare = PRIZE_POOL * 0.6 / Math.max(totalEligiblePlayers, 1); // 60%奖池均分
+    const bonusShare = PRIZE_POOL * 0.4 * rankMultiplier * surplusMultiplier / 10; // 40%奖池根据表现分配
+    
+    return Math.floor(baseShare + bonusShare);
+  };
   
   // Get real balance from auth context
   const realBalance = userBalance?.balance ?? 10000;
@@ -1054,6 +1078,35 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
       )}
+      
+      {/* Prize Pool Banner */}
+      <Card className="border-warning/30 bg-gradient-to-r from-warning/5 via-warning/10 to-warning/5 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-warning/10 via-transparent to-transparent" />
+        <CardContent className="p-4 sm:p-5 relative">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
+                <DollarSign className="h-6 w-6 sm:h-7 sm:w-7 text-warning" />
+              </div>
+              <div>
+                <h3 className="font-bold text-base sm:text-lg text-foreground mb-0.5">30天奖金池</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  胜率超过AI基准 <span className="font-bold text-warning">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
+                </p>
+              </div>
+            </div>
+            <div className="text-center sm:text-right">
+              <p className="text-2xl sm:text-3xl font-black text-warning font-mono-data">
+                ${PRIZE_POOL.toLocaleString()}
+              </p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                当前符合条件玩家: <span className="font-bold text-success">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span> 人
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column: 高胜率榜 (Hot Streak) */}
@@ -1185,7 +1238,7 @@ const PlayerLeaderboardTable = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">胜率</span>
-                            <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span>
+                            <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">连胜</span>
@@ -1197,8 +1250,17 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground">投注</span>
-                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
+                            <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
+                            <span className="text-muted-foreground">预计奖金</span>
+                            {(() => {
+                              const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                              const prize = calculateEstimatedPrize(player.winRate, index + 1, eligiblePlayers);
+                              return prize > 0 ? (
+                                <span className="text-warning font-bold">${prize.toLocaleString()}</span>
+                              ) : (
+                                <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -1350,7 +1412,7 @@ const PlayerLeaderboardTable = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">胜率</span>
-                            <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span>
+                            <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">盈利</span>
@@ -1364,8 +1426,19 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground">投注</span>
-                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
+                            <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
+                            <span className="text-muted-foreground">预计奖金</span>
+                            {(() => {
+                              const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                              const sortedByProfit = [...allPlayers].sort((a, b) => (b.profitAmount || 0) - (a.profitAmount || 0));
+                              const profitRank = sortedByProfit.findIndex(p => p.id === player.id) + 1;
+                              const prize = calculateEstimatedPrize(player.winRate, profitRank, eligiblePlayers);
+                              return prize > 0 ? (
+                                <span className="text-warning font-bold">${prize.toLocaleString()}</span>
+                              ) : (
+                                <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -1517,11 +1590,11 @@ const PlayerLeaderboardTable = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">胜率</span>
-                            <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span>
+                            <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">连黑</span>
-                            <span className="text-primary font-bold">{player.worstStreak || 0}</span>
+                            <span className="text-destructive font-bold">{player.worstStreak || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-success">{player.correctPredictions}</span>
@@ -1529,8 +1602,19 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span>
                           </div>
                           <div className="flex items-center gap-1 col-span-2">
-                            <span className="text-muted-foreground">投注</span>
-                            <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span>
+                            <DollarSign className="h-3 w-3 text-warning flex-shrink-0" />
+                            <span className="text-muted-foreground">预计奖金</span>
+                            {(() => {
+                              const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                              const sortedByWorstStreak = [...allPlayers].sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0));
+                              const coldRank = sortedByWorstStreak.findIndex(p => p.id === player.id) + 1;
+                              const prize = calculateEstimatedPrize(player.winRate, coldRank, eligiblePlayers);
+                              return prize > 0 ? (
+                                <span className="text-warning font-bold">${prize.toLocaleString()}</span>
+                              ) : (
+                                <span className="text-muted-foreground/60 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
