@@ -573,19 +573,19 @@ const LeaderboardTable = () => {
               <Table className="min-w-[800px]">
                 <TableHeader>
                   <TableRow className="border-b border-border/40 hover:bg-transparent bg-muted/10">
-                    <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase text-center">#</TableHead>
-                    <TableHead className="py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0">{t('model')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('total_predictions') || '总预测'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('correct') || '正确'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('wrong') || '错误'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">
+                    <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-center font-sans">#</TableHead>
+                    <TableHead className="py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0 font-sans">{t('model')}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('total_predictions') || '总预测'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('correct') || '正确'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('wrong') || '错误'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">
                       <div className="flex items-center justify-center gap-1.5">
                         {t('win_rate')} <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       </div>
                     </TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('bet_amount') || '投注金额'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_amount') || '盈利金额'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-bold text-[10px] sm:text-xs tracking-wider uppercase">{t('profit_rate') || '盈利率'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('bet_amount') || '投注金额'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('profit_amount') || '盈利金额'}</TableHead>
+                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('profit_rate') || '盈利率'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -596,7 +596,7 @@ const LeaderboardTable = () => {
                     >
                       <TableCell className="py-3 sm:py-4 text-center">
                         <div className="flex items-center justify-center">
-                          <span className="font-black text-sm sm:text-base text-foreground/70">{index + 1}</span>
+                          <span className="font-semibold text-sm sm:text-base text-foreground/70 font-sans">{index + 1}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3 sm:py-4">
@@ -609,42 +609,42 @@ const LeaderboardTable = () => {
                               style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                             />
                           </div>
-                          <span className="font-bold text-sm sm:text-base truncate">{getModelDisplayName(model)}</span>
+                          <span className="font-semibold text-sm sm:text-base truncate font-display">{getModelDisplayName(model)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : model.totalPredictions}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : (model as any).correctPredictions || 0}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
                         <AnimatedWinRate 
                           value={model.winRate}
-                          className="font-mono-data font-black text-base sm:text-lg text-foreground"
+                          className="font-mono-data font-semibold text-base sm:text-lg text-foreground"
                         />
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-bold text-sm sm:text-base text-muted-foreground">
+                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
                           {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className={`font-mono-data font-bold text-sm sm:text-base ${((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                           {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                         </span>
                       </TableCell>
                       <TableCell className="text-center py-3 sm:py-4">
-                        <span className={`font-mono-data font-bold text-sm sm:text-base ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                           {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
                         </span>
                       </TableCell>
