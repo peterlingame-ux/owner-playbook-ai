@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, Maximize2, RotateCcw, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import footballPitchBg from '@/assets/football-pitch-bg.webp';
+import hunsoccerAlphaLogo from '@/assets/hunsoccer-alpha-logo-white.png';
 
 interface HeatmapPoint {
   x: number;
@@ -857,6 +858,18 @@ export default function LiveFootballAnimation({
         />
         {/* 半透明遮罩增加对比度 */}
         <div className="absolute inset-0 bg-black/10" />
+        
+        {/* 中场LOGO */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 1 }}>
+          <img 
+            src={hunsoccerAlphaLogo}
+            alt="HUNSOCCER ALPHA"
+            className="w-24 h-auto md:w-32 opacity-20"
+            style={{
+              filter: 'invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.3))',
+            }}
+          />
+        </div>
 
         {/* 热力图层 */}
         {showHeatmap && (
