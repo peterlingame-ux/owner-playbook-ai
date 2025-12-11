@@ -1306,16 +1306,16 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-border">|</span>
                             <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
                           </div>
-                          {/* 第三行：挑战AI预计获得奖金 */}
+                          {/* 第三行：预期奖金 */}
                           <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
-                            <span className="text-warning font-medium text-[10px] sm:text-xs">🏆 挑战AI,预计收益</span>
+                            <span className="text-warning font-medium text-[10px] sm:text-xs">预期奖金</span>
                             {(() => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                               const prize = calculateEstimatedPrize(player.winRate, index + 1, eligiblePlayers);
                               return prize > 0 ? (
                                 <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
-                                <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                                <span className="text-muted-foreground/50 text-[10px]">未达标</span>
                               );
                             })()}
                           </div>
@@ -1477,9 +1477,9 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-border">|</span>
                             <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
                           </div>
-                          {/* 第三行：挑战AI预计获得奖金 */}
+                          {/* 第三行：预期奖金 */}
                           <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
-                            <span className="text-warning font-medium text-[10px] sm:text-xs">🏆 挑战AI,预计收益</span>
+                            <span className="text-warning font-medium text-[10px] sm:text-xs">预期奖金</span>
                             {(() => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                               const sortedByProfit = [...allPlayers].sort((a, b) => (b.profitAmount || 0) - (a.profitAmount || 0));
@@ -1488,7 +1488,7 @@ const PlayerLeaderboardTable = () => {
                               return prize > 0 ? (
                                 <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
-                                <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                                <span className="text-muted-foreground/50 text-[10px]">未达标</span>
                               );
                             })()}
                           </div>
@@ -1650,9 +1650,9 @@ const PlayerLeaderboardTable = () => {
                             <span className="text-border">|</span>
                             <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
                           </div>
-                          {/* 第三行：挑战AI预计获得奖金 */}
+                          {/* 第三行：预期奖金 */}
                           <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
-                            <span className="text-warning font-medium text-[10px] sm:text-xs">🏆 挑战AI,预计收益</span>
+                            <span className="text-warning font-medium text-[10px] sm:text-xs">预期奖金</span>
                             {(() => {
                               const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                               const sortedByWorstStreak = [...allPlayers].sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0));
@@ -1661,7 +1661,7 @@ const PlayerLeaderboardTable = () => {
                               return prize > 0 ? (
                                 <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                               ) : (
-                                <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                                <span className="text-muted-foreground/50 text-[10px]">未达标</span>
                               );
                             })()}
                           </div>
