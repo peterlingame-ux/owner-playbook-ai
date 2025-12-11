@@ -93,7 +93,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast.info(t('copy_trade_unavailable_desc') || 'FOLLOW MODEL功能即将上线，敬请期待！');
+    toast.info('请联系HUNSOCCER工作人员开通自动跟单功能');
   };
   
   const handleCardClick = () => {
@@ -217,7 +217,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               onClick={handleCopyTrade}
               className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
             >
-              <span>{t('copy_trade')}</span>
+              <span>{t('one_click_copy_trade')}</span>
             </Button>
           </div>
         </div>

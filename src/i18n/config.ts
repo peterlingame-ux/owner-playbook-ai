@@ -467,6 +467,7 @@ const resources = {
         "logout": "Logout"
       },
       "copy_trade": "FOLLOW MODEL",
+      "one_click_copy_trade": "One-Click Copy Trade",
       "copy_trade_player": "FOLLOW PLAYER",
       "copy_trade_btn": "Follow",
       "copy_trading_board": "Copy Trade",
@@ -1165,6 +1166,7 @@ const resources = {
         "logout": "退出登录"
       },
       "copy_trade": "关注模型",
+      "one_click_copy_trade": "一键跟单",
       "copy_trade_player": "关注玩家",
       "copy_trade_btn": "跟单",
       "copy_trading_board": "玩家跟单排行榜",
@@ -1863,6 +1865,7 @@ const resources = {
         "logout": "로그아웃"
       },
       "copy_trade": "모델 팔로우",
+      "one_click_copy_trade": "원클릭 카피 트레이드",
       "copy_trade_player": "플레이어 팔로우",
       "copy_trade_btn": "팔로우",
       "copy_trading_board": "카피 트레이드",
