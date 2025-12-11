@@ -79,6 +79,34 @@ const formations: Record<string, FormationPosition[]> = {
   ],
 };
 
+// 阵型特点说明
+const formationDescriptions: Record<string, { title: string; description: string }> = {
+  '4-4-2': {
+    title: '经典平衡阵型',
+    description: '攻守平衡，中场覆盖面广，双前锋配合灵活。适合控球和反击战术。'
+  },
+  '4-3-3': {
+    title: '进攻型阵型',
+    description: '三前锋提供强大进攻火力，边锋拉边创造空间。中场三角稳固，适合高压逼抢。'
+  },
+  '3-5-2': {
+    title: '中场控制阵型',
+    description: '五中场提供强大的中场控制力，边翼卫攻守兼备。双前锋互相配合，适合控球打法。'
+  },
+  '3-4-3': {
+    title: '极端进攻阵型',
+    description: '三前锋+四中场的激进配置，边路进攻犀利。防守依赖中场回撤，适合主动进攻。'
+  },
+  '5-3-2': {
+    title: '防守反击阵型',
+    description: '五后卫提供坚固防线，双前锋负责反击。边翼卫上下跑动，适合防守反击战术。'
+  },
+  '4-2-3-1': {
+    title: '现代主流阵型',
+    description: '双后腰保护防线，三前腰创造机会，单前锋策应。攻守转换快速，适合多种战术。'
+  },
+};
+
 // 镜像阵型（给客队使用）
 const mirrorFormation = (positions: FormationPosition[]): FormationPosition[] => {
   return positions.map(pos => ({
@@ -325,20 +353,22 @@ export default function LiveFootballAnimation({
       </div>
 
       {/* 阵型选择 */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 主队阵型 */}
+        <div className="space-y-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-blue-500" />
-            <span className="text-xs text-muted-foreground">主队阵型</span>
+            <span className="text-sm font-medium text-foreground">主队阵型</span>
+            <span className="text-xs text-blue-500 font-bold">{currentHomeFormation}</span>
           </div>
           <div className="flex flex-wrap gap-1">
             {availableFormations.map(f => (
               <button
                 key={f}
                 onClick={() => handleFormationChange('home', f)}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
+                className={`px-2 py-1 text-xs rounded transition-all ${
                   currentHomeFormation === f
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-blue-500 text-white scale-105 shadow-md'
                     : 'bg-muted hover:bg-muted/80 text-muted-foreground'
                 }`}
               >
@@ -346,26 +376,47 @@ export default function LiveFootballAnimation({
               </button>
             ))}
           </div>
+          {/* 阵型说明 */}
+          <div className="pt-2 border-t border-blue-500/20">
+            <div className="text-xs font-medium text-blue-400 mb-1">
+              {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
+            </p>
+          </div>
         </div>
-        <div className="space-y-2">
+
+        {/* 客队阵型 */}
+        <div className="space-y-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-red-500" />
-            <span className="text-xs text-muted-foreground">客队阵型</span>
+            <span className="text-sm font-medium text-foreground">客队阵型</span>
+            <span className="text-xs text-red-500 font-bold">{currentAwayFormation}</span>
           </div>
           <div className="flex flex-wrap gap-1">
             {availableFormations.map(f => (
               <button
                 key={f}
                 onClick={() => handleFormationChange('away', f)}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
+                className={`px-2 py-1 text-xs rounded transition-all ${
                   currentAwayFormation === f
-                    ? 'bg-red-500 text-white'
+                    ? 'bg-red-500 text-white scale-105 shadow-md'
                     : 'bg-muted hover:bg-muted/80 text-muted-foreground'
                 }`}
               >
                 {f}
               </button>
             ))}
+          </div>
+          {/* 阵型说明 */}
+          <div className="pt-2 border-t border-red-500/20">
+            <div className="text-xs font-medium text-red-400 mb-1">
+              {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
+            </p>
           </div>
         </div>
       </div>
