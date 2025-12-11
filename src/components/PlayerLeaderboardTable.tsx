@@ -1115,53 +1115,65 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
       
-      {/* Prize Pool Banner */}
-      <Card className="border-warning/30 bg-gradient-to-r from-warning/5 via-warning/10 to-warning/5 overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-warning/10 via-transparent to-transparent" />
-        <CardContent className="p-4 sm:p-5 relative">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="font-bold text-base sm:text-lg text-foreground mb-0.5">30天奖金池</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                胜率超过AI基准 <span className="font-bold text-warning">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
+      {/* Prize Pool Banner - 视觉冲击效果 */}
+      <Card className="border-warning/50 bg-gradient-to-r from-warning/10 via-warning/20 to-warning/10 overflow-hidden relative">
+        {/* 动态背景效果 */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-warning/20 via-transparent to-transparent animate-pulse" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-success/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-warning/15 via-transparent to-transparent" />
+        
+        <CardContent className="p-5 sm:p-6 relative">
+          <div className="flex flex-col items-center gap-4 sm:gap-5">
+            {/* 主标题区域 - 视觉冲击 */}
+            <div className="text-center">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">🎁 免费参与</span>
+                <span className="text-3xl sm:text-5xl font-black text-warning drop-shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-scale-in">
+                  $1,000,000
+                </span>
+                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">大奖 🎁</span>
+              </div>
+              <p className="text-sm sm:text-base text-muted-foreground mt-2">
+                胜率超过AI基准 <span className="font-black text-warning text-base sm:text-lg">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
               </p>
             </div>
             
-            {/* 倒计时区域 */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-background/50 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2 sm:py-3 border border-warning/20">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="text-center">
-                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{countdown.days}</span>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">天</p>
-                </div>
-                <span className="text-warning font-bold">:</span>
-                <div className="text-center">
-                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{String(countdown.hours).padStart(2, '0')}</span>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">时</p>
-                </div>
-                <span className="text-warning font-bold">:</span>
-                <div className="text-center">
-                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{String(countdown.minutes).padStart(2, '0')}</span>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">分</p>
-                </div>
-                <span className="text-warning font-bold">:</span>
-                <div className="text-center">
-                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{String(countdown.seconds).padStart(2, '0')}</span>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">秒</p>
+            {/* 倒计时和统计区域 */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 w-full justify-center">
+              {/* 倒计时区域 */}
+              <div className="flex items-center gap-2 sm:gap-3 bg-background/60 backdrop-blur-sm rounded-xl px-4 sm:px-5 py-3 sm:py-4 border border-warning/30 shadow-lg shadow-warning/10">
+                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-warning animate-pulse" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="text-center">
+                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{countdown.days}</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">天</p>
+                  </div>
+                  <span className="text-warning font-black text-xl">:</span>
+                  <div className="text-center">
+                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{String(countdown.hours).padStart(2, '0')}</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">时</p>
+                  </div>
+                  <span className="text-warning font-black text-xl">:</span>
+                  <div className="text-center">
+                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{String(countdown.minutes).padStart(2, '0')}</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">分</p>
+                  </div>
+                  <span className="text-warning font-black text-xl">:</span>
+                  <div className="text-center">
+                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{String(countdown.seconds).padStart(2, '0')}</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">秒</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="text-center sm:text-right">
-              <AnimatedPrizePool 
-                value={PRIZE_POOL} 
-                className="text-2xl sm:text-3xl font-black text-warning font-mono-data"
-                duration={1500}
-              />
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                当前符合条件玩家: <span className="font-bold text-success">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span> 人
-              </p>
+              
+              {/* 符合条件玩家 */}
+              <div className="flex items-center gap-2 bg-success/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-success/30">
+                <Users className="h-5 w-5 text-success" />
+                <div>
+                  <span className="text-xl sm:text-2xl font-black text-success">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span>
+                  <span className="text-sm text-muted-foreground ml-1">人已达标</span>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
