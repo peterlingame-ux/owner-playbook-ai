@@ -1202,6 +1202,48 @@ const PlayerLeaderboardTable = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* 玩家当前数据 */}
+              {(() => {
+                const currentPlayer = user ? allPlayers.find(p => p.id === user.id) : null;
+                const playerPredictions = currentPlayer?.totalPredictions || 0;
+                const playerWinRate = currentPlayer?.winRate || 0;
+                const playerProfit = currentPlayer?.profitAmount || 0;
+                
+                // 判断是否达标
+                const meetsRequirements = playerPredictions >= 247 && playerWinRate >= 78.95 && playerProfit >= 2478900;
+                
+                return (
+                  <div className={`mt-3 bg-background/60 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-3 sm:py-4 border ${meetsRequirements ? 'border-success/50' : 'border-destructive/30'}`}>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      我的数据: <span className="font-bold text-foreground">{user ? (currentPlayer?.displayName || '加载中...') : '未登录'}</span>
+                      {meetsRequirements && <span className="ml-2 text-success font-bold">✓ 已达标</span>}
+                    </p>
+                    <div className="flex items-center justify-center gap-4 sm:gap-8">
+                      <div className="text-center">
+                        <span className={`text-lg sm:text-xl font-black ${playerPredictions >= 247 ? 'text-success' : 'text-destructive'}`}>
+                          {playerPredictions}
+                        </span>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">预测场次</p>
+                      </div>
+                      <div className="h-8 w-px bg-border/50" />
+                      <div className="text-center">
+                        <span className={`text-lg sm:text-xl font-black ${playerWinRate >= 78.95 ? 'text-success' : 'text-destructive'}`}>
+                          {playerWinRate.toFixed(2)}%
+                        </span>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">胜率</p>
+                      </div>
+                      <div className="h-8 w-px bg-border/50" />
+                      <div className="text-center">
+                        <span className={`text-lg sm:text-xl font-black ${playerProfit >= 2478900 ? 'text-success' : 'text-destructive'}`}>
+                          ${(playerProfit / 100).toLocaleString()}
+                        </span>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">盈利金额</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             
             {/* 倒计时和统计区域 */}
