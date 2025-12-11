@@ -57,6 +57,71 @@ const getPlayerAttackDesire = (playerId: number) => {
   };
 };
 
+// AI指标: 预期进球值 (xG) 计算 - 基于位置和距离球门
+const calculateXG = (playerX: number, playerY: number, team: 'home' | 'away'): number => {
+  const goalY = team === 'home' ? 0 : 100;
+  const goalX = 50;
+  const distanceToGoal = Math.sqrt(Math.pow(playerX - goalX, 2) + Math.pow(playerY - goalY, 2));
+  
+  // 距离越近xG越高, 中路比边路高
+  const distanceFactor = Math.max(0, 1 - distanceToGoal / 80);
+  const angleFactor = 1 - Math.abs(playerX - 50) / 50 * 0.3;
+  
+  // 禁区内加成
+  const inPenaltyArea = team === 'home' 
+    ? playerY <= 18 && playerX >= 20 && playerX <= 80
+    : playerY >= 82 && playerX >= 20 && playerX <= 80;
+  const penaltyBonus = inPenaltyArea ? 0.3 : 0;
+  
+  const xg = Math.min(0.95, (distanceFactor * angleFactor * 0.6 + penaltyBonus));
+  return Math.round(xg * 100) / 100;
+};
+
+// AI指标: 计算球员体能值 (随时间变化)
+const calculateStamina = (playerId: number, baseTime: number = Date.now()): number => {
+  // 基础体能 (门将最高, 中场消耗最大)
+  const baseStamina: Record<number, number> = {
+    0: 95, 1: 78, 2: 80, 3: 80, 4: 75,
+    5: 68, 6: 72, 7: 65, 8: 70,
+    9: 73, 10: 71
+  };
+  
+  const base = baseStamina[playerId] || 70;
+  // 添加时间波动模拟消耗
+  const timeWave = Math.sin(baseTime / 10000 + playerId) * 8;
+  return Math.max(35, Math.min(98, base + timeWave));
+};
+
+// AI指标: 计算跑动预测方向
+const predictMovementDirection = (
+  player: PlayerPosition, 
+  team: 'home' | 'away',
+  ballX: number,
+  ballY: number
+): { angle: number; distance: number; type: 'attack' | 'defend' | 'support' } => {
+  const goalY = team === 'home' ? 0 : 100;
+  const ownGoalY = team === 'home' ? 100 : 0;
+  
+  // 计算向球门方向
+  const toGoalAngle = Math.atan2(goalY - player.y, 50 - player.x) * 180 / Math.PI;
+  // 计算向球方向
+  const toBallAngle = Math.atan2(ballY - player.y, ballX - player.x) * 180 / Math.PI;
+  
+  // 根据位置决定主要行为
+  const distToBall = Math.sqrt(Math.pow(ballX - player.x, 2) + Math.pow(ballY - player.y, 2));
+  
+  if (player.id >= 9) {
+    // 前锋 - 主要向前跑
+    return { angle: toGoalAngle, distance: 12, type: 'attack' };
+  } else if (player.id >= 5) {
+    // 中场 - 支援
+    return { angle: toBallAngle * 0.6 + toGoalAngle * 0.4, distance: 8, type: 'support' };
+  } else {
+    // 后卫 - 防守站位
+    return { angle: toBallAngle * 0.3 + (ownGoalY > 50 ? -90 : 90) * 0.7, distance: 5, type: 'defend' };
+  }
+};
+
 // 虚拟球员名字和头像
 const homePlayerNames = ['拉米', '巴塔特', '泰马尼尼', '萨莱赫', '纳布汉', '萨瓦塔', '阿米德', '哈姆丹', '赛亚姆', '昆巴尔', '达巴赫'];
 const awayPlayerNames = ['奥瓦伊斯', '布莱克', '阿姆里', '塔姆比蒂', '甘纳姆', '萨尔曼', '道萨里', '马尔基', '哈桑', '布雷坎', '阿西里'];
@@ -244,6 +309,8 @@ export default function LiveFootballAnimation({
   const [selectedPlayer, setSelectedPlayer] = useState<{ id: number; team: 'home' | 'away'; x: number; y: number } | null>(null);
   const [chasingPlayer, setChasingPlayer] = useState<{ id: number; team: 'home' | 'away' } | null>(null);
   const [energyFluctuation, setEnergyFluctuation] = useState(0); // 能量波动值
+  const [showAIIndicators, setShowAIIndicators] = useState(true); // AI指标显示开关
+  const [aiUpdateTick, setAiUpdateTick] = useState(0); // AI数据更新触发器
   const animationRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const ballUpdateRef = useRef<number>(0);
@@ -276,6 +343,26 @@ export default function LiveFootballAnimation({
     
     return () => cancelAnimationFrame(animationId);
   }, [isPlaying]);
+
+  // AI指标更新定时器
+  useEffect(() => {
+    if (!isPlaying || !showAIIndicators) return;
+    
+    const interval = setInterval(() => {
+      setAiUpdateTick(prev => prev + 1);
+    }, 2000); // 每2秒更新一次AI数据
+    
+    return () => clearInterval(interval);
+  }, [isPlaying, showAIIndicators]);
+
+  // 计算防线高度
+  const calculateDefenseLine = (players: PlayerPosition[], team: 'home' | 'away'): number => {
+    // 排除门将(id=0), 取后卫线(id 1-4)的平均Y坐标
+    const defenders = players.filter(p => p.id >= 1 && p.id <= 4);
+    if (defenders.length === 0) return team === 'home' ? 75 : 25;
+    const avgY = defenders.reduce((sum, p) => sum + p.y, 0) / defenders.length;
+    return avgY;
+  };
 
   // 点击球员显示进攻视角
   const handlePlayerClick = (player: PlayerPosition, team: 'home' | 'away') => {
@@ -903,6 +990,134 @@ export default function LiveFootballAnimation({
           />
         </div>
 
+        {/* AI指标: 防线高度指示器 */}
+        {showAIIndicators && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 2 }}>
+            <defs>
+              <linearGradient id="homeDefenseLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(59, 130, 246, 0)" />
+                <stop offset="20%" stopColor="rgba(59, 130, 246, 0.6)" />
+                <stop offset="80%" stopColor="rgba(59, 130, 246, 0.6)" />
+                <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+              </linearGradient>
+              <linearGradient id="awayDefenseLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(239, 68, 68, 0)" />
+                <stop offset="20%" stopColor="rgba(239, 68, 68, 0.6)" />
+                <stop offset="80%" stopColor="rgba(239, 68, 68, 0.6)" />
+                <stop offset="100%" stopColor="rgba(239, 68, 68, 0)" />
+              </linearGradient>
+            </defs>
+            {/* 主队防线 */}
+            <line 
+              x1="5" y1={calculateDefenseLine(homePlayers, 'home')} 
+              x2="95" y2={calculateDefenseLine(homePlayers, 'home')}
+              stroke="url(#homeDefenseLineGradient)"
+              strokeWidth="0.4"
+              strokeDasharray="2,1"
+            />
+            <text 
+              x="3" y={calculateDefenseLine(homePlayers, 'home') - 1}
+              fill="rgba(59, 130, 246, 0.8)"
+              fontSize="2"
+              fontFamily="monospace"
+            >
+              DEF
+            </text>
+            {/* 客队防线 */}
+            <line 
+              x1="5" y1={calculateDefenseLine(awayPlayers, 'away')} 
+              x2="95" y2={calculateDefenseLine(awayPlayers, 'away')}
+              stroke="url(#awayDefenseLineGradient)"
+              strokeWidth="0.4"
+              strokeDasharray="2,1"
+            />
+            <text 
+              x="93" y={calculateDefenseLine(awayPlayers, 'away') + 3}
+              fill="rgba(239, 68, 68, 0.8)"
+              fontSize="2"
+              fontFamily="monospace"
+              textAnchor="end"
+            >
+              DEF
+            </text>
+          </svg>
+        )}
+
+        {/* AI指标: 跑动预测轨迹 */}
+        {showAIIndicators && isPlaying && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 3 }}>
+            <defs>
+              <marker id="arrowHead" markerWidth="3" markerHeight="3" refX="2" refY="1.5" orient="auto">
+                <polygon points="0,0 3,1.5 0,3" fill="rgba(0, 255, 200, 0.6)" />
+              </marker>
+              <marker id="arrowHeadRed" markerWidth="3" markerHeight="3" refX="2" refY="1.5" orient="auto">
+                <polygon points="0,0 3,1.5 0,3" fill="rgba(255, 100, 100, 0.6)" />
+              </marker>
+            </defs>
+            {/* 主队跑动预测 */}
+            {homePlayers.slice(5, 11).map((player) => {
+              const prediction = predictMovementDirection(player, 'home', ballPosition.x, ballPosition.y);
+              const endX = player.x + Math.cos(prediction.angle * Math.PI / 180) * prediction.distance;
+              const endY = player.y + Math.sin(prediction.angle * Math.PI / 180) * prediction.distance;
+              return (
+                <line
+                  key={`home-pred-${player.id}`}
+                  x1={player.x}
+                  y1={player.y}
+                  x2={Math.max(2, Math.min(98, endX))}
+                  y2={Math.max(2, Math.min(98, endY))}
+                  stroke="rgba(0, 255, 200, 0.4)"
+                  strokeWidth="0.3"
+                  strokeDasharray="1,0.5"
+                  markerEnd="url(#arrowHead)"
+                  opacity={0.6}
+                />
+              );
+            })}
+            {/* 客队跑动预测 */}
+            {awayPlayers.slice(5, 11).map((player) => {
+              const prediction = predictMovementDirection(player, 'away', ballPosition.x, ballPosition.y);
+              const endX = player.x + Math.cos(prediction.angle * Math.PI / 180) * prediction.distance;
+              const endY = player.y + Math.sin(prediction.angle * Math.PI / 180) * prediction.distance;
+              return (
+                <line
+                  key={`away-pred-${player.id}`}
+                  x1={player.x}
+                  y1={player.y}
+                  x2={Math.max(2, Math.min(98, endX))}
+                  y2={Math.max(2, Math.min(98, endY))}
+                  stroke="rgba(255, 100, 100, 0.4)"
+                  strokeWidth="0.3"
+                  strokeDasharray="1,0.5"
+                  markerEnd="url(#arrowHeadRed)"
+                  opacity={0.6}
+                />
+              );
+            })}
+          </svg>
+        )}
+
+        {/* AI指标: 威胁区域脉冲 (禁区内) */}
+        {showAIIndicators && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 2 }}>
+            <defs>
+              <radialGradient id="threatPulse" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(255, 100, 50, 0.4)">
+                  <animate attributeName="stop-color" values="rgba(255,100,50,0.4);rgba(255,50,50,0.6);rgba(255,100,50,0.4)" dur="2s" repeatCount="indefinite" />
+                </stop>
+                <stop offset="100%" stopColor="rgba(255, 100, 50, 0)" />
+              </radialGradient>
+            </defs>
+            {/* 顶部禁区威胁区 */}
+            <ellipse cx="50" cy="8" rx="18" ry="6" fill="url(#threatPulse)" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.6;0.3" dur="1.5s" repeatCount="indefinite" />
+            </ellipse>
+            {/* 底部禁区威胁区 */}
+            <ellipse cx="50" cy="92" rx="18" ry="6" fill="url(#threatPulse)" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.6;0.3" dur="1.5s" repeatCount="indefinite" begin="0.75s" />
+            </ellipse>
+          </svg>
+        )}
         {/* 热力图层 */}
         {showHeatmap && (
           <div className="absolute inset-0 pointer-events-none">
@@ -1316,6 +1531,32 @@ export default function LiveFootballAnimation({
                 )}
                 {/* 球员头像容器 */}
                 <div className="relative">
+                  {/* xG预期进球环 (前锋和中场显示) */}
+                  {showAIIndicators && player.id >= 5 && (() => {
+                    const xg = calculateXG(player.x, player.y, 'home');
+                    const xgColor = xg >= 0.3 ? '#ef4444' : xg >= 0.15 ? '#f97316' : xg >= 0.05 ? '#eab308' : '#22c55e';
+                    const ringSize = 36; // 环的大小
+                    const circumference = 2 * Math.PI * 14;
+                    const progress = xg * circumference;
+                    
+                    return (
+                      <svg className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] -rotate-90" viewBox="0 0 36 36">
+                        {/* 背景环 */}
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+                        {/* xG进度环 */}
+                        <circle 
+                          cx="18" cy="18" r="14" 
+                          fill="none" 
+                          stroke={xgColor}
+                          strokeWidth="2.5"
+                          strokeDasharray={`${progress} ${circumference}`}
+                          strokeLinecap="round"
+                          style={{ filter: `drop-shadow(0 0 3px ${xgColor})` }}
+                        />
+                      </svg>
+                    );
+                  })()}
+                  
                   <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 transition-all ${
                     isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-blue-300/50'
                   }`}>
@@ -1334,6 +1575,21 @@ export default function LiveFootballAnimation({
                   }`}>
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
+                  
+                  {/* 体能条 (始终显示) */}
+                  {showAIIndicators && (() => {
+                    const stamina = calculateStamina(player.id, aiUpdateTick * 2000);
+                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 50 ? '#eab308' : '#ef4444';
+                    return (
+                      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
+                        <div 
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${stamina}%`, background: staminaColor }}
+                        />
+                      </div>
+                    );
+                  })()}
+                  
                   {/* 发光效果 */}
                   <div className={`absolute inset-0 rounded-full blur-md -z-10 scale-125 transition-all ${
                     isChaser ? 'bg-emerald-400 opacity-100 animate-pulse' : isSelected ? 'bg-blue-500 opacity-100' : 'bg-blue-500 opacity-60'
@@ -1426,6 +1682,31 @@ export default function LiveFootballAnimation({
                 )}
                 {/* 球员头像容器 */}
                 <div className="relative">
+                  {/* xG预期进球环 (前锋和中场显示) */}
+                  {showAIIndicators && player.id >= 5 && (() => {
+                    const xg = calculateXG(player.x, player.y, 'away');
+                    const xgColor = xg >= 0.3 ? '#ef4444' : xg >= 0.15 ? '#f97316' : xg >= 0.05 ? '#eab308' : '#22c55e';
+                    const circumference = 2 * Math.PI * 14;
+                    const progress = xg * circumference;
+                    
+                    return (
+                      <svg className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] -rotate-90" viewBox="0 0 36 36">
+                        {/* 背景环 */}
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+                        {/* xG进度环 */}
+                        <circle 
+                          cx="18" cy="18" r="14" 
+                          fill="none" 
+                          stroke={xgColor}
+                          strokeWidth="2.5"
+                          strokeDasharray={`${progress} ${circumference}`}
+                          strokeLinecap="round"
+                          style={{ filter: `drop-shadow(0 0 3px ${xgColor})` }}
+                        />
+                      </svg>
+                    );
+                  })()}
+                  
                   <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 transition-all ${
                     isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-red-300/50'
                   }`}>
@@ -1444,6 +1725,21 @@ export default function LiveFootballAnimation({
                   }`}>
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
+                  
+                  {/* 体能条 (始终显示) */}
+                  {showAIIndicators && (() => {
+                    const stamina = calculateStamina(player.id, aiUpdateTick * 2000);
+                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 50 ? '#eab308' : '#ef4444';
+                    return (
+                      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
+                        <div 
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${stamina}%`, background: staminaColor }}
+                        />
+                      </div>
+                    );
+                  })()}
+                  
                   {/* 发光效果 */}
                   <div className={`absolute inset-0 rounded-full blur-md -z-10 scale-125 transition-all ${
                     isChaser ? 'bg-emerald-400 opacity-100 animate-pulse' : isSelected ? 'bg-red-500 opacity-100' : 'bg-red-500 opacity-60'
@@ -1600,10 +1896,43 @@ export default function LiveFootballAnimation({
           </div>
         )}
 
+        {/* AI指标开关 */}
+        <button
+          onClick={() => setShowAIIndicators(!showAIIndicators)}
+          className={`absolute top-2 left-16 px-2 py-0.5 rounded text-[8px] font-mono transition-all ${
+            showAIIndicators 
+              ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-400/50' 
+              : 'bg-white/10 text-white/50 border border-white/20'
+          }`}
+        >
+          AI {showAIIndicators ? 'ON' : 'OFF'}
+        </button>
+
         {/* 阵型显示 */}
         <div className="absolute top-2 right-2 text-[10px] text-white/80">
           {currentHomeFormation} vs {currentAwayFormation}
         </div>
+
+        {/* AI指标图例 */}
+        {showAIIndicators && (
+          <div className="absolute bottom-8 left-2 bg-black/80 backdrop-blur-sm rounded px-2 py-1 border border-cyan-500/30">
+            <div className="text-[7px] text-cyan-400 font-mono mb-1">AI INDICATORS</div>
+            <div className="space-y-0.5 text-[6px] text-white/70">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full border border-orange-400" />
+                <span>xG进球值</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-0.5 bg-green-400 rounded" />
+                <span>体能条</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-px bg-blue-400" style={{ borderStyle: 'dashed' }} />
+                <span>防线高度</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 队伍标识 */}
         <div className="absolute bottom-2 left-2 flex items-center gap-1">
