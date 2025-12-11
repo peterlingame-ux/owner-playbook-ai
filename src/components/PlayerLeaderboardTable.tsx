@@ -16,6 +16,7 @@ import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
+import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1117,8 +1118,14 @@ const PlayerLeaderboardTable = () => {
       )}
       
       {/* Prize Pool Banner - 简洁专业风格 */}
-      <Card className="border-border/50 bg-card/80 overflow-hidden">
-        <CardContent className="p-5 sm:p-6">
+      <Card className="border-border/50 overflow-hidden relative">
+        {/* 背景图 */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${prizeBannerBg})` }}
+        />
+        <div className="absolute inset-0 bg-background/85" />
+        <CardContent className="p-5 sm:p-6 relative">
           <div className="flex flex-col items-center gap-5">
             {/* 主标题 */}
             <div className="text-center">
