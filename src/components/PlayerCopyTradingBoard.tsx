@@ -17,6 +17,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { AnimatedAmount } from "@/components/AnimatedAmount";
 import { AnimatedPrize } from "@/components/AnimatedPrize";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
+import winningStreakBg from "@/assets/winning-streak-bg.png";
 
 // 奖金池配置
 const PRIZE_POOL = 1000000;
@@ -734,8 +735,14 @@ const PlayerCopyTradingBoard = () => {
       {/* Leaderboard Table - Split into Hot Streak and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 连红榜 - Winning Streak */}
-        <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
+          {/* 背景图片 */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+            style={{ backgroundImage: `url(${winningStreakBg})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-card/95 via-card/80 to-card/60" />
+          <CardContent className="p-4 sm:p-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-bold text-lg text-foreground">玩家连红榜</h3>
