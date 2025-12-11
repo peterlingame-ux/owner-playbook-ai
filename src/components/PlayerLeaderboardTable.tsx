@@ -1178,8 +1178,8 @@ const PlayerLeaderboardTable = () => {
                   大奖等你来拿
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2">
-                胜率超过AI基准 <span className="font-black text-warning text-base sm:text-lg">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
+              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-md">
+                玩家预测的比赛场次、比赛胜率、盈利金额都超过当前排名最高的AI，即可领取奖金
               </p>
             </div>
             
