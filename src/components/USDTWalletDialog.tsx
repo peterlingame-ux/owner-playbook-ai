@@ -311,25 +311,25 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" className="flex items-center gap-2">
-            <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
-            USDT钱包
+            <Wallet className="w-4 h-4 text-amber-500" />
+            猎人币钱包
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <img src={usdtIcon} alt="USDT" className="w-6 h-6" />
-            USDT 钱包
+            <Wallet className="w-6 h-6 text-amber-500" />
+            猎人币钱包
           </DialogTitle>
         </DialogHeader>
 
         {/* 余额显示 */}
-        <div className="bg-gradient-to-r from-[#26A17B]/10 to-[#26A17B]/5 rounded-lg p-4 border border-[#26A17B]/20">
-          <p className="text-xs text-muted-foreground mb-1">当前余额</p>
+        <div className="bg-gradient-to-r from-amber-500/10 to-amber-500/5 rounded-lg p-4 border border-amber-500/20">
+          <p className="text-xs text-muted-foreground mb-1">猎人币余额</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#26A17B] font-mono">{usdtBalance.toFixed(2)}</span>
-            <span className="text-sm text-muted-foreground">USDT</span>
+            <span className="text-3xl font-bold text-amber-500 font-mono">{usdtBalance.toFixed(2)}</span>
+            <span className="text-sm text-muted-foreground">猎人币</span>
           </div>
         </div>
 
@@ -357,7 +357,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                 <div className="bg-muted/50 rounded-lg p-4 text-sm flex items-start gap-3">
                   <img src={usdtIcon} alt="USDT" className="w-8 h-8 shrink-0" />
                   <p className="text-muted-foreground">
-                    请输入充值金额，系统将生成收款地址和二维码。请使用 TRC20 网络转账 USDT。
+                    请输入充值金额，使用 TRC20 网络转账 USDT，到账后自动兑换为猎人币（1:1）。
                   </p>
                 </div>
 
@@ -510,7 +510,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
               <div className="bg-muted/50 rounded-lg p-4 text-sm flex items-start gap-3">
                 <ArrowUpRight className="h-8 w-8 text-muted-foreground shrink-0" />
                 <p className="text-muted-foreground">
-                  请输入提款金额和收款钱包地址。提款将在 24 小时内处理。
+                  猎人币提款将自动兑换为 USDT（1:1）转入您的钱包，24 小时内处理。
                 </p>
               </div>
 
@@ -535,9 +535,9 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
 
               {/* 提款金额 */}
               <div className="space-y-2">
-                <Label htmlFor="withdraw-amount">提款金额 (USDT)</Label>
+                <Label htmlFor="withdraw-amount">提款金额 (猎人币)</Label>
                 <div className="relative">
-                  <img src={usdtIcon} alt="USDT" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
+                  <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
                   <Input
                     id="withdraw-amount"
                     type="number"
@@ -557,7 +557,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  可用余额: <span className="text-[#26A17B] font-mono">{usdtBalance.toFixed(2)}</span> USDT · 最低提款: 10 USDT
+                  可用余额: <span className="text-amber-500 font-mono">{usdtBalance.toFixed(2)}</span> 猎人币 · 最低提款: 10 猎人币
                 </p>
               </div>
 
@@ -630,7 +630,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                 </div>
               ) : (depositRecords.length === 0 && withdrawalRecords.length === 0) ? (
                 <div className="text-center py-12">
-                  <img src={usdtIcon} alt="USDT" className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <Wallet className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />
                   <p className="text-muted-foreground">暂无交易记录</p>
                   <p className="text-xs text-muted-foreground mt-1">您的充值和提款记录将显示在这里</p>
                 </div>
@@ -660,7 +660,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                             )}
                             <div>
                               <span className="font-mono font-bold text-foreground">
-                                {record.type === 'deposit' ? '+' : '-'}{record.amount} USDT
+                                {record.type === 'deposit' ? '+' : '-'}{record.amount} 猎人币
                               </span>
                               <span className="ml-2 text-xs text-muted-foreground">
                                 {record.type === 'deposit' ? '充值' : '提款'}
