@@ -326,18 +326,33 @@ export default function LiveFootballAnimation({
     return Math.min(95, Math.max(5, Math.round(baseProbability)));
   };
 
-  // 计算传球路线
+  // 计算传球路线 - 只显示视线三角形内的传球选项
   const getPassingRoutes = (selectedId: number, team: 'home' | 'away') => {
     const teammates = team === 'home' ? homePlayers : awayPlayers;
     const selectedPlayer = teammates.find(p => p.id === selectedId);
     if (!selectedPlayer) return [];
 
+    // 视线三角形参数（与getAttackTriangle保持一致）
+    const spreadAngle = 25; // 扩散角度（度）
+    const goalY = team === 'home' ? 0 : 100;
+    
     const routes = teammates
       .filter(p => p.id !== selectedId)
       .map(teammate => {
         const dx = teammate.x - selectedPlayer.x;
         const dy = teammate.y - selectedPlayer.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // 判断是否在视线三角形内
+        // 进攻方向：主队向上(dy<0)，客队向下(dy>0)
+        const isInAttackDirection = team === 'home' ? dy < 0 : dy > 0;
+        
+        // 计算传球角度与进攻方向的夹角
+        const angleToTarget = Math.atan2(Math.abs(dx), Math.abs(dy)) * 180 / Math.PI;
+        const isWithinVisionCone = angleToTarget <= spreadAngle;
+        
+        // 综合判断是否在视线范围内
+        const isInVision = isInAttackDirection && isWithinVisionCone;
         
         // 判断传球难度
         let difficulty: 'easy' | 'medium' | 'hard';
@@ -352,8 +367,13 @@ export default function LiveFootballAnimation({
         // 判断是否是前进传球(进攻方向)
         const isForwardPass = team === 'home' ? dy < 0 : dy > 0;
         
-        // 计算传球概率
-        const probability = calculatePassProbability(distance, isForwardPass, difficulty);
+        // 计算传球概率 - 视线内的传球概率更高
+        let probability = calculatePassProbability(distance, isForwardPass, difficulty);
+        if (isInVision) {
+          probability = Math.min(95, probability + 10); // 视线内加成
+        } else {
+          probability = Math.max(5, probability - 20); // 视线外减成
+        }
 
         return {
           from: { x: selectedPlayer.x, y: selectedPlayer.y },
@@ -361,14 +381,27 @@ export default function LiveFootballAnimation({
           distance,
           difficulty,
           isForwardPass,
+          isInVision,
           teammateId: teammate.id,
           teammateName: teammate.name,
           probability,
         };
       })
-      .sort((a, b) => b.probability - a.probability); // 按概率排序，最可能的排前面
+      // 优先显示视线内的传球，然后按概率排序
+      .sort((a, b) => {
+        if (a.isInVision && !b.isInVision) return -1;
+        if (!a.isInVision && b.isInVision) return 1;
+        return b.probability - a.probability;
+      })
+      // 只保留视线内的路线，如果视线内不足2条则补充视线外最佳
+      .filter((route, idx, arr) => {
+        const visionRoutes = arr.filter(r => r.isInVision);
+        if (route.isInVision) return true;
+        if (visionRoutes.length < 2 && idx < 2) return true;
+        return false;
+      });
     
-    return routes;
+    return routes.slice(0, 2); // 最多显示2条
   };
   const initializePlayers = useCallback(() => {
     const homeFormationPositions = formations[currentHomeFormation] || formations['4-4-2'];
