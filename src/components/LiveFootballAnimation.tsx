@@ -326,15 +326,19 @@ export default function LiveFootballAnimation({
     return Math.min(95, Math.max(5, Math.round(baseProbability)));
   };
 
-  // 计算传球路线 - 只显示视线三角形内的传球选项
+  // 计算传球路线 - 严格只显示视线三角形内的传球选项
   const getPassingRoutes = (selectedId: number, team: 'home' | 'away') => {
     const teammates = team === 'home' ? homePlayers : awayPlayers;
     const selectedPlayer = teammates.find(p => p.id === selectedId);
     if (!selectedPlayer) return [];
 
-    // 视线三角形参数（与getAttackTriangle保持一致）
+    // 视线三角形参数（与getAttackTriangle完全一致）
     const spreadAngle = 25; // 扩散角度（度）
     const goalY = team === 'home' ? 0 : 100;
+    
+    // 计算三角形边界（与getAttackTriangle一致）
+    const triangleDistance = Math.abs(goalY - selectedPlayer.y);
+    const maxSpreadX = triangleDistance * Math.tan(spreadAngle * Math.PI / 180);
     
     const routes = teammates
       .filter(p => p.id !== selectedId)
@@ -343,16 +347,24 @@ export default function LiveFootballAnimation({
         const dy = teammate.y - selectedPlayer.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        // 判断是否在视线三角形内
-        // 进攻方向：主队向上(dy<0)，客队向下(dy>0)
+        // 严格判断是否在视线三角形内
+        // 1. 必须在进攻方向：主队向上(dy<0)，客队向下(dy>0)
         const isInAttackDirection = team === 'home' ? dy < 0 : dy > 0;
         
-        // 计算传球角度与进攻方向的夹角
-        const angleToTarget = Math.atan2(Math.abs(dx), Math.abs(dy)) * 180 / Math.PI;
-        const isWithinVisionCone = angleToTarget <= spreadAngle;
+        // 2. 计算该队友位置处的三角形宽度限制
+        const teammateDistanceToGoal = Math.abs(goalY - teammate.y);
+        const playerDistanceToGoal = Math.abs(goalY - selectedPlayer.y);
         
-        // 综合判断是否在视线范围内
-        const isInVision = isInAttackDirection && isWithinVisionCone;
+        // 队友到球员的垂直距离占比
+        const progressRatio = Math.abs(dy) / playerDistanceToGoal;
+        // 该位置处允许的水平偏移
+        const allowedSpreadAtPoint = progressRatio * maxSpreadX;
+        
+        // 3. 检查水平位置是否在允许范围内
+        const isWithinHorizontalBounds = Math.abs(dx) <= allowedSpreadAtPoint;
+        
+        // 综合判断：必须在进攻方向且在三角形水平范围内
+        const isInVision = isInAttackDirection && isWithinHorizontalBounds;
         
         // 判断传球难度
         let difficulty: 'easy' | 'medium' | 'hard';
@@ -364,16 +376,11 @@ export default function LiveFootballAnimation({
           difficulty = 'hard';
         }
 
-        // 判断是否是前进传球(进攻方向)
-        const isForwardPass = team === 'home' ? dy < 0 : dy > 0;
+        // 判断是否是前进传球
+        const isForwardPass = isInAttackDirection;
         
-        // 计算传球概率 - 视线内的传球概率更高
-        let probability = calculatePassProbability(distance, isForwardPass, difficulty);
-        if (isInVision) {
-          probability = Math.min(95, probability + 10); // 视线内加成
-        } else {
-          probability = Math.max(5, probability - 20); // 视线外减成
-        }
+        // 计算传球概率
+        const probability = calculatePassProbability(distance, isForwardPass, difficulty);
 
         return {
           from: { x: selectedPlayer.x, y: selectedPlayer.y },
@@ -387,19 +394,10 @@ export default function LiveFootballAnimation({
           probability,
         };
       })
-      // 优先显示视线内的传球，然后按概率排序
-      .sort((a, b) => {
-        if (a.isInVision && !b.isInVision) return -1;
-        if (!a.isInVision && b.isInVision) return 1;
-        return b.probability - a.probability;
-      })
-      // 只保留视线内的路线，如果视线内不足2条则补充视线外最佳
-      .filter((route, idx, arr) => {
-        const visionRoutes = arr.filter(r => r.isInVision);
-        if (route.isInVision) return true;
-        if (visionRoutes.length < 2 && idx < 2) return true;
-        return false;
-      });
+      // 严格只保留视线内的路线
+      .filter(route => route.isInVision)
+      // 按概率排序
+      .sort((a, b) => b.probability - a.probability);
     
     return routes.slice(0, 2); // 最多显示2条
   };
