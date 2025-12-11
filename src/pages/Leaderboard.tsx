@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import AdCarousel from "@/components/AdCarousel";
 import LeaderboardTable from "@/components/LeaderboardTable";
@@ -13,6 +14,9 @@ const Leaderboard = () => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const defaultTab = tabParam === 'players' ? 'players' : tabParam === 'copy' ? 'copy' : 'ai';
   
   return (
     <div className="min-h-screen bg-background">
@@ -25,7 +29,7 @@ const Leaderboard = () => {
       </div>
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
-        <Tabs defaultValue="ai" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-6">
             <TabsTrigger value="ai" className="text-xs sm:text-sm">{t('ai_leaderboard')}</TabsTrigger>
             <TabsTrigger value="players" className="text-xs sm:text-sm">{t('player_leaderboard')}</TabsTrigger>
