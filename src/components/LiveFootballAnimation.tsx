@@ -1169,65 +1169,164 @@ export default function LiveFootballAnimation({
           const playerNames = selectedPlayer.team === 'home' ? homePlayerNames : awayPlayerNames;
           const playerName = playerNames[selectedPlayer.id] || `球员${selectedPlayer.id + 1}`;
           const desire = getPlayerAttackDesire(selectedPlayer.id);
-          const teamColor = selectedPlayer.team === 'home' ? 'blue' : 'red';
+          
+          // 计算综合威胁指数
+          const threatIndex = Math.round((desire.attackDesire * 0.35 + desire.shootDesire * 0.30 + desire.dribbleDesire * 0.20 + desire.runDesire * 0.15));
+          const threatLevel = threatIndex >= 80 ? 'CRITICAL' : threatIndex >= 60 ? 'HIGH' : threatIndex >= 40 ? 'MEDIUM' : 'LOW';
+          const threatColor = threatIndex >= 80 ? 'text-red-400' : threatIndex >= 60 ? 'text-orange-400' : threatIndex >= 40 ? 'text-cyan-400' : 'text-white/50';
           
           return (
             <div 
-              className="absolute top-12 right-2 bg-black/90 backdrop-blur-sm rounded-lg p-3 text-[9px] min-w-[140px]" 
+              className="absolute top-12 right-2 min-w-[160px]" 
               style={{ zIndex: 30 }}
             >
-              {/* 球员信息 */}
-              <div className={`flex items-center gap-2 mb-2 pb-2 border-b border-${teamColor}-500/30`}>
-                <div className={`w-8 h-8 rounded-full bg-${teamColor}-600 border-2 border-${teamColor}-400 flex items-center justify-center text-white font-bold text-xs`}>
-                  {selectedPlayer.id + 1}
+              {/* AI科技风格面板 */}
+              <div className="relative bg-black/95 backdrop-blur-md rounded border border-cyan-500/30 overflow-hidden">
+                {/* 扫描线动画 */}
+                <div 
+                  className="absolute inset-0 opacity-20 pointer-events-none"
+                  style={{
+                    background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.03) 2px, rgba(0,255,255,0.03) 4px)',
+                  }}
+                />
+                <div 
+                  className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+                  style={{ animation: 'scan 2s linear infinite' }}
+                />
+                
+                {/* 顶部状态栏 */}
+                <div className="px-3 py-1.5 border-b border-cyan-500/20 bg-cyan-950/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      <span className="text-[8px] text-cyan-400/80 font-mono uppercase tracking-wider">PLAYER ANALYSIS</span>
+                    </div>
+                    <span className="text-[8px] text-white/40 font-mono">#{String(selectedPlayer.id + 1).padStart(2, '0')}</span>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-white font-medium text-[11px]">{playerName}</div>
-                  <div className={`text-${teamColor}-400 text-[9px]`}>{desire.role}</div>
+                
+                {/* 球员信息 */}
+                <div className="px-3 py-2 border-b border-cyan-500/10">
+                  <div className="flex items-center gap-2">
+                    <div className={`relative w-10 h-10 rounded border-2 ${selectedPlayer.team === 'home' ? 'border-blue-400/60' : 'border-red-400/60'} overflow-hidden`}>
+                      <div className={`absolute inset-0 ${selectedPlayer.team === 'home' ? 'bg-blue-500/20' : 'bg-red-500/20'}`} />
+                      <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg font-mono">
+                        {selectedPlayer.id + 1}
+                      </div>
+                      {/* 角落装饰 */}
+                      <div className="absolute top-0 left-0 w-2 h-px bg-cyan-400" />
+                      <div className="absolute top-0 left-0 w-px h-2 bg-cyan-400" />
+                      <div className="absolute bottom-0 right-0 w-2 h-px bg-cyan-400" />
+                      <div className="absolute bottom-0 right-0 w-px h-2 bg-cyan-400" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium text-xs">{playerName}</div>
+                      <div className="text-cyan-400/70 text-[9px] font-mono">{desire.role}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              {/* 进攻欲望标题 */}
-              <div className="text-white/90 font-medium mb-2 flex items-center gap-1">
-                <span className="text-orange-400">🔥</span> 进攻欲望分析
-              </div>
-              
-              {/* 欲望指标 */}
-              <div className="space-y-2">
-                {[
-                  { label: '进攻欲望', value: desire.attackDesire, color: 'from-orange-500 to-red-500', icon: '⚔️' },
-                  { label: '射门欲望', value: desire.shootDesire, color: 'from-red-500 to-pink-500', icon: '🎯' },
-                  { label: '传球倾向', value: desire.passDesire, color: 'from-blue-500 to-cyan-500', icon: '↗️' },
-                  { label: '盘带欲望', value: desire.dribbleDesire, color: 'from-purple-500 to-pink-500', icon: '⚡' },
-                  { label: '跑位积极', value: desire.runDesire, color: 'from-green-500 to-emerald-500', icon: '🏃' },
-                ].map(({ label, value, color, icon }) => (
-                  <div key={label} className="space-y-0.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/70 flex items-center gap-1">
-                        <span className="text-[8px]">{icon}</span>{label}
-                      </span>
-                      <span className={`font-bold ${value >= 80 ? 'text-red-400' : value >= 60 ? 'text-orange-400' : value >= 40 ? 'text-yellow-400' : 'text-white/50'}`}>
+                
+                {/* 威胁指数 */}
+                <div className="px-3 py-2 border-b border-cyan-500/10 bg-gradient-to-r from-transparent via-cyan-950/20 to-transparent">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[8px] text-white/50 font-mono uppercase">THREAT INDEX</span>
+                    <span className={`text-sm font-bold font-mono ${threatColor}`}>{threatIndex}%</span>
+                  </div>
+                  <div className="relative h-1 rounded-full bg-slate-800 overflow-hidden">
+                    <div 
+                      className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${threatIndex}%`,
+                        background: threatIndex >= 80 
+                          ? 'linear-gradient(90deg, #f97316, #ef4444)' 
+                          : threatIndex >= 60 
+                            ? 'linear-gradient(90deg, #eab308, #f97316)'
+                            : 'linear-gradient(90deg, #06b6d4, #22d3ee)',
+                      }}
+                    />
+                    {/* 流动效果 */}
+                    <div 
+                      className="absolute inset-0"
+                      style={{
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                        animation: 'shimmer 1.5s infinite',
+                        backgroundSize: '200% 100%',
+                      }}
+                    />
+                  </div>
+                  <div className="mt-1 text-right">
+                    <span className={`text-[7px] font-mono uppercase ${threatColor}`}>[{threatLevel}]</span>
+                  </div>
+                </div>
+                
+                {/* 属性矩阵 */}
+                <div className="px-3 py-2 space-y-1.5">
+                  {[
+                    { key: 'ATK', label: '进攻', value: desire.attackDesire },
+                    { key: 'SHT', label: '射门', value: desire.shootDesire },
+                    { key: 'PAS', label: '传球', value: desire.passDesire },
+                    { key: 'DRB', label: '盘带', value: desire.dribbleDesire },
+                    { key: 'RUN', label: '跑位', value: desire.runDesire },
+                  ].map(({ key, label, value }) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="text-[8px] text-cyan-400/60 font-mono w-6">{key}</span>
+                      <div className="flex-1 relative h-2 rounded-sm bg-slate-800/80 overflow-hidden">
+                        {/* 网格背景 */}
+                        <div 
+                          className="absolute inset-0 opacity-30"
+                          style={{
+                            background: 'repeating-linear-gradient(90deg, transparent, transparent 9%, rgba(0,255,255,0.1) 9%, rgba(0,255,255,0.1) 10%)',
+                          }}
+                        />
+                        {/* 数值条 */}
+                        <div 
+                          className="absolute inset-y-0 left-0 rounded-sm transition-all duration-500"
+                          style={{ 
+                            width: `${value}%`,
+                            background: value >= 80 
+                              ? 'linear-gradient(90deg, rgba(239,68,68,0.8), rgba(239,68,68,1))' 
+                              : value >= 60 
+                                ? 'linear-gradient(90deg, rgba(249,115,22,0.8), rgba(249,115,22,1))'
+                                : 'linear-gradient(90deg, rgba(6,182,212,0.6), rgba(6,182,212,0.9))',
+                          }}
+                        />
+                        {/* 边缘发光 */}
+                        <div 
+                          className="absolute top-0 bottom-0 w-px transition-all duration-500"
+                          style={{ 
+                            left: `${value}%`,
+                            background: value >= 80 ? '#ef4444' : value >= 60 ? '#f97316' : '#06b6d4',
+                            boxShadow: value >= 80 
+                              ? '0 0 4px #ef4444' 
+                              : value >= 60 
+                                ? '0 0 4px #f97316'
+                                : '0 0 4px #06b6d4',
+                          }}
+                        />
+                      </div>
+                      <span className={`text-[9px] font-mono font-bold w-6 text-right ${
+                        value >= 80 ? 'text-red-400' : value >= 60 ? 'text-orange-400' : 'text-cyan-400/80'
+                      }`}>
                         {value}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-slate-700 overflow-hidden">
-                      <div 
-                        className={`h-full bg-gradient-to-r ${color} transition-all duration-300`}
-                        style={{ width: `${value}%` }}
-                      />
+                  ))}
+                </div>
+                
+                {/* 底部状态 */}
+                <div className="px-3 py-1.5 border-t border-cyan-500/10 bg-cyan-950/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[7px] text-white/40 font-mono">
+                      {desire.attackDesire >= 80 ? 'MODE: AGGRESSIVE' : 
+                       desire.passDesire >= 80 ? 'MODE: PLAYMAKER' : 
+                       desire.runDesire >= 80 ? 'MODE: RUNNER' : 
+                       'MODE: BALANCED'}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[7px] text-green-400/70 font-mono">LIVE</span>
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              {/* 综合评价 */}
-              <div className="mt-2 pt-2 border-t border-white/10">
-                <div className="text-[8px] text-white/50">
-                  {desire.attackDesire >= 80 ? '🔥 极度渴望进球' : 
-                   desire.attackDesire >= 60 ? '💪 积极参与进攻' : 
-                   desire.passDesire >= 80 ? '🎯 组织核心型' : 
-                   desire.runDesire >= 80 ? '🏃 跑位积极型' : 
-                   '🛡️ 防守优先型'}
                 </div>
               </div>
             </div>
