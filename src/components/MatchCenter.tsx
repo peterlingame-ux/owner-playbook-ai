@@ -1,354 +1,504 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Activity, Clock, CheckCircle2, TrendingUp, CloudRain, Cloud, Sun, CloudSnow } from "lucide-react";
-import { upcomingMatches, pastMatches } from "@/data/mockData";
-import { Match } from "@/types/prediction";
+import { Star, Flame, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState } from "react";
-import { useLongPress } from "@/hooks/useLongPress";
-import { MatchContextMenu } from "@/components/MatchContextMenu";
-import { toast } from "sonner";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
+// 虚拟比赛数据
+interface VirtualMatch {
+  id: string;
+  league: string;
+  leagueColor: string;
+  time: string;
+  minute?: string;
+  status: 'live' | 'upcoming' | 'finished';
+  homeTeam: string;
+  homeRank?: number;
+  homeScore?: number;
+  homeYellowCards?: number;
+  homeRedCards?: number;
+  awayTeam: string;
+  awayRank?: number;
+  awayScore?: number;
+  awayYellowCards?: number;
+  awayRedCards?: number;
+  halfTimeScore?: string;
+  corners?: string;
+  matchCode: string;
+  heat: number;
+  hasLineup: boolean;
+  hasVip: boolean;
+  hasAi: boolean;
+  hasVideo: boolean;
+  isFavorite: boolean;
+  expert?: {
+    name: string;
+    avatar: string;
+  };
+  statusText?: string;
+}
+
+const virtualMatches: VirtualMatch[] = [
+  {
+    id: '1',
+    league: '阿拉伯杯',
+    leagueColor: 'text-destructive',
+    time: '01:30',
+    status: 'live',
+    minute: '加',
+    homeTeam: '巴勒斯坦',
+    homeRank: 98,
+    homeScore: 1,
+    homeYellowCards: 2,
+    awayTeam: '沙特阿拉伯',
+    awayRank: 58,
+    awayScore: 1,
+    awayYellowCards: 2,
+    halfTimeScore: '0-0',
+    corners: '2-3',
+    matchCode: '周四003',
+    heat: 1.1,
+    hasLineup: true,
+    hasVip: false,
+    hasAi: false,
+    hasVideo: true,
+    isFavorite: true,
+    expert: {
+      name: '大玮聊球',
+      avatar: '/avatars/avatar-1.png'
+    }
+  },
+  {
+    id: '2',
+    league: '欧联',
+    leagueColor: 'text-destructive',
+    time: '01:45',
+    status: 'live',
+    minute: '84',
+    homeTeam: '卢多格雷茨',
+    homeRank: 3,
+    homeScore: 3,
+    homeYellowCards: 3,
+    awayTeam: '塞萨洛尼基',
+    awayRank: 2,
+    awayScore: 2,
+    awayYellowCards: 1,
+    halfTimeScore: '1-1',
+    corners: '2-0',
+    matchCode: '周四004',
+    heat: 2.9,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: true,
+    statusText: '90分钟[1-1]'
+  },
+  {
+    id: '3',
+    league: '欧联',
+    leagueColor: 'text-destructive',
+    time: '01:45',
+    status: 'live',
+    minute: '85',
+    homeTeam: '乌德勒支',
+    homeRank: 7,
+    homeScore: 1,
+    homeYellowCards: 1,
+    awayTeam: '诺丁汉森林',
+    awayRank: 17,
+    awayScore: 1,
+    awayYellowCards: 1,
+    halfTimeScore: '0-0',
+    corners: '5-5',
+    matchCode: '周四006',
+    heat: 3.1,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: true,
+    expert: {
+      name: '王旻',
+      avatar: '/avatars/avatar-2.png'
+    }
+  },
+  {
+    id: '4',
+    league: '欧联',
+    leagueColor: 'text-destructive',
+    time: '01:45',
+    status: 'live',
+    minute: '82',
+    homeTeam: '尼斯',
+    homeRank: 12,
+    homeScore: 0,
+    homeYellowCards: 3,
+    awayTeam: '布拉加',
+    awayRank: 5,
+    awayScore: 1,
+    awayYellowCards: 1,
+    halfTimeScore: '0-1',
+    corners: '4-3',
+    matchCode: '周四005',
+    heat: 1.9,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: true,
+    expert: {
+      name: '丰少解题',
+      avatar: '/avatars/avatar-3.png'
+    }
+  },
+  {
+    id: '5',
+    league: '欧联',
+    leagueColor: 'text-destructive',
+    time: '01:45',
+    status: 'live',
+    minute: '84',
+    homeTeam: '年轻人',
+    homeRank: 4,
+    homeScore: 1,
+    awayTeam: '里尔',
+    awayRank: 4,
+    awayScore: 0,
+    awayYellowCards: 1,
+    halfTimeScore: '0-0',
+    corners: '1-1',
+    matchCode: '周四010',
+    heat: 1.8,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: true,
+    expert: {
+      name: '大海荐球',
+      avatar: '/avatars/avatar-4.png'
+    }
+  },
+  {
+    id: '6',
+    league: '英超',
+    leagueColor: 'text-purple-500',
+    time: '03:00',
+    status: 'upcoming',
+    homeTeam: '曼城',
+    awayTeam: '利物浦',
+    matchCode: '周四015',
+    heat: 8.5,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: false
+  },
+  {
+    id: '7',
+    league: '西甲',
+    leagueColor: 'text-orange-500',
+    time: '04:00',
+    status: 'upcoming',
+    homeTeam: '皇家马德里',
+    awayTeam: '巴塞罗那',
+    matchCode: '周四018',
+    heat: 12.3,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: true
+  },
+  {
+    id: '8',
+    league: '德甲',
+    leagueColor: 'text-red-600',
+    time: '22:30',
+    status: 'finished',
+    homeTeam: '拜仁慕尼黑',
+    homeScore: 3,
+    awayTeam: '多特蒙德',
+    awayScore: 1,
+    halfTimeScore: '2-0',
+    corners: '8-4',
+    matchCode: '周三001',
+    heat: 5.2,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: false
+  },
+  {
+    id: '9',
+    league: '意甲',
+    leagueColor: 'text-blue-500',
+    time: '21:00',
+    status: 'finished',
+    homeTeam: 'AC米兰',
+    homeScore: 2,
+    awayTeam: '国际米兰',
+    awayScore: 2,
+    halfTimeScore: '1-1',
+    corners: '5-6',
+    matchCode: '周三002',
+    heat: 4.8,
+    hasLineup: true,
+    hasVip: true,
+    hasAi: true,
+    hasVideo: true,
+    isFavorite: true,
+    expert: {
+      name: '足球大师',
+      avatar: '/avatars/avatar-5.png'
+    }
+  }
+];
+
+type TabType = 'all' | 'live' | 'upcoming' | 'finished' | 'favorites';
 
 const MatchCenter = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [contextMenu, setContextMenu] = useState<{
-    match: Match | null;
-    isOpen: boolean;
-    position: { x: number; y: number };
-  }>({
-    match: null,
-    isOpen: false,
-    position: { x: 0, y: 0 }
+  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [favorites, setFavorites] = useState<Set<string>>(new Set(virtualMatches.filter(m => m.isFavorite).map(m => m.id)));
+
+  const toggleFavorite = (matchId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(matchId)) {
+        newSet.delete(matchId);
+      } else {
+        newSet.add(matchId);
+      }
+      return newSet;
+    });
+  };
+
+  const filteredMatches = virtualMatches.filter(match => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'live') return match.status === 'live';
+    if (activeTab === 'upcoming') return match.status === 'upcoming';
+    if (activeTab === 'finished') return match.status === 'finished';
+    if (activeTab === 'favorites') return favorites.has(match.id);
+    return true;
   });
 
-  const liveMatches = upcomingMatches.filter(m => m.status === 'live');
-  const upcoming = upcomingMatches.filter(m => m.status === 'upcoming');
-  const finished = pastMatches;
+  const favoritesCount = favorites.size;
 
-  // Helper function to get team name based on language
-  const getTeamName = (match: Match, team: 'home' | 'away') => {
-    if (i18n.language === 'zh') {
-      return team === 'home' 
-        ? (match.homeTeamZh || match.homeTeam)
-        : (match.awayTeamZh || match.awayTeam);
-    }
-    return team === 'home' ? match.homeTeam : match.awayTeam;
-  };
-
-  // Helper function to get league name based on language
-  const getLeagueName = (match: Match) => {
-    if (i18n.language === 'zh') {
-      return match.leagueZh || match.league;
-    }
-    return match.league;
-  };
-
-  // Weather icon helper
-  const getWeatherIcon = (weather?: string) => {
-    switch(weather) {
-      case 'sunny': return <Sun className="w-3.5 h-3.5 text-yellow-500" />;
-      case 'rainy': return <CloudRain className="w-3.5 h-3.5 text-blue-400" />;
-      case 'cloudy': return <Cloud className="w-3.5 h-3.5 text-gray-400" />;
-      case 'snowy': return <CloudSnow className="w-3.5 h-3.5 text-blue-200" />;
-      default: return null;
-    }
-  };
-
-  const MatchRow = ({ match, type }: { match: Match; type: 'live' | 'upcoming' | 'finished' }) => {
-    const longPress = useLongPress({
-      onLongPress: (e) => {
-        e.preventDefault();
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
-        setContextMenu({
-          match,
-          isOpen: true,
-          position: {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2
-          }
-        });
-      },
-      onClick: () => navigate(`/match/${match.id}`)
-    });
-
-    return (
-      <TableRow 
-        {...longPress.handlers}
-        className="hover:bg-accent/30 cursor-pointer transition-colors border-b border-border/40 touch-none select-none"
-      >
-      {/* Status & Time */}
-      <TableCell className="w-[70px] sm:w-[100px] py-2 sm:py-3 px-2">
-        <div className="flex flex-col items-start gap-0.5 sm:gap-1">
-          {type === 'live' && (
-            <>
-              <Badge variant="destructive" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 sm:h-5 font-semibold">
-                <Activity className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5 animate-pulse" />
-                <span className="hidden sm:inline">LIVE</span>
-                <span className="sm:hidden">•</span>
-              </Badge>
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-medium">{match.currentMinute}'</span>
-            </>
-          )}
-          {type === 'upcoming' && (
-            <>
-              <span className="text-[10px] sm:text-xs font-semibold text-foreground">{match.time}</span>
-              <span className="text-[9px] sm:text-[10px] text-muted-foreground truncate max-w-[60px]">{match.date}</span>
-            </>
-          )}
-          {type === 'finished' && (
-            <>
-              <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 sm:h-5">
-                <CheckCircle2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
-                <span className="hidden sm:inline">FT</span>
-              </Badge>
-              <span className="text-[9px] sm:text-[10px] text-muted-foreground truncate max-w-[60px]">{match.date}</span>
-            </>
-          )}
+  const MatchCard = ({ match }: { match: VirtualMatch }) => (
+    <div 
+      className="border-b border-border/30 py-3 px-3 hover:bg-muted/20 cursor-pointer transition-colors"
+      onClick={() => navigate(`/match/${match.id}`)}
+    >
+      {/* 顶部行：联赛 + 时间 + 功能标签 + 热度 */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-medium ${match.leagueColor}`}>{match.league}</span>
+          <span className="text-xs text-muted-foreground">{match.time}</span>
         </div>
-      </TableCell>
-
-      {/* League - Hidden on mobile */}
-      <TableCell className="hidden md:table-cell w-[140px] py-3 px-2">
         <div className="flex items-center gap-2">
-          <div className="text-[11px] font-semibold text-foreground/90 truncate">
-            {getLeagueName(match)}
+          {match.minute && (
+            <span className="text-xs text-destructive font-medium">{match.minute}'</span>
+          )}
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            {match.hasLineup && <span>阵容</span>}
+            {match.hasVip && <span className="text-warning">VIP情报</span>}
+            {match.hasAi && <span className="text-primary">AI</span>}
+          </div>
+          <div className="flex items-center gap-1">
+            <Flame className="w-3 h-3 text-destructive" />
+            <span className="text-xs text-destructive font-medium">{match.heat}万</span>
           </div>
         </div>
-      </TableCell>
+      </div>
 
-      {/* Home Team */}
-      <TableCell className="py-2 sm:py-3 px-1 sm:px-2">
-        <div className="flex items-center gap-1 sm:gap-2 justify-end">
-          <span className="text-[11px] sm:text-sm font-semibold text-foreground truncate max-w-[60px] sm:max-w-none">
-            {getTeamName(match, 'home')}
-          </span>
-          <img 
-            src={match.homeLogo} 
-            alt={match.homeTeam} 
-            className="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0" 
-          />
+      {/* 比赛主体行 */}
+      <div className="flex items-center gap-2">
+        {/* 收藏按钮 */}
+        <button 
+          onClick={(e) => toggleFavorite(match.id, e)}
+          className="flex-shrink-0"
+        >
+          <Star className={`w-4 h-4 ${favorites.has(match.id) ? 'text-warning fill-warning' : 'text-muted-foreground'}`} />
+        </button>
+
+        {/* 主队信息 */}
+        <div className="flex-1 flex items-center justify-end gap-1.5">
+          {match.homeYellowCards && match.homeYellowCards > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold bg-yellow-500 text-black rounded-sm">
+              {match.homeYellowCards}
+            </span>
+          )}
+          {match.homeRedCards && match.homeRedCards > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold bg-destructive text-white rounded-sm">
+              {match.homeRedCards}
+            </span>
+          )}
+          {match.homeRank && (
+            <span className="text-[10px] text-muted-foreground">[{match.homeRank}]</span>
+          )}
+          <span className="text-sm font-medium text-foreground">{match.homeTeam}</span>
         </div>
-      </TableCell>
 
-      {/* Score */}
-      <TableCell className="w-[60px] sm:w-[80px] py-2 sm:py-3 px-1">
-        <div className="flex items-center justify-center gap-1 sm:gap-2">
-          {(type === 'live' || type === 'finished') ? (
-            <div className="flex items-center gap-1 sm:gap-1.5 bg-muted/50 rounded px-2 sm:px-3 py-1 sm:py-1.5">
-              <span className="text-base sm:text-lg font-bold text-foreground">{match.homeScore}</span>
-              <span className="text-muted-foreground text-xs sm:text-sm">-</span>
-              <span className="text-base sm:text-lg font-bold text-foreground">{match.awayScore}</span>
-            </div>
+        {/* 比分 */}
+        <div className="flex-shrink-0 w-16 text-center">
+          {match.status === 'upcoming' ? (
+            <span className="text-sm text-muted-foreground">VS</span>
           ) : (
-            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">VS</span>
+            <span className="text-lg font-bold text-destructive">
+              {match.homeScore}-{match.awayScore}
+            </span>
           )}
         </div>
-      </TableCell>
 
-      {/* Away Team */}
-      <TableCell className="py-2 sm:py-3 px-1 sm:px-2">
-        <div className="flex items-center gap-1 sm:gap-2">
-          <img 
-            src={match.awayLogo} 
-            alt={match.awayTeam} 
-            className="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0" 
-          />
-          <span className="text-[11px] sm:text-sm font-semibold text-foreground truncate max-w-[60px] sm:max-w-none">
-            {getTeamName(match, 'away')}
+        {/* 客队信息 */}
+        <div className="flex-1 flex items-center gap-1.5">
+          <span className="text-sm font-medium text-foreground">{match.awayTeam}</span>
+          {match.awayRank && (
+            <span className="text-[10px] text-muted-foreground">[{match.awayRank}]</span>
+          )}
+          {match.awayYellowCards && match.awayYellowCards > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold bg-yellow-500 text-black rounded-sm">
+              {match.awayYellowCards}
+            </span>
+          )}
+          {match.awayRedCards && match.awayRedCards > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold bg-destructive text-white rounded-sm">
+              {match.awayRedCards}
+            </span>
+          )}
+        </div>
+
+        {/* 视频按钮 */}
+        {match.hasVideo && (
+          <button className="flex-shrink-0 w-8 h-8 rounded bg-destructive/20 flex items-center justify-center">
+            <Play className="w-4 h-4 text-destructive fill-destructive" />
+          </button>
+        )}
+      </div>
+
+      {/* 底部行：比赛编号 + 半场/角球 */}
+      <div className="flex items-center justify-between mt-2">
+        <span className="text-[10px] text-muted-foreground">{match.matchCode}</span>
+        {(match.halfTimeScore || match.corners) && (
+          <span className="text-[10px] text-muted-foreground">
+            {match.halfTimeScore && `半:${match.halfTimeScore}`}
+            {match.halfTimeScore && match.corners && ' '}
+            {match.corners && `角:${match.corners}`}
           </span>
-        </div>
-      </TableCell>
-
-      {/* Stats - Hidden on mobile */}
-      <TableCell className="hidden sm:table-cell w-[100px] sm:w-[120px] py-3 px-2">
-        {(type === 'live' || type === 'finished') && (
-          <div className="flex items-center gap-2 sm:gap-3 justify-center text-[10px]">
-            <div className="flex flex-col items-center">
-              <span className="text-muted-foreground mb-0.5">⚽</span>
-              <span className="font-semibold text-foreground">{match.homeCorners}-{match.awayCorners}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-muted-foreground mb-0.5">🟨</span>
-              <span className="font-semibold text-foreground">{match.homeYellowCards}-{match.awayYellowCards}</span>
-            </div>
-            {(match.homeRedCards > 0 || match.awayRedCards > 0) && (
-              <div className="flex flex-col items-center">
-                <span className="text-muted-foreground mb-0.5">🟥</span>
-                <span className="font-semibold text-destructive">{match.homeRedCards}-{match.awayRedCards}</span>
-              </div>
-            )}
-          </div>
         )}
-        {type === 'upcoming' && match.weather && (
-          <div className="flex justify-center">
-            {getWeatherIcon(match.weather)}
-          </div>
-        )}
-      </TableCell>
+      </div>
 
-      {/* Action - Hidden on small mobile */}
-      <TableCell className="hidden sm:table-cell w-[60px] sm:w-[80px] py-3 px-1">
-        <div className="flex justify-center">
-          <Badge variant="outline" className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 hover:bg-primary/10 transition-colors">
-            <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-            <span className="hidden md:inline">{t('details')}</span>
-          </Badge>
+      {/* 状态文本（如90分钟） */}
+      {match.statusText && (
+        <div className="mt-2 py-1.5 bg-primary/10 rounded text-center">
+          <span className="text-xs text-primary font-medium">{match.statusText}</span>
         </div>
-      </TableCell>
-    </TableRow>
-    );
-  };
+      )}
+
+      {/* 专家推荐 */}
+      {match.expert && (
+        <div className="flex items-center justify-center mt-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted/50 rounded-full">
+            <Avatar className="w-5 h-5">
+              <AvatarImage src={match.expert.avatar} />
+              <AvatarFallback className="text-[8px]">{match.expert.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-foreground font-medium">{match.expert.name}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
-    <>
-      <MatchContextMenu
-        match={contextMenu.match}
-        isOpen={contextMenu.isOpen}
-        onClose={() => setContextMenu({ match: null, isOpen: false, position: { x: 0, y: 0 } })}
-        position={contextMenu.position}
-        onViewDetails={() => {
-          if (contextMenu.match) navigate(`/match/${contextMenu.match.id}`);
-        }}
-        onShare={() => {
-          toast.success(t('share_success') || '已复制分享链接');
-        }}
-        onSetReminder={() => {
-          toast.success(t('reminder_set') || '提醒设置成功');
-        }}
-        onAddFavorite={() => {
-          toast.success(t('favorite_added') || '已添加到收藏');
-        }}
-      />
-      <Card className="h-[500px] sm:h-[600px] flex flex-col border-border/60 bg-card/95 backdrop-blur safe-area-padding">
-      {/* Tabs */}
-      <Tabs defaultValue="live" className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-3 m-2 sm:m-3 mb-0 bg-muted/50">
-          <TabsTrigger value="live" className="text-[10px] sm:text-xs font-semibold data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground px-1 sm:px-3">
-            <Activity className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-            <span className="hidden xs:inline">{t('live')}</span>
-            <span className="ml-0.5 sm:ml-1 opacity-70">({liveMatches.length})</span>
-          </TabsTrigger>
-          <TabsTrigger value="upcoming" className="text-[10px] sm:text-xs font-semibold px-1 sm:px-3">
-            <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-            <span className="hidden xs:inline">{t('upcoming')}</span>
-            <span className="ml-0.5 sm:ml-1 opacity-70">({upcoming.length})</span>
-          </TabsTrigger>
-          <TabsTrigger value="finished" className="text-[10px] sm:text-xs font-semibold px-1 sm:px-3">
-            <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-            <span className="hidden xs:inline">{t('finished')}</span>
-            <span className="ml-0.5 sm:ml-1 opacity-70">({finished.length})</span>
-          </TabsTrigger>
-        </TabsList>
+    <Card className="h-[600px] sm:h-[700px] flex flex-col border-border/60 bg-card/95 backdrop-blur">
+      {/* 标签导航 */}
+      <div className="flex items-center border-b border-border/50 px-2 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            activeTab === 'all' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          全部
+          {activeTab === 'all' && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('live')}
+          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            activeTab === 'live' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          进行中
+          {activeTab === 'live' && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('upcoming')}
+          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            activeTab === 'upcoming' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          赛程
+          {activeTab === 'upcoming' && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('finished')}
+          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            activeTab === 'finished' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          赛果
+          {activeTab === 'finished' && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('favorites')}
+          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+            activeTab === 'favorites' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          关注
+          {favoritesCount > 0 && (
+            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-destructive text-white rounded-full">
+              {favoritesCount}
+            </span>
+          )}
+          {activeTab === 'favorites' && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+          )}
+        </button>
+      </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="live" className="h-full m-0 p-2 sm:p-3 pt-1 sm:pt-2">
-            <ScrollArea className="h-full">
-              <div className="overflow-x-auto">
-                <Table className="min-w-[500px]">
-                  <TableHeader className="sticky top-0 bg-card z-10">
-                    <TableRow className="border-b border-border/60 hover:bg-transparent">
-                      <TableHead className="text-[9px] sm:text-[10px] font-bold text-muted-foreground px-2">{t('status')}</TableHead>
-                      <TableHead className="hidden md:table-cell text-[10px] font-bold text-muted-foreground px-2">{t('league')}</TableHead>
-                      <TableHead className="text-right text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1 sm:px-2">{t('home')}</TableHead>
-                      <TableHead className="text-center text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1">{t('score')}</TableHead>
-                      <TableHead className="text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1 sm:px-2">{t('away')}</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center text-[10px] font-bold text-muted-foreground px-2">{t('stats')}</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center text-[10px] font-bold text-muted-foreground px-1"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {liveMatches.length > 0 ? (
-                      liveMatches.map((match) => (
-                        <MatchRow key={match.id} match={match} type="live" />
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 sm:py-12 text-xs sm:text-sm text-muted-foreground">
-                          {t('no_live_matches')}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="upcoming" className="h-full m-0 p-2 sm:p-3 pt-1 sm:pt-2">
-            <ScrollArea className="h-full">
-              <div className="overflow-x-auto">
-                <Table className="min-w-[500px]">
-                  <TableHeader className="sticky top-0 bg-card z-10">
-                    <TableRow className="border-b border-border/60 hover:bg-transparent">
-                      <TableHead className="text-[9px] sm:text-[10px] font-bold text-muted-foreground px-2">{t('time')}</TableHead>
-                      <TableHead className="hidden md:table-cell text-[10px] font-bold text-muted-foreground px-2">{t('league')}</TableHead>
-                      <TableHead className="text-right text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1 sm:px-2">{t('home')}</TableHead>
-                      <TableHead className="text-center text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1"></TableHead>
-                      <TableHead className="text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1 sm:px-2">{t('away')}</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center text-[10px] font-bold text-muted-foreground px-2">{t('weather')}</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center text-[10px] font-bold text-muted-foreground px-1"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {upcoming.length > 0 ? (
-                      upcoming.map((match) => (
-                        <MatchRow key={match.id} match={match} type="upcoming" />
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 sm:py-12 text-xs sm:text-sm text-muted-foreground">
-                          {t('no_upcoming_matches')}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="finished" className="h-full m-0 p-2 sm:p-3 pt-1 sm:pt-2">
-            <ScrollArea className="h-full">
-              <div className="overflow-x-auto">
-                <Table className="min-w-[500px]">
-                  <TableHeader className="sticky top-0 bg-card z-10">
-                    <TableRow className="border-b border-border/60 hover:bg-transparent">
-                      <TableHead className="text-[9px] sm:text-[10px] font-bold text-muted-foreground px-2">{t('status')}</TableHead>
-                      <TableHead className="hidden md:table-cell text-[10px] font-bold text-muted-foreground px-2">{t('league')}</TableHead>
-                      <TableHead className="text-right text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1 sm:px-2">{t('home')}</TableHead>
-                      <TableHead className="text-center text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1">{t('result')}</TableHead>
-                      <TableHead className="text-[9px] sm:text-[10px] font-bold text-muted-foreground px-1 sm:px-2">{t('away')}</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center text-[10px] font-bold text-muted-foreground px-2">{t('stats')}</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center text-[10px] font-bold text-muted-foreground px-1"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {finished.length > 0 ? (
-                      finished.map((match) => (
-                        <MatchRow key={match.id} match={match} type="finished" />
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 sm:py-12 text-xs sm:text-sm text-muted-foreground">
-                          {t('no_finished_matches')}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </ScrollArea>
-          </TabsContent>
+      {/* 比赛列表 */}
+      <ScrollArea className="flex-1">
+        <div className="divide-y divide-border/20">
+          {filteredMatches.length > 0 ? (
+            filteredMatches.map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))
+          ) : (
+            <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
+              暂无比赛数据
+            </div>
+          )}
         </div>
-      </Tabs>
+      </ScrollArea>
     </Card>
-    </>
   );
 };
 
