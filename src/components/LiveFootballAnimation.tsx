@@ -213,9 +213,39 @@ export default function LiveFootballAnimation({
   const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<{ id: number; team: 'home' | 'away'; x: number; y: number } | null>(null);
   const [chasingPlayer, setChasingPlayer] = useState<{ id: number; team: 'home' | 'away' } | null>(null);
+  const [energyFluctuation, setEnergyFluctuation] = useState(0); // 能量波动值
   const animationRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const ballUpdateRef = useRef<number>(0);
+  const energyRef = useRef<number>(0);
+  
+  // 能量波动动画
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    let animationId: number;
+    let lastTime = 0;
+    const fluctuationSpeed = 0.002; // 波动速度
+    
+    const animateEnergy = (timestamp: number) => {
+      if (timestamp - lastTime > 50) { // 每50ms更新一次
+        // 使用正弦波 + 随机噪声创建自然波动
+        const baseWave = Math.sin(timestamp * fluctuationSpeed) * 3;
+        const secondaryWave = Math.sin(timestamp * fluctuationSpeed * 2.3) * 2;
+        const noise = (Math.random() - 0.5) * 2;
+        
+        const newFluctuation = baseWave + secondaryWave + noise;
+        setEnergyFluctuation(newFluctuation);
+        energyRef.current = newFluctuation;
+        lastTime = timestamp;
+      }
+      animationId = requestAnimationFrame(animateEnergy);
+    };
+    
+    animationId = requestAnimationFrame(animateEnergy);
+    
+    return () => cancelAnimationFrame(animationId);
+  }, [isPlaying]);
 
   // 点击球员显示进攻视角
   const handlePlayerClick = (player: PlayerPosition, team: 'home' | 'away') => {
@@ -1141,13 +1171,36 @@ export default function LiveFootballAnimation({
         const homeStats = formationStats[currentHomeFormation] || formationStats['4-4-2'];
         const awayStats = formationStats[currentAwayFormation] || formationStats['4-3-3'];
         
+        // 应用波动效果
+        const fluctuatedHome = Math.max(15, Math.min(85, advantage.homePercentage + energyFluctuation));
+        const fluctuatedAway = 100 - fluctuatedHome;
+        
+        // 动态优势文字
+        const diff = fluctuatedHome - fluctuatedAway;
+        let dynamicAdvantageText = '';
+        if (Math.abs(diff) <= 8) {
+          dynamicAdvantageText = '势均力敌';
+        } else if (diff > 20) {
+          dynamicAdvantageText = '主队强势';
+        } else if (diff > 8) {
+          dynamicAdvantageText = '主队占优';
+        } else if (diff < -20) {
+          dynamicAdvantageText = '客队强势';
+        } else {
+          dynamicAdvantageText = '客队占优';
+        }
+        
         return (
           <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-950/50 via-slate-900/80 to-red-950/50 border border-white/10">
             {/* 标题 */}
             <div className="text-center mb-3">
-              <h4 className="text-sm font-bold text-white/90">⚡ 阵型对抗能量分析</h4>
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <h4 className="text-sm font-bold text-white/90">⚡ 实时能量对抗</h4>
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                基于 {currentHomeFormation} vs {currentAwayFormation} 实时计算
+                {currentHomeFormation} vs {currentAwayFormation} · 动态模拟中
               </p>
             </div>
             
@@ -1158,40 +1211,91 @@ export default function LiveFootballAnimation({
                 <div className="flex items-center gap-2">
                   <img src={homeTeamLogo} alt={homeTeamName} className="w-5 h-5 object-contain" />
                   <span className="text-xs font-medium text-blue-400">{homeTeamName}</span>
-                  <span className="text-lg font-bold text-blue-400">{advantage.homePercentage}%</span>
+                  <span className={`text-lg font-bold transition-all duration-150 ${fluctuatedHome > 50 ? 'text-blue-400 scale-105' : 'text-blue-400/70'}`}>
+                    {Math.round(fluctuatedHome)}%
+                  </span>
                 </div>
-                <div className="px-2 py-0.5 rounded bg-white/10 text-[10px] text-white/80 font-medium">
-                  {advantage.advantageText}
+                <div className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all duration-300 ${
+                  diff > 8 ? 'bg-blue-500/30 text-blue-300' : 
+                  diff < -8 ? 'bg-red-500/30 text-red-300' : 
+                  'bg-white/10 text-white/80'
+                }`}>
+                  {dynamicAdvantageText}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-red-400">{advantage.awayPercentage}%</span>
+                  <span className={`text-lg font-bold transition-all duration-150 ${fluctuatedAway > 50 ? 'text-red-400 scale-105' : 'text-red-400/70'}`}>
+                    {Math.round(fluctuatedAway)}%
+                  </span>
                   <span className="text-xs font-medium text-red-400">{awayTeamName}</span>
                   <img src={awayTeamLogo} alt={awayTeamName} className="w-5 h-5 object-contain" />
                 </div>
               </div>
               
               {/* 能量条 */}
-              <div className="relative h-6 rounded-full bg-slate-800 overflow-hidden border border-white/10">
+              <div className="relative h-8 rounded-full bg-slate-800 overflow-hidden border border-white/10 shadow-inner">
                 {/* 主队能量 */}
                 <div 
-                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 transition-all duration-700 ease-out"
-                  style={{ width: `${advantage.homePercentage}%` }}
+                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 transition-all duration-100 ease-out"
+                  style={{ width: `${fluctuatedHome}%` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
+                  {/* 流动效果 */}
+                  <div 
+                    className="absolute inset-0 opacity-40"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                      animation: 'shimmer 1.5s infinite',
+                      backgroundSize: '200% 100%',
+                    }}
+                  />
+                  {/* 边缘发光 */}
+                  <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-l from-white/50 to-transparent" />
                 </div>
+                
                 {/* 客队能量 */}
                 <div 
-                  className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-600 via-red-500 to-red-400 transition-all duration-700 ease-out"
-                  style={{ width: `${advantage.awayPercentage}%` }}
+                  className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-700 via-red-500 to-orange-400 transition-all duration-100 ease-out"
+                  style={{ width: `${fluctuatedAway}%` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
+                  {/* 流动效果 */}
+                  <div 
+                    className="absolute inset-0 opacity-40"
+                    style={{
+                      background: 'linear-gradient(270deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                      animation: 'shimmer 1.5s infinite reverse',
+                      backgroundSize: '200% 100%',
+                    }}
+                  />
+                  {/* 边缘发光 */}
+                  <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-white/50 to-transparent" />
                 </div>
-                {/* 中线 */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/50 -translate-x-1/2 z-10" />
+                
+                {/* 碰撞火花效果 */}
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-100"
+                  style={{ left: `${fluctuatedHome}%`, transform: `translateX(-50%) translateY(-50%)` }}
+                >
+                  <div className="relative">
+                    <div className="w-1 h-8 bg-gradient-to-b from-yellow-300 via-white to-yellow-300 animate-pulse" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-yellow-400 rounded-full blur-sm animate-ping opacity-60" />
+                  </div>
+                </div>
+                
                 {/* 闪电图标 */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-yellow-500 border-2 border-white flex items-center justify-center shadow-lg shadow-yellow-500/50">
-                  <span className="text-[10px]">⚡</span>
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-white flex items-center justify-center shadow-lg shadow-yellow-500/50 transition-all duration-100"
+                  style={{ left: `${fluctuatedHome}%`, transform: `translateX(-50%) translateY(-50%)` }}
+                >
+                  <span className="text-xs">⚡</span>
                 </div>
+              </div>
+              
+              {/* 动态指示器 */}
+              <div className="flex justify-between mt-1 text-[8px] text-white/40">
+                <span>弱势</span>
+                <span>|</span>
+                <span>均衡</span>
+                <span>|</span>
+                <span>强势</span>
               </div>
             </div>
             
