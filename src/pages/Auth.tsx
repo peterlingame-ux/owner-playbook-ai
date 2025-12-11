@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { ArrowLeft, Eye, EyeOff, Lock, Phone } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Lock, Phone, Home } from "lucide-react";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import logo from "@/assets/hunnsoccer-alpha-logo.png";
 import authBg from "@/assets/auth-football-bg.jpg";
 import aiBluewhale from "@/assets/ai-icon-bluewhale.png";
@@ -35,6 +37,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [countryCode, setCountryCode] = useState("+852");
   const [phone, setPhone] = useState("");
@@ -539,17 +542,17 @@ const Auth = () => {
   const getStepTitle = () => {
     switch (step) {
       case "phone":
-        return loginMethod === "password" ? "密码登录" : (isSignUp ? "注册账号" : "登录账号");
+        return loginMethod === "password" ? t("auth.password_login") : (isSignUp ? t("auth.register") : t("auth.login"));
       case "otp":
-        return "输入验证码";
+        return t("auth.enter_code");
       case "set-password":
-        return isSignUp ? "设置登录密码" : "重置密码";
+        return isSignUp ? t("auth.set_password") : t("auth.reset_password");
       case "forgot-password":
-        return "忘记密码";
+        return t("auth.forgot_password");
       case "password-login":
-        return "密码登录";
+        return t("auth.password_login");
       default:
-        return "登录";
+        return t("auth.login");
     }
   };
 
@@ -557,14 +560,14 @@ const Auth = () => {
     switch (step) {
       case "phone":
         return loginMethod === "password" 
-          ? "请输入手机号码和密码登录" 
-          : (isSignUp ? "请输入手机号码并设置密码" : "请输入手机号码获取验证码");
+          ? t("auth.enter_phone_password") 
+          : (isSignUp ? t("auth.enter_phone_set_password") : t("auth.enter_phone_get_code"));
       case "otp":
-        return `验证码已发送至 ${normalizedCountryCode} ${phone}`;
+        return t("auth.code_sent_to", { phone: `${normalizedCountryCode} ${phone}` });
       case "set-password":
-        return isSignUp ? "设置密码后，可直接使用密码登录" : "请设置新的登录密码";
+        return isSignUp ? t("auth.set_password_desc") : t("auth.reset_password_desc");
       case "forgot-password":
-        return "请输入注册时的手机号码";
+        return t("auth.forgot_password_desc");
       default:
         return "";
     }
@@ -572,7 +575,7 @@ const Auth = () => {
 
   return (
     <div 
-      className="min-h-screen relative flex items-start justify-center px-4 pb-10 pt-44 overflow-hidden bg-cover bg-center"
+      className="min-h-screen relative flex flex-col overflow-hidden bg-cover bg-center"
       style={{ 
         backgroundImage: `url(${authBg})`
       }}
@@ -580,19 +583,38 @@ const Auth = () => {
       {/* 深色叠加层 */}
       <div className="absolute inset-0 bg-black/30" />
 
-      {/* 返回按钮 */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => step === "otp" || step === "set-password" ? handleBackToPhone() : navigate("/")}
-        className="absolute top-8 left-8 text-white/80 hover:text-white hover:bg-white/10 transition-all z-10"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        返回
-      </Button>
+      {/* 顶部导航栏 */}
+      <header className="relative z-20 w-full px-4 py-3 flex items-center justify-between bg-black/20 backdrop-blur-md border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => step === "otp" || step === "set-password" || step === "forgot-password" ? handleBackToPhone() : navigate("/")}
+            className="text-white/80 hover:text-white hover:bg-white/10 transition-all"
+          >
+            {step === "phone" ? (
+              <>
+                <Home className="mr-2 h-4 w-4" />
+                {t("auth.home")}
+              </>
+            ) : (
+              <>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                {t("auth.back")}
+              </>
+            )}
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+        </div>
+      </header>
 
-      {/* 主卡片 - 透明玻璃效果 */}
-      <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20">
+      {/* 主内容区域 */}
+      <div className="flex-1 flex items-start justify-center px-4 pb-10 pt-16">
+        {/* 主卡片 - 透明玻璃效果 */}
+        <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20">
         <CardHeader className="text-center space-y-6 pb-6 pt-12">
           {/* Logo */}
           <div className="flex justify-center h-32 overflow-visible">
@@ -618,7 +640,7 @@ const Auth = () => {
             <form onSubmit={loginMethod === "password" ? handlePasswordLogin : handleSendCode} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-white/90 text-sm font-medium">
-                  手机号码
+                  {t("auth.phone_number")}
                 </Label>
                 <div className="flex gap-2">
                   <Input
@@ -635,7 +657,7 @@ const Auth = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="请输入手机号"
+                    placeholder={t("auth.enter_phone")}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
@@ -985,6 +1007,7 @@ const Auth = () => {
           )}
         </CardContent>
       </Card>
+      </div>
 
       <style>{`
         @keyframes float {
