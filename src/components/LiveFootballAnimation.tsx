@@ -110,6 +110,68 @@ const formationDescriptions: Record<string, { title: string; description: string
   },
 };
 
+// 阵型属性评分 (攻击力, 防守力, 中场控制, 边路威胁, 反击能力)
+const formationStats: Record<string, { attack: number; defense: number; midfield: number; wing: number; counter: number }> = {
+  '4-4-2': { attack: 70, defense: 75, midfield: 80, wing: 70, counter: 75 },
+  '4-3-3': { attack: 85, defense: 65, midfield: 70, wing: 90, counter: 70 },
+  '3-5-2': { attack: 75, defense: 70, midfield: 90, wing: 85, counter: 65 },
+  '3-4-3': { attack: 90, defense: 55, midfield: 75, wing: 85, counter: 60 },
+  '5-3-2': { attack: 60, defense: 90, midfield: 70, wing: 75, counter: 85 },
+  '4-2-3-1': { attack: 75, defense: 80, midfield: 85, wing: 75, counter: 80 },
+};
+
+// 阵型克制关系 (A阵型对B阵型的额外加成)
+const formationMatchups: Record<string, Record<string, number>> = {
+  '4-4-2': { '4-3-3': 5, '3-4-3': 10, '3-5-2': -5, '5-3-2': -10, '4-2-3-1': 0 },
+  '4-3-3': { '4-4-2': -5, '3-4-3': 0, '3-5-2': 10, '5-3-2': 15, '4-2-3-1': -5 },
+  '3-5-2': { '4-4-2': 5, '4-3-3': -10, '3-4-3': 5, '5-3-2': 0, '4-2-3-1': -5 },
+  '3-4-3': { '4-4-2': -10, '4-3-3': 0, '3-5-2': -5, '5-3-2': 15, '4-2-3-1': -10 },
+  '5-3-2': { '4-4-2': 10, '4-3-3': -15, '3-5-2': 0, '3-4-3': -15, '4-2-3-1': 5 },
+  '4-2-3-1': { '4-4-2': 0, '4-3-3': 5, '3-5-2': 5, '3-4-3': 10, '5-3-2': -5 },
+};
+
+// 计算阵型对抗优势
+const calculateFormationAdvantage = (homeFormation: string, awayFormation: string) => {
+  const homeStats = formationStats[homeFormation] || formationStats['4-4-2'];
+  const awayStats = formationStats[awayFormation] || formationStats['4-3-3'];
+  
+  // 基础得分
+  const homeBase = (homeStats.attack * 0.35 + homeStats.midfield * 0.25 + homeStats.wing * 0.2 + homeStats.counter * 0.2);
+  const awayBase = (awayStats.attack * 0.35 + awayStats.midfield * 0.25 + awayStats.wing * 0.2 + awayStats.counter * 0.2);
+  
+  // 克制加成
+  const homeMatchup = formationMatchups[homeFormation]?.[awayFormation] || 0;
+  const awayMatchup = formationMatchups[awayFormation]?.[homeFormation] || 0;
+  
+  // 防守对攻击的影响
+  const homeAttackReduction = awayStats.defense * 0.3;
+  const awayAttackReduction = homeStats.defense * 0.3;
+  
+  const homeScore = Math.max(20, Math.min(80, homeBase + homeMatchup - homeAttackReduction + 25));
+  const awayScore = Math.max(20, Math.min(80, awayBase + awayMatchup - awayAttackReduction + 25));
+  
+  const total = homeScore + awayScore;
+  const homePercentage = Math.round((homeScore / total) * 100);
+  const awayPercentage = 100 - homePercentage;
+  
+  // 优势描述
+  let advantageText = '';
+  const diff = homePercentage - awayPercentage;
+  if (Math.abs(diff) <= 5) {
+    advantageText = '势均力敌';
+  } else if (diff > 15) {
+    advantageText = '主队占优';
+  } else if (diff > 5) {
+    advantageText = '主队略优';
+  } else if (diff < -15) {
+    advantageText = '客队占优';
+  } else {
+    advantageText = '客队略优';
+  }
+  
+  return { homePercentage, awayPercentage, advantageText, homeScore, awayScore };
+};
+
 // 镜像阵型（给客队使用）
 const mirrorFormation = (positions: FormationPosition[]): FormationPosition[] => {
   return positions.map(pos => ({
@@ -1073,9 +1135,139 @@ export default function LiveFootballAnimation({
         </div>
       </div>
 
+      {/* 能量条对比 */}
+      {(() => {
+        const advantage = calculateFormationAdvantage(currentHomeFormation, currentAwayFormation);
+        const homeStats = formationStats[currentHomeFormation] || formationStats['4-4-2'];
+        const awayStats = formationStats[currentAwayFormation] || formationStats['4-3-3'];
+        
+        return (
+          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-950/50 via-slate-900/80 to-red-950/50 border border-white/10">
+            {/* 标题 */}
+            <div className="text-center mb-3">
+              <h4 className="text-sm font-bold text-white/90">⚡ 阵型对抗能量分析</h4>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                基于 {currentHomeFormation} vs {currentAwayFormation} 实时计算
+              </p>
+            </div>
+            
+            {/* 主能量条 */}
+            <div className="relative mb-4">
+              {/* 队伍名称 */}
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <img src={homeTeamLogo} alt={homeTeamName} className="w-5 h-5 object-contain" />
+                  <span className="text-xs font-medium text-blue-400">{homeTeamName}</span>
+                  <span className="text-lg font-bold text-blue-400">{advantage.homePercentage}%</span>
+                </div>
+                <div className="px-2 py-0.5 rounded bg-white/10 text-[10px] text-white/80 font-medium">
+                  {advantage.advantageText}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-red-400">{advantage.awayPercentage}%</span>
+                  <span className="text-xs font-medium text-red-400">{awayTeamName}</span>
+                  <img src={awayTeamLogo} alt={awayTeamName} className="w-5 h-5 object-contain" />
+                </div>
+              </div>
+              
+              {/* 能量条 */}
+              <div className="relative h-6 rounded-full bg-slate-800 overflow-hidden border border-white/10">
+                {/* 主队能量 */}
+                <div 
+                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 transition-all duration-700 ease-out"
+                  style={{ width: `${advantage.homePercentage}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
+                </div>
+                {/* 客队能量 */}
+                <div 
+                  className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-600 via-red-500 to-red-400 transition-all duration-700 ease-out"
+                  style={{ width: `${advantage.awayPercentage}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
+                </div>
+                {/* 中线 */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/50 -translate-x-1/2 z-10" />
+                {/* 闪电图标 */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-yellow-500 border-2 border-white flex items-center justify-center shadow-lg shadow-yellow-500/50">
+                  <span className="text-[10px]">⚡</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* 属性对比 */}
+            <div className="grid grid-cols-5 gap-2 text-center">
+              {[
+                { key: 'attack', label: '攻击力', icon: '⚔️' },
+                { key: 'defense', label: '防守力', icon: '🛡️' },
+                { key: 'midfield', label: '中场控制', icon: '🎯' },
+                { key: 'wing', label: '边路威胁', icon: '🏃' },
+                { key: 'counter', label: '反击能力', icon: '💨' },
+              ].map(({ key, label, icon }) => {
+                const homeVal = homeStats[key as keyof typeof homeStats];
+                const awayVal = awayStats[key as keyof typeof awayStats];
+                const homeWins = homeVal > awayVal;
+                const tie = homeVal === awayVal;
+                
+                return (
+                  <div key={key} className="space-y-1">
+                    <div className="text-[10px] text-white/60">{icon} {label}</div>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className={`text-xs font-bold ${homeWins ? 'text-blue-400' : tie ? 'text-white/60' : 'text-white/40'}`}>
+                        {homeVal}
+                      </span>
+                      <span className="text-[8px] text-white/30">vs</span>
+                      <span className={`text-xs font-bold ${!homeWins && !tie ? 'text-red-400' : tie ? 'text-white/60' : 'text-white/40'}`}>
+                        {awayVal}
+                      </span>
+                    </div>
+                    {/* 小型对比条 */}
+                    <div className="h-1 rounded-full bg-slate-700 overflow-hidden flex">
+                      <div 
+                        className="h-full bg-blue-500 transition-all duration-500"
+                        style={{ width: `${(homeVal / (homeVal + awayVal)) * 100}%` }}
+                      />
+                      <div 
+                        className="h-full bg-red-500 transition-all duration-500"
+                        style={{ width: `${(awayVal / (homeVal + awayVal)) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* 进球概率预测 */}
+            <div className="mt-4 pt-3 border-t border-white/10">
+              <div className="flex justify-between items-center">
+                <div className="text-center flex-1">
+                  <div className="text-[10px] text-white/50 mb-1">预测进球概率</div>
+                  <div className="text-xl font-bold text-blue-400">
+                    {Math.round(advantage.homePercentage * 0.035 * 10) / 10}
+                    <span className="text-xs text-white/40 ml-0.5">球</span>
+                  </div>
+                </div>
+                <div className="px-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
+                    <span className="text-sm">⚽</span>
+                  </div>
+                </div>
+                <div className="text-center flex-1">
+                  <div className="text-[10px] text-white/50 mb-1">预测进球概率</div>
+                  <div className="text-xl font-bold text-red-400">
+                    {Math.round(advantage.awayPercentage * 0.035 * 10) / 10}
+                    <span className="text-xs text-white/40 ml-0.5">球</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* 说明文字 */}
-      <p className="text-xs text-muted-foreground text-center">
-        实时模拟球员跑位变化，点击阵型按钮切换阵型
+      <p className="text-xs text-muted-foreground text-center mt-3">
+        实时模拟球员跑位变化，点击阵型按钮切换阵型查看能量变化
       </p>
     </div>
   );
