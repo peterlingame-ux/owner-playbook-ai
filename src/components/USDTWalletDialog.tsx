@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wallet, Copy, Check, QrCode, Clock, CheckCircle2, XCircle, Loader2, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { Copy, Check, QrCode, Clock, CheckCircle2, XCircle, Loader2, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import usdtIcon from "@/assets/usdt-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 
 interface USDTWalletDialogProps {
   trigger?: React.ReactNode;
@@ -311,7 +312,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" className="flex items-center gap-2">
-            <Wallet className="w-4 h-4 text-amber-500" />
+            <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
             猎人币钱包
           </Button>
         )}
@@ -319,7 +320,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Wallet className="w-6 h-6 text-amber-500" />
+            <img src={hunterCoinIcon} alt="猎人币" className="w-6 h-6" />
             猎人币钱包
           </DialogTitle>
         </DialogHeader>
@@ -537,7 +538,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
               <div className="space-y-2">
                 <Label htmlFor="withdraw-amount">提款金额 (猎人币)</Label>
                 <div className="relative">
-                  <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
+                  <img src={hunterCoinIcon} alt="猎人币" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
                   <Input
                     id="withdraw-amount"
                     type="number"
@@ -630,7 +631,7 @@ const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
                 </div>
               ) : (depositRecords.length === 0 && withdrawalRecords.length === 0) ? (
                 <div className="text-center py-12">
-                  <Wallet className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />
+                  <img src={hunterCoinIcon} alt="猎人币" className="w-12 h-12 mx-auto mb-3 opacity-30" />
                   <p className="text-muted-foreground">暂无交易记录</p>
                   <p className="text-xs text-muted-foreground mt-1">您的充值和提款记录将显示在这里</p>
                 </div>
