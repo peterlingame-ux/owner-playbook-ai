@@ -1158,19 +1158,31 @@ const PlayerLeaderboardTable = () => {
             </div>
             
             {/* 倒计时和统计 */}
-            <div className="flex items-center justify-center gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="font-mono text-foreground">
-                  {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-                </span>
-              </div>
-              <div className="h-4 w-px bg-border" />
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span><span className="font-bold text-foreground">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span> 人已达标</span>
-              </div>
-            </div>
+            {(() => {
+              const qualifiedCount = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+              const prizePerPerson = qualifiedCount > 0 ? Math.floor(PRIZE_POOL / qualifiedCount) : PRIZE_POOL;
+              
+              return (
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-mono text-foreground">
+                      {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <div className="h-4 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span><span className="font-bold text-foreground">{qualifiedCount}</span> 人已达标</span>
+                  </div>
+                  <div className="h-4 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <span>人均奖金：<span className="font-bold text-foreground">${prizePerPerson.toLocaleString()}</span></span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>
