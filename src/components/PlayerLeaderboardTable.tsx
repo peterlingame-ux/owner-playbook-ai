@@ -1713,7 +1713,7 @@ const PlayerLeaderboardTable = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    查看今日预测
+                    查看今日推荐
                   </motion.button>
                 </CardContent>
               </Card>
@@ -1795,7 +1795,7 @@ const PlayerLeaderboardTable = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    查看今日预测
+                    查看今日推荐
                   </motion.button>
                 </CardContent>
               </Card>
@@ -1875,7 +1875,7 @@ const PlayerLeaderboardTable = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    查看今日预测
+                    查看今日推荐
                   </motion.button>
                 </CardContent>
               </Card>
