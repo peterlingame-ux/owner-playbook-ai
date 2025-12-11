@@ -17,7 +17,7 @@ import teamArsenal from "@/assets/team-arsenal.png";
 import teamManUnited from "@/assets/team-manchester-united.png";
 import teamLiverpool from "@/assets/team-liverpool.png";
 import teamRealMadrid from "@/assets/team-real-madrid.png";
-import teamBarcelona from "@/assets/team-barcelona.png";
+import teamBarcelona from "@/assets/team-barcelona-logo.webp";
 import teamAtletico from "@/assets/team-atletico.png";
 import teamBayern from "@/assets/team-bayern.png";
 import teamDortmund from "@/assets/team-dortmund.png";
