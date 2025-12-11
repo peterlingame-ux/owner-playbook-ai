@@ -735,82 +735,114 @@ export default function LiveFootballAnimation({
       {/* 阵型选择 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 主队阵型 */}
-        <div className="space-y-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-          <div className="flex items-center gap-2">
-            <img 
-              src={homeTeamLogo} 
-              alt={homeTeamName}
-              className="w-6 h-6 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <span className="text-sm font-medium text-foreground">{homeTeamName}</span>
-            <span className="text-xs text-blue-500 font-bold ml-auto">{currentHomeFormation}</span>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {availableFormations.map(f => (
-              <button
-                key={f}
-                onClick={() => handleFormationChange('home', f)}
-                className={`px-2 py-1 text-xs rounded transition-all ${
-                  currentHomeFormation === f
-                    ? 'bg-blue-500 text-white scale-105 shadow-md'
-                    : 'bg-muted hover:bg-muted/80 text-muted-foreground'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-          {/* 阵型说明 */}
-          <div className="pt-2 border-t border-blue-500/20">
-            <div className="text-xs font-medium text-blue-400 mb-1">
-              {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
+        <div className="relative space-y-3 p-3 rounded-lg border border-blue-500/30 overflow-hidden">
+          {/* 背景图 */}
+          <div 
+            className="absolute inset-0 opacity-15"
+            style={{
+              backgroundImage: `url(${homeTeamLogo})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(1px)',
+            }}
+          />
+          {/* 渐变遮罩 */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/90 via-slate-900/85 to-blue-900/80" />
+          
+          {/* 内容 */}
+          <div className="relative z-10">
+            <div className="flex items-center gap-2">
+              <img 
+                src={homeTeamLogo} 
+                alt={homeTeamName}
+                className="w-6 h-6 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <span className="text-sm font-medium text-foreground">{homeTeamName}</span>
+              <span className="text-xs text-blue-400 font-bold ml-auto">{currentHomeFormation}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
-            </p>
+            <div className="flex flex-wrap gap-1 mt-3">
+              {availableFormations.map(f => (
+                <button
+                  key={f}
+                  onClick={() => handleFormationChange('home', f)}
+                  className={`px-2 py-1 text-xs rounded transition-all ${
+                    currentHomeFormation === f
+                      ? 'bg-blue-500 text-white scale-105 shadow-md shadow-blue-500/30'
+                      : 'bg-white/10 hover:bg-white/20 text-white/80 border border-white/10'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+            {/* 阵型说明 */}
+            <div className="pt-2 mt-3 border-t border-blue-400/20">
+              <div className="text-xs font-medium text-blue-400 mb-1">
+                {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
+              </div>
+              <p className="text-[11px] text-white/60 leading-relaxed">
+                {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* 客队阵型 */}
-        <div className="space-y-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-          <div className="flex items-center gap-2">
-            <img 
-              src={awayTeamLogo} 
-              alt={awayTeamName}
-              className="w-6 h-6 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <span className="text-sm font-medium text-foreground">{awayTeamName}</span>
-            <span className="text-xs text-red-500 font-bold ml-auto">{currentAwayFormation}</span>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {availableFormations.map(f => (
-              <button
-                key={f}
-                onClick={() => handleFormationChange('away', f)}
-                className={`px-2 py-1 text-xs rounded transition-all ${
-                  currentAwayFormation === f
-                    ? 'bg-red-500 text-white scale-105 shadow-md'
-                    : 'bg-muted hover:bg-muted/80 text-muted-foreground'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-          {/* 阵型说明 */}
-          <div className="pt-2 border-t border-red-500/20">
-            <div className="text-xs font-medium text-red-400 mb-1">
-              {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
+        <div className="relative space-y-3 p-3 rounded-lg border border-red-500/30 overflow-hidden">
+          {/* 背景图 */}
+          <div 
+            className="absolute inset-0 opacity-15"
+            style={{
+              backgroundImage: `url(${awayTeamLogo})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(1px)',
+            }}
+          />
+          {/* 渐变遮罩 */}
+          <div className="absolute inset-0 bg-gradient-to-br from-red-950/90 via-slate-900/85 to-red-900/80" />
+          
+          {/* 内容 */}
+          <div className="relative z-10">
+            <div className="flex items-center gap-2">
+              <img 
+                src={awayTeamLogo} 
+                alt={awayTeamName}
+                className="w-6 h-6 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <span className="text-sm font-medium text-foreground">{awayTeamName}</span>
+              <span className="text-xs text-red-400 font-bold ml-auto">{currentAwayFormation}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
-            </p>
+            <div className="flex flex-wrap gap-1 mt-3">
+              {availableFormations.map(f => (
+                <button
+                  key={f}
+                  onClick={() => handleFormationChange('away', f)}
+                  className={`px-2 py-1 text-xs rounded transition-all ${
+                    currentAwayFormation === f
+                      ? 'bg-red-500 text-white scale-105 shadow-md shadow-red-500/30'
+                      : 'bg-white/10 hover:bg-white/20 text-white/80 border border-white/10'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+            {/* 阵型说明 */}
+            <div className="pt-2 mt-3 border-t border-red-400/20">
+              <div className="text-xs font-medium text-red-400 mb-1">
+                {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
+              </div>
+              <p className="text-[11px] text-white/60 leading-relaxed">
+                {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
