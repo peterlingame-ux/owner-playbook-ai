@@ -1041,83 +1041,7 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
 
-      {/* Demo Player Card - Show when not logged in */}
-      {!user && (
-        <Card className="border-muted/40 bg-gradient-to-br from-muted/10 via-muted/5 to-transparent">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar className="w-12 h-12 border-2 border-muted/40">
-                  <AvatarImage src="/avatars/avatar-1.png" />
-                  <AvatarFallback>玩</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-bold text-lg">{t('demo_player') || '玩家专属模型'}</p>
-                  <p className="text-sm text-muted-foreground">{t('login_to_see_rank') || '登录后查看您的排名'}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate('/auth')}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-              >
-                {t('login') || '登录'}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Logged-in User Stats Card - Show when logged in */}
-      {user && (
-        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              {/* 用户基本信息 */}
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Avatar className="w-14 h-14 border-2 border-primary/50">
-                    <AvatarImage src={currentUserRank?.avatarUrl || '/avatars/avatar-1.png'} />
-                    <AvatarFallback>{currentUserRank?.displayName?.charAt(0) || '玩'}</AvatarFallback>
-                  </Avatar>
-                  {currentUserRank && (
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
-                      #{currentUserRank.rank}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className="font-bold text-lg">{currentUserRank?.displayName || '我的模型'}</p>
-                  <p className="text-sm text-muted-foreground">排名 #{currentUserRank?.rank || '--'}</p>
-                </div>
-              </div>
-              
-              {/* 统计数据 */}
-              <div className="flex-1 grid grid-cols-3 gap-2 sm:gap-4">
-                <div className="text-center p-2 rounded-lg bg-muted/30">
-                  <p className="text-xs text-muted-foreground mb-0.5">胜率</p>
-                  <p className={`font-bold text-sm font-mono ${(currentUserRank?.winRate || 0) >= 50 ? 'text-success' : 'text-destructive'}`}>
-                    {(currentUserRank?.winRate || 0).toFixed(1)}%
-                  </p>
-                </div>
-                <div className="text-center p-2 rounded-lg bg-muted/30">
-                  <p className="text-xs text-muted-foreground mb-0.5">盈利率</p>
-                  <p className={`font-bold text-sm font-mono ${(currentUserRank?.changePercent || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {(currentUserRank?.changePercent || 0) >= 0 ? '+' : ''}{(currentUserRank?.changePercent || 0).toFixed(1)}%
-                  </p>
-                </div>
-                <div className="text-center p-2 rounded-lg bg-muted/30">
-                  <p className="text-xs text-muted-foreground mb-0.5">盈利金额</p>
-                  <p className={`font-bold text-sm font-mono ${((currentUserRank?.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive')}`}>
-                    {((currentUserRank?.profitAmount || 0) >= 0 ? '+' : '')}${(((currentUserRank?.profitAmount || 0) / 100).toFixed(2))}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Prize Pool Banner - 简洁专业风格 */}
+      {/* Prize Pool Banner - 整合玩家专属模型 */}
       <Card className="border-border/50 overflow-hidden relative">
         {/* 背景图 */}
         <div 
@@ -1126,7 +1050,7 @@ const PlayerLeaderboardTable = () => {
         />
         <div className="absolute inset-0 bg-background/85" />
         <CardContent className="p-5 sm:p-6 relative">
-          <div className="flex flex-col items-center gap-5">
+          <div className="flex flex-col gap-5">
             {/* 主标题 */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
@@ -1134,15 +1058,15 @@ const PlayerLeaderboardTable = () => {
                 <span className="text-2xl sm:text-4xl font-black text-foreground">$1,000,000</span>
                 <span className="text-lg sm:text-xl font-bold text-foreground">大奖等你来拿</span>
               </div>
-              <p className="text-sm text-muted-foreground max-w-lg">
+              <p className="text-sm text-muted-foreground max-w-lg mx-auto">
                 玩家预测的比赛场次、比赛胜率、盈利金额都超过当前排名最高的AI，即可领取奖金
               </p>
             </div>
             
             {/* AI vs 玩家数据对比 */}
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-3xl mx-auto space-y-2">
               {/* AI数据 */}
-              <div className="bg-muted/30 rounded-lg px-4 py-3 mb-2">
+              <div className="bg-muted/30 rounded-lg px-4 py-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <span className="text-sm font-medium text-muted-foreground">AI基准 (HUNSOCCER MAX)</span>
                   <div className="flex items-center gap-4 sm:gap-6 text-sm">
@@ -1153,39 +1077,78 @@ const PlayerLeaderboardTable = () => {
                 </div>
               </div>
               
-              {/* 玩家数据 */}
-              {(() => {
-                const currentPlayer = user ? allPlayers.find(p => p.id === user.id) : null;
-                const playerPredictions = currentPlayer?.totalPredictions || 0;
-                const playerWinRate = currentPlayer?.winRate || 0;
-                const playerProfit = currentPlayer?.profitAmount || 0;
-                const meetsRequirements = playerPredictions >= 247 && playerWinRate >= 78.95 && playerProfit >= 2478900;
-                
-                return (
-                  <div className={`rounded-lg px-4 py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        我的数据 {meetsRequirements && <span className="text-success ml-1">✓ 达标</span>}
-                      </span>
-                      <div className="flex items-center gap-4 sm:gap-6 text-sm">
-                        <span className="text-muted-foreground">
-                          预测场次：<span className={`font-bold ${playerPredictions >= 247 ? 'text-success' : 'text-foreground'}`}>{playerPredictions}场</span>
-                        </span>
-                        <span className="text-muted-foreground">
-                          预测胜率：<span className={`font-bold ${playerWinRate >= 78.95 ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
-                        </span>
-                        <span className="text-muted-foreground">
-                          盈利：<span className={`font-bold ${playerProfit >= 2478900 ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
-                        </span>
+              {/* 玩家专属模型数据 */}
+              {user ? (
+                (() => {
+                  const currentPlayer = allPlayers.find(p => p.id === user.id);
+                  const playerPredictions = currentPlayer?.totalPredictions || 0;
+                  const playerWinRate = currentPlayer?.winRate || 0;
+                  const playerProfit = currentPlayer?.profitAmount || 0;
+                  const meetsRequirements = playerPredictions >= 247 && playerWinRate >= 78.95 && playerProfit >= 2478900;
+                  
+                  return (
+                    <div className={`rounded-lg px-4 py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <Avatar className="w-10 h-10 border-2 border-primary/50">
+                              <AvatarImage src={currentPlayer?.avatarUrl || '/avatars/avatar-1.png'} />
+                              <AvatarFallback>{currentPlayer?.displayName?.charAt(0) || '玩'}</AvatarFallback>
+                            </Avatar>
+                            {currentPlayer && (
+                              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
+                                #{currentPlayer.rank}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm">{currentPlayer?.displayName || '我的专属模型'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {meetsRequirements ? <span className="text-success">✓ 已达标</span> : '继续努力'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 sm:gap-6 text-sm">
+                          <span className="text-muted-foreground">
+                            预测场次：<span className={`font-bold ${playerPredictions >= 247 ? 'text-success' : 'text-foreground'}`}>{playerPredictions}场</span>
+                          </span>
+                          <span className="text-muted-foreground">
+                            预测胜率：<span className={`font-bold ${playerWinRate >= 78.95 ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
+                          </span>
+                          <span className="text-muted-foreground">
+                            盈利：<span className={`font-bold ${playerProfit >= 2478900 ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  );
+                })()
+              ) : (
+                <div className="rounded-lg px-4 py-3 bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-10 h-10 border-2 border-muted/40">
+                        <AvatarImage src="/avatars/avatar-1.png" />
+                        <AvatarFallback>玩</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-bold text-sm">玩家专属模型</p>
+                        <p className="text-xs text-muted-foreground">登录后查看您的排名和数据</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => navigate('/auth')}
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      登录
+                    </button>
                   </div>
-                );
-              })()}
+                </div>
+              )}
             </div>
             
             {/* 倒计时和统计 */}
-            <div className="flex items-center gap-6 text-sm">
+            <div className="flex items-center justify-center gap-6 text-sm">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="font-mono text-foreground">
