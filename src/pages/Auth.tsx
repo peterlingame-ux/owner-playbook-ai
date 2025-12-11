@@ -42,13 +42,14 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState<"phone" | "otp" | "set-password" | "password-login">("phone");
+  const [step, setStep] = useState<"phone" | "otp" | "set-password" | "password-login" | "forgot-password">("phone");
   const [countdown, setCountdown] = useState(0);
   const [isSignUp, setIsSignUp] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"sms" | "password">("sms");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [invitationCode, setInvitationCode] = useState("");
   const [invitationBonus, setInvitationBonus] = useState<number>(0);
+  const [forgotPasswordPhone, setForgotPasswordPhone] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -187,6 +188,19 @@ const Auth = () => {
     e.preventDefault();
     if (!validateCountryCode() || !validatePhone()) return;
 
+    // 注册时需要验证密码
+    if (isSignUp && loginMethod === "sms") {
+      if (!validatePassword()) return;
+      if (password !== confirmPassword) {
+        toast({
+          title: "密码不匹配",
+          description: "两次输入的密码不一致",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -235,27 +249,61 @@ const Auth = () => {
     } else {
       if (data?.user) {
         await syncUserProfile(data.user);
-        // 检查是否需要设置密码
         setPendingUserId(data.user.id);
-        const { data: pwdData } = await supabase.functions.invoke("auth-password", {
-          body: { action: "check-password", userId: data.user.id },
-        });
         
-        setLoading(false);
-        
-        if (pwdData?.success && !pwdData?.hasPassword) {
-          // 需要设置密码
+        // 如果是注册流程且已设置密码，直接保存密码
+        if (isSignUp && password) {
+          try {
+            await supabase.functions.invoke("auth-password", {
+              body: {
+                action: "set-password",
+                userId: data.user.id,
+                password,
+              },
+            });
+            setLoading(false);
+            toast({
+              title: "注册成功",
+              description: "欢迎加入！",
+            });
+            navigate("/");
+          } catch (err) {
+            setLoading(false);
+            toast({
+              title: "注册成功",
+              description: "密码设置失败，请稍后在个人中心设置",
+            });
+            navigate("/");
+          }
+        } else if (forgotPasswordPhone) {
+          // 忘记密码流程 - 验证成功后进入重置密码
+          setLoading(false);
           setStep("set-password");
           toast({
-            title: "登录成功",
-            description: "请设置您的登录密码",
+            title: "验证成功",
+            description: "请设置新密码",
           });
         } else {
-          toast({
-            title: "登录成功",
-            description: "欢迎回来！",
+          // 登录流程 - 检查是否需要设置密码
+          const { data: pwdData } = await supabase.functions.invoke("auth-password", {
+            body: { action: "check-password", userId: data.user.id },
           });
-          navigate("/");
+          
+          setLoading(false);
+          
+          if (pwdData?.success && !pwdData?.hasPassword) {
+            setStep("set-password");
+            toast({
+              title: "登录成功",
+              description: "请设置您的登录密码",
+            });
+          } else {
+            toast({
+              title: "登录成功",
+              description: "欢迎回来！",
+            });
+            navigate("/");
+          }
         }
       } else {
         setLoading(false);
@@ -297,11 +345,24 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
-        toast({
-          title: "密码设置成功",
-          description: "下次可以使用手机号和密码直接登录",
-        });
-        navigate("/");
+        // 如果是忘记密码流程，返回登录页面
+        if (forgotPasswordPhone) {
+          toast({
+            title: "密码重置成功",
+            description: "请使用新密码登录",
+          });
+          setStep("phone");
+          setLoginMethod("password");
+          setPassword("");
+          setConfirmPassword("");
+          setForgotPasswordPhone("");
+        } else {
+          toast({
+            title: "密码设置成功",
+            description: "下次可以使用手机号和密码直接登录",
+          });
+          navigate("/");
+        }
       }
     } catch (err) {
       setLoading(false);
@@ -392,6 +453,89 @@ const Auth = () => {
     navigate("/");
   };
 
+  // 处理忘记密码 - 发送验证码
+  const handleForgotPasswordSendCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateCountryCode() || !validatePhone()) return;
+
+    setLoading(true);
+    setForgotPasswordPhone(`${normalizedCountryCode}${phone}`);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: `${normalizedCountryCode}${phone}`,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      toast({
+        title: "发送失败",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "验证码已发送",
+        description: "请查收短信验证码",
+      });
+      setStep("otp");
+      setCountdown(60);
+    }
+  };
+
+  // 处理忘记密码 - 验证码验证后重置密码
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePassword()) return;
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "密码不匹配",
+        description: "两次输入的密码不一致",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("auth-password", {
+        body: {
+          action: "set-password",
+          userId: pendingUserId,
+          password,
+        },
+      });
+
+      setLoading(false);
+
+      if (error || !data?.success) {
+        toast({
+          title: "重置失败",
+          description: data?.error || "重置密码失败，请重试",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "密码重置成功",
+          description: "请使用新密码登录",
+        });
+        setStep("phone");
+        setLoginMethod("password");
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      setLoading(false);
+      toast({
+        title: "重置失败",
+        description: "网络错误，请重试",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStepTitle = () => {
     switch (step) {
       case "phone":
@@ -399,7 +543,9 @@ const Auth = () => {
       case "otp":
         return "输入验证码";
       case "set-password":
-        return "设置登录密码";
+        return isSignUp ? "设置登录密码" : "重置密码";
+      case "forgot-password":
+        return "忘记密码";
       case "password-login":
         return "密码登录";
       default:
@@ -412,11 +558,13 @@ const Auth = () => {
       case "phone":
         return loginMethod === "password" 
           ? "请输入手机号码和密码登录" 
-          : "请输入手机号码获取验证码";
+          : (isSignUp ? "请输入手机号码并设置密码" : "请输入手机号码获取验证码");
       case "otp":
         return `验证码已发送至 ${normalizedCountryCode} ${phone}`;
       case "set-password":
-        return "设置密码后，下次可直接使用密码登录";
+        return isSignUp ? "设置密码后，可直接使用密码登录" : "请设置新的登录密码";
+      case "forgot-password":
+        return "请输入注册时的手机号码";
       default:
         return "";
     }
@@ -524,22 +672,65 @@ const Auth = () => {
                 </div>
               )}
 
-              {/* 邀请码输入框 - 仅在注册模式且短信登录时显示 */}
+              {/* 注册时显示密码设置 */}
               {isSignUp && loginMethod === "sms" && (
-                <div className="space-y-2">
-                  <Label htmlFor="invitationCode" className="text-white/90 text-sm font-medium">
-                    邀请码 <span className="text-white/50 text-xs">（选填，可获得100 猎人币）</span>
-                  </Label>
-                  <Input
-                    id="invitationCode"
-                    type="text"
-                    placeholder="请输入邀请码"
-                    value={invitationCode}
-                    onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
-                    maxLength={10}
-                    className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password" className="text-white/90 text-sm font-medium">
+                      设置登录密码
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="请输入密码（至少6位）"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm-password" className="text-white/90 text-sm font-medium">
+                      确认密码
+                    </Label>
+                    <Input
+                      id="signup-confirm-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="请再次输入密码"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="invitationCode" className="text-white/90 text-sm font-medium">
+                      邀请码 <span className="text-white/50 text-xs">（选填，可获得100 猎人币）</span>
+                    </Label>
+                    <Input
+                      id="invitationCode"
+                      type="text"
+                      placeholder="请输入邀请码"
+                      value={invitationCode}
+                      onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
+                      maxLength={10}
+                      className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
+                    />
+                  </div>
+                </>
               )}
 
               <Button
@@ -550,13 +741,14 @@ const Auth = () => {
                 {loading ? "处理中..." : (loginMethod === "password" ? "登录" : (isSignUp ? "注册" : "获取验证码"))}
               </Button>
 
-              {/* 切换登录方式 */}
+              {/* 切换登录方式和忘记密码 */}
               <div className="flex items-center justify-center gap-4">
                 <button
                   type="button"
                   onClick={() => {
                     setLoginMethod(loginMethod === "sms" ? "password" : "sms");
                     setPassword("");
+                    setConfirmPassword("");
                   }}
                   className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium"
                 >
@@ -572,6 +764,23 @@ const Auth = () => {
                     </>
                   )}
                 </button>
+                
+                {loginMethod === "password" && (
+                  <span className="text-white/30">|</span>
+                )}
+                
+                {loginMethod === "password" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep("forgot-password");
+                      setPassword("");
+                    }}
+                    className="text-sm text-white/60 hover:text-white/80"
+                  >
+                    忘记密码？
+                  </button>
+                )}
               </div>
 
               <div className="text-center space-y-2">
@@ -714,6 +923,62 @@ const Auth = () => {
                   className="text-sm text-white/60 hover:text-white/80"
                 >
                   跳过，稍后设置
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* 忘记密码页面 */}
+          {step === "forgot-password" && (
+            <form onSubmit={handleForgotPasswordSendCode} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-phone" className="text-white/90 text-sm font-medium">
+                  手机号码
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="forgot-countryCode"
+                    type="text"
+                    inputMode="tel"
+                    placeholder="+852"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    required
+                    maxLength={5}
+                    className="w-24 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                  />
+                  <Input
+                    id="forgot-phone"
+                    type="tel"
+                    placeholder="请输入手机号"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    maxLength={11}
+                    className="flex-1 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit" 
+                className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                disabled={loading}
+              >
+                {loading ? "发送中..." : "发送验证码"}
+              </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("phone");
+                    setLoginMethod("password");
+                    setForgotPasswordPhone("");
+                  }}
+                  className="text-sm text-teal-400 hover:text-teal-300"
+                >
+                  返回登录
                 </button>
               </div>
             </form>
