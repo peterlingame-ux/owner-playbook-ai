@@ -463,7 +463,8 @@ const resources = {
         "login_failed": "Login Failed",
         "phone_or_password_error": "Phone number or password incorrect",
         "verify_success": "Verification Successful",
-        "please_set_new_password": "Please set new password"
+        "please_set_new_password": "Please set new password",
+        "logout": "Logout"
       },
       "copy_trade": "FOLLOW MODEL",
       "copy_trade_player": "FOLLOW PLAYER",
@@ -1160,7 +1161,8 @@ const resources = {
         "login_failed": "登录失败",
         "phone_or_password_error": "手机号或密码错误",
         "verify_success": "验证成功",
-        "please_set_new_password": "请设置新密码"
+        "please_set_new_password": "请设置新密码",
+        "logout": "退出登录"
       },
       "copy_trade": "关注模型",
       "copy_trade_player": "关注玩家",
@@ -1857,7 +1859,8 @@ const resources = {
         "login_failed": "로그인 실패",
         "phone_or_password_error": "전화번호 또는 비밀번호가 잘못되었습니다",
         "verify_success": "확인 성공",
-        "please_set_new_password": "새 비밀번호를 설정하세요"
+        "please_set_new_password": "새 비밀번호를 설정하세요",
+        "logout": "로그아웃"
       },
       "copy_trade": "모델 팔로우",
       "copy_trade_player": "플레이어 팔로우",

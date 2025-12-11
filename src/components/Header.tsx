@@ -148,7 +148,7 @@ const Header = () => {
                           className={`w-full inline-flex items-center justify-center gap-2 h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                         >
                           <LogOut size={16} />
-                          <span>OUT</span>
+                          <span>{t('auth.logout')}</span>
                         </Button>
                       </>
                     ) : (
@@ -160,7 +160,7 @@ const Header = () => {
                         }}
                         className={`w-full h-12 font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25 ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
                       >
-                        LOGIN
+                        {t('auth.login')}
                       </Button>
                     )}
                   </div>
@@ -201,10 +201,10 @@ const Header = () => {
                 <Button 
                   size="sm" 
                   onClick={() => navigate("/auth")}
-                  className={`bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground px-5 h-9 font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-base'}`}
-                >
-                  LOGIN
-                </Button>
+                    className={`bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground px-5 h-9 font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 ${i18n.language === 'en' ? 'font-pixel tracking-wider' : 'text-base'}`}
+                  >
+                    {t('auth.login')}
+                  </Button>
               )}
             </div>
           </div>
