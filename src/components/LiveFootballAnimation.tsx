@@ -176,7 +176,44 @@ export default function LiveFootballAnimation({
     return `${playerX},${playerY} ${leftX},${goalY} ${rightX},${goalY}`;
   };
 
-  // 初始化球员位置
+  // 计算传球路线
+  const getPassingRoutes = (selectedId: number, team: 'home' | 'away') => {
+    const teammates = team === 'home' ? homePlayers : awayPlayers;
+    const selectedPlayer = teammates.find(p => p.id === selectedId);
+    if (!selectedPlayer) return [];
+
+    return teammates
+      .filter(p => p.id !== selectedId)
+      .map(teammate => {
+        const dx = teammate.x - selectedPlayer.x;
+        const dy = teammate.y - selectedPlayer.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // 判断传球难度
+        let difficulty: 'easy' | 'medium' | 'hard';
+        if (distance < 20) {
+          difficulty = 'easy';
+        } else if (distance < 40) {
+          difficulty = 'medium';
+        } else {
+          difficulty = 'hard';
+        }
+
+        // 判断是否是前进传球(进攻方向)
+        const isForwardPass = team === 'home' ? dy < 0 : dy > 0;
+
+        return {
+          from: { x: selectedPlayer.x, y: selectedPlayer.y },
+          to: { x: teammate.x, y: teammate.y },
+          distance,
+          difficulty,
+          isForwardPass,
+          teammateId: teammate.id,
+          teammateName: teammate.name,
+        };
+      })
+      .sort((a, b) => a.distance - b.distance); // 按距离排序
+  };
   const initializePlayers = useCallback(() => {
     const homeFormationPositions = formations[currentHomeFormation] || formations['4-4-2'];
     const awayFormationPositions = mirrorFormation(formations[currentAwayFormation] || formations['4-3-3']);
@@ -545,6 +582,69 @@ export default function LiveFootballAnimation({
               strokeWidth="0.2"
               strokeDasharray="1,1"
             />
+          </svg>
+        )}
+
+        {/* 传球路线 */}
+        {selectedPlayer && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 5 }}>
+            <defs>
+              {/* 箭头标记 */}
+              <marker id="arrowGreen" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                <path d="M0,0 L4,2 L0,4 Z" fill="rgba(34, 197, 94, 0.9)" />
+              </marker>
+              <marker id="arrowYellow" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                <path d="M0,0 L4,2 L0,4 Z" fill="rgba(234, 179, 8, 0.9)" />
+              </marker>
+              <marker id="arrowOrange" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                <path d="M0,0 L4,2 L0,4 Z" fill="rgba(249, 115, 22, 0.9)" />
+              </marker>
+            </defs>
+            {getPassingRoutes(selectedPlayer.id, selectedPlayer.team).map((route, idx) => {
+              // 根据难度选择颜色
+              const colors = {
+                easy: { stroke: 'rgba(34, 197, 94, 0.7)', marker: 'url(#arrowGreen)', glow: 'rgba(34, 197, 94, 0.3)' },
+                medium: { stroke: 'rgba(234, 179, 8, 0.7)', marker: 'url(#arrowYellow)', glow: 'rgba(234, 179, 8, 0.3)' },
+                hard: { stroke: 'rgba(249, 115, 22, 0.6)', marker: 'url(#arrowOrange)', glow: 'rgba(249, 115, 22, 0.2)' },
+              };
+              const color = colors[route.difficulty];
+              
+              // 计算线条终点(稍微缩短以避免覆盖球员)
+              const dx = route.to.x - route.from.x;
+              const dy = route.to.y - route.from.y;
+              const len = Math.sqrt(dx * dx + dy * dy);
+              const shortenBy = 4;
+              const endX = route.to.x - (dx / len) * shortenBy;
+              const endY = route.to.y - (dy / len) * shortenBy;
+
+              return (
+                <g key={idx}>
+                  {/* 发光效果 */}
+                  <line
+                    x1={route.from.x}
+                    y1={route.from.y}
+                    x2={endX}
+                    y2={endY}
+                    stroke={color.glow}
+                    strokeWidth={route.isForwardPass ? "1.5" : "1"}
+                    strokeLinecap="round"
+                  />
+                  {/* 主线 */}
+                  <line
+                    x1={route.from.x}
+                    y1={route.from.y}
+                    x2={endX}
+                    y2={endY}
+                    stroke={color.stroke}
+                    strokeWidth={route.isForwardPass ? "0.5" : "0.3"}
+                    strokeDasharray={route.difficulty === 'hard' ? "1,1" : route.difficulty === 'medium' ? "2,1" : "none"}
+                    markerEnd={color.marker}
+                    strokeLinecap="round"
+                    opacity={route.isForwardPass ? 1 : 0.6}
+                  />
+                </g>
+              );
+            })}
           </svg>
         )}
 
