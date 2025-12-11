@@ -29,6 +29,10 @@ import teamArsenal from "@/assets/team-arsenal.png";
 import teamInter from "@/assets/team-inter.png";
 import teamAtletico from "@/assets/team-atletico.png";
 import teamManchesterUnited from "@/assets/team-manchester-united.png";
+// 冠军卡片背景图
+import championWinrateBg from "@/assets/champion-winrate-bg.png";
+import championProfitBg from "@/assets/champion-profit-bg.png";
+import championColdBg from "@/assets/champion-cold-bg.png";
 
 // 球队Logo映射
 const teamLogoMap: Record<string, string> = {
@@ -1646,6 +1650,16 @@ const PlayerLeaderboardTable = () => {
               transition={{ duration: 0.5, delay: 0.1, type: "spring", stiffness: 100 }}
             >
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
+                {/* 背景图 */}
+                <div 
+                  className="absolute inset-0 opacity-[0.08]"
+                  style={{
+                    backgroundImage: `url(${championWinrateBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-card/95 via-card/85 to-card/75" />
                 <CardContent className="p-4 sm:p-5 relative z-10">
                   <motion.div 
                     className="flex items-center gap-2 mb-3"
@@ -1726,6 +1740,16 @@ const PlayerLeaderboardTable = () => {
               transition={{ duration: 0.5, delay: 0.25, type: "spring", stiffness: 100 }}
             >
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
+                {/* 背景图 */}
+                <div 
+                  className="absolute inset-0 opacity-[0.08]"
+                  style={{
+                    backgroundImage: `url(${championProfitBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-card/95 via-card/85 to-card/75" />
                 <CardContent className="p-4 sm:p-5 relative z-10">
                   <motion.div 
                     className="flex items-center gap-2 mb-3"
@@ -1808,6 +1832,16 @@ const PlayerLeaderboardTable = () => {
               transition={{ duration: 0.5, delay: 0.4, type: "spring", stiffness: 100 }}
             >
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
+                {/* 背景图 */}
+                <div 
+                  className="absolute inset-0 opacity-[0.08]"
+                  style={{
+                    backgroundImage: `url(${championColdBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-card/95 via-card/85 to-card/75" />
                 <CardContent className="p-4 sm:p-5 relative z-10">
                   <motion.div 
                     className="flex items-center gap-2 mb-3"
