@@ -501,20 +501,29 @@ export default function LiveFootballAnimation({
             }}
           >
             <div className="relative flex flex-col items-center">
-              <div className="w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-blue-300 bg-blue-500 shadow-lg shadow-blue-500/50 overflow-hidden">
-                <img 
-                  src={player.avatar} 
-                  alt={player.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/avatars/avatar-1.png';
-                  }}
-                />
+              {/* 球员头像容器 */}
+              <div className="relative">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 ring-blue-300/50">
+                  <img 
+                    src={player.avatar} 
+                    alt={player.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/avatars/avatar-1.png';
+                    }}
+                  />
+                </div>
+                {/* 球衣号码 */}
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center shadow-md">
+                  <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
+                </div>
+                {/* 发光效果 */}
+                <div className="absolute inset-0 rounded-full bg-blue-500 blur-md opacity-60 -z-10 scale-125" />
               </div>
               {/* 球员名字 */}
-              <span className="text-[6px] md:text-[8px] text-white font-medium mt-0.5 whitespace-nowrap drop-shadow-md">{player.name}</span>
-              {/* 发光效果 */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-9 md:h-9 rounded-full bg-blue-400 blur-sm opacity-50 -z-10" />
+              <div className="mt-1 px-1.5 py-0.5 bg-blue-600/90 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md">
+                {player.name}
+              </div>
             </div>
           </div>
         ))}
@@ -531,20 +540,29 @@ export default function LiveFootballAnimation({
             }}
           >
             <div className="relative flex flex-col items-center">
-              <div className="w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-red-300 bg-red-500 shadow-lg shadow-red-500/50 overflow-hidden">
-                <img 
-                  src={player.avatar} 
-                  alt={player.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/avatars/avatar-6.png';
-                  }}
-                />
+              {/* 球员头像容器 */}
+              <div className="relative">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 ring-red-300/50">
+                  <img 
+                    src={player.avatar} 
+                    alt={player.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/avatars/avatar-6.png';
+                    }}
+                  />
+                </div>
+                {/* 球衣号码 */}
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-600 border-2 border-white flex items-center justify-center shadow-md">
+                  <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
+                </div>
+                {/* 发光效果 */}
+                <div className="absolute inset-0 rounded-full bg-red-500 blur-md opacity-60 -z-10 scale-125" />
               </div>
               {/* 球员名字 */}
-              <span className="text-[6px] md:text-[8px] text-white font-medium mt-0.5 whitespace-nowrap drop-shadow-md">{player.name}</span>
-              {/* 发光效果 */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-9 md:h-9 rounded-full bg-red-400 blur-sm opacity-50 -z-10" />
+              <div className="mt-1 px-1.5 py-0.5 bg-red-600/90 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md">
+                {player.name}
+              </div>
             </div>
           </div>
         ))}
