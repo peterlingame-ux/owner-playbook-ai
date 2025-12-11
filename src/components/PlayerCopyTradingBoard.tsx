@@ -739,10 +739,10 @@ const PlayerCopyTradingBoard = () => {
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
           {/* 背景图片 */}
           <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
             style={{ backgroundImage: `url(${winningStreakBg})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/95 via-card/80 to-card/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
           <CardContent className="p-4 sm:p-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -798,10 +798,10 @@ const PlayerCopyTradingBoard = () => {
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
           {/* 背景图片 */}
           <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
             style={{ backgroundImage: `url(${losingStreakBg})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/95 via-card/80 to-card/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
           <CardContent className="p-4 sm:p-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div>
