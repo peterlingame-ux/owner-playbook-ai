@@ -1847,7 +1847,7 @@ export default function LiveFootballAnimation({
               <div className="px-3 py-1.5 border-b border-cyan-500/20 bg-cyan-950/30 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[8px] text-cyan-400/80 font-mono uppercase tracking-wider">NEURAL ENGINE</span>
+                  <span className="text-[8px] text-cyan-400/80 font-mono uppercase tracking-wider">神经网络引擎</span>
                 </div>
                 <span className="text-[7px] text-cyan-400/50 font-mono">v4.2.1</span>
               </div>
@@ -1857,7 +1857,7 @@ export default function LiveFootballAnimation({
                 {/* 模型置信度 */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[8px] text-white/50 font-mono">MODEL CONFIDENCE</span>
+                    <span className="text-[8px] text-white/50 font-mono">模型置信度</span>
                     <span className={`text-[10px] font-mono font-bold ${modelConfidence >= 80 ? 'text-green-400' : modelConfidence >= 60 ? 'text-cyan-400' : 'text-yellow-400'}`}>
                       {modelConfidence}%
                     </span>
@@ -1880,15 +1880,15 @@ export default function LiveFootballAnimation({
                 {/* 系统指标网格 */}
                 <div className="grid grid-cols-3 gap-2">
                   <div className="text-center p-1.5 rounded bg-slate-900/50 border border-cyan-500/10">
-                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">LATENCY</div>
+                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">延迟</div>
                     <div className="text-[10px] text-cyan-400 font-mono font-bold">{dataLatency}ms</div>
                   </div>
                   <div className="text-center p-1.5 rounded bg-slate-900/50 border border-cyan-500/10">
-                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">INFERENCE</div>
+                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">推理</div>
                     <div className="text-[10px] text-cyan-400 font-mono font-bold">{inferenceTime}ms</div>
                   </div>
                   <div className="text-center p-1.5 rounded bg-slate-900/50 border border-cyan-500/10">
-                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">LAYERS</div>
+                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">层数</div>
                     <div className="text-[10px] text-cyan-400 font-mono font-bold">{neuralLayers}</div>
                   </div>
                 </div>
@@ -1896,7 +1896,7 @@ export default function LiveFootballAnimation({
                 {/* 神经网络活动 */}
                 <div className="pt-2 border-t border-cyan-500/10">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[8px] text-white/50 font-mono">ACTIVE NEURONS</span>
+                    <span className="text-[8px] text-white/50 font-mono">激活神经元</span>
                     <span className="text-[9px] text-cyan-400 font-mono">{(activeNeurons / 1000).toFixed(1)}K / 128K</span>
                   </div>
                   {/* 神经网络可视化 - 动态波形 */}
@@ -1921,9 +1921,9 @@ export default function LiveFootballAnimation({
                 <div className="flex items-center justify-between pt-2 border-t border-cyan-500/10">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                    <span className="text-[7px] text-white/40 font-mono">DATA POINTS: {dataPoints.toFixed(1)}M</span>
+                    <span className="text-[7px] text-white/40 font-mono">数据点: {dataPoints.toFixed(1)}M</span>
                   </div>
-                  <span className="text-[7px] text-green-400/70 font-mono">STREAMING</span>
+                  <span className="text-[7px] text-green-400/70 font-mono">实时传输</span>
                 </div>
               </div>
             </div>
@@ -1942,9 +1942,9 @@ export default function LiveFootballAnimation({
               <div className="px-3 py-1.5 border-b border-cyan-500/20 bg-cyan-950/30 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                  <span className="text-[8px] text-cyan-400/80 font-mono uppercase tracking-wider">MATCH METRICS</span>
+                  <span className="text-[8px] text-cyan-400/80 font-mono uppercase tracking-wider">比赛数据指标</span>
                 </div>
-                <span className="text-[7px] text-cyan-400/50 font-mono">REAL-TIME</span>
+                <span className="text-[7px] text-cyan-400/50 font-mono">实时</span>
               </div>
               
               {/* 内容 */}
@@ -1952,7 +1952,7 @@ export default function LiveFootballAnimation({
                 {/* xG 预期进球 */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[8px] text-white/50 font-mono">xG (EXPECTED GOALS)</span>
+                    <span className="text-[8px] text-white/50 font-mono">xG (预期进球)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] text-blue-400 font-mono font-bold w-10">{homeXg.toFixed(2)}</span>
@@ -1979,7 +1979,7 @@ export default function LiveFootballAnimation({
                 {/* 压迫指数 */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[8px] text-white/50 font-mono">PRESSURE INDEX</span>
+                    <span className="text-[8px] text-white/50 font-mono">压迫指数</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-blue-400 font-mono font-bold w-8">{homePressure}</span>
@@ -2000,7 +2000,7 @@ export default function LiveFootballAnimation({
                 {/* 动量指标 */}
                 <div className="pt-2 border-t border-cyan-500/10">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[8px] text-white/50 font-mono">MOMENTUM SHIFT</span>
+                    <span className="text-[8px] text-white/50 font-mono">比赛动量</span>
                     <span className={`text-[9px] font-mono font-bold ${momentum > 10 ? 'text-blue-400' : momentum < -10 ? 'text-red-400' : 'text-white/50'}`}>
                       {momentum > 0 ? '+' : ''}{momentum}
                     </span>
@@ -2024,7 +2024,7 @@ export default function LiveFootballAnimation({
                 {/* 风险/波动指标 */}
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-cyan-500/10">
                   <div className="p-1.5 rounded bg-slate-900/50 border border-cyan-500/10">
-                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">VOLATILITY</div>
+                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">波动率</div>
                     <div className="flex items-center gap-1">
                       <div className={`w-1.5 h-1.5 rounded-full ${volatility > 30 ? 'bg-yellow-400' : 'bg-green-400'}`} />
                       <span className={`text-[10px] font-mono font-bold ${volatility > 30 ? 'text-yellow-400' : 'text-green-400'}`}>
@@ -2033,11 +2033,11 @@ export default function LiveFootballAnimation({
                     </div>
                   </div>
                   <div className="p-1.5 rounded bg-slate-900/50 border border-cyan-500/10">
-                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">RISK LEVEL</div>
+                    <div className="text-[7px] text-cyan-400/50 font-mono mb-0.5">风险等级</div>
                     <div className="flex items-center gap-1">
                       <div className={`w-1.5 h-1.5 rounded-full ${volatility > 35 ? 'bg-red-400' : volatility > 25 ? 'bg-yellow-400' : 'bg-green-400'}`} />
                       <span className={`text-[10px] font-mono font-bold ${volatility > 35 ? 'text-red-400' : volatility > 25 ? 'text-yellow-400' : 'text-green-400'}`}>
-                        {volatility > 35 ? 'HIGH' : volatility > 25 ? 'MEDIUM' : 'LOW'}
+                        {volatility > 35 ? '高' : volatility > 25 ? '中' : '低'}
                       </span>
                     </div>
                   </div>
@@ -2045,10 +2045,10 @@ export default function LiveFootballAnimation({
                 
                 {/* 底部状态 */}
                 <div className="flex items-center justify-between pt-2 border-t border-cyan-500/10">
-                  <span className="text-[7px] text-white/40 font-mono">MODEL: HUNSOCCER-PRO-v4</span>
+                  <span className="text-[7px] text-white/40 font-mono">模型: HUNSOCCER-PRO-v4</span>
                   <div className="flex items-center gap-1">
                     <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-[7px] text-green-400/70 font-mono">LIVE</span>
+                    <span className="text-[7px] text-green-400/70 font-mono">实时</span>
                   </div>
                 </div>
               </div>
