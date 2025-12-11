@@ -1164,22 +1164,13 @@ const PlayerLeaderboardTable = () => {
               
               return (
                 <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-mono text-foreground">
-                      {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-                    </span>
-                  </div>
+                  <span className="font-mono text-foreground">
+                    {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+                  </span>
                   <div className="h-4 w-px bg-border" />
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span><span className="font-bold text-foreground">{qualifiedCount}</span> 人已达标</span>
-                  </div>
+                  <span><span className="font-bold text-foreground">{qualifiedCount}</span> 人已达标</span>
                   <div className="h-4 w-px bg-border" />
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-warning" />
-                    <span>人均奖金：<span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
-                  </div>
+                  <span>人均奖金：<span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
                 </div>
               );
             })()}
