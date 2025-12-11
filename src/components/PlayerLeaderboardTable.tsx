@@ -1651,11 +1651,12 @@ const PlayerLeaderboardTable = () => {
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
                 {/* Background Image */}
                 <div 
-                  className="absolute inset-0 opacity-[0.08]"
+                  className="absolute inset-0 opacity-[0.1]"
                   style={{
                     backgroundImage: `url(${championWinrateBg})`,
-                    backgroundSize: 'cover',
+                    backgroundSize: 'contain',
                     backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-card/70" />
@@ -1741,11 +1742,12 @@ const PlayerLeaderboardTable = () => {
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
                 {/* Background Image */}
                 <div 
-                  className="absolute inset-0 opacity-[0.08]"
+                  className="absolute inset-0 opacity-[0.1]"
                   style={{
                     backgroundImage: `url(${championProfitBg})`,
-                    backgroundSize: 'cover',
+                    backgroundSize: 'contain',
                     backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-card/70" />
@@ -1833,11 +1835,12 @@ const PlayerLeaderboardTable = () => {
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
                 {/* Background Image */}
                 <div 
-                  className="absolute inset-0 opacity-[0.08]"
+                  className="absolute inset-0 opacity-[0.1]"
                   style={{
                     backgroundImage: `url(${championColdstreakBg})`,
-                    backgroundSize: 'cover',
+                    backgroundSize: 'contain',
                     backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-card/70" />
