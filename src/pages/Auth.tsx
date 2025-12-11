@@ -671,13 +671,13 @@ const Auth = () => {
               {loginMethod === "password" && (
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-white/90 text-sm font-medium">
-                    登录密码
+                    {t("auth.login_password")}
                   </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="请输入密码"
+                      placeholder={t("auth.enter_password")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -699,13 +699,13 @@ const Auth = () => {
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password" className="text-white/90 text-sm font-medium">
-                      设置登录密码
+                      {t("auth.set_password")}
                     </Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="请输入密码（至少6位）"
+                        placeholder={t("auth.enter_password_hint")}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -724,12 +724,12 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-confirm-password" className="text-white/90 text-sm font-medium">
-                      确认密码
+                      {t("auth.confirm_password")}
                     </Label>
                     <Input
                       id="signup-confirm-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="请再次输入密码"
+                      placeholder={t("auth.enter_confirm_password")}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
@@ -740,12 +740,12 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="invitationCode" className="text-white/90 text-sm font-medium">
-                      邀请码 <span className="text-white/50 text-xs">（选填，可获得100 猎人币）</span>
+                      {t("auth.invitation_code")} <span className="text-white/50 text-xs">{t("auth.invitation_code_hint")}</span>
                     </Label>
                     <Input
                       id="invitationCode"
                       type="text"
-                      placeholder="请输入邀请码"
+                      placeholder={t("auth.enter_invitation_code")}
                       value={invitationCode}
                       onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
                       maxLength={10}
@@ -760,7 +760,7 @@ const Auth = () => {
                 className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading}
               >
-                {loading ? "处理中..." : (loginMethod === "password" ? "登录" : (isSignUp ? "注册" : "获取验证码"))}
+                {loading ? t("auth.processing") : (loginMethod === "password" ? t("auth.login") : (isSignUp ? t("auth.register") : t("auth.get_code")))}
               </Button>
 
               {/* 切换登录方式和忘记密码 */}
@@ -777,12 +777,12 @@ const Auth = () => {
                   {loginMethod === "sms" ? (
                     <>
                       <Lock className="h-4 w-4" />
-                      密码登录
+                      {t("auth.password_login_switch")}
                     </>
                   ) : (
                     <>
                       <Phone className="h-4 w-4" />
-                      短信验证码登录
+                      {t("auth.sms_login")}
                     </>
                   )}
                 </button>
@@ -800,7 +800,7 @@ const Auth = () => {
                     }}
                     className="text-sm text-white/60 hover:text-white/80"
                   >
-                    忘记密码？
+                    {t("auth.forgot_password_link")}
                   </button>
                 )}
               </div>
@@ -808,20 +808,20 @@ const Auth = () => {
               <div className="text-center space-y-2">
                 {loginMethod === "sms" && (
                   <p className="text-sm text-white/70">
-                    {isSignUp ? "已有账号？" : "还没有账号？"}{" "}
+                    {isSignUp ? t("auth.have_account") : t("auth.no_account")}{" "}
                     <button
                       type="button"
                       onClick={() => setIsSignUp(!isSignUp)}
                       className="text-teal-400 hover:text-teal-300 font-medium"
                     >
-                      {isSignUp ? "立即登录" : "立即注册！"}
+                      {isSignUp ? t("auth.login_now") : t("auth.register_now")}
                     </button>
                   </p>
                 )}
                 
                 {/* AI 模型图标 */}
                 <div className="pt-4 mt-4 border-t border-white/10">
-                  <p className="text-xs text-white/50 text-center mb-3">AI 预测模型</p>
+                  <p className="text-xs text-white/50 text-center mb-3">{t("auth.ai_models")}</p>
                   <div className="flex items-center justify-center gap-4 flex-wrap">
                     <img src={aiBluewhale} alt="Bluewhale AI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img src={aiGemini} alt="Gemini" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
@@ -843,7 +843,7 @@ const Auth = () => {
             <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div className="space-y-4">
                 <Label htmlFor="otp" className="text-white/90 text-sm font-medium block text-center">
-                  请输入 6 位验证码
+                  {t("auth.valid_otp")}
                 </Label>
                 <div className="flex justify-center">
                   <InputOTP
@@ -868,7 +868,7 @@ const Auth = () => {
                 className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading || otp.length !== 6}
               >
-                {loading ? "验证中..." : "确认登录"}
+                {loading ? t("auth.verifying") : t("auth.confirm_login")}
               </Button>
 
               <div className="text-center">
@@ -879,7 +879,7 @@ const Auth = () => {
                   disabled={countdown > 0}
                   className="text-sm text-white/70 hover:text-white hover:bg-white/10"
                 >
-                  {countdown > 0 ? `${countdown}s 后重新发送` : "重新发送验证码"}
+                  {countdown > 0 ? t("auth.resend_in", { seconds: countdown }) : t("auth.resend_code")}
                 </Button>
               </div>
             </form>
@@ -890,13 +890,13 @@ const Auth = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="new-password" className="text-white/90 text-sm font-medium">
-                    设置登录密码
+                    {t("auth.set_password")}
                   </Label>
                   <div className="relative">
                     <Input
                       id="new-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="请输入密码（至少6位）"
+                      placeholder={t("auth.enter_password_hint")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -915,12 +915,12 @@ const Auth = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password" className="text-white/90 text-sm font-medium">
-                    确认密码
+                    {t("auth.confirm_password")}
                   </Label>
                   <Input
                     id="confirm-password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="请再次输入密码"
+                    placeholder={t("auth.enter_confirm_password")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -935,7 +935,7 @@ const Auth = () => {
                 className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading || password.length < 6 || password !== confirmPassword}
               >
-                {loading ? "设置中..." : "确认设置"}
+                {loading ? t("auth.setting") : t("auth.confirm_set")}
               </Button>
 
               <div className="text-center">
@@ -944,7 +944,7 @@ const Auth = () => {
                   onClick={handleSkipSetPassword}
                   className="text-sm text-white/60 hover:text-white/80"
                 >
-                  跳过，稍后设置
+                  {t("auth.skip_set_later")}
                 </button>
               </div>
             </form>
@@ -955,7 +955,7 @@ const Auth = () => {
             <form onSubmit={handleForgotPasswordSendCode} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="forgot-phone" className="text-white/90 text-sm font-medium">
-                  手机号码
+                  {t("auth.phone_number")}
                 </Label>
                 <div className="flex gap-2">
                   <Input
@@ -972,7 +972,7 @@ const Auth = () => {
                   <Input
                     id="forgot-phone"
                     type="tel"
-                    placeholder="请输入手机号"
+                    placeholder={t("auth.enter_phone")}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
@@ -987,7 +987,7 @@ const Auth = () => {
                 className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading}
               >
-                {loading ? "发送中..." : "发送验证码"}
+                {loading ? t("auth.sending") : t("auth.send_code")}
               </Button>
 
               <div className="text-center">
@@ -1000,7 +1000,7 @@ const Auth = () => {
                   }}
                   className="text-sm text-teal-400 hover:text-teal-300"
                 >
-                  返回登录
+                  {t("auth.back_to_login")}
                 </button>
               </div>
             </form>
