@@ -734,57 +734,73 @@ export default function LiveFootballAnimation({
     <div className="space-y-4">
 
       {/* 阵型选择 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* 主队阵型 */}
-        <div className="relative space-y-3 p-3 rounded-lg border border-blue-500/30 overflow-hidden">
+        <div className="relative rounded-xl border border-blue-500/40 overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 transition-shadow duration-300">
           {/* 背景图 */}
           <div 
-            className="absolute inset-0 opacity-15"
+            className="absolute inset-0 opacity-20 scale-110"
             style={{
               backgroundImage: `url(${homeTeamLogo})`,
-              backgroundSize: 'cover',
+              backgroundSize: '120%',
               backgroundPosition: 'center',
-              filter: 'blur(1px)',
+              filter: 'blur(8px)',
             }}
           />
           {/* 渐变遮罩 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/90 via-slate-900/85 to-blue-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/95 via-slate-900/90 to-blue-900/85" />
+          {/* 顶部光效 */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/60 to-transparent" />
           
           {/* 内容 */}
-          <div className="relative z-10">
-            <div className="flex items-center gap-2">
-              <img 
-                src={homeTeamLogo} 
-                alt={homeTeamName}
-                className="w-6 h-6 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <span className="text-sm font-medium text-foreground">{homeTeamName}</span>
-              <span className="text-xs text-blue-400 font-bold ml-auto">{currentHomeFormation}</span>
+          <div className="relative z-10 p-4">
+            {/* 头部 */}
+            <div className="flex items-center gap-3 pb-3 border-b border-blue-400/20">
+              <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                <img 
+                  src={homeTeamLogo} 
+                  alt={homeTeamName}
+                  className="w-7 h-7 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-semibold text-white">{homeTeamName}</span>
+                <div className="text-[10px] text-blue-300/70">主队阵型</div>
+              </div>
+              <div className="px-3 py-1.5 rounded-md bg-blue-500/20 border border-blue-400/30">
+                <span className="text-sm text-blue-300 font-bold tracking-wide">{currentHomeFormation}</span>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
+            
+            {/* 阵型按钮 */}
+            <div className="flex flex-wrap gap-2 py-4">
               {availableFormations.map(f => (
                 <button
                   key={f}
                   onClick={() => handleFormationChange('home', f)}
-                  className={`px-4 py-2 text-xs font-medium rounded-md border-2 transition-all duration-200 ${
+                  className={`px-4 py-2 text-xs font-semibold rounded-lg border-2 transition-all duration-200 ${
                     currentHomeFormation === f
-                      ? 'bg-blue-500 border-blue-500 text-white scale-105 shadow-lg shadow-blue-500/40'
-                      : 'bg-white/5 border-white/30 hover:border-blue-400/60 hover:bg-white/10 text-white/90'
+                      ? 'bg-blue-500 border-blue-400 text-white scale-105 shadow-lg shadow-blue-500/50'
+                      : 'bg-white/5 border-white/20 hover:border-blue-400/50 hover:bg-blue-500/10 text-white/80'
                   }`}
                 >
                   {f}
                 </button>
               ))}
             </div>
+            
             {/* 阵型说明 */}
-            <div className="pt-2 mt-3 border-t border-blue-400/20">
-              <div className="text-xs font-medium text-blue-400 mb-1">
-                {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
+            <div className="pt-3 border-t border-blue-400/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-4 rounded-full bg-blue-400" />
+                <span className="text-xs font-semibold text-blue-300">
+                  {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
+                </span>
               </div>
-              <p className="text-[11px] text-white/60 leading-relaxed">
+              <p className="text-[11px] text-white/50 leading-relaxed pl-3">
                 {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
               </p>
             </div>
@@ -792,55 +808,71 @@ export default function LiveFootballAnimation({
         </div>
 
         {/* 客队阵型 */}
-        <div className="relative space-y-3 p-3 rounded-lg border border-red-500/30 overflow-hidden">
+        <div className="relative rounded-xl border border-red-500/40 overflow-hidden shadow-lg shadow-red-500/10 hover:shadow-red-500/20 transition-shadow duration-300">
           {/* 背景图 */}
           <div 
-            className="absolute inset-0 opacity-15"
+            className="absolute inset-0 opacity-20 scale-110"
             style={{
               backgroundImage: `url(${awayTeamLogo})`,
-              backgroundSize: 'cover',
+              backgroundSize: '120%',
               backgroundPosition: 'center',
-              filter: 'blur(1px)',
+              filter: 'blur(8px)',
             }}
           />
           {/* 渐变遮罩 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-950/90 via-slate-900/85 to-red-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-br from-red-950/95 via-slate-900/90 to-red-900/85" />
+          {/* 顶部光效 */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-400/60 to-transparent" />
           
           {/* 内容 */}
-          <div className="relative z-10">
-            <div className="flex items-center gap-2">
-              <img 
-                src={awayTeamLogo} 
-                alt={awayTeamName}
-                className="w-6 h-6 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <span className="text-sm font-medium text-foreground">{awayTeamName}</span>
-              <span className="text-xs text-red-400 font-bold ml-auto">{currentAwayFormation}</span>
+          <div className="relative z-10 p-4">
+            {/* 头部 */}
+            <div className="flex items-center gap-3 pb-3 border-b border-red-400/20">
+              <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                <img 
+                  src={awayTeamLogo} 
+                  alt={awayTeamName}
+                  className="w-7 h-7 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-semibold text-white">{awayTeamName}</span>
+                <div className="text-[10px] text-red-300/70">客队阵型</div>
+              </div>
+              <div className="px-3 py-1.5 rounded-md bg-red-500/20 border border-red-400/30">
+                <span className="text-sm text-red-300 font-bold tracking-wide">{currentAwayFormation}</span>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
+            
+            {/* 阵型按钮 */}
+            <div className="flex flex-wrap gap-2 py-4">
               {availableFormations.map(f => (
                 <button
                   key={f}
                   onClick={() => handleFormationChange('away', f)}
-                  className={`px-4 py-2 text-xs font-medium rounded-md border-2 transition-all duration-200 ${
+                  className={`px-4 py-2 text-xs font-semibold rounded-lg border-2 transition-all duration-200 ${
                     currentAwayFormation === f
-                      ? 'bg-red-500 border-red-500 text-white scale-105 shadow-lg shadow-red-500/40'
-                      : 'bg-white/5 border-white/30 hover:border-red-400/60 hover:bg-white/10 text-white/90'
+                      ? 'bg-red-500 border-red-400 text-white scale-105 shadow-lg shadow-red-500/50'
+                      : 'bg-white/5 border-white/20 hover:border-red-400/50 hover:bg-red-500/10 text-white/80'
                   }`}
                 >
                   {f}
                 </button>
               ))}
             </div>
+            
             {/* 阵型说明 */}
-            <div className="pt-2 mt-3 border-t border-red-400/20">
-              <div className="text-xs font-medium text-red-400 mb-1">
-                {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
+            <div className="pt-3 border-t border-red-400/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-4 rounded-full bg-red-400" />
+                <span className="text-xs font-semibold text-red-300">
+                  {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
+                </span>
               </div>
-              <p className="text-[11px] text-white/60 leading-relaxed">
+              <p className="text-[11px] text-white/50 leading-relaxed pl-3">
                 {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
               </p>
             </div>
