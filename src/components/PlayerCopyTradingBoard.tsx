@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { copyTraders, getHotCopyTraders, getColdCopyTraders, getFollowedRecommenderNames, type CopyTrader } from "@/data/copyTraders";
-import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, UserCheck } from "lucide-react";
+import { virtualPlayers } from "@/data/virtualPlayers";
+import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import usdtIcon from "@/assets/usdt-icon.png";
@@ -176,57 +176,154 @@ const PlayerCopyTradingBoard = () => {
         setIsLoading(true);
         const INITIAL_BALANCE = 10000;
         
-        // 将跟单者转换为 PlayerData 格式
-        const copyTradersData: PlayerData[] = copyTraders.map((trader) => ({
-          id: trader.id,
-          displayName: trader.displayName,
-          avatarUrl: trader.avatarUrl,
-          totalPredictions: trader.totalCopyTrades,
-          correctPredictions: trader.correctCopyTrades,
-          winRate: trader.winRate,
-          balance: trader.balance,
-          profit: trader.profit,
-          changePercent: trader.changePercent,
-          totalBetAmount: trader.totalCopyTrades * 15000, // 平均每次跟单150元
-          profitAmount: trader.profit * 100,
-          bestStreak: trader.bestStreak,
-          worstStreak: trader.worstStreak,
-          currentStreak: trader.currentStreak,
-          isVirtual: true,
-          todayTotal: trader.todayCopyTrades,
-          todayCorrect: trader.todayCorrect,
-          todayWinRate: trader.todayCopyTrades > 0 ? (trader.todayCorrect / trader.todayCopyTrades) * 100 : 0,
-          allowCopyTrade: true,
-          unlockPrice: 0,
-        }));
+        // 将虚拟玩家转换为 PlayerData 格式（只选择允许跟单的玩家）
+        const virtualPlayersData: PlayerData[] = virtualPlayers
+          .filter(player => player.allowCopyTrade !== false) // 只选择允许跟单的玩家
+          .map((player) => {
+            // 为虚拟玩家计算投注金额和盈利金额
+            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
+            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
+            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
+            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
+            
+            return {
+              ...player,
+              totalBetAmount,
+              profitAmount,
+              bestStreak: player.bestStreak || 0,
+              worstStreak: player.worstStreak || 0,
+              currentStreak: 0,
+              isVirtual: true,
+              allowCopyTrade: player.allowCopyTrade ?? true,
+            };
+          });
         
-        setAllPlayers(copyTradersData);
+        // 获取所有用户的基本信息
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, display_name, avatar_url');
+        
+        if (usersError) throw usersError;
+        
+        // 如果没有真实用户或获取失败，只使用虚拟玩家
+        if (!usersData || usersData.length === 0) {
+          setAllPlayers(virtualPlayersData);
+          return;
+        }
+        
+        // 获取所有用户的余额信息
+        const { data: balancesData, error: balancesError } = await supabase
+          .from('user_balances')
+          .select('user_id, balance');
+        
+        if (balancesError) throw balancesError;
+        
+        // 获取所有用户的预测统计
+        const { data: predictionsData, error: predictionsError } = await supabase
+          .from('user_predictions')
+          .select('user_id, result, bet_amount, actual_payout');
+        
+        if (predictionsError) throw predictionsError;
+        
+        // 创建映射
+        const balancesMap = new Map(balancesData?.map(b => [b.user_id, b.balance]) || []);
+        
+        // 计算每个用户的统计数据
+        const realPlayerStats = usersData.map(user => {
+          const userPredictions = predictionsData?.filter(p => p.user_id === user.id) || [];
+          const totalPredictions = userPredictions.length;
+          const correctPredictions = userPredictions.filter(p => p.result === 'win').length;
+          const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+          
+          // 计算投注金额和盈利金额
+          const totalBetAmount = userPredictions.reduce((sum, p) => sum + (p.bet_amount || 0), 0);
+          const validAmount = userPredictions.reduce((sum, p) => {
+            if (p.result === 'win') {
+              return sum + (p.actual_payout || p.bet_amount || 0);
+            }
+            return sum;
+          }, 0);
+          const profitAmount = validAmount - totalBetAmount;
+          
+          const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
+          const profit = balance - INITIAL_BALANCE;
+          const changePercent = (profit / INITIAL_BALANCE) * 100;
+          
+          // 计算连胜/连败
+          let bestStreak = 0;
+          let tempStreak = 0;
+          let worstStreak = 0;
+          let lossStreak = 0;
+          let currentStreak = 0;
+          
+          userPredictions.forEach(pred => {
+            if (pred.result === 'win') {
+              tempStreak++;
+              bestStreak = Math.max(bestStreak, tempStreak);
+              lossStreak = 0;
+            } else if (pred.result === 'loss') {
+              tempStreak = 0;
+              lossStreak++;
+              worstStreak = Math.max(worstStreak, lossStreak);
+            }
+          });
+          
+          // 计算当前连胜
+          for (let i = userPredictions.length - 1; i >= 0; i--) {
+            if (userPredictions[i].result === 'win') {
+              currentStreak++;
+            } else {
+              break;
+            }
+          }
+          
+          return {
+            id: user.id,
+            displayName: user.display_name,
+            avatarUrl: user.avatar_url,
+            totalPredictions,
+            correctPredictions,
+            winRate,
+            balance,
+            profit,
+            changePercent,
+            totalBetAmount,
+            profitAmount,
+            bestStreak,
+            worstStreak,
+            currentStreak,
+            isVirtual: false,
+            allowCopyTrade: true, // 真实玩家默认允许跟单
+            unlockPrice: 0, // 真实玩家默认免费，可以根据需要从数据库获取
+          };
+        }).filter(player => player.totalPredictions > 0);
+        
+        // 合并真实玩家和虚拟玩家
+        const combined = [...virtualPlayersData, ...realPlayerStats];
+        setAllPlayers(combined);
       } catch (error) {
         console.error('Error fetching all players:', error);
-        // 出错时仍使用跟单者数据
-        const copyTradersData: PlayerData[] = copyTraders.map((trader) => ({
-          id: trader.id,
-          displayName: trader.displayName,
-          avatarUrl: trader.avatarUrl,
-          totalPredictions: trader.totalCopyTrades,
-          correctPredictions: trader.correctCopyTrades,
-          winRate: trader.winRate,
-          balance: trader.balance,
-          profit: trader.profit,
-          changePercent: trader.changePercent,
-          totalBetAmount: trader.totalCopyTrades * 15000,
-          profitAmount: trader.profit * 100,
-          bestStreak: trader.bestStreak,
-          worstStreak: trader.worstStreak,
-          currentStreak: trader.currentStreak,
-          isVirtual: true,
-          todayTotal: trader.todayCopyTrades,
-          todayCorrect: trader.todayCorrect,
-          todayWinRate: trader.todayCopyTrades > 0 ? (trader.todayCorrect / trader.todayCopyTrades) * 100 : 0,
-          allowCopyTrade: true,
-          unlockPrice: 0,
-        }));
-        setAllPlayers(copyTradersData);
+        const virtualPlayersData: PlayerData[] = virtualPlayers
+          .filter(player => player.allowCopyTrade !== false)
+          .map((player) => {
+            // 为虚拟玩家计算投注金额和盈利金额
+            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
+            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
+            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
+            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
+            
+            return {
+              ...player,
+              totalBetAmount,
+              profitAmount,
+              bestStreak: player.bestStreak || 0,
+              worstStreak: player.worstStreak || 0,
+              currentStreak: 0,
+              isVirtual: true,
+              allowCopyTrade: player.allowCopyTrade ?? true,
+            };
+          });
+        setAllPlayers(virtualPlayersData);
       } finally {
         setIsLoading(false);
       }
@@ -258,12 +355,15 @@ const PlayerCopyTradingBoard = () => {
         statsMap.set(pred.user_id, current);
       });
       
-      // 为跟单者生成模拟今日数据
-      copyTraders.forEach(trader => {
-        statsMap.set(trader.id, {
-          total: trader.todayCopyTrades,
-          correct: trader.todayCorrect,
-          winRate: trader.todayCopyTrades > 0 ? (trader.todayCorrect / trader.todayCopyTrades) * 100 : 0
+      // 为虚拟玩家生成模拟今日数据
+      virtualPlayers.forEach(player => {
+        const total = Math.floor(Math.random() * 8) + 3;
+        const correct = Math.floor(total * (player.winRate / 100) + (Math.random() - 0.5) * 2);
+        const actualCorrect = Math.max(0, Math.min(total, correct));
+        statsMap.set(player.id, {
+          total,
+          correct: actualCorrect,
+          winRate: total > 0 ? (actualCorrect / total) * 100 : 0
         });
       });
       
@@ -373,16 +473,14 @@ const PlayerCopyTradingBoard = () => {
     setSelectedPlayer({ player, predictions: predictionsWithDetails });
   };
 
-  // 连红榜 - 按当前连胜（正数）排序
+  // 按最佳连胜排序
   const topStreakPlayers = [...allPlayers]
-    .filter(p => p.currentStreak > 0)
-    .sort((a, b) => b.currentStreak - a.currentStreak)
+    .sort((a, b) => b.bestStreak - a.bestStreak)
     .slice(0, 10);
 
-  // 连黑榜 - 按当前连黑（负数）排序
+  // 按最差连败排序
   const worstStreakPlayers = [...allPlayers]
-    .filter(p => p.currentStreak < 0)
-    .sort((a, b) => a.currentStreak - b.currentStreak)
+    .sort((a, b) => b.worstStreak - a.worstStreak)
     .slice(0, 10);
 
   // 模拟比赛数据用于跟单
@@ -553,13 +651,11 @@ const PlayerCopyTradingBoard = () => {
           <div className="text-[10px] sm:text-xs space-y-1">
             {/* 第一行：核心数据 */}
             <div className="flex items-center gap-3 text-muted-foreground">
-              <span>跟单 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+              <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
               <span className="text-border">|</span>
               <span>胜率 <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span></span>
               <span className="text-border">|</span>
-              <span className={streakType === 'best' ? 'text-green-500' : 'text-red-500'}>
-                {streakType === 'best' ? '连红' : '连黑'} <span className="font-bold">{Math.abs(player.currentStreak)}</span>
-              </span>
+              <span>{streakType === 'best' ? '连胜' : '连黑'} <span className="text-foreground font-medium">{streakType === 'best' ? player.bestStreak : player.worstStreak}</span></span>
             </div>
             {/* 第二行：战绩、投注、盈利金额 */}
             <div className="flex items-center gap-3 text-muted-foreground">
@@ -567,22 +663,22 @@ const PlayerCopyTradingBoard = () => {
               <span className="text-border">|</span>
               <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
               <span className="text-border">|</span>
-              <span>盈利 <span className={`font-medium ${(player.profitAmount || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}</span></span>
+              <span>盈利 <span className="text-foreground font-medium">{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}</span></span>
+              <span className="text-border">|</span>
+              <span>盈利率 <span className="text-foreground font-medium">{player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%</span></span>
             </div>
-            {/* 第三行：跟单来源 */}
+            {/* 第三行：预计奖金 */}
             <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
-              <UserCheck className="h-3 w-3 text-muted-foreground" />
-              <span className="text-muted-foreground">跟单来源:</span>
-              <span className="text-foreground/80 text-[9px] truncate">
-                {(() => {
-                  const trader = copyTraders.find(t => t.id === player.id);
-                  if (trader) {
-                    const names = getFollowedRecommenderNames(trader);
-                    return names.slice(0, 2).map(n => maskPlayerName(n)).join(', ') + (names.length > 2 ? '...' : '');
-                  }
-                  return '推荐榜玩家';
-                })()}
-              </span>
+              <span className="text-muted-foreground">预计奖金</span>
+              {(() => {
+                const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
+                return prize > 0 ? (
+                  <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
+                ) : (
+                  <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                );
+              })()}
             </div>
           </div>
         </div>
