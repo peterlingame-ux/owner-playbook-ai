@@ -1168,10 +1168,10 @@ const PlayerLeaderboardTable = () => {
       </Card>
       
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
         {/* Left Column: 高胜率榜 (Hot Streak) */}
-        <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="border-border/50 bg-card/50 h-full">
+          <CardContent className="p-4 sm:p-6 h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
@@ -1216,7 +1216,7 @@ const PlayerLeaderboardTable = () => {
                 </button>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -1341,8 +1341,8 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Middle Column: 高盈利榜 (Profit Board) */}
-        <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="border-border/50 bg-card/50 h-full">
+          <CardContent className="p-4 sm:p-6 h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
@@ -1387,7 +1387,7 @@ const PlayerLeaderboardTable = () => {
                 </button>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -1514,8 +1514,8 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Right Column: 低胜率榜 (Cold Streak) */}
-        <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="border-border/50 bg-card/50 h-full">
+          <CardContent className="p-4 sm:p-6 h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
@@ -1560,7 +1560,7 @@ const PlayerLeaderboardTable = () => {
                 </button>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
