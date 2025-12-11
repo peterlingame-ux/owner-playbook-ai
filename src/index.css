@@ -267,4 +267,14 @@ All colors MUST be HSL.
       font-size: 15px;
     }
   }
+  
+  /* 能量条流动动画 */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
 }
