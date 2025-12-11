@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
+import LiveFootballAnimation from "@/components/LiveFootballAnimation";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -1443,10 +1444,11 @@ export default function MatchDetail() {
 
         {activeTab === 'expert' && (
           <div className="p-4">
-            <Card className="p-6 bg-muted/20 border-border/50 text-center">
-              <UserCheck className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">专家分析即将上线</p>
-            </Card>
+            <LiveFootballAnimation 
+              homeFormation={match.homeTeam.lineup?.formation || '4-4-2'}
+              awayFormation={match.awayTeam.lineup?.formation || '4-3-3'}
+              isPlaying={true}
+            />
           </div>
         )}
 
