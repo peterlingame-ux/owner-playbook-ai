@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
 import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -1080,19 +1081,19 @@ const MyPredictions = () => {
               </div>
             </div>
 
-            {/* USDT钱包 */}
-            <div className="p-3 bg-gradient-to-br from-[#26A17B]/5 to-transparent">
+            {/* 猎人币钱包 */}
+            <div className="p-3 bg-gradient-to-br from-amber-500/5 to-transparent">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-[#26A17B]/15 flex items-center justify-center shadow-sm">
-                  <img src="/src/assets/usdt-icon.png" alt="USDT" className="w-4.5 h-4.5" />
+                <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center shadow-sm">
+                  <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">{t('usdt_wallet_balance')}</span>
+                <span className="text-xs font-medium text-muted-foreground">{t('hunter_coin_balance')}</span>
               </div>
               <div className="flex items-baseline gap-1.5 mb-2">
-                <span className="text-2xl font-bold text-[#26A17B] font-mono tracking-tight">
+                <span className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
                   {usdtBalance.toFixed(2)}
                 </span>
-                <span className="text-xs font-medium text-muted-foreground">USDT</span>
+                <span className="text-xs font-medium text-muted-foreground">猎人币</span>
               </div>
               <USDTWalletDialog 
                 trigger={

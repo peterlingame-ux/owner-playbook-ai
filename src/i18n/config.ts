@@ -568,12 +568,14 @@ const resources = {
       "view_leaderboard": "View Leaderboard",
       "no_prediction_records": "You have no prediction records yet",
       
-      // USDT Wallet
-      "usdt_wallet": "USDT Wallet",
-      "usdt_wallet_balance": "USDT Wallet Balance",
+      // Hunter Coin Wallet
+      "hunter_coin_wallet": "Hunter Coin Wallet",
+      "hunter_coin_balance": "Hunter Coin Balance",
+      "usdt_wallet": "Hunter Coin Wallet",
+      "usdt_wallet_balance": "Hunter Coin Balance",
       "usdt_deposit": "Deposit",
       "usdt_deposit_title": "USDT Deposit",
-      "deposit_description": "Enter the amount to deposit. Use TRC20 network to transfer USDT.",
+      "deposit_description": "Enter the amount to deposit. Use TRC20 network to transfer USDT, which will be converted to Hunter Coins (1:1).",
       "quick_amount": "Quick Amount",
       "custom_amount": "Custom Amount (USDT)",
       "enter_deposit_amount": "Enter deposit amount",
@@ -1187,12 +1189,14 @@ const resources = {
       "view_leaderboard": "查看排行榜",
       "no_prediction_records": "您还没有任何预测记录",
       
-      // USDT Wallet
-      "usdt_wallet": "USDT钱包",
-      "usdt_wallet_balance": "USDT钱包余额",
+      // 猎人币钱包
+      "hunter_coin_wallet": "猎人币钱包",
+      "hunter_coin_balance": "猎人币余额",
+      "usdt_wallet": "猎人币钱包",
+      "usdt_wallet_balance": "猎人币余额",
       "usdt_deposit": "充值",
       "usdt_deposit_title": "USDT充值",
-      "deposit_description": "请输入充值金额，系统将生成收款地址和二维码。请使用 TRC20 网络转账 USDT。",
+      "deposit_description": "请输入充值金额，使用 TRC20 网络转账 USDT，到账后自动兑换为猎人币（1:1）。",
       "quick_amount": "快捷金额",
       "custom_amount": "自定义金额 (USDT)",
       "enter_deposit_amount": "输入充值金额",
@@ -1802,12 +1806,14 @@ const resources = {
       "view_leaderboard": "순위표 보기",
       "no_prediction_records": "아직 예측 기록이 없습니다",
       
-      // USDT Wallet
-      "usdt_wallet": "USDT 지갑",
-      "usdt_wallet_balance": "USDT 지갑 잔액",
+      // 헌터 코인 지갑
+      "hunter_coin_wallet": "헌터 코인 지갑",
+      "hunter_coin_balance": "헌터 코인 잔액",
+      "usdt_wallet": "헌터 코인 지갑",
+      "usdt_wallet_balance": "헌터 코인 잔액",
       "usdt_deposit": "입금",
       "usdt_deposit_title": "USDT 입금",
-      "deposit_description": "입금할 금액을 입력하세요. TRC20 네트워크를 사용하여 USDT를 전송하세요.",
+      "deposit_description": "입금할 금액을 입력하세요. TRC20 네트워크를 사용하여 USDT를 전송하면 헌터 코인으로 자동 전환됩니다 (1:1).",
       "quick_amount": "빠른 금액",
       "custom_amount": "사용자 정의 금액 (USDT)",
       "enter_deposit_amount": "입금 금액 입력",
