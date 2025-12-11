@@ -1070,15 +1070,10 @@ const PlayerLeaderboardTable = () => {
               <div className="bg-muted/30 rounded-lg px-4 py-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Avatar className="w-10 h-10 border-2 border-warning/50">
-                        <AvatarImage src={hunsoccerAiIcon} />
-                        <AvatarFallback>AI</AvatarFallback>
-                      </Avatar>
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-warning flex items-center justify-center text-[10px] font-bold text-warning-foreground">
-                        #1
-                      </div>
-                    </div>
+                    <Avatar className="w-10 h-10 border-2 border-warning/50">
+                      <AvatarImage src={hunsoccerAiIcon} />
+                      <AvatarFallback>AI</AvatarFallback>
+                    </Avatar>
                     <div>
                       <p className="font-bold text-sm">HUNSOCCER MAX</p>
                       <p className="text-xs text-muted-foreground">AI基准</p>
