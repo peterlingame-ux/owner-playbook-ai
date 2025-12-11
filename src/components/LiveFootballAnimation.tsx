@@ -1384,12 +1384,12 @@ export default function LiveFootballAnimation({
                   
                   <div 
                     className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
-                      isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-2 ring-orange-300'
+                      isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-2 ring-red-400'
                     }`}
                     style={{
-                      border: '3px solid #ff6b35',
-                      background: 'linear-gradient(135deg, #ff4500, #ff8c00)',
-                      boxShadow: '0 0 16px rgba(255, 100, 50, 0.8), 0 4px 12px rgba(255, 70, 0, 0.5)'
+                      border: '3px solid #ef4444',
+                      background: 'linear-gradient(135deg, #dc2626, #ef4444)',
+                      boxShadow: '0 0 16px rgba(239, 68, 68, 0.8), 0 4px 12px rgba(220, 38, 38, 0.5)'
                     }}
                   >
                     <img 
@@ -1404,7 +1404,7 @@ export default function LiveFootballAnimation({
                   {/* 球衣号码 */}
                   <div 
                     className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md`}
-                    style={{ background: isChaser ? '#10b981' : '#ff4500' }}
+                    style={{ background: isChaser ? '#10b981' : '#dc2626' }}
                   >
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
@@ -1427,9 +1427,9 @@ export default function LiveFootballAnimation({
                   <div 
                     className={`absolute inset-0 rounded-full blur-md -z-10 scale-150 transition-all ${isChaser ? 'animate-pulse' : ''}`}
                     style={{ 
-                      background: isChaser ? '#10b981' : isSelected ? '#ff6b35' : '#ff5500',
+                      background: isChaser ? '#10b981' : isSelected ? '#ef4444' : '#dc2626',
                       opacity: isChaser || isSelected ? 1 : 0.7
-                    }} 
+                    }}
                   />
                 </div>
                 {/* 球员名字 */}
