@@ -2,9 +2,8 @@ import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
-import { Trophy } from "lucide-react";
+import { Trophy, Crown, Medal, TrendingUp, Target, Flame } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,58 +33,50 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
   const navigate = useNavigate();
   const isPositive = player.changePercent > 0;
   
-  // 动画效果：从较低的值开始动画到实际值
   const animatedWinRate = useCountAnimation(player.winRate, { 
     duration: 1500,
     startValue: Math.max(0, player.winRate - 15)
   });
   
-  const getRankColor = (rank: number) => {
+  const getRankConfig = (rank: number) => {
     switch(rank) {
       case 1:
-        return 'hsl(45 50% 50%)'; // Muted Gold
+        return {
+          color: 'hsl(45 70% 50%)',
+          bgGradient: 'linear-gradient(135deg, hsl(45 70% 50% / 0.15), hsl(45 70% 50% / 0.05))',
+          borderColor: 'hsl(45 70% 50% / 0.4)',
+          icon: Crown,
+          label: '🏆 Champion'
+        };
       case 2:
-        return 'hsl(210 10% 60%)'; // Silver-gray
+        return {
+          color: 'hsl(210 15% 65%)',
+          bgGradient: 'linear-gradient(135deg, hsl(210 15% 65% / 0.15), hsl(210 15% 65% / 0.05))',
+          borderColor: 'hsl(210 15% 65% / 0.4)',
+          icon: Medal,
+          label: '🥈 Runner-up'
+        };
       case 3:
-        return 'hsl(25 30% 45%)'; // Muted Bronze
+        return {
+          color: 'hsl(25 40% 50%)',
+          bgGradient: 'linear-gradient(135deg, hsl(25 40% 50% / 0.15), hsl(25 40% 50% / 0.05))',
+          borderColor: 'hsl(25 40% 50% / 0.4)',
+          icon: Trophy,
+          label: '🥉 Third'
+        };
       default:
-        return 'hsl(var(--muted-foreground))';
+        return {
+          color: 'hsl(var(--muted-foreground))',
+          bgGradient: 'linear-gradient(135deg, hsl(var(--muted) / 0.3), transparent)',
+          borderColor: 'hsl(var(--border) / 0.3)',
+          icon: Target,
+          label: ''
+        };
     }
   };
   
-  const getBadgeAnimation = (rank: number) => {
-    if (rank > 3) return {};
-    
-    return {
-      animate: {
-        scale: [1, 1.1, 1],
-        boxShadow: [
-          `0 0 0px ${getRankColor(rank)}`,
-          `0 0 20px ${getRankColor(rank)}`,
-          `0 0 0px ${getRankColor(rank)}`
-        ]
-      },
-      transition: {
-        duration: 2,
-        repeat: Infinity as number,
-      }
-    };
-  };
-  
-  const getTrophyAnimation = (rank: number) => {
-    if (rank > 3) return {};
-    
-    return {
-      animate: {
-        rotate: [0, -10, 10, -10, 0],
-        y: [0, -3, 0]
-      },
-      transition: {
-        duration: 3,
-        repeat: Infinity as number,
-      }
-    };
-  };
+  const rankConfig = getRankConfig(player.rank);
+  const RankIcon = rankConfig.icon;
   
   const handleCardClick = () => {
     if (!authLoading && !user) {
@@ -98,149 +89,160 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     navigate(`/player/${player.id}`);
   };
   
-  
   const formattedProfit = player.profit >= 0 
-    ? `+$${player.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    : `-$${Math.abs(player.profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    ? `+$${player.profit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+    : `-$${Math.abs(player.profit).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   
   return (
-    <Card 
-      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
-      onClick={handleCardClick}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: player.rank * 0.1 }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
-      {/* Subtle Background gradient */}
-      <div 
-        className="absolute inset-0 opacity-3 group-hover:opacity-5 transition-opacity duration-300"
-        style={{
-          background: `linear-gradient(135deg, ${getRankColor(player.rank)}, transparent 80%)`
-        }}
-      />
-      
-      {/* Gradient Overlay for Content Readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/50 to-transparent" />
-      
-      {/* Content */}
-      <div className="relative z-10">
-        <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-            <div className="relative shrink-0">
-              <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-2" style={{ borderColor: getRankColor(player.rank) }}>
+      <Card 
+        className="relative p-5 sm:p-6 bg-card/80 backdrop-blur-sm border-2 hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
+        style={{ borderColor: rankConfig.borderColor }}
+        onClick={handleCardClick}
+      >
+        {/* Background gradient based on rank */}
+        <div 
+          className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+          style={{ background: rankConfig.bgGradient }}
+        />
+        
+        {/* Rank Badge - Top Left */}
+        {player.rank <= 3 && (
+          <motion.div 
+            className="absolute top-3 left-3 z-20"
+            animate={{ 
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div 
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md border"
+              style={{ 
+                backgroundColor: `${rankConfig.color.replace(')', ' / 0.2)')}`,
+                borderColor: rankConfig.color
+              }}
+            >
+              <RankIcon className="h-3.5 w-3.5" style={{ color: rankConfig.color }} />
+              <span className="text-xs font-bold" style={{ color: rankConfig.color }}>
+                #{player.rank}
+              </span>
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Content */}
+        <div className="relative z-10 pt-8">
+          {/* Avatar & Name Section */}
+          <div className="flex flex-col items-center mb-4">
+            <motion.div 
+              className="relative mb-3"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div 
+                className="absolute inset-0 rounded-full blur-md opacity-50"
+                style={{ backgroundColor: rankConfig.color }}
+              />
+              <Avatar 
+                className="w-16 h-16 sm:w-20 sm:h-20 border-3 relative"
+                style={{ borderColor: rankConfig.color }}
+              >
                 <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-                <AvatarFallback>{player.displayName.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="text-lg font-bold">{player.displayName.charAt(0)}</AvatarFallback>
               </Avatar>
-              {player.rank <= 3 && (
-                <motion.div 
-                  className="absolute -top-1 -right-1 z-10"
-                  {...getTrophyAnimation(player.rank)}
-                >
-                  <div 
-                    className="rounded-full p-0.5 sm:p-1 backdrop-blur-sm border"
-                    style={{ 
-                      backgroundColor: `${getRankColor(player.rank).replace(')', ' / 0.9)')}`,
-                      borderColor: getRankColor(player.rank)
-                    }}
-                  >
-                    <Trophy 
-                      className="h-3 w-3 sm:h-4 sm:w-4" 
-                      style={{ color: 'white' }}
-                      fill="white"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1 text-center sm:text-left">
-              <h3 className="font-bold text-xs sm:text-sm leading-tight text-foreground truncate">
-                {player.displayName}
-              </h3>
-            </div>
+            </motion.div>
+            <h3 className="font-bold text-base sm:text-lg text-foreground text-center leading-tight">
+              {player.displayName}
+            </h3>
           </div>
           
-          {/* Money Change Badge */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0">
-            <span className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">{t('simulated_profit')}</span>
-            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data font-bold text-sm sm:text-base ${
-              isPositive ? 'bg-success/30 text-success border border-success/30' : 'bg-destructive/30 text-destructive border border-destructive/30'
-            }`}>
-              {formattedProfit}
-            </div>
-          </div>
-        </div>
-        
-        <div className="space-y-2.5 sm:space-y-3">
-          <div>
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[10px] sm:text-xs text-muted-foreground">{t('win_rate')}</span>
-              <span className="text-xl sm:text-2xl font-bold font-mono-data transition-all" style={{ color: getRankColor(player.rank) }}>
+          {/* Win Rate Display */}
+          <div className="text-center mb-4">
+            <p className="text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
+            <div className="flex items-center justify-center gap-2">
+              <span 
+                className="text-3xl sm:text-4xl font-bold font-mono-data"
+                style={{ color: rankConfig.color }}
+              >
                 {animatedWinRate.toFixed(1)}%
               </span>
             </div>
-            
-            {/* Win Rate Progress Bar */}
-            <div className="relative h-2 sm:h-2.5 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${animatedWinRate}%`,
-                  backgroundColor: getRankColor(player.rank)
-                }}
+            {/* Progress Bar */}
+            <div className="relative h-1.5 bg-secondary/50 rounded-full overflow-hidden mt-2 mx-auto max-w-[80%]">
+              <motion.div 
+                className="absolute top-0 left-0 h-full rounded-full"
+                style={{ backgroundColor: rankConfig.color }}
+                initial={{ width: 0 }}
+                animate={{ width: `${animatedWinRate}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
               />
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
-            <div>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data text-success">
+          {/* Profit Badge */}
+          <div className="flex justify-center mb-4">
+            <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-mono-data font-bold text-sm ${
+              isPositive 
+                ? 'bg-success/20 text-success border border-success/30' 
+                : 'bg-destructive/20 text-destructive border border-destructive/30'
+            }`}>
+              <TrendingUp className={`h-4 w-4 ${isPositive ? '' : 'rotate-180'}`} />
+              {formattedProfit}
+            </div>
+          </div>
+          
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-2 p-3 bg-secondary/30 rounded-lg border border-border/20">
+            <div className="text-center">
+              <p className="text-[10px] text-muted-foreground mb-0.5">{t('correct')}</p>
+              <p className="text-sm font-bold font-mono-data text-success">
                 {player.correctPredictions}
               </p>
             </div>
-            <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
+            <div className="text-center border-x border-border/30">
+              <p className="text-[10px] text-muted-foreground mb-0.5">{t('total_predictions')}</p>
+              <p className="text-sm font-bold font-mono-data text-foreground">
                 {player.totalPredictions}
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
-              <p className="text-sm sm:text-base font-bold font-mono-data text-destructive">
+            <div className="text-center">
+              <p className="text-[10px] text-muted-foreground mb-0.5">{t('wrong')}</p>
+              <p className="text-sm font-bold font-mono-data text-destructive">
                 {player.totalPredictions - player.correctPredictions}
               </p>
             </div>
           </div>
           
-          {/* Additional Stats Row */}
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
-            <div>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('best_streak') || '连胜'}</p>
-              <p className="text-xs sm:text-sm font-bold font-mono-data text-success">
+          {/* Bottom Stats Row */}
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
+            <div className="flex items-center gap-1">
+              <Flame className="h-3.5 w-3.5 text-warning" />
+              <span className="text-xs text-muted-foreground">{t('best_streak') || '连胜'}</span>
+              <span className="text-xs font-bold font-mono-data text-success">
                 {player.bestStreak || Math.floor(Math.random() * 8) + 3}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('roi') || '盈利率'}</p>
-              <p className={`text-xs sm:text-sm font-bold font-mono-data ${player.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%
-              </p>
+              </span>
             </div>
             <div 
-              className="text-right cursor-pointer hover:bg-accent/50 rounded-md px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors"
+              className="flex items-center gap-1 cursor-pointer hover:bg-accent/50 rounded-md px-2 py-1 -my-1 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/history?tab=player&player=${player.id}`);
               }}
               title={t('click_to_view_history') || '点击查看历史记录'}
             >
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('today_prediction') || '今日'}</p>
-              <p className="text-xs sm:text-sm font-bold font-mono-data text-sky-500 hover:underline">
+              <span className="text-xs text-muted-foreground">{t('today_prediction') || '今日'}</span>
+              <span className="text-xs font-bold font-mono-data text-sky-500 hover:underline">
                 {player.todayCorrect ?? Math.floor(Math.random() * 5) + 2}/{player.todayTotal ?? Math.floor(Math.random() * 3) + 5}
-              </p>
+              </span>
             </div>
           </div>
-          
         </div>
-      </div>
-    </Card>
+      </Card>
+    </motion.div>
   );
 };
 
