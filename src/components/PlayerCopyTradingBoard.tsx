@@ -651,19 +651,19 @@ const PlayerCopyTradingBoard = () => {
             <div className="flex items-center gap-3 text-muted-foreground">
               <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
               <span className="text-border">|</span>
-              <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
+              <span>胜率 <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span></span>
               <span className="text-border">|</span>
-              <span>{streakType === 'best' ? '连胜' : '连黑'} <span className={streakType === 'best' ? 'text-primary font-bold' : 'text-destructive font-bold'}>{streakType === 'best' ? player.bestStreak : player.worstStreak}</span></span>
+              <span>{streakType === 'best' ? '连胜' : '连黑'} <span className="text-foreground font-medium">{streakType === 'best' ? player.bestStreak : player.worstStreak}</span></span>
             </div>
             {/* 第二行：战绩、投注、盈利金额 */}
             <div className="flex items-center gap-3 text-muted-foreground">
-              <span>战绩 <span className="text-success">{player.correctPredictions}</span><span className="text-muted-foreground/50">/</span><span className="text-destructive">{player.totalPredictions - player.correctPredictions}</span></span>
+              <span>战绩 <span className="text-foreground font-medium">{player.correctPredictions}/{player.totalPredictions - player.correctPredictions}</span></span>
               <span className="text-border">|</span>
               <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
               <span className="text-border">|</span>
-              <span>盈利 <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}</span></span>
+              <span>盈利 <span className="text-foreground font-medium">{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}</span></span>
               <span className="text-border">|</span>
-              <span>盈利率 <span className={`font-medium ${player.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>{player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%</span></span>
+              <span>盈利率 <span className="text-foreground font-medium">{player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%</span></span>
             </div>
             {/* 第三行：预计奖金 */}
             <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
