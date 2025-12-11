@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, Maximize2, RotateCcw } from 'lucide-react';
+import { Play, Pause, Maximize2, RotateCcw, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+interface HeatmapPoint {
+  x: number;
+  y: number;
+  intensity: number;
+  team: 'home' | 'away';
+}
 
 interface PlayerPosition {
   id: number;
@@ -97,6 +104,8 @@ export default function LiveFootballAnimation({
   const [homePlayers, setHomePlayers] = useState<PlayerPosition[]>([]);
   const [awayPlayers, setAwayPlayers] = useState<PlayerPosition[]>([]);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
   const animationRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
 
@@ -139,8 +148,8 @@ export default function LiveFootballAnimation({
     const homeFormationPositions = formations[currentHomeFormation] || formations['4-4-2'];
     const awayFormationPositions = mirrorFormation(formations[currentAwayFormation] || formations['4-3-3']);
 
-    setHomePlayers(prev =>
-      prev.map((player, idx) => {
+    setHomePlayers(prev => {
+      const newPlayers = prev.map((player, idx) => {
         const basePos = homeFormationPositions[idx];
         // 随机偏移模拟跑动
         const offsetX = (Math.random() - 0.5) * 12;
@@ -150,11 +159,24 @@ export default function LiveFootballAnimation({
           targetX: Math.max(5, Math.min(95, basePos.x + offsetX)),
           targetY: Math.max(5, Math.min(95, basePos.y + offsetY)),
         };
-      })
-    );
+      });
+      
+      // 记录热力图点
+      if (showHeatmap) {
+        const newHeatPoints: HeatmapPoint[] = newPlayers.map(p => ({
+          x: p.x,
+          y: p.y,
+          intensity: 0.3 + Math.random() * 0.4,
+          team: 'home' as const,
+        }));
+        setHeatmapPoints(prev => [...prev.slice(-200), ...newHeatPoints]);
+      }
+      
+      return newPlayers;
+    });
 
-    setAwayPlayers(prev =>
-      prev.map((player, idx) => {
+    setAwayPlayers(prev => {
+      const newPlayers = prev.map((player, idx) => {
         const basePos = awayFormationPositions[idx];
         const offsetX = (Math.random() - 0.5) * 12;
         const offsetY = (Math.random() - 0.5) * 8;
@@ -163,15 +185,28 @@ export default function LiveFootballAnimation({
           targetX: Math.max(5, Math.min(95, basePos.x + offsetX)),
           targetY: Math.max(5, Math.min(95, basePos.y + offsetY)),
         };
-      })
-    );
+      });
+      
+      // 记录热力图点
+      if (showHeatmap) {
+        const newHeatPoints: HeatmapPoint[] = newPlayers.map(p => ({
+          x: p.x,
+          y: p.y,
+          intensity: 0.3 + Math.random() * 0.4,
+          team: 'away' as const,
+        }));
+        setHeatmapPoints(prev => [...prev.slice(-200), ...newHeatPoints]);
+      }
+      
+      return newPlayers;
+    });
 
     // 随机移动球
     setBallPosition(prev => ({
       x: Math.max(10, Math.min(90, prev.x + (Math.random() - 0.5) * 20)),
       y: Math.max(10, Math.min(90, prev.y + (Math.random() - 0.5) * 15)),
     }));
-  }, [currentHomeFormation, currentAwayFormation]);
+  }, [currentHomeFormation, currentAwayFormation, showHeatmap]);
 
   // 动画循环
   useEffect(() => {
@@ -233,6 +268,15 @@ export default function LiveFootballAnimation({
   const handleReset = () => {
     initializePlayers();
     setBallPosition({ x: 50, y: 50 });
+    setHeatmapPoints([]);
+  };
+
+  // 切换热力图
+  const toggleHeatmap = () => {
+    setShowHeatmap(!showHeatmap);
+    if (showHeatmap) {
+      setHeatmapPoints([]);
+    }
   };
 
   const availableFormations = Object.keys(formations);
@@ -259,6 +303,15 @@ export default function LiveFootballAnimation({
           >
             <RotateCcw className="w-3 h-3" />
             重置
+          </Button>
+          <Button
+            variant={showHeatmap ? "default" : "outline"}
+            size="sm"
+            onClick={toggleHeatmap}
+            className="gap-1"
+          >
+            <Flame className="w-3 h-3" />
+            热力图
           </Button>
         </div>
         <Button
@@ -337,6 +390,36 @@ export default function LiveFootballAnimation({
           <rect x="35" y="90" width="30" height="8" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
           <circle cx="50" cy="86" r="0.5" fill="white" opacity="0.6" />
         </svg>
+
+        {/* 热力图层 */}
+        {showHeatmap && (
+          <div className="absolute inset-0 pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <radialGradient id="homeHeat" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" stopColor="rgba(59, 130, 246, 0.8)" />
+                  <stop offset="50%" stopColor="rgba(59, 130, 246, 0.3)" />
+                  <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+                </radialGradient>
+                <radialGradient id="awayHeat" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" stopColor="rgba(239, 68, 68, 0.8)" />
+                  <stop offset="50%" stopColor="rgba(239, 68, 68, 0.3)" />
+                  <stop offset="100%" stopColor="rgba(239, 68, 68, 0)" />
+                </radialGradient>
+              </defs>
+              {heatmapPoints.map((point, idx) => (
+                <circle
+                  key={idx}
+                  cx={point.x}
+                  cy={point.y}
+                  r={4 + point.intensity * 3}
+                  fill={point.team === 'home' ? 'url(#homeHeat)' : 'url(#awayHeat)'}
+                  opacity={point.intensity * 0.6}
+                />
+              ))}
+            </svg>
+          </div>
+        )}
 
         {/* 主队球员 (蓝色) */}
         {homePlayers.map(player => (
