@@ -2111,25 +2111,6 @@ export default function LiveFootballAnimation({
         </div>
 
         {/* AI指标图例 */}
-        {showAIIndicators && (
-          <div className="absolute bottom-8 left-2 bg-black/80 backdrop-blur-sm rounded px-2 py-1 border border-cyan-500/30">
-            <div className="text-[7px] text-cyan-400 font-mono mb-1">AI INDICATORS</div>
-            <div className="space-y-0.5 text-[6px] text-white/70">
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full border border-orange-400" />
-                <span>xG进球值</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-0.5 bg-green-400 rounded" />
-                <span>体能条</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-px bg-blue-400" style={{ borderStyle: 'dashed' }} />
-                <span>防线高度</span>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* 队伍标识 */}
         <div className="absolute bottom-2 left-2 flex items-center gap-1">
