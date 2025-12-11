@@ -27,34 +27,56 @@ interface FormationPosition {
   y: number;
 }
 
-// 球员进攻欲望数据 (基于位置: 0=门将, 1-4=后卫, 5-8=中场, 9-10=前锋)
-const getPlayerAttackDesire = (playerId: number) => {
-  // 根据位置生成不同的进攻欲望属性
-  const positionStats: Record<number, { role: string; attackDesire: number; shootDesire: number; passDesire: number; dribbleDesire: number; runDesire: number }> = {
-    0: { role: '门将', attackDesire: 10, shootDesire: 5, passDesire: 85, dribbleDesire: 10, runDesire: 15 },
-    1: { role: '后卫', attackDesire: 35, shootDesire: 20, passDesire: 75, dribbleDesire: 30, runDesire: 55 },
-    2: { role: '后卫', attackDesire: 30, shootDesire: 15, passDesire: 80, dribbleDesire: 25, runDesire: 50 },
-    3: { role: '后卫', attackDesire: 30, shootDesire: 15, passDesire: 80, dribbleDesire: 25, runDesire: 50 },
-    4: { role: '后卫', attackDesire: 40, shootDesire: 25, passDesire: 70, dribbleDesire: 35, runDesire: 60 },
-    5: { role: '中场', attackDesire: 60, shootDesire: 50, passDesire: 85, dribbleDesire: 65, runDesire: 75 },
-    6: { role: '中场', attackDesire: 55, shootDesire: 45, passDesire: 90, dribbleDesire: 60, runDesire: 70 },
-    7: { role: '中场', attackDesire: 65, shootDesire: 55, passDesire: 80, dribbleDesire: 70, runDesire: 80 },
-    8: { role: '中场', attackDesire: 70, shootDesire: 60, passDesire: 75, dribbleDesire: 75, runDesire: 85 },
-    9: { role: '前锋', attackDesire: 90, shootDesire: 95, passDesire: 50, dribbleDesire: 85, runDesire: 90 },
-    10: { role: '前锋', attackDesire: 95, shootDesire: 90, passDesire: 55, dribbleDesire: 90, runDesire: 95 },
+// 球员完整属性数据 (基于位置: 0=门将, 1-4=后卫, 5-8=中场, 9-10=前锋)
+const getPlayerStats = (playerId: number) => {
+  // 根据位置生成不同的属性
+  const positionStats: Record<number, { 
+    role: string; 
+    attackDesire: number; 
+    shootDesire: number; 
+    passDesire: number; 
+    dribbleDesire: number; 
+    runDesire: number;
+    speed: number;
+    passAccuracy: number;
+    stamina: number;
+    defense: number;
+    shooting: number;
+  }> = {
+    0: { role: '门将', attackDesire: 10, shootDesire: 5, passDesire: 85, dribbleDesire: 10, runDesire: 15, speed: 45, passAccuracy: 75, stamina: 70, defense: 90, shooting: 15 },
+    1: { role: '后卫', attackDesire: 35, shootDesire: 20, passDesire: 75, dribbleDesire: 30, runDesire: 55, speed: 72, passAccuracy: 78, stamina: 82, defense: 85, shooting: 35 },
+    2: { role: '后卫', attackDesire: 30, shootDesire: 15, passDesire: 80, dribbleDesire: 25, runDesire: 50, speed: 68, passAccuracy: 82, stamina: 80, defense: 88, shooting: 30 },
+    3: { role: '后卫', attackDesire: 30, shootDesire: 15, passDesire: 80, dribbleDesire: 25, runDesire: 50, speed: 70, passAccuracy: 80, stamina: 78, defense: 86, shooting: 32 },
+    4: { role: '后卫', attackDesire: 40, shootDesire: 25, passDesire: 70, dribbleDesire: 35, runDesire: 60, speed: 75, passAccuracy: 72, stamina: 85, defense: 82, shooting: 40 },
+    5: { role: '中场', attackDesire: 60, shootDesire: 50, passDesire: 85, dribbleDesire: 65, runDesire: 75, speed: 78, passAccuracy: 88, stamina: 90, defense: 65, shooting: 68 },
+    6: { role: '中场', attackDesire: 55, shootDesire: 45, passDesire: 90, dribbleDesire: 60, runDesire: 70, speed: 75, passAccuracy: 92, stamina: 88, defense: 70, shooting: 62 },
+    7: { role: '中场', attackDesire: 65, shootDesire: 55, passDesire: 80, dribbleDesire: 70, runDesire: 80, speed: 82, passAccuracy: 85, stamina: 85, defense: 55, shooting: 72 },
+    8: { role: '中场', attackDesire: 70, shootDesire: 60, passDesire: 75, dribbleDesire: 75, runDesire: 85, speed: 85, passAccuracy: 80, stamina: 82, defense: 50, shooting: 75 },
+    9: { role: '前锋', attackDesire: 90, shootDesire: 95, passDesire: 50, dribbleDesire: 85, runDesire: 90, speed: 92, passAccuracy: 70, stamina: 78, defense: 30, shooting: 92 },
+    10: { role: '前锋', attackDesire: 95, shootDesire: 90, passDesire: 55, dribbleDesire: 90, runDesire: 95, speed: 88, passAccuracy: 72, stamina: 75, defense: 25, shooting: 95 },
   };
   
   // 添加一些随机波动
   const base = positionStats[playerId] || positionStats[5];
+  const fluctuate = (val: number) => Math.min(100, Math.max(0, val + Math.floor((Math.random() - 0.5) * 10)));
+  
   return {
     ...base,
-    attackDesire: Math.min(100, Math.max(0, base.attackDesire + Math.floor((Math.random() - 0.5) * 10))),
-    shootDesire: Math.min(100, Math.max(0, base.shootDesire + Math.floor((Math.random() - 0.5) * 10))),
-    passDesire: Math.min(100, Math.max(0, base.passDesire + Math.floor((Math.random() - 0.5) * 10))),
-    dribbleDesire: Math.min(100, Math.max(0, base.dribbleDesire + Math.floor((Math.random() - 0.5) * 10))),
-    runDesire: Math.min(100, Math.max(0, base.runDesire + Math.floor((Math.random() - 0.5) * 10))),
+    attackDesire: fluctuate(base.attackDesire),
+    shootDesire: fluctuate(base.shootDesire),
+    passDesire: fluctuate(base.passDesire),
+    dribbleDesire: fluctuate(base.dribbleDesire),
+    runDesire: fluctuate(base.runDesire),
+    speed: fluctuate(base.speed),
+    passAccuracy: fluctuate(base.passAccuracy),
+    stamina: fluctuate(base.stamina),
+    defense: fluctuate(base.defense),
+    shooting: fluctuate(base.shooting),
   };
 };
+
+// 保持向后兼容
+const getPlayerAttackDesire = getPlayerStats;
 
 // 虚拟球员名字和头像
 const homePlayerNames = ['拉米', '巴塔特', '泰马尼尼', '萨莱赫', '纳布汉', '萨瓦塔', '阿米德', '哈姆丹', '赛亚姆', '昆巴尔', '达巴赫'];
@@ -1371,47 +1393,39 @@ export default function LiveFootballAnimation({
                 
                 {/* 选中时显示体力值和进攻欲望 */}
                 {isSelected && (() => {
-                  const desire = getPlayerAttackDesire(player.id);
-                  const stamina = 60 + Math.floor(Math.random() * 35); // 60-95之间的体力值
+                  const stats = getPlayerStats(player.id);
+                  
+                  const statItems = [
+                    { key: 'STA', value: stats.stamina, colors: { high: '#22c55e', low: '#ef4444' } },
+                    { key: 'SPD', value: stats.speed, colors: { high: '#3b82f6', low: '#6b7280' } },
+                    { key: 'PAS', value: stats.passAccuracy, colors: { high: '#8b5cf6', low: '#6b7280' } },
+                    { key: 'ATK', value: stats.attackDesire, colors: { high: '#ef4444', low: '#06b6d4' } },
+                    { key: 'SHT', value: stats.shooting, colors: { high: '#f97316', low: '#6b7280' } },
+                    { key: 'DEF', value: stats.defense, colors: { high: '#14b8a6', low: '#6b7280' } },
+                  ];
                   
                   return (
-                    <div className="mt-1 bg-black/90 backdrop-blur-sm rounded border border-cyan-500/30 p-1.5 min-w-[80px]">
-                      {/* 体力值 */}
-                      <div className="mb-1">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">STA</span>
-                          <span className={`text-[8px] font-mono font-bold ${stamina >= 70 ? 'text-green-400' : stamina >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {stamina}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${stamina}%`,
-                              background: stamina >= 70 ? 'linear-gradient(90deg, #22c55e, #4ade80)' : stamina >= 40 ? 'linear-gradient(90deg, #eab308, #facc15)' : 'linear-gradient(90deg, #ef4444, #f87171)'
-                            }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* 进攻欲望 */}
-                      <div>
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">ATK</span>
-                          <span className={`text-[8px] font-mono font-bold ${desire.attackDesire >= 70 ? 'text-red-400' : desire.attackDesire >= 40 ? 'text-orange-400' : 'text-cyan-400/70'}`}>
-                            {desire.attackDesire}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${desire.attackDesire}%`,
-                              background: desire.attackDesire >= 70 ? 'linear-gradient(90deg, #f97316, #ef4444)' : desire.attackDesire >= 40 ? 'linear-gradient(90deg, #eab308, #f97316)' : 'linear-gradient(90deg, #06b6d4, #22d3ee)'
-                            }}
-                          />
-                        </div>
+                    <div className="mt-1 bg-black/90 backdrop-blur-sm rounded border border-cyan-500/30 p-1.5 min-w-[90px]">
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                        {statItems.map(({ key, value, colors }) => (
+                          <div key={key} className="flex items-center gap-1">
+                            <span className="text-[6px] text-cyan-400/70 font-mono w-5">{key}</span>
+                            <div className="flex-1 h-1 rounded-full bg-slate-800 overflow-hidden">
+                              <div 
+                                className="h-full rounded-full transition-all"
+                                style={{ 
+                                  width: `${value}%`,
+                                  background: value >= 70 ? colors.high : value >= 40 ? '#eab308' : colors.low
+                                }}
+                              />
+                            </div>
+                            <span className={`text-[7px] font-mono font-bold w-5 text-right ${
+                              value >= 70 ? 'text-white' : value >= 40 ? 'text-white/70' : 'text-white/50'
+                            }`}>
+                              {value}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   );
@@ -1479,49 +1493,41 @@ export default function LiveFootballAnimation({
                   {player.name}
                 </div>
                 
-                {/* 选中时显示体力值和进攻欲望 */}
+                {/* 选中时显示完整属性 */}
                 {isSelected && (() => {
-                  const desire = getPlayerAttackDesire(player.id);
-                  const stamina = 60 + Math.floor(Math.random() * 35);
+                  const stats = getPlayerStats(player.id);
+                  
+                  const statItems = [
+                    { key: 'STA', value: stats.stamina, colors: { high: '#22c55e', low: '#ef4444' } },
+                    { key: 'SPD', value: stats.speed, colors: { high: '#3b82f6', low: '#6b7280' } },
+                    { key: 'PAS', value: stats.passAccuracy, colors: { high: '#8b5cf6', low: '#6b7280' } },
+                    { key: 'ATK', value: stats.attackDesire, colors: { high: '#ef4444', low: '#06b6d4' } },
+                    { key: 'SHT', value: stats.shooting, colors: { high: '#f97316', low: '#6b7280' } },
+                    { key: 'DEF', value: stats.defense, colors: { high: '#14b8a6', low: '#6b7280' } },
+                  ];
                   
                   return (
-                    <div className="mt-1 bg-black/90 backdrop-blur-sm rounded border border-cyan-500/30 p-1.5 min-w-[80px]">
-                      {/* 体力值 */}
-                      <div className="mb-1">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">STA</span>
-                          <span className={`text-[8px] font-mono font-bold ${stamina >= 70 ? 'text-green-400' : stamina >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {stamina}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${stamina}%`,
-                              background: stamina >= 70 ? 'linear-gradient(90deg, #22c55e, #4ade80)' : stamina >= 40 ? 'linear-gradient(90deg, #eab308, #facc15)' : 'linear-gradient(90deg, #ef4444, #f87171)'
-                            }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* 进攻欲望 */}
-                      <div>
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">ATK</span>
-                          <span className={`text-[8px] font-mono font-bold ${desire.attackDesire >= 70 ? 'text-red-400' : desire.attackDesire >= 40 ? 'text-orange-400' : 'text-cyan-400/70'}`}>
-                            {desire.attackDesire}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${desire.attackDesire}%`,
-                              background: desire.attackDesire >= 70 ? 'linear-gradient(90deg, #f97316, #ef4444)' : desire.attackDesire >= 40 ? 'linear-gradient(90deg, #eab308, #f97316)' : 'linear-gradient(90deg, #06b6d4, #22d3ee)'
-                            }}
-                          />
-                        </div>
+                    <div className="mt-1 bg-black/90 backdrop-blur-sm rounded border border-cyan-500/30 p-1.5 min-w-[90px]">
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                        {statItems.map(({ key, value, colors }) => (
+                          <div key={key} className="flex items-center gap-1">
+                            <span className="text-[6px] text-cyan-400/70 font-mono w-5">{key}</span>
+                            <div className="flex-1 h-1 rounded-full bg-slate-800 overflow-hidden">
+                              <div 
+                                className="h-full rounded-full transition-all"
+                                style={{ 
+                                  width: `${value}%`,
+                                  background: value >= 70 ? colors.high : value >= 40 ? '#eab308' : colors.low
+                                }}
+                              />
+                            </div>
+                            <span className={`text-[7px] font-mono font-bold w-5 text-right ${
+                              value >= 70 ? 'text-white' : value >= 40 ? 'text-white/70' : 'text-white/50'
+                            }`}>
+                              {value}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   );
