@@ -1122,6 +1122,35 @@ const PlayerLeaderboardTable = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-success/10 via-transparent to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-warning/15 via-transparent to-transparent" />
         
+        {/* 金币掉落动画 */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(12)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-2xl sm:text-3xl"
+              initial={{ 
+                x: `${Math.random() * 100}%`, 
+                y: -30,
+                rotate: 0,
+                opacity: 0.8
+              }}
+              animate={{ 
+                y: '120%',
+                rotate: 360,
+                opacity: [0.8, 1, 0.8, 0]
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: i * 0.5,
+                ease: 'linear'
+              }}
+            >
+              🪙
+            </motion.div>
+          ))}
+        </div>
+        
         <CardContent className="p-5 sm:p-6 relative">
           <div className="flex flex-col items-center gap-4 sm:gap-5">
             {/* 主标题区域 - 视觉冲击 */}
