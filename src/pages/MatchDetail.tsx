@@ -1,11 +1,36 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot } from "lucide-react";
+import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// 球员数据
+interface Player {
+  id: string;
+  number: number;
+  name: string;
+  rating: number;
+  position: string;
+  isCaptain?: boolean;
+  isSubstituted?: boolean;
+  substitutedMinute?: number;
+  hasGoal?: boolean;
+  avatar?: string;
+}
+
+// 阵容数据
+interface LineupData {
+  formation: string;
+  totalValue: string;
+  averageAge: number;
+  coach: string;
+  startingXI: Player[];
+  substitutes: Player[];
+}
 
 // 虚拟比赛详情数据
 interface MatchEvent {
@@ -24,6 +49,13 @@ interface MatchDetailInfo {
   time: string;
   status: 'live' | 'finished' | 'upcoming';
   minute?: string;
+  venue?: {
+    name: string;
+    weather: string;
+    temperature: number;
+    humidity: number;
+    referee: string;
+  };
   homeTeam: {
     name: string;
     shortName: string;
@@ -34,6 +66,7 @@ interface MatchDetailInfo {
     extraTimeScore?: number;
     yellowCards: number;
     redCards: number;
+    lineup?: LineupData;
   };
   awayTeam: {
     name: string;
@@ -45,6 +78,7 @@ interface MatchDetailInfo {
     extraTimeScore?: number;
     yellowCards: number;
     redCards: number;
+    lineup?: LineupData;
   };
   stats: {
     homeAttacks: number;
@@ -83,6 +117,13 @@ const virtualMatchDetails: Record<string, MatchDetailInfo> = {
     time: '01:30',
     status: 'live',
     minute: '加时',
+    venue: {
+      name: '卢赛尔体育场',
+      weather: '局部有云',
+      temperature: 23,
+      humidity: 67,
+      referee: '奥马尔'
+    },
     homeTeam: {
       name: '巴勒斯坦',
       shortName: '巴勒斯坦',
@@ -92,7 +133,31 @@ const virtualMatchDetails: Record<string, MatchDetailInfo> = {
       halfTimeScore: 0,
       extraTimeScore: 1,
       yellowCards: 4,
-      redCards: 0
+      redCards: 0,
+      lineup: {
+        formation: '4-4-2',
+        totalValue: '297.5万欧',
+        averageAge: 28.3,
+        coach: '贾扎尔',
+        startingXI: [
+          { id: '1', number: 22, name: '拉米', rating: 5.9, position: 'GK', avatar: '/avatars/avatar-1.png' },
+          { id: '2', number: 7, name: '巴塔特', rating: 6.5, position: 'LB', isCaptain: true, avatar: '/avatars/avatar-2.png' },
+          { id: '3', number: 15, name: '泰马尼尼', rating: 6.7, position: 'CB', avatar: '/avatars/avatar-3.png' },
+          { id: '4', number: 3, name: '萨莱赫', rating: 7.2, position: 'CB', avatar: '/avatars/avatar-4.png' },
+          { id: '5', number: 2, name: '纳布汉', rating: 6.1, position: 'RB', avatar: '/avatars/avatar-5.png' },
+          { id: '6', number: 5, name: '阿米德·萨瓦塔', rating: 6.4, position: 'LM', avatar: '/avatars/avatar-6.png' },
+          { id: '7', number: 20, name: '阿米德', rating: 6.0, position: 'CM', avatar: '/avatars/avatar-7.png' },
+          { id: '8', number: 8, name: 'H.哈姆丹', rating: 6.3, position: 'CM', isSubstituted: true, substitutedMinute: 82, avatar: '/avatars/avatar-8.png' },
+          { id: '9', number: 9, name: '赛亚姆', rating: 6.3, position: 'RM', isSubstituted: true, substitutedMinute: 60, avatar: '/avatars/avatar-9.png' },
+          { id: '10', number: 21, name: 'Z.昆巴尔', rating: 6.2, position: 'CF', avatar: '/avatars/avatar-1.png' },
+          { id: '11', number: 11, name: '达巴赫', rating: 7.6, position: 'CF', hasGoal: true, avatar: '/avatars/avatar-2.png' }
+        ],
+        substitutes: [
+          { id: '12', number: 1, name: '艾哈迈德', rating: 0, position: 'GK', avatar: '/avatars/avatar-3.png' },
+          { id: '13', number: 14, name: '穆萨', rating: 6.1, position: 'MF', avatar: '/avatars/avatar-4.png' },
+          { id: '14', number: 16, name: '阿卜杜拉', rating: 0, position: 'DF', avatar: '/avatars/avatar-5.png' }
+        ]
+      }
     },
     awayTeam: {
       name: '沙特阿拉伯',
@@ -103,7 +168,31 @@ const virtualMatchDetails: Record<string, MatchDetailInfo> = {
       halfTimeScore: 0,
       extraTimeScore: 1,
       yellowCards: 3,
-      redCards: 0
+      redCards: 0,
+      lineup: {
+        formation: '4-3-3',
+        totalValue: '1370万欧',
+        averageAge: 27,
+        coach: '曼奇尼',
+        startingXI: [
+          { id: '1', number: 1, name: '阿尔奥瓦伊斯', rating: 6.8, position: 'GK', avatar: '/avatars/avatar-6.png' },
+          { id: '2', number: 13, name: '阿尔布莱克', rating: 6.4, position: 'LB', avatar: '/avatars/avatar-7.png' },
+          { id: '3', number: 4, name: '阿尔阿姆里', rating: 6.6, position: 'CB', avatar: '/avatars/avatar-8.png' },
+          { id: '4', number: 5, name: '阿尔塔姆比蒂', rating: 6.5, position: 'CB', avatar: '/avatars/avatar-9.png' },
+          { id: '5', number: 2, name: '阿尔甘纳姆', rating: 6.3, position: 'RB', avatar: '/avatars/avatar-1.png' },
+          { id: '6', number: 7, name: '萨尔曼', rating: 7.0, position: 'LW', isCaptain: true, avatar: '/avatars/avatar-2.png' },
+          { id: '7', number: 8, name: '阿尔道萨里', rating: 6.8, position: 'CM', avatar: '/avatars/avatar-3.png' },
+          { id: '8', number: 14, name: '阿尔马尔基', rating: 6.5, position: 'CM', avatar: '/avatars/avatar-4.png' },
+          { id: '9', number: 17, name: '阿尔哈桑', rating: 6.2, position: 'RW', avatar: '/avatars/avatar-5.png' },
+          { id: '10', number: 9, name: '阿尔布雷坎', rating: 7.2, position: 'CF', hasGoal: true, avatar: '/avatars/avatar-6.png' },
+          { id: '11', number: 11, name: '阿西里', rating: 6.6, position: 'CF', avatar: '/avatars/avatar-7.png' }
+        ],
+        substitutes: [
+          { id: '12', number: 21, name: '阿尔亚米', rating: 0, position: 'GK', avatar: '/avatars/avatar-8.png' },
+          { id: '13', number: 15, name: '阿尔纳吉', rating: 6.0, position: 'MF', avatar: '/avatars/avatar-9.png' },
+          { id: '14', number: 19, name: '阿尔哈姆丹', rating: 0, position: 'FW', avatar: '/avatars/avatar-1.png' }
+        ]
+      }
     },
     stats: {
       homeAttacks: 105,
@@ -322,6 +411,57 @@ export default function MatchDetail() {
           </div>
           <span className="text-xs font-medium w-4">{awayValue}</span>
         </div>
+      </div>
+    );
+  };
+
+  // 球员节点组件
+  const PlayerNode = ({ player, isAway = false }: { player: Player; isAway?: boolean }) => {
+    const getRatingColor = (rating: number) => {
+      if (rating >= 7.5) return 'bg-green-500';
+      if (rating >= 6.5) return 'bg-primary';
+      if (rating >= 5.5) return 'bg-yellow-500';
+      return 'bg-muted';
+    };
+
+    return (
+      <div className="flex flex-col items-center w-16">
+        <div className="relative">
+          {/* 球员号码 */}
+          <div className="absolute -top-1 -left-1 w-4 h-4 bg-black/60 rounded-full flex items-center justify-center text-[9px] text-white font-bold z-10">
+            {player.number}
+          </div>
+          {/* 头像 */}
+          <Avatar className="w-10 h-10 border-2 border-white/30">
+            <AvatarImage src={player.avatar} />
+            <AvatarFallback className="text-xs bg-muted">{player.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          {/* 队长标记 */}
+          {player.isCaptain && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-warning rounded-full flex items-center justify-center text-[8px] text-black font-bold">
+              C
+            </div>
+          )}
+          {/* 被换下标记 */}
+          {player.isSubstituted && (
+            <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 bg-destructive/80 rounded px-1 text-[8px] text-white">
+              <ArrowLeft className="w-2 h-2" />
+              {player.substitutedMinute}'
+            </div>
+          )}
+          {/* 进球标记 */}
+          {player.hasGoal && (
+            <div className="absolute -bottom-1 -left-1 text-sm">⚽</div>
+          )}
+        </div>
+        {/* 球员名字 */}
+        <span className="text-[10px] text-white mt-1 text-center truncate w-full">{player.name}</span>
+        {/* 评分 */}
+        {player.rating > 0 && (
+          <span className={`text-[10px] px-1.5 py-0.5 rounded text-white font-medium ${getRatingColor(player.rating)}`}>
+            {player.rating.toFixed(1)}
+          </span>
+        )}
       </div>
     );
   };
@@ -618,11 +758,237 @@ export default function MatchDetail() {
         )}
 
         {activeTab === 'lineup' && (
-          <div className="p-4">
-            <Card className="p-6 bg-muted/20 border-border/50 text-center">
-              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">阵容数据即将上线</p>
+          <div className="p-4 space-y-4">
+            {/* 标题栏 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-foreground">首发阵容</span>
+                <span className="text-xs text-muted-foreground">(点击球员/教练/裁判查看数据)</span>
+              </div>
+              <button className="flex items-center gap-1 text-xs text-primary">
+                生成海报
+                <ExternalLink className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* 天气和场地信息 */}
+            {match.venue && (
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Thermometer className="w-3 h-3" />
+                    <span>{match.venue.temperature}°C {match.venue.weather}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    <span>{match.venue.referee}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Droplets className="w-3 h-3" />
+                    <span>湿度: {match.venue.humidity}%</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    <span>{match.venue.name}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 球场阵容图 */}
+            <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-xl overflow-hidden">
+              {/* 球场纹理 */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 right-0 h-1/2 border-b-2 border-white/30" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-2 border-white/30 rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-16 border-2 border-t-0 border-white/30" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-16 border-2 border-b-0 border-white/30" />
+              </div>
+
+              {/* 主队阵容 */}
+              {match.homeTeam.lineup && (
+                <div className="relative p-4 pb-2">
+                  {/* 队伍标识 */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{match.homeTeam.flag}</span>
+                      <span className="text-white font-medium text-sm">{match.homeTeam.shortName}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-white/70 text-xs">
+                      <Clock className="w-3 h-3" />
+                      <span>{match.homeTeam.lineup.coach}</span>
+                    </div>
+                  </div>
+
+                  {/* 门将 */}
+                  <div className="flex justify-center mb-4">
+                    {match.homeTeam.lineup.startingXI.filter(p => p.position === 'GK').map(player => (
+                      <PlayerNode key={player.id} player={player} />
+                    ))}
+                  </div>
+
+                  {/* 后卫线 */}
+                  <div className="flex justify-around mb-4">
+                    {match.homeTeam.lineup.startingXI.filter(p => ['LB', 'CB', 'RB'].includes(p.position)).map(player => (
+                      <PlayerNode key={player.id} player={player} />
+                    ))}
+                  </div>
+
+                  {/* 中场线 */}
+                  <div className="flex justify-around mb-4">
+                    {match.homeTeam.lineup.startingXI.filter(p => ['LM', 'CM', 'RM', 'LW', 'RW'].includes(p.position)).map(player => (
+                      <PlayerNode key={player.id} player={player} />
+                    ))}
+                  </div>
+
+                  {/* 前锋线 */}
+                  <div className="flex justify-around mb-2">
+                    {match.homeTeam.lineup.startingXI.filter(p => ['CF', 'ST', 'FW'].includes(p.position)).map(player => (
+                      <PlayerNode key={player.id} player={player} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 分隔线 */}
+              <div className="h-px bg-white/30 mx-4" />
+
+              {/* 客队阵容 */}
+              {match.awayTeam.lineup && (
+                <div className="relative p-4 pt-2">
+                  {/* 前锋线 */}
+                  <div className="flex justify-around mb-4 mt-2">
+                    {match.awayTeam.lineup.startingXI.filter(p => ['CF', 'ST', 'FW'].includes(p.position)).map(player => (
+                      <PlayerNode key={player.id} player={player} isAway />
+                    ))}
+                  </div>
+
+                  {/* 中场线 */}
+                  <div className="flex justify-around mb-4">
+                    {match.awayTeam.lineup.startingXI.filter(p => ['LM', 'CM', 'RM', 'LW', 'RW'].includes(p.position)).map(player => (
+                      <PlayerNode key={player.id} player={player} isAway />
+                    ))}
+                  </div>
+
+                  {/* 后卫线 */}
+                  <div className="flex justify-around mb-4">
+                    {match.awayTeam.lineup.startingXI.filter(p => ['LB', 'CB', 'RB'].includes(p.position)).map(player => (
+                      <PlayerNode key={player.id} player={player} isAway />
+                    ))}
+                  </div>
+
+                  {/* 门将 */}
+                  <div className="flex justify-center mb-3">
+                    {match.awayTeam.lineup.startingXI.filter(p => p.position === 'GK').map(player => (
+                      <PlayerNode key={player.id} player={player} isAway />
+                    ))}
+                  </div>
+
+                  {/* 队伍标识 */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{match.awayTeam.flag}</span>
+                      <span className="text-white font-medium text-sm">{match.awayTeam.shortName}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-white/70 text-xs">
+                      <Clock className="w-3 h-3" />
+                      <span>{match.awayTeam.lineup.coach}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 阵型信息 */}
+            <div className="grid grid-cols-2 gap-4">
+              {match.homeTeam.lineup && (
+                <Card className="p-3 bg-muted/20 border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">{match.homeTeam.flag}</span>
+                    <span className="text-sm font-medium">{match.homeTeam.shortName}</span>
+                  </div>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <div>阵型 {match.homeTeam.lineup.formation}</div>
+                    <div>首发身价 {match.homeTeam.lineup.totalValue}</div>
+                    <div>平均 {match.homeTeam.lineup.averageAge}岁</div>
+                  </div>
+                </Card>
+              )}
+              {match.awayTeam.lineup && (
+                <Card className="p-3 bg-muted/20 border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">{match.awayTeam.flag}</span>
+                    <span className="text-sm font-medium">{match.awayTeam.shortName}</span>
+                  </div>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <div>阵型 {match.awayTeam.lineup.formation}</div>
+                    <div>首发身价 {match.awayTeam.lineup.totalValue}</div>
+                    <div>平均 {match.awayTeam.lineup.averageAge}岁</div>
+                  </div>
+                </Card>
+              )}
+            </div>
+
+            {/* 替补席 */}
+            <Card className="p-4 bg-muted/20 border-border/50">
+              <h3 className="text-sm font-medium mb-3">替补席</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {/* 主队替补 */}
+                {match.homeTeam.lineup && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                      <span>{match.homeTeam.flag}</span>
+                      <span>{match.homeTeam.shortName}</span>
+                    </div>
+                    {match.homeTeam.lineup.substitutes.map(player => (
+                      <div key={player.id} className="flex items-center gap-2 text-xs">
+                        <Avatar className="w-6 h-6">
+                          <AvatarImage src={player.avatar} />
+                          <AvatarFallback className="text-[8px] bg-muted">{player.number}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-muted-foreground">{player.number}</span>
+                        <span className="flex-1 truncate">{player.name}</span>
+                        {player.rating > 0 && (
+                          <span className="text-xs text-muted-foreground">{player.rating}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* 客队替补 */}
+                {match.awayTeam.lineup && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                      <span>{match.awayTeam.flag}</span>
+                      <span>{match.awayTeam.shortName}</span>
+                    </div>
+                    {match.awayTeam.lineup.substitutes.map(player => (
+                      <div key={player.id} className="flex items-center gap-2 text-xs">
+                        <Avatar className="w-6 h-6">
+                          <AvatarImage src={player.avatar} />
+                          <AvatarFallback className="text-[8px] bg-muted">{player.number}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-muted-foreground">{player.number}</span>
+                        <span className="flex-1 truncate">{player.name}</span>
+                        {player.rating > 0 && (
+                          <span className="text-xs text-muted-foreground">{player.rating}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </Card>
+
+            {/* 无阵容数据时的提示 */}
+            {!match.homeTeam.lineup && !match.awayTeam.lineup && (
+              <Card className="p-6 bg-muted/20 border-border/50 text-center">
+                <Users className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">暂无阵容数据</p>
+              </Card>
+            )}
           </div>
         )}
 
