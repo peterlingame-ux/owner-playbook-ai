@@ -898,112 +898,183 @@ export default function LiveFootballAnimation({
           </svg>
         )}
 
-        {/* AI传球分析可视化 - 简约风格 */}
+        {/* AI传球分析可视化 - 流畅自然风格 */}
         {selectedPlayer && (
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 5 }}>
             <defs>
-              {/* 渐变定义 */}
-              <linearGradient id="bestLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="rgba(0, 255, 200, 0.1)" />
-                <stop offset="50%" stopColor="rgba(0, 255, 200, 0.9)" />
-                <stop offset="100%" stopColor="rgba(0, 255, 200, 0.1)" />
+              {/* 最佳路线渐变 */}
+              <linearGradient id="bestPathGradient" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="rgba(0, 255, 200, 0.2)" />
+                <stop offset="40%" stopColor="rgba(0, 255, 200, 0.8)" />
+                <stop offset="100%" stopColor="rgba(0, 255, 200, 0.4)" />
               </linearGradient>
-              <linearGradient id="altLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="rgba(100, 150, 180, 0)" />
-                <stop offset="50%" stopColor="rgba(100, 150, 180, 0.4)" />
-                <stop offset="100%" stopColor="rgba(100, 150, 180, 0)" />
+              {/* 次选路线渐变 */}
+              <linearGradient id="altPathGradient" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="rgba(100, 180, 255, 0.1)" />
+                <stop offset="50%" stopColor="rgba(100, 180, 255, 0.35)" />
+                <stop offset="100%" stopColor="rgba(100, 180, 255, 0.15)" />
               </linearGradient>
-              {/* 发光滤镜 */}
-              <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="0.8" result="blur" />
+              {/* 柔和发光 */}
+              <filter id="pathGlow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="0.5" result="blur" />
                 <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              {/* 终点脉冲发光 */}
+              <filter id="pulseGlow" x="-200%" y="-200%" width="500%" height="500%">
+                <feGaussianBlur stdDeviation="1" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
             </defs>
             
-            {/* 只显示最佳路线 + 1条次选 */}
+            {/* 显示最佳路线 + 次选路线 */}
             {getPassingRoutes(selectedPlayer.id, selectedPlayer.team).slice(0, 2).map((route, idx) => {
               const isBest = idx === 0;
               
-              // 计算线条参数
+              // 计算贝塞尔曲线控制点 - 自然弧形
               const dx = route.to.x - route.from.x;
               const dy = route.to.y - route.from.y;
               const len = Math.sqrt(dx * dx + dy * dy);
-              const endX = route.to.x - (dx / len) * 4;
-              const endY = route.to.y - (dy / len) * 4;
               
-              // 概率标签位置 - 靠近终点
-              const labelX = endX - (dx / len) * 8;
-              const labelY = endY - (dy / len) * 8;
+              // 曲线弯曲程度根据距离调整
+              const curveFactor = Math.min(len * 0.15, 8);
+              const perpX = -dy / len * curveFactor;
+              const perpY = dx / len * curveFactor;
+              
+              // 控制点位于中点偏移
+              const midX = (route.from.x + route.to.x) / 2 + perpX;
+              const midY = (route.from.y + route.to.y) / 2 + perpY;
+              
+              // 终点缩短避免覆盖球员
+              const endX = route.to.x - (dx / len) * 3;
+              const endY = route.to.y - (dy / len) * 3;
+              
+              // 曲线路径
+              const curvePath = `M ${route.from.x} ${route.from.y} Q ${midX} ${midY} ${endX} ${endY}`;
+              
+              // 概率标签位置 - 曲线中点
+              const labelX = midX;
+              const labelY = midY;
 
               return (
                 <g key={idx}>
                   {isBest ? (
                     <>
-                      {/* 最佳路线 - 单条清晰线 */}
-                      <line
-                        x1={route.from.x}
-                        y1={route.from.y}
-                        x2={endX}
-                        y2={endY}
-                        stroke="rgba(0, 255, 200, 0.9)"
-                        strokeWidth="0.4"
-                        strokeLinecap="round"
-                        filter="url(#softGlow)"
-                      />
-                      
-                      {/* 流动光点动画 */}
-                      <circle r="0.8" fill="#00ffc8">
-                        <animateMotion
-                          dur="1.2s"
-                          repeatCount="indefinite"
-                          path={`M ${route.from.x} ${route.from.y} L ${endX} ${endY}`}
-                        />
-                        <animate attributeName="opacity" values="0;1;1;0" dur="1.2s" repeatCount="indefinite" />
-                      </circle>
-                      
-                      {/* 终点标记 - 简洁圆环 */}
-                      <circle
-                        cx={route.to.x}
-                        cy={route.to.y}
-                        r="3"
+                      {/* 最佳路线 - 优雅曲线 */}
+                      <path
+                        d={curvePath}
                         fill="none"
-                        stroke="rgba(0, 255, 200, 0.6)"
-                        strokeWidth="0.2"
+                        stroke="url(#bestPathGradient)"
+                        strokeWidth="0.5"
+                        strokeLinecap="round"
+                        filter="url(#pathGlow)"
+                        style={{ opacity: 0.9 }}
+                      />
+                      
+                      {/* 流动光点 - 沿曲线平滑移动 */}
+                      <circle r="0.6" fill="#00ffc8" filter="url(#pulseGlow)">
+                        <animateMotion
+                          dur="1.8s"
+                          repeatCount="indefinite"
+                          path={curvePath}
+                          calcMode="spline"
+                          keySplines="0.4 0 0.2 1"
+                        />
+                        <animate 
+                          attributeName="opacity" 
+                          values="0.3;1;1;0.3" 
+                          dur="1.8s" 
+                          repeatCount="indefinite"
+                          calcMode="spline"
+                          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"
+                        />
+                        <animate 
+                          attributeName="r" 
+                          values="0.4;0.7;0.7;0.4" 
+                          dur="1.8s" 
+                          repeatCount="indefinite" 
+                        />
+                      </circle>
+                      
+                      {/* 第二个光点 - 错开时间 */}
+                      <circle r="0.5" fill="#00ffc8" opacity="0.6">
+                        <animateMotion
+                          dur="1.8s"
+                          repeatCount="indefinite"
+                          path={curvePath}
+                          begin="0.9s"
+                          calcMode="spline"
+                          keySplines="0.4 0 0.2 1"
+                        />
+                        <animate 
+                          attributeName="opacity" 
+                          values="0;0.6;0.6;0" 
+                          dur="1.8s" 
+                          repeatCount="indefinite"
+                          begin="0.9s"
+                        />
+                      </circle>
+                      
+                      {/* 终点标记 - 优雅脉冲环 */}
+                      <circle
+                        cx={route.to.x}
+                        cy={route.to.y}
+                        r="2.5"
+                        fill="none"
+                        stroke="rgba(0, 255, 200, 0.4)"
+                        strokeWidth="0.15"
                       >
-                        <animate attributeName="r" values="3;4;3" dur="1.5s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0.6;0.3;0.6" dur="1.5s" repeatCount="indefinite" />
+                        <animate 
+                          attributeName="r" 
+                          values="2.5;4;2.5" 
+                          dur="2s" 
+                          repeatCount="indefinite"
+                          calcMode="spline"
+                          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+                        />
+                        <animate 
+                          attributeName="opacity" 
+                          values="0.5;0.15;0.5" 
+                          dur="2s" 
+                          repeatCount="indefinite"
+                          calcMode="spline"
+                          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+                        />
                       </circle>
                       <circle
                         cx={route.to.x}
                         cy={route.to.y}
-                        r="1.5"
-                        fill="rgba(0, 255, 200, 0.3)"
-                        stroke="rgba(0, 255, 200, 0.8)"
-                        strokeWidth="0.15"
+                        r="1.2"
+                        fill="rgba(0, 255, 200, 0.25)"
+                        stroke="rgba(0, 255, 200, 0.7)"
+                        strokeWidth="0.12"
                       />
                       
-                      {/* 概率标签 - 简洁样式 */}
-                      <g transform={`translate(${labelX}, ${labelY})`}>
+                      {/* 概率标签 - 简约浮动 */}
+                      <g transform={`translate(${labelX}, ${labelY - 3})`}>
                         <rect
-                          x="-5"
-                          y="-3"
-                          width="10"
-                          height="6"
-                          rx="1"
-                          fill="rgba(0, 20, 30, 0.9)"
-                          stroke="rgba(0, 255, 200, 0.5)"
-                          strokeWidth="0.15"
+                          x="-4.5"
+                          y="-2.5"
+                          width="9"
+                          height="5"
+                          rx="1.5"
+                          fill="rgba(0, 30, 40, 0.85)"
+                          stroke="rgba(0, 255, 200, 0.4)"
+                          strokeWidth="0.1"
                         />
                         <text
                           x="0"
-                          y="1.2"
+                          y="1"
                           textAnchor="middle"
                           fill="#00ffc8"
-                          fontSize="3.5"
-                          fontWeight="bold"
+                          fontSize="3"
+                          fontWeight="600"
                           fontFamily="monospace"
                         >
                           {route.probability}%
@@ -1012,38 +1083,44 @@ export default function LiveFootballAnimation({
                     </>
                   ) : (
                     <>
-                      {/* 次选路线 - 虚线 */}
-                      <line
-                        x1={route.from.x}
-                        y1={route.from.y}
-                        x2={endX}
-                        y2={endY}
-                        stroke="rgba(100, 150, 180, 0.4)"
-                        strokeWidth="0.25"
+                      {/* 次选路线 - 柔和虚线曲线 */}
+                      <path
+                        d={curvePath}
+                        fill="none"
+                        stroke="url(#altPathGradient)"
+                        strokeWidth="0.3"
                         strokeLinecap="round"
-                        strokeDasharray="1.5 1"
-                      />
+                        strokeDasharray="2 1.5"
+                        style={{ opacity: 0.7 }}
+                      >
+                        <animate 
+                          attributeName="stroke-dashoffset" 
+                          values="0;-7" 
+                          dur="2s" 
+                          repeatCount="indefinite" 
+                        />
+                      </path>
                       
-                      {/* 终点小圆点 */}
+                      {/* 终点小标记 */}
                       <circle
                         cx={route.to.x}
                         cy={route.to.y}
-                        r="1.2"
-                        fill="none"
-                        stroke="rgba(100, 150, 180, 0.5)"
-                        strokeWidth="0.15"
+                        r="1"
+                        fill="rgba(100, 180, 255, 0.2)"
+                        stroke="rgba(100, 180, 255, 0.5)"
+                        strokeWidth="0.1"
                       />
                       
-                      {/* 简化概率显示 */}
+                      {/* 简洁概率 */}
                       <text
                         x={labelX}
-                        y={labelY}
+                        y={labelY - 2}
                         textAnchor="middle"
-                        fill="rgba(150, 180, 200, 0.7)"
-                        fontSize="2.5"
+                        fill="rgba(150, 200, 255, 0.6)"
+                        fontSize="2.2"
                         fontFamily="monospace"
                       >
-                        {route.probability}
+                        {route.probability}%
                       </text>
                     </>
                   )}
