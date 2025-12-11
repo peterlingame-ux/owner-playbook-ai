@@ -17,6 +17,7 @@ import grassTexture from "@/assets/grass-texture.jpg";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
 import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
+import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1067,8 +1068,22 @@ const PlayerLeaderboardTable = () => {
             <div className="w-full max-w-3xl mx-auto space-y-2">
               {/* AI数据 */}
               <div className="bg-muted/30 rounded-lg px-4 py-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">AI基准 (HUNSOCCER MAX)</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Avatar className="w-10 h-10 border-2 border-warning/50">
+                        <AvatarImage src={hunsoccerAiIcon} />
+                        <AvatarFallback>AI</AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-warning flex items-center justify-center text-[10px] font-bold text-warning-foreground">
+                        #1
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">HUNSOCCER MAX</p>
+                      <p className="text-xs text-muted-foreground">AI基准</p>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-4 sm:gap-6 text-sm">
                     <span className="text-muted-foreground">预测场次：<span className="font-bold text-foreground">247场</span></span>
                     <span className="text-muted-foreground">预测胜率：<span className="font-bold text-foreground">78.95%</span></span>
