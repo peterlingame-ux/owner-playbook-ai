@@ -1,288 +1,667 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, User } from "lucide-react";
-import { MatchDetailData } from "@/types/footballApi";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// 虚拟比赛详情数据
+interface MatchEvent {
+  minute: string;
+  type: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle';
+  team: 'home' | 'away';
+  description: string;
+  player?: string;
+}
+
+interface MatchDetailInfo {
+  id: string;
+  league: string;
+  leagueStage: string;
+  date: string;
+  time: string;
+  status: 'live' | 'finished' | 'upcoming';
+  minute?: string;
+  homeTeam: {
+    name: string;
+    shortName: string;
+    fifaRank: number;
+    flag: string;
+    score: number;
+    halfTimeScore: number;
+    extraTimeScore?: number;
+    yellowCards: number;
+    redCards: number;
+  };
+  awayTeam: {
+    name: string;
+    shortName: string;
+    fifaRank: number;
+    flag: string;
+    score: number;
+    halfTimeScore: number;
+    extraTimeScore?: number;
+    yellowCards: number;
+    redCards: number;
+  };
+  stats: {
+    homeAttacks: number;
+    awayAttacks: number;
+    homeDangerousAttacks: number;
+    awayDangerousAttacks: number;
+    homePossession: number;
+    awayPossession: number;
+    homeShotsOnTarget: number;
+    awayShotsOnTarget: number;
+    homeShotsOffTarget: number;
+    awayShotsOffTarget: number;
+    homeCorners: number;
+    awayCorners: number;
+  };
+  events: MatchEvent[];
+  supportRate: {
+    home: number;
+    away: number;
+  };
+  timeline: Array<{
+    minute: number;
+    homeIntensity: number;
+    awayIntensity: number;
+    event?: 'goal' | 'yellow' | 'red';
+    team?: 'home' | 'away';
+  }>;
+}
+
+const virtualMatchDetails: Record<string, MatchDetailInfo> = {
+  '1': {
+    id: '1',
+    league: '阿拉伯杯',
+    leagueStage: '1/4决赛',
+    date: '2025/12/12',
+    time: '01:30',
+    status: 'live',
+    minute: '加时',
+    homeTeam: {
+      name: '巴勒斯坦',
+      shortName: '巴勒斯坦',
+      fifaRank: 98,
+      flag: '🇵🇸',
+      score: 1,
+      halfTimeScore: 0,
+      extraTimeScore: 1,
+      yellowCards: 4,
+      redCards: 0
+    },
+    awayTeam: {
+      name: '沙特阿拉伯',
+      shortName: '沙特阿拉伯',
+      fifaRank: 58,
+      flag: '🇸🇦',
+      score: 1,
+      halfTimeScore: 0,
+      extraTimeScore: 1,
+      yellowCards: 3,
+      redCards: 0
+    },
+    stats: {
+      homeAttacks: 105,
+      awayAttacks: 174,
+      homeDangerousAttacks: 50,
+      awayDangerousAttacks: 74,
+      homePossession: 38,
+      awayPossession: 62,
+      homeShotsOnTarget: 2,
+      awayShotsOnTarget: 4,
+      homeShotsOffTarget: 3,
+      awayShotsOffTarget: 3,
+      homeCorners: 2,
+      awayCorners: 3
+    },
+    events: [
+      { minute: '90\'', type: 'whistle', team: 'home', description: '随着裁判一声哨响，下半场结束，目前比分1-1' },
+      { minute: '90+4\'', type: 'yellow_card', team: 'home', description: '第4张黄牌 - (巴勒斯坦)', player: '犯规' },
+      { minute: '88\'', type: 'yellow_card', team: 'away', description: '第3张黄牌 - (沙特阿拉伯)', player: '犯规' },
+      { minute: '75\'', type: 'goal', team: 'away', description: '沙特阿拉伯进球！' },
+      { minute: '65\'', type: 'goal', team: 'home', description: '巴勒斯坦进球！' },
+    ],
+    supportRate: { home: 46, away: 54 },
+    timeline: [
+      { minute: 15, homeIntensity: 30, awayIntensity: 45 },
+      { minute: 30, homeIntensity: 40, awayIntensity: 55 },
+      { minute: 45, homeIntensity: 35, awayIntensity: 50 },
+      { minute: 60, homeIntensity: 60, awayIntensity: 40, event: 'goal', team: 'home' },
+      { minute: 75, homeIntensity: 45, awayIntensity: 70, event: 'goal', team: 'away' },
+      { minute: 90, homeIntensity: 50, awayIntensity: 55, event: 'yellow', team: 'home' },
+    ]
+  },
+  '2': {
+    id: '2',
+    league: '欧联',
+    leagueStage: '小组赛',
+    date: '2025/12/12',
+    time: '01:45',
+    status: 'live',
+    minute: '84\'',
+    homeTeam: {
+      name: '卢多格雷茨',
+      shortName: '卢多格雷茨',
+      fifaRank: 0,
+      flag: '🇧🇬',
+      score: 3,
+      halfTimeScore: 1,
+      yellowCards: 3,
+      redCards: 0
+    },
+    awayTeam: {
+      name: '塞萨洛尼基',
+      shortName: '塞萨洛尼基',
+      fifaRank: 0,
+      flag: '🇬🇷',
+      score: 2,
+      halfTimeScore: 1,
+      yellowCards: 1,
+      redCards: 0
+    },
+    stats: {
+      homeAttacks: 88,
+      awayAttacks: 92,
+      homeDangerousAttacks: 45,
+      awayDangerousAttacks: 48,
+      homePossession: 48,
+      awayPossession: 52,
+      homeShotsOnTarget: 5,
+      awayShotsOnTarget: 3,
+      homeShotsOffTarget: 4,
+      awayShotsOffTarget: 5,
+      homeCorners: 5,
+      awayCorners: 4
+    },
+    events: [
+      { minute: '80\'', type: 'goal', team: 'home', description: '卢多格雷茨进球！比分变为3-2' },
+      { minute: '72\'', type: 'yellow_card', team: 'home', description: '黄牌警告' },
+      { minute: '65\'', type: 'goal', team: 'away', description: '塞萨洛尼基进球！' },
+    ],
+    supportRate: { home: 52, away: 48 },
+    timeline: [
+      { minute: 15, homeIntensity: 40, awayIntensity: 45 },
+      { minute: 30, homeIntensity: 55, awayIntensity: 50 },
+      { minute: 45, homeIntensity: 50, awayIntensity: 55, event: 'goal', team: 'home' },
+      { minute: 60, homeIntensity: 45, awayIntensity: 60 },
+      { minute: 75, homeIntensity: 65, awayIntensity: 50, event: 'goal', team: 'home' },
+      { minute: 90, homeIntensity: 50, awayIntensity: 55 },
+    ]
+  }
+};
+
+// 生成默认比赛详情
+const generateDefaultMatch = (id: string): MatchDetailInfo => ({
+  id,
+  league: '友谊赛',
+  leagueStage: '',
+  date: '2025/12/12',
+  time: '20:00',
+  status: 'upcoming',
+  homeTeam: {
+    name: '主队',
+    shortName: '主队',
+    fifaRank: 50,
+    flag: '🏳️',
+    score: 0,
+    halfTimeScore: 0,
+    yellowCards: 0,
+    redCards: 0
+  },
+  awayTeam: {
+    name: '客队',
+    shortName: '客队',
+    fifaRank: 60,
+    flag: '🏴',
+    score: 0,
+    halfTimeScore: 0,
+    yellowCards: 0,
+    redCards: 0
+  },
+  stats: {
+    homeAttacks: 0,
+    awayAttacks: 0,
+    homeDangerousAttacks: 0,
+    awayDangerousAttacks: 0,
+    homePossession: 50,
+    awayPossession: 50,
+    homeShotsOnTarget: 0,
+    awayShotsOnTarget: 0,
+    homeShotsOffTarget: 0,
+    awayShotsOffTarget: 0,
+    homeCorners: 0,
+    awayCorners: 0
+  },
+  events: [],
+  supportRate: { home: 50, away: 50 },
+  timeline: []
+});
+
+type TabType = 'live' | 'chat' | 'lineup' | 'odds' | 'expert' | 'hot';
+
 export default function MatchDetail() {
   const { matchId } = useParams();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const [loading, setLoading] = useState(true);
-  const [matchData, setMatchData] = useState<MatchDetailData | null>(null);
   const isMobile = useIsMobile();
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
+  const [activeTab, setActiveTab] = useState<TabType>('live');
+  const [match, setMatch] = useState<MatchDetailInfo | null>(null);
 
   useEffect(() => {
     if (matchId) {
-      fetchMatchDetail();
+      const matchData = virtualMatchDetails[matchId] || generateDefaultMatch(matchId);
+      setMatch(matchData);
     }
   }, [matchId]);
 
-  const fetchMatchDetail = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('football-match-detail', {
-        body: { fixtureId: matchId }
-      });
-
-      if (error) throw error;
-      setMatchData(data);
-    } catch (error) {
-      console.error('Error fetching match details:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(i18n.language, { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric' 
-    }) + ' • ' + date.toLocaleTimeString(i18n.language, { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
-
-  const getStatValue = (value: any): number => {
-    if (value === null || value === undefined) return 0;
-    if (typeof value === 'string') {
-      const parsed = parseInt(value.replace('%', ''));
-      return isNaN(parsed) ? 0 : parsed;
-    }
-    return typeof value === 'number' ? value : 0;
-  };
-
-  const renderStatBar = (homeStat: any, awayStat: any, label: string) => {
-    const homeVal = getStatValue(homeStat);
-    const awayVal = getStatValue(awayStat);
-    const total = homeVal + awayVal || 1;
-    const homePercent = (homeVal / total) * 100;
-    
+  if (!match) {
     return (
-      <div className="space-y-1.5 sm:space-y-2">
-        <div className="flex justify-between items-center text-xs sm:text-sm">
-          <span className="font-semibold min-w-[30px] sm:min-w-[40px] text-left">{homeVal}</span>
-          <span className="text-muted-foreground text-[10px] sm:text-xs text-center px-2">{label}</span>
-          <span className="font-semibold min-w-[30px] sm:min-w-[40px] text-right">{awayVal}</span>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">加载中...</p>
+      </div>
+    );
+  }
+
+  const CircularProgress = ({ homeValue, awayValue, label }: { homeValue: number; awayValue: number; label: string }) => {
+    const total = homeValue + awayValue || 1;
+    const awayPercent = (awayValue / total) * 100;
+    const strokeDasharray = 2 * Math.PI * 28;
+    const strokeDashoffset = strokeDasharray * (1 - awayPercent / 100);
+
+    return (
+      <div className="flex flex-col items-center">
+        <div className="relative w-16 h-16">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
+            <circle 
+              cx="32" cy="32" r="28" 
+              fill="none" 
+              stroke="hsl(var(--warning))" 
+              strokeWidth="4"
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+            />
+          </svg>
         </div>
-        <div className="flex gap-0.5 sm:gap-1 h-1.5 sm:h-2">
-          <div 
-            className="bg-cyan-500 rounded-l" 
-            style={{ width: `${homePercent}%` }}
-          />
-          <div 
-            className="bg-amber-500 rounded-r" 
-            style={{ width: `${100 - homePercent}%` }}
-          />
+        <span className="text-[10px] text-muted-foreground mt-1">{label}</span>
+        <div className="flex items-center gap-2 text-xs mt-0.5">
+          <span className="text-foreground font-medium">{homeValue}</span>
+          <span className="text-foreground font-medium">{awayValue}</span>
         </div>
       </div>
     );
   };
 
-  if (loading) {
+  const StatBar = ({ homeValue, awayValue, label, reverse = false }: { homeValue: number; awayValue: number; label: string; reverse?: boolean }) => {
+    const max = Math.max(homeValue, awayValue, 1);
+    const homeWidth = (homeValue / max) * 100;
+    const awayWidth = (awayValue / max) * 100;
+
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">{t('loading')}</p>
-          </Card>
-        </main>
+      <div className="space-y-1">
+        <div className="text-center text-xs text-muted-foreground">{label}</div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium w-4 text-right">{homeValue}</span>
+          <div className="flex-1 h-2 bg-muted/30 rounded-full overflow-hidden flex flex-row-reverse">
+            <div 
+              className={`h-full ${reverse ? 'bg-warning' : 'bg-destructive'} transition-all`}
+              style={{ width: `${homeWidth}%` }}
+            />
+          </div>
+          <div className="flex-1 h-2 bg-muted/30 rounded-full overflow-hidden">
+            <div 
+              className={`h-full ${reverse ? 'bg-warning' : 'bg-warning'} transition-all`}
+              style={{ width: `${awayWidth}%` }}
+            />
+          </div>
+          <span className="text-xs font-medium w-4">{awayValue}</span>
+        </div>
       </div>
     );
-  }
-
-  if (!matchData?.fixture) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">Match not found</p>
-            <Button onClick={() => navigate('/models')} className="mt-4">
-              Back to Schedule
-            </Button>
-          </Card>
-        </main>
-      </div>
-    );
-  }
-
-  const { fixture, statistics, lineups, players } = matchData;
-  const homeStats = statistics?.find(s => s.team.id === fixture.teams.home.id);
-  const awayStats = statistics?.find(s => s.team.id === fixture.teams.away.id);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
-      <Header />
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/models')}
-          className="mb-3 sm:mb-4 text-xs sm:text-sm h-8 sm:h-10"
-        >
-          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-          <span className="hidden xs:inline">Back</span>
-        </Button>
+      
+      {/* 顶部区域 - 足球场背景 */}
+      <div className="relative bg-gradient-to-b from-green-900/90 to-green-800/80 overflow-hidden">
+        {/* 背景纹理 */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center" />
+        </div>
 
-        <Card className="overflow-hidden">
-          {/* Match Header */}
-          <div className="bg-gradient-to-b from-primary/10 to-background p-3 sm:p-6 border-b border-border">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-3 sm:mb-4 text-[10px] sm:text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                {fixture.league.flag && (
-                  <img src={fixture.league.flag} alt="" className="h-3 w-5 sm:h-4 sm:w-6 object-cover" />
+        {/* 头部导航 */}
+        <div className="relative z-10 flex items-center justify-between px-4 py-3 safe-area-padding-top">
+          <button onClick={() => navigate('/models')} className="text-white">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div className="text-center">
+            <div className="text-white font-medium">{match.league} {match.leagueStage}</div>
+            <div className="text-white/70 text-sm">{match.date} {match.time}</div>
+          </div>
+          <div className="w-6" />
+        </div>
+
+        {/* 比分区域 */}
+        <div className="relative z-10 px-4 py-6">
+          {/* 比赛状态标签 */}
+          {match.minute && (
+            <div className="flex justify-center mb-4">
+              <span className="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-white text-sm font-medium">
+                {match.minute}
+              </span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-center gap-4">
+            {/* 主队 */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="text-5xl mb-2">{match.homeTeam.flag}</div>
+              <div className="text-white font-medium text-center">{match.homeTeam.name}</div>
+              <div className="text-white/60 text-sm">[FIFA {match.homeTeam.fifaRank}]</div>
+            </div>
+
+            {/* 比分 */}
+            <div className="text-center">
+              <div className="text-white text-5xl font-bold">
+                {match.homeTeam.score} - {match.awayTeam.score}
+              </div>
+              <div className="text-white/70 text-sm mt-1">
+                半场 {match.homeTeam.halfTimeScore}-{match.awayTeam.halfTimeScore}
+                {match.homeTeam.extraTimeScore !== undefined && (
+                  <span className="ml-2">加时 {match.homeTeam.extraTimeScore}-{match.awayTeam.extraTimeScore}</span>
                 )}
-                <span className="text-center">{fixture.league.country}: {fixture.league.name}</span>
-              </div>
-              <span className="hidden sm:inline sm:ml-4">{fixture.league.round}</span>
-            </div>
-
-            <div className="flex items-center justify-center gap-3 sm:gap-8 mb-3 sm:mb-4">
-              {/* Home Team */}
-              <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 max-w-[100px] sm:max-w-[200px]">
-                <img src={fixture.teams.home.logo} alt="" className="h-12 w-12 sm:h-24 sm:w-24 object-contain" />
-                <h2 className="text-xs sm:text-xl font-bold text-center line-clamp-2">{fixture.teams.home.name}</h2>
-              </div>
-
-              {/* Score */}
-              <div className="text-center flex-shrink-0">
-                <div className="text-[9px] sm:text-sm text-muted-foreground mb-1 sm:mb-2 whitespace-nowrap px-2">
-                  {formatDate(fixture.fixture.date)}
-                </div>
-                <div className="text-3xl sm:text-5xl font-bold mb-1 sm:mb-2">
-                  {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
-                </div>
-                <Badge className="bg-green-500/20 text-green-500 border-green-500/50 text-[9px] sm:text-xs px-1.5 sm:px-2.5">
-                  {fixture.fixture.status.long}
-                </Badge>
-              </div>
-
-              {/* Away Team */}
-              <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 max-w-[100px] sm:max-w-[200px]">
-                <img src={fixture.teams.away.logo} alt="" className="h-12 w-12 sm:h-24 sm:w-24 object-contain" />
-                <h2 className="text-xs sm:text-xl font-bold text-center line-clamp-2">{fixture.teams.away.name}</h2>
               </div>
             </div>
 
-            {/* Venue Info */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-sm text-muted-foreground">
-              {fixture.fixture.referee && (
-                <div className="flex items-center gap-1">
-                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="truncate max-w-[150px] sm:max-w-none">{fixture.fixture.referee}</span>
-                </div>
-              )}
-              {fixture.fixture.venue.name && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="truncate max-w-[150px] sm:max-w-none">{fixture.fixture.venue.name}</span>
-                </div>
-              )}
+            {/* 客队 */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="text-5xl mb-2">{match.awayTeam.flag}</div>
+              <div className="text-white font-medium text-center">{match.awayTeam.name}</div>
+              <div className="text-white/60 text-sm">[FIFA {match.awayTeam.fifaRank}]</div>
             </div>
           </div>
 
-          {/* Tabs */}
-          <Tabs defaultValue="statistics" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0 overflow-x-auto flex-nowrap">
-              <TabsTrigger 
-                value="events" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
-              >
-                <span className="hidden sm:inline">EVENTS</span>
-                <span className="sm:hidden">事件</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="statistics"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
-              >
-                <span className="hidden sm:inline">STATISTICS</span>
-                <span className="sm:hidden">统计</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="lineups"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
-              >
-                <span className="hidden sm:inline">LINEUPS</span>
-                <span className="sm:hidden">阵容</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="players"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent text-[10px] sm:text-sm px-2 sm:px-4 whitespace-nowrap"
-              >
-                <span className="hidden sm:inline">PLAYERS</span>
-                <span className="sm:hidden">球员</span>
-              </TabsTrigger>
-            </TabsList>
+          {/* 视频按钮 */}
+          <div className="flex justify-center gap-3 mt-6">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full text-white text-sm">
+              <Play className="w-4 h-4 fill-white" />
+              <span>视频直播</span>
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full text-white text-sm">
+              <CircleDot className="w-4 h-4" />
+              <span>动画直播</span>
+            </button>
+          </div>
 
-            <TabsContent value="events" className="p-3 sm:p-6">
-              <p className="text-center text-muted-foreground text-xs sm:text-sm">Events data coming soon</p>
-            </TabsContent>
+          {/* 支持率 */}
+          <div className="flex items-center justify-between mt-6 px-2">
+            <div className="flex items-center gap-2">
+              <ThumbsUp className="w-4 h-4 text-green-400" />
+              <span className="text-white text-sm">{match.supportRate.home}%</span>
+            </div>
+            <div className="flex-1 mx-4 h-1.5 bg-white/20 rounded-full overflow-hidden flex">
+              <div 
+                className="h-full bg-green-400" 
+                style={{ width: `${match.supportRate.home}%` }}
+              />
+              <div 
+                className="h-full bg-blue-400" 
+                style={{ width: `${match.supportRate.away}%` }}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm">{match.supportRate.away}%</span>
+              <ThumbsDown className="w-4 h-4 text-blue-400" />
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <TabsContent value="statistics" className="p-3 sm:p-6">
-              {homeStats && awayStats ? (
-                <div className="max-w-3xl mx-auto space-y-3 sm:space-y-4">
-                  {homeStats.statistics.map((stat, index) => {
-                    const awayStat = awayStats.statistics[index];
-                    return (
-                      <div key={index}>
-                        {renderStatBar(stat.value, awayStat?.value, stat.type)}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground text-xs sm:text-sm">No statistics available</p>
+      {/* 标签导航 */}
+      <div className="sticky top-0 z-20 bg-card border-b border-border">
+        <div className="flex items-center overflow-x-auto">
+          {[
+            { id: 'live' as const, label: '直播', icon: null },
+            { id: 'chat' as const, label: '聊天', icon: MessageCircle },
+            { id: 'lineup' as const, label: '阵容', icon: Users },
+            { id: 'odds' as const, label: '指数', icon: BarChart2 },
+            { id: 'expert' as const, label: '专家', icon: UserCheck },
+            { id: 'hot' as const, label: '热议', icon: Flame },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                activeTab === tab.id ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
               )}
-            </TabsContent>
+            </button>
+          ))}
+        </div>
+      </div>
 
-            <TabsContent value="lineups" className="p-3 sm:p-6">
-              {lineups && lineups.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
-                  {lineups.map((lineup) => (
-                    <div key={lineup.team.id} className="bg-muted/30 rounded-lg p-3 sm:p-4">
-                      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                        <img src={lineup.team.logo} alt="" className="h-6 w-6 sm:h-8 sm:w-8 object-contain" />
-                        <h3 className="font-bold text-sm sm:text-base truncate flex-1">{lineup.team.name}</h3>
-                        <Badge variant="outline" className="text-[10px] sm:text-xs">{lineup.formation}</Badge>
+      {/* 内容区域 */}
+      <div className="bg-card">
+        {activeTab === 'live' && (
+          <div className="p-4 space-y-6">
+            {/* 时间轴 */}
+            <Card className="p-4 bg-muted/20 border-border/50">
+              <div className="flex items-center justify-between mb-3 text-[10px] text-muted-foreground">
+                <span>15'</span>
+                <span>30'</span>
+                <span>HT</span>
+                <span>60'</span>
+                <span>75'</span>
+                <span>90'</span>
+              </div>
+              <div className="relative h-16">
+                {/* 主队时间轴 */}
+                <div className="absolute top-0 left-0 right-0 h-6 flex items-end gap-0.5 px-1">
+                  {match.timeline.map((point, i) => (
+                    <div 
+                      key={i}
+                      className="flex-1 bg-warning/60 rounded-t"
+                      style={{ height: `${point.homeIntensity}%` }}
+                    />
+                  ))}
+                </div>
+                {/* 中线 */}
+                <div className="absolute top-1/2 left-0 right-0 h-px bg-border" />
+                {/* 客队时间轴 */}
+                <div className="absolute bottom-0 left-0 right-0 h-6 flex items-start gap-0.5 px-1">
+                  {match.timeline.map((point, i) => (
+                    <div 
+                      key={i}
+                      className="flex-1 bg-muted-foreground/40 rounded-b"
+                      style={{ height: `${point.awayIntensity}%` }}
+                    />
+                  ))}
+                </div>
+                {/* 队伍标识 */}
+                <div className="absolute top-1 left-2 text-lg">{match.homeTeam.flag}</div>
+                <div className="absolute bottom-1 left-2 text-lg">{match.awayTeam.flag}</div>
+              </div>
+            </Card>
+
+            {/* 数据统计 */}
+            <Card className="p-4 bg-muted/20 border-border/50">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{match.homeTeam.flag}</span>
+                  <span className="text-sm font-medium">{match.homeTeam.shortName}</span>
+                </div>
+                <button className="flex items-center gap-1 px-3 py-1 bg-warning/20 text-warning text-xs rounded-full">
+                  <BarChart2 className="w-3 h-3" />
+                  深度数据
+                  <ChevronRight className="w-3 h-3" />
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{match.awayTeam.shortName}</span>
+                  <span className="text-lg">{match.awayTeam.flag}</span>
+                </div>
+              </div>
+
+              {/* 圆环统计 */}
+              <div className="flex justify-around mb-6">
+                <CircularProgress 
+                  homeValue={match.stats.homeAttacks} 
+                  awayValue={match.stats.awayAttacks} 
+                  label="进攻" 
+                />
+                <CircularProgress 
+                  homeValue={match.stats.homeDangerousAttacks} 
+                  awayValue={match.stats.awayDangerousAttacks} 
+                  label="危险进攻" 
+                />
+                <CircularProgress 
+                  homeValue={match.stats.homePossession} 
+                  awayValue={match.stats.awayPossession} 
+                  label="控球率" 
+                />
+              </div>
+
+              {/* 条形统计 */}
+              <div className="space-y-3">
+                <StatBar 
+                  homeValue={match.stats.homeShotsOnTarget} 
+                  awayValue={match.stats.awayShotsOnTarget} 
+                  label="射正球门" 
+                />
+                <StatBar 
+                  homeValue={match.stats.homeShotsOffTarget} 
+                  awayValue={match.stats.awayShotsOffTarget} 
+                  label="射偏球门" 
+                />
+              </div>
+
+              {/* 红黄牌统计 */}
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-4 bg-destructive rounded-sm" />
+                    <span className="text-xs">{match.homeTeam.redCards}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-4 bg-yellow-500 rounded-sm" />
+                    <span className="text-xs">{match.homeTeam.yellowCards}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{match.stats.homeCorners}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{match.stats.awayCorners}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{match.awayTeam.yellowCards}</span>
+                    <div className="w-3 h-4 bg-yellow-500 rounded-sm" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{match.awayTeam.redCards}</span>
+                    <div className="w-3 h-4 bg-destructive rounded-sm" />
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* 文字直播 / 重要事件 */}
+            <Card className="bg-muted/20 border-border/50 overflow-hidden">
+              <div className="flex border-b border-border/50">
+                <button className="flex-1 py-3 text-sm font-medium text-primary border-b-2 border-primary">
+                  文字直播
+                </button>
+                <button className="flex-1 py-3 text-sm font-medium text-muted-foreground">
+                  重要事件
+                </button>
+              </div>
+              <ScrollArea className="h-64">
+                <div className="p-4 space-y-4">
+                  {match.events.map((event, index) => (
+                    <div key={index} className="flex gap-3">
+                      <div className="flex-shrink-0 w-12">
+                        {event.type === 'yellow_card' ? (
+                          <div className="w-4 h-5 bg-yellow-500 rounded-sm" />
+                        ) : event.type === 'goal' ? (
+                          <div className="text-lg">⚽</div>
+                        ) : event.type === 'whistle' ? (
+                          <div className="text-lg">🎺</div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full bg-muted" />
+                        )}
                       </div>
-                      <div className="space-y-1.5 sm:space-y-2">
-                        <h4 className="text-xs sm:text-sm font-semibold text-muted-foreground">Starting XI</h4>
-                        {lineup.startXI.map((p) => (
-                          <div key={p.player.id} className="flex items-center gap-2 text-xs sm:text-sm bg-background/50 rounded px-2 py-1.5">
-                            <span className="w-5 sm:w-6 text-center font-semibold bg-primary/20 rounded px-1">{p.player.number}</span>
-                            <span className="flex-1 truncate">{p.player.name}</span>
-                            <span className="text-muted-foreground text-[10px] sm:text-xs">{p.player.pos}</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-foreground">
+                          {event.minute} - {event.description}
+                        </div>
+                        {event.player && (
+                          <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
+                            <span>{event.player}</span>
+                            <span className="text-lg">{event.team === 'home' ? match.homeTeam.flag : match.awayTeam.flag}</span>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-center text-muted-foreground text-xs sm:text-sm">No lineup data available</p>
-              )}
-            </TabsContent>
+              </ScrollArea>
+            </Card>
+          </div>
+        )}
 
-            <TabsContent value="players" className="p-3 sm:p-6">
-              <p className="text-center text-muted-foreground text-xs sm:text-sm">Player statistics coming soon</p>
-            </TabsContent>
-          </Tabs>
-        </Card>
-      </main>
+        {activeTab === 'lineup' && (
+          <div className="p-4">
+            <Card className="p-6 bg-muted/20 border-border/50 text-center">
+              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">阵容数据即将上线</p>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'chat' && (
+          <div className="p-4">
+            <Card className="p-6 bg-muted/20 border-border/50 text-center">
+              <MessageCircle className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">聊天功能即将上线</p>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'odds' && (
+          <div className="p-4">
+            <Card className="p-6 bg-muted/20 border-border/50 text-center">
+              <BarChart2 className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">指数数据即将上线</p>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'expert' && (
+          <div className="p-4">
+            <Card className="p-6 bg-muted/20 border-border/50 text-center">
+              <UserCheck className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">专家分析即将上线</p>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'hot' && (
+          <div className="p-4">
+            <Card className="p-6 bg-muted/20 border-border/50 text-center">
+              <Flame className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">热议内容即将上线</p>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
