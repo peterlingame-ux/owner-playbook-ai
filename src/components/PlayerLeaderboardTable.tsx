@@ -1116,129 +1116,60 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
       
-      {/* Prize Pool Banner - 视觉冲击效果 */}
-      <Card className="border-warning/50 bg-gradient-to-r from-warning/10 via-warning/20 to-warning/10 overflow-hidden relative">
-        {/* 动态背景效果 */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-warning/20 via-transparent to-transparent animate-pulse" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-success/10 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-warning/15 via-transparent to-transparent" />
-        
-        {/* 金币掉落动画 - 优化性能 */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{ left: `${15 + i * 14}%` }}
-              initial={{ 
-                y: -20,
-                rotate: 0,
-                opacity: 0.7
-              }}
-              animate={{ 
-                y: '110%',
-                rotate: 180,
-                opacity: [0.7, 0.9, 0.7, 0]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                delay: i * 0.8,
-                ease: 'linear'
-              }}
-            >
-              <img src={bitcoinIcon} alt="Bitcoin" className="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
-            </motion.div>
-          ))}
-        </div>
-        
-        <CardContent className="p-5 sm:p-6 relative">
-          <div className="flex flex-col items-center gap-4 sm:gap-5">
-            {/* 主标题区域 - 视觉冲击 */}
+      {/* Prize Pool Banner - 简洁专业风格 */}
+      <Card className="border-border/50 bg-card/80 overflow-hidden">
+        <CardContent className="p-5 sm:p-6">
+          <div className="flex flex-col items-center gap-5">
+            {/* 主标题 */}
             <div className="text-center">
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                <span className="text-lg sm:text-2xl font-black text-foreground">
-                  挑战AI
-                </span>
-                <motion.span 
-                  className="text-3xl sm:text-5xl font-black text-warning"
-                  animate={{ 
-                    scale: [1, 1.05, 1],
-                    textShadow: [
-                      "0 0 10px rgba(251, 191, 36, 0.5)",
-                      "0 0 30px rgba(251, 191, 36, 1)",
-                      "0 0 10px rgba(251, 191, 36, 0.5)"
-                    ]
-                  }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  $1,000,000
-                </motion.span>
-                <span className="text-lg sm:text-2xl font-black text-foreground">
-                  大奖等你来拿
-                </span>
+              <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
+                <span className="text-lg sm:text-xl font-bold text-foreground">挑战AI</span>
+                <span className="text-2xl sm:text-4xl font-black text-foreground">$1,000,000</span>
+                <span className="text-lg sm:text-xl font-bold text-foreground">大奖等你来拿</span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-md">
+              <p className="text-sm text-muted-foreground max-w-lg">
                 玩家预测的比赛场次、比赛胜率、盈利金额都超过当前排名最高的AI，即可领取奖金
               </p>
-              
-              {/* 当前排名最高AI数据展示 */}
-              <div className="mt-4 bg-background/60 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-3 sm:py-4 border border-border/50">
-                <p className="text-xs text-muted-foreground mb-2">当前排名最高AI: <span className="font-bold text-foreground">HUNSOCCER MAX</span></p>
-                <div className="flex items-center justify-center gap-4 sm:gap-8">
-                  <div className="text-center">
-                    <span className="text-lg sm:text-xl font-black text-warning">247</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">预测场次</p>
-                  </div>
-                  <div className="h-8 w-px bg-border/50" />
-                  <div className="text-center">
-                    <span className="text-lg sm:text-xl font-black text-warning">78.95%</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">胜率</p>
-                  </div>
-                  <div className="h-8 w-px bg-border/50" />
-                  <div className="text-center">
-                    <span className="text-lg sm:text-xl font-black text-warning">$24,789</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">盈利金额</p>
+            </div>
+            
+            {/* AI vs 玩家数据对比 */}
+            <div className="w-full max-w-2xl">
+              {/* AI数据 */}
+              <div className="bg-muted/30 rounded-lg px-4 py-3 mb-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">AI基准 (HUNSOCCER MAX)</span>
+                  <div className="flex items-center gap-6 text-sm">
+                    <span><span className="font-bold text-foreground">247</span> 场次</span>
+                    <span><span className="font-bold text-foreground">78.95%</span> 胜率</span>
+                    <span><span className="font-bold text-foreground">$24,789</span> 盈利</span>
                   </div>
                 </div>
               </div>
               
-              {/* 玩家当前数据 */}
+              {/* 玩家数据 */}
               {(() => {
                 const currentPlayer = user ? allPlayers.find(p => p.id === user.id) : null;
                 const playerPredictions = currentPlayer?.totalPredictions || 0;
                 const playerWinRate = currentPlayer?.winRate || 0;
                 const playerProfit = currentPlayer?.profitAmount || 0;
-                
-                // 判断是否达标
                 const meetsRequirements = playerPredictions >= 247 && playerWinRate >= 78.95 && playerProfit >= 2478900;
                 
                 return (
-                  <div className={`mt-3 bg-background/60 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-3 sm:py-4 border ${meetsRequirements ? 'border-success/50' : 'border-destructive/30'}`}>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      我的数据: <span className="font-bold text-foreground">{user ? (currentPlayer?.displayName || '加载中...') : '未登录'}</span>
-                      {meetsRequirements && <span className="ml-2 text-success font-bold">✓ 已达标</span>}
-                    </p>
-                    <div className="flex items-center justify-center gap-4 sm:gap-8">
-                      <div className="text-center">
-                        <span className={`text-lg sm:text-xl font-black ${playerPredictions >= 247 ? 'text-success' : 'text-destructive'}`}>
-                          {playerPredictions}
+                  <div className={`rounded-lg px-4 py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        我的数据 {meetsRequirements && <span className="text-success ml-1">✓ 达标</span>}
+                      </span>
+                      <div className="flex items-center gap-6 text-sm">
+                        <span>
+                          <span className={`font-bold ${playerPredictions >= 247 ? 'text-success' : 'text-foreground'}`}>{playerPredictions}</span> 场次
                         </span>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">预测场次</p>
-                      </div>
-                      <div className="h-8 w-px bg-border/50" />
-                      <div className="text-center">
-                        <span className={`text-lg sm:text-xl font-black ${playerWinRate >= 78.95 ? 'text-success' : 'text-destructive'}`}>
-                          {playerWinRate.toFixed(2)}%
+                        <span>
+                          <span className={`font-bold ${playerWinRate >= 78.95 ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span> 胜率
                         </span>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">胜率</p>
-                      </div>
-                      <div className="h-8 w-px bg-border/50" />
-                      <div className="text-center">
-                        <span className={`text-lg sm:text-xl font-black ${playerProfit >= 2478900 ? 'text-success' : 'text-destructive'}`}>
-                          ${(playerProfit / 100).toLocaleString()}
+                        <span>
+                          <span className={`font-bold ${playerProfit >= 2478900 ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span> 盈利
                         </span>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">盈利金额</p>
                       </div>
                     </div>
                   </div>
@@ -1246,41 +1177,18 @@ const PlayerLeaderboardTable = () => {
               })()}
             </div>
             
-            {/* 倒计时和统计区域 */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 w-full justify-center">
-              {/* 倒计时区域 */}
-              <div className="flex items-center gap-2 sm:gap-3 bg-background/60 backdrop-blur-sm rounded-xl px-4 sm:px-5 py-3 sm:py-4 border border-warning/30 shadow-lg shadow-warning/10">
-                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-warning animate-pulse" />
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="text-center">
-                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{countdown.days}</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">天</p>
-                  </div>
-                  <span className="text-warning font-black text-xl">:</span>
-                  <div className="text-center">
-                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{String(countdown.hours).padStart(2, '0')}</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">时</p>
-                  </div>
-                  <span className="text-warning font-black text-xl">:</span>
-                  <div className="text-center">
-                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{String(countdown.minutes).padStart(2, '0')}</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">分</p>
-                  </div>
-                  <span className="text-warning font-black text-xl">:</span>
-                  <div className="text-center">
-                    <span className="text-xl sm:text-2xl font-black font-mono-data text-warning">{String(countdown.seconds).padStart(2, '0')}</span>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">秒</p>
-                  </div>
-                </div>
+            {/* 倒计时和统计 */}
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="font-mono text-foreground">
+                  {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+                </span>
               </div>
-              
-              {/* 符合条件玩家 */}
-              <div className="flex items-center gap-2 bg-success/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-success/30">
-                <Users className="h-5 w-5 text-success" />
-                <div>
-                  <span className="text-xl sm:text-2xl font-black text-success">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span>
-                  <span className="text-sm text-muted-foreground ml-1">人已达标</span>
-                </div>
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span><span className="font-bold text-foreground">{allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}</span> 人已达标</span>
               </div>
             </div>
           </div>
