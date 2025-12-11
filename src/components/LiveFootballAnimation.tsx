@@ -16,6 +16,8 @@ interface PlayerPosition {
   y: number;
   targetX: number;
   targetY: number;
+  velocityX: number;
+  velocityY: number;
   name: string;
   avatar: string;
 }
@@ -144,12 +146,13 @@ export default function LiveFootballAnimation({
   const [currentAwayFormation, setCurrentAwayFormation] = useState(awayFormation);
   const [homePlayers, setHomePlayers] = useState<PlayerPosition[]>([]);
   const [awayPlayers, setAwayPlayers] = useState<PlayerPosition[]>([]);
-  const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
+  const [ballPosition, setBallPosition] = useState({ x: 50, y: 50, targetX: 50, targetY: 50, velocityX: 0, velocityY: 0 });
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<{ id: number; team: 'home' | 'away'; x: number; y: number } | null>(null);
   const animationRef = useRef<number | null>(null);
-  const lastTimeRef = useRef<number>(0);
+  const lastUpdateRef = useRef<number>(0);
+  const ballUpdateRef = useRef<number>(0);
 
   // 点击球员显示进攻视角
   const handlePlayerClick = (player: PlayerPosition, team: 'home' | 'away') => {
@@ -256,6 +259,8 @@ export default function LiveFootballAnimation({
         y: pos.y,
         targetX: pos.x,
         targetY: pos.y,
+        velocityX: 0,
+        velocityY: 0,
         name: homePlayerNames[idx] || `球员${idx + 1}`,
         avatar: homePlayerAvatars[idx] || '/avatars/avatar-1.png',
       }))
@@ -268,6 +273,8 @@ export default function LiveFootballAnimation({
         y: pos.y,
         targetX: pos.x,
         targetY: pos.y,
+        velocityX: 0,
+        velocityY: 0,
         name: awayPlayerNames[idx] || `球员${idx + 1}`,
         avatar: awayPlayerAvatars[idx] || '/avatars/avatar-6.png',
       }))
@@ -278,6 +285,17 @@ export default function LiveFootballAnimation({
     initializePlayers();
   }, [initializePlayers]);
 
+  // 更新单个球员的目标位置
+  const getNewTargetForPlayer = useCallback((basePos: FormationPosition, currentTarget: { x: number; y: number }) => {
+    // 更小的随机偏移，更频繁更新
+    const offsetX = (Math.random() - 0.5) * 8;
+    const offsetY = (Math.random() - 0.5) * 6;
+    return {
+      targetX: Math.max(8, Math.min(92, basePos.x + offsetX)),
+      targetY: Math.max(8, Math.min(92, basePos.y + offsetY)),
+    };
+  }, []);
+
   // 更新球员目标位置（模拟跑动）
   const updateTargetPositions = useCallback(() => {
     const homeFormationPositions = formations[currentHomeFormation] || formations['4-4-2'];
@@ -286,13 +304,10 @@ export default function LiveFootballAnimation({
     setHomePlayers(prev => {
       const newPlayers = prev.map((player, idx) => {
         const basePos = homeFormationPositions[idx];
-        // 随机偏移模拟跑动
-        const offsetX = (Math.random() - 0.5) * 12;
-        const offsetY = (Math.random() - 0.5) * 8;
+        const newTarget = getNewTargetForPlayer(basePos, { x: player.targetX, y: player.targetY });
         return {
           ...player,
-          targetX: Math.max(5, Math.min(95, basePos.x + offsetX)),
-          targetY: Math.max(5, Math.min(95, basePos.y + offsetY)),
+          ...newTarget,
         };
       });
       
@@ -313,12 +328,10 @@ export default function LiveFootballAnimation({
     setAwayPlayers(prev => {
       const newPlayers = prev.map((player, idx) => {
         const basePos = awayFormationPositions[idx];
-        const offsetX = (Math.random() - 0.5) * 12;
-        const offsetY = (Math.random() - 0.5) * 8;
+        const newTarget = getNewTargetForPlayer(basePos, { x: player.targetX, y: player.targetY });
         return {
           ...player,
-          targetX: Math.max(5, Math.min(95, basePos.x + offsetX)),
-          targetY: Math.max(5, Math.min(95, basePos.y + offsetY)),
+          ...newTarget,
         };
       });
       
@@ -335,15 +348,25 @@ export default function LiveFootballAnimation({
       
       return newPlayers;
     });
+  }, [currentHomeFormation, currentAwayFormation, showHeatmap, getNewTargetForPlayer]);
 
-    // 随机移动球
-    setBallPosition(prev => ({
-      x: Math.max(10, Math.min(90, prev.x + (Math.random() - 0.5) * 20)),
-      y: Math.max(10, Math.min(90, prev.y + (Math.random() - 0.5) * 15)),
-    }));
-  }, [currentHomeFormation, currentAwayFormation, showHeatmap]);
+  // 更新足球目标位置
+  const updateBallTarget = useCallback(() => {
+    setBallPosition(prev => {
+      // 足球朝随机方向移动，但更平滑
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 8 + Math.random() * 12;
+      const newTargetX = Math.max(15, Math.min(85, prev.x + Math.cos(angle) * speed));
+      const newTargetY = Math.max(15, Math.min(85, prev.y + Math.sin(angle) * speed));
+      return {
+        ...prev,
+        targetX: newTargetX,
+        targetY: newTargetY,
+      };
+    });
+  }, []);
 
-  // 动画循环
+  // 动画循环 - 使用物理模拟实现平滑移动
   useEffect(() => {
     if (!isPlaying) {
       if (animationRef.current) {
@@ -352,31 +375,102 @@ export default function LiveFootballAnimation({
       return;
     }
 
-    let lastUpdateTime = 0;
-    const updateInterval = 1500; // 每1.5秒更新目标位置
+    const targetUpdateInterval = 2000; // 每2秒更新目标位置
+    const ballUpdateInterval = 1200; // 足球更频繁更新
+    const damping = 0.92; // 阻尼系数
+    const acceleration = 0.008; // 加速度
+    const ballDamping = 0.95;
+    const ballAcceleration = 0.012;
 
     const animate = (timestamp: number) => {
-      if (timestamp - lastUpdateTime > updateInterval) {
+      // 更新球员目标位置
+      if (timestamp - lastUpdateRef.current > targetUpdateInterval) {
         updateTargetPositions();
-        lastUpdateTime = timestamp;
+        lastUpdateRef.current = timestamp;
+      }
+      
+      // 更新足球目标位置
+      if (timestamp - ballUpdateRef.current > ballUpdateInterval) {
+        updateBallTarget();
+        ballUpdateRef.current = timestamp;
       }
 
-      // 平滑移动球员到目标位置
+      // 使用速度和加速度平滑移动球员
       setHomePlayers(prev =>
-        prev.map(player => ({
-          ...player,
-          x: player.x + (player.targetX - player.x) * 0.05,
-          y: player.y + (player.targetY - player.y) * 0.05,
-        }))
+        prev.map(player => {
+          const dx = player.targetX - player.x;
+          const dy = player.targetY - player.y;
+          
+          // 应用加速度
+          let newVelX = player.velocityX * damping + dx * acceleration;
+          let newVelY = player.velocityY * damping + dy * acceleration;
+          
+          // 限制最大速度
+          const maxSpeed = 0.8;
+          const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
+          if (speed > maxSpeed) {
+            newVelX = (newVelX / speed) * maxSpeed;
+            newVelY = (newVelY / speed) * maxSpeed;
+          }
+          
+          return {
+            ...player,
+            x: player.x + newVelX,
+            y: player.y + newVelY,
+            velocityX: newVelX,
+            velocityY: newVelY,
+          };
+        })
       );
 
       setAwayPlayers(prev =>
-        prev.map(player => ({
-          ...player,
-          x: player.x + (player.targetX - player.x) * 0.05,
-          y: player.y + (player.targetY - player.y) * 0.05,
-        }))
+        prev.map(player => {
+          const dx = player.targetX - player.x;
+          const dy = player.targetY - player.y;
+          
+          let newVelX = player.velocityX * damping + dx * acceleration;
+          let newVelY = player.velocityY * damping + dy * acceleration;
+          
+          const maxSpeed = 0.8;
+          const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
+          if (speed > maxSpeed) {
+            newVelX = (newVelX / speed) * maxSpeed;
+            newVelY = (newVelY / speed) * maxSpeed;
+          }
+          
+          return {
+            ...player,
+            x: player.x + newVelX,
+            y: player.y + newVelY,
+            velocityX: newVelX,
+            velocityY: newVelY,
+          };
+        })
       );
+
+      // 平滑移动足球
+      setBallPosition(prev => {
+        const dx = prev.targetX - prev.x;
+        const dy = prev.targetY - prev.y;
+        
+        let newVelX = prev.velocityX * ballDamping + dx * ballAcceleration;
+        let newVelY = prev.velocityY * ballDamping + dy * ballAcceleration;
+        
+        const maxBallSpeed = 1.2;
+        const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
+        if (speed > maxBallSpeed) {
+          newVelX = (newVelX / speed) * maxBallSpeed;
+          newVelY = (newVelY / speed) * maxBallSpeed;
+        }
+        
+        return {
+          ...prev,
+          x: prev.x + newVelX,
+          y: prev.y + newVelY,
+          velocityX: newVelX,
+          velocityY: newVelY,
+        };
+      });
 
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -388,7 +482,7 @@ export default function LiveFootballAnimation({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying, updateTargetPositions]);
+  }, [isPlaying, updateTargetPositions, updateBallTarget]);
 
   // 切换阵型
   const handleFormationChange = (team: 'home' | 'away', formation: string) => {
@@ -402,8 +496,10 @@ export default function LiveFootballAnimation({
   // 重置位置
   const handleReset = () => {
     initializePlayers();
-    setBallPosition({ x: 50, y: 50 });
+    setBallPosition({ x: 50, y: 50, targetX: 50, targetY: 50, velocityX: 0, velocityY: 0 });
     setHeatmapPoints([]);
+    lastUpdateRef.current = 0;
+    ballUpdateRef.current = 0;
   };
 
   // 切换热力图
