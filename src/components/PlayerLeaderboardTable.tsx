@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, Bitcoin } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
 import { useState, useEffect, useCallback } from "react";
@@ -1127,7 +1127,7 @@ const PlayerLeaderboardTable = () => {
           {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute text-xl sm:text-2xl"
+              className="absolute"
               style={{ left: `${15 + i * 14}%` }}
               initial={{ 
                 y: -20,
@@ -1146,7 +1146,7 @@ const PlayerLeaderboardTable = () => {
                 ease: 'linear'
               }}
             >
-              🪙
+              <Bitcoin className="w-5 h-5 sm:w-6 sm:h-6 text-warning drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
             </motion.div>
           ))}
         </div>
