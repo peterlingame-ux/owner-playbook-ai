@@ -1181,6 +1181,27 @@ const PlayerLeaderboardTable = () => {
               <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-md">
                 玩家预测的比赛场次、比赛胜率、盈利金额都超过当前排名最高的AI，即可领取奖金
               </p>
+              
+              {/* 当前排名最高AI数据展示 */}
+              <div className="mt-4 bg-background/60 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-3 sm:py-4 border border-border/50">
+                <p className="text-xs text-muted-foreground mb-2">当前排名最高AI: <span className="font-bold text-foreground">HUNSOCCER MAX</span></p>
+                <div className="flex items-center justify-center gap-4 sm:gap-8">
+                  <div className="text-center">
+                    <span className="text-lg sm:text-xl font-black text-warning">247</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">预测场次</p>
+                  </div>
+                  <div className="h-8 w-px bg-border/50" />
+                  <div className="text-center">
+                    <span className="text-lg sm:text-xl font-black text-warning">78.95%</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">胜率</p>
+                  </div>
+                  <div className="h-8 w-px bg-border/50" />
+                  <div className="text-center">
+                    <span className="text-lg sm:text-xl font-black text-warning">$24,789</span>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">盈利金额</p>
+                  </div>
+                </div>
+              </div>
             </div>
             
             {/* 倒计时和统计区域 */}
