@@ -1143,12 +1143,12 @@ const PlayerLeaderboardTable = () => {
             <div className="w-full max-w-2xl">
               {/* AI数据 */}
               <div className="bg-muted/30 rounded-lg px-4 py-3 mb-2">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <span className="text-sm font-medium text-muted-foreground">AI基准 (HUNSOCCER MAX)</span>
-                  <div className="flex items-center gap-6 text-sm">
-                    <span><span className="font-bold text-foreground">247</span> 场次</span>
-                    <span><span className="font-bold text-foreground">78.95%</span> 胜率</span>
-                    <span><span className="font-bold text-foreground">$24,789</span> 盈利</span>
+                  <div className="flex items-center gap-4 sm:gap-6 text-sm">
+                    <span className="text-muted-foreground">预测场次：<span className="font-bold text-foreground">247场</span></span>
+                    <span className="text-muted-foreground">预测胜率：<span className="font-bold text-foreground">78.95%</span></span>
+                    <span className="text-muted-foreground">盈利：<span className="font-bold text-foreground">$24,789</span></span>
                   </div>
                 </div>
               </div>
@@ -1163,19 +1163,19 @@ const PlayerLeaderboardTable = () => {
                 
                 return (
                   <div className={`rounded-lg px-4 py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <span className="text-sm font-medium text-muted-foreground">
                         我的数据 {meetsRequirements && <span className="text-success ml-1">✓ 达标</span>}
                       </span>
-                      <div className="flex items-center gap-6 text-sm">
-                        <span>
-                          <span className={`font-bold ${playerPredictions >= 247 ? 'text-success' : 'text-foreground'}`}>{playerPredictions}</span> 场次
+                      <div className="flex items-center gap-4 sm:gap-6 text-sm">
+                        <span className="text-muted-foreground">
+                          预测场次：<span className={`font-bold ${playerPredictions >= 247 ? 'text-success' : 'text-foreground'}`}>{playerPredictions}场</span>
                         </span>
-                        <span>
-                          <span className={`font-bold ${playerWinRate >= 78.95 ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span> 胜率
+                        <span className="text-muted-foreground">
+                          预测胜率：<span className={`font-bold ${playerWinRate >= 78.95 ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
                         </span>
-                        <span>
-                          <span className={`font-bold ${playerProfit >= 2478900 ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span> 盈利
+                        <span className="text-muted-foreground">
+                          盈利：<span className={`font-bold ${playerProfit >= 2478900 ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
                         </span>
                       </div>
                     </div>
