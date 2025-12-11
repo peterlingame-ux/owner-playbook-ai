@@ -1520,147 +1520,212 @@ export default function LiveFootballAnimation({
           dynamicAdvantageText = '客队占优';
         }
         
+        // 状态等级
+        const statusLevel = Math.abs(diff) <= 8 ? 'BALANCED' : diff > 20 ? 'HOME_DOMINANT' : diff > 8 ? 'HOME_ADVANTAGE' : diff < -20 ? 'AWAY_DOMINANT' : 'AWAY_ADVANTAGE';
+        
         return (
-          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-950/50 via-slate-900/80 to-red-950/50 border border-white/10">
-            {/* 标题 */}
-            <div className="text-center mb-3">
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <h4 className="text-sm font-bold text-white/90">当前阵型实时对抗</h4>
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="mt-4 relative bg-black/95 backdrop-blur-md rounded border border-cyan-500/30 overflow-hidden">
+            {/* 扫描线背景 */}
+            <div 
+              className="absolute inset-0 opacity-20 pointer-events-none"
+              style={{
+                background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.03) 2px, rgba(0,255,255,0.03) 4px)',
+              }}
+            />
+            
+            {/* 顶部状态栏 */}
+            <div className="px-4 py-2 border-b border-cyan-500/20 bg-cyan-950/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-[9px] text-cyan-400/80 font-mono uppercase tracking-wider">FORMATION ANALYSIS</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[8px] text-white/40 font-mono">{currentHomeFormation} vs {currentAwayFormation}</span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-[7px] text-green-400/70 font-mono">LIVE</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {currentHomeFormation} vs {currentAwayFormation} · 动态模拟中
-              </p>
             </div>
             
-            {/* 主能量条 */}
-            <div className="relative mb-4">
-              {/* 队伍名称 */}
-              <div className="flex justify-between items-center mb-2">
+            {/* 主对抗区域 */}
+            <div className="p-4">
+              {/* 队伍对比头部 */}
+              <div className="flex items-center justify-between mb-3">
+                {/* 主队 */}
                 <div className="flex items-center gap-2">
-                  <img src={homeTeamLogo} alt={homeTeamName} className="w-5 h-5 object-contain" />
-                  <span className="text-xs font-medium text-blue-400">{homeTeamName}</span>
-                  <span className={`text-lg font-bold transition-all duration-150 ${fluctuatedHome > 50 ? 'text-blue-400 scale-105' : 'text-blue-400/70'}`}>
+                  <div className="relative w-8 h-8 rounded border border-blue-400/40 overflow-hidden bg-blue-950/50">
+                    <img src={homeTeamLogo} alt={homeTeamName} className="w-full h-full object-contain p-1" />
+                    <div className="absolute top-0 left-0 w-1.5 h-px bg-cyan-400" />
+                    <div className="absolute top-0 left-0 w-px h-1.5 bg-cyan-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-blue-400">{homeTeamName}</div>
+                    <div className="text-[8px] text-cyan-400/60 font-mono">{currentHomeFormation}</div>
+                  </div>
+                </div>
+                
+                {/* 中央状态 */}
+                <div className="text-center">
+                  <div className={`px-3 py-1 rounded border text-[9px] font-mono uppercase ${
+                    statusLevel === 'BALANCED' ? 'border-white/20 text-white/60 bg-white/5' :
+                    statusLevel.includes('HOME') ? 'border-blue-400/40 text-blue-400 bg-blue-950/30' :
+                    'border-red-400/40 text-red-400 bg-red-950/30'
+                  }`}>
+                    {dynamicAdvantageText}
+                  </div>
+                </div>
+                
+                {/* 客队 */}
+                <div className="flex items-center gap-2">
+                  <div>
+                    <div className="text-xs font-medium text-red-400 text-right">{awayTeamName}</div>
+                    <div className="text-[8px] text-cyan-400/60 font-mono text-right">{currentAwayFormation}</div>
+                  </div>
+                  <div className="relative w-8 h-8 rounded border border-red-400/40 overflow-hidden bg-red-950/50">
+                    <img src={awayTeamLogo} alt={awayTeamName} className="w-full h-full object-contain p-1" />
+                    <div className="absolute bottom-0 right-0 w-1.5 h-px bg-cyan-400" />
+                    <div className="absolute bottom-0 right-0 w-px h-1.5 bg-cyan-400" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* 能量对抗条 */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-lg font-bold font-mono transition-all duration-150 ${fluctuatedHome > 50 ? 'text-blue-400' : 'text-blue-400/60'}`}>
                     {Math.round(fluctuatedHome)}%
                   </span>
-                </div>
-                <div className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all duration-300 ${
-                  diff > 8 ? 'bg-blue-500/30 text-blue-300' : 
-                  diff < -8 ? 'bg-red-500/30 text-red-300' : 
-                  'bg-white/10 text-white/80'
-                }`}>
-                  {dynamicAdvantageText}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-lg font-bold transition-all duration-150 ${fluctuatedAway > 50 ? 'text-red-400 scale-105' : 'text-red-400/70'}`}>
+                  <span className="text-[8px] text-white/40 font-mono uppercase">POWER BALANCE</span>
+                  <span className={`text-lg font-bold font-mono transition-all duration-150 ${fluctuatedAway > 50 ? 'text-red-400' : 'text-red-400/60'}`}>
                     {Math.round(fluctuatedAway)}%
                   </span>
-                  <span className="text-xs font-medium text-red-400">{awayTeamName}</span>
-                  <img src={awayTeamLogo} alt={awayTeamName} className="w-5 h-5 object-contain" />
-                </div>
-              </div>
-              
-              {/* 能量条 */}
-              <div className="relative h-8 rounded-full bg-slate-800 overflow-hidden border border-white/10 shadow-inner">
-                {/* 主队能量 */}
-                <div 
-                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 transition-all duration-100 ease-out"
-                  style={{ width: `${fluctuatedHome}%` }}
-                >
-                  {/* 流动效果 */}
-                  <div 
-                    className="absolute inset-0 opacity-40"
-                    style={{
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-                      animation: 'shimmer 1.5s infinite',
-                      backgroundSize: '200% 100%',
-                    }}
-                  />
-                  {/* 边缘发光 */}
-                  <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-l from-white/50 to-transparent" />
                 </div>
                 
-                {/* 客队能量 */}
-                <div 
-                  className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-700 via-red-500 to-orange-400 transition-all duration-100 ease-out"
-                  style={{ width: `${fluctuatedAway}%` }}
-                >
-                  {/* 流动效果 */}
+                <div className="relative h-3 rounded bg-slate-900 overflow-hidden border border-cyan-500/20">
+                  {/* 网格背景 */}
                   <div 
-                    className="absolute inset-0 opacity-40"
+                    className="absolute inset-0 opacity-30"
                     style={{
-                      background: 'linear-gradient(270deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-                      animation: 'shimmer 1.5s infinite reverse',
-                      backgroundSize: '200% 100%',
+                      background: 'repeating-linear-gradient(90deg, transparent, transparent 9.5%, rgba(0,255,255,0.15) 9.5%, rgba(0,255,255,0.15) 10%)',
                     }}
                   />
-                  {/* 边缘发光 */}
-                  <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-white/50 to-transparent" />
-                </div>
-                
-                {/* 碰撞火花效果 */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-100"
-                  style={{ left: `${fluctuatedHome}%`, transform: `translateX(-50%) translateY(-50%)` }}
-                >
-                  <div className="relative">
-                    <div className="w-1 h-8 bg-gradient-to-b from-yellow-300 via-white to-yellow-300 animate-pulse" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-yellow-400 rounded-full blur-sm animate-ping opacity-60" />
+                  
+                  {/* 主队能量 */}
+                  <div 
+                    className="absolute left-0 top-0 h-full transition-all duration-100 ease-out"
+                    style={{ 
+                      width: `${fluctuatedHome}%`,
+                      background: 'linear-gradient(90deg, rgba(59,130,246,0.8), rgba(6,182,212,0.9))',
+                    }}
+                  >
+                    <div 
+                      className="absolute inset-0"
+                      style={{
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        animation: 'shimmer 1.5s infinite',
+                        backgroundSize: '200% 100%',
+                      }}
+                    />
                   </div>
+                  
+                  {/* 客队能量 */}
+                  <div 
+                    className="absolute right-0 top-0 h-full transition-all duration-100 ease-out"
+                    style={{ 
+                      width: `${fluctuatedAway}%`,
+                      background: 'linear-gradient(270deg, rgba(239,68,68,0.8), rgba(249,115,22,0.9))',
+                    }}
+                  >
+                    <div 
+                      className="absolute inset-0"
+                      style={{
+                        background: 'linear-gradient(270deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        animation: 'shimmer 1.5s infinite reverse',
+                        backgroundSize: '200% 100%',
+                      }}
+                    />
+                  </div>
+                  
+                  {/* 碰撞线 */}
+                  <div 
+                    className="absolute top-0 bottom-0 w-px z-10 transition-all duration-100"
+                    style={{ 
+                      left: `${fluctuatedHome}%`,
+                      background: '#22d3ee',
+                      boxShadow: '0 0 8px #22d3ee, 0 0 16px #22d3ee',
+                    }}
+                  />
+                </div>
+                
+                {/* 刻度标记 */}
+                <div className="flex justify-between mt-1 text-[7px] text-white/30 font-mono">
+                  <span>0</span>
+                  <span>25</span>
+                  <span>50</span>
+                  <span>75</span>
+                  <span>100</span>
                 </div>
               </div>
               
-              {/* 动态指示器 */}
-              <div className="flex justify-between mt-1 text-[8px] text-white/40">
-                <span>弱势</span>
-                <span>|</span>
-                <span>均衡</span>
-                <span>|</span>
-                <span>强势</span>
+              {/* 属性矩阵 */}
+              <div className="grid grid-cols-5 gap-1">
+                {[
+                  { key: 'attack', label: 'ATK' },
+                  { key: 'defense', label: 'DEF' },
+                  { key: 'midfield', label: 'MID' },
+                  { key: 'wing', label: 'WNG' },
+                  { key: 'counter', label: 'CNT' },
+                ].map(({ key, label }) => {
+                  const homeVal = homeStats[key as keyof typeof homeStats];
+                  const awayVal = awayStats[key as keyof typeof awayStats];
+                  const homeWins = homeVal > awayVal;
+                  const tie = homeVal === awayVal;
+                  const homePercent = (homeVal / (homeVal + awayVal)) * 100;
+                  
+                  return (
+                    <div key={key} className="text-center">
+                      <div className="text-[8px] text-cyan-400/60 font-mono mb-1">{label}</div>
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <span className={`text-[10px] font-bold font-mono ${homeWins ? 'text-blue-400' : tie ? 'text-white/50' : 'text-white/30'}`}>
+                          {homeVal}
+                        </span>
+                        <span className="text-[7px] text-white/20">:</span>
+                        <span className={`text-[10px] font-bold font-mono ${!homeWins && !tie ? 'text-red-400' : tie ? 'text-white/50' : 'text-white/30'}`}>
+                          {awayVal}
+                        </span>
+                      </div>
+                      {/* 对比条 */}
+                      <div className="h-1 rounded-sm bg-slate-800 overflow-hidden flex">
+                        <div 
+                          className="h-full transition-all duration-500"
+                          style={{ 
+                            width: `${homePercent}%`,
+                            background: homeWins ? 'rgba(59,130,246,0.9)' : 'rgba(59,130,246,0.4)',
+                          }}
+                        />
+                        <div 
+                          className="h-full transition-all duration-500"
+                          style={{ 
+                            width: `${100 - homePercent}%`,
+                            background: !homeWins && !tie ? 'rgba(239,68,68,0.9)' : 'rgba(239,68,68,0.4)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             
-            {/* 属性对比 */}
-            <div className="grid grid-cols-5 gap-2 text-center">
-              {[
-                { key: 'attack', label: '攻击力', icon: '⚔️' },
-                { key: 'defense', label: '防守力', icon: '🛡️' },
-                { key: 'midfield', label: '中场控制', icon: '🎯' },
-                { key: 'wing', label: '边路威胁', icon: '🏃' },
-                { key: 'counter', label: '反击能力', icon: '💨' },
-              ].map(({ key, label, icon }) => {
-                const homeVal = homeStats[key as keyof typeof homeStats];
-                const awayVal = awayStats[key as keyof typeof awayStats];
-                const homeWins = homeVal > awayVal;
-                const tie = homeVal === awayVal;
-                
-                return (
-                  <div key={key} className="space-y-1">
-                    <div className="text-[10px] text-white/60">{icon} {label}</div>
-                    <div className="flex items-center justify-center gap-1">
-                      <span className={`text-xs font-bold ${homeWins ? 'text-blue-400' : tie ? 'text-white/60' : 'text-white/40'}`}>
-                        {homeVal}
-                      </span>
-                      <span className="text-[8px] text-white/30">vs</span>
-                      <span className={`text-xs font-bold ${!homeWins && !tie ? 'text-red-400' : tie ? 'text-white/60' : 'text-white/40'}`}>
-                        {awayVal}
-                      </span>
-                    </div>
-                    {/* 小型对比条 */}
-                    <div className="h-1 rounded-full bg-slate-700 overflow-hidden flex">
-                      <div 
-                        className="h-full bg-blue-500 transition-all duration-500"
-                        style={{ width: `${(homeVal / (homeVal + awayVal)) * 100}%` }}
-                      />
-                      <div 
-                        className="h-full bg-red-500 transition-all duration-500"
-                        style={{ width: `${(awayVal / (homeVal + awayVal)) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+            {/* 底部状态栏 */}
+            <div className="px-4 py-1.5 border-t border-cyan-500/10 bg-cyan-950/20">
+              <div className="flex items-center justify-between text-[7px] font-mono">
+                <span className="text-white/40">SIMULATION: ACTIVE</span>
+                <span className="text-cyan-400/60">REFRESH: 50ms</span>
+              </div>
             </div>
           </div>
         );
