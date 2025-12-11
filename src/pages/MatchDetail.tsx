@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, Users, BarChart2, UserCheck, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink } from "lucide-react";
+import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
@@ -422,7 +422,7 @@ const generateDefaultMatch = (id: string): MatchDetailInfo => ({
   timeline: []
 });
 
-type TabType = 'live' | 'lineup' | 'odds' | 'expert';
+type TabType = 'live' | 'chat' | 'lineup' | 'odds' | 'expert' | 'hot';
 
 export default function MatchDetail() {
   const { matchId } = useParams();
@@ -747,6 +747,165 @@ export default function MatchDetail() {
     );
   };
 
+  // 聊天消息数据
+  interface ChatMessage {
+    id: string;
+    userId: string;
+    userName: string;
+    userLevel: number;
+    avatar: string;
+    content: string;
+    timestamp: Date;
+    isExpert?: boolean;
+  }
+
+  interface Expert {
+    id: string;
+    name: string;
+    avatar: string;
+    badge: string;
+    streak?: string;
+    isLive?: boolean;
+  }
+
+  // 虚拟聊天数据
+  const virtualExperts: Expert[] = [
+    { id: '1', name: '大玮聊球', avatar: '/avatars/avatar-1.png', badge: '专家', streak: '最长9连红' },
+    { id: '2', name: '普清流', avatar: '/avatars/avatar-2.png', badge: '', isLive: true },
+  ];
+
+  const virtualChatMessages: ChatMessage[] = [
+    { id: '1', userId: '1', userName: '红起来大红', userLevel: 50, avatar: '/avatars/avatar-3.png', content: '这个角球不给也太过分了吧，方向了也取消?', timestamp: new Date() },
+    { id: '2', userId: '2', userName: '妃永恒', userLevel: 23, avatar: '/avatars/avatar-4.png', content: '还有加时', timestamp: new Date() },
+    { id: '3', userId: '3', userName: '用户elh7el', userLevel: 18, avatar: '/avatars/avatar-5.png', content: '@gork 自己去看新规吧，你的规则几年前了', timestamp: new Date() },
+    { id: '4', userId: '4', userName: '用户ehoh76', userLevel: 3, avatar: '/avatars/avatar-6.png', content: '这也太夸张了', timestamp: new Date() },
+    { id: '5', userId: '5', userName: '最强心态亚家铲', userLevel: 42, avatar: '/avatars/avatar-7.png', content: '不给点球，居然连角球都没了??', timestamp: new Date() },
+    { id: '6', userId: '6', userName: '用户66ta1d', userLevel: 6, avatar: '/avatars/avatar-8.png', content: '结束了哥们', timestamp: new Date() },
+    { id: '7', userId: '7', userName: 'Gork', userLevel: 31, avatar: '/avatars/avatar-9.png', content: '@用户elh7el 呵呵呵 你好好研究清楚 再说话', timestamp: new Date() },
+    { id: '8', userId: '8', userName: '芝麻开门绿地白框', userLevel: 31, avatar: '/avatars/avatar-1.png', content: '点球不给可以角球必须有', timestamp: new Date() },
+    { id: '9', userId: '9', userName: '最强心态亚家铲', userLevel: 42, avatar: '/avatars/avatar-7.png', content: '不给点球，居然连角球都没了??', timestamp: new Date() },
+    { id: '10', userId: '10', userName: '演给你看', userLevel: 13, avatar: '/avatars/avatar-2.png', content: '到处都是沙特的比赛，怎么回事', timestamp: new Date() },
+    { id: '11', userId: '11', userName: '芝麻开门绿地白框', userLevel: 31, avatar: '/avatars/avatar-1.png', content: '最后吹个越位', timestamp: new Date() },
+    { id: '12', userId: '12', userName: '都有过去也有过不去', userLevel: 22, avatar: '/avatars/avatar-3.png', content: '进球为什么吹', timestamp: new Date() },
+    { id: '13', userId: '13', userName: '芝麻开门绿地白框', userLevel: 31, avatar: '/avatars/avatar-1.png', content: '进攻的球员突破进去也越位吗?', timestamp: new Date() },
+  ];
+
+  // 聊天标签页组件
+  const ChatTab = ({ matchId }: { matchId: string }) => {
+    const [messages, setMessages] = useState<ChatMessage[]>(virtualChatMessages);
+    const [inputValue, setInputValue] = useState('');
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    const getLevelColor = (level: number) => {
+      if (level >= 40) return 'bg-orange-500';
+      if (level >= 30) return 'bg-purple-500';
+      if (level >= 20) return 'bg-blue-500';
+      if (level >= 10) return 'bg-green-500';
+      return 'bg-muted-foreground';
+    };
+
+    const handleSendMessage = () => {
+      if (!inputValue.trim()) return;
+      const newMessage: ChatMessage = {
+        id: `new-${Date.now()}`,
+        userId: 'current-user',
+        userName: '我',
+        userLevel: 15,
+        avatar: '/avatars/avatar-1.png',
+        content: inputValue,
+        timestamp: new Date(),
+      };
+      setMessages([...messages, newMessage]);
+      setInputValue('');
+    };
+
+    return (
+      <div className="flex flex-col h-[calc(100vh-320px)] min-h-[400px]">
+        {/* 专家推荐区 */}
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50 bg-card">
+          {virtualExperts.map(expert => (
+            <div key={expert.id} className="flex items-center gap-2">
+              <div className="relative">
+                <Avatar className="w-10 h-10 border-2 border-border">
+                  <AvatarImage src={expert.avatar} />
+                  <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                {expert.isLive && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full flex items-center justify-center">
+                    <Play className="w-2 h-2 fill-white text-white" />
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-medium">{expert.name}</span>
+                  {expert.badge && (
+                    <Badge variant="destructive" className="text-[10px] px-1 py-0 h-4">
+                      {expert.badge}
+                    </Badge>
+                  )}
+                </div>
+                {expert.streak && (
+                  <span className="text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary rounded w-fit">
+                    {expert.streak}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 聊天消息区 */}
+        <ScrollArea className="flex-1 px-4" ref={scrollRef}>
+          <div className="py-3 space-y-3">
+            {messages.map(message => (
+              <div key={message.id} className="flex gap-2">
+                {/* 等级标签 */}
+                <div className={`flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] text-white font-medium ${getLevelColor(message.userLevel)}`}>
+                  Lv {message.userLevel}
+                </div>
+                {/* 消息内容 */}
+                <div className="flex-1 min-w-0">
+                  <span className="text-warning font-medium text-sm">{message.userName}: </span>
+                  <span className="text-foreground text-sm">{message.content}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+
+        {/* 聊天输入区 */}
+        <div className="flex items-center gap-2 px-4 py-3 border-t border-border/50 bg-muted/30">
+          <button className="flex-shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </button>
+          <div className="flex-1 relative">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="跟大家聊聊呗"
+              className="pr-10 bg-muted/50 border-border/50 rounded-full"
+            />
+            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+              <Smile className="w-5 h-5" />
+            </button>
+          </div>
+          <button className="flex-shrink-0 p-2 text-warning hover:text-warning/80 transition-colors">
+            <Gift className="w-5 h-5" />
+          </button>
+          <button className="flex-shrink-0 p-2 text-destructive hover:text-destructive/80 transition-colors font-bold text-lg">
+            66
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -852,9 +1011,11 @@ export default function MatchDetail() {
         <div className="flex items-center overflow-x-auto">
           {[
             { id: 'live' as const, label: '直播', icon: null },
+            { id: 'chat' as const, label: '聊天', icon: MessageCircle },
             { id: 'lineup' as const, label: '阵容', icon: Users },
             { id: 'odds' as const, label: '指数', icon: BarChart2 },
             { id: 'expert' as const, label: '专家', icon: UserCheck },
+            { id: 'hot' as const, label: '热议', icon: Flame },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -1272,6 +1433,10 @@ export default function MatchDetail() {
           </div>
         )}
 
+        {activeTab === 'chat' && (
+          <ChatTab matchId={match.id} />
+        )}
+
         {activeTab === 'odds' && (
           <OddsTab match={match} />
         )}
@@ -1281,6 +1446,15 @@ export default function MatchDetail() {
             <Card className="p-6 bg-muted/20 border-border/50 text-center">
               <UserCheck className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">专家分析即将上线</p>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'hot' && (
+          <div className="p-4">
+            <Card className="p-6 bg-muted/20 border-border/50 text-center">
+              <Flame className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">热议内容即将上线</p>
             </Card>
           </div>
         )}
