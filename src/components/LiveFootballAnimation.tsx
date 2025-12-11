@@ -27,6 +27,35 @@ interface FormationPosition {
   y: number;
 }
 
+// 球员进攻欲望数据 (基于位置: 0=门将, 1-4=后卫, 5-8=中场, 9-10=前锋)
+const getPlayerAttackDesire = (playerId: number) => {
+  // 根据位置生成不同的进攻欲望属性
+  const positionStats: Record<number, { role: string; attackDesire: number; shootDesire: number; passDesire: number; dribbleDesire: number; runDesire: number }> = {
+    0: { role: '门将', attackDesire: 10, shootDesire: 5, passDesire: 85, dribbleDesire: 10, runDesire: 15 },
+    1: { role: '后卫', attackDesire: 35, shootDesire: 20, passDesire: 75, dribbleDesire: 30, runDesire: 55 },
+    2: { role: '后卫', attackDesire: 30, shootDesire: 15, passDesire: 80, dribbleDesire: 25, runDesire: 50 },
+    3: { role: '后卫', attackDesire: 30, shootDesire: 15, passDesire: 80, dribbleDesire: 25, runDesire: 50 },
+    4: { role: '后卫', attackDesire: 40, shootDesire: 25, passDesire: 70, dribbleDesire: 35, runDesire: 60 },
+    5: { role: '中场', attackDesire: 60, shootDesire: 50, passDesire: 85, dribbleDesire: 65, runDesire: 75 },
+    6: { role: '中场', attackDesire: 55, shootDesire: 45, passDesire: 90, dribbleDesire: 60, runDesire: 70 },
+    7: { role: '中场', attackDesire: 65, shootDesire: 55, passDesire: 80, dribbleDesire: 70, runDesire: 80 },
+    8: { role: '中场', attackDesire: 70, shootDesire: 60, passDesire: 75, dribbleDesire: 75, runDesire: 85 },
+    9: { role: '前锋', attackDesire: 90, shootDesire: 95, passDesire: 50, dribbleDesire: 85, runDesire: 90 },
+    10: { role: '前锋', attackDesire: 95, shootDesire: 90, passDesire: 55, dribbleDesire: 90, runDesire: 95 },
+  };
+  
+  // 添加一些随机波动
+  const base = positionStats[playerId] || positionStats[5];
+  return {
+    ...base,
+    attackDesire: Math.min(100, Math.max(0, base.attackDesire + Math.floor((Math.random() - 0.5) * 10))),
+    shootDesire: Math.min(100, Math.max(0, base.shootDesire + Math.floor((Math.random() - 0.5) * 10))),
+    passDesire: Math.min(100, Math.max(0, base.passDesire + Math.floor((Math.random() - 0.5) * 10))),
+    dribbleDesire: Math.min(100, Math.max(0, base.dribbleDesire + Math.floor((Math.random() - 0.5) * 10))),
+    runDesire: Math.min(100, Math.max(0, base.runDesire + Math.floor((Math.random() - 0.5) * 10))),
+  };
+};
+
 // 虚拟球员名字和头像
 const homePlayerNames = ['拉米', '巴塔特', '泰马尼尼', '萨莱赫', '纳布汉', '萨瓦塔', '阿米德', '哈姆丹', '赛亚姆', '昆巴尔', '达巴赫'];
 const awayPlayerNames = ['奥瓦伊斯', '布莱克', '阿姆里', '塔姆比蒂', '甘纳姆', '萨尔曼', '道萨里', '马尔基', '哈桑', '布雷坎', '阿西里'];
@@ -1002,6 +1031,76 @@ export default function LiveFootballAnimation({
             </div>
           </div>
         )}
+        
+        {/* 球员进攻欲望面板 */}
+        {selectedPlayer && (() => {
+          const playerNames = selectedPlayer.team === 'home' ? homePlayerNames : awayPlayerNames;
+          const playerName = playerNames[selectedPlayer.id] || `球员${selectedPlayer.id + 1}`;
+          const desire = getPlayerAttackDesire(selectedPlayer.id);
+          const teamColor = selectedPlayer.team === 'home' ? 'blue' : 'red';
+          
+          return (
+            <div 
+              className="absolute top-12 right-2 bg-black/90 backdrop-blur-sm rounded-lg p-3 text-[9px] min-w-[140px]" 
+              style={{ zIndex: 30 }}
+            >
+              {/* 球员信息 */}
+              <div className={`flex items-center gap-2 mb-2 pb-2 border-b border-${teamColor}-500/30`}>
+                <div className={`w-8 h-8 rounded-full bg-${teamColor}-600 border-2 border-${teamColor}-400 flex items-center justify-center text-white font-bold text-xs`}>
+                  {selectedPlayer.id + 1}
+                </div>
+                <div>
+                  <div className="text-white font-medium text-[11px]">{playerName}</div>
+                  <div className={`text-${teamColor}-400 text-[9px]`}>{desire.role}</div>
+                </div>
+              </div>
+              
+              {/* 进攻欲望标题 */}
+              <div className="text-white/90 font-medium mb-2 flex items-center gap-1">
+                <span className="text-orange-400">🔥</span> 进攻欲望分析
+              </div>
+              
+              {/* 欲望指标 */}
+              <div className="space-y-2">
+                {[
+                  { label: '进攻欲望', value: desire.attackDesire, color: 'from-orange-500 to-red-500', icon: '⚔️' },
+                  { label: '射门欲望', value: desire.shootDesire, color: 'from-red-500 to-pink-500', icon: '🎯' },
+                  { label: '传球倾向', value: desire.passDesire, color: 'from-blue-500 to-cyan-500', icon: '↗️' },
+                  { label: '盘带欲望', value: desire.dribbleDesire, color: 'from-purple-500 to-pink-500', icon: '⚡' },
+                  { label: '跑位积极', value: desire.runDesire, color: 'from-green-500 to-emerald-500', icon: '🏃' },
+                ].map(({ label, value, color, icon }) => (
+                  <div key={label} className="space-y-0.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70 flex items-center gap-1">
+                        <span className="text-[8px]">{icon}</span>{label}
+                      </span>
+                      <span className={`font-bold ${value >= 80 ? 'text-red-400' : value >= 60 ? 'text-orange-400' : value >= 40 ? 'text-yellow-400' : 'text-white/50'}`}>
+                        {value}
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${color} transition-all duration-300`}
+                        style={{ width: `${value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* 综合评价 */}
+              <div className="mt-2 pt-2 border-t border-white/10">
+                <div className="text-[8px] text-white/50">
+                  {desire.attackDesire >= 80 ? '🔥 极度渴望进球' : 
+                   desire.attackDesire >= 60 ? '💪 积极参与进攻' : 
+                   desire.passDesire >= 80 ? '🎯 组织核心型' : 
+                   desire.runDesire >= 80 ? '🏃 跑位积极型' : 
+                   '🛡️ 防守优先型'}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 主队球员 (蓝色) */}
         {homePlayers.map(player => {
