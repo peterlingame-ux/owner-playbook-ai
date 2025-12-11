@@ -227,7 +227,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
               className="text-right cursor-pointer hover:bg-accent/50 rounded-md px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/player/${player.id}?tab=today`);
+                navigate(`/leaderboard?tab=players`);
               }}
               title={t('click_to_view_today_picks') || '点击查看今日推荐'}
             >
