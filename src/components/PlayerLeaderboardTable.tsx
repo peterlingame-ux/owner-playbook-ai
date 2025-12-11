@@ -1157,15 +1157,57 @@ const PlayerLeaderboardTable = () => {
             {/* 主标题区域 - 视觉冲击 */}
             <div className="text-center">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">🏆 挑战AI</span>
-                <span className="text-3xl sm:text-5xl font-black text-warning drop-shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-scale-in">
+                <motion.span 
+                  className="text-lg sm:text-2xl font-black text-success"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    textShadow: [
+                      "0 0 0px rgba(34, 197, 94, 0)",
+                      "0 0 20px rgba(34, 197, 94, 0.8)",
+                      "0 0 0px rgba(34, 197, 94, 0)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  🏆 挑战AI
+                </motion.span>
+                <motion.span 
+                  className="text-3xl sm:text-5xl font-black text-warning"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                    textShadow: [
+                      "0 0 10px rgba(251, 191, 36, 0.5)",
+                      "0 0 30px rgba(251, 191, 36, 1)",
+                      "0 0 10px rgba(251, 191, 36, 0.5)"
+                    ]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
                   $1,000,000
-                </span>
-                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">大奖等你来拿 🏆</span>
+                </motion.span>
+                <motion.span 
+                  className="text-lg sm:text-2xl font-black text-success"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    textShadow: [
+                      "0 0 0px rgba(34, 197, 94, 0)",
+                      "0 0 20px rgba(34, 197, 94, 0.8)",
+                      "0 0 0px rgba(34, 197, 94, 0)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                >
+                  大奖等你来拿 🏆
+                </motion.span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2">
+              <motion.p 
+                className="text-sm sm:text-base text-muted-foreground mt-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
                 胜率超过AI基准 <span className="font-black text-warning text-base sm:text-lg">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
-              </p>
+              </motion.p>
             </div>
             
             {/* 倒计时和统计区域 */}
