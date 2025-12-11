@@ -2124,7 +2124,7 @@ export default function LiveFootballAnimation({
             : player.y >= 65;
           
           // 威胁等级
-          const threatLevel = xgPercent >= 30 ? '高' : xgPercent >= 15 ? '中' : '低';
+          const threatLevel = xgPercent >= 30 ? 'HIGH' : xgPercent >= 15 ? 'MED' : 'LOW';
           const threatColor = xgPercent >= 30 ? '#ef4444' : xgPercent >= 15 ? '#f59e0b' : '#22c55e';
           
           const teamColor = selectedPlayer.team === 'home' ? 'rgba(0, 150, 255, 0.9)' : 'rgba(239, 68, 68, 0.9)';
@@ -2172,7 +2172,7 @@ export default function LiveFootballAnimation({
                       className="w-2 h-2 rounded-full animate-pulse"
                       style={{ background: '#00ffc8', boxShadow: '0 0 8px #00ffc8' }}
                     />
-                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">AI 分析</span>
+                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">AI ANALYSIS</span>
                   </div>
                   <span 
                     className="text-[10px] font-bold px-2 py-0.5 rounded"
@@ -2182,7 +2182,7 @@ export default function LiveFootballAnimation({
                       border: `1px solid ${threatColor}50`
                     }}
                   >
-                    威胁: {threatLevel}
+                    THREAT: {threatLevel}
                   </span>
                 </div>
                 
@@ -2209,7 +2209,7 @@ export default function LiveFootballAnimation({
                 <div className="grid grid-cols-2 gap-3">
                   {/* 距离球门 */}
                   <div className="bg-black/40 rounded-lg p-2 border border-white/10">
-                    <div className="text-[9px] text-white/50 font-mono mb-1">距离球门</div>
+                    <div className="text-[9px] text-white/50 font-mono mb-1">DISTANCE TO GOAL</div>
                     <div className="flex items-baseline gap-1">
                       <span className="text-xl font-bold text-cyan-400 font-mono">{distanceMeters}</span>
                       <span className="text-[10px] text-cyan-400/70">m</span>
@@ -2227,7 +2227,7 @@ export default function LiveFootballAnimation({
                   
                   {/* 进球概率 */}
                   <div className="bg-black/40 rounded-lg p-2 border border-white/10">
-                    <div className="text-[9px] text-white/50 font-mono mb-1">进球概率</div>
+                    <div className="text-[9px] text-white/50 font-mono mb-1">GOAL PROBABILITY</div>
                     <div className="flex items-baseline gap-1">
                       <span 
                         className="text-xl font-bold font-mono"
@@ -2259,7 +2259,7 @@ export default function LiveFootballAnimation({
                       color: inPenaltyArea ? '#ef4444' : 'rgba(255,255,255,0.5)'
                     }}
                   >
-                    {inPenaltyArea ? '⚠ 禁区内' : '禁区外'}
+                    {inPenaltyArea ? '⚠ IN PENALTY AREA' : 'OUTSIDE BOX'}
                   </div>
                   {inDangerZone && !inPenaltyArea && (
                     <div 
@@ -2270,7 +2270,7 @@ export default function LiveFootballAnimation({
                         color: '#f59e0b'
                       }}
                     >
-                      危险区域
+                      DANGER ZONE
                     </div>
                   )}
                 </div>
