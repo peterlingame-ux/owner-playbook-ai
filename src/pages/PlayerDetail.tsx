@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, CheckCircle2, XCircle, Filter } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -48,8 +48,13 @@ const PlayerDetail = () => {
   const { t, i18n } = useTranslation();
   const { playerId } = useParams<{ playerId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  
+  // 如果 tab=today，默认筛选今日数据
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterBetType, setFilterBetType] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>(tabParam === 'today' ? 'today' : 'all');
   const [playerPredictions, setPlayerPredictions] = useState<PlayerPrediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [player, setPlayer] = useState<{
@@ -220,6 +225,17 @@ const PlayerDetail = () => {
 
   // 应用筛选
   let filteredPredictions = [...playerPredictions];
+  
+  // 日期筛选 - 今日推荐
+  if (filterDate === "today") {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    filteredPredictions = filteredPredictions.filter(p => {
+      const predDate = new Date(p.date);
+      predDate.setHours(0, 0, 0, 0);
+      return predDate.getTime() === today.getTime();
+    });
+  }
   
   if (filterResult !== "all") {
     filteredPredictions = filteredPredictions.filter(p => 
@@ -418,7 +434,17 @@ const PlayerDetail = () => {
               <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
             </div>
             
-            <div className="flex gap-2 sm:gap-4 flex-1">
+            <div className="flex gap-2 sm:gap-4 flex-1 flex-wrap">
+              <Select value={filterDate} onValueChange={setFilterDate}>
+                <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-10 text-xs sm:text-sm">
+                  <SelectValue placeholder={t('date_filter') || '日期'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('all') || '全部'}</SelectItem>
+                  <SelectItem value="today">{t('today_prediction') || '今日推荐'}</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={filterResult} onValueChange={setFilterResult}>
                 <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder={t('result')} />
