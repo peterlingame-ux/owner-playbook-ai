@@ -818,151 +818,96 @@ export default function LiveFootballAnimation({
   const availableFormations = Object.keys(formations);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
 
-      {/* 阵型选择 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* 阵型选择 - 紧凑水平布局 */}
+      <div className="flex items-stretch gap-2 bg-black/40 backdrop-blur-sm rounded-lg border border-white/10 p-2">
         {/* 主队阵型 */}
-        <div className="relative rounded-xl border border-blue-500/40 overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 transition-shadow duration-300">
-          {/* 背景图 */}
-          <div 
-            className="absolute inset-0 opacity-20 scale-110"
-            style={{
-              backgroundImage: `url(${homeTeamLogo})`,
-              backgroundSize: '120%',
-              backgroundPosition: 'center',
-              filter: 'blur(8px)',
-            }}
-          />
-          {/* 渐变遮罩 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/95 via-slate-900/90 to-blue-900/85" />
-          {/* 顶部光效 */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/60 to-transparent" />
-          
-          {/* 内容 */}
-          <div className="relative z-10 p-3">
-            {/* 头部 */}
-            <div className="flex items-center gap-2 pb-2 border-b border-blue-400/20">
-              <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <img 
-                  src={homeTeamLogo} 
-                  alt={homeTeamName}
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs font-semibold text-white">{homeTeamName}</span>
-                <div className="text-[9px] text-blue-300/70">主队阵型</div>
-              </div>
-              <div className="px-2 py-1 rounded-md bg-blue-500/20 border border-blue-400/30">
-                <span className="text-xs text-blue-300 font-bold tracking-wide">{currentHomeFormation}</span>
-              </div>
+        <div className="flex-1 flex items-center gap-2 pr-2 border-r border-white/10">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
+              <img 
+                src={homeTeamLogo} 
+                alt={homeTeamName}
+                className="w-4 h-4 object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
             </div>
-            
-            {/* 阵型按钮 */}
-            <div className="flex flex-wrap gap-1.5 py-2">
-              {availableFormations.map(f => (
-                <button
-                  key={f}
-                  onClick={() => handleFormationChange('home', f)}
-                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-md border-2 transition-all duration-200 ${
-                    currentHomeFormation === f
-                      ? 'bg-blue-500 border-blue-400 text-white scale-105 shadow-md shadow-blue-500/50'
-                      : 'bg-white/5 border-white/20 hover:border-blue-400/50 hover:bg-blue-500/10 text-white/80'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+            <div className="hidden sm:block">
+              <div className="text-[10px] font-medium text-white leading-none">{homeTeamName}</div>
+              <div className="text-[8px] text-blue-300/60">主队</div>
             </div>
-            
-            {/* 阵型说明 */}
-            <div className="pt-2 border-t border-blue-400/20">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="w-0.5 h-3 rounded-full bg-blue-400" />
-                <span className="text-[10px] font-semibold text-blue-300">
-                  {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
-                </span>
-              </div>
-              <p className="text-[9px] text-white/50 leading-relaxed pl-2">
-                {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
-              </p>
-            </div>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {availableFormations.map(f => (
+              <button
+                key={f}
+                onClick={() => handleFormationChange('home', f)}
+                className={`px-2 py-0.5 text-[9px] font-medium rounded transition-all ${
+                  currentHomeFormation === f
+                    ? 'bg-blue-500 text-white shadow-sm shadow-blue-500/40'
+                    : 'bg-white/5 hover:bg-blue-500/20 text-white/60 hover:text-white'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* 中间 VS */}
+        <div className="flex items-center px-2">
+          <span className="text-[10px] font-bold text-white/30">VS</span>
+        </div>
+
         {/* 客队阵型 */}
-        <div className="relative rounded-xl border border-red-500/40 overflow-hidden shadow-lg shadow-red-500/10 hover:shadow-red-500/20 transition-shadow duration-300">
-          {/* 背景图 */}
-          <div 
-            className="absolute inset-0 opacity-20 scale-110"
-            style={{
-              backgroundImage: `url(${awayTeamLogo})`,
-              backgroundSize: '120%',
-              backgroundPosition: 'center',
-              filter: 'blur(8px)',
-            }}
-          />
-          {/* 渐变遮罩 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-950/95 via-slate-900/90 to-red-900/85" />
-          {/* 顶部光效 */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-400/60 to-transparent" />
-          
-          {/* 内容 */}
-          <div className="relative z-10 p-3">
-            {/* 头部 */}
-            <div className="flex items-center gap-2 pb-2 border-b border-red-400/20">
-              <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <img 
-                  src={awayTeamLogo} 
-                  alt={awayTeamName}
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs font-semibold text-white">{awayTeamName}</span>
-                <div className="text-[9px] text-red-300/70">客队阵型</div>
-              </div>
-              <div className="px-2 py-1 rounded-md bg-red-500/20 border border-red-400/30">
-                <span className="text-xs text-red-300 font-bold tracking-wide">{currentAwayFormation}</span>
-              </div>
+        <div className="flex-1 flex items-center gap-2 pl-2 border-l border-white/10">
+          <div className="flex flex-wrap gap-1">
+            {availableFormations.map(f => (
+              <button
+                key={f}
+                onClick={() => handleFormationChange('away', f)}
+                className={`px-2 py-0.5 text-[9px] font-medium rounded transition-all ${
+                  currentAwayFormation === f
+                    ? 'bg-red-500 text-white shadow-sm shadow-red-500/40'
+                    : 'bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-white'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="hidden sm:block text-right">
+              <div className="text-[10px] font-medium text-white leading-none">{awayTeamName}</div>
+              <div className="text-[8px] text-red-300/60">客队</div>
             </div>
-            
-            {/* 阵型按钮 */}
-            <div className="flex flex-wrap gap-1.5 py-2">
-              {availableFormations.map(f => (
-                <button
-                  key={f}
-                  onClick={() => handleFormationChange('away', f)}
-                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-md border-2 transition-all duration-200 ${
-                    currentAwayFormation === f
-                      ? 'bg-red-500 border-red-400 text-white scale-105 shadow-md shadow-red-500/50'
-                      : 'bg-white/5 border-white/20 hover:border-red-400/50 hover:bg-red-500/10 text-white/80'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+            <div className="w-6 h-6 rounded bg-red-500/20 flex items-center justify-center border border-red-400/30">
+              <img 
+                src={awayTeamLogo} 
+                alt={awayTeamName}
+                className="w-4 h-4 object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
             </div>
-            
-            {/* 阵型说明 */}
-            <div className="pt-2 border-t border-red-400/20">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="w-0.5 h-3 rounded-full bg-red-400" />
-                <span className="text-[10px] font-semibold text-red-300">
-                  {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
-                </span>
-              </div>
-              <p className="text-[9px] text-white/50 leading-relaxed pl-2">
-                {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
-              </p>
-            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 阵型说明 - 折叠显示 */}
+      <div className="flex gap-2 text-[8px]">
+        <div className="flex-1 flex items-start gap-1 px-2 py-1 rounded bg-blue-500/10 border border-blue-400/20">
+          <div className="w-0.5 h-3 rounded-full bg-blue-400 shrink-0 mt-0.5" />
+          <div>
+            <span className="text-blue-300 font-medium">{formationDescriptions[currentHomeFormation]?.title || '阵型'}</span>
+            <span className="text-white/40 hidden lg:inline"> - {formationDescriptions[currentHomeFormation]?.description || ''}</span>
+          </div>
+        </div>
+        <div className="flex-1 flex items-start gap-1 px-2 py-1 rounded bg-red-500/10 border border-red-400/20">
+          <div className="w-0.5 h-3 rounded-full bg-red-400 shrink-0 mt-0.5" />
+          <div>
+            <span className="text-red-300 font-medium">{formationDescriptions[currentAwayFormation]?.title || '阵型'}</span>
+            <span className="text-white/40 hidden lg:inline"> - {formationDescriptions[currentAwayFormation]?.description || ''}</span>
           </div>
         </div>
       </div>
