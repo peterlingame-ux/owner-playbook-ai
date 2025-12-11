@@ -1332,31 +1332,6 @@ export default function LiveFootballAnimation({
                 );
               })}
             </div>
-            
-            {/* 进球概率预测 */}
-            <div className="mt-4 pt-3 border-t border-white/10">
-              <div className="flex justify-between items-center">
-                <div className="text-center flex-1">
-                  <div className="text-[10px] text-white/50 mb-1">预测进球概率</div>
-                  <div className="text-xl font-bold text-blue-400">
-                    {Math.round(advantage.homePercentage * 0.035 * 10) / 10}
-                    <span className="text-xs text-white/40 ml-0.5">球</span>
-                  </div>
-                </div>
-                <div className="px-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
-                    <span className="text-sm">⚽</span>
-                  </div>
-                </div>
-                <div className="text-center flex-1">
-                  <div className="text-[10px] text-white/50 mb-1">预测进球概率</div>
-                  <div className="text-xl font-bold text-red-400">
-                    {Math.round(advantage.awayPercentage * 0.035 * 10) / 10}
-                    <span className="text-xs text-white/40 ml-0.5">球</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         );
       })()}
