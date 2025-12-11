@@ -731,46 +731,6 @@ export default function LiveFootballAnimation({
 
   return (
     <div className="space-y-4">
-      {/* 控制栏 */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="gap-1"
-          >
-            {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-            {isPlaying ? '暂停' : '播放'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="gap-1"
-          >
-            <RotateCcw className="w-3 h-3" />
-            重置
-          </Button>
-          <Button
-            variant={showHeatmap ? "default" : "outline"}
-            size="sm"
-            onClick={toggleHeatmap}
-            className="gap-1"
-          >
-            <Flame className="w-3 h-3" />
-            热力图
-          </Button>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1"
-        >
-          <Maximize2 className="w-3 h-3" />
-          全屏
-        </Button>
-      </div>
 
       {/* 阵型选择 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
