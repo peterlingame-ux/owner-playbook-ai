@@ -15,7 +15,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
-import bitcoinIcon from "@/assets/bitcoin-icon.webp";
+import bitcoinIcon from "@/assets/bitcoin-icon.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
