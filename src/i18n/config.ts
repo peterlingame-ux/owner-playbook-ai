@@ -16,7 +16,7 @@ const resources = {
       "nav_models": "MATCHES",
       "nav_my": "My",
       "nav_personal_center": "Personal Center",
-      "nav_prize": "PRIZE",
+      "nav_prize": "GRAND PRIZE",
       
       // Prize/Waitlist page
       "prize_hero_title": "Beat AI, Win Prize",
@@ -715,7 +715,7 @@ const resources = {
       "nav_models": "赛事中心",
       "nav_my": "我的",
       "nav_personal_center": "个人中心",
-      "nav_prize": "奖金",
+      "nav_prize": "竞猜大奖",
       
       // Prize/Waitlist page
       "prize_hero_title": "战胜AI，赢取奖金",
@@ -1415,7 +1415,7 @@ const resources = {
       "nav_models": "경기",
       "nav_my": "내 정보",
       "nav_personal_center": "개인 센터",
-      "nav_prize": "상금",
+      "nav_prize": "예측 대상",
       
       // Prize/Waitlist page
       "prize_hero_title": "AI를 이기고 상금을 받으세요",
