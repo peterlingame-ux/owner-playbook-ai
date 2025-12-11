@@ -311,10 +311,66 @@ export default function LiveFootballAnimation({
   const [energyFluctuation, setEnergyFluctuation] = useState(0); // 能量波动值
   const [showAIIndicators, setShowAIIndicators] = useState(true); // AI指标显示开关
   const [aiUpdateTick, setAiUpdateTick] = useState(0); // AI数据更新触发器
+  const [matchTime, setMatchTime] = useState(0); // 比赛时间（秒）
+  const [playerStamina, setPlayerStamina] = useState<Record<string, number>>({}); // 球员体能值
   const animationRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const ballUpdateRef = useRef<number>(0);
   const energyRef = useRef<number>(0);
+  
+  // 初始化所有球员体能为100
+  useEffect(() => {
+    const initialStamina: Record<string, number> = {};
+    for (let i = 0; i < 11; i++) {
+      initialStamina[`home-${i}`] = 100;
+      initialStamina[`away-${i}`] = 100;
+    }
+    setPlayerStamina(initialStamina);
+    setMatchTime(0);
+  }, [currentHomeFormation, currentAwayFormation]);
+  
+  // 比赛时间推进 & 体能消耗
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const interval = setInterval(() => {
+      setMatchTime(prev => prev + 1);
+      
+      // 每秒消耗体能
+      setPlayerStamina(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+          const playerId = parseInt(key.split('-')[1]);
+          
+          // 根据位置不同消耗速度不同
+          // 门将消耗最慢，中场消耗最快，前锋次之
+          let consumeRate = 0.08; // 基础消耗率
+          if (playerId === 0) {
+            consumeRate = 0.02; // 门将
+          } else if (playerId >= 1 && playerId <= 4) {
+            consumeRate = 0.06; // 后卫
+          } else if (playerId >= 5 && playerId <= 8) {
+            consumeRate = 0.12; // 中场消耗最大
+          } else {
+            consumeRate = 0.09; // 前锋
+          }
+          
+          // 追球球员额外消耗
+          const playerTeam = key.startsWith('home') ? 'home' : 'away';
+          if (chasingPlayer?.id === playerId && chasingPlayer?.team === playerTeam) {
+            consumeRate *= 1.5;
+          }
+          
+          // 添加随机波动
+          const randomFactor = 0.8 + Math.random() * 0.4;
+          updated[key] = Math.max(15, updated[key] - consumeRate * randomFactor);
+        });
+        return updated;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [isPlaying, chasingPlayer]);
   
   // 能量波动动画
   useEffect(() => {
@@ -1235,14 +1291,14 @@ export default function LiveFootballAnimation({
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
-                  {/* 体能条 (始终显示) */}
-                  {showAIIndicators && (() => {
-                    const stamina = calculateStamina(player.id, aiUpdateTick * 2000);
-                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 50 ? '#eab308' : '#ef4444';
+                  {/* 体能条 (AI指标开启时显示小条，选中时显示详细) */}
+                  {showAIIndicators && !isSelected && (() => {
+                    const stamina = playerStamina[`home-${player.id}`] || 100;
+                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
                     return (
                       <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
                         <div 
-                          className="h-full rounded-full transition-all duration-500"
+                          className="h-full rounded-full"
                           style={{ width: `${stamina}%`, background: staminaColor }}
                         />
                       </div>
@@ -1260,6 +1316,50 @@ export default function LiveFootballAnimation({
                 }`}>
                   {player.name}
                 </div>
+                
+                {/* 选中时显示详细体能信息 */}
+                {isSelected && (() => {
+                  const stamina = playerStamina[`home-${player.id}`] || 100;
+                  const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
+                  const staminaStatus = stamina >= 80 ? '状态极佳' : stamina >= 60 ? '状态良好' : stamina >= 40 ? '体力下降' : stamina >= 25 ? '体力不足' : '需要换人';
+                  
+                  return (
+                    <div className="mt-1.5 bg-black/90 backdrop-blur-sm rounded-lg border border-cyan-500/40 p-2 min-w-[90px] animate-fade-in">
+                      {/* 体能标题 */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[8px] text-cyan-400 font-semibold">⚡ 体能</span>
+                        <span 
+                          className="text-[10px] font-bold font-mono"
+                          style={{ color: staminaColor }}
+                        >
+                          {Math.round(stamina)}%
+                        </span>
+                      </div>
+                      
+                      {/* 体能进度条 */}
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden mb-1.5">
+                        <div 
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${stamina}%`,
+                            background: `linear-gradient(90deg, ${staminaColor}, ${staminaColor}dd)`
+                          }}
+                        />
+                      </div>
+                      
+                      {/* 状态文字 */}
+                      <div 
+                        className="text-[7px] text-center py-0.5 rounded"
+                        style={{ 
+                          background: `${staminaColor}20`,
+                          color: staminaColor
+                        }}
+                      >
+                        {staminaStatus}
+                      </div>
+                    </div>
+                  );
+                })()}
                 
               </div>
             </div>
@@ -1339,14 +1439,14 @@ export default function LiveFootballAnimation({
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
-                  {/* 体能条 (始终显示) */}
-                  {showAIIndicators && (() => {
-                    const stamina = calculateStamina(player.id, aiUpdateTick * 2000);
-                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 50 ? '#eab308' : '#ef4444';
+                  {/* 体能条 (AI指标开启时显示小条，选中时显示详细) */}
+                  {showAIIndicators && !isSelected && (() => {
+                    const stamina = playerStamina[`away-${player.id}`] || 100;
+                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
                     return (
                       <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
                         <div 
-                          className="h-full rounded-full transition-all duration-500"
+                          className="h-full rounded-full"
                           style={{ width: `${stamina}%`, background: staminaColor }}
                         />
                       </div>
@@ -1364,6 +1464,50 @@ export default function LiveFootballAnimation({
                 }`}>
                   {player.name}
                 </div>
+                
+                {/* 选中时显示详细体能信息 */}
+                {isSelected && (() => {
+                  const stamina = playerStamina[`away-${player.id}`] || 100;
+                  const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
+                  const staminaStatus = stamina >= 80 ? '状态极佳' : stamina >= 60 ? '状态良好' : stamina >= 40 ? '体力下降' : stamina >= 25 ? '体力不足' : '需要换人';
+                  
+                  return (
+                    <div className="mt-1.5 bg-black/90 backdrop-blur-sm rounded-lg border border-cyan-500/40 p-2 min-w-[90px] animate-fade-in">
+                      {/* 体能标题 */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[8px] text-cyan-400 font-semibold">⚡ 体能</span>
+                        <span 
+                          className="text-[10px] font-bold font-mono"
+                          style={{ color: staminaColor }}
+                        >
+                          {Math.round(stamina)}%
+                        </span>
+                      </div>
+                      
+                      {/* 体能进度条 */}
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden mb-1.5">
+                        <div 
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${stamina}%`,
+                            background: `linear-gradient(90deg, ${staminaColor}, ${staminaColor}dd)`
+                          }}
+                        />
+                      </div>
+                      
+                      {/* 状态文字 */}
+                      <div 
+                        className="text-[7px] text-center py-0.5 rounded"
+                        style={{ 
+                          background: `${staminaColor}20`,
+                          color: staminaColor
+                        }}
+                      >
+                        {staminaStatus}
+                      </div>
+                    </div>
+                  );
+                })()}
                 
               </div>
             </div>
