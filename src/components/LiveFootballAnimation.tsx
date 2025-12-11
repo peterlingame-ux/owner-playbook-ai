@@ -1317,45 +1317,41 @@ export default function LiveFootballAnimation({
                   {player.name}
                 </div>
                 
-                {/* 选中时显示详细体能信息 */}
+                {/* 选中时显示AI体能面板 */}
                 {isSelected && (() => {
                   const stamina = playerStamina[`home-${player.id}`] || 100;
-                  const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
-                  const staminaStatus = stamina >= 80 ? '状态极佳' : stamina >= 60 ? '状态良好' : stamina >= 40 ? '体力下降' : stamina >= 25 ? '体力不足' : '需要换人';
+                  const staminaColor = stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444';
                   
                   return (
-                    <div className="mt-1.5 bg-black/90 backdrop-blur-sm rounded-lg border border-cyan-500/40 p-2 min-w-[90px] animate-fade-in">
-                      {/* 体能标题 */}
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[8px] text-cyan-400 font-semibold">⚡ 体能</span>
-                        <span 
-                          className="text-[10px] font-bold font-mono"
-                          style={{ color: staminaColor }}
-                        >
-                          {Math.round(stamina)}%
-                        </span>
-                      </div>
-                      
-                      {/* 体能进度条 */}
-                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden mb-1.5">
-                        <div 
-                          className="h-full rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${stamina}%`,
-                            background: `linear-gradient(90deg, ${staminaColor}, ${staminaColor}dd)`
-                          }}
-                        />
-                      </div>
-                      
-                      {/* 状态文字 */}
-                      <div 
-                        className="text-[7px] text-center py-0.5 rounded"
-                        style={{ 
-                          background: `${staminaColor}20`,
-                          color: staminaColor
-                        }}
-                      >
-                        {staminaStatus}
+                    <div className="mt-2 animate-fade-in">
+                      {/* AI风格简约面板 */}
+                      <div className="relative px-3 py-1.5 bg-black/80 backdrop-blur-md rounded border border-cyan-500/30"
+                           style={{ boxShadow: `0 0 12px ${staminaColor}30` }}>
+                        {/* 扫描线动画 */}
+                        <div className="absolute inset-0 overflow-hidden rounded pointer-events-none">
+                          <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-transparent to-transparent animate-pulse" />
+                        </div>
+                        
+                        {/* 数值显示 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
+                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full"
+                              style={{ 
+                                width: `${stamina}%`,
+                                background: staminaColor,
+                                boxShadow: `0 0 6px ${staminaColor}`
+                              }}
+                            />
+                          </div>
+                          <span 
+                            className="text-[10px] font-mono font-bold tabular-nums"
+                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
+                          >
+                            {Math.round(stamina)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -1465,45 +1461,41 @@ export default function LiveFootballAnimation({
                   {player.name}
                 </div>
                 
-                {/* 选中时显示详细体能信息 */}
+                {/* 选中时显示AI体能面板 */}
                 {isSelected && (() => {
                   const stamina = playerStamina[`away-${player.id}`] || 100;
-                  const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
-                  const staminaStatus = stamina >= 80 ? '状态极佳' : stamina >= 60 ? '状态良好' : stamina >= 40 ? '体力下降' : stamina >= 25 ? '体力不足' : '需要换人';
+                  const staminaColor = stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444';
                   
                   return (
-                    <div className="mt-1.5 bg-black/90 backdrop-blur-sm rounded-lg border border-cyan-500/40 p-2 min-w-[90px] animate-fade-in">
-                      {/* 体能标题 */}
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[8px] text-cyan-400 font-semibold">⚡ 体能</span>
-                        <span 
-                          className="text-[10px] font-bold font-mono"
-                          style={{ color: staminaColor }}
-                        >
-                          {Math.round(stamina)}%
-                        </span>
-                      </div>
-                      
-                      {/* 体能进度条 */}
-                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden mb-1.5">
-                        <div 
-                          className="h-full rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${stamina}%`,
-                            background: `linear-gradient(90deg, ${staminaColor}, ${staminaColor}dd)`
-                          }}
-                        />
-                      </div>
-                      
-                      {/* 状态文字 */}
-                      <div 
-                        className="text-[7px] text-center py-0.5 rounded"
-                        style={{ 
-                          background: `${staminaColor}20`,
-                          color: staminaColor
-                        }}
-                      >
-                        {staminaStatus}
+                    <div className="mt-2 animate-fade-in">
+                      {/* AI风格简约面板 */}
+                      <div className="relative px-3 py-1.5 bg-black/80 backdrop-blur-md rounded border border-cyan-500/30"
+                           style={{ boxShadow: `0 0 12px ${staminaColor}30` }}>
+                        {/* 扫描线动画 */}
+                        <div className="absolute inset-0 overflow-hidden rounded pointer-events-none">
+                          <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-transparent to-transparent animate-pulse" />
+                        </div>
+                        
+                        {/* 数值显示 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
+                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full"
+                              style={{ 
+                                width: `${stamina}%`,
+                                background: staminaColor,
+                                boxShadow: `0 0 6px ${staminaColor}`
+                              }}
+                            />
+                          </div>
+                          <span 
+                            className="text-[10px] font-mono font-bold tabular-nums"
+                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
+                          >
+                            {Math.round(stamina)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
