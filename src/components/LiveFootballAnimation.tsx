@@ -2099,7 +2099,185 @@ export default function LiveFootballAnimation({
           {currentHomeFormation} vs {currentAwayFormation}
         </div>
 
-        {/* AI指标图例 */}
+        {/* AI球员分析面板 - 显示距离和进球概率 */}
+        {selectedPlayer && (() => {
+          const players = selectedPlayer.team === 'home' ? homePlayers : awayPlayers;
+          const player = players.find(p => p.id === selectedPlayer.id);
+          if (!player) return null;
+          
+          // 计算到对方球门的距离 (球场尺寸约105m x 68m)
+          const goalY = selectedPlayer.team === 'home' ? 0 : 100;
+          const goalX = 50;
+          const distancePercent = Math.sqrt(Math.pow(player.x - goalX, 2) + Math.pow(player.y - goalY, 2));
+          const distanceMeters = Math.round(distancePercent * 1.05); // 转换为米
+          
+          // 计算xG进球概率
+          const xg = calculateXG(player.x, player.y, selectedPlayer.team);
+          const xgPercent = Math.round(xg * 100);
+          
+          // 判断区域
+          const inPenaltyArea = selectedPlayer.team === 'home' 
+            ? player.y <= 18 && player.x >= 20 && player.x <= 80
+            : player.y >= 82 && player.x >= 20 && player.x <= 80;
+          const inDangerZone = selectedPlayer.team === 'home'
+            ? player.y <= 35
+            : player.y >= 65;
+          
+          // 威胁等级
+          const threatLevel = xgPercent >= 30 ? 'HIGH' : xgPercent >= 15 ? 'MED' : 'LOW';
+          const threatColor = xgPercent >= 30 ? '#ef4444' : xgPercent >= 15 ? '#f59e0b' : '#22c55e';
+          
+          const teamColor = selectedPlayer.team === 'home' ? 'rgba(0, 150, 255, 0.9)' : 'rgba(239, 68, 68, 0.9)';
+          const teamBorderColor = selectedPlayer.team === 'home' ? 'rgba(0, 200, 255, 0.6)' : 'rgba(255, 100, 100, 0.6)';
+          
+          return (
+            <div 
+              className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30"
+              style={{
+                animation: 'formationFadeIn 0.3s ease-out forwards'
+              }}
+            >
+              <div 
+                className="relative px-4 py-3 rounded-lg backdrop-blur-md"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 20, 30, 0.9))',
+                  border: `1px solid ${teamBorderColor}`,
+                  boxShadow: `0 0 20px ${teamColor}40, inset 0 1px 0 rgba(255,255,255,0.1)`
+                }}
+              >
+                {/* 扫描线动画 */}
+                <div 
+                  className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none"
+                  style={{ opacity: 0.3 }}
+                >
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      background: `repeating-linear-gradient(
+                        0deg,
+                        transparent,
+                        transparent 2px,
+                        rgba(0, 255, 200, 0.03) 2px,
+                        rgba(0, 255, 200, 0.03) 4px
+                      )`,
+                      animation: 'shimmer 3s linear infinite'
+                    }}
+                  />
+                </div>
+                
+                {/* 顶部标题栏 */}
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: '#00ffc8', boxShadow: '0 0 8px #00ffc8' }}
+                    />
+                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">AI ANALYSIS</span>
+                  </div>
+                  <span 
+                    className="text-[10px] font-bold px-2 py-0.5 rounded"
+                    style={{ 
+                      background: `${threatColor}30`,
+                      color: threatColor,
+                      border: `1px solid ${threatColor}50`
+                    }}
+                  >
+                    THREAT: {threatLevel}
+                  </span>
+                </div>
+                
+                {/* 球员信息 */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div 
+                    className="w-10 h-10 rounded-full overflow-hidden"
+                    style={{ 
+                      border: `2px solid ${teamColor}`,
+                      boxShadow: `0 0 12px ${teamColor}60`
+                    }}
+                  >
+                    <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <div className="text-white font-bold text-sm">{player.name}</div>
+                    <div className="text-white/50 text-[10px] font-mono">
+                      #{player.id + 1} · {selectedPlayer.team === 'home' ? '主队' : '客队'}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 数据指标 */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* 距离球门 */}
+                  <div className="bg-black/40 rounded-lg p-2 border border-white/10">
+                    <div className="text-[9px] text-white/50 font-mono mb-1">DISTANCE TO GOAL</div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-bold text-cyan-400 font-mono">{distanceMeters}</span>
+                      <span className="text-[10px] text-cyan-400/70">m</span>
+                    </div>
+                    <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${Math.max(5, 100 - distancePercent)}%`,
+                          background: 'linear-gradient(90deg, #00ffc8, #00aaff)'
+                        }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* 进球概率 */}
+                  <div className="bg-black/40 rounded-lg p-2 border border-white/10">
+                    <div className="text-[9px] text-white/50 font-mono mb-1">GOAL PROBABILITY</div>
+                    <div className="flex items-baseline gap-1">
+                      <span 
+                        className="text-xl font-bold font-mono"
+                        style={{ color: threatColor }}
+                      >
+                        {xgPercent}
+                      </span>
+                      <span className="text-[10px]" style={{ color: `${threatColor}99` }}>%</span>
+                    </div>
+                    <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${xgPercent}%`,
+                          background: `linear-gradient(90deg, #22c55e, ${threatColor})`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 区域状态 */}
+                <div className="mt-2 flex items-center gap-2 text-[9px]">
+                  <div 
+                    className="px-2 py-0.5 rounded font-mono"
+                    style={{
+                      background: inPenaltyArea ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
+                      border: inPenaltyArea ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255,255,255,0.1)',
+                      color: inPenaltyArea ? '#ef4444' : 'rgba(255,255,255,0.5)'
+                    }}
+                  >
+                    {inPenaltyArea ? '⚠ IN PENALTY AREA' : 'OUTSIDE BOX'}
+                  </div>
+                  {inDangerZone && !inPenaltyArea && (
+                    <div 
+                      className="px-2 py-0.5 rounded font-mono"
+                      style={{
+                        background: 'rgba(245, 158, 11, 0.2)',
+                        border: '1px solid rgba(245, 158, 11, 0.4)',
+                        color: '#f59e0b'
+                      }}
+                    >
+                      DANGER ZONE
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 队伍标识 */}
         <div className="absolute bottom-2 left-2 flex items-center gap-1">
