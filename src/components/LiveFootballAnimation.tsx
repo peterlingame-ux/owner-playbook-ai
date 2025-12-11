@@ -150,6 +150,7 @@ export default function LiveFootballAnimation({
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<{ id: number; team: 'home' | 'away'; x: number; y: number } | null>(null);
+  const [chasingPlayer, setChasingPlayer] = useState<{ id: number; team: 'home' | 'away' } | null>(null);
   const animationRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const ballUpdateRef = useRef<number>(0);
@@ -366,6 +367,36 @@ export default function LiveFootballAnimation({
     });
   }, []);
 
+  // 找到离球最近的球员
+  const findNearestPlayerToBall = useCallback((
+    homePlayers: PlayerPosition[], 
+    awayPlayers: PlayerPosition[], 
+    ballX: number, 
+    ballY: number
+  ) => {
+    let nearestPlayer: { id: number; team: 'home' | 'away'; distance: number } | null = null;
+    
+    // 检查主队球员（跳过守门员 id=0）
+    homePlayers.forEach(player => {
+      if (player.id === 0) return; // 守门员不追球
+      const dist = Math.sqrt(Math.pow(player.x - ballX, 2) + Math.pow(player.y - ballY, 2));
+      if (!nearestPlayer || dist < nearestPlayer.distance) {
+        nearestPlayer = { id: player.id, team: 'home', distance: dist };
+      }
+    });
+    
+    // 检查客队球员（跳过守门员 id=0）
+    awayPlayers.forEach(player => {
+      if (player.id === 0) return;
+      const dist = Math.sqrt(Math.pow(player.x - ballX, 2) + Math.pow(player.y - ballY, 2));
+      if (!nearestPlayer || dist < nearestPlayer.distance) {
+        nearestPlayer = { id: player.id, team: 'away', distance: dist };
+      }
+    });
+    
+    return nearestPlayer;
+  }, []);
+
   // 动画循环 - 使用物理模拟实现平滑移动
   useEffect(() => {
     if (!isPlaying) {
@@ -379,6 +410,7 @@ export default function LiveFootballAnimation({
     const ballUpdateInterval = 1200; // 足球更频繁更新
     const damping = 0.92; // 阻尼系数
     const acceleration = 0.008; // 加速度
+    const chaserAcceleration = 0.015; // 追球球员加速度更高
     const ballDamping = 0.95;
     const ballAcceleration = 0.012;
 
@@ -395,18 +427,40 @@ export default function LiveFootballAnimation({
         ballUpdateRef.current = timestamp;
       }
 
+      // 获取当前球的位置并找到最近的球员
+      setBallPosition(prevBall => {
+        const nearest = findNearestPlayerToBall(homePlayers, awayPlayers, prevBall.x, prevBall.y);
+        if (nearest && (!chasingPlayer || nearest.id !== chasingPlayer.id || nearest.team !== chasingPlayer.team)) {
+          setChasingPlayer({ id: nearest.id, team: nearest.team });
+        }
+        return prevBall;
+      });
+
       // 使用速度和加速度平滑移动球员
       setHomePlayers(prev =>
         prev.map(player => {
-          const dx = player.targetX - player.x;
-          const dy = player.targetY - player.y;
+          const isChaser = chasingPlayer?.team === 'home' && chasingPlayer?.id === player.id;
+          
+          // 追球球员的目标是球的位置
+          let targetX = player.targetX;
+          let targetY = player.targetY;
+          if (isChaser) {
+            targetX = ballPosition.x;
+            targetY = ballPosition.y;
+          }
+          
+          const dx = targetX - player.x;
+          const dy = targetY - player.y;
+          
+          // 追球球员有更高的加速度
+          const accel = isChaser ? chaserAcceleration : acceleration;
           
           // 应用加速度
-          let newVelX = player.velocityX * damping + dx * acceleration;
-          let newVelY = player.velocityY * damping + dy * acceleration;
+          let newVelX = player.velocityX * damping + dx * accel;
+          let newVelY = player.velocityY * damping + dy * accel;
           
-          // 限制最大速度
-          const maxSpeed = 0.8;
+          // 追球球员速度更快
+          const maxSpeed = isChaser ? 1.2 : 0.8;
           const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
           if (speed > maxSpeed) {
             newVelX = (newVelX / speed) * maxSpeed;
@@ -425,13 +479,24 @@ export default function LiveFootballAnimation({
 
       setAwayPlayers(prev =>
         prev.map(player => {
-          const dx = player.targetX - player.x;
-          const dy = player.targetY - player.y;
+          const isChaser = chasingPlayer?.team === 'away' && chasingPlayer?.id === player.id;
           
-          let newVelX = player.velocityX * damping + dx * acceleration;
-          let newVelY = player.velocityY * damping + dy * acceleration;
+          let targetX = player.targetX;
+          let targetY = player.targetY;
+          if (isChaser) {
+            targetX = ballPosition.x;
+            targetY = ballPosition.y;
+          }
           
-          const maxSpeed = 0.8;
+          const dx = targetX - player.x;
+          const dy = targetY - player.y;
+          
+          const accel = isChaser ? chaserAcceleration : acceleration;
+          
+          let newVelX = player.velocityX * damping + dx * accel;
+          let newVelY = player.velocityY * damping + dy * accel;
+          
+          const maxSpeed = isChaser ? 1.2 : 0.8;
           const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
           if (speed > maxSpeed) {
             newVelX = (newVelX / speed) * maxSpeed;
@@ -482,7 +547,7 @@ export default function LiveFootballAnimation({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying, updateTargetPositions, updateBallTarget]);
+  }, [isPlaying, updateTargetPositions, updateBallTarget, findNearestPlayerToBall, chasingPlayer, ballPosition.x, ballPosition.y, homePlayers, awayPlayers]);
 
   // 切换阵型
   const handleFormationChange = (team: 'home' | 'away', formation: string) => {
@@ -847,98 +912,128 @@ export default function LiveFootballAnimation({
         )}
 
         {/* 主队球员 (蓝色) */}
-        {homePlayers.map(player => (
-          <div
-            key={`home-${player.id}`}
-            className="absolute transition-all duration-100 ease-linear cursor-pointer"
-            style={{
-              left: `${player.x}%`,
-              top: `${player.y}%`,
-              transform: 'translate(-50%, -50%)',
-              zIndex: selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 20 : 10,
-            }}
-            onClick={() => handlePlayerClick(player, 'home')}
-          >
-            <div className="relative flex flex-col items-center">
-              {/* 球员头像容器 */}
-              <div className="relative">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 ring-blue-300/50 transition-all ${
-                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 'ring-4 ring-yellow-400 scale-110' : ''
+        {homePlayers.map(player => {
+          const isChaser = chasingPlayer?.team === 'home' && chasingPlayer?.id === player.id;
+          const isSelected = selectedPlayer?.id === player.id && selectedPlayer?.team === 'home';
+          
+          return (
+            <div
+              key={`home-${player.id}`}
+              className="absolute transition-all duration-75 ease-out cursor-pointer"
+              style={{
+                left: `${player.x}%`,
+                top: `${player.y}%`,
+                transform: 'translate(-50%, -50%)',
+                zIndex: isSelected ? 20 : isChaser ? 15 : 10,
+              }}
+              onClick={() => handlePlayerClick(player, 'home')}
+            >
+              <div className="relative flex flex-col items-center">
+                {/* 追球指示器 */}
+                {isChaser && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <div className="px-1.5 py-0.5 bg-emerald-500 rounded text-[6px] text-white font-bold animate-pulse shadow-lg shadow-emerald-500/50">
+                      ⚡追球
+                    </div>
+                  </div>
+                )}
+                {/* 球员头像容器 */}
+                <div className="relative">
+                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 transition-all ${
+                    isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-blue-300/50'
+                  }`}>
+                    <img 
+                      src={player.avatar} 
+                      alt={player.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/avatars/avatar-1.png';
+                      }}
+                    />
+                  </div>
+                  {/* 球衣号码 */}
+                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md ${
+                    isChaser ? 'bg-emerald-500' : 'bg-blue-600'
+                  }`}>
+                    <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
+                  </div>
+                  {/* 发光效果 */}
+                  <div className={`absolute inset-0 rounded-full blur-md -z-10 scale-125 transition-all ${
+                    isChaser ? 'bg-emerald-400 opacity-100 animate-pulse' : isSelected ? 'bg-blue-500 opacity-100' : 'bg-blue-500 opacity-60'
+                  }`} />
+                </div>
+                {/* 球员名字 */}
+                <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
+                  isSelected ? 'bg-yellow-500' : isChaser ? 'bg-emerald-500' : 'bg-blue-600/90'
                 }`}>
-                  <img 
-                    src={player.avatar} 
-                    alt={player.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/avatars/avatar-1.png';
-                    }}
-                  />
+                  {player.name}
                 </div>
-                {/* 球衣号码 */}
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center shadow-md">
-                  <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
-                </div>
-                {/* 发光效果 */}
-                <div className={`absolute inset-0 rounded-full bg-blue-500 blur-md -z-10 scale-125 transition-opacity ${
-                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 'opacity-100' : 'opacity-60'
-                }`} />
-              </div>
-              {/* 球员名字 */}
-              <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
-                selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 'bg-yellow-500' : 'bg-blue-600/90'
-              }`}>
-                {player.name}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* 客队球员 (红色) */}
-        {awayPlayers.map(player => (
-          <div
-            key={`away-${player.id}`}
-            className="absolute transition-all duration-100 ease-linear cursor-pointer"
-            style={{
-              left: `${player.x}%`,
-              top: `${player.y}%`,
-              transform: 'translate(-50%, -50%)',
-              zIndex: selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 20 : 10,
-            }}
-            onClick={() => handlePlayerClick(player, 'away')}
-          >
-            <div className="relative flex flex-col items-center">
-              {/* 球员头像容器 */}
-              <div className="relative">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 ring-red-300/50 transition-all ${
-                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 'ring-4 ring-yellow-400 scale-110' : ''
+        {awayPlayers.map(player => {
+          const isChaser = chasingPlayer?.team === 'away' && chasingPlayer?.id === player.id;
+          const isSelected = selectedPlayer?.id === player.id && selectedPlayer?.team === 'away';
+          
+          return (
+            <div
+              key={`away-${player.id}`}
+              className="absolute transition-all duration-75 ease-out cursor-pointer"
+              style={{
+                left: `${player.x}%`,
+                top: `${player.y}%`,
+                transform: 'translate(-50%, -50%)',
+                zIndex: isSelected ? 20 : isChaser ? 15 : 10,
+              }}
+              onClick={() => handlePlayerClick(player, 'away')}
+            >
+              <div className="relative flex flex-col items-center">
+                {/* 追球指示器 */}
+                {isChaser && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <div className="px-1.5 py-0.5 bg-emerald-500 rounded text-[6px] text-white font-bold animate-pulse shadow-lg shadow-emerald-500/50">
+                      ⚡追球
+                    </div>
+                  </div>
+                )}
+                {/* 球员头像容器 */}
+                <div className="relative">
+                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 transition-all ${
+                    isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-red-300/50'
+                  }`}>
+                    <img 
+                      src={player.avatar} 
+                      alt={player.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/avatars/avatar-6.png';
+                      }}
+                    />
+                  </div>
+                  {/* 球衣号码 */}
+                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md ${
+                    isChaser ? 'bg-emerald-500' : 'bg-red-600'
+                  }`}>
+                    <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
+                  </div>
+                  {/* 发光效果 */}
+                  <div className={`absolute inset-0 rounded-full blur-md -z-10 scale-125 transition-all ${
+                    isChaser ? 'bg-emerald-400 opacity-100 animate-pulse' : isSelected ? 'bg-red-500 opacity-100' : 'bg-red-500 opacity-60'
+                  }`} />
+                </div>
+                {/* 球员名字 */}
+                <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
+                  isSelected ? 'bg-yellow-500' : isChaser ? 'bg-emerald-500' : 'bg-red-600/90'
                 }`}>
-                  <img 
-                    src={player.avatar} 
-                    alt={player.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/avatars/avatar-6.png';
-                    }}
-                  />
+                  {player.name}
                 </div>
-                {/* 球衣号码 */}
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-600 border-2 border-white flex items-center justify-center shadow-md">
-                  <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
-                </div>
-                {/* 发光效果 */}
-                <div className={`absolute inset-0 rounded-full bg-red-500 blur-md -z-10 scale-125 transition-opacity ${
-                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 'opacity-100' : 'opacity-60'
-                }`} />
-              </div>
-              {/* 球员名字 */}
-              <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
-                selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 'bg-yellow-500' : 'bg-red-600/90'
-              }`}>
-                {player.name}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* 足球 */}
         <div
