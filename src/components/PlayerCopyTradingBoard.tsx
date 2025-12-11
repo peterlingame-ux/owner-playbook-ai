@@ -24,16 +24,13 @@ import losingStreakBg from "@/assets/losing-streak-bg.png";
 const PRIZE_POOL = 1000000;
 const AI_BENCHMARK_WIN_RATE = 58;
 
-// 计算预计奖金
-const calculateEstimatedPrize = (winRate: number, rank: number, eligiblePlayers: number): number => {
+// 计算预计奖金 - 奖金池平均分配给所有达标玩家
+const calculateEstimatedPrize = (winRate: number, _rank: number, eligiblePlayers: number): number => {
   if (winRate <= AI_BENCHMARK_WIN_RATE) return 0;
   if (eligiblePlayers === 0) return 0;
   
-  const baseShare = PRIZE_POOL / eligiblePlayers;
-  const rankBonus = Math.max(0, (10 - rank) / 10) * 0.3 + 0.7;
-  const winRateBonus = 1 + ((winRate - AI_BENCHMARK_WIN_RATE) / 100);
-  
-  return Math.floor(baseShare * rankBonus * winRateBonus);
+  // 奖金池平均分配给所有达标玩家
+  return Math.floor(PRIZE_POOL / eligiblePlayers);
 };
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
@@ -667,16 +664,16 @@ const PlayerCopyTradingBoard = () => {
               <span className="text-border">|</span>
               <span>盈利率 <span className="text-foreground font-medium">{player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%</span></span>
             </div>
-            {/* 第三行：预计奖金 */}
+            {/* 第三行：预期奖金 */}
             <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
-              <span className="text-muted-foreground">预计奖金</span>
+              <span className="text-warning font-medium text-[10px] sm:text-xs">预期奖金</span>
               {(() => {
                 const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                 const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
                 return prize > 0 ? (
                   <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
                 ) : (
-                  <span className="text-muted-foreground/50 text-[9px]">需超过AI胜率{AI_BENCHMARK_WIN_RATE}%</span>
+                  <span className="text-muted-foreground/50 text-[10px]">未达标</span>
                 );
               })()}
             </div>
