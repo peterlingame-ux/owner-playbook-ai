@@ -1214,291 +1214,367 @@ export default function LiveFootballAnimation({
           </div>
         )}
 
-        {/* 阵型连线层 - 当选中球员时显示同队球员阵型连线 */}
+        {/* 阵型连线层 - 当选中球员时显示标准阵型结构 */}
         {selectedPlayer && (
-          <svg 
-            className="absolute inset-0 w-full h-full pointer-events-none" 
-            viewBox="0 0 100 100" 
-            preserveAspectRatio="none" 
-            style={{ zIndex: 5 }}
-          >
-            <defs>
-              {/* 主队阵型填充 */}
-              <linearGradient id="homeFormationFill" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgba(0, 150, 255, 0.15)" />
-                <stop offset="100%" stopColor="rgba(0, 100, 255, 0.05)" />
-              </linearGradient>
-              {/* 客队阵型填充 */}
-              <linearGradient id="awayFormationFill" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgba(239, 68, 68, 0.15)" />
-                <stop offset="100%" stopColor="rgba(220, 38, 38, 0.05)" />
-              </linearGradient>
-              {/* 发光滤镜 */}
-              <filter id="formationGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="0.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+          <>
+            {/* 阵型名称标签 */}
+            <div 
+              className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full text-xs font-bold"
+              style={{
+                background: selectedPlayer.team === 'home' 
+                  ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.9), rgba(0, 150, 255, 0.9))' 
+                  : 'linear-gradient(135deg, rgba(220, 38, 38, 0.9), rgba(239, 68, 68, 0.9))',
+                color: 'white',
+                boxShadow: selectedPlayer.team === 'home'
+                  ? '0 0 20px rgba(0, 150, 255, 0.6)'
+                  : '0 0 20px rgba(239, 68, 68, 0.6)',
+                border: '1px solid rgba(255,255,255,0.3)'
+              }}
+            >
+              {selectedPlayer.team === 'home' ? `主队阵型: ${currentHomeFormation}` : `客队阵型: ${currentAwayFormation}`}
+            </div>
             
-            {/* 主队阵型连线和区域 */}
-            {selectedPlayer.team === 'home' && homePlayers.length > 0 && (() => {
-              // 按位置分组：门将、后卫、中场、前锋
-              const gk = homePlayers.filter(p => p.id === 0);
-              const defenders = homePlayers.filter(p => p.id >= 1 && p.id <= 4).sort((a, b) => a.x - b.x);
-              const midfielders = homePlayers.filter(p => p.id >= 5 && p.id <= 8).sort((a, b) => a.x - b.x);
-              const forwards = homePlayers.filter(p => p.id >= 9).sort((a, b) => a.x - b.x);
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none" 
+              viewBox="0 0 100 100" 
+              preserveAspectRatio="none" 
+              style={{ zIndex: 5 }}
+            >
+              <defs>
+                {/* 主队阵型填充 */}
+                <linearGradient id="homeFormationFill" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stopColor="rgba(0, 100, 255, 0.25)" />
+                  <stop offset="100%" stopColor="rgba(0, 150, 255, 0.08)" />
+                </linearGradient>
+                {/* 客队阵型填充 */}
+                <linearGradient id="awayFormationFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="rgba(239, 68, 68, 0.25)" />
+                  <stop offset="100%" stopColor="rgba(220, 38, 38, 0.08)" />
+                </linearGradient>
+                {/* 发光滤镜 */}
+                <filter id="formationGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="0.8" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
               
-              // 创建阵型多边形点
-              const allPoints = [...defenders, ...midfielders, ...forwards];
-              if (allPoints.length < 3) return null;
-              
-              // 计算凸包来创建阵型区域
-              const hullPoints = [...allPoints].sort((a, b) => a.x - b.x);
-              const upper = hullPoints.map(p => `${p.x},${p.y}`).join(' ');
-              
-              return (
-                <g filter="url(#formationGlow)">
-                  {/* 阵型区域填充 */}
-                  <polygon
-                    points={allPoints.map(p => `${p.x},${p.y}`).join(' ')}
-                    fill="url(#homeFormationFill)"
-                    stroke="rgba(0, 180, 255, 0.4)"
-                    strokeWidth="0.3"
-                  />
-                  
-                  {/* 门将到后卫连线 */}
-                  {gk.length > 0 && defenders.map(def => (
-                    <line
-                      key={`gk-def-${def.id}`}
-                      x1={gk[0].x}
-                      y1={gk[0].y}
-                      x2={def.x}
-                      y2={def.y}
-                      stroke="rgba(0, 200, 255, 0.5)"
-                      strokeWidth="0.4"
-                      strokeDasharray="1,0.5"
-                    />
-                  ))}
-                  
-                  {/* 后卫之间连线 */}
-                  {defenders.map((def, idx) => {
-                    if (idx === defenders.length - 1) return null;
-                    return (
-                      <line
-                        key={`def-line-${def.id}`}
-                        x1={def.x}
-                        y1={def.y}
-                        x2={defenders[idx + 1].x}
-                        y2={defenders[idx + 1].y}
-                        stroke="rgba(0, 200, 255, 0.6)"
-                        strokeWidth="0.5"
-                      />
-                    );
-                  })}
-                  
-                  {/* 后卫到中场连线 */}
-                  {defenders.map((def, idx) => {
-                    const midIdx = Math.min(idx, midfielders.length - 1);
-                    if (midfielders[midIdx]) {
+              {/* 主队阵型 - 使用标准阵型配置 */}
+              {selectedPlayer.team === 'home' && (() => {
+                const formationPositions = formations[currentHomeFormation] || formations['4-4-2'];
+                
+                // 根据阵型解析各线球员
+                const formationParts = currentHomeFormation.split('-').map(Number);
+                let currentIndex = 1; // 跳过门将
+                const lines: FormationPosition[][] = [];
+                
+                formationParts.forEach(count => {
+                  lines.push(formationPositions.slice(currentIndex, currentIndex + count));
+                  currentIndex += count;
+                });
+                
+                // 门将位置
+                const gkPos = formationPositions[0];
+                
+                return (
+                  <g filter="url(#formationGlow)">
+                    {/* 绘制每条线的区域填充 */}
+                    {lines.map((line, lineIdx) => {
+                      if (line.length < 2) return null;
+                      const sortedLine = [...line].sort((a, b) => a.x - b.x);
+                      const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
+                      
+                      // 创建梯形区域
+                      const leftX = Math.max(5, sortedLine[0].x - 8);
+                      const rightX = Math.min(95, sortedLine[sortedLine.length - 1].x + 8);
+                      const topY = avgY - 4;
+                      const bottomY = avgY + 4;
+                      
                       return (
-                        <line
-                          key={`def-mid-${def.id}`}
-                          x1={def.x}
-                          y1={def.y}
-                          x2={midfielders[midIdx].x}
-                          y2={midfielders[midIdx].y}
-                          stroke="rgba(0, 200, 255, 0.4)"
-                          strokeWidth="0.3"
-                          strokeDasharray="1,0.5"
+                        <rect
+                          key={`home-line-area-${lineIdx}`}
+                          x={leftX}
+                          y={topY}
+                          width={rightX - leftX}
+                          height={bottomY - topY}
+                          fill="rgba(0, 150, 255, 0.15)"
+                          rx="2"
+                          ry="2"
                         />
                       );
-                    }
-                    return null;
-                  })}
-                  
-                  {/* 中场之间连线 */}
-                  {midfielders.map((mid, idx) => {
-                    if (idx === midfielders.length - 1) return null;
-                    return (
+                    })}
+                    
+                    {/* 门将到后防线连线 */}
+                    {lines[0] && lines[0].map((def, idx) => (
                       <line
-                        key={`mid-line-${mid.id}`}
-                        x1={mid.x}
-                        y1={mid.y}
-                        x2={midfielders[idx + 1].x}
-                        y2={midfielders[idx + 1].y}
-                        stroke="rgba(0, 200, 255, 0.6)"
+                        key={`home-gk-def-${idx}`}
+                        x1={gkPos.x}
+                        y1={gkPos.y}
+                        x2={def.x}
+                        y2={def.y}
+                        stroke="rgba(0, 200, 255, 0.4)"
                         strokeWidth="0.5"
+                        strokeDasharray="2,1"
                       />
-                    );
-                  })}
-                  
-                  {/* 中场到前锋连线 */}
-                  {midfielders.map((mid, idx) => {
-                    const fwdIdx = Math.floor(idx / 2);
-                    if (forwards[fwdIdx]) {
+                    ))}
+                    
+                    {/* 绘制每条线内球员连线 */}
+                    {lines.map((line, lineIdx) => {
+                      const sortedLine = [...line].sort((a, b) => a.x - b.x);
+                      return sortedLine.map((pos, idx) => {
+                        if (idx === sortedLine.length - 1) return null;
+                        return (
+                          <line
+                            key={`home-line-${lineIdx}-${idx}`}
+                            x1={pos.x}
+                            y1={pos.y}
+                            x2={sortedLine[idx + 1].x}
+                            y2={sortedLine[idx + 1].y}
+                            stroke="rgba(0, 200, 255, 0.8)"
+                            strokeWidth="0.8"
+                          />
+                        );
+                      });
+                    })}
+                    
+                    {/* 绘制线与线之间的连接 */}
+                    {lines.map((line, lineIdx) => {
+                      if (lineIdx === lines.length - 1) return null;
+                      const nextLine = lines[lineIdx + 1];
+                      const sortedCurrent = [...line].sort((a, b) => a.x - b.x);
+                      const sortedNext = [...nextLine].sort((a, b) => a.x - b.x);
+                      
+                      // 连接相邻线的边缘球员
                       return (
-                        <line
-                          key={`mid-fwd-${mid.id}`}
-                          x1={mid.x}
-                          y1={mid.y}
-                          x2={forwards[fwdIdx].x}
-                          y2={forwards[fwdIdx].y}
-                          stroke="rgba(0, 200, 255, 0.4)"
-                          strokeWidth="0.3"
-                          strokeDasharray="1,0.5"
-                        />
+                        <g key={`home-between-${lineIdx}`}>
+                          <line
+                            x1={sortedCurrent[0].x}
+                            y1={sortedCurrent[0].y}
+                            x2={sortedNext[0].x}
+                            y2={sortedNext[0].y}
+                            stroke="rgba(0, 200, 255, 0.5)"
+                            strokeWidth="0.5"
+                            strokeDasharray="2,1"
+                          />
+                          <line
+                            x1={sortedCurrent[sortedCurrent.length - 1].x}
+                            y1={sortedCurrent[sortedCurrent.length - 1].y}
+                            x2={sortedNext[sortedNext.length - 1].x}
+                            y2={sortedNext[sortedNext.length - 1].y}
+                            stroke="rgba(0, 200, 255, 0.5)"
+                            strokeWidth="0.5"
+                            strokeDasharray="2,1"
+                          />
+                          {/* 中间连接 */}
+                          {sortedCurrent.length > 2 && sortedNext.length > 2 && (
+                            <line
+                              x1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].x}
+                              y1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].y}
+                              x2={sortedNext[Math.floor(sortedNext.length / 2)].x}
+                              y2={sortedNext[Math.floor(sortedNext.length / 2)].y}
+                              stroke="rgba(0, 200, 255, 0.5)"
+                              strokeWidth="0.5"
+                              strokeDasharray="2,1"
+                            />
+                          )}
+                        </g>
                       );
-                    }
-                    return null;
-                  })}
-                  
-                  {/* 前锋之间连线 */}
-                  {forwards.map((fwd, idx) => {
-                    if (idx === forwards.length - 1) return null;
-                    return (
-                      <line
-                        key={`fwd-line-${fwd.id}`}
-                        x1={fwd.x}
-                        y1={fwd.y}
-                        x2={forwards[idx + 1].x}
-                        y2={forwards[idx + 1].y}
-                        stroke="rgba(0, 200, 255, 0.6)"
-                        strokeWidth="0.5"
+                    })}
+                    
+                    {/* 标准位置标记点 */}
+                    {formationPositions.map((pos, idx) => (
+                      <circle
+                        key={`home-pos-${idx}`}
+                        cx={pos.x}
+                        cy={pos.y}
+                        r="1.5"
+                        fill="rgba(0, 200, 255, 0.9)"
+                        stroke="white"
+                        strokeWidth="0.3"
                       />
-                    );
-                  })}
-                </g>
-              );
-            })()}
-            
-            {/* 客队阵型连线和区域 */}
-            {selectedPlayer.team === 'away' && awayPlayers.length > 0 && (() => {
-              const gk = awayPlayers.filter(p => p.id === 0);
-              const defenders = awayPlayers.filter(p => p.id >= 1 && p.id <= 4).sort((a, b) => a.x - b.x);
-              const midfielders = awayPlayers.filter(p => p.id >= 5 && p.id <= 8).sort((a, b) => a.x - b.x);
-              const forwards = awayPlayers.filter(p => p.id >= 9).sort((a, b) => a.x - b.x);
+                    ))}
+                    
+                    {/* 位置标签 */}
+                    {lines.map((line, lineIdx) => {
+                      const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
+                      const labels = ['后卫', '中场', '前锋', '前腰'];
+                      const label = formationParts.length === 4 
+                        ? ['后卫', '后腰', '前腰', '前锋'][lineIdx]
+                        : labels[lineIdx];
+                      return (
+                        <text
+                          key={`home-label-${lineIdx}`}
+                          x="3"
+                          y={avgY + 1}
+                          fill="rgba(0, 200, 255, 0.9)"
+                          fontSize="3"
+                          fontWeight="bold"
+                        >
+                          {label}
+                        </text>
+                      );
+                    })}
+                  </g>
+                );
+              })()}
               
-              const allPoints = [...defenders, ...midfielders, ...forwards];
-              if (allPoints.length < 3) return null;
-              
-              return (
-                <g filter="url(#formationGlow)">
-                  {/* 阵型区域填充 */}
-                  <polygon
-                    points={allPoints.map(p => `${p.x},${p.y}`).join(' ')}
-                    fill="url(#awayFormationFill)"
-                    stroke="rgba(239, 68, 68, 0.4)"
-                    strokeWidth="0.3"
-                  />
-                  
-                  {/* 门将到后卫连线 */}
-                  {gk.length > 0 && defenders.map(def => (
-                    <line
-                      key={`away-gk-def-${def.id}`}
-                      x1={gk[0].x}
-                      y1={gk[0].y}
-                      x2={def.x}
-                      y2={def.y}
-                      stroke="rgba(239, 68, 68, 0.5)"
-                      strokeWidth="0.4"
-                      strokeDasharray="1,0.5"
-                    />
-                  ))}
-                  
-                  {/* 后卫之间连线 */}
-                  {defenders.map((def, idx) => {
-                    if (idx === defenders.length - 1) return null;
-                    return (
-                      <line
-                        key={`away-def-line-${def.id}`}
-                        x1={def.x}
-                        y1={def.y}
-                        x2={defenders[idx + 1].x}
-                        y2={defenders[idx + 1].y}
-                        stroke="rgba(239, 68, 68, 0.6)"
-                        strokeWidth="0.5"
-                      />
-                    );
-                  })}
-                  
-                  {/* 后卫到中场连线 */}
-                  {defenders.map((def, idx) => {
-                    const midIdx = Math.min(idx, midfielders.length - 1);
-                    if (midfielders[midIdx]) {
+              {/* 客队阵型 - 使用标准阵型配置（镜像） */}
+              {selectedPlayer.team === 'away' && (() => {
+                const formationPositions = mirrorFormation(formations[currentAwayFormation] || formations['4-3-3']);
+                
+                const formationParts = currentAwayFormation.split('-').map(Number);
+                let currentIndex = 1;
+                const lines: FormationPosition[][] = [];
+                
+                formationParts.forEach(count => {
+                  lines.push(formationPositions.slice(currentIndex, currentIndex + count));
+                  currentIndex += count;
+                });
+                
+                const gkPos = formationPositions[0];
+                
+                return (
+                  <g filter="url(#formationGlow)">
+                    {/* 绘制每条线的区域填充 */}
+                    {lines.map((line, lineIdx) => {
+                      if (line.length < 2) return null;
+                      const sortedLine = [...line].sort((a, b) => a.x - b.x);
+                      const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
+                      
+                      const leftX = Math.max(5, sortedLine[0].x - 8);
+                      const rightX = Math.min(95, sortedLine[sortedLine.length - 1].x + 8);
+                      const topY = avgY - 4;
+                      const bottomY = avgY + 4;
+                      
                       return (
-                        <line
-                          key={`away-def-mid-${def.id}`}
-                          x1={def.x}
-                          y1={def.y}
-                          x2={midfielders[midIdx].x}
-                          y2={midfielders[midIdx].y}
-                          stroke="rgba(239, 68, 68, 0.4)"
-                          strokeWidth="0.3"
-                          strokeDasharray="1,0.5"
+                        <rect
+                          key={`away-line-area-${lineIdx}`}
+                          x={leftX}
+                          y={topY}
+                          width={rightX - leftX}
+                          height={bottomY - topY}
+                          fill="rgba(239, 68, 68, 0.15)"
+                          rx="2"
+                          ry="2"
                         />
                       );
-                    }
-                    return null;
-                  })}
-                  
-                  {/* 中场之间连线 */}
-                  {midfielders.map((mid, idx) => {
-                    if (idx === midfielders.length - 1) return null;
-                    return (
+                    })}
+                    
+                    {/* 门将到后防线连线 */}
+                    {lines[0] && lines[0].map((def, idx) => (
                       <line
-                        key={`away-mid-line-${mid.id}`}
-                        x1={mid.x}
-                        y1={mid.y}
-                        x2={midfielders[idx + 1].x}
-                        y2={midfielders[idx + 1].y}
-                        stroke="rgba(239, 68, 68, 0.6)"
+                        key={`away-gk-def-${idx}`}
+                        x1={gkPos.x}
+                        y1={gkPos.y}
+                        x2={def.x}
+                        y2={def.y}
+                        stroke="rgba(239, 68, 68, 0.4)"
                         strokeWidth="0.5"
+                        strokeDasharray="2,1"
                       />
-                    );
-                  })}
-                  
-                  {/* 中场到前锋连线 */}
-                  {midfielders.map((mid, idx) => {
-                    const fwdIdx = Math.floor(idx / 2);
-                    if (forwards[fwdIdx]) {
+                    ))}
+                    
+                    {/* 绘制每条线内球员连线 */}
+                    {lines.map((line, lineIdx) => {
+                      const sortedLine = [...line].sort((a, b) => a.x - b.x);
+                      return sortedLine.map((pos, idx) => {
+                        if (idx === sortedLine.length - 1) return null;
+                        return (
+                          <line
+                            key={`away-line-${lineIdx}-${idx}`}
+                            x1={pos.x}
+                            y1={pos.y}
+                            x2={sortedLine[idx + 1].x}
+                            y2={sortedLine[idx + 1].y}
+                            stroke="rgba(239, 68, 68, 0.8)"
+                            strokeWidth="0.8"
+                          />
+                        );
+                      });
+                    })}
+                    
+                    {/* 绘制线与线之间的连接 */}
+                    {lines.map((line, lineIdx) => {
+                      if (lineIdx === lines.length - 1) return null;
+                      const nextLine = lines[lineIdx + 1];
+                      const sortedCurrent = [...line].sort((a, b) => a.x - b.x);
+                      const sortedNext = [...nextLine].sort((a, b) => a.x - b.x);
+                      
                       return (
-                        <line
-                          key={`away-mid-fwd-${mid.id}`}
-                          x1={mid.x}
-                          y1={mid.y}
-                          x2={forwards[fwdIdx].x}
-                          y2={forwards[fwdIdx].y}
-                          stroke="rgba(239, 68, 68, 0.4)"
-                          strokeWidth="0.3"
-                          strokeDasharray="1,0.5"
-                        />
+                        <g key={`away-between-${lineIdx}`}>
+                          <line
+                            x1={sortedCurrent[0].x}
+                            y1={sortedCurrent[0].y}
+                            x2={sortedNext[0].x}
+                            y2={sortedNext[0].y}
+                            stroke="rgba(239, 68, 68, 0.5)"
+                            strokeWidth="0.5"
+                            strokeDasharray="2,1"
+                          />
+                          <line
+                            x1={sortedCurrent[sortedCurrent.length - 1].x}
+                            y1={sortedCurrent[sortedCurrent.length - 1].y}
+                            x2={sortedNext[sortedNext.length - 1].x}
+                            y2={sortedNext[sortedNext.length - 1].y}
+                            stroke="rgba(239, 68, 68, 0.5)"
+                            strokeWidth="0.5"
+                            strokeDasharray="2,1"
+                          />
+                          {sortedCurrent.length > 2 && sortedNext.length > 2 && (
+                            <line
+                              x1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].x}
+                              y1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].y}
+                              x2={sortedNext[Math.floor(sortedNext.length / 2)].x}
+                              y2={sortedNext[Math.floor(sortedNext.length / 2)].y}
+                              stroke="rgba(239, 68, 68, 0.5)"
+                              strokeWidth="0.5"
+                              strokeDasharray="2,1"
+                            />
+                          )}
+                        </g>
                       );
-                    }
-                    return null;
-                  })}
-                  
-                  {/* 前锋之间连线 */}
-                  {forwards.map((fwd, idx) => {
-                    if (idx === forwards.length - 1) return null;
-                    return (
-                      <line
-                        key={`away-fwd-line-${fwd.id}`}
-                        x1={fwd.x}
-                        y1={fwd.y}
-                        x2={forwards[idx + 1].x}
-                        y2={forwards[idx + 1].y}
-                        stroke="rgba(239, 68, 68, 0.6)"
-                        strokeWidth="0.5"
+                    })}
+                    
+                    {/* 标准位置标记点 */}
+                    {formationPositions.map((pos, idx) => (
+                      <circle
+                        key={`away-pos-${idx}`}
+                        cx={pos.x}
+                        cy={pos.y}
+                        r="1.5"
+                        fill="rgba(239, 68, 68, 0.9)"
+                        stroke="white"
+                        strokeWidth="0.3"
                       />
-                    );
-                  })}
-                </g>
-              );
-            })()}
-          </svg>
+                    ))}
+                    
+                    {/* 位置标签 */}
+                    {lines.map((line, lineIdx) => {
+                      const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
+                      const labels = ['后卫', '中场', '前锋', '前腰'];
+                      const label = formationParts.length === 4 
+                        ? ['后卫', '后腰', '前腰', '前锋'][lineIdx]
+                        : labels[lineIdx];
+                      return (
+                        <text
+                          key={`away-label-${lineIdx}`}
+                          x="3"
+                          y={avgY + 1}
+                          fill="rgba(239, 68, 68, 0.9)"
+                          fontSize="3"
+                          fontWeight="bold"
+                        >
+                          {label}
+                        </text>
+                      );
+                    })}
+                  </g>
+                );
+              })()}
+            </svg>
+          </>
         )}
 
         {/* 主队球员 (蓝色) */}
