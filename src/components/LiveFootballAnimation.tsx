@@ -176,13 +176,38 @@ export default function LiveFootballAnimation({
     return `${playerX},${playerY} ${leftX},${goalY} ${rightX},${goalY}`;
   };
 
+  // 计算传球概率
+  const calculatePassProbability = (
+    distance: number, 
+    isForwardPass: boolean, 
+    difficulty: 'easy' | 'medium' | 'hard'
+  ): number => {
+    // 基础概率基于距离
+    let baseProbability = Math.max(10, 100 - distance * 1.5);
+    
+    // 前进传球加成
+    if (isForwardPass) {
+      baseProbability += 15;
+    }
+    
+    // 难度调整
+    if (difficulty === 'easy') {
+      baseProbability += 10;
+    } else if (difficulty === 'hard') {
+      baseProbability -= 15;
+    }
+    
+    // 限制在5-95之间
+    return Math.min(95, Math.max(5, Math.round(baseProbability)));
+  };
+
   // 计算传球路线
   const getPassingRoutes = (selectedId: number, team: 'home' | 'away') => {
     const teammates = team === 'home' ? homePlayers : awayPlayers;
     const selectedPlayer = teammates.find(p => p.id === selectedId);
     if (!selectedPlayer) return [];
 
-    return teammates
+    const routes = teammates
       .filter(p => p.id !== selectedId)
       .map(teammate => {
         const dx = teammate.x - selectedPlayer.x;
@@ -201,6 +226,9 @@ export default function LiveFootballAnimation({
 
         // 判断是否是前进传球(进攻方向)
         const isForwardPass = team === 'home' ? dy < 0 : dy > 0;
+        
+        // 计算传球概率
+        const probability = calculatePassProbability(distance, isForwardPass, difficulty);
 
         return {
           from: { x: selectedPlayer.x, y: selectedPlayer.y },
@@ -210,9 +238,12 @@ export default function LiveFootballAnimation({
           isForwardPass,
           teammateId: teammate.id,
           teammateName: teammate.name,
+          probability,
         };
       })
-      .sort((a, b) => a.distance - b.distance); // 按距离排序
+      .sort((a, b) => b.probability - a.probability); // 按概率排序，最可能的排前面
+    
+    return routes;
   };
   const initializePlayers = useCallback(() => {
     const homeFormationPositions = formations[currentHomeFormation] || formations['4-4-2'];
@@ -603,9 +634,9 @@ export default function LiveFootballAnimation({
             {getPassingRoutes(selectedPlayer.id, selectedPlayer.team).map((route, idx) => {
               // 根据难度选择颜色
               const colors = {
-                easy: { stroke: 'rgba(34, 197, 94, 0.7)', marker: 'url(#arrowGreen)', glow: 'rgba(34, 197, 94, 0.3)' },
-                medium: { stroke: 'rgba(234, 179, 8, 0.7)', marker: 'url(#arrowYellow)', glow: 'rgba(234, 179, 8, 0.3)' },
-                hard: { stroke: 'rgba(249, 115, 22, 0.6)', marker: 'url(#arrowOrange)', glow: 'rgba(249, 115, 22, 0.2)' },
+                easy: { stroke: 'rgba(34, 197, 94, 0.9)', marker: 'url(#arrowGreen)', glow: 'rgba(34, 197, 94, 0.4)', text: '#22c55e' },
+                medium: { stroke: 'rgba(234, 179, 8, 0.9)', marker: 'url(#arrowYellow)', glow: 'rgba(234, 179, 8, 0.4)', text: '#eab308' },
+                hard: { stroke: 'rgba(249, 115, 22, 0.8)', marker: 'url(#arrowOrange)', glow: 'rgba(249, 115, 22, 0.3)', text: '#f97316' },
               };
               const color = colors[route.difficulty];
               
@@ -616,6 +647,13 @@ export default function LiveFootballAnimation({
               const shortenBy = 4;
               const endX = route.to.x - (dx / len) * shortenBy;
               const endY = route.to.y - (dy / len) * shortenBy;
+              
+              // 计算概率标签位置（线段中点）
+              const midX = (route.from.x + endX) / 2;
+              const midY = (route.from.y + endY) / 2;
+              
+              // 最高概率的传球线加粗显示
+              const isTopChoice = idx === 0;
 
               return (
                 <g key={idx}>
@@ -626,7 +664,7 @@ export default function LiveFootballAnimation({
                     x2={endX}
                     y2={endY}
                     stroke={color.glow}
-                    strokeWidth={route.isForwardPass ? "1.5" : "1"}
+                    strokeWidth={isTopChoice ? "2.5" : route.isForwardPass ? "1.5" : "1"}
                     strokeLinecap="round"
                   />
                   {/* 主线 */}
@@ -636,16 +674,80 @@ export default function LiveFootballAnimation({
                     x2={endX}
                     y2={endY}
                     stroke={color.stroke}
-                    strokeWidth={route.isForwardPass ? "0.5" : "0.3"}
+                    strokeWidth={isTopChoice ? "0.8" : route.isForwardPass ? "0.5" : "0.3"}
                     strokeDasharray={route.difficulty === 'hard' ? "1,1" : route.difficulty === 'medium' ? "2,1" : "none"}
                     markerEnd={color.marker}
                     strokeLinecap="round"
-                    opacity={route.isForwardPass ? 1 : 0.6}
+                    opacity={route.isForwardPass ? 1 : 0.7}
                   />
+                  {/* 概率百分比标签 */}
+                  <g>
+                    {/* 背景 */}
+                    <rect
+                      x={midX - 3.5}
+                      y={midY - 2}
+                      width="7"
+                      height="4"
+                      rx="1"
+                      fill={isTopChoice ? "rgba(34, 197, 94, 0.95)" : "rgba(0, 0, 0, 0.8)"}
+                    />
+                    {/* 概率文字 */}
+                    <text
+                      x={midX}
+                      y={midY + 1}
+                      textAnchor="middle"
+                      fill={isTopChoice ? "#fff" : color.text}
+                      fontSize="2.2"
+                      fontWeight={isTopChoice ? "bold" : "normal"}
+                    >
+                      {route.probability}%
+                    </text>
+                  </g>
+                  {/* 最高概率标记 */}
+                  {isTopChoice && (
+                    <circle
+                      cx={route.to.x}
+                      cy={route.to.y}
+                      r="5"
+                      fill="none"
+                      stroke="rgba(34, 197, 94, 0.8)"
+                      strokeWidth="0.5"
+                      className="animate-ping"
+                      style={{ animationDuration: '1.5s' }}
+                    />
+                  )}
                 </g>
               );
             })}
           </svg>
+        )}
+        
+        {/* 传球路线图例 */}
+        {selectedPlayer && (
+          <div className="absolute top-12 left-2 bg-black/80 backdrop-blur-sm rounded-lg p-2 text-[9px] space-y-1.5" style={{ zIndex: 30 }}>
+            <div className="text-white/90 font-medium mb-1.5 border-b border-white/20 pb-1">传球分析图例</div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-0.5 bg-green-500 rounded" />
+              <span className="text-green-400">短传 (&lt;20m) - 高成功率</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-0.5 bg-yellow-500 rounded" style={{ background: 'repeating-linear-gradient(90deg, #eab308, #eab308 4px, transparent 4px, transparent 6px)' }} />
+              <span className="text-yellow-400">中传 (20-40m) - 中等风险</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-0.5 rounded" style={{ background: 'repeating-linear-gradient(90deg, #f97316, #f97316 2px, transparent 2px, transparent 4px)' }} />
+              <span className="text-orange-400">长传 (&gt;40m) - 高风险</span>
+            </div>
+            <div className="border-t border-white/20 pt-1.5 mt-1">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-green-500/30 border border-green-500 animate-pulse" />
+                <span className="text-green-400">最佳传球选择</span>
+              </div>
+            </div>
+            <div className="text-white/60 text-[8px] mt-1">
+              概率 = 距离 + 进攻方向 + 难度
+            </div>
+          </div>
         )}
 
         {/* 主队球员 (蓝色) */}
