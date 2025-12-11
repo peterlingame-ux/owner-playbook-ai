@@ -1157,11 +1157,11 @@ const PlayerLeaderboardTable = () => {
             {/* 主标题区域 - 视觉冲击 */}
             <div className="text-center">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">🎁 免费参与</span>
+                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">🏆 挑战AI</span>
                 <span className="text-3xl sm:text-5xl font-black text-warning drop-shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-scale-in">
                   $1,000,000
                 </span>
-                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">大奖 🎁</span>
+                <span className="text-lg sm:text-2xl font-black text-success animate-pulse">大奖等你来拿 🏆</span>
               </div>
               <p className="text-sm sm:text-base text-muted-foreground mt-2">
                 胜率超过AI基准 <span className="font-black text-warning text-base sm:text-lg">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
