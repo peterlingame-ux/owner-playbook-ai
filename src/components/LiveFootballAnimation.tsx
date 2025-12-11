@@ -1246,31 +1246,7 @@ export default function LiveFootballAnimation({
                 )}
                 {/* 球员头像容器 */}
                 <div className="relative">
-                  {/* xG预期进球环 (前锋和中场显示) */}
-                  {showAIIndicators && player.id >= 5 && (() => {
-                    const xg = calculateXG(player.x, player.y, 'home');
-                    const xgColor = xg >= 0.3 ? '#ef4444' : xg >= 0.15 ? '#f97316' : xg >= 0.05 ? '#eab308' : '#22c55e';
-                    const ringSize = 36; // 环的大小
-                    const circumference = 2 * Math.PI * 14;
-                    const progress = xg * circumference;
-                    
-                    return (
-                      <svg className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] -rotate-90" viewBox="0 0 36 36">
-                        {/* 背景环 */}
-                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-                        {/* xG进度环 */}
-                        <circle 
-                          cx="18" cy="18" r="14" 
-                          fill="none" 
-                          stroke={xgColor}
-                          strokeWidth="2.5"
-                          strokeDasharray={`${progress} ${circumference}`}
-                          strokeLinecap="round"
-                          style={{ filter: `drop-shadow(0 0 3px ${xgColor})` }}
-                        />
-                      </svg>
-                    );
-                  })()}
+                  
                   
                   <div 
                     className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
@@ -1404,30 +1380,7 @@ export default function LiveFootballAnimation({
                 )}
                 {/* 球员头像容器 */}
                 <div className="relative">
-                  {/* xG预期进球环 (前锋和中场显示) */}
-                  {showAIIndicators && player.id >= 5 && (() => {
-                    const xg = calculateXG(player.x, player.y, 'away');
-                    const xgColor = xg >= 0.3 ? '#ef4444' : xg >= 0.15 ? '#f97316' : xg >= 0.05 ? '#eab308' : '#22c55e';
-                    const circumference = 2 * Math.PI * 14;
-                    const progress = xg * circumference;
-                    
-                    return (
-                      <svg className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] -rotate-90" viewBox="0 0 36 36">
-                        {/* 背景环 */}
-                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-                        {/* xG进度环 */}
-                        <circle 
-                          cx="18" cy="18" r="14" 
-                          fill="none" 
-                          stroke={xgColor}
-                          strokeWidth="2.5"
-                          strokeDasharray={`${progress} ${circumference}`}
-                          strokeLinecap="round"
-                          style={{ filter: `drop-shadow(0 0 3px ${xgColor})` }}
-                        />
-                      </svg>
-                    );
-                  })()}
+                  
                   
                   <div 
                     className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
