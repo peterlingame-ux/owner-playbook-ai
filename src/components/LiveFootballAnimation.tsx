@@ -1673,12 +1673,15 @@ export default function LiveFootballAnimation({
                 return (
                   <div
                     key={`home-label-${lineIdx}`}
-                    className="absolute left-1 text-[10px] font-bold pointer-events-none z-10"
+                    className="absolute left-2 text-xs md:text-sm font-bold pointer-events-none z-10 px-2 py-0.5 rounded"
                     style={{
                       top: `${avgY}%`,
                       transform: 'translateY(-50%)',
-                      color: 'rgba(0, 200, 255, 0.9)',
-                      textShadow: '0 0 4px rgba(0, 100, 255, 0.8), 0 1px 2px rgba(0,0,0,0.5)',
+                      color: 'white',
+                      background: 'rgba(0, 100, 255, 0.7)',
+                      border: '1px solid rgba(0, 200, 255, 0.6)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                      boxShadow: '0 0 8px rgba(0, 150, 255, 0.5)',
                       animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
                       opacity: 0
                     }}
@@ -1708,12 +1711,15 @@ export default function LiveFootballAnimation({
                 return (
                   <div
                     key={`away-label-${lineIdx}`}
-                    className="absolute left-1 text-[10px] font-bold pointer-events-none z-10"
+                    className="absolute left-2 text-xs md:text-sm font-bold pointer-events-none z-10 px-2 py-0.5 rounded"
                     style={{
                       top: `${avgY}%`,
                       transform: 'translateY(-50%)',
-                      color: 'rgba(239, 68, 68, 0.9)',
-                      textShadow: '0 0 4px rgba(220, 38, 38, 0.8), 0 1px 2px rgba(0,0,0,0.5)',
+                      color: 'white',
+                      background: 'rgba(220, 38, 38, 0.7)',
+                      border: '1px solid rgba(239, 68, 68, 0.6)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                      boxShadow: '0 0 8px rgba(239, 68, 68, 0.5)',
                       animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
                       opacity: 0
                     }}
