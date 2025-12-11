@@ -898,136 +898,268 @@ export default function LiveFootballAnimation({
           </svg>
         )}
 
-        {/* 传球路线 */}
+        {/* AI传球分析可视化 */}
         {selectedPlayer && (
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 5 }}>
             <defs>
+              {/* AI风格渐变 */}
+              <linearGradient id="aiLineGradientTop" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(0, 255, 200, 0)" />
+                <stop offset="50%" stopColor="rgba(0, 255, 200, 0.8)" />
+                <stop offset="100%" stopColor="rgba(0, 255, 200, 0)" />
+              </linearGradient>
+              <linearGradient id="aiLineGradientMid" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(0, 180, 255, 0)" />
+                <stop offset="50%" stopColor="rgba(0, 180, 255, 0.7)" />
+                <stop offset="100%" stopColor="rgba(0, 180, 255, 0)" />
+              </linearGradient>
+              <linearGradient id="aiLineGradientLow" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(100, 100, 150, 0)" />
+                <stop offset="50%" stopColor="rgba(100, 100, 150, 0.5)" />
+                <stop offset="100%" stopColor="rgba(100, 100, 150, 0)" />
+              </linearGradient>
+              {/* 发光滤镜 */}
+              <filter id="aiGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="0.5" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
               {/* 箭头标记 */}
-              <marker id="arrowGreen" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
-                <path d="M0,0 L4,2 L0,4 Z" fill="rgba(34, 197, 94, 0.9)" />
+              <marker id="aiArrowTop" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 L1.5,3 Z" fill="rgba(0, 255, 200, 0.9)" />
               </marker>
-              <marker id="arrowYellow" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
-                <path d="M0,0 L4,2 L0,4 Z" fill="rgba(234, 179, 8, 0.9)" />
+              <marker id="aiArrowMid" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+                <path d="M0,0 L5,2.5 L0,5 L1,2.5 Z" fill="rgba(0, 180, 255, 0.8)" />
               </marker>
-              <marker id="arrowOrange" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
-                <path d="M0,0 L4,2 L0,4 Z" fill="rgba(249, 115, 22, 0.9)" />
+              <marker id="aiArrowLow" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                <path d="M0,0 L4,2 L0,4 L0.8,2 Z" fill="rgba(100, 100, 150, 0.6)" />
               </marker>
             </defs>
+            
+            {/* 扫描线效果背景 */}
+            <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(0, 255, 200, 0.05)" strokeWidth="0.1">
+              <animate attributeName="stroke-opacity" values="0.02;0.08;0.02" dur="2s" repeatCount="indefinite" />
+            </rect>
+            
             {getPassingRoutes(selectedPlayer.id, selectedPlayer.team).map((route, idx) => {
-              // 根据难度选择颜色
-              const colors = {
-                easy: { stroke: 'rgba(34, 197, 94, 0.9)', marker: 'url(#arrowGreen)', glow: 'rgba(34, 197, 94, 0.4)', text: '#22c55e' },
-                medium: { stroke: 'rgba(234, 179, 8, 0.9)', marker: 'url(#arrowYellow)', glow: 'rgba(234, 179, 8, 0.4)', text: '#eab308' },
-                hard: { stroke: 'rgba(249, 115, 22, 0.8)', marker: 'url(#arrowOrange)', glow: 'rgba(249, 115, 22, 0.3)', text: '#f97316' },
-              };
-              const color = colors[route.difficulty];
+              const isTopChoice = idx === 0;
+              const isSecondChoice = idx === 1;
+              const isThirdChoice = idx === 2;
               
-              // 计算线条终点(稍微缩短以避免覆盖球员)
+              // 只显示前5条最佳路线
+              if (idx > 4) return null;
+              
+              // 计算线条终点
               const dx = route.to.x - route.from.x;
               const dy = route.to.y - route.from.y;
               const len = Math.sqrt(dx * dx + dy * dy);
-              const shortenBy = 4;
+              const shortenBy = 5;
               const endX = route.to.x - (dx / len) * shortenBy;
               const endY = route.to.y - (dy / len) * shortenBy;
               
-              // 计算概率标签位置（线段中点）
+              // 计算贝塞尔曲线控制点（创建弧形路线）
               const midX = (route.from.x + endX) / 2;
               const midY = (route.from.y + endY) / 2;
+              const perpX = -(endY - route.from.y) / len * (isTopChoice ? 8 : 5);
+              const perpY = (endX - route.from.x) / len * (isTopChoice ? 8 : 5);
+              const ctrlX = midX + (idx % 2 === 0 ? perpX : -perpX) * 0.3;
+              const ctrlY = midY + (idx % 2 === 0 ? perpY : -perpY) * 0.3;
               
-              // 最高概率的传球线加粗显示
-              const isTopChoice = idx === 0;
+              // 概率标签位置
+              const labelX = (route.from.x + ctrlX + endX) / 3;
+              const labelY = (route.from.y + ctrlY + endY) / 3;
+              
+              // 样式配置
+              const config = isTopChoice 
+                ? { color: 'rgba(0, 255, 200, 1)', glow: 'rgba(0, 255, 200, 0.4)', marker: 'url(#aiArrowTop)', width: 0.6, opacity: 1 }
+                : isSecondChoice || isThirdChoice
+                ? { color: 'rgba(0, 180, 255, 0.9)', glow: 'rgba(0, 180, 255, 0.3)', marker: 'url(#aiArrowMid)', width: 0.4, opacity: 0.85 }
+                : { color: 'rgba(100, 120, 160, 0.7)', glow: 'rgba(100, 120, 160, 0.2)', marker: 'url(#aiArrowLow)', width: 0.25, opacity: 0.6 };
 
               return (
-                <g key={idx}>
-                  {/* 发光效果 */}
-                  <line
-                    x1={route.from.x}
-                    y1={route.from.y}
-                    x2={endX}
-                    y2={endY}
-                    stroke={color.glow}
-                    strokeWidth={isTopChoice ? "2.5" : route.isForwardPass ? "1.5" : "1"}
+                <g key={idx} filter={isTopChoice ? "url(#aiGlow)" : undefined}>
+                  {/* 外发光层 */}
+                  <path
+                    d={`M ${route.from.x} ${route.from.y} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`}
+                    fill="none"
+                    stroke={config.glow}
+                    strokeWidth={isTopChoice ? 2 : 1}
                     strokeLinecap="round"
+                    opacity={config.opacity * 0.5}
                   />
-                  {/* 主线 */}
-                  <line
-                    x1={route.from.x}
-                    y1={route.from.y}
-                    x2={endX}
-                    y2={endY}
-                    stroke={color.stroke}
-                    strokeWidth={isTopChoice ? "0.8" : route.isForwardPass ? "0.5" : "0.3"}
-                    strokeDasharray={route.difficulty === 'hard' ? "1,1" : route.difficulty === 'medium' ? "2,1" : "none"}
-                    markerEnd={color.marker}
+                  
+                  {/* 主路线 - 流动效果 */}
+                  <path
+                    d={`M ${route.from.x} ${route.from.y} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`}
+                    fill="none"
+                    stroke={config.color}
+                    strokeWidth={config.width}
                     strokeLinecap="round"
-                    opacity={route.isForwardPass ? 1 : 0.7}
-                  />
-                  {/* 概率百分比标签 */}
-                  <g>
-                    {/* 背景 */}
-                    <rect
-                      x={midX - 3.5}
-                      y={midY - 2}
-                      width="7"
-                      height="4"
-                      rx="1"
-                      fill={isTopChoice ? "rgba(34, 197, 94, 0.95)" : "rgba(0, 0, 0, 0.8)"}
+                    markerEnd={config.marker}
+                    opacity={config.opacity}
+                    strokeDasharray={isTopChoice ? "none" : "1.5 0.5"}
+                  >
+                    {isTopChoice && (
+                      <animate 
+                        attributeName="stroke-dasharray" 
+                        values="0 100;100 0" 
+                        dur="1.5s" 
+                        repeatCount="indefinite" 
+                      />
+                    )}
+                  </path>
+                  
+                  {/* 数据节点 - 概率显示 */}
+                  <g transform={`translate(${labelX}, ${labelY})`}>
+                    {/* 六边形背景 */}
+                    <polygon
+                      points="-4,-2.3 -2,-4 2,-4 4,-2.3 4,2.3 2,4 -2,4 -4,2.3"
+                      fill={isTopChoice ? "rgba(0, 255, 200, 0.15)" : "rgba(0, 0, 0, 0.7)"}
+                      stroke={isTopChoice ? "rgba(0, 255, 200, 0.8)" : config.color}
+                      strokeWidth="0.15"
                     />
-                    {/* 概率文字 */}
+                    {/* 概率值 */}
                     <text
-                      x={midX}
-                      y={midY + 1}
+                      x="0"
+                      y="0.8"
                       textAnchor="middle"
-                      fill={isTopChoice ? "#fff" : color.text}
-                      fontSize="2.2"
-                      fontWeight={isTopChoice ? "bold" : "normal"}
+                      fill={isTopChoice ? "#00ffc8" : config.color}
+                      fontSize="2.5"
+                      fontWeight="bold"
+                      fontFamily="monospace"
                     >
-                      {route.probability}%
+                      {route.probability}
                     </text>
                   </g>
-                  {/* 最高概率标记 */}
+                  
+                  {/* 最佳选择 - 目标锁定效果 */}
                   {isTopChoice && (
-                    <circle
-                      cx={route.to.x}
-                      cy={route.to.y}
-                      r="5"
-                      fill="none"
-                      stroke="rgba(34, 197, 94, 0.8)"
-                      strokeWidth="0.5"
-                      className="animate-ping"
-                      style={{ animationDuration: '1.5s' }}
-                    />
+                    <g>
+                      {/* 外圈扫描 */}
+                      <circle
+                        cx={route.to.x}
+                        cy={route.to.y}
+                        r="6"
+                        fill="none"
+                        stroke="rgba(0, 255, 200, 0.4)"
+                        strokeWidth="0.15"
+                        strokeDasharray="2 2"
+                      >
+                        <animateTransform
+                          attributeName="transform"
+                          type="rotate"
+                          from={`0 ${route.to.x} ${route.to.y}`}
+                          to={`360 ${route.to.x} ${route.to.y}`}
+                          dur="3s"
+                          repeatCount="indefinite"
+                        />
+                      </circle>
+                      {/* 内圈 */}
+                      <circle
+                        cx={route.to.x}
+                        cy={route.to.y}
+                        r="4"
+                        fill="none"
+                        stroke="rgba(0, 255, 200, 0.6)"
+                        strokeWidth="0.2"
+                      >
+                        <animate attributeName="r" values="4;5;4" dur="1.5s" repeatCount="indefinite" />
+                        <animate attributeName="stroke-opacity" values="0.6;0.3;0.6" dur="1.5s" repeatCount="indefinite" />
+                      </circle>
+                      {/* 十字准星 */}
+                      <line x1={route.to.x - 3} y1={route.to.y} x2={route.to.x - 1.5} y2={route.to.y} stroke="rgba(0, 255, 200, 0.8)" strokeWidth="0.2" />
+                      <line x1={route.to.x + 1.5} y1={route.to.y} x2={route.to.x + 3} y2={route.to.y} stroke="rgba(0, 255, 200, 0.8)" strokeWidth="0.2" />
+                      <line x1={route.to.x} y1={route.to.y - 3} x2={route.to.x} y2={route.to.y - 1.5} stroke="rgba(0, 255, 200, 0.8)" strokeWidth="0.2" />
+                      <line x1={route.to.x} y1={route.to.y + 1.5} x2={route.to.x} y2={route.to.y + 3} stroke="rgba(0, 255, 200, 0.8)" strokeWidth="0.2" />
+                      {/* BEST标签 */}
+                      <g transform={`translate(${route.to.x + 5}, ${route.to.y - 4})`}>
+                        <rect x="-3" y="-1.8" width="6" height="3.5" rx="0.5" fill="rgba(0, 255, 200, 0.9)" />
+                        <text x="0" y="0.8" textAnchor="middle" fill="#000" fontSize="2" fontWeight="bold" fontFamily="monospace">BEST</text>
+                      </g>
+                    </g>
                   )}
                 </g>
               );
             })}
+            
+            {/* AI分析状态指示 */}
+            <g transform="translate(5, 5)">
+              <rect x="0" y="0" width="18" height="5" rx="0.5" fill="rgba(0, 0, 0, 0.8)" stroke="rgba(0, 255, 200, 0.5)" strokeWidth="0.1" />
+              <circle cx="2" cy="2.5" r="0.8" fill="rgba(0, 255, 200, 1)">
+                <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
+              </circle>
+              <text x="4" y="3.5" fill="rgba(0, 255, 200, 0.9)" fontSize="2" fontFamily="monospace">AI ANALYZING</text>
+            </g>
           </svg>
         )}
         
-        {/* 传球路线图例 */}
+        {/* AI分析图例面板 */}
         {selectedPlayer && (
-          <div className="absolute top-12 left-2 bg-black/80 backdrop-blur-sm rounded-lg p-2 text-[9px] space-y-1.5" style={{ zIndex: 30 }}>
-            <div className="text-white/90 font-medium mb-1.5 border-b border-white/20 pb-1">传球分析图例</div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-0.5 bg-green-500 rounded" />
-              <span className="text-green-400">短传 (&lt;20m) - 高成功率</span>
+          <div 
+            className="absolute top-12 left-2 rounded-lg p-3 text-[9px] min-w-[150px]" 
+            style={{ 
+              zIndex: 30,
+              background: 'linear-gradient(135deg, rgba(0,20,30,0.95) 0%, rgba(0,10,20,0.98) 100%)',
+              border: '1px solid rgba(0, 255, 200, 0.3)',
+              boxShadow: '0 0 20px rgba(0, 255, 200, 0.1), inset 0 0 30px rgba(0, 255, 200, 0.05)'
+            }}
+          >
+            {/* 标题栏 */}
+            <div className="flex items-center gap-2 mb-2 pb-2" style={{ borderBottom: '1px solid rgba(0, 255, 200, 0.2)' }}>
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#00ffc8', boxShadow: '0 0 8px #00ffc8' }} />
+              <span className="font-mono text-[10px] font-bold" style={{ color: '#00ffc8' }}>PASS ANALYSIS</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-0.5 bg-yellow-500 rounded" style={{ background: 'repeating-linear-gradient(90deg, #eab308, #eab308 4px, transparent 4px, transparent 6px)' }} />
-              <span className="text-yellow-400">中传 (20-40m) - 中等风险</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-0.5 rounded" style={{ background: 'repeating-linear-gradient(90deg, #f97316, #f97316 2px, transparent 2px, transparent 4px)' }} />
-              <span className="text-orange-400">长传 (&gt;40m) - 高风险</span>
-            </div>
-            <div className="border-t border-white/20 pt-1.5 mt-1">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-green-500/30 border border-green-500 animate-pulse" />
-                <span className="text-green-400">最佳传球选择</span>
+            
+            {/* 图例项目 */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-[2px] rounded" style={{ background: 'linear-gradient(90deg, transparent, #00ffc8, transparent)' }} />
+                <span className="font-mono" style={{ color: '#00ffc8' }}>最优路线 [BEST]</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-[2px] rounded" style={{ background: 'linear-gradient(90deg, transparent, #00b4ff, transparent)' }} />
+                <span className="font-mono" style={{ color: '#00b4ff' }}>次优路线</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-[1px] rounded opacity-60" style={{ background: 'linear-gradient(90deg, transparent, #6478a0, transparent)' }} />
+                <span className="font-mono text-slate-400">备选路线</span>
               </div>
             </div>
-            <div className="text-white/60 text-[8px] mt-1">
-              概率 = 距离 + 进攻方向 + 难度
+            
+            {/* 分隔线 */}
+            <div className="my-2" style={{ borderTop: '1px solid rgba(0, 255, 200, 0.15)' }} />
+            
+            {/* 数据说明 */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-4 h-4 flex items-center justify-center text-[8px] font-mono font-bold"
+                  style={{ 
+                    background: 'rgba(0, 255, 200, 0.15)',
+                    border: '1px solid rgba(0, 255, 200, 0.5)',
+                    color: '#00ffc8',
+                    clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
+                  }}
+                >
+                  85
+                </div>
+                <span className="font-mono text-slate-300">传球成功概率</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative w-4 h-4">
+                  <div className="absolute inset-0 rounded-full border border-dashed animate-spin" style={{ borderColor: 'rgba(0, 255, 200, 0.5)', animationDuration: '3s' }} />
+                  <div className="absolute inset-1 rounded-full" style={{ border: '1px solid rgba(0, 255, 200, 0.8)' }} />
+                </div>
+                <span className="font-mono text-slate-300">目标锁定</span>
+              </div>
+            </div>
+            
+            {/* 底部状态 */}
+            <div className="mt-2 pt-2 flex items-center gap-1" style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)' }}>
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00ffc8' }} />
+              <span className="font-mono text-[8px]" style={{ color: 'rgba(0, 255, 200, 0.6)' }}>MODEL: HUNSOCCER-v3</span>
             </div>
           </div>
         )}
