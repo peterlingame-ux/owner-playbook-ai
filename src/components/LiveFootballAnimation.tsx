@@ -1098,7 +1098,7 @@ export default function LiveFootballAnimation({
         {/* AI分析图例面板 */}
         {selectedPlayer && (
           <div 
-            className="absolute top-12 left-2 rounded-lg p-3 text-[9px] min-w-[150px]" 
+            className="absolute bottom-12 left-2 rounded-lg p-3 text-[9px] min-w-[150px]"
             style={{ 
               zIndex: 30,
               background: 'linear-gradient(135deg, rgba(0,20,30,0.95) 0%, rgba(0,10,20,0.98) 100%)',
