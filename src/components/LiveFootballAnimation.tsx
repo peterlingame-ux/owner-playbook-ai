@@ -582,35 +582,11 @@ export default function LiveFootballAnimation({
     initializePlayers();
   }, [initializePlayers]);
 
-  // 更新单个球员的目标位置 - 模拟真实进攻跑动
-  const getNewTargetForPlayer = useCallback((
-    basePos: FormationPosition, 
-    currentTarget: { x: number; y: number },
-    team: 'home' | 'away',
-    playerId: number
-  ) => {
-    // 水平方向保持随机
-    const offsetX = (Math.random() - 0.5) * 10;
-    
-    // 垂直方向: 主队向上（y减小），客队向下（y增大）
-    // 前锋和中场有更强的进攻倾向
-    const isAttacker = playerId >= 5; // 中场和前锋
-    const attackBias = isAttacker ? 0.7 : 0.55; // 进攻倾向权重
-    
-    let offsetY: number;
-    if (team === 'home') {
-      // 主队向上进攻 (y减小)
-      offsetY = (Math.random() - attackBias) * 8;
-    } else {
-      // 客队向下进攻 (y增大)
-      offsetY = (Math.random() - (1 - attackBias)) * 8;
-    }
-    
-    // 门将(id=0)不参与进攻跑动，保持在基础位置附近
-    if (playerId === 0) {
-      offsetY = (Math.random() - 0.5) * 3;
-    }
-    
+  // 更新单个球员的目标位置
+  const getNewTargetForPlayer = useCallback((basePos: FormationPosition, currentTarget: { x: number; y: number }) => {
+    // 更小的随机偏移，更频繁更新
+    const offsetX = (Math.random() - 0.5) * 8;
+    const offsetY = (Math.random() - 0.5) * 6;
     return {
       targetX: Math.max(8, Math.min(92, basePos.x + offsetX)),
       targetY: Math.max(8, Math.min(92, basePos.y + offsetY)),
@@ -625,7 +601,7 @@ export default function LiveFootballAnimation({
     setHomePlayers(prev => {
       const newPlayers = prev.map((player, idx) => {
         const basePos = homeFormationPositions[idx];
-        const newTarget = getNewTargetForPlayer(basePos, { x: player.targetX, y: player.targetY }, 'home', player.id);
+        const newTarget = getNewTargetForPlayer(basePos, { x: player.targetX, y: player.targetY });
         return {
           ...player,
           ...newTarget,
@@ -649,7 +625,7 @@ export default function LiveFootballAnimation({
     setAwayPlayers(prev => {
       const newPlayers = prev.map((player, idx) => {
         const basePos = awayFormationPositions[idx];
-        const newTarget = getNewTargetForPlayer(basePos, { x: player.targetX, y: player.targetY }, 'away', player.id);
+        const newTarget = getNewTargetForPlayer(basePos, { x: player.targetX, y: player.targetY });
         return {
           ...player,
           ...newTarget,
