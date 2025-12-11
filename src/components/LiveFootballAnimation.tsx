@@ -1034,7 +1034,16 @@ export default function LiveFootballAnimation({
       </div>
 
       {/* 球场动画 */}
-      <div className="relative rounded-xl overflow-hidden w-full" style={{ aspectRatio: '2.4/1' }}>
+      <div 
+        className="relative rounded-xl overflow-hidden w-full" 
+        style={{ aspectRatio: '2.4/1' }}
+        onClick={(e) => {
+          // 只有点击球场空白区域时才清除选中状态
+          if (e.target === e.currentTarget || (e.target as HTMLElement).tagName === 'IMG') {
+            setSelectedPlayer(null);
+          }
+        }}
+      >
         {/* 真实足球场背景 */}
         <img 
           src={footballPitchBg} 
