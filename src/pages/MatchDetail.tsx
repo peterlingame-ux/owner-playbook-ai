@@ -1016,7 +1016,6 @@ export default function MatchDetail() {
             { id: 'lineup' as const, label: '阵容', icon: Users },
             { id: 'odds' as const, label: '指数', icon: BarChart2 },
             { id: 'expert' as const, label: 'HUNSOCCER AI热力图', icon: UserCheck },
-            { id: 'hot' as const, label: '热议', icon: Flame },
           ].map((tab) => (
             <button
               key={tab.id}
