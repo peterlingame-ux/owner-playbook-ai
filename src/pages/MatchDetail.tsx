@@ -106,6 +106,60 @@ interface MatchDetailInfo {
     event?: 'goal' | 'yellow' | 'red';
     team?: 'home' | 'away';
   }>;
+  odds?: {
+    handicap: OddsData[];
+    euroOdds: EuroOddsData[];
+    overUnder: OverUnderData[];
+    corners: CornersData[];
+  };
+}
+
+// 让球盘口数据
+interface OddsData {
+  bookmaker: string;
+  initialHome: number;
+  initialHandicap: number;
+  initialAway: number;
+  liveHome: number | null;
+  liveHandicap: number | null;
+  liveAway: number | null;
+  isClosed: boolean;
+}
+
+// 欧赔数据
+interface EuroOddsData {
+  bookmaker: string;
+  initialHome: number;
+  initialDraw: number;
+  initialAway: number;
+  liveHome: number | null;
+  liveDraw: number | null;
+  liveAway: number | null;
+  isClosed: boolean;
+}
+
+// 大小球数据
+interface OverUnderData {
+  bookmaker: string;
+  initialOver: number;
+  initialLine: number;
+  initialUnder: number;
+  liveOver: number | null;
+  liveLine: number | null;
+  liveUnder: number | null;
+  isClosed: boolean;
+}
+
+// 角球数据
+interface CornersData {
+  bookmaker: string;
+  initialOver: number;
+  initialLine: number;
+  initialUnder: number;
+  liveOver: number | null;
+  liveLine: number | null;
+  liveUnder: number | null;
+  isClosed: boolean;
 }
 
 const virtualMatchDetails: Record<string, MatchDetailInfo> = {
@@ -223,7 +277,42 @@ const virtualMatchDetails: Record<string, MatchDetailInfo> = {
       { minute: 60, homeIntensity: 60, awayIntensity: 40, event: 'goal', team: 'home' },
       { minute: 75, homeIntensity: 45, awayIntensity: 70, event: 'goal', team: 'away' },
       { minute: 90, homeIntensity: 50, awayIntensity: 55, event: 'yellow', team: 'home' },
-    ]
+    ],
+    odds: {
+      handicap: [
+        { bookmaker: '36*', initialHome: 0.97, initialHandicap: -0.75, initialAway: 0.82, liveHome: null, liveHandicap: null, liveAway: null, isClosed: true },
+        { bookmaker: '皇*', initialHome: 0.92, initialHandicap: -0.75, initialAway: 0.9, liveHome: null, liveHandicap: null, liveAway: null, isClosed: true },
+        { bookmaker: '易**', initialHome: 1.03, initialHandicap: -0.75, initialAway: 0.79, liveHome: null, liveHandicap: null, liveAway: null, isClosed: true },
+        { bookmaker: '澳*', initialHome: 0.9, initialHandicap: -0.75, initialAway: 0.88, liveHome: 0.3, liveHandicap: -0.25, liveAway: 1.46, isClosed: false },
+        { bookmaker: '韦*', initialHome: 0.79, initialHandicap: -0.75, initialAway: 0.94, liveHome: 2.05, liveHandicap: 0.0, liveAway: 0.34, isClosed: false },
+        { bookmaker: 'Inter*', initialHome: 1.05, initialHandicap: -0.5, initialAway: 0.7, liveHome: 0.65, liveHandicap: -1.0, liveAway: 1.1, isClosed: false },
+        { bookmaker: '12*', initialHome: 0.95, initialHandicap: -0.75, initialAway: 0.75, liveHome: null, liveHandicap: null, liveAway: null, isClosed: true },
+        { bookmaker: '利*', initialHome: 0.93, initialHandicap: -0.75, initialAway: 0.91, liveHome: 2.08, liveHandicap: 0.0, liveAway: 0.38, isClosed: false },
+        { bookmaker: '18*', initialHome: 0.93, initialHandicap: -0.75, initialAway: 0.91, liveHome: null, liveHandicap: null, liveAway: null, isClosed: true },
+        { bookmaker: '盈*', initialHome: 0.99, initialHandicap: -0.75, initialAway: 0.83, liveHome: null, liveHandicap: null, liveAway: null, isClosed: true },
+        { bookmaker: '明*', initialHome: 0.96, initialHandicap: -0.75, initialAway: 0.8, liveHome: 2.17, liveHandicap: 0.0, liveAway: 0.36, isClosed: false },
+      ],
+      euroOdds: [
+        { bookmaker: '36*', initialHome: 2.45, initialDraw: 3.20, initialAway: 2.80, liveHome: 2.10, liveDraw: 3.50, liveAway: 3.20, isClosed: false },
+        { bookmaker: '皇*', initialHome: 2.50, initialDraw: 3.15, initialAway: 2.75, liveHome: 2.15, liveDraw: 3.45, liveAway: 3.15, isClosed: false },
+        { bookmaker: '易**', initialHome: 2.40, initialDraw: 3.25, initialAway: 2.85, liveHome: null, liveDraw: null, liveAway: null, isClosed: true },
+        { bookmaker: '澳*', initialHome: 2.48, initialDraw: 3.18, initialAway: 2.78, liveHome: 2.12, liveDraw: 3.48, liveAway: 3.18, isClosed: false },
+        { bookmaker: '韦*', initialHome: 2.42, initialDraw: 3.22, initialAway: 2.82, liveHome: 2.08, liveDraw: 3.52, liveAway: 3.22, isClosed: false },
+      ],
+      overUnder: [
+        { bookmaker: '36*', initialOver: 0.95, initialLine: 2.5, initialUnder: 0.85, liveOver: 1.20, liveLine: 2.5, liveUnder: 0.65, isClosed: false },
+        { bookmaker: '皇*', initialOver: 0.92, initialLine: 2.5, initialUnder: 0.88, liveOver: 1.18, liveLine: 2.5, liveUnder: 0.68, isClosed: false },
+        { bookmaker: '易**', initialOver: 0.98, initialLine: 2.5, initialUnder: 0.82, liveOver: null, liveLine: null, liveUnder: null, isClosed: true },
+        { bookmaker: '澳*', initialOver: 0.90, initialLine: 2.5, initialUnder: 0.90, liveOver: 1.15, liveLine: 2.5, liveUnder: 0.70, isClosed: false },
+        { bookmaker: '韦*', initialOver: 0.88, initialLine: 2.5, initialUnder: 0.92, liveOver: 1.12, liveLine: 2.5, liveUnder: 0.72, isClosed: false },
+      ],
+      corners: [
+        { bookmaker: '36*', initialOver: 0.88, initialLine: 9.5, initialUnder: 0.92, liveOver: 0.95, liveLine: 9.5, liveUnder: 0.85, isClosed: false },
+        { bookmaker: '皇*', initialOver: 0.90, initialLine: 9.5, initialUnder: 0.90, liveOver: 0.98, liveLine: 9.5, liveUnder: 0.82, isClosed: false },
+        { bookmaker: '易**', initialOver: 0.85, initialLine: 9.5, initialUnder: 0.95, liveOver: null, liveLine: null, liveUnder: null, isClosed: true },
+        { bookmaker: '澳*', initialOver: 0.87, initialLine: 9.5, initialUnder: 0.93, liveOver: 0.92, liveLine: 9.5, liveUnder: 0.88, isClosed: false },
+      ]
+    }
   },
   '2': {
     id: '2',
@@ -462,6 +551,196 @@ export default function MatchDetail() {
             {player.rating.toFixed(1)}
           </span>
         )}
+      </div>
+    );
+  };
+
+  // 赔率标签页组件
+  const OddsTab = ({ match }: { match: MatchDetailInfo }) => {
+    const [oddsType, setOddsType] = useState<'handicap' | 'euroOdds' | 'overUnder' | 'corners'>('handicap');
+    const [timeType, setTimeType] = useState<'half' | 'full'>('full');
+
+    const oddsTypes = [
+      { id: 'handicap' as const, label: '让球' },
+      { id: 'euroOdds' as const, label: '胜平负' },
+      { id: 'overUnder' as const, label: '总进球' },
+      { id: 'corners' as const, label: '角球' },
+    ];
+
+    if (!match.odds) {
+      return (
+        <div className="p-4">
+          <Card className="p-6 bg-muted/20 border-border/50 text-center">
+            <BarChart2 className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+            <p className="text-muted-foreground">暂无指数数据</p>
+          </Card>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-0">
+        {/* 赔率类型切换 */}
+        <div className="flex items-center border-b border-border/50 overflow-x-auto">
+          {oddsTypes.map(type => (
+            <button
+              key={type.id}
+              onClick={() => setOddsType(type.id)}
+              className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                oddsType === type.id ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {type.label}
+              {oddsType === type.id && (
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* 表头 */}
+        <div className="flex items-center justify-between px-4 py-2 bg-muted/20 text-xs text-muted-foreground border-b border-border/30">
+          <span className="w-16">初始</span>
+          <span className="flex-1 text-center">即时</span>
+          <div className="flex items-center gap-1">
+            <BarChart2 className="w-3 h-3" />
+          </div>
+        </div>
+
+        {/* 让球盘口 */}
+        {oddsType === 'handicap' && (
+          <ScrollArea className="h-[400px]">
+            <div className="divide-y divide-border/20">
+              {match.odds.handicap.map((odds, index) => (
+                <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
+                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
+                    <span className="text-foreground">{odds.initialHome.toFixed(2)}</span>
+                    <span className="text-destructive font-medium">{odds.initialHandicap > 0 ? `+${odds.initialHandicap}` : odds.initialHandicap}</span>
+                    <span className="text-foreground">{odds.initialAway.toFixed(2)}</span>
+                  </div>
+                  {odds.isClosed ? (
+                    <div className="w-24 text-center text-xs text-muted-foreground">封</div>
+                  ) : (
+                    <div className="w-24 grid grid-cols-3 gap-1 text-center text-xs">
+                      <span className="text-primary">{odds.liveHome?.toFixed(2) || '-'}</span>
+                      <span className="text-destructive">{odds.liveHandicap !== null ? (odds.liveHandicap > 0 ? `+${odds.liveHandicap}` : odds.liveHandicap.toFixed(1)) : '-'}</span>
+                      <span className="text-primary">{odds.liveAway?.toFixed(2) || '-'}</span>
+                    </div>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-muted-foreground ml-2" />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+
+        {/* 欧赔 */}
+        {oddsType === 'euroOdds' && (
+          <ScrollArea className="h-[400px]">
+            <div className="divide-y divide-border/20">
+              {match.odds.euroOdds.map((odds, index) => (
+                <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
+                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
+                    <span className="text-foreground">{odds.initialHome.toFixed(2)}</span>
+                    <span className="text-muted-foreground">{odds.initialDraw.toFixed(2)}</span>
+                    <span className="text-foreground">{odds.initialAway.toFixed(2)}</span>
+                  </div>
+                  {odds.isClosed ? (
+                    <div className="w-24 text-center text-xs text-muted-foreground">封</div>
+                  ) : (
+                    <div className="w-24 grid grid-cols-3 gap-1 text-center text-xs">
+                      <span className="text-primary">{odds.liveHome?.toFixed(2) || '-'}</span>
+                      <span className="text-muted-foreground">{odds.liveDraw?.toFixed(2) || '-'}</span>
+                      <span className="text-primary">{odds.liveAway?.toFixed(2) || '-'}</span>
+                    </div>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-muted-foreground ml-2" />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+
+        {/* 大小球 */}
+        {oddsType === 'overUnder' && (
+          <ScrollArea className="h-[400px]">
+            <div className="divide-y divide-border/20">
+              {match.odds.overUnder.map((odds, index) => (
+                <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
+                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
+                    <span className="text-foreground">大 {odds.initialOver.toFixed(2)}</span>
+                    <span className="text-warning font-medium">{odds.initialLine}</span>
+                    <span className="text-foreground">小 {odds.initialUnder.toFixed(2)}</span>
+                  </div>
+                  {odds.isClosed ? (
+                    <div className="w-24 text-center text-xs text-muted-foreground">封</div>
+                  ) : (
+                    <div className="w-24 grid grid-cols-3 gap-1 text-center text-xs">
+                      <span className="text-primary">{odds.liveOver?.toFixed(2) || '-'}</span>
+                      <span className="text-warning">{odds.liveLine || '-'}</span>
+                      <span className="text-primary">{odds.liveUnder?.toFixed(2) || '-'}</span>
+                    </div>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-muted-foreground ml-2" />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+
+        {/* 角球 */}
+        {oddsType === 'corners' && (
+          <ScrollArea className="h-[400px]">
+            <div className="divide-y divide-border/20">
+              {match.odds.corners.map((odds, index) => (
+                <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
+                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
+                    <span className="text-foreground">大 {odds.initialOver.toFixed(2)}</span>
+                    <span className="text-warning font-medium">{odds.initialLine}</span>
+                    <span className="text-foreground">小 {odds.initialUnder.toFixed(2)}</span>
+                  </div>
+                  {odds.isClosed ? (
+                    <div className="w-24 text-center text-xs text-muted-foreground">封</div>
+                  ) : (
+                    <div className="w-24 grid grid-cols-3 gap-1 text-center text-xs">
+                      <span className="text-primary">{odds.liveOver?.toFixed(2) || '-'}</span>
+                      <span className="text-warning">{odds.liveLine || '-'}</span>
+                      <span className="text-primary">{odds.liveUnder?.toFixed(2) || '-'}</span>
+                    </div>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-muted-foreground ml-2" />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+
+        {/* 半场/全场切换 */}
+        <div className="flex justify-center py-3 border-t border-border/30">
+          <div className="flex items-center gap-1 bg-muted/30 rounded-full p-1">
+            <button
+              onClick={() => setTimeType('half')}
+              className={`px-4 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                timeType === 'half' ? 'bg-destructive text-white' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              半场
+            </button>
+            <button
+              onClick={() => setTimeType('full')}
+              className={`px-4 py-1.5 text-xs font-medium rounded-full transition-colors flex items-center gap-1 ${
+                timeType === 'full' ? 'bg-destructive text-white' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <BarChart2 className="w-3 h-3" />
+              全场
+            </button>
+          </div>
+        </div>
       </div>
     );
   };
@@ -1002,12 +1281,7 @@ export default function MatchDetail() {
         )}
 
         {activeTab === 'odds' && (
-          <div className="p-4">
-            <Card className="p-6 bg-muted/20 border-border/50 text-center">
-              <BarChart2 className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">指数数据即将上线</p>
-            </Card>
-          </div>
+          <OddsTab match={match} />
         )}
 
         {activeTab === 'expert' && (
