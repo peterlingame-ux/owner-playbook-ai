@@ -93,7 +93,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   const handleCopyTrade = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast.info('请联系HUNSOCCER工作人员开通自动跟单功能');
+    toast('请联系HUNSOCCER工作人员开通自动跟单功能', { icon: null });
   };
   
   const handleCardClick = () => {
