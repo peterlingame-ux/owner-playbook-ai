@@ -15,9 +15,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
 import usdtIcon from "@/assets/usdt-icon.png";
-import championWinrateBg from "@/assets/champion-winrate-bg.png";
-import championProfitBg from "@/assets/champion-profit-bg.png";
-import championColdstreakBg from "@/assets/champion-coldstreak-bg.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1649,17 +1646,6 @@ const PlayerLeaderboardTable = () => {
               transition={{ duration: 0.5, delay: 0.1, type: "spring", stiffness: 100 }}
             >
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
-                {/* Background Image */}
-                <div 
-                  className="absolute inset-0 opacity-[0.1]"
-                  style={{
-                    backgroundImage: `url(${championWinrateBg})`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-card/70" />
                 <CardContent className="p-4 sm:p-5 relative z-10">
                   <motion.div 
                     className="flex items-center gap-2 mb-3"
@@ -1740,17 +1726,6 @@ const PlayerLeaderboardTable = () => {
               transition={{ duration: 0.5, delay: 0.25, type: "spring", stiffness: 100 }}
             >
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
-                {/* Background Image */}
-                <div 
-                  className="absolute inset-0 opacity-[0.1]"
-                  style={{
-                    backgroundImage: `url(${championProfitBg})`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-card/70" />
                 <CardContent className="p-4 sm:p-5 relative z-10">
                   <motion.div 
                     className="flex items-center gap-2 mb-3"
@@ -1833,17 +1808,6 @@ const PlayerLeaderboardTable = () => {
               transition={{ duration: 0.5, delay: 0.4, type: "spring", stiffness: 100 }}
             >
               <Card className="relative overflow-hidden border-border/50 bg-card h-full">
-                {/* Background Image */}
-                <div 
-                  className="absolute inset-0 opacity-[0.1]"
-                  style={{
-                    backgroundImage: `url(${championColdstreakBg})`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-card/70" />
                 <CardContent className="p-4 sm:p-5 relative z-10">
                   <motion.div 
                     className="flex items-center gap-2 mb-3"
