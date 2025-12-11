@@ -1246,7 +1246,7 @@ const PlayerLeaderboardTable = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.03 }}
-                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer min-h-[100px] sm:min-h-[110px] ${
                           user && player.id === user.id 
                             ? 'bg-primary/10 border border-primary/30 hover:bg-primary/15' 
                             : 'bg-muted/20 hover:bg-muted/40'
@@ -1417,7 +1417,7 @@ const PlayerLeaderboardTable = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.03 }}
-                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer min-h-[100px] sm:min-h-[110px] ${
                           user && player.id === user.id 
                             ? 'bg-primary/10 border border-primary/30 hover:bg-primary/15' 
                             : 'bg-muted/20 hover:bg-muted/40'
@@ -1590,7 +1590,7 @@ const PlayerLeaderboardTable = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.03 }}
-                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer ${
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors cursor-pointer min-h-[100px] sm:min-h-[110px] ${
                           user && player.id === user.id 
                             ? 'bg-primary/10 border border-primary/30 hover:bg-primary/15' 
                             : 'bg-muted/20 hover:bg-muted/40'
