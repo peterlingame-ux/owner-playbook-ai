@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { ArrowLeft, Eye, EyeOff, Lock, Phone, Home } from "lucide-react";
+import CountryCodeSelect from "@/components/CountryCodeSelect";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -643,16 +644,9 @@ const Auth = () => {
                   {t("auth.phone_number")}
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    id="countryCode"
-                    type="text"
-                    inputMode="tel"
-                    placeholder="+852"
+                  <CountryCodeSelect
                     value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    required
-                    maxLength={5}
-                    className="w-24 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    onChange={setCountryCode}
                   />
                   <Input
                     id="phone"
@@ -661,7 +655,7 @@ const Auth = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    maxLength={11}
+                    maxLength={15}
                     className="flex-1 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
@@ -958,16 +952,9 @@ const Auth = () => {
                   {t("auth.phone_number")}
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    id="forgot-countryCode"
-                    type="text"
-                    inputMode="tel"
-                    placeholder="+852"
+                  <CountryCodeSelect
                     value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    required
-                    maxLength={5}
-                    className="w-24 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    onChange={setCountryCode}
                   />
                   <Input
                     id="forgot-phone"
@@ -976,7 +963,7 @@ const Auth = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    maxLength={11}
+                    maxLength={15}
                     className="flex-1 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
