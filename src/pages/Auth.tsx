@@ -528,7 +528,7 @@ const Auth = () => {
               {isSignUp && loginMethod === "sms" && (
                 <div className="space-y-2">
                   <Label htmlFor="invitationCode" className="text-white/90 text-sm font-medium">
-                    邀请码 <span className="text-white/50 text-xs">（选填，可获得100 USDT）</span>
+                    邀请码 <span className="text-white/50 text-xs">（选填，可获得100 猎人币）</span>
                   </Label>
                   <Input
                     id="invitationCode"

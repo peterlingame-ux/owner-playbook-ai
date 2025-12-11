@@ -1143,7 +1143,7 @@ const MyPredictions = () => {
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">
-            {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 USDT奖励'}
+            {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 猎人币奖励'}
           </p>
         </div>
       )}
