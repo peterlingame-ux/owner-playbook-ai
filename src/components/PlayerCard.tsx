@@ -98,10 +98,6 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     navigate(`/player/${player.id}`);
   };
   
-  const handleFollowPlayer = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toast.info(t('copy_trade_player_unavailable_desc') || '关注玩家功能即将上线，敬请期待！');
-  };
   
   const formattedProfit = player.profit >= 0 
     ? `+$${player.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -242,15 +238,6 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
             </div>
           </div>
           
-          {/* Follow Player Button */}
-          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
-            <Button 
-              onClick={handleFollowPlayer}
-              className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
-            >
-                <span>{t('copy_trade_player')}</span>
-            </Button>
-          </div>
         </div>
       </div>
     </Card>
