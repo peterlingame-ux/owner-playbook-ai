@@ -1272,9 +1272,16 @@ export default function LiveFootballAnimation({
                     );
                   })()}
                   
-                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 transition-all ${
-                    isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-blue-300/50'
-                  }`}>
+                  <div 
+                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
+                      isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-2 ring-cyan-300'
+                    }`}
+                    style={{
+                      border: '3px solid #00bfff',
+                      background: 'linear-gradient(135deg, #0066ff, #00aaff)',
+                      boxShadow: '0 0 16px rgba(0, 150, 255, 0.8), 0 4px 12px rgba(0, 100, 255, 0.5)'
+                    }}
+                  >
                     <img 
                       src={player.avatar} 
                       alt={player.name}
@@ -1285,9 +1292,10 @@ export default function LiveFootballAnimation({
                     />
                   </div>
                   {/* 球衣号码 */}
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md ${
-                    isChaser ? 'bg-emerald-500' : 'bg-blue-600'
-                  }`}>
+                  <div 
+                    className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md`}
+                    style={{ background: isChaser ? '#10b981' : '#0066ff' }}
+                  >
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
@@ -1306,14 +1314,19 @@ export default function LiveFootballAnimation({
                   })()}
                   
                   {/* 发光效果 */}
-                  <div className={`absolute inset-0 rounded-full blur-md -z-10 scale-125 transition-all ${
-                    isChaser ? 'bg-emerald-400 opacity-100 animate-pulse' : isSelected ? 'bg-blue-500 opacity-100' : 'bg-blue-500 opacity-60'
-                  }`} />
+                  <div 
+                    className={`absolute inset-0 rounded-full blur-md -z-10 scale-150 transition-all ${isChaser ? 'animate-pulse' : ''}`}
+                    style={{ 
+                      background: isChaser ? '#10b981' : isSelected ? '#00aaff' : '#0088ff',
+                      opacity: isChaser || isSelected ? 1 : 0.7
+                    }} 
+                  />
                 </div>
                 {/* 球员名字 */}
-                <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
-                  isSelected ? 'bg-yellow-500' : isChaser ? 'bg-emerald-500' : 'bg-blue-600/90'
-                }`}>
+                <div 
+                  className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors`}
+                  style={{ background: isSelected ? '#eab308' : isChaser ? '#10b981' : 'rgba(0, 100, 255, 0.9)' }}
+                >
                   {player.name}
                 </div>
                 
@@ -1416,9 +1429,16 @@ export default function LiveFootballAnimation({
                     );
                   })()}
                   
-                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 transition-all ${
-                    isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-red-300/50'
-                  }`}>
+                  <div 
+                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
+                      isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-2 ring-orange-300'
+                    }`}
+                    style={{
+                      border: '3px solid #ff6b35',
+                      background: 'linear-gradient(135deg, #ff4500, #ff8c00)',
+                      boxShadow: '0 0 16px rgba(255, 100, 50, 0.8), 0 4px 12px rgba(255, 70, 0, 0.5)'
+                    }}
+                  >
                     <img 
                       src={player.avatar} 
                       alt={player.name}
@@ -1429,9 +1449,10 @@ export default function LiveFootballAnimation({
                     />
                   </div>
                   {/* 球衣号码 */}
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md ${
-                    isChaser ? 'bg-emerald-500' : 'bg-red-600'
-                  }`}>
+                  <div 
+                    className={`absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md`}
+                    style={{ background: isChaser ? '#10b981' : '#ff4500' }}
+                  >
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
@@ -1450,14 +1471,19 @@ export default function LiveFootballAnimation({
                   })()}
                   
                   {/* 发光效果 */}
-                  <div className={`absolute inset-0 rounded-full blur-md -z-10 scale-125 transition-all ${
-                    isChaser ? 'bg-emerald-400 opacity-100 animate-pulse' : isSelected ? 'bg-red-500 opacity-100' : 'bg-red-500 opacity-60'
-                  }`} />
+                  <div 
+                    className={`absolute inset-0 rounded-full blur-md -z-10 scale-150 transition-all ${isChaser ? 'animate-pulse' : ''}`}
+                    style={{ 
+                      background: isChaser ? '#10b981' : isSelected ? '#ff6b35' : '#ff5500',
+                      opacity: isChaser || isSelected ? 1 : 0.7
+                    }} 
+                  />
                 </div>
                 {/* 球员名字 */}
-                <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
-                  isSelected ? 'bg-yellow-500' : isChaser ? 'bg-emerald-500' : 'bg-red-600/90'
-                }`}>
+                <div 
+                  className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors`}
+                  style={{ background: isSelected ? '#eab308' : isChaser ? '#10b981' : 'rgba(255, 70, 0, 0.9)' }}
+                >
                   {player.name}
                 </div>
                 
