@@ -968,7 +968,7 @@ export default function LiveFootballAnimation({
       </div>
 
       {/* 球场动画 */}
-      <div className="relative rounded-xl overflow-hidden aspect-[16/9] max-h-[60vh]">
+      <div className="relative rounded-xl overflow-hidden w-full" style={{ aspectRatio: '2.4/1' }}>
         {/* 真实足球场背景 */}
         <img 
           src={footballPitchBg} 
