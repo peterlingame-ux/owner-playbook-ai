@@ -1015,7 +1015,7 @@ export default function MatchDetail() {
             { id: 'chat' as const, label: '聊天', icon: MessageCircle },
             { id: 'lineup' as const, label: '阵容', icon: Users },
             { id: 'odds' as const, label: '指数', icon: BarChart2 },
-            { id: 'expert' as const, label: '专家', icon: UserCheck },
+            { id: 'expert' as const, label: 'HUNSOCCER AI热力图', icon: UserCheck },
             { id: 'hot' as const, label: '热议', icon: Flame },
           ].map((tab) => (
             <button
