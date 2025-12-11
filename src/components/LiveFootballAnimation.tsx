@@ -1455,31 +1455,6 @@ export default function LiveFootballAnimation({
                         />
                       </circle>
                     ))}
-                    
-                    {/* 位置标签 - 带淡入动画 */}
-                    {lines.map((line, lineIdx) => {
-                      const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
-                      const labels = ['后卫', '中场', '前锋', '前腰'];
-                      const label = formationParts.length === 4 
-                        ? ['后卫', '后腰', '前腰', '前锋'][lineIdx]
-                        : labels[lineIdx];
-                      return (
-                        <text
-                          key={`home-label-${lineIdx}`}
-                          x="3"
-                          y={avgY + 1}
-                          fill="rgba(0, 200, 255, 0.9)"
-                          fontSize="3"
-                          fontWeight="bold"
-                          style={{
-                            animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
-                            opacity: 0
-                          }}
-                        >
-                          {label}
-                        </text>
-                      );
-                    })}
                   </g>
                 );
               })()}
@@ -1672,36 +1647,82 @@ export default function LiveFootballAnimation({
                         />
                       </circle>
                     ))}
-                    
-                    {/* 位置标签 - 带淡入动画 */}
-                    {lines.map((line, lineIdx) => {
-                      const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
-                      const labels = ['后卫', '中场', '前锋', '前腰'];
-                      const label = formationParts.length === 4 
-                        ? ['后卫', '后腰', '前腰', '前锋'][lineIdx]
-                        : labels[lineIdx];
-                      return (
-                        <text
-                          key={`away-label-${lineIdx}`}
-                          x="3"
-                          y={avgY + 1}
-                          fill="rgba(239, 68, 68, 0.9)"
-                          fontSize="3"
-                          fontWeight="bold"
-                          style={{
-                            animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
-                            opacity: 0
-                          }}
-                        >
-                          {label}
-                        </text>
-                      );
-                    })}
                   </g>
                 );
               })()}
               </g>
             </svg>
+            
+            {/* 位置标签 - 使用HTML元素避免变形 */}
+            {selectedPlayer.team === 'home' && (() => {
+              const formationPositions = formations[currentHomeFormation] || formations['4-4-2'];
+              const formationParts = currentHomeFormation.split('-').map(Number);
+              let currentIndex = 1;
+              const lines: FormationPosition[][] = [];
+              formationParts.forEach(count => {
+                lines.push(formationPositions.slice(currentIndex, currentIndex + count));
+                currentIndex += count;
+              });
+              
+              return lines.map((line, lineIdx) => {
+                const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
+                const labels = ['后卫', '中场', '前锋', '前腰'];
+                const label = formationParts.length === 4 
+                  ? ['后卫', '后腰', '前腰', '前锋'][lineIdx]
+                  : labels[lineIdx];
+                return (
+                  <div
+                    key={`home-label-${lineIdx}`}
+                    className="absolute left-1 text-[10px] font-bold pointer-events-none z-10"
+                    style={{
+                      top: `${avgY}%`,
+                      transform: 'translateY(-50%)',
+                      color: 'rgba(0, 200, 255, 0.9)',
+                      textShadow: '0 0 4px rgba(0, 100, 255, 0.8), 0 1px 2px rgba(0,0,0,0.5)',
+                      animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
+                      opacity: 0
+                    }}
+                  >
+                    {label}
+                  </div>
+                );
+              });
+            })()}
+            
+            {selectedPlayer.team === 'away' && (() => {
+              const formationPositions = mirrorFormation(formations[currentAwayFormation] || formations['4-3-3']);
+              const formationParts = currentAwayFormation.split('-').map(Number);
+              let currentIndex = 1;
+              const lines: FormationPosition[][] = [];
+              formationParts.forEach(count => {
+                lines.push(formationPositions.slice(currentIndex, currentIndex + count));
+                currentIndex += count;
+              });
+              
+              return lines.map((line, lineIdx) => {
+                const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
+                const labels = ['后卫', '中场', '前锋', '前腰'];
+                const label = formationParts.length === 4 
+                  ? ['后卫', '后腰', '前腰', '前锋'][lineIdx]
+                  : labels[lineIdx];
+                return (
+                  <div
+                    key={`away-label-${lineIdx}`}
+                    className="absolute left-1 text-[10px] font-bold pointer-events-none z-10"
+                    style={{
+                      top: `${avgY}%`,
+                      transform: 'translateY(-50%)',
+                      color: 'rgba(239, 68, 68, 0.9)',
+                      textShadow: '0 0 4px rgba(220, 38, 38, 0.8), 0 1px 2px rgba(0,0,0,0.5)',
+                      animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
+                      opacity: 0
+                    }}
+                  >
+                    {label}
+                  </div>
+                );
+              });
+            })()}
           </>
         )}
 
