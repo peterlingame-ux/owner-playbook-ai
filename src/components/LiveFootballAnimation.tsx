@@ -2093,17 +2093,6 @@ export default function LiveFootballAnimation({
           </div>
         )}
 
-        {/* AI指标开关 */}
-        <button
-          onClick={() => setShowAIIndicators(!showAIIndicators)}
-          className={`absolute top-2 left-16 px-2 py-0.5 rounded text-[8px] font-mono transition-all ${
-            showAIIndicators 
-              ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-400/50' 
-              : 'bg-white/10 text-white/50 border border-white/20'
-          }`}
-        >
-          AI {showAIIndicators ? 'ON' : 'OFF'}
-        </button>
 
         {/* 阵型显示 */}
         <div className="absolute top-2 right-2 text-[10px] text-white/80">
