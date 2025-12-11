@@ -637,6 +637,17 @@ export default function LiveFootballAnimation({
     return nearestPlayer;
   }, []);
 
+  // 使用 ref 存储最新状态，避免依赖项导致动画重建
+  const homePlayersRef = useRef(homePlayers);
+  const awayPlayersRef = useRef(awayPlayers);
+  const ballPositionRef = useRef(ballPosition);
+  const chasingPlayerRef = useRef(chasingPlayer);
+  
+  useEffect(() => { homePlayersRef.current = homePlayers; }, [homePlayers]);
+  useEffect(() => { awayPlayersRef.current = awayPlayers; }, [awayPlayers]);
+  useEffect(() => { ballPositionRef.current = ballPosition; }, [ballPosition]);
+  useEffect(() => { chasingPlayerRef.current = chasingPlayer; }, [chasingPlayer]);
+
   // 动画循环 - 使用物理模拟实现平滑移动
   useEffect(() => {
     if (!isPlaying) {
@@ -646,61 +657,61 @@ export default function LiveFootballAnimation({
       return;
     }
 
-    const targetUpdateInterval = 2000; // 每2秒更新目标位置
-    const ballUpdateInterval = 1200; // 足球更频繁更新
-    const damping = 0.92; // 阻尼系数
-    const acceleration = 0.008; // 加速度
-    const chaserAcceleration = 0.015; // 追球球员加速度更高
-    const ballDamping = 0.95;
-    const ballAcceleration = 0.012;
+    const targetUpdateInterval = 2500; // 每2.5秒更新目标位置
+    const ballUpdateInterval = 1500; // 足球更新间隔
+    const damping = 0.94; // 更高阻尼更平滑
+    const acceleration = 0.006; // 更低加速度更平滑
+    const chaserAcceleration = 0.012;
+    const ballDamping = 0.96;
+    const ballAcceleration = 0.008;
+
+    let lastTargetUpdate = 0;
+    let lastBallUpdate = 0;
 
     const animate = (timestamp: number) => {
       // 更新球员目标位置
-      if (timestamp - lastUpdateRef.current > targetUpdateInterval) {
+      if (timestamp - lastTargetUpdate > targetUpdateInterval) {
         updateTargetPositions();
-        lastUpdateRef.current = timestamp;
+        lastTargetUpdate = timestamp;
       }
       
       // 更新足球目标位置
-      if (timestamp - ballUpdateRef.current > ballUpdateInterval) {
+      if (timestamp - lastBallUpdate > ballUpdateInterval) {
         updateBallTarget();
-        ballUpdateRef.current = timestamp;
+        lastBallUpdate = timestamp;
       }
 
       // 获取当前球的位置并找到最近的球员
-      setBallPosition(prevBall => {
-        const nearest = findNearestPlayerToBall(homePlayers, awayPlayers, prevBall.x, prevBall.y);
-        if (nearest && (!chasingPlayer || nearest.id !== chasingPlayer.id || nearest.team !== chasingPlayer.team)) {
-          setChasingPlayer({ id: nearest.id, team: nearest.team });
-        }
-        return prevBall;
-      });
+      const currentBall = ballPositionRef.current;
+      const currentHomePlayers = homePlayersRef.current;
+      const currentAwayPlayers = awayPlayersRef.current;
+      const currentChaser = chasingPlayerRef.current;
+      
+      const nearest = findNearestPlayerToBall(currentHomePlayers, currentAwayPlayers, currentBall.x, currentBall.y);
+      if (nearest && (!currentChaser || nearest.id !== currentChaser.id || nearest.team !== currentChaser.team)) {
+        setChasingPlayer({ id: nearest.id, team: nearest.team });
+      }
 
       // 使用速度和加速度平滑移动球员
       setHomePlayers(prev =>
         prev.map(player => {
-          const isChaser = chasingPlayer?.team === 'home' && chasingPlayer?.id === player.id;
+          const isChaser = currentChaser?.team === 'home' && currentChaser?.id === player.id;
           
-          // 追球球员的目标是球的位置
           let targetX = player.targetX;
           let targetY = player.targetY;
           if (isChaser) {
-            targetX = ballPosition.x;
-            targetY = ballPosition.y;
+            targetX = currentBall.x;
+            targetY = currentBall.y;
           }
           
           const dx = targetX - player.x;
           const dy = targetY - player.y;
-          
-          // 追球球员有更高的加速度
           const accel = isChaser ? chaserAcceleration : acceleration;
           
-          // 应用加速度
           let newVelX = player.velocityX * damping + dx * accel;
           let newVelY = player.velocityY * damping + dy * accel;
           
-          // 追球球员速度更快
-          const maxSpeed = isChaser ? 1.2 : 0.8;
+          const maxSpeed = isChaser ? 1.0 : 0.6;
           const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
           if (speed > maxSpeed) {
             newVelX = (newVelX / speed) * maxSpeed;
@@ -719,24 +730,23 @@ export default function LiveFootballAnimation({
 
       setAwayPlayers(prev =>
         prev.map(player => {
-          const isChaser = chasingPlayer?.team === 'away' && chasingPlayer?.id === player.id;
+          const isChaser = currentChaser?.team === 'away' && currentChaser?.id === player.id;
           
           let targetX = player.targetX;
           let targetY = player.targetY;
           if (isChaser) {
-            targetX = ballPosition.x;
-            targetY = ballPosition.y;
+            targetX = currentBall.x;
+            targetY = currentBall.y;
           }
           
           const dx = targetX - player.x;
           const dy = targetY - player.y;
-          
           const accel = isChaser ? chaserAcceleration : acceleration;
           
           let newVelX = player.velocityX * damping + dx * accel;
           let newVelY = player.velocityY * damping + dy * accel;
           
-          const maxSpeed = isChaser ? 1.2 : 0.8;
+          const maxSpeed = isChaser ? 1.0 : 0.6;
           const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
           if (speed > maxSpeed) {
             newVelX = (newVelX / speed) * maxSpeed;
@@ -761,7 +771,7 @@ export default function LiveFootballAnimation({
         let newVelX = prev.velocityX * ballDamping + dx * ballAcceleration;
         let newVelY = prev.velocityY * ballDamping + dy * ballAcceleration;
         
-        const maxBallSpeed = 1.2;
+        const maxBallSpeed = 0.9;
         const speed = Math.sqrt(newVelX * newVelX + newVelY * newVelY);
         if (speed > maxBallSpeed) {
           newVelX = (newVelX / speed) * maxBallSpeed;
@@ -787,7 +797,7 @@ export default function LiveFootballAnimation({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying, updateTargetPositions, updateBallTarget, findNearestPlayerToBall, chasingPlayer, ballPosition.x, ballPosition.y, homePlayers, awayPlayers]);
+  }, [isPlaying, updateTargetPositions, updateBallTarget, findNearestPlayerToBall]);
 
   // 切换阵型
   const handleFormationChange = (team: 'home' | 'away', formation: string) => {
@@ -1159,12 +1169,13 @@ export default function LiveFootballAnimation({
           return (
             <div
               key={`home-${player.id}`}
-              className="absolute transition-all duration-75 ease-out cursor-pointer"
+              className="absolute cursor-pointer"
               style={{
                 left: `${player.x}%`,
                 top: `${player.y}%`,
                 transform: 'translate(-50%, -50%)',
                 zIndex: isSelected ? 20 : isChaser ? 15 : 10,
+                willChange: 'left, top',
               }}
               onClick={() => handlePlayerClick(player, 'home')}
             >
@@ -1263,12 +1274,13 @@ export default function LiveFootballAnimation({
           return (
             <div
               key={`away-${player.id}`}
-              className="absolute transition-all duration-75 ease-out cursor-pointer"
+              className="absolute cursor-pointer"
               style={{
                 left: `${player.x}%`,
                 top: `${player.y}%`,
                 transform: 'translate(-50%, -50%)',
                 zIndex: isSelected ? 20 : isChaser ? 15 : 10,
+                willChange: 'left, top',
               }}
               onClick={() => handlePlayerClick(player, 'away')}
             >
@@ -1360,11 +1372,12 @@ export default function LiveFootballAnimation({
 
         {/* 足球 - 真实模型 */}
         <div
-          className="absolute transition-all duration-300 ease-out"
+          className="absolute"
           style={{
             left: `${ballPosition.x}%`,
             top: `${ballPosition.y}%`,
             transform: 'translate(-50%, -50%)',
+            willChange: 'left, top',
           }}
         >
           <div className="w-5 h-5 md:w-6 md:h-6 relative">
