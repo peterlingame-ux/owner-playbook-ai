@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
 import { useState, useEffect, useCallback } from "react";
@@ -158,6 +158,41 @@ const PlayerLeaderboardTable = () => {
   // 奖金池配置
   const PRIZE_POOL = 1000000; // $1,000,000
   const AI_BENCHMARK_WIN_RATE = 58; // AI基准胜率 58%
+  
+  // 倒计时状态
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  
+  // 计算倒计时 - 每30天为一个周期
+  useEffect(() => {
+    const calculateCountdown = () => {
+      const now = new Date();
+      // 假设第一轮从2025年1月1日开始，每30天一轮
+      const startDate = new Date('2025-01-01T00:00:00');
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / msPerDay);
+      const currentRoundDay = daysSinceStart % 30;
+      const daysRemaining = 30 - currentRoundDay - 1;
+      
+      // 计算到当天结束的剩余时间
+      const endOfDay = new Date(now);
+      endOfDay.setDate(endOfDay.getDate() + daysRemaining + 1);
+      endOfDay.setHours(0, 0, 0, 0);
+      
+      const diff = endOfDay.getTime() - now.getTime();
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setCountdown({ days, hours, minutes, seconds });
+    };
+    
+    calculateCountdown();
+    const timer = setInterval(calculateCountdown, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
   
   // 计算预计奖金
   const calculateEstimatedPrize = (playerWinRate: number, playerRank: number, totalEligiblePlayers: number): number => {
@@ -1084,7 +1119,7 @@ const PlayerLeaderboardTable = () => {
       <Card className="border-warning/30 bg-gradient-to-r from-warning/5 via-warning/10 to-warning/5 overflow-hidden relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-warning/10 via-transparent to-transparent" />
         <CardContent className="p-4 sm:p-5 relative">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
                 <DollarSign className="h-6 w-6 sm:h-7 sm:w-7 text-warning" />
@@ -1096,6 +1131,33 @@ const PlayerLeaderboardTable = () => {
                 </p>
               </div>
             </div>
+            
+            {/* 倒计时区域 */}
+            <div className="flex items-center gap-2 sm:gap-3 bg-background/50 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2 sm:py-3 border border-warning/20">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="text-center">
+                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{countdown.days}</span>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">天</p>
+                </div>
+                <span className="text-warning font-bold">:</span>
+                <div className="text-center">
+                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{String(countdown.hours).padStart(2, '0')}</span>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">时</p>
+                </div>
+                <span className="text-warning font-bold">:</span>
+                <div className="text-center">
+                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{String(countdown.minutes).padStart(2, '0')}</span>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">分</p>
+                </div>
+                <span className="text-warning font-bold">:</span>
+                <div className="text-center">
+                  <span className="text-lg sm:text-xl font-bold font-mono-data text-warning">{String(countdown.seconds).padStart(2, '0')}</span>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">秒</p>
+                </div>
+              </div>
+            </div>
+            
             <div className="text-center sm:text-right">
               <AnimatedPrizePool 
                 value={PRIZE_POOL} 
