@@ -29,9 +29,6 @@ import teamArsenal from "@/assets/team-arsenal.png";
 import teamInter from "@/assets/team-inter.png";
 import teamAtletico from "@/assets/team-atletico.png";
 import teamManchesterUnited from "@/assets/team-manchester-united.png";
-import highWinrateBg from "@/assets/high-winrate-bg.png";
-import highProfitBg from "@/assets/high-profit-bg.png";
-import lowWinrateBg from "@/assets/low-winrate-bg.png";
 
 // 球队Logo映射
 const teamLogoMap: Record<string, string> = {
@@ -1116,14 +1113,8 @@ const PlayerLeaderboardTable = () => {
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column: 高胜率榜 (Hot Streak) */}
-        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 背景图片 */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
-            style={{ backgroundImage: `url(${highWinrateBg})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
+        <Card className="border-border/50 bg-card/50">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
@@ -1293,14 +1284,8 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Middle Column: 高盈利榜 (Profit Board) */}
-        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 背景图片 */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
-            style={{ backgroundImage: `url(${highProfitBg})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
+        <Card className="border-border/50 bg-card/50">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
@@ -1472,14 +1457,8 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Right Column: 低胜率榜 (Cold Streak) */}
-        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 背景图片 */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
-            style={{ backgroundImage: `url(${lowWinrateBg})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
+        <Card className="border-border/50 bg-card/50">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div>
