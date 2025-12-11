@@ -14,7 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
-import usdtIcon from "@/assets/usdt-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -818,7 +818,7 @@ const PlayerLeaderboardTable = () => {
     fetchUsdtBalance();
   }, [user]);
   
-  // 确认USDT解锁
+  // 确认猎人币解锁
   const confirmUnlock = async () => {
     if (!unlockDialog) {
       return;
@@ -832,12 +832,12 @@ const PlayerLeaderboardTable = () => {
       // 如果用户已登录，使用真实数据库操作
       if (user) {
         if (usdtBalance < unlockPrice) {
-          toast.error(`USDT余额不足，需要 ${unlockPrice} USDT，当前余额 ${usdtBalance} USDT`);
+          toast.error(`猎人币余额不足，需要 ${unlockPrice} 猎人币，当前余额 ${usdtBalance} 猎人币`);
           setIsUnlocking(false);
           return;
         }
         
-        // 扣除USDT
+        // 扣除猎人币
         const { error } = await supabase
           .from('usdt_wallets')
           .update({ balance: usdtBalance - unlockPrice })
@@ -849,9 +849,9 @@ const PlayerLeaderboardTable = () => {
           return;
         }
         
-        // 更新本地USDT余额
+        // 更新本地猎人币余额
         setUsdtBalance(prev => prev - unlockPrice);
-        toast.success(`已扣除 ${unlockPrice} USDT，预测已解锁`);
+        toast.success(`已扣除 ${unlockPrice} 猎人币，预测已解锁`);
       } else {
         // 演示模式：模拟延迟
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -1909,7 +1909,7 @@ const PlayerLeaderboardTable = () => {
                           <span>连胜 <span className="text-foreground font-semibold">{player?.currentStreak || 0}</span></span>
                           {unlockPrice > 0 ? (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
-                              <img src={usdtIcon} alt="USDT" className="w-3.5 h-3.5" />
+                              <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
                               <span className="text-[10px] font-semibold text-foreground">{unlockPrice}</span>
                             </span>
                           ) : (
@@ -2118,7 +2118,7 @@ const PlayerLeaderboardTable = () => {
         </DialogContent>
       </Dialog>
 
-      {/* USDT解锁确认弹窗 */}
+      {/* 猎人币解锁确认弹窗 */}
       <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
         <DialogContent className="max-w-xs p-0 gap-0">
           {unlockDialog && (
@@ -2142,15 +2142,15 @@ const PlayerLeaderboardTable = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">解锁费用</span>
                   <span className="inline-flex items-center gap-1.5 font-semibold">
-                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
-                    {unlockDialog.player.unlockPrice}
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                    {unlockDialog.player.unlockPrice} 猎人币
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">当前余额</span>
                   <span className={`inline-flex items-center gap-1.5 ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}`}>
-                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
-                    {usdtBalance.toFixed(2)}
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                    {usdtBalance.toFixed(2)} 猎人币
                   </span>
                 </div>
                 

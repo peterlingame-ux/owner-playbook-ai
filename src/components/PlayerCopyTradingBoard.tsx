@@ -11,7 +11,7 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import usdtIcon from "@/assets/usdt-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
@@ -563,7 +563,7 @@ const PlayerCopyTradingBoard = () => {
     setCopyTradeDialog(null);
   };
 
-  // 确认USDT解锁
+  // 确认猎人币解锁
   const confirmUnlock = async () => {
     if (!unlockDialog) {
       return;
@@ -577,12 +577,12 @@ const PlayerCopyTradingBoard = () => {
       // 如果用户已登录，使用真实数据库操作
       if (user) {
         if (usdtBalance < unlockPrice) {
-          toast.error(`USDT余额不足，需要 ${unlockPrice} USDT，当前余额 ${usdtBalance} USDT`);
+          toast.error(`猎人币余额不足，需要 ${unlockPrice} 猎人币，当前余额 ${usdtBalance} 猎人币`);
           setIsUnlocking(false);
           return;
         }
         
-        // 扣除USDT
+        // 扣除猎人币
         const { error } = await supabase
           .from('usdt_wallets')
           .update({ balance: usdtBalance - unlockPrice })
@@ -594,9 +594,9 @@ const PlayerCopyTradingBoard = () => {
           return;
         }
         
-        // 更新本地USDT余额
+        // 更新本地猎人币余额
         setUsdtBalance(prev => prev - unlockPrice);
-        toast.success(`已扣除 ${unlockPrice} USDT，预测已解锁`);
+        toast.success(`已扣除 ${unlockPrice} 猎人币，预测已解锁`);
       } else {
         // 演示模式：模拟延迟
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -1217,7 +1217,7 @@ const PlayerCopyTradingBoard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* USDT解锁确认弹窗 */}
+      {/* 猎人币解锁确认弹窗 */}
       <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
         <DialogContent className="max-w-xs p-0 gap-0">
           {unlockDialog && (
@@ -1241,15 +1241,15 @@ const PlayerCopyTradingBoard = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">解锁费用</span>
                   <span className="inline-flex items-center gap-1.5 font-semibold">
-                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
-                    {unlockDialog.player.unlockPrice}
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                    {unlockDialog.player.unlockPrice} 猎人币
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">当前余额</span>
                   <span className={`inline-flex items-center gap-1.5 ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}`}>
-                    <img src={usdtIcon} alt="USDT" className="w-4 h-4" />
-                    {usdtBalance.toFixed(2)}
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                    {usdtBalance.toFixed(2)} 猎人币
                   </span>
                 </div>
                 
