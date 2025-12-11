@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, Maximize2, RotateCcw, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import footballPitchBg from '@/assets/football-pitch-bg.webp';
 
 interface HeatmapPoint {
   x: number;
@@ -448,25 +449,15 @@ export default function LiveFootballAnimation({
       </div>
 
       {/* 球场动画 */}
-      <div className="relative bg-gradient-to-b from-green-600 via-green-700 to-green-600 rounded-xl overflow-hidden aspect-[3/4] md:aspect-[4/3]">
-        {/* 球场标记 */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {/* 边界 */}
-          <rect x="2" y="2" width="96" height="96" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          {/* 中线 */}
-          <line x1="2" y1="50" x2="98" y2="50" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          {/* 中圈 */}
-          <circle cx="50" cy="50" r="12" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          <circle cx="50" cy="50" r="0.8" fill="white" opacity="0.6" />
-          {/* 上半场禁区 */}
-          <rect x="25" y="2" width="50" height="18" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          <rect x="35" y="2" width="30" height="8" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          <circle cx="50" cy="14" r="0.5" fill="white" opacity="0.6" />
-          {/* 下半场禁区 */}
-          <rect x="25" y="80" width="50" height="18" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          <rect x="35" y="90" width="30" height="8" fill="none" stroke="white" strokeWidth="0.3" opacity="0.6" />
-          <circle cx="50" cy="86" r="0.5" fill="white" opacity="0.6" />
-        </svg>
+      <div className="relative rounded-xl overflow-hidden aspect-[16/10] md:aspect-[16/9]">
+        {/* 真实足球场背景 */}
+        <img 
+          src={footballPitchBg} 
+          alt="Football Pitch"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* 半透明遮罩增加对比度 */}
+        <div className="absolute inset-0 bg-black/10" />
 
         {/* 热力图层 */}
         {showHeatmap && (
