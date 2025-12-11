@@ -1177,8 +1177,8 @@ const PlayerLeaderboardTable = () => {
                   </div>
                   <div className="h-4 w-px bg-border" />
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span>人均奖金：<span className="font-bold text-foreground">${prizePerPerson.toLocaleString()}</span></span>
+                    <DollarSign className="h-4 w-4 text-warning" />
+                    <span>人均奖金：<span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
                   </div>
                 </div>
               );
