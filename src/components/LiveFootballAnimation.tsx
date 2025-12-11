@@ -818,10 +818,10 @@ export default function LiveFootballAnimation({
   const availableFormations = Object.keys(formations);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
 
       {/* 阵型选择 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* 主队阵型 */}
         <div className="relative rounded-xl border border-blue-500/40 overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 transition-shadow duration-300">
           {/* 背景图 */}
@@ -840,37 +840,37 @@ export default function LiveFootballAnimation({
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/60 to-transparent" />
           
           {/* 内容 */}
-          <div className="relative z-10 p-4">
+          <div className="relative z-10 p-3">
             {/* 头部 */}
-            <div className="flex items-center gap-3 pb-3 border-b border-blue-400/20">
-              <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+            <div className="flex items-center gap-2 pb-2 border-b border-blue-400/20">
+              <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
                 <img 
                   src={homeTeamLogo} 
                   alt={homeTeamName}
-                  className="w-7 h-7 object-contain"
+                  className="w-5 h-5 object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               </div>
               <div className="flex-1">
-                <span className="text-sm font-semibold text-white">{homeTeamName}</span>
-                <div className="text-[10px] text-blue-300/70">主队阵型</div>
+                <span className="text-xs font-semibold text-white">{homeTeamName}</span>
+                <div className="text-[9px] text-blue-300/70">主队阵型</div>
               </div>
-              <div className="px-3 py-1.5 rounded-md bg-blue-500/20 border border-blue-400/30">
-                <span className="text-sm text-blue-300 font-bold tracking-wide">{currentHomeFormation}</span>
+              <div className="px-2 py-1 rounded-md bg-blue-500/20 border border-blue-400/30">
+                <span className="text-xs text-blue-300 font-bold tracking-wide">{currentHomeFormation}</span>
               </div>
             </div>
             
             {/* 阵型按钮 */}
-            <div className="flex flex-wrap gap-2 py-4">
+            <div className="flex flex-wrap gap-1.5 py-2">
               {availableFormations.map(f => (
                 <button
                   key={f}
                   onClick={() => handleFormationChange('home', f)}
-                  className={`px-4 py-2 text-xs font-semibold rounded-lg border-2 transition-all duration-200 ${
+                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-md border-2 transition-all duration-200 ${
                     currentHomeFormation === f
-                      ? 'bg-blue-500 border-blue-400 text-white scale-105 shadow-lg shadow-blue-500/50'
+                      ? 'bg-blue-500 border-blue-400 text-white scale-105 shadow-md shadow-blue-500/50'
                       : 'bg-white/5 border-white/20 hover:border-blue-400/50 hover:bg-blue-500/10 text-white/80'
                   }`}
                 >
@@ -880,14 +880,14 @@ export default function LiveFootballAnimation({
             </div>
             
             {/* 阵型说明 */}
-            <div className="pt-3 border-t border-blue-400/20">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-1 h-4 rounded-full bg-blue-400" />
-                <span className="text-xs font-semibold text-blue-300">
+            <div className="pt-2 border-t border-blue-400/20">
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="w-0.5 h-3 rounded-full bg-blue-400" />
+                <span className="text-[10px] font-semibold text-blue-300">
                   {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
                 </span>
               </div>
-              <p className="text-[11px] text-white/50 leading-relaxed pl-3">
+              <p className="text-[9px] text-white/50 leading-relaxed pl-2">
                 {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
               </p>
             </div>
@@ -912,37 +912,37 @@ export default function LiveFootballAnimation({
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-400/60 to-transparent" />
           
           {/* 内容 */}
-          <div className="relative z-10 p-4">
+          <div className="relative z-10 p-3">
             {/* 头部 */}
-            <div className="flex items-center gap-3 pb-3 border-b border-red-400/20">
-              <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+            <div className="flex items-center gap-2 pb-2 border-b border-red-400/20">
+              <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
                 <img 
                   src={awayTeamLogo} 
                   alt={awayTeamName}
-                  className="w-7 h-7 object-contain"
+                  className="w-5 h-5 object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               </div>
               <div className="flex-1">
-                <span className="text-sm font-semibold text-white">{awayTeamName}</span>
-                <div className="text-[10px] text-red-300/70">客队阵型</div>
+                <span className="text-xs font-semibold text-white">{awayTeamName}</span>
+                <div className="text-[9px] text-red-300/70">客队阵型</div>
               </div>
-              <div className="px-3 py-1.5 rounded-md bg-red-500/20 border border-red-400/30">
-                <span className="text-sm text-red-300 font-bold tracking-wide">{currentAwayFormation}</span>
+              <div className="px-2 py-1 rounded-md bg-red-500/20 border border-red-400/30">
+                <span className="text-xs text-red-300 font-bold tracking-wide">{currentAwayFormation}</span>
               </div>
             </div>
             
             {/* 阵型按钮 */}
-            <div className="flex flex-wrap gap-2 py-4">
+            <div className="flex flex-wrap gap-1.5 py-2">
               {availableFormations.map(f => (
                 <button
                   key={f}
                   onClick={() => handleFormationChange('away', f)}
-                  className={`px-4 py-2 text-xs font-semibold rounded-lg border-2 transition-all duration-200 ${
+                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-md border-2 transition-all duration-200 ${
                     currentAwayFormation === f
-                      ? 'bg-red-500 border-red-400 text-white scale-105 shadow-lg shadow-red-500/50'
+                      ? 'bg-red-500 border-red-400 text-white scale-105 shadow-md shadow-red-500/50'
                       : 'bg-white/5 border-white/20 hover:border-red-400/50 hover:bg-red-500/10 text-white/80'
                   }`}
                 >
@@ -952,14 +952,14 @@ export default function LiveFootballAnimation({
             </div>
             
             {/* 阵型说明 */}
-            <div className="pt-3 border-t border-red-400/20">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-1 h-4 rounded-full bg-red-400" />
-                <span className="text-xs font-semibold text-red-300">
+            <div className="pt-2 border-t border-red-400/20">
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="w-0.5 h-3 rounded-full bg-red-400" />
+                <span className="text-[10px] font-semibold text-red-300">
                   {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
                 </span>
               </div>
-              <p className="text-[11px] text-white/50 leading-relaxed pl-3">
+              <p className="text-[9px] text-white/50 leading-relaxed pl-2">
                 {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
               </p>
             </div>
@@ -968,7 +968,7 @@ export default function LiveFootballAnimation({
       </div>
 
       {/* 球场动画 */}
-      <div className="relative rounded-xl overflow-hidden aspect-[16/10] md:aspect-[16/9]">
+      <div className="relative rounded-xl overflow-hidden aspect-[16/9] max-h-[60vh]">
         {/* 真实足球场背景 */}
         <img 
           src={footballPitchBg} 
