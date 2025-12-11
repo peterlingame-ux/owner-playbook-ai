@@ -864,9 +864,9 @@ export default function LiveFootballAnimation({
           <img 
             src={hunsoccerAlphaLogo}
             alt="HUNSOCCER ALPHA"
-            className="w-24 h-auto md:w-32 opacity-20"
+            className="w-24 h-auto md:w-32 opacity-80"
             style={{
-              filter: 'invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.3))',
+              filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,0.5))',
             }}
           />
         </div>
