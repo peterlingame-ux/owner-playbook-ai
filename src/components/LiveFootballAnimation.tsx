@@ -1534,53 +1534,6 @@ export default function LiveFootballAnimation({
                   {player.name}
                 </div>
                 
-                {/* 选中时显示体力值和进攻欲望 */}
-                {isSelected && (() => {
-                  const desire = getPlayerAttackDesire(player.id);
-                  const stamina = 60 + Math.floor(Math.random() * 35); // 60-95之间的体力值
-                  
-                  return (
-                    <div className="mt-1 bg-black/90 backdrop-blur-sm rounded border border-cyan-500/30 p-1.5 min-w-[80px]">
-                      {/* 体力值 */}
-                      <div className="mb-1">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">STA</span>
-                          <span className={`text-[8px] font-mono font-bold ${stamina >= 70 ? 'text-green-400' : stamina >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {stamina}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${stamina}%`,
-                              background: stamina >= 70 ? 'linear-gradient(90deg, #22c55e, #4ade80)' : stamina >= 40 ? 'linear-gradient(90deg, #eab308, #facc15)' : 'linear-gradient(90deg, #ef4444, #f87171)'
-                            }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* 进攻欲望 */}
-                      <div>
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">ATK</span>
-                          <span className={`text-[8px] font-mono font-bold ${desire.attackDesire >= 70 ? 'text-red-400' : desire.attackDesire >= 40 ? 'text-orange-400' : 'text-cyan-400/70'}`}>
-                            {desire.attackDesire}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${desire.attackDesire}%`,
-                              background: desire.attackDesire >= 70 ? 'linear-gradient(90deg, #f97316, #ef4444)' : desire.attackDesire >= 40 ? 'linear-gradient(90deg, #eab308, #f97316)' : 'linear-gradient(90deg, #06b6d4, #22d3ee)'
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
               </div>
             </div>
           );
@@ -1684,53 +1637,6 @@ export default function LiveFootballAnimation({
                   {player.name}
                 </div>
                 
-                {/* 选中时显示体力值和进攻欲望 */}
-                {isSelected && (() => {
-                  const desire = getPlayerAttackDesire(player.id);
-                  const stamina = 60 + Math.floor(Math.random() * 35);
-                  
-                  return (
-                    <div className="mt-1 bg-black/90 backdrop-blur-sm rounded border border-cyan-500/30 p-1.5 min-w-[80px]">
-                      {/* 体力值 */}
-                      <div className="mb-1">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">STA</span>
-                          <span className={`text-[8px] font-mono font-bold ${stamina >= 70 ? 'text-green-400' : stamina >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {stamina}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${stamina}%`,
-                              background: stamina >= 70 ? 'linear-gradient(90deg, #22c55e, #4ade80)' : stamina >= 40 ? 'linear-gradient(90deg, #eab308, #facc15)' : 'linear-gradient(90deg, #ef4444, #f87171)'
-                            }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* 进攻欲望 */}
-                      <div>
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[7px] text-cyan-400/70 font-mono">ATK</span>
-                          <span className={`text-[8px] font-mono font-bold ${desire.attackDesire >= 70 ? 'text-red-400' : desire.attackDesire >= 40 ? 'text-orange-400' : 'text-cyan-400/70'}`}>
-                            {desire.attackDesire}%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${desire.attackDesire}%`,
-                              background: desire.attackDesire >= 70 ? 'linear-gradient(90deg, #f97316, #ef4444)' : desire.attackDesire >= 40 ? 'linear-gradient(90deg, #eab308, #f97316)' : 'linear-gradient(90deg, #06b6d4, #22d3ee)'
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
               </div>
             </div>
           );
