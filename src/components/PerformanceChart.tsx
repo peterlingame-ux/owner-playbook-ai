@@ -52,7 +52,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   const { user } = useAuth();
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'all' | '72h'>('all');
+  const [timeRange, setTimeRange] = useState<'all' | '24h' | '72h'>('all');
   const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
 
   // Fetch user profile
@@ -88,8 +88,8 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         // 计算从起始日期到今天的天数
         const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
         
-        // 如果选择 72h，只显示最近3天（从起始日期算起）
-        const daysToShow = timeRange === '72h' ? Math.min(3, days) : days;
+        // 根据时间范围选择显示天数
+        const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? Math.min(3, days) : days;
         
         // 直接从数据库视图查询每日胜率数据
         const { data: dailyData, error: dailyError } = await supabase
@@ -169,7 +169,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         startDate.setHours(0, 0, 0, 0);
         const today = new Date();
         const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        const daysToShow = timeRange === '72h' ? Math.min(3, days) : days;
+        const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? Math.min(3, days) : days;
         const zeroData = generateZeroChartData(daysToShow);
         setData(zeroData);
       } finally {
@@ -331,6 +331,16 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             }`}
           >
             {t('all')}
+          </button>
+          <button 
+            onClick={() => setTimeRange('24h')}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              timeRange === '24h' 
+                ? 'bg-foreground text-background' 
+                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {t('24h')}
           </button>
           <button 
             onClick={() => setTimeRange('72h')}

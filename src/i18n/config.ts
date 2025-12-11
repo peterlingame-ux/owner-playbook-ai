@@ -69,7 +69,7 @@ const resources = {
       "correct_predictions": "correct predictions",
       
       // Performance Chart
-      "performance_over_time": "AI Win Rate Trends",
+      "performance_over_time": "Model Win Rate Trends",
       "win_rate": "Win Rate (%)",
       
       // Live Matches
@@ -333,6 +333,7 @@ const resources = {
       "correct_predictions_label": "CORRECT PREDICTIONS",
       "prediction_accuracy": "Prediction Accuracy Over Time",
       "all": "ALL",
+      "24h": "24H",
       "72h": "72H",
       "value": "Value",
       "yellow": "YELLOW",
@@ -769,7 +770,7 @@ const resources = {
       "correct_predictions": "次正确预测",
       
       // Performance Chart
-      "performance_over_time": "AI胜率走势",
+      "performance_over_time": "模型胜率走势图",
       "win_rate": "胜率 (%)",
       
       // Live Matches
@@ -1032,6 +1033,7 @@ const resources = {
       "correct_predictions_label": "正确预测",
       "prediction_accuracy": "预测准确率随时间变化",
       "all": "全部",
+      "24h": "24小时",
       "72h": "72小时",
       "value": "价值",
       "yellow": "黄牌",
@@ -1470,7 +1472,7 @@ const resources = {
       "correct_predictions": "정확한 예측",
       
       // Performance Chart
-      "performance_over_time": "AI 승률 추이",
+      "performance_over_time": "모델 승률 추이 차트",
       "win_rate": "승률 (%)",
       
       // Live Matches
@@ -1731,6 +1733,7 @@ const resources = {
       "correct_predictions_label": "정확한 예측",
       "prediction_accuracy": "시간에 따른 예측 정확도",
       "all": "전체",
+      "24h": "24시간",
       "72h": "72시간",
       "value": "값",
       "yellow": "옐로",
