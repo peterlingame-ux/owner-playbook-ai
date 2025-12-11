@@ -197,24 +197,13 @@ const PlayerLeaderboardTable = () => {
     return () => clearInterval(timer);
   }, []);
   
-  // 计算预计奖金
-  const calculateEstimatedPrize = (playerWinRate: number, playerRank: number, totalEligiblePlayers: number): number => {
+  // 计算预计奖金 - 奖金池平均分配给所有达标玩家
+  const calculateEstimatedPrize = (playerWinRate: number, _playerRank: number, totalEligiblePlayers: number): number => {
     // 只有胜率超过AI的玩家才能获得奖金
     if (playerWinRate <= AI_BENCHMARK_WIN_RATE) return 0;
     
-    // 胜率超出AI的部分
-    const winRateSurplus = playerWinRate - AI_BENCHMARK_WIN_RATE;
-    
-    // 基础奖金计算：根据排名和胜率超出部分
-    // 排名越高，奖金越多；胜率超出越多，奖金越多
-    const rankMultiplier = Math.max(1 - (playerRank - 1) * 0.08, 0.1); // 排名1=100%, 排名10=28%
-    const surplusMultiplier = Math.min(winRateSurplus / 20, 1.5); // 胜率超出20%以上获得最高倍数
-    
-    // 基础奖金池份额
-    const baseShare = PRIZE_POOL * 0.6 / Math.max(totalEligiblePlayers, 1); // 60%奖池均分
-    const bonusShare = PRIZE_POOL * 0.4 * rankMultiplier * surplusMultiplier / 10; // 40%奖池根据表现分配
-    
-    return Math.floor(baseShare + bonusShare);
+    // 奖金池平均分配给所有达标玩家
+    return Math.floor(PRIZE_POOL / Math.max(totalEligiblePlayers, 1));
   };
   
   // Get real balance from auth context
