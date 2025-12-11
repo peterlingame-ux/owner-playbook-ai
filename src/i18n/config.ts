@@ -114,7 +114,7 @@ const resources = {
       
       // Model Cards
       "the_contestants": "AI Model Predictions",
-      "top_players": "Player Predictions",
+      "top_players": "Player Champions",
       "view_details": "VIEW DETAILS",
       "total_predictions": "Total Predictions",
       
@@ -813,7 +813,7 @@ const resources = {
       
       // Model Cards
       "the_contestants": "AI模型排行榜",
-      "top_players": "玩家模型TOP3排行榜",
+      "top_players": "玩家冠军排行榜",
       "view_details": "查看详情",
       "total_predictions": "预测",
       
@@ -1513,7 +1513,7 @@ const resources = {
       
       // Model Cards
       "the_contestants": "AI 모델 예측",
-      "top_players": "플레이어 예측",
+      "top_players": "플레이어 챔피언 랭킹",
       "view_details": "상세 보기",
       "total_predictions": "총 예측",
       
