@@ -1457,7 +1457,7 @@ export default function LiveFootballAnimation({
           );
         })}
 
-        {/* 足球 */}
+        {/* 足球 - 真实模型 */}
         <div
           className="absolute transition-all duration-300 ease-out"
           style={{
@@ -1466,8 +1466,78 @@ export default function LiveFootballAnimation({
             transform: 'translate(-50%, -50%)',
           }}
         >
-          <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white shadow-lg flex items-center justify-center text-[6px] md:text-[8px]">
-            ⚽
+          <div className="w-5 h-5 md:w-6 md:h-6 relative">
+            {/* 足球SVG */}
+            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+              {/* 底色 */}
+              <circle cx="50" cy="50" r="48" fill="white" stroke="#333" strokeWidth="2"/>
+              
+              {/* 中心五边形 */}
+              <polygon 
+                points="50,25 65,38 60,58 40,58 35,38" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 顶部五边形 */}
+              <polygon 
+                points="50,5 62,15 58,28 42,28 38,15" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 左上五边形 */}
+              <polygon 
+                points="18,30 30,22 38,35 32,50 18,45" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 右上五边形 */}
+              <polygon 
+                points="82,30 70,22 62,35 68,50 82,45" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 左下五边形 */}
+              <polygon 
+                points="25,70 18,55 28,48 42,58 38,72" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 右下五边形 */}
+              <polygon 
+                points="75,70 82,55 72,48 58,58 62,72" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 底部五边形 */}
+              <polygon 
+                points="50,95 38,82 42,68 58,68 62,82" 
+                fill="#1a1a1a"
+              />
+              
+              {/* 连接线 */}
+              <line x1="50" y1="25" x2="50" y2="5" stroke="#1a1a1a" strokeWidth="2"/>
+              <line x1="35" y1="38" x2="18" y2="30" stroke="#1a1a1a" strokeWidth="2"/>
+              <line x1="65" y1="38" x2="82" y2="30" stroke="#1a1a1a" strokeWidth="2"/>
+              <line x1="40" y1="58" x2="25" y2="70" stroke="#1a1a1a" strokeWidth="2"/>
+              <line x1="60" y1="58" x2="75" y2="70" stroke="#1a1a1a" strokeWidth="2"/>
+              <line x1="50" y1="58" x2="50" y2="68" stroke="#1a1a1a" strokeWidth="2"/>
+              
+              {/* 高光效果 */}
+              <ellipse cx="35" cy="30" rx="8" ry="5" fill="white" opacity="0.4"/>
+              
+              {/* 边缘阴影 */}
+              <circle cx="50" cy="50" r="48" fill="none" stroke="url(#ballShadow)" strokeWidth="4"/>
+              <defs>
+                <radialGradient id="ballShadow" cx="30%" cy="30%">
+                  <stop offset="0%" stopColor="transparent"/>
+                  <stop offset="70%" stopColor="transparent"/>
+                  <stop offset="100%" stopColor="rgba(0,0,0,0.3)"/>
+                </radialGradient>
+              </defs>
+            </svg>
+            
+            {/* 动态阴影 */}
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-1 bg-black/30 rounded-full blur-sm" />
           </div>
         </div>
 
