@@ -1158,7 +1158,7 @@ const PlayerLeaderboardTable = () => {
             <div className="text-center">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                 <span className="text-lg sm:text-2xl font-black text-foreground">
-                  🏆 挑战AI
+                  挑战AI
                 </span>
                 <motion.span 
                   className="text-3xl sm:text-5xl font-black text-warning"
@@ -1175,7 +1175,7 @@ const PlayerLeaderboardTable = () => {
                   $1,000,000
                 </motion.span>
                 <span className="text-lg sm:text-2xl font-black text-foreground">
-                  大奖等你来拿 🏆
+                  大奖等你来拿
                 </span>
               </div>
               <p className="text-sm sm:text-base text-muted-foreground mt-2">
