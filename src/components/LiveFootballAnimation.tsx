@@ -119,12 +119,24 @@ interface LiveFootballAnimationProps {
   homeFormation?: string;
   awayFormation?: string;
   isPlaying?: boolean;
+  homeTeamName?: string;
+  awayTeamName?: string;
+  homeTeamLogo?: string;
+  awayTeamLogo?: string;
 }
+
+// 默认队标
+import teamBarcelona from '@/assets/team-barcelona.png';
+import teamRealMadrid from '@/assets/team-real-madrid.png';
 
 export default function LiveFootballAnimation({
   homeFormation = '4-4-2',
   awayFormation = '4-3-3',
   isPlaying: externalIsPlaying = true,
+  homeTeamName = '巴塞罗那',
+  awayTeamName = '皇家马德里',
+  homeTeamLogo = teamBarcelona,
+  awayTeamLogo = teamRealMadrid,
 }: LiveFootballAnimationProps) {
   const [isPlaying, setIsPlaying] = useState(externalIsPlaying);
   const [currentHomeFormation, setCurrentHomeFormation] = useState(homeFormation);
@@ -357,9 +369,16 @@ export default function LiveFootballAnimation({
         {/* 主队阵型 */}
         <div className="space-y-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-blue-500" />
-            <span className="text-sm font-medium text-foreground">主队阵型</span>
-            <span className="text-xs text-blue-500 font-bold">{currentHomeFormation}</span>
+            <img 
+              src={homeTeamLogo} 
+              alt={homeTeamName}
+              className="w-6 h-6 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <span className="text-sm font-medium text-foreground">{homeTeamName}</span>
+            <span className="text-xs text-blue-500 font-bold ml-auto">{currentHomeFormation}</span>
           </div>
           <div className="flex flex-wrap gap-1">
             {availableFormations.map(f => (
@@ -390,9 +409,16 @@ export default function LiveFootballAnimation({
         {/* 客队阵型 */}
         <div className="space-y-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-red-500" />
-            <span className="text-sm font-medium text-foreground">客队阵型</span>
-            <span className="text-xs text-red-500 font-bold">{currentAwayFormation}</span>
+            <img 
+              src={awayTeamLogo} 
+              alt={awayTeamName}
+              className="w-6 h-6 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <span className="text-sm font-medium text-foreground">{awayTeamName}</span>
+            <span className="text-xs text-red-500 font-bold ml-auto">{currentAwayFormation}</span>
           </div>
           <div className="flex flex-wrap gap-1">
             {availableFormations.map(f => (
