@@ -764,15 +764,15 @@ export default function LiveFootballAnimation({
               <span className="text-sm font-medium text-foreground">{homeTeamName}</span>
               <span className="text-xs text-blue-400 font-bold ml-auto">{currentHomeFormation}</span>
             </div>
-            <div className="flex flex-wrap gap-1 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3">
               {availableFormations.map(f => (
                 <button
                   key={f}
                   onClick={() => handleFormationChange('home', f)}
-                  className={`px-2 py-1 text-xs rounded transition-all ${
+                  className={`px-3 py-1.5 text-xs rounded border-2 transition-all ${
                     currentHomeFormation === f
-                      ? 'bg-blue-500 text-white scale-105 shadow-md shadow-blue-500/30'
-                      : 'bg-white/10 hover:bg-white/20 text-white/80 border border-white/10'
+                      ? 'bg-blue-500 border-blue-500 text-white scale-105 shadow-md shadow-blue-500/30'
+                      : 'bg-transparent border-white/20 hover:border-white/40 text-white/80'
                   }`}
                 >
                   {f}
@@ -820,15 +820,15 @@ export default function LiveFootballAnimation({
               <span className="text-sm font-medium text-foreground">{awayTeamName}</span>
               <span className="text-xs text-red-400 font-bold ml-auto">{currentAwayFormation}</span>
             </div>
-            <div className="flex flex-wrap gap-1 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3">
               {availableFormations.map(f => (
                 <button
                   key={f}
                   onClick={() => handleFormationChange('away', f)}
-                  className={`px-2 py-1 text-xs rounded transition-all ${
+                  className={`px-3 py-1.5 text-xs rounded border-2 transition-all ${
                     currentAwayFormation === f
-                      ? 'bg-red-500 text-white scale-105 shadow-md shadow-red-500/30'
-                      : 'bg-white/10 hover:bg-white/20 text-white/80 border border-white/10'
+                      ? 'bg-red-500 border-red-500 text-white scale-105 shadow-md shadow-red-500/30'
+                      : 'bg-transparent border-white/20 hover:border-white/40 text-white/80'
                   }`}
                 >
                   {f}
