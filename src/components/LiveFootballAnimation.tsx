@@ -9,6 +9,7 @@ interface PlayerPosition {
   targetX: number;
   targetY: number;
   name: string;
+  avatar: string;
 }
 
 interface FormationPosition {
@@ -16,9 +17,19 @@ interface FormationPosition {
   y: number;
 }
 
-// 虚拟球员名字
+// 虚拟球员名字和头像
 const homePlayerNames = ['拉米', '巴塔特', '泰马尼尼', '萨莱赫', '纳布汉', '萨瓦塔', '阿米德', '哈姆丹', '赛亚姆', '昆巴尔', '达巴赫'];
 const awayPlayerNames = ['奥瓦伊斯', '布莱克', '阿姆里', '塔姆比蒂', '甘纳姆', '萨尔曼', '道萨里', '马尔基', '哈桑', '布雷坎', '阿西里'];
+const homePlayerAvatars = [
+  '/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png',
+  '/avatars/avatar-5.png', '/avatars/avatar-6.png', '/avatars/avatar-7.png', '/avatars/avatar-8.png',
+  '/avatars/avatar-9.png', '/avatars/avatar-1.png', '/avatars/avatar-2.png'
+];
+const awayPlayerAvatars = [
+  '/avatars/avatar-6.png', '/avatars/avatar-7.png', '/avatars/avatar-8.png', '/avatars/avatar-9.png',
+  '/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png',
+  '/avatars/avatar-5.png', '/avatars/avatar-6.png', '/avatars/avatar-7.png'
+];
 
 // 阵型配置 - 定义不同阵型下11个球员的位置
 const formations: Record<string, FormationPosition[]> = {
@@ -102,6 +113,7 @@ export default function LiveFootballAnimation({
         targetX: pos.x,
         targetY: pos.y,
         name: homePlayerNames[idx] || `球员${idx + 1}`,
+        avatar: homePlayerAvatars[idx] || '/avatars/avatar-1.png',
       }))
     );
 
@@ -113,6 +125,7 @@ export default function LiveFootballAnimation({
         targetX: pos.x,
         targetY: pos.y,
         name: awayPlayerNames[idx] || `球员${idx + 1}`,
+        avatar: awayPlayerAvatars[idx] || '/avatars/avatar-6.png',
       }))
     );
   }, [currentHomeFormation, currentAwayFormation]);
@@ -337,13 +350,20 @@ export default function LiveFootballAnimation({
             }}
           >
             <div className="relative flex flex-col items-center">
-              <div className="w-6 h-6 md:w-8 md:h-8 rounded border-2 border-blue-300 bg-blue-500 shadow-lg shadow-blue-500/50 flex items-center justify-center">
-                <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
+              <div className="w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-blue-300 bg-blue-500 shadow-lg shadow-blue-500/50 overflow-hidden">
+                <img 
+                  src={player.avatar} 
+                  alt={player.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/avatars/avatar-1.png';
+                  }}
+                />
               </div>
               {/* 球员名字 */}
               <span className="text-[6px] md:text-[8px] text-white font-medium mt-0.5 whitespace-nowrap drop-shadow-md">{player.name}</span>
               {/* 发光效果 */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 md:w-8 md:h-8 rounded bg-blue-400 blur-sm opacity-50 -z-10" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-9 md:h-9 rounded-full bg-blue-400 blur-sm opacity-50 -z-10" />
             </div>
           </div>
         ))}
@@ -360,13 +380,20 @@ export default function LiveFootballAnimation({
             }}
           >
             <div className="relative flex flex-col items-center">
-              <div className="w-6 h-6 md:w-8 md:h-8 rounded border-2 border-red-300 bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center">
-                <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
+              <div className="w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-red-300 bg-red-500 shadow-lg shadow-red-500/50 overflow-hidden">
+                <img 
+                  src={player.avatar} 
+                  alt={player.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/avatars/avatar-6.png';
+                  }}
+                />
               </div>
               {/* 球员名字 */}
               <span className="text-[6px] md:text-[8px] text-white font-medium mt-0.5 whitespace-nowrap drop-shadow-md">{player.name}</span>
               {/* 发光效果 */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 md:w-8 md:h-8 rounded bg-red-400 blur-sm opacity-50 -z-10" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-9 md:h-9 rounded-full bg-red-400 blur-sm opacity-50 -z-10" />
             </div>
           </div>
         ))}
