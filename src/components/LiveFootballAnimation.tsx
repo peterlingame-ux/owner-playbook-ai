@@ -1219,7 +1219,7 @@ export default function LiveFootballAnimation({
           <>
             {/* 阵型名称标签 */}
             <div 
-              className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full text-xs font-bold"
+              className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full text-xs font-bold animate-fade-in"
               style={{
                 background: selectedPlayer.team === 'home' 
                   ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.9), rgba(0, 150, 255, 0.9))' 
@@ -1228,7 +1228,8 @@ export default function LiveFootballAnimation({
                 boxShadow: selectedPlayer.team === 'home'
                   ? '0 0 20px rgba(0, 150, 255, 0.6)'
                   : '0 0 20px rgba(239, 68, 68, 0.6)',
-                border: '1px solid rgba(255,255,255,0.3)'
+                border: '1px solid rgba(255,255,255,0.3)',
+                animation: 'formationFadeIn 0.4s ease-out forwards'
               }}
             >
               {selectedPlayer.team === 'home' ? `主队阵型: ${currentHomeFormation}` : `客队阵型: ${currentAwayFormation}`}
@@ -1261,7 +1262,8 @@ export default function LiveFootballAnimation({
                 </filter>
               </defs>
               
-              {/* 主队阵型 - 使用标准阵型配置 */}
+              {/* 整体动画容器 */}
+              <g style={{ animation: 'formationFadeIn 0.5s ease-out forwards' }}>
               {selectedPlayer.team === 'home' && (() => {
                 const formationPositions = formations[currentHomeFormation] || formations['4-4-2'];
                 
@@ -1280,7 +1282,7 @@ export default function LiveFootballAnimation({
                 
                 return (
                   <g filter="url(#formationGlow)">
-                    {/* 绘制每条线的区域填充 */}
+                    {/* 绘制每条线的区域填充 - 带淡入动画 */}
                     {lines.map((line, lineIdx) => {
                       if (line.length < 2) return null;
                       const sortedLine = [...line].sort((a, b) => a.x - b.x);
@@ -1302,29 +1304,49 @@ export default function LiveFootballAnimation({
                           fill="rgba(0, 150, 255, 0.15)"
                           rx="2"
                           ry="2"
+                          style={{
+                            animation: `formationFadeIn 0.4s ease-out ${lineIdx * 0.1}s forwards`,
+                            opacity: 0
+                          }}
+                        >
+                          <animate 
+                            attributeName="opacity" 
+                            values="0.1;0.2;0.1" 
+                            dur="2s" 
+                            repeatCount="indefinite" 
+                            begin={`${lineIdx * 0.1}s`}
+                          />
+                        </rect>
+                      );
+                    })}
+                    
+                    {/* 门将到后防线连线 - 带绘制动画 */}
+                    {lines[0] && lines[0].map((def, idx) => {
+                      const lineLength = Math.sqrt(Math.pow(def.x - gkPos.x, 2) + Math.pow(def.y - gkPos.y, 2));
+                      return (
+                        <line
+                          key={`home-gk-def-${idx}`}
+                          x1={gkPos.x}
+                          y1={gkPos.y}
+                          x2={def.x}
+                          y2={def.y}
+                          stroke="rgba(0, 200, 255, 0.4)"
+                          strokeWidth="0.5"
+                          strokeDasharray={lineLength}
+                          strokeDashoffset={lineLength}
+                          style={{
+                            animation: `formationLinesDraw 0.6s ease-out ${0.2 + idx * 0.05}s forwards`
+                          }}
                         />
                       );
                     })}
                     
-                    {/* 门将到后防线连线 */}
-                    {lines[0] && lines[0].map((def, idx) => (
-                      <line
-                        key={`home-gk-def-${idx}`}
-                        x1={gkPos.x}
-                        y1={gkPos.y}
-                        x2={def.x}
-                        y2={def.y}
-                        stroke="rgba(0, 200, 255, 0.4)"
-                        strokeWidth="0.5"
-                        strokeDasharray="2,1"
-                      />
-                    ))}
-                    
-                    {/* 绘制每条线内球员连线 */}
+                    {/* 绘制每条线内球员连线 - 带绘制动画 */}
                     {lines.map((line, lineIdx) => {
                       const sortedLine = [...line].sort((a, b) => a.x - b.x);
                       return sortedLine.map((pos, idx) => {
                         if (idx === sortedLine.length - 1) return null;
+                        const lineLength = Math.sqrt(Math.pow(sortedLine[idx + 1].x - pos.x, 2) + Math.pow(sortedLine[idx + 1].y - pos.y, 2));
                         return (
                           <line
                             key={`home-line-${lineIdx}-${idx}`}
@@ -1334,19 +1356,26 @@ export default function LiveFootballAnimation({
                             y2={sortedLine[idx + 1].y}
                             stroke="rgba(0, 200, 255, 0.8)"
                             strokeWidth="0.8"
+                            strokeDasharray={lineLength}
+                            strokeDashoffset={lineLength}
+                            style={{
+                              animation: `formationLinesDraw 0.5s ease-out ${0.3 + lineIdx * 0.1 + idx * 0.05}s forwards`
+                            }}
                           />
                         );
                       });
                     })}
                     
-                    {/* 绘制线与线之间的连接 */}
+                    {/* 绘制线与线之间的连接 - 带绘制动画 */}
                     {lines.map((line, lineIdx) => {
                       if (lineIdx === lines.length - 1) return null;
                       const nextLine = lines[lineIdx + 1];
                       const sortedCurrent = [...line].sort((a, b) => a.x - b.x);
                       const sortedNext = [...nextLine].sort((a, b) => a.x - b.x);
                       
-                      // 连接相邻线的边缘球员
+                      const leftLen = Math.sqrt(Math.pow(sortedNext[0].x - sortedCurrent[0].x, 2) + Math.pow(sortedNext[0].y - sortedCurrent[0].y, 2));
+                      const rightLen = Math.sqrt(Math.pow(sortedNext[sortedNext.length-1].x - sortedCurrent[sortedCurrent.length-1].x, 2) + Math.pow(sortedNext[sortedNext.length-1].y - sortedCurrent[sortedCurrent.length-1].y, 2));
+                      
                       return (
                         <g key={`home-between-${lineIdx}`}>
                           <line
@@ -1356,7 +1385,11 @@ export default function LiveFootballAnimation({
                             y2={sortedNext[0].y}
                             stroke="rgba(0, 200, 255, 0.5)"
                             strokeWidth="0.5"
-                            strokeDasharray="2,1"
+                            strokeDasharray={leftLen}
+                            strokeDashoffset={leftLen}
+                            style={{
+                              animation: `formationLinesDraw 0.5s ease-out ${0.5 + lineIdx * 0.1}s forwards`
+                            }}
                           />
                           <line
                             x1={sortedCurrent[sortedCurrent.length - 1].x}
@@ -1365,25 +1398,39 @@ export default function LiveFootballAnimation({
                             y2={sortedNext[sortedNext.length - 1].y}
                             stroke="rgba(0, 200, 255, 0.5)"
                             strokeWidth="0.5"
-                            strokeDasharray="2,1"
+                            strokeDasharray={rightLen}
+                            strokeDashoffset={rightLen}
+                            style={{
+                              animation: `formationLinesDraw 0.5s ease-out ${0.55 + lineIdx * 0.1}s forwards`
+                            }}
                           />
                           {/* 中间连接 */}
-                          {sortedCurrent.length > 2 && sortedNext.length > 2 && (
-                            <line
-                              x1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].x}
-                              y1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].y}
-                              x2={sortedNext[Math.floor(sortedNext.length / 2)].x}
-                              y2={sortedNext[Math.floor(sortedNext.length / 2)].y}
-                              stroke="rgba(0, 200, 255, 0.5)"
-                              strokeWidth="0.5"
-                              strokeDasharray="2,1"
-                            />
-                          )}
+                          {sortedCurrent.length > 2 && sortedNext.length > 2 && (() => {
+                            const midLen = Math.sqrt(
+                              Math.pow(sortedNext[Math.floor(sortedNext.length / 2)].x - sortedCurrent[Math.floor(sortedCurrent.length / 2)].x, 2) + 
+                              Math.pow(sortedNext[Math.floor(sortedNext.length / 2)].y - sortedCurrent[Math.floor(sortedCurrent.length / 2)].y, 2)
+                            );
+                            return (
+                              <line
+                                x1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].x}
+                                y1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].y}
+                                x2={sortedNext[Math.floor(sortedNext.length / 2)].x}
+                                y2={sortedNext[Math.floor(sortedNext.length / 2)].y}
+                                stroke="rgba(0, 200, 255, 0.5)"
+                                strokeWidth="0.5"
+                                strokeDasharray={midLen}
+                                strokeDashoffset={midLen}
+                                style={{
+                                  animation: `formationLinesDraw 0.5s ease-out ${0.6 + lineIdx * 0.1}s forwards`
+                                }}
+                              />
+                            );
+                          })()}
                         </g>
                       );
                     })}
                     
-                    {/* 标准位置标记点 */}
+                    {/* 标准位置标记点 - 带缩放动画 */}
                     {formationPositions.map((pos, idx) => (
                       <circle
                         key={`home-pos-${idx}`}
@@ -1393,10 +1440,23 @@ export default function LiveFootballAnimation({
                         fill="rgba(0, 200, 255, 0.9)"
                         stroke="white"
                         strokeWidth="0.3"
-                      />
+                        style={{
+                          transformOrigin: `${pos.x}px ${pos.y}px`,
+                          animation: `formationFadeIn 0.3s ease-out ${0.1 + idx * 0.03}s forwards`,
+                          opacity: 0
+                        }}
+                      >
+                        <animate 
+                          attributeName="r" 
+                          values="1.5;2;1.5" 
+                          dur="2s" 
+                          repeatCount="indefinite" 
+                          begin={`${0.5 + idx * 0.05}s`}
+                        />
+                      </circle>
                     ))}
                     
-                    {/* 位置标签 */}
+                    {/* 位置标签 - 带淡入动画 */}
                     {lines.map((line, lineIdx) => {
                       const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
                       const labels = ['后卫', '中场', '前锋', '前腰'];
@@ -1411,6 +1471,10 @@ export default function LiveFootballAnimation({
                           fill="rgba(0, 200, 255, 0.9)"
                           fontSize="3"
                           fontWeight="bold"
+                          style={{
+                            animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
+                            opacity: 0
+                          }}
                         >
                           {label}
                         </text>
@@ -1437,7 +1501,7 @@ export default function LiveFootballAnimation({
                 
                 return (
                   <g filter="url(#formationGlow)">
-                    {/* 绘制每条线的区域填充 */}
+                    {/* 绘制每条线的区域填充 - 带淡入动画 */}
                     {lines.map((line, lineIdx) => {
                       if (line.length < 2) return null;
                       const sortedLine = [...line].sort((a, b) => a.x - b.x);
@@ -1458,29 +1522,49 @@ export default function LiveFootballAnimation({
                           fill="rgba(239, 68, 68, 0.15)"
                           rx="2"
                           ry="2"
+                          style={{
+                            animation: `formationFadeIn 0.4s ease-out ${lineIdx * 0.1}s forwards`,
+                            opacity: 0
+                          }}
+                        >
+                          <animate 
+                            attributeName="opacity" 
+                            values="0.1;0.2;0.1" 
+                            dur="2s" 
+                            repeatCount="indefinite" 
+                            begin={`${lineIdx * 0.1}s`}
+                          />
+                        </rect>
+                      );
+                    })}
+                    
+                    {/* 门将到后防线连线 - 带绘制动画 */}
+                    {lines[0] && lines[0].map((def, idx) => {
+                      const lineLength = Math.sqrt(Math.pow(def.x - gkPos.x, 2) + Math.pow(def.y - gkPos.y, 2));
+                      return (
+                        <line
+                          key={`away-gk-def-${idx}`}
+                          x1={gkPos.x}
+                          y1={gkPos.y}
+                          x2={def.x}
+                          y2={def.y}
+                          stroke="rgba(239, 68, 68, 0.4)"
+                          strokeWidth="0.5"
+                          strokeDasharray={lineLength}
+                          strokeDashoffset={lineLength}
+                          style={{
+                            animation: `formationLinesDraw 0.6s ease-out ${0.2 + idx * 0.05}s forwards`
+                          }}
                         />
                       );
                     })}
                     
-                    {/* 门将到后防线连线 */}
-                    {lines[0] && lines[0].map((def, idx) => (
-                      <line
-                        key={`away-gk-def-${idx}`}
-                        x1={gkPos.x}
-                        y1={gkPos.y}
-                        x2={def.x}
-                        y2={def.y}
-                        stroke="rgba(239, 68, 68, 0.4)"
-                        strokeWidth="0.5"
-                        strokeDasharray="2,1"
-                      />
-                    ))}
-                    
-                    {/* 绘制每条线内球员连线 */}
+                    {/* 绘制每条线内球员连线 - 带绘制动画 */}
                     {lines.map((line, lineIdx) => {
                       const sortedLine = [...line].sort((a, b) => a.x - b.x);
                       return sortedLine.map((pos, idx) => {
                         if (idx === sortedLine.length - 1) return null;
+                        const lineLength = Math.sqrt(Math.pow(sortedLine[idx + 1].x - pos.x, 2) + Math.pow(sortedLine[idx + 1].y - pos.y, 2));
                         return (
                           <line
                             key={`away-line-${lineIdx}-${idx}`}
@@ -1490,17 +1574,25 @@ export default function LiveFootballAnimation({
                             y2={sortedLine[idx + 1].y}
                             stroke="rgba(239, 68, 68, 0.8)"
                             strokeWidth="0.8"
+                            strokeDasharray={lineLength}
+                            strokeDashoffset={lineLength}
+                            style={{
+                              animation: `formationLinesDraw 0.5s ease-out ${0.3 + lineIdx * 0.1 + idx * 0.05}s forwards`
+                            }}
                           />
                         );
                       });
                     })}
                     
-                    {/* 绘制线与线之间的连接 */}
+                    {/* 绘制线与线之间的连接 - 带绘制动画 */}
                     {lines.map((line, lineIdx) => {
                       if (lineIdx === lines.length - 1) return null;
                       const nextLine = lines[lineIdx + 1];
                       const sortedCurrent = [...line].sort((a, b) => a.x - b.x);
                       const sortedNext = [...nextLine].sort((a, b) => a.x - b.x);
+                      
+                      const leftLen = Math.sqrt(Math.pow(sortedNext[0].x - sortedCurrent[0].x, 2) + Math.pow(sortedNext[0].y - sortedCurrent[0].y, 2));
+                      const rightLen = Math.sqrt(Math.pow(sortedNext[sortedNext.length-1].x - sortedCurrent[sortedCurrent.length-1].x, 2) + Math.pow(sortedNext[sortedNext.length-1].y - sortedCurrent[sortedCurrent.length-1].y, 2));
                       
                       return (
                         <g key={`away-between-${lineIdx}`}>
@@ -1511,7 +1603,11 @@ export default function LiveFootballAnimation({
                             y2={sortedNext[0].y}
                             stroke="rgba(239, 68, 68, 0.5)"
                             strokeWidth="0.5"
-                            strokeDasharray="2,1"
+                            strokeDasharray={leftLen}
+                            strokeDashoffset={leftLen}
+                            style={{
+                              animation: `formationLinesDraw 0.5s ease-out ${0.5 + lineIdx * 0.1}s forwards`
+                            }}
                           />
                           <line
                             x1={sortedCurrent[sortedCurrent.length - 1].x}
@@ -1520,24 +1616,38 @@ export default function LiveFootballAnimation({
                             y2={sortedNext[sortedNext.length - 1].y}
                             stroke="rgba(239, 68, 68, 0.5)"
                             strokeWidth="0.5"
-                            strokeDasharray="2,1"
+                            strokeDasharray={rightLen}
+                            strokeDashoffset={rightLen}
+                            style={{
+                              animation: `formationLinesDraw 0.5s ease-out ${0.55 + lineIdx * 0.1}s forwards`
+                            }}
                           />
-                          {sortedCurrent.length > 2 && sortedNext.length > 2 && (
-                            <line
-                              x1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].x}
-                              y1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].y}
-                              x2={sortedNext[Math.floor(sortedNext.length / 2)].x}
-                              y2={sortedNext[Math.floor(sortedNext.length / 2)].y}
-                              stroke="rgba(239, 68, 68, 0.5)"
-                              strokeWidth="0.5"
-                              strokeDasharray="2,1"
-                            />
-                          )}
+                          {sortedCurrent.length > 2 && sortedNext.length > 2 && (() => {
+                            const midLen = Math.sqrt(
+                              Math.pow(sortedNext[Math.floor(sortedNext.length / 2)].x - sortedCurrent[Math.floor(sortedCurrent.length / 2)].x, 2) + 
+                              Math.pow(sortedNext[Math.floor(sortedNext.length / 2)].y - sortedCurrent[Math.floor(sortedCurrent.length / 2)].y, 2)
+                            );
+                            return (
+                              <line
+                                x1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].x}
+                                y1={sortedCurrent[Math.floor(sortedCurrent.length / 2)].y}
+                                x2={sortedNext[Math.floor(sortedNext.length / 2)].x}
+                                y2={sortedNext[Math.floor(sortedNext.length / 2)].y}
+                                stroke="rgba(239, 68, 68, 0.5)"
+                                strokeWidth="0.5"
+                                strokeDasharray={midLen}
+                                strokeDashoffset={midLen}
+                                style={{
+                                  animation: `formationLinesDraw 0.5s ease-out ${0.6 + lineIdx * 0.1}s forwards`
+                                }}
+                              />
+                            );
+                          })()}
                         </g>
                       );
                     })}
                     
-                    {/* 标准位置标记点 */}
+                    {/* 标准位置标记点 - 带缩放动画 */}
                     {formationPositions.map((pos, idx) => (
                       <circle
                         key={`away-pos-${idx}`}
@@ -1547,10 +1657,23 @@ export default function LiveFootballAnimation({
                         fill="rgba(239, 68, 68, 0.9)"
                         stroke="white"
                         strokeWidth="0.3"
-                      />
+                        style={{
+                          transformOrigin: `${pos.x}px ${pos.y}px`,
+                          animation: `formationFadeIn 0.3s ease-out ${0.1 + idx * 0.03}s forwards`,
+                          opacity: 0
+                        }}
+                      >
+                        <animate 
+                          attributeName="r" 
+                          values="1.5;2;1.5" 
+                          dur="2s" 
+                          repeatCount="indefinite" 
+                          begin={`${0.5 + idx * 0.05}s`}
+                        />
+                      </circle>
                     ))}
                     
-                    {/* 位置标签 */}
+                    {/* 位置标签 - 带淡入动画 */}
                     {lines.map((line, lineIdx) => {
                       const avgY = line.reduce((sum, p) => sum + p.y, 0) / line.length;
                       const labels = ['后卫', '中场', '前锋', '前腰'];
@@ -1565,6 +1688,10 @@ export default function LiveFootballAnimation({
                           fill="rgba(239, 68, 68, 0.9)"
                           fontSize="3"
                           fontWeight="bold"
+                          style={{
+                            animation: `formationFadeIn 0.4s ease-out ${0.4 + lineIdx * 0.1}s forwards`,
+                            opacity: 0
+                          }}
                         >
                           {label}
                         </text>
@@ -1573,6 +1700,7 @@ export default function LiveFootballAnimation({
                   </g>
                 );
               })()}
+              </g>
             </svg>
           </>
         )}
