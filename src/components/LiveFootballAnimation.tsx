@@ -147,8 +147,34 @@ export default function LiveFootballAnimation({
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<{ id: number; team: 'home' | 'away'; x: number; y: number } | null>(null);
   const animationRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
+
+  // 点击球员显示进攻视角
+  const handlePlayerClick = (player: PlayerPosition, team: 'home' | 'away') => {
+    if (selectedPlayer?.id === player.id && selectedPlayer?.team === team) {
+      setSelectedPlayer(null);
+    } else {
+      setSelectedPlayer({ id: player.id, team, x: player.x, y: player.y });
+    }
+  };
+
+  // 计算进攻三角形区域
+  const getAttackTriangle = (playerX: number, playerY: number, team: 'home' | 'away') => {
+    // 主队进攻方向向上(y减小)，客队进攻方向向下(y增大)
+    const goalY = team === 'home' ? 0 : 100;
+    const spreadAngle = 25; // 扩散角度
+    
+    // 计算三角形的两个远端点
+    const distance = Math.abs(goalY - playerY);
+    const spreadX = distance * Math.tan(spreadAngle * Math.PI / 180);
+    
+    const leftX = Math.max(0, playerX - spreadX);
+    const rightX = Math.min(100, playerX + spreadX);
+    
+    return `${playerX},${playerY} ${leftX},${goalY} ${rightX},${goalY}`;
+  };
 
   // 初始化球员位置
   const initializePlayers = useCallback(() => {
@@ -489,21 +515,58 @@ export default function LiveFootballAnimation({
           </div>
         )}
 
+        {/* 进攻视角三角形 */}
+        {selectedPlayer && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <linearGradient 
+                id="attackGradient" 
+                x1="0%" y1={selectedPlayer.team === 'home' ? '100%' : '0%'} 
+                x2="0%" y2={selectedPlayer.team === 'home' ? '0%' : '100%'}
+              >
+                <stop offset="0%" stopColor={selectedPlayer.team === 'home' ? 'rgba(59, 130, 246, 0.6)' : 'rgba(239, 68, 68, 0.6)'} />
+                <stop offset="100%" stopColor={selectedPlayer.team === 'home' ? 'rgba(59, 130, 246, 0)' : 'rgba(239, 68, 68, 0)'} />
+              </linearGradient>
+            </defs>
+            <polygon
+              points={getAttackTriangle(selectedPlayer.x, selectedPlayer.y, selectedPlayer.team)}
+              fill="url(#attackGradient)"
+              stroke={selectedPlayer.team === 'home' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(239, 68, 68, 0.8)'}
+              strokeWidth="0.3"
+              className="animate-pulse"
+            />
+            {/* 视角中心线 */}
+            <line
+              x1={selectedPlayer.x}
+              y1={selectedPlayer.y}
+              x2={selectedPlayer.x}
+              y2={selectedPlayer.team === 'home' ? 0 : 100}
+              stroke={selectedPlayer.team === 'home' ? 'rgba(59, 130, 246, 0.6)' : 'rgba(239, 68, 68, 0.6)'}
+              strokeWidth="0.2"
+              strokeDasharray="1,1"
+            />
+          </svg>
+        )}
+
         {/* 主队球员 (蓝色) */}
         {homePlayers.map(player => (
           <div
             key={`home-${player.id}`}
-            className="absolute transition-all duration-100 ease-linear"
+            className="absolute transition-all duration-100 ease-linear cursor-pointer"
             style={{
               left: `${player.x}%`,
               top: `${player.y}%`,
               transform: 'translate(-50%, -50%)',
+              zIndex: selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 20 : 10,
             }}
+            onClick={() => handlePlayerClick(player, 'home')}
           >
             <div className="relative flex flex-col items-center">
               {/* 球员头像容器 */}
               <div className="relative">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 ring-blue-300/50">
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-blue-400 bg-blue-600 shadow-xl shadow-blue-600/60 overflow-hidden ring-2 ring-blue-300/50 transition-all ${
+                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 'ring-4 ring-yellow-400 scale-110' : ''
+                }`}>
                   <img 
                     src={player.avatar} 
                     alt={player.name}
@@ -518,10 +581,14 @@ export default function LiveFootballAnimation({
                   <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                 </div>
                 {/* 发光效果 */}
-                <div className="absolute inset-0 rounded-full bg-blue-500 blur-md opacity-60 -z-10 scale-125" />
+                <div className={`absolute inset-0 rounded-full bg-blue-500 blur-md -z-10 scale-125 transition-opacity ${
+                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 'opacity-100' : 'opacity-60'
+                }`} />
               </div>
               {/* 球员名字 */}
-              <div className="mt-1 px-1.5 py-0.5 bg-blue-600/90 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md">
+              <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
+                selectedPlayer?.id === player.id && selectedPlayer?.team === 'home' ? 'bg-yellow-500' : 'bg-blue-600/90'
+              }`}>
                 {player.name}
               </div>
             </div>
@@ -532,17 +599,21 @@ export default function LiveFootballAnimation({
         {awayPlayers.map(player => (
           <div
             key={`away-${player.id}`}
-            className="absolute transition-all duration-100 ease-linear"
+            className="absolute transition-all duration-100 ease-linear cursor-pointer"
             style={{
               left: `${player.x}%`,
               top: `${player.y}%`,
               transform: 'translate(-50%, -50%)',
+              zIndex: selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 20 : 10,
             }}
+            onClick={() => handlePlayerClick(player, 'away')}
           >
             <div className="relative flex flex-col items-center">
               {/* 球员头像容器 */}
               <div className="relative">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 ring-red-300/50">
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-3 border-red-400 bg-red-600 shadow-xl shadow-red-600/60 overflow-hidden ring-2 ring-red-300/50 transition-all ${
+                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 'ring-4 ring-yellow-400 scale-110' : ''
+                }`}>
                   <img 
                     src={player.avatar} 
                     alt={player.name}
@@ -557,10 +628,14 @@ export default function LiveFootballAnimation({
                   <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                 </div>
                 {/* 发光效果 */}
-                <div className="absolute inset-0 rounded-full bg-red-500 blur-md opacity-60 -z-10 scale-125" />
+                <div className={`absolute inset-0 rounded-full bg-red-500 blur-md -z-10 scale-125 transition-opacity ${
+                  selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 'opacity-100' : 'opacity-60'
+                }`} />
               </div>
               {/* 球员名字 */}
-              <div className="mt-1 px-1.5 py-0.5 bg-red-600/90 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md">
+              <div className={`mt-1 px-1.5 py-0.5 rounded text-[6px] md:text-[8px] text-white font-medium whitespace-nowrap shadow-md transition-colors ${
+                selectedPlayer?.id === player.id && selectedPlayer?.team === 'away' ? 'bg-yellow-500' : 'bg-red-600/90'
+              }`}>
                 {player.name}
               </div>
             </div>
