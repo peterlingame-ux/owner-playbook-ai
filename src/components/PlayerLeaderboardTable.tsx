@@ -1120,16 +1120,11 @@ const PlayerLeaderboardTable = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-warning/10 via-transparent to-transparent" />
         <CardContent className="p-4 sm:p-5 relative">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
-                <DollarSign className="h-6 w-6 sm:h-7 sm:w-7 text-warning" />
-              </div>
-              <div>
-                <h3 className="font-bold text-base sm:text-lg text-foreground mb-0.5">30天奖金池</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  胜率超过AI基准 <span className="font-bold text-warning">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
-                </p>
-              </div>
+            <div>
+              <h3 className="font-bold text-base sm:text-lg text-foreground mb-0.5">30天奖金池</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                胜率超过AI基准 <span className="font-bold text-warning">{AI_BENCHMARK_WIN_RATE}%</span> 即可瓜分奖金
+              </p>
             </div>
             
             {/* 倒计时区域 */}
