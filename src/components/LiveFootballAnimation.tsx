@@ -1196,7 +1196,7 @@ export default function LiveFootballAnimation({
             <div className="text-center mb-3">
               <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <h4 className="text-sm font-bold text-white/90">⚡ 实时能量对抗</h4>
+                <h4 className="text-sm font-bold text-white/90">当前阵型实时对抗</h4>
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -1278,14 +1278,6 @@ export default function LiveFootballAnimation({
                     <div className="w-1 h-8 bg-gradient-to-b from-yellow-300 via-white to-yellow-300 animate-pulse" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-yellow-400 rounded-full blur-sm animate-ping opacity-60" />
                   </div>
-                </div>
-                
-                {/* 闪电图标 */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-white flex items-center justify-center shadow-lg shadow-yellow-500/50 transition-all duration-100"
-                  style={{ left: `${fluctuatedHome}%`, transform: `translateX(-50%) translateY(-50%)` }}
-                >
-                  <span className="text-xs">⚡</span>
                 </div>
               </div>
               
