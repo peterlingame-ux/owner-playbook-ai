@@ -1116,12 +1116,15 @@ const PlayerLeaderboardTable = () => {
         <Card className="border-border/50 bg-card/50 h-full flex flex-col">
           <CardContent className="p-4 sm:p-6 flex flex-col flex-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-success/20 to-success/5 flex items-center justify-center border border-success/20">
+                  <TrendingUp className="h-5 w-5 text-success" />
+                </div>
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{t('hot_streak_board') || '高胜率榜'}</h3>
                   <p className="text-xs text-muted-foreground">
                     {t('best_win_streak') || '最佳连胜玩家'}
-                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
+                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 前10名</span>
                   </p>
                 </div>
               </div>
@@ -1287,12 +1290,15 @@ const PlayerLeaderboardTable = () => {
         <Card className="border-border/50 bg-card/50 h-full flex flex-col">
           <CardContent className="p-4 sm:p-6 flex flex-col flex-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-warning/20 to-warning/5 flex items-center justify-center border border-warning/20">
+                  <DollarSign className="h-5 w-5 text-warning" />
+                </div>
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{t('profit_board') || '高盈利榜'}</h3>
                   <p className="text-xs text-muted-foreground">
                     {t('highest_profit_players') || '最高盈利玩家'}
-                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
+                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 前10名</span>
                   </p>
                 </div>
               </div>
@@ -1460,12 +1466,15 @@ const PlayerLeaderboardTable = () => {
         <Card className="border-border/50 bg-card/50 h-full flex flex-col">
           <CardContent className="p-4 sm:p-6 flex flex-col flex-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center border border-destructive/20">
+                  <TrendingDown className="h-5 w-5 text-destructive" />
+                </div>
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{t('cold_streak_board') || '低胜率榜'}</h3>
                   <p className="text-xs text-muted-foreground">
                     {t('worst_lose_streak') || '最差连黑玩家'}
-                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
+                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 前10名</span>
                   </p>
                 </div>
               </div>
