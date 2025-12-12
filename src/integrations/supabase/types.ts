@@ -227,6 +227,7 @@ export type Database = {
           invited_by: string | null
           invited_count: number | null
           password_hash: string | null
+          signature: string | null
           updated_at: string | null
         }
         Insert: {
@@ -238,6 +239,7 @@ export type Database = {
           invited_by?: string | null
           invited_count?: number | null
           password_hash?: string | null
+          signature?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -249,6 +251,7 @@ export type Database = {
           invited_by?: string | null
           invited_count?: number | null
           password_hash?: string | null
+          signature?: string | null
           updated_at?: string | null
         }
         Relationships: []

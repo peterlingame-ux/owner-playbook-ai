@@ -25,6 +25,7 @@ interface UserProfile {
   avatar_url: string;
   invitation_code?: string;
   invited_count?: number;
+  signature?: string;
 }
 
 interface MatchInfo {
@@ -583,6 +584,7 @@ const MyPredictions = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editDisplayName, setEditDisplayName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [editSignature, setEditSignature] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [copyTradeRecords, setCopyTradeRecords] = useState<CopyTradeRecord[]>([]);
   const [depositRecords, setDepositRecords] = useState<DepositRecord[]>([]);
@@ -620,10 +622,12 @@ const MyPredictions = () => {
         // 模拟登录后的数据，用于演示
         setUserProfile({
           display_name: "QuickTiger1234",
-          avatar_url: "/avatars/avatar-1.png"
+          avatar_url: "/avatars/avatar-1.png",
+          signature: "预测玩家"
         });
         setEditDisplayName("QuickTiger1234");
         setSelectedAvatar("/avatars/avatar-1.png");
+        setEditSignature("预测玩家");
         
         // 模拟比赛数据
         const mockMatches = new Map<string, MatchInfo>();
@@ -873,7 +877,7 @@ const MyPredictions = () => {
         // 获取用户资料
         const { data: profileData } = await supabase
           .from('users')
-          .select('display_name, avatar_url, invitation_code, invited_count')
+          .select('display_name, avatar_url, invitation_code, invited_count, signature')
           .eq('id', user.id)
           .single();
 
@@ -881,6 +885,7 @@ const MyPredictions = () => {
           setUserProfile(profileData as UserProfile);
           setEditDisplayName(profileData.display_name || '');
           setSelectedAvatar(profileData.avatar_url || '');
+          setEditSignature((profileData as any).signature || '预测玩家');
         }
 
         // 获取虚拟余额
@@ -1062,6 +1067,7 @@ const MyPredictions = () => {
       setUserProfile({
         display_name: editDisplayName,
         avatar_url: selectedAvatar,
+        signature: editSignature,
       });
       setIsEditDialogOpen(false);
       toast.success("演示模式：个人资料已更新！");
@@ -1075,16 +1081,19 @@ const MyPredictions = () => {
         .update({
           display_name: editDisplayName,
           avatar_url: selectedAvatar,
+          signature: editSignature,
         })
         .eq('id', user.id);
 
       if (error) throw error;
 
       // 更新本地状态
-      setUserProfile({
+      setUserProfile(prev => ({
+        ...prev,
         display_name: editDisplayName,
         avatar_url: selectedAvatar,
-      });
+        signature: editSignature,
+      }) as UserProfile);
       
       // 刷新全局用户资料状态，确保其他组件同步
       await refreshUserProfile();
@@ -1215,6 +1224,18 @@ const MyPredictions = () => {
                         </div>
                         
                         <div className="space-y-2">
+                          <Label htmlFor="signature" className="text-sm">{t('signature') || '个性签名'}</Label>
+                          <Input
+                            id="signature"
+                            value={editSignature}
+                            onChange={(e) => setEditSignature(e.target.value)}
+                            placeholder={t('enter_signature') || '输入您的个性签名'}
+                            maxLength={30}
+                            className="h-9"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
                           <Label className="text-sm">{t('select_avatar')}</Label>
                           <div className="grid grid-cols-3 gap-2">
                             {AVATAR_OPTIONS.map((avatar) => (
@@ -1274,8 +1295,8 @@ const MyPredictions = () => {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground font-mono tracking-wider uppercase">
-                    {t('prediction_player')}
+                  <p className="text-xs text-muted-foreground font-mono tracking-wider">
+                    {userProfile?.signature || t('prediction_player')}
                   </p>
                 </div>
               </div>
