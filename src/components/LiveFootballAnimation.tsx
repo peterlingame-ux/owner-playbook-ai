@@ -2531,52 +2531,6 @@ export default function LiveFootballAnimation({
                 );
               })}
               
-              {/* AI传球分析总览面板 */}
-              <div 
-                className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30"
-                style={{
-                  animation: 'formationFadeIn 0.3s ease-out forwards'
-                }}
-              >
-                <div 
-                  className="px-4 py-2 rounded-lg backdrop-blur-md"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 30, 50, 0.95))',
-                    border: `1px solid ${teamColor}40`,
-                    boxShadow: `0 0 20px ${teamColor}30`
-                  }}
-                >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div 
-                      className="w-2 h-2 rounded-full animate-pulse"
-                      style={{ background: '#00ffc8', boxShadow: '0 0 8px #00ffc8' }}
-                    />
-                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">
-                      AI 传球分析 · {player.name}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-[9px]">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full" style={{ background: '#22c55e' }} />
-                      <span className="text-white/70">高成功率 ≥80%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full" style={{ background: '#f59e0b' }} />
-                      <span className="text-white/70">中等 60-79%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full" style={{ background: '#ef4444' }} />
-                      <span className="text-white/70">风险 &lt;60%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-1.5 pt-1.5 border-t border-white/10 text-[9px] text-white/50">
-                    可传球选项: {predictedPasses.length} 人 · 
-                    最佳: {predictedPasses[0]?.target.name} ({predictedPasses[0]?.successRate}%)
-                  </div>
-                </div>
-              </div>
             </>
           );
         })()}
