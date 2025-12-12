@@ -1483,7 +1483,7 @@ const MyPredictions = () => {
                         <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('type_column') || '类型'}</th>
                         <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column') || '比赛'}</th>
                         <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column') || '预测'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_amount') || '投注'}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_amount_column') || '投注'}</th>
                         <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label') || '盈亏'}</th>
                         <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column') || '结果'}</th>
                       </tr>
