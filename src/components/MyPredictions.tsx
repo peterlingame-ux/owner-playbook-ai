@@ -1469,8 +1469,6 @@ const MyPredictions = () => {
         onOpenChange={setIsBetDialogOpen} 
       />
 
-      {/* 胜率趋势图表 */}
-      <WinRateTrendChart predictions={stats?.recentPredictions || []} />
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
