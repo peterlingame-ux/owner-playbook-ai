@@ -312,4 +312,42 @@ All colors MUST be HSL.
       opacity: 1;
     }
   }
+  
+  /* 传球路线动画 */
+  @keyframes passLineDash {
+    0% {
+      stroke-dashoffset: 24;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  @keyframes targetPulse {
+    0%, 100% {
+      r: 10;
+      opacity: 0.3;
+    }
+    50% {
+      r: 18;
+      opacity: 0.8;
+    }
+  }
+  
+  @keyframes passFlowDot {
+    0% {
+      offset-distance: 0%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      offset-distance: 100%;
+      opacity: 0;
+    }
+  }
 }
