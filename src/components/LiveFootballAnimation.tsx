@@ -351,15 +351,15 @@ export default function LiveFootballAnimation({
           
           // 根据位置不同消耗速度不同
           // 门将消耗最慢，中场消耗最快，前锋次之
-          let consumeRate = 0.08; // 基础消耗率
+          let consumeRate = 0.5; // 基础消耗率 - 提高以便更明显看到变化
           if (playerId === 0) {
-            consumeRate = 0.02; // 门将
+            consumeRate = 0.15; // 门将
           } else if (playerId >= 1 && playerId <= 4) {
-            consumeRate = 0.06; // 后卫
+            consumeRate = 0.4; // 后卫
           } else if (playerId >= 5 && playerId <= 8) {
-            consumeRate = 0.12; // 中场消耗最大
+            consumeRate = 0.7; // 中场消耗最大
           } else {
-            consumeRate = 0.09; // 前锋
+            consumeRate = 0.55; // 前锋
           }
           
           // 追球球员额外消耗
