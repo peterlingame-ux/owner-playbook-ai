@@ -9,6 +9,7 @@ import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
 import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles } from "lucide-react";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
+import personalCenterBg from "@/assets/personal-center-bg.jpg";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -1147,11 +1148,11 @@ const MyPredictions = () => {
 
       {/* AI风格主卡片 */}
       <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-card via-card to-card border border-border">
-        {/* 足球明星背景图 - 不重复 */}
+        {/* 专属足球明星背景图 */}
         <div 
-          className="absolute inset-0 bg-no-repeat bg-right bg-contain opacity-[0.15]"
+          className="absolute inset-0 bg-no-repeat bg-cover bg-center opacity-[0.25]"
           style={{ 
-            backgroundImage: `url('/src/assets/star-neymar.jpg')`,
+            backgroundImage: `url(${personalCenterBg})`,
           }}
         />
         {/* 深色渐变遮罩确保内容可读 */}
