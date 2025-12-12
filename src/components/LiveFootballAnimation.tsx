@@ -1941,25 +1941,27 @@ export default function LiveFootballAnimation({
                           <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-transparent to-transparent animate-pulse" />
                         </div>
                         
-                        {/* 数值显示 */}
+                        {/* 能量条显示 */}
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
-                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+                          <div className="flex-1 h-2 bg-slate-900/80 rounded-sm overflow-hidden border border-cyan-500/30"
+                            style={{ boxShadow: '0 0 6px rgba(0, 200, 255, 0.2)' }}
+                          >
                             <div 
-                              className="h-full rounded-full"
+                              className="h-full transition-all duration-300"
                               style={{ 
                                 width: `${stamina}%`,
-                                background: staminaColor,
-                                boxShadow: `0 0 6px ${staminaColor}`
+                                background: `linear-gradient(90deg, ${staminaColor} 0%, ${staminaColor}88 100%)`,
+                                boxShadow: `0 0 8px ${staminaColor}`
                               }}
                             />
+                            {/* 能量格子线 */}
+                            <div className="absolute inset-0 flex">
+                              {[...Array(5)].map((_, i) => (
+                                <div key={i} className="flex-1 border-r border-black/50 last:border-r-0" />
+                              ))}
+                            </div>
                           </div>
-                          <span 
-                            className="text-[10px] font-mono font-bold tabular-nums"
-                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
-                          >
-                            {Math.round(stamina)}
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -2092,25 +2094,27 @@ export default function LiveFootballAnimation({
                           <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-transparent to-transparent animate-pulse" />
                         </div>
                         
-                        {/* 数值显示 */}
+                        {/* 能量条显示 */}
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
-                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+                          <div className="flex-1 h-2 bg-slate-900/80 rounded-sm overflow-hidden border border-red-500/30"
+                            style={{ boxShadow: '0 0 6px rgba(239, 68, 68, 0.2)' }}
+                          >
                             <div 
-                              className="h-full rounded-full"
+                              className="h-full transition-all duration-300"
                               style={{ 
                                 width: `${stamina}%`,
-                                background: staminaColor,
-                                boxShadow: `0 0 6px ${staminaColor}`
+                                background: `linear-gradient(90deg, ${staminaColor} 0%, ${staminaColor}88 100%)`,
+                                boxShadow: `0 0 8px ${staminaColor}`
                               }}
                             />
+                            {/* 能量格子线 */}
+                            <div className="absolute inset-0 flex">
+                              {[...Array(5)].map((_, i) => (
+                                <div key={i} className="flex-1 border-r border-black/50 last:border-r-0" />
+                              ))}
+                            </div>
                           </div>
-                          <span 
-                            className="text-[10px] font-mono font-bold tabular-nums"
-                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
-                          >
-                            {Math.round(stamina)}
-                          </span>
                         </div>
                       </div>
                     </div>
