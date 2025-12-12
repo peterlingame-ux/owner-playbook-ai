@@ -1027,428 +1027,97 @@ export default function LiveFootballAnimation({
   return (
     <div className="space-y-3">
 
-      {/* 阵型选择 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* 主队阵型 */}
-        <div className="relative rounded-xl border border-blue-500/40 overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 transition-shadow duration-300">
-          {/* 背景图 */}
-          <div 
-            className="absolute inset-0 opacity-20 scale-110"
-            style={{
-              backgroundImage: `url(${homeTeamLogo})`,
-              backgroundSize: '120%',
-              backgroundPosition: 'center',
-              filter: 'blur(8px)',
-            }}
-          />
-          {/* 渐变遮罩 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/95 via-slate-900/90 to-blue-900/85" />
-          {/* 顶部光效 */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/60 to-transparent" />
-          
-          {/* 内容 */}
-          <div className="relative z-10 p-3">
-            {/* 头部 */}
-            <div className="flex items-center gap-2 pb-2 border-b border-blue-400/20">
-              <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <img 
-                  src={homeTeamLogo} 
-                  alt={homeTeamName}
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs font-semibold text-white">{homeTeamName}</span>
-                <div className="text-[9px] text-blue-300/70">主队阵型</div>
-              </div>
-              <div className="px-2 py-1 rounded-md bg-blue-500/20 border border-blue-400/30">
-                <span className="text-xs text-blue-300 font-bold tracking-wide">{currentHomeFormation}</span>
-              </div>
-            </div>
-            
-            {/* 阵型按钮 */}
-            <div className="flex flex-wrap gap-1.5 py-2">
-              {availableFormations.map(f => (
-                <button
-                  key={f}
-                  onClick={() => handleFormationChange('home', f)}
-                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-md border-2 transition-all duration-200 ${
-                    currentHomeFormation === f
-                      ? 'bg-blue-500 border-blue-400 text-white scale-105 shadow-md shadow-blue-500/50'
-                      : 'bg-white/5 border-white/20 hover:border-blue-400/50 hover:bg-blue-500/10 text-white/80'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-            
-            {/* 阵型说明 */}
-            <div className="pt-2 border-t border-blue-400/20">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="w-0.5 h-3 rounded-full bg-blue-400" />
-                <span className="text-[10px] font-semibold text-blue-300">
-                  {formationDescriptions[currentHomeFormation]?.title || '阵型说明'}
-                </span>
-              </div>
-              <p className="text-[9px] text-white/50 leading-relaxed pl-2">
-                {formationDescriptions[currentHomeFormation]?.description || '暂无说明'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 客队阵型 */}
-        <div className="relative rounded-xl border border-red-500/40 overflow-hidden shadow-lg shadow-red-500/10 hover:shadow-red-500/20 transition-shadow duration-300">
-          {/* 背景图 */}
-          <div 
-            className="absolute inset-0 opacity-20 scale-110"
-            style={{
-              backgroundImage: `url(${awayTeamLogo})`,
-              backgroundSize: '120%',
-              backgroundPosition: 'center',
-              filter: 'blur(8px)',
-            }}
-          />
-          {/* 渐变遮罩 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-950/95 via-slate-900/90 to-red-900/85" />
-          {/* 顶部光效 */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-400/60 to-transparent" />
-          
-          {/* 内容 */}
-          <div className="relative z-10 p-3">
-            {/* 头部 */}
-            <div className="flex items-center gap-2 pb-2 border-b border-red-400/20">
-              <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <img 
-                  src={awayTeamLogo} 
-                  alt={awayTeamName}
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs font-semibold text-white">{awayTeamName}</span>
-                <div className="text-[9px] text-red-300/70">客队阵型</div>
-              </div>
-              <div className="px-2 py-1 rounded-md bg-red-500/20 border border-red-400/30">
-                <span className="text-xs text-red-300 font-bold tracking-wide">{currentAwayFormation}</span>
-              </div>
-            </div>
-            
-            {/* 阵型按钮 */}
-            <div className="flex flex-wrap gap-1.5 py-2">
-              {availableFormations.map(f => (
-                <button
-                  key={f}
-                  onClick={() => handleFormationChange('away', f)}
-                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-md border-2 transition-all duration-200 ${
-                    currentAwayFormation === f
-                      ? 'bg-red-500 border-red-400 text-white scale-105 shadow-md shadow-red-500/50'
-                      : 'bg-white/5 border-white/20 hover:border-red-400/50 hover:bg-red-500/10 text-white/80'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-            
-            {/* 阵型说明 */}
-            <div className="pt-2 border-t border-red-400/20">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="w-0.5 h-3 rounded-full bg-red-400" />
-                <span className="text-[10px] font-semibold text-red-300">
-                  {formationDescriptions[currentAwayFormation]?.title || '阵型说明'}
-                </span>
-              </div>
-              <p className="text-[9px] text-white/50 leading-relaxed pl-2">
-                {formationDescriptions[currentAwayFormation]?.description || '暂无说明'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 阵型胜率能量条 */}
+      {/* 简化阵型选择与对比 */}
       {(() => {
         const advantage = calculateFormationAdvantage(currentHomeFormation, currentAwayFormation);
         return (
-          <div className="relative rounded-xl border border-border/40 bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 overflow-hidden p-3">
+          <div className="relative rounded-xl border border-border/40 bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 overflow-hidden p-4 mb-4">
             {/* 顶部光效 */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
-            {/* 标题 */}
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-1 h-3 rounded-full bg-cyan-400" />
-              <span className="text-[11px] font-bold text-white/90 tracking-wide">阵型胜率预测</span>
-              <div className="w-1 h-3 rounded-full bg-cyan-400" />
+            {/* 双队阵型选择 - 左右布局 */}
+            <div className="grid grid-cols-2 gap-6 mb-4">
+              {/* 主队 */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <img src={homeTeamLogo} alt="" className="w-5 h-5 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  <span className="text-xs font-medium text-white/90">{homeTeamName}</span>
+                  <span className="text-[10px] text-white/40 ml-auto">{currentHomeFormation}</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {availableFormations.map(f => (
+                    <button
+                      key={f}
+                      onClick={() => handleFormationChange('home', f)}
+                      className={`px-2 py-1 text-[10px] rounded transition-all ${
+                        currentHomeFormation === f
+                          ? 'bg-blue-500/80 text-white'
+                          : 'bg-white/5 text-white/50 hover:bg-white/10'
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* 客队 */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <img src={awayTeamLogo} alt="" className="w-5 h-5 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  <span className="text-xs font-medium text-white/90">{awayTeamName}</span>
+                  <span className="text-[10px] text-white/40 ml-auto">{currentAwayFormation}</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {availableFormations.map(f => (
+                    <button
+                      key={f}
+                      onClick={() => handleFormationChange('away', f)}
+                      className={`px-2 py-1 text-[10px] rounded transition-all ${
+                        currentAwayFormation === f
+                          ? 'bg-red-500/80 text-white'
+                          : 'bg-white/5 text-white/50 hover:bg-white/10'
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             
-            {/* 队伍信息 */}
-            <div className="flex items-center justify-between text-[10px] mb-2 px-1">
-              <div className="flex items-center gap-1.5">
-                <img src={homeTeamLogo} alt="" className="w-4 h-4 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                <span className="font-semibold text-blue-300">{homeTeamName}</span>
-                <span className="text-white/40">({currentHomeFormation})</span>
-              </div>
-              <span className="text-white/50 text-[9px]">{advantage.advantageText}</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-white/40">({currentAwayFormation})</span>
-                <span className="font-semibold text-red-300">{awayTeamName}</span>
-                <img src={awayTeamLogo} alt="" className="w-4 h-4 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
-              </div>
-            </div>
-            
-            {/* 能量条 */}
-            <div className="relative h-8 bg-slate-800/60 rounded-lg overflow-hidden border border-white/10">
-              {/* 主队能量 (蓝色, 从左到右) */}
+            {/* 简化胜率对比条 */}
+            <div className="relative h-6 bg-slate-800/60 rounded overflow-hidden">
+              {/* 主队 */}
               <div 
-                className="absolute left-0 top-0 h-full transition-all duration-700 ease-out overflow-hidden"
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
                 style={{ width: `${advantage.homePercentage}%` }}
-              >
-                {/* 基础渐变 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400" />
-                
-                {/* 流动光带动画 */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'flowRight 2s linear infinite',
-                  }}
-                />
-                
-                {/* 能量粒子效果 */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-1 h-1 rounded-full bg-white/60"
-                      style={{
-                        left: `${-10 + i * 20}%`,
-                        top: `${20 + (i % 3) * 25}%`,
-                        animation: `particleFlowRight ${1.5 + i * 0.3}s linear infinite`,
-                        animationDelay: `${i * 0.2}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-                
-                {/* 边缘发光 */}
-                <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-l from-cyan-300/80 to-transparent" />
-              </div>
-              
-              {/* 客队能量 (红色, 从右到左) */}
+              />
+              {/* 客队 */}
               <div 
-                className="absolute right-0 top-0 h-full transition-all duration-700 ease-out overflow-hidden"
+                className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-600 to-red-400 transition-all duration-500"
                 style={{ width: `${advantage.awayPercentage}%` }}
-              >
-                {/* 基础渐变 */}
-                <div className="absolute inset-0 bg-gradient-to-l from-red-600 via-red-500 to-orange-400" />
-                
-                {/* 流动光带动画 */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(270deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'flowLeft 2s linear infinite',
-                  }}
-                />
-                
-                {/* 能量粒子效果 */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-1 h-1 rounded-full bg-white/60"
-                      style={{
-                        right: `${-10 + i * 20}%`,
-                        top: `${20 + (i % 3) * 25}%`,
-                        animation: `particleFlowLeft ${1.5 + i * 0.3}s linear infinite`,
-                        animationDelay: `${i * 0.2}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-                
-                {/* 边缘发光 */}
-                <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-orange-300/80 to-transparent" />
-              </div>
-              
-              {/* 中间碰撞效果 */}
+              />
+              {/* 中心点 */}
               <div 
-                className="absolute top-1/2 -translate-y-1/2 z-20"
+                className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white z-10"
                 style={{ left: `${advantage.homePercentage}%`, transform: 'translateX(-50%) translateY(-50%)' }}
-              >
-                <div className="w-3 h-3 rounded-full bg-white/80 animate-ping" style={{ animationDuration: '1.5s' }} />
-                <div className="absolute inset-0 w-3 h-3 rounded-full bg-white shadow-lg shadow-white/50" />
-              </div>
-              
-              {/* 胜率数值 */}
-              <div className="absolute inset-0 flex items-center justify-between px-3 z-30">
-                <div className="flex items-center gap-1.5">
-                  <span 
-                    className="text-sm font-bold text-white drop-shadow-lg"
-                    style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.8)' }}
-                  >
-                    {advantage.homePercentage}%
-                  </span>
-                  {advantage.homePercentage > 55 && (
-                    <span className="text-sm animate-bounce">🔥</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {advantage.awayPercentage > 55 && (
-                    <span className="text-sm animate-bounce">🔥</span>
-                  )}
-                  <span 
-                    className="text-sm font-bold text-white drop-shadow-lg"
-                    style={{ textShadow: '0 0 10px rgba(239, 68, 68, 0.8)' }}
-                  >
-                    {advantage.awayPercentage}%
-                  </span>
-                </div>
+              />
+              {/* 数值显示 */}
+              <div className="absolute inset-0 flex items-center justify-between px-2 z-20">
+                <span className="text-[11px] font-bold text-white">{advantage.homePercentage}%</span>
+                <span className="text-[11px] font-bold text-white">{advantage.awayPercentage}%</span>
               </div>
             </div>
             
-            {/* CSS 动画样式 */}
-            <style>{`
-              @keyframes flowRight {
-                0% { background-position: -100% 0; }
-                100% { background-position: 100% 0; }
+            {/* 简化结论 */}
+            <div className="mt-3 text-center text-[11px] text-white/60">
+              {advantage.homePercentage > 55 
+                ? `${currentHomeFormation} 阵型克制 ${currentAwayFormation}`
+                : advantage.awayPercentage > 55 
+                  ? `${currentAwayFormation} 阵型克制 ${currentHomeFormation}`
+                  : '阵型势均力敌'
               }
-              @keyframes flowLeft {
-                0% { background-position: 100% 0; }
-                100% { background-position: -100% 0; }
-              }
-              @keyframes particleFlowRight {
-                0% { transform: translateX(0); opacity: 0; }
-                20% { opacity: 1; }
-                80% { opacity: 1; }
-                100% { transform: translateX(500%); opacity: 0; }
-              }
-              @keyframes particleFlowLeft {
-                0% { transform: translateX(0); opacity: 0; }
-                20% { opacity: 1; }
-                80% { opacity: 1; }
-                100% { transform: translateX(-500%); opacity: 0; }
-              }
-            `}</style>
-            
-            {/* 优势指示 */}
-            <div className="flex justify-center mt-2">
-              {advantage.homePercentage > 55 ? (
-                <div className="flex items-center gap-1 text-[10px] text-cyan-400 bg-cyan-400/10 px-2 py-0.5 rounded-full">
-                  <span>◀</span>
-                  <span>主队阵型胜率更高</span>
-                </div>
-              ) : advantage.awayPercentage > 55 ? (
-                <div className="flex items-center gap-1 text-[10px] text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
-                  <span>客队阵型胜率更高</span>
-                  <span>▶</span>
-                </div>
-              ) : (
-                <div className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded-full">
-                  双方阵型胜率接近
-                </div>
-              )}
-            </div>
-            
-            {/* 阵型克制战术讲解 - AI专业风格 */}
-            <div className="mt-3 pt-3 border-t border-white/10">
-              {/* 克制结论标题 */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-4 bg-cyan-400 rounded-full" />
-                <span className="text-white/90 font-medium text-xs tracking-wide">
-                  {advantage.homePercentage > 55 
-                    ? `${currentHomeFormation} 阵型克制 ${currentAwayFormation}`
-                    : advantage.awayPercentage > 55 
-                      ? `${currentAwayFormation} 阵型克制 ${currentHomeFormation}`
-                      : '阵型势均力敌'
-                  }
-                </span>
-              </div>
-              
-              {/* 核心原因 */}
-              <div className="mb-3">
-                <div className="text-[10px] text-white/40 mb-1 uppercase tracking-wider font-mono">核心原因</div>
-                <p className="text-white/70 text-[11px] leading-relaxed">
-                  {advantage.reason}
-                </p>
-              </div>
-              
-              {/* 关键对位分析 */}
-              <div className="space-y-2">
-                {/* 进攻端分析 */}
-                <div className="bg-white/5 rounded p-2.5 border-l border-cyan-400/50">
-                  <div className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-mono">进攻端对位</div>
-                  <p className="text-[11px] text-white/70 leading-relaxed">
-                    {advantage.homePercentage > 55 ? (
-                      currentHomeFormation.startsWith('4-3-3') || currentHomeFormation.startsWith('3-4-3')
-                        ? `${currentHomeFormation} 的三前锋配置在边路形成人数优势，能够持续施压 ${currentAwayFormation} 的后防线`
-                        : currentHomeFormation.includes('5-3-2') || currentHomeFormation.includes('4-4-2')
-                          ? `${currentHomeFormation} 的双前锋配合默契，能够有效牵制 ${currentAwayFormation} 的中后卫`
-                          : `${currentHomeFormation} 的进攻组织能够找到 ${currentAwayFormation} 防守体系中的空间`
-                    ) : advantage.awayPercentage > 55 ? (
-                      currentAwayFormation.startsWith('4-3-3') || currentAwayFormation.startsWith('3-4-3')
-                        ? `${currentAwayFormation} 的三前锋配置在边路形成人数优势，能够持续施压 ${currentHomeFormation} 的后防线`
-                        : currentAwayFormation.includes('5-3-2') || currentAwayFormation.includes('4-4-2')
-                          ? `${currentAwayFormation} 的双前锋配合默契，能够有效牵制 ${currentHomeFormation} 的中后卫`
-                          : `${currentAwayFormation} 的进攻组织能够找到 ${currentHomeFormation} 防守体系中的空间`
-                    ) : (
-                      '双方进攻端配置相当，进攻效率将取决于球员个人能力和临场发挥'
-                    )}
-                  </p>
-                </div>
-                
-                {/* 防守端分析 */}
-                <div className="bg-white/5 rounded p-2.5 border-l border-cyan-400/50">
-                  <div className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-mono">防守端对位</div>
-                  <p className="text-[11px] text-white/70 leading-relaxed">
-                    {advantage.homePercentage > 55 ? (
-                      currentHomeFormation.includes('5') 
-                        ? `${currentHomeFormation} 的五后卫体系能够完全覆盖 ${currentAwayFormation} 的进攻路线`
-                        : currentHomeFormation.includes('4-2')
-                          ? `${currentHomeFormation} 的双后腰能够有效拦截 ${currentAwayFormation} 的进攻推进`
-                          : `${currentHomeFormation} 的防守站位能够限制 ${currentAwayFormation} 的进攻空间`
-                    ) : advantage.awayPercentage > 55 ? (
-                      currentAwayFormation.includes('5')
-                        ? `${currentAwayFormation} 的五后卫体系能够完全覆盖 ${currentHomeFormation} 的进攻路线`
-                        : currentAwayFormation.includes('4-2')
-                          ? `${currentAwayFormation} 的双后腰能够有效拦截 ${currentHomeFormation} 的进攻推进`
-                          : `${currentAwayFormation} 的防守站位能够限制 ${currentHomeFormation} 的进攻空间`
-                    ) : (
-                      '双方防守端均衡，防守效果将取决于战术执行力和球员专注度'
-                    )}
-                  </p>
-                </div>
-                
-                {/* 中场争夺分析 */}
-                <div className="bg-white/5 rounded p-2.5 border-l border-cyan-400/50">
-                  <div className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-mono">中场争夺</div>
-                  <p className="text-[11px] text-white/70 leading-relaxed">
-                    {(() => {
-                      const homeMidTotal = currentHomeFormation.split('-').slice(1, -1).reduce((a, b) => a + parseInt(b), 0);
-                      const awayMidTotal = currentAwayFormation.split('-').slice(1, -1).reduce((a, b) => a + parseInt(b), 0);
-                      
-                      if (homeMidTotal > awayMidTotal) {
-                        return `${currentHomeFormation} 在中场区域拥有 ${homeMidTotal} 人配置，对 ${currentAwayFormation} 的 ${awayMidTotal} 人形成人数优势，更容易控制比赛节奏`;
-                      } else if (awayMidTotal > homeMidTotal) {
-                        return `${currentAwayFormation} 在中场区域拥有 ${awayMidTotal} 人配置，对 ${currentHomeFormation} 的 ${homeMidTotal} 人形成人数优势，更容易控制比赛节奏`;
-                      } else {
-                        return `双方中场人数配置相当，控球权争夺将非常激烈，胜负取决于中场球员的跑动和传球质量`;
-                      }
-                    })()}
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         );
