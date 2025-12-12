@@ -126,14 +126,14 @@ const predictMovementDirection = (
 const homePlayerNames = ['拉米', '巴塔特', '泰马尼尼', '萨莱赫', '纳布汉', '萨瓦塔', '阿米德', '哈姆丹', '赛亚姆', '昆巴尔', '达巴赫'];
 const awayPlayerNames = ['奥瓦伊斯', '布莱克', '阿姆里', '塔姆比蒂', '甘纳姆', '萨尔曼', '道萨里', '马尔基', '哈桑', '布雷坎', '阿西里'];
 const homePlayerAvatars = [
-  '/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png',
-  '/avatars/avatar-5.png', '/avatars/avatar-6.png', '/avatars/avatar-7.png', '/avatars/avatar-8.png',
-  '/avatars/avatar-9.png', '/avatars/avatar-1.png', '/avatars/avatar-2.png'
+  '/players/player-2.png', '/players/player-3.png', '/players/player-4.png', '/players/player-5.png',
+  '/players/player-6.png', '/players/player-7.png', '/players/player-8.png', '/players/player-9.png',
+  '/players/player-10.png', '/players/player-11.png', '/players/player-1.png'
 ];
 const awayPlayerAvatars = [
-  '/avatars/avatar-6.png', '/avatars/avatar-7.png', '/avatars/avatar-8.png', '/avatars/avatar-9.png',
-  '/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png',
-  '/avatars/avatar-5.png', '/avatars/avatar-6.png', '/avatars/avatar-7.png'
+  '/players/player-12.png', '/players/player-13.png', '/players/player-14.png', '/players/player-15.png',
+  '/players/player-16.png', '/players/player-17.png', '/players/player-18.png', '/players/player-19.png',
+  '/players/player-20.png', '/players/player-21.png', '/players/player-22.png'
 ];
 
 // 阵型配置 - 定义不同阵型下11个球员的位置
