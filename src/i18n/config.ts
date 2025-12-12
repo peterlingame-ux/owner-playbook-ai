@@ -1142,7 +1142,7 @@ const resources = {
       "auth": {
         "home": "首页",
         "back": "返回",
-        "login": "登录账号",
+        "login": "登录",
         "register": "注册账号",
         "password_login": "密码登录",
         "enter_code": "输入验证码",
