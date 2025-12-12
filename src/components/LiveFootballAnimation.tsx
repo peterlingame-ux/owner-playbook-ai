@@ -1305,9 +1305,11 @@ export default function LiveFootballAnimation({
         {/* 阵型连线层 - 当选中球员时显示标准阵型结构 */}
         {selectedPlayer && (
           <>
-            {/* 阵型名称标签 */}
+            {/* 阵型名称标签 - 主队左上角，客队右上角 */}
             <div 
-              className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full text-xs font-bold animate-fade-in"
+              className={`absolute top-2 z-30 px-3 py-1 rounded-full text-xs font-bold animate-fade-in ${
+                selectedPlayer.team === 'home' ? 'left-2' : 'right-2'
+              }`}
               style={{
                 background: selectedPlayer.team === 'home' 
                   ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.9), rgba(0, 150, 255, 0.9))' 
