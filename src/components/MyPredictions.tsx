@@ -1433,7 +1433,7 @@ const MyPredictions = () => {
           </div>
         </TabsContent>
 
-        {/* 消费记录标签页 */}
+        {/* 消费记录标签页 - 仅显示跟单消费 */}
         <TabsContent value="spending" className="mt-2">
           <div className="bg-card border border-border rounded-lg overflow-hidden">
             <div className="p-2 border-b border-border">
@@ -1441,37 +1441,28 @@ const MyPredictions = () => {
                 <Receipt className="h-3.5 w-3.5 text-primary" />
                 {t('spending_records') || '消费记录'}
               </h3>
-              <p className="text-[10px] text-muted-foreground">{t('spending_records_desc') || '查看您的猎人币消费明细'}</p>
+              <p className="text-[10px] text-muted-foreground">{t('copy_trade_spending_desc') || '查看您的跟单消费明细'}</p>
             </div>
             
-            {spendingRecords.length > 0 ? (
+            {copyTradeRecords.length > 0 ? (
               <>
-                {/* 消费统计 */}
-                <div className="grid grid-cols-4 divide-x divide-border border-b border-border">
+                {/* 跟单消费统计 */}
+                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
                   <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">{spendingRecords.length}</p>
-                    <p className="text-[10px] text-muted-foreground">{t('total_bets') || '投注次数'}</p>
+                    <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('copy_trade_count') || '跟单次数'}</p>
                   </div>
                   <div className="p-2 text-center">
                     <p className="text-sm font-bold font-mono text-foreground">
-                      ${spendingRecords.reduce((sum, s) => sum + s.bet_amount, 0).toLocaleString()}
+                      ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('total_spent') || '总消费'}</p>
                   </div>
                   <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-success">
-                      +${spendingRecords.filter(s => s.pnl > 0).reduce((sum, s) => sum + s.pnl, 0).toLocaleString()}
+                    <p className="text-sm font-bold font-mono text-amber-500">
+                      {copyTradeRecords.filter(r => r.bet_amount > 0).length}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">{t('total_won') || '总盈利'}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className={`text-sm font-bold font-mono ${
-                      spendingRecords.reduce((sum, s) => sum + s.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
-                    }`}>
-                      {spendingRecords.reduce((sum, s) => sum + s.pnl, 0) >= 0 ? '+' : ''}
-                      ${spendingRecords.reduce((sum, s) => sum + s.pnl, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('net_pnl') || '净盈亏'}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('paid_copy_trades') || '付费跟单'}</p>
                   </div>
                 </div>
 
@@ -1480,62 +1471,41 @@ const MyPredictions = () => {
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
                         <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('type_column') || '类型'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column') || '比赛'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column') || '预测'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_amount_column') || '投注'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label') || '盈亏'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column') || '结果'}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player') || '跟单玩家'}</th>
+                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('is_paid') || '是否付费'}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_spent') || '消费金额'}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {spendingRecords.map((record) => (
+                      {copyTradeRecords.map((record) => (
                         <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                           <td className="py-1.5 px-2">
                             <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
                           </td>
                           <td className="py-1.5 px-2">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                              record.type === 'prediction' 
-                                ? 'bg-primary/20 text-primary' 
-                                : 'bg-amber-500/20 text-amber-500'
-                            }`}>
-                              {record.type === 'prediction' ? (t('prediction_label') || '预测') : (t('copy_trade_type') || '跟单')}
-                            </span>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <div className="flex flex-col gap-0.5">
-                              <span className={`text-[9px] px-1 py-0.5 rounded inline-block w-fit ${
-                                record.prediction_type === 'handicap' 
-                                  ? 'bg-blue-500/20 text-blue-400' 
-                                  : 'bg-purple-500/20 text-purple-400'
-                              }`}>
-                                {record.prediction_type === 'handicap' ? (t('handicap') || '让球') : (t('over_under') || '大小')}
-                              </span>
-                              <span className="text-[10px] text-foreground">{record.prediction}</span>
+                            <div className="flex items-center gap-1.5">
+                              <Avatar className="h-5 w-5">
+                                <AvatarImage src={record.followed_player_avatar} />
+                                <AvatarFallback className="text-[8px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
+                              </Avatar>
+                              <span className="text-[10px] text-foreground font-medium">{record.followed_player_name}</span>
                             </div>
                           </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-[10px] font-mono font-bold text-foreground">-${record.bet_amount}</p>
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className={`text-[10px] font-mono font-bold ${
-                              record.pnl > 0 ? 'text-success' : record.pnl < 0 ? 'text-destructive' : 'text-muted-foreground'
-                            }`}>
-                              {record.pnl > 0 ? '+' : ''}{record.pnl !== 0 ? `$${record.pnl}` : '-'}
-                            </p>
-                          </td>
                           <td className="py-1.5 px-2 text-center">
-                            {record.result === 'win' ? (
-                              <CheckCircle2 className="h-3 w-3 text-success inline-block" />
-                            ) : record.result === 'loss' ? (
-                              <XCircle className="h-3 w-3 text-destructive inline-block" />
+                            {record.bet_amount > 0 ? (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500">
+                                {t('paid') || '付费'}
+                              </span>
                             ) : (
-                              <span className="text-[10px] text-amber-500 font-medium">{t('pending') || '待定'}</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success">
+                                {t('free') || '免费'}
+                              </span>
                             )}
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            <p className={`text-[10px] font-mono font-bold ${record.bet_amount > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
+                              {record.bet_amount > 0 ? `-$${record.bet_amount}` : '$0'}
+                            </p>
                           </td>
                         </tr>
                       ))}
@@ -1546,8 +1516,8 @@ const MyPredictions = () => {
             ) : (
               <div className="p-4 text-center">
                 <Receipt className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_spending_records') || '暂无消费记录'}</p>
-                <p className="text-[10px] text-muted-foreground">{t('start_betting_hint') || '开始预测比赛，消费记录将在此显示'}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_spending') || '暂无跟单消费记录'}</p>
+                <p className="text-[10px] text-muted-foreground">{t('start_copy_trading_hint') || '跟单其他玩家后，消费记录将在此显示'}</p>
               </div>
             )}
           </div>
