@@ -1996,9 +1996,30 @@ export default function LiveFootballAnimation({
                     return (
                       <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
                         <div 
-                          className="h-full rounded-full"
-                          style={{ width: `${stamina}%`, background: staminaColor }}
-                        />
+                          className="h-full rounded-full relative overflow-hidden"
+                          style={{ 
+                            width: `${stamina}%`, 
+                            background: staminaColor,
+                            transition: 'width 0.3s ease-out'
+                          }}
+                        >
+                          {/* 流光动画 */}
+                          <div 
+                            className="absolute inset-0"
+                            style={{
+                              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)`,
+                              animation: 'shimmer 1.5s infinite',
+                              transform: 'translateX(-100%)'
+                            }}
+                          />
+                        </div>
+                        {/* 脉冲边框 */}
+                        {stamina < 40 && (
+                          <div 
+                            className="absolute inset-0 rounded-full animate-pulse"
+                            style={{ boxShadow: `0 0 4px ${staminaColor}` }}
+                          />
+                        )}
                       </div>
                     );
                   })()}
@@ -2038,19 +2059,41 @@ export default function LiveFootballAnimation({
                         {/* 数值显示 */}
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
-                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-slate-700/50 rounded-full overflow-hidden relative">
                             <div 
-                              className="h-full rounded-full"
+                              className="h-full rounded-full relative overflow-hidden"
                               style={{ 
                                 width: `${stamina}%`,
-                                background: staminaColor,
-                                boxShadow: `0 0 6px ${staminaColor}`
+                                background: `linear-gradient(90deg, ${staminaColor}cc, ${staminaColor})`,
+                                boxShadow: `0 0 8px ${staminaColor}, inset 0 0 4px rgba(255,255,255,0.3)`,
+                                transition: 'width 0.3s ease-out'
+                              }}
+                            >
+                              {/* 流光扫描动画 */}
+                              <div 
+                                className="absolute inset-0"
+                                style={{
+                                  background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)`,
+                                  animation: 'shimmer 1.5s infinite'
+                                }}
+                              />
+                            </div>
+                            {/* 脉冲发光效果 */}
+                            <div 
+                              className="absolute inset-0 rounded-full pointer-events-none"
+                              style={{ 
+                                boxShadow: `inset 0 0 4px ${staminaColor}40`,
+                                animation: 'pulse 2s infinite'
                               }}
                             />
                           </div>
                           <span 
                             className="text-[10px] font-mono font-bold tabular-nums"
-                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
+                            style={{ 
+                              color: staminaColor, 
+                              textShadow: `0 0 8px ${staminaColor}`,
+                              animation: stamina < 30 ? 'pulse 1s infinite' : undefined
+                            }}
                           >
                             {Math.round(stamina)}
                           </span>
@@ -2134,9 +2177,30 @@ export default function LiveFootballAnimation({
                     return (
                       <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
                         <div 
-                          className="h-full rounded-full"
-                          style={{ width: `${stamina}%`, background: staminaColor }}
-                        />
+                          className="h-full rounded-full relative overflow-hidden"
+                          style={{ 
+                            width: `${stamina}%`, 
+                            background: staminaColor,
+                            transition: 'width 0.3s ease-out'
+                          }}
+                        >
+                          {/* 流光动画 */}
+                          <div 
+                            className="absolute inset-0"
+                            style={{
+                              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)`,
+                              animation: 'shimmer 1.5s infinite',
+                              transform: 'translateX(-100%)'
+                            }}
+                          />
+                        </div>
+                        {/* 脉冲边框 */}
+                        {stamina < 40 && (
+                          <div 
+                            className="absolute inset-0 rounded-full animate-pulse"
+                            style={{ boxShadow: `0 0 4px ${staminaColor}` }}
+                          />
+                        )}
                       </div>
                     );
                   })()}
@@ -2176,19 +2240,41 @@ export default function LiveFootballAnimation({
                         {/* 数值显示 */}
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
-                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-slate-700/50 rounded-full overflow-hidden relative">
                             <div 
-                              className="h-full rounded-full"
+                              className="h-full rounded-full relative overflow-hidden"
                               style={{ 
                                 width: `${stamina}%`,
-                                background: staminaColor,
-                                boxShadow: `0 0 6px ${staminaColor}`
+                                background: `linear-gradient(90deg, ${staminaColor}cc, ${staminaColor})`,
+                                boxShadow: `0 0 8px ${staminaColor}, inset 0 0 4px rgba(255,255,255,0.3)`,
+                                transition: 'width 0.3s ease-out'
+                              }}
+                            >
+                              {/* 流光扫描动画 */}
+                              <div 
+                                className="absolute inset-0"
+                                style={{
+                                  background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)`,
+                                  animation: 'shimmer 1.5s infinite'
+                                }}
+                              />
+                            </div>
+                            {/* 脉冲发光效果 */}
+                            <div 
+                              className="absolute inset-0 rounded-full pointer-events-none"
+                              style={{ 
+                                boxShadow: `inset 0 0 4px ${staminaColor}40`,
+                                animation: 'pulse 2s infinite'
                               }}
                             />
                           </div>
                           <span 
                             className="text-[10px] font-mono font-bold tabular-nums"
-                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
+                            style={{ 
+                              color: staminaColor, 
+                              textShadow: `0 0 8px ${staminaColor}`,
+                              animation: stamina < 30 ? 'pulse 1s infinite' : undefined
+                            }}
                           >
                             {Math.round(stamina)}
                           </span>
