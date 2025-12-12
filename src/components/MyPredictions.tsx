@@ -586,7 +586,7 @@ const MyPredictions = () => {
   const [copyTradeRecords, setCopyTradeRecords] = useState<CopyTradeRecord[]>([]);
   const [depositRecords, setDepositRecords] = useState<DepositRecord[]>([]);
   const [spendingRecords, setSpendingRecords] = useState<SpendingRecord[]>([]);
-  const [activeTab, setActiveTab] = useState("history");
+  const [activeTab, setActiveTab] = useState("records");
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
   const [vipStatus, setVipStatus] = useState<VipStatus | null>(null);
@@ -1480,59 +1480,56 @@ const MyPredictions = () => {
       {/* 胜率趋势图表 */}
       <WinRateTrendChart predictions={stats?.recentPredictions || []} />
 
-      {/* 标签页 */}
+      {/* 标签页 - 简化为2个分组 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-9">
-          <TabsTrigger value="history" className="flex items-center gap-1 text-[10px] px-1">
-            <History className="h-3 w-3" />
-            {t('player_prediction_records') || '预测记录'}
+        <TabsList className="grid w-full grid-cols-2 h-10 bg-muted/50 p-1">
+          <TabsTrigger 
+            value="records" 
+            className="flex items-center gap-1.5 text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+          >
+            <History className="h-3.5 w-3.5" />
+            {t('prediction_and_copy_records') || '预测 & 跟单记录'}
           </TabsTrigger>
-          <TabsTrigger value="deposit" className="flex items-center gap-1 text-[10px] px-1">
-            <CreditCard className="h-3 w-3" />
-            {t('deposit_records') || '充值记录'}
-          </TabsTrigger>
-          <TabsTrigger value="spending" className="flex items-center gap-1 text-[10px] px-1">
-            <Receipt className="h-3 w-3" />
-            {t('spending_records') || '消费记录'}
-          </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-[10px] px-1">
-            <Users className="h-3 w-3" />
-            {t('copy_trade_records') || '跟单记录'}
+          <TabsTrigger 
+            value="finance" 
+            className="flex items-center gap-1.5 text-xs data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+          >
+            <Wallet className="h-3.5 w-3.5" />
+            {t('deposit_and_spending') || '充值 & 消费记录'}
           </TabsTrigger>
         </TabsList>
 
-        {/* 完整历史记录标签页 */}
-        <TabsContent value="history" className="mt-2">
+        {/* 预测 & 跟单记录 */}
+        <TabsContent value="records" className="mt-3">
           <PlayerHistoryTable predictions={stats?.recentPredictions || []} copyTradeRecords={copyTradeRecords} />
         </TabsContent>
 
-        {/* 充值记录标签页 */}
-        <TabsContent value="deposit" className="mt-2">
+        {/* 充值 & 消费记录 */}
+        <TabsContent value="finance" className="mt-3 space-y-3">
+          {/* 充值记录 */}
           <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <CreditCard className="h-3.5 w-3.5 text-[#26A17B]" />
+            <div className="p-3 border-b border-border bg-muted/30">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
                 {t('deposit_records') || '充值记录'}
               </h3>
-              <p className="text-[10px] text-muted-foreground">{t('deposit_records_desc') || '查看您的USDT充值历史'}</p>
             </div>
             
             {depositRecords.length > 0 ? (
               <>
-                {/* 充值统计 */}
                 <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                  <div className="p-2 text-center">
+                  <div className="p-2.5 text-center">
                     <p className="text-sm font-bold font-mono text-foreground">{depositRecords.length}</p>
                     <p className="text-[10px] text-muted-foreground">{t('total_deposits') || '充值次数'}</p>
                   </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-[#26A17B]">
-                      ${depositRecords.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
+                  <div className="p-2.5 text-center">
+                    <p className="text-sm font-bold font-mono text-success">
+                      +${depositRecords.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('confirmed_amount') || '已到账'}</p>
                   </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-amber-500">
+                  <div className="p-2.5 text-center">
+                    <p className="text-sm font-bold font-mono text-muted-foreground">
                       ${depositRecords.filter(d => d.status === 'pending').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('pending_amount') || '待确认'}</p>
@@ -1542,49 +1539,38 @@ const MyPredictions = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_column') || '金额'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('network_column') || '网络'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('address_column') || '地址'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('status_column') || '状态'}</th>
+                      <tr className="border-b border-border bg-muted/20">
+                        <th className="text-left py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
+                        <th className="text-right py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('amount_column') || '金额'}</th>
+                        <th className="text-center py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('network_column') || '网络'}</th>
+                        <th className="text-center py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('status_column') || '状态'}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {depositRecords.map((record) => (
                         <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
-                            {record.confirmed_at && (
-                              <p className="text-[9px] text-muted-foreground">
-                                {t('confirmed_at') || '确认'}: {format(new Date(record.confirmed_at), 'HH:mm')}
-                              </p>
-                            )}
+                          <td className="py-2 px-3">
+                            <p className="text-xs text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
                           </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-sm font-bold font-mono text-[#26A17B]">+${record.amount}</p>
+                          <td className="py-2 px-3 text-right">
+                            <p className="text-xs font-bold font-mono text-success">+${record.amount}</p>
                           </td>
-                          <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
+                          <td className="py-2 px-3 text-center">
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-foreground">
                               {record.network}
                             </span>
                           </td>
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-muted-foreground font-mono truncate max-w-[100px]">
-                              {record.wallet_address}
-                            </p>
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
+                          <td className="py-2 px-3 text-center">
                             {record.status === 'confirmed' ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success font-medium">
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-success/10 text-success font-medium">
                                 {t('confirmed') || '已确认'}
                               </span>
                             ) : record.status === 'pending' ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 font-medium animate-pulse">
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground font-medium">
                                 {t('pending') || '待确认'}
                               </span>
                             ) : (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/20 text-destructive font-medium">
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-destructive/10 text-destructive font-medium">
                                 {t('failed') || '失败'}
                               </span>
                             )}
@@ -1596,205 +1582,93 @@ const MyPredictions = () => {
                 </div>
               </>
             ) : (
-              <div className="p-4 text-center">
-                <CreditCard className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_deposit_records') || '暂无充值记录'}</p>
-                <p className="text-[10px] text-muted-foreground">{t('deposit_hint') || '点击上方"充值"按钮添加USDT'}</p>
+              <div className="p-6 text-center">
+                <CreditCard className="h-8 w-8 mx-auto mb-2 text-muted-foreground/20" />
+                <p className="text-xs text-muted-foreground">{t('no_deposit_records') || '暂无充值记录'}</p>
               </div>
             )}
           </div>
-        </TabsContent>
 
-        {/* 消费记录标签页 - 仅显示跟单消费 */}
-        <TabsContent value="spending" className="mt-2">
+          {/* 消费记录 */}
           <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <Receipt className="h-3.5 w-3.5 text-primary" />
+            <div className="p-3 border-b border-border bg-muted/30">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Receipt className="h-4 w-4 text-muted-foreground" />
                 {t('spending_records') || '消费记录'}
               </h3>
-              <p className="text-[10px] text-muted-foreground">{t('copy_trade_spending_desc') || '查看您的跟单消费明细'}</p>
             </div>
             
             {copyTradeRecords.length > 0 ? (
               <>
-                {/* 跟单消费统计 */}
                 <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                  <div className="p-2 text-center">
+                  <div className="p-2.5 text-center">
                     <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
                     <p className="text-[10px] text-muted-foreground">{t('copy_trade_count') || '跟单次数'}</p>
                   </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
+                  <div className="p-2.5 text-center">
+                    <p className="text-sm font-bold font-mono text-destructive">
+                      -${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('total_spent') || '总消费'}</p>
                   </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-amber-500">
-                      {copyTradeRecords.filter(r => r.bet_amount > 0).length}
+                  <div className="p-2.5 text-center">
+                    <p className={`text-sm font-bold font-mono ${
+                      copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
+                    }`}>
+                      {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
+                      ${Math.abs(copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0)).toLocaleString()}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">{t('paid_copy_trades') || '付费跟单'}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('net_profit_loss') || '净盈亏'}</p>
                   </div>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player') || '跟单玩家'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('is_paid') || '是否付费'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_spent') || '消费金额'}</th>
+                      <tr className="border-b border-border bg-muted/20">
+                        <th className="text-left py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
+                        <th className="text-left py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('followed_player') || '跟单玩家'}</th>
+                        <th className="text-left py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('match_column') || '比赛'}</th>
+                        <th className="text-right py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('amount_spent') || '消费'}</th>
+                        <th className="text-right py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label') || '盈亏'}</th>
+                        <th className="text-center py-2 px-3 font-medium text-muted-foreground text-[10px]">{t('result_column') || '结果'}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {copyTradeRecords.map((record) => (
                         <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
+                          <td className="py-2 px-3">
+                            <p className="text-xs text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
                           </td>
-                          <td className="py-1.5 px-2">
+                          <td className="py-2 px-3">
                             <div className="flex items-center gap-1.5">
                               <Avatar className="h-5 w-5">
                                 <AvatarImage src={record.followed_player_avatar} />
                                 <AvatarFallback className="text-[8px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
                               </Avatar>
-                              <span className="text-[10px] text-foreground font-medium">{record.followed_player_name}</span>
+                              <span className="text-xs text-foreground">{record.followed_player_name}</span>
                             </div>
                           </td>
-                          <td className="py-1.5 px-2 text-center">
-                            {record.bet_amount > 0 ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500">
-                                {t('paid') || '付费'}
-                              </span>
-                            ) : (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success">
-                                {t('free') || '免费'}
-                              </span>
-                            )}
+                          <td className="py-2 px-3">
+                            <p className="text-xs text-foreground truncate max-w-[100px]">{record.match_home_team} vs {record.match_away_team}</p>
                           </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className={`text-[10px] font-mono font-bold ${record.bet_amount > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
-                              {record.bet_amount > 0 ? `-$${record.bet_amount}` : '$0'}
-                            </p>
+                          <td className="py-2 px-3 text-right">
+                            <p className="text-xs font-mono text-foreground">-${record.bet_amount}</p>
                           </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            ) : (
-              <div className="p-4 text-center">
-                <Receipt className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_spending') || '暂无跟单消费记录'}</p>
-                <p className="text-[10px] text-muted-foreground">{t('start_copy_trading_hint') || '跟单其他玩家后，消费记录将在此显示'}</p>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* 跟单记录标签页 */}
-        <TabsContent value="copy-trade" className="mt-2">
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground">{t('copy_trade_records_title')}</h3>
-              <p className="text-[10px] text-muted-foreground">{t('following_other_players')}</p>
-            </div>
-            
-            {copyTradeRecords.length > 0 ? (
-              <>
-                <div className="grid grid-cols-4 divide-x divide-border border-b border-border">
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                    <p className="text-[10px] text-muted-foreground">{t('copy_trade_count')}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('total_investment')}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-success">
-                      ${copyTradeRecords.filter(r => r.result === 'win').reduce((sum, r) => sum + r.bet_amount + r.pnl, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('won_amount')}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className={`text-sm font-bold font-mono ${
-                      copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
-                    }`}>
-                      {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('net_profit_loss')}</p>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player')}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_type_label')}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column')}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('odds_label')}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('follow_amount')}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {copyTradeRecords.map((record) => (
-                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-1.5 px-2">
-                            <div className="flex items-center gap-1.5">
-                              <Avatar className="h-5 w-5 border border-border">
-                                <AvatarImage src={record.followed_player_avatar} />
-                                <AvatarFallback className="text-[9px]">{record.followed_player_name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-[10px] font-medium text-foreground truncate max-w-[70px]">{record.followed_player_name}</p>
-                                <p className="text-[9px] text-muted-foreground">{format(new Date(record.created_at), 'MM-dd')}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                              record.prediction_type === 'handicap' 
-                                ? 'bg-blue-500/20 text-blue-400' 
-                                : 'bg-purple-500/20 text-purple-400'
+                          <td className="py-2 px-3 text-right">
+                            <p className={`text-xs font-mono font-bold ${
+                              record.pnl >= 0 ? 'text-success' : 'text-destructive'
                             }`}>
-                              {record.prediction_type === 'handicap' ? t('handicap') : t('over_under')}
-                            </span>
-                          </td>
-                          <td className="py-1.5 px-2 text-[10px] text-foreground">
-                            {record.prediction}
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] font-mono text-amber-400 font-medium">{record.odds.toFixed(2)}</span>
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-[10px] font-mono font-bold text-foreground">${record.bet_amount}</p>
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className={`text-[10px] font-mono font-bold ${record.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
-                              {record.pnl >= 0 ? '+' : ''}${record.pnl}
+                              {record.pnl >= 0 ? '+' : ''}{record.pnl}
                             </p>
                           </td>
-                          <td className="py-1.5 px-2 text-center">
+                          <td className="py-2 px-3 text-center">
                             {record.result === 'win' ? (
-                              <CheckCircle2 className="h-3 w-3 text-success inline-block" />
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success inline-block" />
                             ) : record.result === 'loss' ? (
-                              <XCircle className="h-3 w-3 text-destructive inline-block" />
+                              <XCircle className="h-3.5 w-3.5 text-destructive inline-block" />
                             ) : (
-                              <span className="text-[10px] text-muted-foreground">-</span>
+                              <span className="text-[10px] text-muted-foreground">{t('in_progress') || '进行中'}</span>
                             )}
                           </td>
                         </tr>
@@ -1804,13 +1678,9 @@ const MyPredictions = () => {
                 </div>
               </>
             ) : (
-              <div className="p-4 text-center">
-                <Users className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_records')}</p>
-                <p className="text-[10px] text-muted-foreground mb-2">{t('go_to_leaderboard')}</p>
-                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => navigate('/leaderboard')}>
-                  {t('view_leaderboard')}
-                </Button>
+              <div className="p-6 text-center">
+                <Receipt className="h-8 w-8 mx-auto mb-2 text-muted-foreground/20" />
+                <p className="text-xs text-muted-foreground">{t('no_copy_trade_spending') || '暂无消费记录'}</p>
               </div>
             )}
           </div>
