@@ -2228,13 +2228,13 @@ export default function LiveFootballAnimation({
           
           return (
             <div 
-              className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30"
+              className="absolute bottom-2 right-2 z-30"
               style={{
                 animation: 'formationFadeIn 0.3s ease-out forwards'
               }}
             >
               <div 
-                className="relative px-4 py-3 rounded-lg backdrop-blur-md"
+                className="relative px-3 py-2 rounded-lg backdrop-blur-md max-w-[160px]"
                 style={{
                   background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 20, 30, 0.9))',
                   border: `1px solid ${teamBorderColor}`,
@@ -2283,72 +2283,54 @@ export default function LiveFootballAnimation({
                 </div>
                 
                 {/* 球员信息 */}
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-2 mb-2">
                   <div 
-                    className="w-10 h-10 rounded-full overflow-hidden"
+                    className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
                     style={{ 
                       border: `2px solid ${teamColor}`,
-                      boxShadow: `0 0 12px ${teamColor}60`
+                      boxShadow: `0 0 8px ${teamColor}60`
                     }}
                   >
                     <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
                   </div>
-                  <div>
-                    <div className="text-white font-bold text-sm">{player.name}</div>
-                    <div className="text-white/50 text-[10px] font-mono">
+                  <div className="min-w-0">
+                    <div className="text-white font-bold text-xs truncate">{player.name}</div>
+                    <div className="text-white/50 text-[9px] font-mono">
                       #{player.id + 1} · {selectedPlayer.team === 'home' ? '主队' : '客队'}
                     </div>
                   </div>
                 </div>
                 
-                {/* 数据指标 */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* 数据指标 - 紧凑布局 */}
+                <div className="grid grid-cols-2 gap-2">
                   {/* 距离球门 */}
-                  <div className="bg-black/40 rounded-lg p-2 border border-white/10">
-                    <div className="text-[9px] text-white/50 font-mono mb-1">距离球门</div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-bold text-cyan-400 font-mono">{distanceMeters}</span>
-                      <span className="text-[10px] text-cyan-400/70">m</span>
-                    </div>
-                    <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${Math.max(5, 100 - distancePercent)}%`,
-                          background: 'linear-gradient(90deg, #00ffc8, #00aaff)'
-                        }}
-                      />
+                  <div className="bg-black/40 rounded p-1.5 border border-white/10">
+                    <div className="text-[8px] text-white/50 font-mono">距离球门</div>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="text-base font-bold text-cyan-400 font-mono">{distanceMeters}</span>
+                      <span className="text-[9px] text-cyan-400/70">m</span>
                     </div>
                   </div>
                   
                   {/* 进球概率 */}
-                  <div className="bg-black/40 rounded-lg p-2 border border-white/10">
-                    <div className="text-[9px] text-white/50 font-mono mb-1">进球概率</div>
-                    <div className="flex items-baseline gap-1">
+                  <div className="bg-black/40 rounded p-1.5 border border-white/10">
+                    <div className="text-[8px] text-white/50 font-mono">进球概率</div>
+                    <div className="flex items-baseline gap-0.5">
                       <span 
-                        className="text-xl font-bold font-mono"
+                        className="text-base font-bold font-mono"
                         style={{ color: threatColor }}
                       >
                         {xgPercent}
                       </span>
-                      <span className="text-[10px]" style={{ color: `${threatColor}99` }}>%</span>
-                    </div>
-                    <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${xgPercent}%`,
-                          background: `linear-gradient(90deg, #22c55e, ${threatColor})`
-                        }}
-                      />
+                      <span className="text-[9px]" style={{ color: `${threatColor}99` }}>%</span>
                     </div>
                   </div>
                 </div>
                 
                 {/* 区域状态 */}
-                <div className="mt-2 flex items-center gap-2 text-[9px]">
-                  <div 
-                    className="px-2 py-0.5 rounded font-mono"
+                <div className="mt-1.5 text-[8px]">
+                  <span 
+                    className="px-1.5 py-0.5 rounded font-mono"
                     style={{
                       background: inPenaltyArea ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
                       border: inPenaltyArea ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255,255,255,0.1)',
@@ -2356,19 +2338,7 @@ export default function LiveFootballAnimation({
                     }}
                   >
                     {inPenaltyArea ? '⚠ 禁区内' : '禁区外'}
-                  </div>
-                  {inDangerZone && !inPenaltyArea && (
-                    <div 
-                      className="px-2 py-0.5 rounded font-mono"
-                      style={{
-                        background: 'rgba(245, 158, 11, 0.2)',
-                        border: '1px solid rgba(245, 158, 11, 0.4)',
-                        color: '#f59e0b'
-                      }}
-                    >
-                      危险区域
-                    </div>
-                  )}
+                  </span>
                 </div>
               </div>
             </div>
