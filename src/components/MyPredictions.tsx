@@ -388,15 +388,15 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             <p className="text-[10px] text-muted-foreground">{t('total_count')}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold font-mono text-success">{winCount}</p>
+            <p className="text-sm font-bold font-mono text-foreground">{winCount}</p>
             <p className="text-[10px] text-muted-foreground">{t('correct_result')}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold font-mono text-destructive">{lossCount}</p>
+            <p className="text-sm font-bold font-mono text-foreground">{lossCount}</p>
             <p className="text-[10px] text-muted-foreground">{t('wrong_result')}</p>
           </div>
           <div className="text-center">
-            <p className={`text-sm font-bold font-mono ${totalProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+            <p className="text-sm font-bold font-mono text-foreground">
               {totalProfit >= 0 ? '+' : ''}{totalProfit.toFixed(0)}
             </p>
             <p className="text-[10px] text-muted-foreground">{t('profit_loss_label')}</p>
@@ -435,7 +435,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                   return (
                     <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                       <td className="py-1.5 px-2">
-                        <span className={`text-[10px] font-medium ${pred.type === 'prediction' ? 'text-primary' : 'text-amber-500'}`}>
+                        <span className="text-[10px] font-medium text-foreground">
                           {pred.type === 'prediction' ? t('prediction_label') : t('copy_trade_type')}
                           {pred.type === 'copy-trade' && pred.followed_player_name && (
                             <span className="text-muted-foreground font-normal"> · {pred.followed_player_name}</span>
@@ -469,11 +469,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                       </td>
                       <td className="py-1.5 px-2">
                         {pred.prediction_type ? (
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            pred.prediction_type === 'handicap' 
-                              ? 'bg-blue-500/20 text-blue-400' 
-                              : 'bg-purple-500/20 text-purple-400'
-                          }`}>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
                             {pred.prediction_type === 'handicap' ? t('handicap') : t('over_under')}
                           </span>
                         ) : (
@@ -483,30 +479,22 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                       <td className="py-1.5 px-2 text-[10px] text-foreground">
                         {pred.prediction}
                       </td>
-                      <td className="py-1.5 px-2 text-center text-[10px] font-mono">
-                        {pred.odds ? (
-                          <span className="text-amber-400 font-medium">{pred.odds.toFixed(2)}</span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                      <td className="py-1.5 px-2 text-center text-[10px] font-mono text-foreground">
+                        {pred.odds ? pred.odds.toFixed(2) : '-'}
                       </td>
-                      <td className="py-1.5 px-2 text-right text-[10px] font-mono text-muted-foreground">
+                      <td className="py-1.5 px-2 text-right text-[10px] font-mono text-foreground">
                         ${pred.bet_amount}
                       </td>
-                      <td className={`py-1.5 px-2 text-right text-[10px] font-mono font-bold ${
-                        profit >= 0 ? 'text-success' : 'text-destructive'
-                      }`}>
+                      <td className="py-1.5 px-2 text-right text-[10px] font-mono text-foreground">
                         {profit >= 0 ? '+' : ''}{profit.toFixed(0)}
                       </td>
                       <td className="py-1.5 px-2 text-center">
                         {pred.result === 'win' ? (
-                          <CheckCircle2 className="h-3 w-3 text-success inline-block" />
+                          <CheckCircle2 className="h-3 w-3 text-foreground inline-block" />
                         ) : pred.result === 'loss' ? (
-                          <XCircle className="h-3 w-3 text-destructive inline-block" />
-                        ) : pred.result === 'pending' ? (
-                          <span className="text-[10px] text-amber-500 font-medium">{t('in_progress')}</span>
+                          <XCircle className="h-3 w-3 text-muted-foreground inline-block" />
                         ) : (
-                          <span className="text-[10px] text-amber-500 font-medium">{t('in_progress')}</span>
+                          <span className="text-[10px] text-muted-foreground font-medium">{t('in_progress')}</span>
                         )}
                       </td>
                     </tr>
@@ -1344,22 +1332,21 @@ const MyPredictions = () => {
             </div>
           </div>
 
-          {/* 统计数据网格 - AI仪表盘风格 */}
+          {/* 统计数据网格 */}
           <div className="px-4 pb-4">
             <div className="grid grid-cols-4 gap-2">
               {[
-                { value: stats?.totalPredictions || 0, label: t('total_predictions_stat'), color: 'text-foreground' },
-                { value: stats?.correctPredictions || 0, label: t('correct_result'), color: 'text-success' },
-                { value: (stats?.totalPredictions || 0) - (stats?.correctPredictions || 0), label: t('wrong_result'), color: 'text-destructive' },
-                { value: `${(stats?.profit || 0) >= 0 ? '+' : ''}${stats?.profit?.toLocaleString() || 0}`, label: t('profit_loss_label'), color: (stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive' }
+                { value: stats?.totalPredictions || 0, label: t('total_predictions_stat') },
+                { value: stats?.correctPredictions || 0, label: t('correct_result') },
+                { value: (stats?.totalPredictions || 0) - (stats?.correctPredictions || 0), label: t('wrong_result') },
+                { value: `${(stats?.profit || 0) >= 0 ? '+' : ''}${stats?.profit?.toLocaleString() || 0}`, label: t('profit_loss_label') }
               ].map((item, index) => (
                 <div 
                   key={index} 
-                  className="relative group p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-ai-cyan/30 transition-all"
+                  className="p-3 rounded-lg bg-muted/30 border border-border/50"
                 >
-                  <div className="absolute inset-0 bg-ai-cyan/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <p className={`relative text-xl font-bold font-mono ${item.color}`}>{item.value}</p>
-                  <p className="relative text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                  <p className="text-xl font-bold font-mono text-foreground">{item.value}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -1501,7 +1488,7 @@ const MyPredictions = () => {
           <div className="bg-card border border-border rounded-lg overflow-hidden">
             <div className="p-2 border-b border-border">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <CreditCard className="h-3.5 w-3.5 text-[#26A17B]" />
+                <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
                 {t('deposit_records') || '充值记录'}
               </h3>
               <p className="text-[10px] text-muted-foreground">{t('deposit_records_desc') || '查看您的USDT充值历史'}</p>
@@ -1516,13 +1503,13 @@ const MyPredictions = () => {
                     <p className="text-[10px] text-muted-foreground">{t('total_deposits') || '充值次数'}</p>
                   </div>
                   <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-[#26A17B]">
+                    <p className="text-sm font-bold font-mono text-foreground">
                       ${depositRecords.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('confirmed_amount') || '已到账'}</p>
                   </div>
                   <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-amber-500">
+                    <p className="text-sm font-bold font-mono text-foreground">
                       ${depositRecords.filter(d => d.status === 'pending').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('pending_amount') || '待确认'}</p>
@@ -1552,7 +1539,7 @@ const MyPredictions = () => {
                             )}
                           </td>
                           <td className="py-1.5 px-2 text-right">
-                            <p className="text-sm font-bold font-mono text-[#26A17B]">+${record.amount}</p>
+                            <p className="text-sm font-bold font-mono text-foreground">+${record.amount}</p>
                           </td>
                           <td className="py-1.5 px-2 text-center">
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
@@ -1565,19 +1552,11 @@ const MyPredictions = () => {
                             </p>
                           </td>
                           <td className="py-1.5 px-2 text-center">
-                            {record.status === 'confirmed' ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success font-medium">
-                                {t('confirmed') || '已确认'}
-                              </span>
-                            ) : record.status === 'pending' ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 font-medium animate-pulse">
-                                {t('pending') || '待确认'}
-                              </span>
-                            ) : (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/20 text-destructive font-medium">
-                                {t('failed') || '失败'}
-                              </span>
-                            )}
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground font-medium">
+                              {record.status === 'confirmed' ? (t('confirmed') || '已确认') : 
+                               record.status === 'pending' ? (t('pending') || '待确认') : 
+                               (t('failed') || '失败')}
+                            </span>
                           </td>
                         </tr>
                       ))}
@@ -1600,7 +1579,7 @@ const MyPredictions = () => {
           <div className="bg-card border border-border rounded-lg overflow-hidden">
             <div className="p-2 border-b border-border">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <Receipt className="h-3.5 w-3.5 text-primary" />
+                <Receipt className="h-3.5 w-3.5 text-muted-foreground" />
                 {t('spending_records') || '消费记录'}
               </h3>
               <p className="text-[10px] text-muted-foreground">{t('copy_trade_spending_desc') || '查看您的跟单消费明细'}</p>
@@ -1621,7 +1600,7 @@ const MyPredictions = () => {
                     <p className="text-[10px] text-muted-foreground">{t('total_spent') || '总消费'}</p>
                   </div>
                   <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-amber-500">
+                    <p className="text-sm font-bold font-mono text-foreground">
                       {copyTradeRecords.filter(r => r.bet_amount > 0).length}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('paid_copy_trades') || '付费跟单'}</p>
@@ -1654,18 +1633,12 @@ const MyPredictions = () => {
                             </div>
                           </td>
                           <td className="py-1.5 px-2 text-center">
-                            {record.bet_amount > 0 ? (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500">
-                                {t('paid') || '付费'}
-                              </span>
-                            ) : (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success">
-                                {t('free') || '免费'}
-                              </span>
-                            )}
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
+                              {record.bet_amount > 0 ? (t('paid') || '付费') : (t('free') || '免费')}
+                            </span>
                           </td>
                           <td className="py-1.5 px-2 text-right">
-                            <p className={`text-[10px] font-mono font-bold ${record.bet_amount > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            <p className="text-[10px] font-mono font-bold text-foreground">
                               {record.bet_amount > 0 ? `-$${record.bet_amount}` : '$0'}
                             </p>
                           </td>
@@ -1707,15 +1680,13 @@ const MyPredictions = () => {
                     <p className="text-[10px] text-muted-foreground">{t('total_investment')}</p>
                   </div>
                   <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-success">
+                    <p className="text-sm font-bold font-mono text-foreground">
                       ${copyTradeRecords.filter(r => r.result === 'win').reduce((sum, r) => sum + r.bet_amount + r.pnl, 0).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{t('won_amount')}</p>
                   </div>
                   <div className="p-2 text-center">
-                    <p className={`text-sm font-bold font-mono ${
-                      copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
-                    }`}>
+                    <p className="text-sm font-bold font-mono text-foreground">
                       {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
                       ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toLocaleString()}
                     </p>
@@ -1756,11 +1727,7 @@ const MyPredictions = () => {
                             <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
                           </td>
                           <td className="py-1.5 px-2">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                              record.prediction_type === 'handicap' 
-                                ? 'bg-blue-500/20 text-blue-400' 
-                                : 'bg-purple-500/20 text-purple-400'
-                            }`}>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
                               {record.prediction_type === 'handicap' ? t('handicap') : t('over_under')}
                             </span>
                           </td>
@@ -1768,21 +1735,21 @@ const MyPredictions = () => {
                             {record.prediction}
                           </td>
                           <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] font-mono text-amber-400 font-medium">{record.odds.toFixed(2)}</span>
+                            <span className="text-[10px] font-mono text-foreground font-medium">{record.odds.toFixed(2)}</span>
                           </td>
                           <td className="py-1.5 px-2 text-right">
                             <p className="text-[10px] font-mono font-bold text-foreground">${record.bet_amount}</p>
                           </td>
                           <td className="py-1.5 px-2 text-right">
-                            <p className={`text-[10px] font-mono font-bold ${record.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            <p className="text-[10px] font-mono font-bold text-foreground">
                               {record.pnl >= 0 ? '+' : ''}${record.pnl}
                             </p>
                           </td>
                           <td className="py-1.5 px-2 text-center">
                             {record.result === 'win' ? (
-                              <CheckCircle2 className="h-3 w-3 text-success inline-block" />
+                              <CheckCircle2 className="h-3 w-3 text-foreground inline-block" />
                             ) : record.result === 'loss' ? (
-                              <XCircle className="h-3 w-3 text-destructive inline-block" />
+                              <XCircle className="h-3 w-3 text-muted-foreground inline-block" />
                             ) : (
                               <span className="text-[10px] text-muted-foreground">-</span>
                             )}
