@@ -1882,16 +1882,29 @@ export default function LiveFootballAnimation({
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
-                  {/* 体能条 (AI指标开启时显示小条，选中时显示详细) */}
+                  {/* 能量条 */}
                   {showAIIndicators && !isSelected && (() => {
                     const stamina = playerStamina[`home-${player.id}`] || 100;
-                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
                     return (
-                      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
+                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-2 rounded-sm bg-black/70 overflow-hidden border border-cyan-500/40"
+                        style={{ boxShadow: '0 0 6px rgba(0, 200, 255, 0.3)' }}
+                      >
                         <div 
-                          className="h-full rounded-full"
-                          style={{ width: `${stamina}%`, background: staminaColor }}
+                          className="h-full transition-all duration-300"
+                          style={{ 
+                            width: `${stamina}%`, 
+                            background: `linear-gradient(90deg, 
+                              ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'} 0%, 
+                              ${stamina >= 70 ? '#00aaff' : stamina >= 40 ? '#f59e0b' : '#dc2626'} 100%)`,
+                            boxShadow: `0 0 4px ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'}`
+                          }}
                         />
+                        {/* 能量格子线 */}
+                        <div className="absolute inset-0 flex">
+                          {[...Array(4)].map((_, i) => (
+                            <div key={i} className="flex-1 border-r border-black/40 last:border-r-0" />
+                          ))}
+                        </div>
                       </div>
                     );
                   })()}
@@ -2020,16 +2033,29 @@ export default function LiveFootballAnimation({
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
-                  {/* 体能条 (AI指标开启时显示小条，选中时显示详细) */}
+                  {/* 能量条 */}
                   {showAIIndicators && !isSelected && (() => {
                     const stamina = playerStamina[`away-${player.id}`] || 100;
-                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
                     return (
-                      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
+                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-2 rounded-sm bg-black/70 overflow-hidden border border-red-500/40"
+                        style={{ boxShadow: '0 0 6px rgba(239, 68, 68, 0.3)' }}
+                      >
                         <div 
-                          className="h-full rounded-full"
-                          style={{ width: `${stamina}%`, background: staminaColor }}
+                          className="h-full transition-all duration-300"
+                          style={{ 
+                            width: `${stamina}%`, 
+                            background: `linear-gradient(90deg, 
+                              ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'} 0%, 
+                              ${stamina >= 70 ? '#00aaff' : stamina >= 40 ? '#f59e0b' : '#dc2626'} 100%)`,
+                            boxShadow: `0 0 4px ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'}`
+                          }}
                         />
+                        {/* 能量格子线 */}
+                        <div className="absolute inset-0 flex">
+                          {[...Array(4)].map((_, i) => (
+                            <div key={i} className="flex-1 border-r border-black/40 last:border-r-0" />
+                          ))}
+                        </div>
                       </div>
                     );
                   })()}
