@@ -2634,10 +2634,6 @@ export default function LiveFootballAnimation({
           
           // 威胁等级
           const threatLevel = xgPercent >= 30 ? 'HIGH' : xgPercent >= 15 ? 'MED' : 'LOW';
-          const threatColor = xgPercent >= 30 ? '#ef4444' : xgPercent >= 15 ? '#f59e0b' : '#22c55e';
-          
-          const teamColor = selectedPlayer.team === 'home' ? 'rgba(0, 150, 255, 0.9)' : 'rgba(239, 68, 68, 0.9)';
-          const teamBorderColor = selectedPlayer.team === 'home' ? 'rgba(0, 200, 255, 0.6)' : 'rgba(255, 100, 100, 0.6)';
           
           return (
             <div 
@@ -2649,15 +2645,15 @@ export default function LiveFootballAnimation({
               <div 
                 className="relative px-3 py-2 rounded-lg backdrop-blur-md max-w-[160px]"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 20, 30, 0.9))',
-                  border: `1px solid ${teamBorderColor}`,
-                  boxShadow: `0 0 20px ${teamColor}40, inset 0 1px 0 rgba(255,255,255,0.1)`
+                  background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(15, 15, 20, 0.95))',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
                 }}
               >
                 {/* 扫描线动画 */}
                 <div 
                   className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none"
-                  style={{ opacity: 0.3 }}
+                  style={{ opacity: 0.2 }}
                 >
                   <div 
                     className="absolute inset-0"
@@ -2666,10 +2662,9 @@ export default function LiveFootballAnimation({
                         0deg,
                         transparent,
                         transparent 2px,
-                        rgba(0, 255, 200, 0.03) 2px,
-                        rgba(0, 255, 200, 0.03) 4px
-                      )`,
-                      animation: 'shimmer 3s linear infinite'
+                        rgba(255, 255, 255, 0.02) 2px,
+                        rgba(255, 255, 255, 0.02) 4px
+                      )`
                     }}
                   />
                 </div>
@@ -2677,20 +2672,10 @@ export default function LiveFootballAnimation({
                 {/* 顶部标题栏 */}
                 <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
                   <div className="flex items-center gap-2">
-                    <div 
-                      className="w-2 h-2 rounded-full animate-pulse"
-                      style={{ background: '#00ffc8', boxShadow: '0 0 8px #00ffc8' }}
-                    />
-                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">AI 分析</span>
+                    <div className="w-1 h-3 rounded-full bg-white/60" />
+                    <span className="text-[10px] font-mono text-white/70 tracking-wider">AI 分析</span>
                   </div>
-                  <span 
-                    className="text-[10px] font-bold px-2 py-0.5 rounded"
-                    style={{ 
-                      background: `${threatColor}30`,
-                      color: threatColor,
-                      border: `1px solid ${threatColor}50`
-                    }}
-                  >
+                  <span className="text-[10px] font-mono text-white/90 px-1.5 py-0.5 rounded bg-white/10 border border-white/20">
                     威胁: {threatLevel === 'HIGH' ? '高' : threatLevel === 'MED' ? '中' : '低'}
                   </span>
                 </div>
@@ -2698,59 +2683,43 @@ export default function LiveFootballAnimation({
                 {/* 球员信息 */}
                 <div className="flex items-center gap-2 mb-2">
                   <div 
-                    className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
-                    style={{ 
-                      border: `2px solid ${teamColor}`,
-                      boxShadow: `0 0 8px ${teamColor}60`
-                    }}
+                    className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-white/30"
                   >
                     <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-white font-bold text-xs truncate">{player.name}</div>
-                    <div className="text-white/50 text-[9px] font-mono">
+                    <div className="text-white/90 font-medium text-xs truncate">{player.name}</div>
+                    <div className="text-white/40 text-[9px] font-mono">
                       #{player.id + 1} · {selectedPlayer.team === 'home' ? '主队' : '客队'}
                     </div>
                   </div>
                 </div>
                 
-                {/* 数据指标 - 紧凑布局 */}
+                {/* 数据指标 - 统一颜色 */}
                 <div className="grid grid-cols-2 gap-2">
                   {/* 距离球门 */}
-                  <div className="bg-black/40 rounded p-1.5 border border-white/10">
-                    <div className="text-[8px] text-white/50 font-mono">距离球门</div>
+                  <div className="bg-white/5 rounded p-1.5 border border-white/10">
+                    <div className="text-[8px] text-white/40 font-mono uppercase tracking-wider">距离球门</div>
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-base font-bold text-cyan-400 font-mono">{distanceMeters}</span>
-                      <span className="text-[9px] text-cyan-400/70">m</span>
+                      <span className="text-base font-bold text-white/90 font-mono">{distanceMeters}</span>
+                      <span className="text-[9px] text-white/50">m</span>
                     </div>
                   </div>
                   
                   {/* 进球概率 */}
-                  <div className="bg-black/40 rounded p-1.5 border border-white/10">
-                    <div className="text-[8px] text-white/50 font-mono">进球概率</div>
+                  <div className="bg-white/5 rounded p-1.5 border border-white/10">
+                    <div className="text-[8px] text-white/40 font-mono uppercase tracking-wider">进球概率</div>
                     <div className="flex items-baseline gap-0.5">
-                      <span 
-                        className="text-base font-bold font-mono"
-                        style={{ color: threatColor }}
-                      >
-                        {xgPercent}
-                      </span>
-                      <span className="text-[9px]" style={{ color: `${threatColor}99` }}>%</span>
+                      <span className="text-base font-bold text-white/90 font-mono">{xgPercent}</span>
+                      <span className="text-[9px] text-white/50">%</span>
                     </div>
                   </div>
                 </div>
                 
                 {/* 区域状态 */}
                 <div className="mt-1.5 text-[8px]">
-                  <span 
-                    className="px-1.5 py-0.5 rounded font-mono"
-                    style={{
-                      background: inPenaltyArea ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
-                      border: inPenaltyArea ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255,255,255,0.1)',
-                      color: inPenaltyArea ? '#ef4444' : 'rgba(255,255,255,0.5)'
-                    }}
-                  >
-                    {inPenaltyArea ? '⚠ 禁区内' : '禁区外'}
+                  <span className="px-1.5 py-0.5 rounded font-mono bg-white/5 border border-white/10 text-white/50">
+                    {inPenaltyArea ? '禁区内' : '禁区外'}
                   </span>
                 </div>
               </div>
