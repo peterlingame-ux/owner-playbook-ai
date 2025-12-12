@@ -1377,21 +1377,9 @@ const MyPredictions = () => {
                     </div>
                     <span className="text-xs text-muted-foreground">{t('hunter_coin_balance')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-amber-500 font-mono tracking-tight mb-3">
+                  <p className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
                     {usdtBalance.toFixed(2)}
                   </p>
-                  <USDTWalletDialog 
-                    trigger={
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full h-8 text-xs font-medium border-amber-500/30 hover:bg-amber-500/10 text-amber-500"
-                      >
-                        <Plus className="h-3 w-3 mr-1" />
-                        {t('usdt_deposit')}
-                      </Button>
-                    }
-                  />
                 </div>
               </div>
             </div>
