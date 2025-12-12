@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt } from "lucide-react";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -69,6 +69,30 @@ interface CopyTradeRecord {
   odds: number;
   bet_amount: number;
   result: 'win' | 'loss' | 'pending';
+  pnl: number;
+  created_at: string;
+}
+
+interface DepositRecord {
+  id: string;
+  amount: number;
+  status: string;
+  network: string;
+  wallet_address: string;
+  created_at: string;
+  confirmed_at: string | null;
+}
+
+interface SpendingRecord {
+  id: string;
+  type: 'prediction' | 'copy_trade';
+  match_id: string;
+  match_home_team: string;
+  match_away_team: string;
+  bet_amount: number;
+  prediction: string;
+  prediction_type: string;
+  result: string | null;
   pnl: number;
   created_at: string;
 }
@@ -553,7 +577,9 @@ const MyPredictions = () => {
   const [selectedAvatar, setSelectedAvatar] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [copyTradeRecords, setCopyTradeRecords] = useState<CopyTradeRecord[]>([]);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [depositRecords, setDepositRecords] = useState<DepositRecord[]>([]);
+  const [spendingRecords, setSpendingRecords] = useState<SpendingRecord[]>([]);
+  const [activeTab, setActiveTab] = useState("history");
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
 
@@ -738,6 +764,93 @@ const MyPredictions = () => {
             created_at: new Date(Date.now() - 259200000).toISOString()
           }
         ]);
+
+        // 模拟充值记录
+        setDepositRecords([
+          {
+            id: "d1",
+            amount: 500,
+            status: 'confirmed',
+            network: 'TRC20',
+            wallet_address: 'TXxxxxxx...xxx1234',
+            created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+            confirmed_at: new Date(Date.now() - 86400000 * 3 + 300000).toISOString(),
+          },
+          {
+            id: "d2",
+            amount: 1000,
+            status: 'confirmed',
+            network: 'TRC20',
+            wallet_address: 'TXxxxxxx...xxx5678',
+            created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+            confirmed_at: new Date(Date.now() - 86400000 * 7 + 600000).toISOString(),
+          },
+          {
+            id: "d3",
+            amount: 200,
+            status: 'pending',
+            network: 'ERC20',
+            wallet_address: '0xYyyy...yyyy9999',
+            created_at: new Date(Date.now() - 3600000).toISOString(),
+            confirmed_at: null,
+          },
+        ]);
+
+        // 模拟消费记录
+        setSpendingRecords([
+          {
+            id: "s1",
+            type: 'prediction',
+            match_id: "m1",
+            match_home_team: "曼联",
+            match_away_team: "利物浦",
+            bet_amount: 500,
+            prediction: "主+0.5",
+            prediction_type: 'handicap',
+            result: 'win',
+            pnl: 450,
+            created_at: new Date().toISOString(),
+          },
+          {
+            id: "s2",
+            type: 'prediction',
+            match_id: "m2",
+            match_home_team: "巴塞罗那",
+            match_away_team: "皇家马德里",
+            bet_amount: 300,
+            prediction: "大 2.5",
+            prediction_type: 'over_under',
+            result: 'win',
+            pnl: 300,
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+          },
+          {
+            id: "s3",
+            type: 'prediction',
+            match_id: "m3",
+            match_home_team: "拜仁",
+            match_away_team: "多特蒙德",
+            bet_amount: 400,
+            prediction: "客-0.5",
+            prediction_type: 'handicap',
+            result: 'loss',
+            pnl: -400,
+            created_at: new Date(Date.now() - 172800000).toISOString(),
+          },
+          {
+            id: "s4",
+            type: 'copy_trade',
+            match_id: "m4",
+            match_home_team: "巴黎圣日耳曼",
+            match_away_team: "马赛",
+            bet_amount: 200,
+            prediction: "主+0.5",
+            prediction_type: 'handicap',
+            result: 'win',
+            pnl: 180,
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+          },
+        ]);
         
         setIsLoading(false);
         return;
@@ -830,6 +943,35 @@ const MyPredictions = () => {
           profit,
           recentPredictions: predictionsWithMatches
         });
+
+        // 获取充值记录
+        const { data: depositsData } = await supabase
+          .from('deposit_records')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (depositsData) {
+          setDepositRecords(depositsData as DepositRecord[]);
+        }
+
+        // 构建消费记录（从预测记录）
+        const spendingList: SpendingRecord[] = predictionsData?.map(pred => ({
+          id: pred.id,
+          type: 'prediction' as const,
+          match_id: pred.match_id,
+          match_home_team: matchesDataMap.get(pred.match_id)?.home_team_name || '主队',
+          match_away_team: matchesDataMap.get(pred.match_id)?.away_team_name || '客队',
+          bet_amount: pred.bet_amount,
+          prediction: pred.prediction,
+          prediction_type: pred.prediction_type,
+          result: pred.result,
+          pnl: pred.result === 'win' ? (pred.actual_payout || 0) - pred.bet_amount : pred.result === 'loss' ? -pred.bet_amount : 0,
+          created_at: pred.created_at,
+        })) || [];
+        
+        setSpendingRecords(spendingList);
       } catch (error) {
         console.error('Error fetching predictions:', error);
       } finally {
@@ -1168,20 +1310,247 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-9">
-          <TabsTrigger value="history" className="flex items-center gap-1.5 text-xs">
-            <History className="h-3.5 w-3.5" />
-            {t('history_records')}
+        <TabsList className="grid w-full grid-cols-4 h-9">
+          <TabsTrigger value="history" className="flex items-center gap-1 text-[10px] px-1">
+            <History className="h-3 w-3" />
+            {t('history_records') || '历史记录'}
           </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-1.5 text-xs">
-            <Users className="h-3.5 w-3.5" />
-            {t('copy_trade_tab')}
+          <TabsTrigger value="deposit" className="flex items-center gap-1 text-[10px] px-1">
+            <CreditCard className="h-3 w-3" />
+            {t('deposit_records') || '充值记录'}
+          </TabsTrigger>
+          <TabsTrigger value="spending" className="flex items-center gap-1 text-[10px] px-1">
+            <Receipt className="h-3 w-3" />
+            {t('spending_records') || '消费记录'}
+          </TabsTrigger>
+          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-[10px] px-1">
+            <Users className="h-3 w-3" />
+            {t('copy_trade_tab') || '跟单'}
           </TabsTrigger>
         </TabsList>
 
         {/* 完整历史记录标签页 */}
         <TabsContent value="history" className="mt-2">
           <PlayerHistoryTable predictions={stats?.recentPredictions || []} copyTradeRecords={copyTradeRecords} />
+        </TabsContent>
+
+        {/* 充值记录标签页 */}
+        <TabsContent value="deposit" className="mt-2">
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <CreditCard className="h-3.5 w-3.5 text-[#26A17B]" />
+                {t('deposit_records') || '充值记录'}
+              </h3>
+              <p className="text-[10px] text-muted-foreground">{t('deposit_records_desc') || '查看您的USDT充值历史'}</p>
+            </div>
+            
+            {depositRecords.length > 0 ? (
+              <>
+                {/* 充值统计 */}
+                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-foreground">{depositRecords.length}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('total_deposits') || '充值次数'}</p>
+                  </div>
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-[#26A17B]">
+                      ${depositRecords.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{t('confirmed_amount') || '已到账'}</p>
+                  </div>
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-amber-500">
+                      ${depositRecords.filter(d => d.status === 'pending').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{t('pending_amount') || '待确认'}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_column') || '金额'}</th>
+                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('network_column') || '网络'}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('address_column') || '地址'}</th>
+                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('status_column') || '状态'}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {depositRecords.map((record) => (
+                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                          <td className="py-1.5 px-2">
+                            <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
+                            {record.confirmed_at && (
+                              <p className="text-[9px] text-muted-foreground">
+                                {t('confirmed_at') || '确认'}: {format(new Date(record.confirmed_at), 'HH:mm')}
+                              </p>
+                            )}
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            <p className="text-sm font-bold font-mono text-[#26A17B]">+${record.amount}</p>
+                          </td>
+                          <td className="py-1.5 px-2 text-center">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
+                              {record.network}
+                            </span>
+                          </td>
+                          <td className="py-1.5 px-2">
+                            <p className="text-[10px] text-muted-foreground font-mono truncate max-w-[100px]">
+                              {record.wallet_address}
+                            </p>
+                          </td>
+                          <td className="py-1.5 px-2 text-center">
+                            {record.status === 'confirmed' ? (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success font-medium">
+                                {t('confirmed') || '已确认'}
+                              </span>
+                            ) : record.status === 'pending' ? (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 font-medium animate-pulse">
+                                {t('pending') || '待确认'}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/20 text-destructive font-medium">
+                                {t('failed') || '失败'}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              <div className="p-4 text-center">
+                <CreditCard className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground mb-1">{t('no_deposit_records') || '暂无充值记录'}</p>
+                <p className="text-[10px] text-muted-foreground">{t('deposit_hint') || '点击上方"充值"按钮添加USDT'}</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* 消费记录标签页 */}
+        <TabsContent value="spending" className="mt-2">
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <Receipt className="h-3.5 w-3.5 text-primary" />
+                {t('spending_records') || '消费记录'}
+              </h3>
+              <p className="text-[10px] text-muted-foreground">{t('spending_records_desc') || '查看您的猎人币消费明细'}</p>
+            </div>
+            
+            {spendingRecords.length > 0 ? (
+              <>
+                {/* 消费统计 */}
+                <div className="grid grid-cols-4 divide-x divide-border border-b border-border">
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-foreground">{spendingRecords.length}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('total_bets') || '投注次数'}</p>
+                  </div>
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-foreground">
+                      ${spendingRecords.reduce((sum, s) => sum + s.bet_amount, 0).toLocaleString()}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{t('total_spent') || '总消费'}</p>
+                  </div>
+                  <div className="p-2 text-center">
+                    <p className="text-sm font-bold font-mono text-success">
+                      +${spendingRecords.filter(s => s.pnl > 0).reduce((sum, s) => sum + s.pnl, 0).toLocaleString()}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{t('total_won') || '总盈利'}</p>
+                  </div>
+                  <div className="p-2 text-center">
+                    <p className={`text-sm font-bold font-mono ${
+                      spendingRecords.reduce((sum, s) => sum + s.pnl, 0) >= 0 ? 'text-success' : 'text-destructive'
+                    }`}>
+                      {spendingRecords.reduce((sum, s) => sum + s.pnl, 0) >= 0 ? '+' : ''}
+                      ${spendingRecords.reduce((sum, s) => sum + s.pnl, 0).toLocaleString()}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{t('net_pnl') || '净盈亏'}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('type_column') || '类型'}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column') || '比赛'}</th>
+                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column') || '预测'}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('bet_amount') || '投注'}</th>
+                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label') || '盈亏'}</th>
+                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column') || '结果'}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {spendingRecords.map((record) => (
+                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                          <td className="py-1.5 px-2">
+                            <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
+                          </td>
+                          <td className="py-1.5 px-2">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                              record.type === 'prediction' 
+                                ? 'bg-primary/20 text-primary' 
+                                : 'bg-amber-500/20 text-amber-500'
+                            }`}>
+                              {record.type === 'prediction' ? (t('prediction_label') || '预测') : (t('copy_trade_type') || '跟单')}
+                            </span>
+                          </td>
+                          <td className="py-1.5 px-2">
+                            <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
+                          </td>
+                          <td className="py-1.5 px-2">
+                            <div className="flex flex-col gap-0.5">
+                              <span className={`text-[9px] px-1 py-0.5 rounded inline-block w-fit ${
+                                record.prediction_type === 'handicap' 
+                                  ? 'bg-blue-500/20 text-blue-400' 
+                                  : 'bg-purple-500/20 text-purple-400'
+                              }`}>
+                                {record.prediction_type === 'handicap' ? (t('handicap') || '让球') : (t('over_under') || '大小')}
+                              </span>
+                              <span className="text-[10px] text-foreground">{record.prediction}</span>
+                            </div>
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            <p className="text-[10px] font-mono font-bold text-foreground">-${record.bet_amount}</p>
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            <p className={`text-[10px] font-mono font-bold ${
+                              record.pnl > 0 ? 'text-success' : record.pnl < 0 ? 'text-destructive' : 'text-muted-foreground'
+                            }`}>
+                              {record.pnl > 0 ? '+' : ''}{record.pnl !== 0 ? `$${record.pnl}` : '-'}
+                            </p>
+                          </td>
+                          <td className="py-1.5 px-2 text-center">
+                            {record.result === 'win' ? (
+                              <CheckCircle2 className="h-3 w-3 text-success inline-block" />
+                            ) : record.result === 'loss' ? (
+                              <XCircle className="h-3 w-3 text-destructive inline-block" />
+                            ) : (
+                              <span className="text-[10px] text-amber-500 font-medium">{t('pending') || '待定'}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              <div className="p-4 text-center">
+                <Receipt className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground mb-1">{t('no_spending_records') || '暂无消费记录'}</p>
+                <p className="text-[10px] text-muted-foreground">{t('start_betting_hint') || '开始预测比赛，消费记录将在此显示'}</p>
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         {/* 跟单记录标签页 */}
