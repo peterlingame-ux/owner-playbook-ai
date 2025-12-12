@@ -2439,34 +2439,6 @@ export default function LiveFootballAnimation({
                         }}
                       />
                       
-                      {/* 线条上的概率标签 */}
-                      <g>
-                        {/* 背景 */}
-                        <rect
-                          x={`${midX - 3}%`}
-                          y={`${midY - 2}%`}
-                          width="6%"
-                          height="4%"
-                          rx="4"
-                          fill="rgba(0,0,0,0.85)"
-                          stroke={successColor}
-                          strokeWidth="1"
-                          strokeOpacity={0.6}
-                        />
-                        {/* 概率文字 */}
-                        <text
-                          x={`${midX}%`}
-                          y={`${midY + 0.8}%`}
-                          textAnchor="middle"
-                          fill={successColor}
-                          fontSize="10"
-                          fontWeight="bold"
-                          fontFamily="monospace"
-                        >
-                          {pass.successRate}%
-                        </text>
-                      </g>
-                      
                       {/* 目标球员光环 - 只为前3个选项显示 */}
                       {index < 3 && (
                         <>
