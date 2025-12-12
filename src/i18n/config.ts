@@ -722,6 +722,20 @@ const resources = {
       "login_now_btn": "Login Now",
       "loading_data": "Loading...",
       
+      // VIP
+      "member": "Member",
+      "active": "Active",
+      "expires_at": "Valid until",
+      "vip_benefit": "Unlock all copy trade predictions for free",
+      "vip_active": "Enjoying",
+      "vip_activated": "VIP activated! You can now view all copy trade predictions for free",
+      "hunter_coin_unit": "Hunter Coins",
+      "month": "month",
+      "processing": "Processing...",
+      "purchase_failed": "Purchase failed, please try again",
+      "vip_insufficient_balance": "Insufficient Hunter Coins, please deposit first",
+      "vip_login_required": "Please login first",
+      
       // Platform disclaimer
       "platform_disclaimer": "Platform Disclaimer",
       "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term.",
@@ -1457,6 +1471,20 @@ const resources = {
       "login_now_btn": "立即登录",
       "loading_data": "加载中...",
       
+      // VIP
+      "member": "会员",
+      "active": "已开通",
+      "expires_at": "有效期至",
+      "vip_benefit": "开通后可免费查看所有跟单预测",
+      "vip_active": "尊享中",
+      "vip_activated": "VIP开通成功！现在可以免费查看所有跟单预测",
+      "hunter_coin_unit": "猎人币",
+      "month": "月",
+      "processing": "处理中...",
+      "purchase_failed": "开通失败，请重试",
+      "vip_insufficient_balance": "猎人币余额不足，请先充值",
+      "vip_login_required": "请先登录",
+      
       // Platform disclaimer
       "platform_disclaimer": "平台声明",
       "platform_disclaimer_content": "HUNSOCCER仅用于展示 AI 在足球赛事分析能力，不提供任何形式的投注或赌博行为。平台内共设定 6 个独立的AI分析模型，每个模型都拥有相同的虚拟资金（10,000），在真实赛程基础上给出各自的专业判断与策略，系统会记录其胜率用于比较不同AI的分析水平，最终目的是找出在长期维度下表现最优的分析路径。",
@@ -2187,6 +2215,20 @@ const resources = {
       "login_to_view_stats": "예측 통계를 보려면 로그인하세요",
       "login_now_btn": "지금 로그인",
       "loading_data": "로딩 중...",
+      
+      // VIP
+      "member": "멤버",
+      "active": "활성화됨",
+      "expires_at": "유효기간",
+      "vip_benefit": "모든 카피 트레이드 예측을 무료로 볼 수 있습니다",
+      "vip_active": "이용 중",
+      "vip_activated": "VIP 활성화! 이제 모든 카피 트레이드 예측을 무료로 볼 수 있습니다",
+      "hunter_coin_unit": "헌터 코인",
+      "month": "월",
+      "processing": "처리 중...",
+      "purchase_failed": "구매 실패, 다시 시도하세요",
+      "vip_insufficient_balance": "헌터 코인 잔액 부족, 먼저 입금하세요",
+      "vip_login_required": "먼저 로그인하세요",
       
       // Platform disclaimer
       "platform_disclaimer": "플랫폼 면책조항",
