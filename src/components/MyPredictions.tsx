@@ -582,6 +582,7 @@ const MyPredictions = () => {
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
   const [vipStatus, setVipStatus] = useState<VipStatus | null>(null);
   const [isPurchasingVip, setIsPurchasingVip] = useState(false);
+  const [showVipConfirmDialog, setShowVipConfirmDialog] = useState(false);
 
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
@@ -1004,8 +1005,8 @@ const MyPredictions = () => {
     fetchPredictions();
   }, [user]);
 
-  // 开通VIP
-  const handlePurchaseVip = async () => {
+  // 点击开通VIP按钮 - 显示确认弹窗
+  const handleVipButtonClick = () => {
     if (!user) {
       toast.error(t('vip_login_required') || '请先登录');
       navigate('/auth');
@@ -1017,6 +1018,14 @@ const MyPredictions = () => {
       return;
     }
 
+    setShowVipConfirmDialog(true);
+  };
+
+  // 确认开通VIP
+  const handleConfirmPurchaseVip = async () => {
+    if (!user) return;
+
+    setShowVipConfirmDialog(false);
     setIsPurchasingVip(true);
     try {
       const { data, error } = await supabase.rpc('purchase_vip', {
@@ -1301,7 +1310,7 @@ const MyPredictions = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={handlePurchaseVip}
+                        onClick={handleVipButtonClick}
                         disabled={isPurchasingVip}
                         className="h-6 px-2 text-[10px] border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300"
                       >
@@ -1678,6 +1687,43 @@ const MyPredictions = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* VIP开通确认弹窗 */}
+      <Dialog open={showVipConfirmDialog} onOpenChange={setShowVipConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-amber-400" />
+              开通VIP会员
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+              <p className="text-sm text-foreground font-medium mb-2">开通后，当月预测所有免费</p>
+              <p className="text-xs text-muted-foreground">VIP会员可免费查看所有跟单预测，有效期30天</p>
+            </div>
+            <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+              <span className="text-sm text-muted-foreground">扣除猎人币</span>
+              <span className="text-lg font-bold text-amber-500 font-mono">{VIP_COST}</span>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowVipConfirmDialog(false)}
+            >
+              取消
+            </Button>
+            <Button
+              className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={handleConfirmPurchaseVip}
+            >
+              确认开通
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
