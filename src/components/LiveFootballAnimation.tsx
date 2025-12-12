@@ -2408,8 +2408,8 @@ export default function LiveFootballAnimation({
                   </marker>
                 </defs>
                 
-                {/* 绘制所有传球路线 */}
-                {predictedPasses.map((pass, index) => {
+                {/* 绘制前5个传球路线 */}
+                {predictedPasses.slice(0, 5).map((pass, index) => {
                   const successColor = getSuccessColor(pass.successRate);
                   const arrowId = pass.successRate >= 80 ? 'passArrowGreen' : 
                                   pass.successRate >= 60 ? 'passArrowYellow' : 'passArrowRed';
@@ -2457,8 +2457,8 @@ export default function LiveFootballAnimation({
                 })}
               </svg>
               
-              {/* 每个目标球员的成功率标签 */}
-              {predictedPasses.map((pass, index) => {
+              {/* 前5个目标球员的成功率标签 */}
+              {predictedPasses.slice(0, 5).map((pass, index) => {
                 const successColor = getSuccessColor(pass.successRate);
                 const isTopChoice = index === 0;
                 
