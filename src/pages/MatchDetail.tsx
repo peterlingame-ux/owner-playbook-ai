@@ -1238,41 +1238,6 @@ export default function MatchDetail() {
             </button>
           </div>
 
-          {/* 阵型克制指示 */}
-          {match.homeTeam.lineup && match.awayTeam.lineup && (
-            <div className="flex justify-center mt-4">
-              {(() => {
-                const suppression = calculateFormationSuppression(
-                  match.homeTeam.lineup.formation, 
-                  match.awayTeam.lineup.formation
-                );
-                return (
-                  <div className="flex items-center gap-3 px-4 py-2 bg-black/30 backdrop-blur rounded-lg">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-white/80 text-xs">{match.homeTeam.lineup.formation}</span>
-                    </div>
-                    <div className={`px-2 py-0.5 rounded text-xs font-medium ${
-                      suppression.homeAdvantage > 5 
-                        ? 'bg-green-500/30 text-green-400' 
-                        : suppression.homeAdvantage < -5 
-                          ? 'bg-red-500/30 text-red-400' 
-                          : 'bg-yellow-500/30 text-yellow-400'
-                    }`}>
-                      {suppression.homeAdvantage > 5 
-                        ? `🔥 主队压制 +${suppression.homeAdvantage}%`
-                        : suppression.homeAdvantage < -5 
-                          ? `⚠️ 客队压制 +${Math.abs(suppression.homeAdvantage)}%`
-                          : '⚖️ 阵型均势'}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-white/80 text-xs">{match.awayTeam.lineup.formation}</span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          )}
-
           {/* 支持率 */}
           <div className="flex items-center justify-between mt-6 px-2">
             <div className="flex items-center gap-2">
