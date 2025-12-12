@@ -425,6 +425,261 @@ const generateDefaultMatch = (id: string): MatchDetailInfo => ({
 
 type TabType = 'live' | 'chat' | 'lineup' | 'odds' | 'expert' | 'hot';
 
+// 阵型克制关系定义
+interface FormationMatchup {
+  counters: string[]; // 克制的阵型
+  counteredBy: string[]; // 被克制的阵型
+  type: string; // 阵型类型
+  description: string; // 阵型描述
+}
+
+const FORMATION_DATA: Record<string, FormationMatchup> = {
+  '4-4-2': {
+    type: '均衡型阵型',
+    description: '攻守平衡，中场控制力强，边路进攻威胁大。',
+    counters: ['3-5-2', '3-4-3'],
+    counteredBy: ['4-3-3', '4-2-3-1'],
+  },
+  '4-3-3': {
+    type: '进攻型阵型',
+    description: '三前锋提供大进攻火力，边锋拉边创造空间。中场三角稳固，适合高压逼抢。',
+    counters: ['4-4-2', '5-3-2'],
+    counteredBy: ['4-5-1', '5-4-1'],
+  },
+  '3-5-2': {
+    type: '中场控制型',
+    description: '五中场提供强大控制，双前锋配合紧密。边翼卫上下覆盖，攻守兼顾。',
+    counters: ['4-2-3-1', '4-3-3'],
+    counteredBy: ['4-4-2', '4-3-1-2'],
+  },
+  '4-2-3-1': {
+    type: '稳健进攻型',
+    description: '双后腰保护防线，三名攻击型中场灵活穿插。单箭头居中牵制，攻守转换迅速。',
+    counters: ['4-4-2', '4-3-3'],
+    counteredBy: ['3-5-2', '3-4-3'],
+  },
+  '3-4-3': {
+    type: '极致进攻型',
+    description: '三前锋火力全开，边中卫上抢积极。适合主动进攻，打压对手防线。',
+    counters: ['4-5-1', '5-4-1'],
+    counteredBy: ['4-4-2', '4-2-3-1'],
+  },
+  '5-3-2': {
+    type: '防守反击型',
+    description: '五后卫稳固防守，中场紧凑。快速反击依靠双前锋冲击，边翼卫择机助攻。',
+    counters: ['4-4-2', '4-5-1'],
+    counteredBy: ['4-3-3', '3-4-3'],
+  },
+  '4-5-1': {
+    type: '防守型阵型',
+    description: '单前锋策应，五中场横向封锁。边路覆盖到位，适合低位防守反击。',
+    counters: ['4-3-3', '3-4-3'],
+    counteredBy: ['3-5-2', '4-2-3-1'],
+  },
+  '4-3-1-2': {
+    type: '菱形中场型',
+    description: '菱形中场控制力强，双前锋搭配灵活。前腰核心串联，进攻层次分明。',
+    counters: ['3-5-2', '5-3-2'],
+    counteredBy: ['4-4-2', '4-5-1'],
+  },
+  '5-4-1': {
+    type: '铁桶防守型',
+    description: '五后卫加四中场，防守密集。单前锋骚扰，适合弱队对抗强队。',
+    counters: ['4-3-3', '3-4-3'],
+    counteredBy: ['4-2-3-1', '3-5-2'],
+  },
+  '4-1-4-1': {
+    type: '单后腰型',
+    description: '单后腰保护，四中场灵活。边路进攻为主，中路渗透为辅。',
+    counters: ['4-4-2', '5-3-2'],
+    counteredBy: ['4-3-3', '3-4-3'],
+  },
+};
+
+// 计算阵型克制关系
+const calculateFormationSuppression = (homeFormation: string, awayFormation: string): {
+  homeAdvantage: number; // 正数表示主队压制，负数表示被压制
+  reason: string;
+  homeType: string;
+  awayType: string;
+  homeDescription: string;
+  awayDescription: string;
+} => {
+  const homeData = FORMATION_DATA[homeFormation] || FORMATION_DATA['4-4-2'];
+  const awayData = FORMATION_DATA[awayFormation] || FORMATION_DATA['4-4-2'];
+  
+  let advantage = 0;
+  let reason = '';
+  
+  // 检查主队是否克制客队
+  if (homeData.counters.includes(awayFormation)) {
+    advantage = 15 + Math.random() * 10; // 15-25% 优势
+    reason = `${homeFormation} 克制 ${awayFormation}，主队战术占优`;
+  } 
+  // 检查主队是否被克制
+  else if (homeData.counteredBy.includes(awayFormation)) {
+    advantage = -(15 + Math.random() * 10); // 15-25% 劣势
+    reason = `${awayFormation} 克制 ${homeFormation}，客队战术占优`;
+  }
+  // 相同阵型
+  else if (homeFormation === awayFormation) {
+    advantage = 0;
+    reason = '双方阵型相同，战术均势';
+  }
+  // 无明显克制关系
+  else {
+    advantage = (Math.random() - 0.5) * 10; // -5% 到 5%
+    reason = '双方阵型无明显克制关系';
+  }
+  
+  return {
+    homeAdvantage: Math.round(advantage),
+    reason,
+    homeType: homeData.type,
+    awayType: awayData.type,
+    homeDescription: homeData.description,
+    awayDescription: awayData.description,
+  };
+};
+
+// 阵型对比面板组件
+interface FormationTeamInfo {
+  name: string;
+  shortName: string;
+  flag: string;
+  formation: string;
+  totalValue: string;
+  averageAge: number;
+}
+
+const FormationComparisonPanel = ({ 
+  homeTeam, 
+  awayTeam 
+}: { 
+  homeTeam: FormationTeamInfo; 
+  awayTeam: FormationTeamInfo;
+}) => {
+  const suppression = calculateFormationSuppression(homeTeam.formation, awayTeam.formation);
+  
+  return (
+    <div className="space-y-4">
+      {/* 阵型克制结果 */}
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <span className="text-lg font-bold">阵型克制分析</span>
+        </div>
+        
+        <div className="flex items-center justify-center gap-4 py-3">
+          {/* 主队 */}
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{homeTeam.flag}</span>
+            <div className="text-right">
+              <div className="font-medium">{homeTeam.shortName}</div>
+              <div className="text-sm text-muted-foreground">{homeTeam.formation}</div>
+            </div>
+          </div>
+          
+          {/* VS 和克制指示 */}
+          <div className="flex flex-col items-center px-4">
+            <span className="text-xl font-bold text-muted-foreground">VS</span>
+            <div className={`mt-1 px-3 py-1 rounded-full text-xs font-medium ${
+              suppression.homeAdvantage > 5 
+                ? 'bg-green-500/20 text-green-500' 
+                : suppression.homeAdvantage < -5 
+                  ? 'bg-destructive/20 text-destructive' 
+                  : 'bg-yellow-500/20 text-yellow-500'
+            }`}>
+              {suppression.homeAdvantage > 5 
+                ? `🔥 主队压制 +${suppression.homeAdvantage}%`
+                : suppression.homeAdvantage < -5 
+                  ? `⚠️ 客队压制 +${Math.abs(suppression.homeAdvantage)}%`
+                  : '⚖️ 阵型均势'}
+            </div>
+          </div>
+          
+          {/* 客队 */}
+          <div className="flex items-center gap-2">
+            <div className="text-left">
+              <div className="font-medium">{awayTeam.shortName}</div>
+              <div className="text-sm text-muted-foreground">{awayTeam.formation}</div>
+            </div>
+            <span className="text-2xl">{awayTeam.flag}</span>
+          </div>
+        </div>
+        
+        <div className="text-center text-xs text-muted-foreground mt-2">
+          {suppression.reason}
+        </div>
+      </Card>
+      
+      {/* 双方阵型详细信息 */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* 主队阵型 */}
+        <Card className="p-3 bg-muted/20 border-border/50">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{homeTeam.flag}</span>
+              <span className="text-sm font-medium">{homeTeam.shortName}</span>
+            </div>
+            <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs rounded font-medium">
+              {homeTeam.formation}
+            </span>
+          </div>
+          <div className="mb-2">
+            <span className={`text-xs px-2 py-0.5 rounded ${
+              suppression.homeAdvantage > 5 
+                ? 'bg-green-500/20 text-green-500' 
+                : suppression.homeAdvantage < -5 
+                  ? 'bg-destructive/20 text-destructive' 
+                  : 'bg-yellow-500/20 text-yellow-500'
+            }`}>
+              {suppression.homeType}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {suppression.homeDescription}
+          </p>
+          <div className="mt-2 pt-2 border-t border-border/30 space-y-1 text-xs text-muted-foreground">
+            <div>首发身价 {homeTeam.totalValue}</div>
+            <div>平均 {homeTeam.averageAge}岁</div>
+          </div>
+        </Card>
+        
+        {/* 客队阵型 */}
+        <Card className="p-3 bg-muted/20 border-border/50">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{awayTeam.flag}</span>
+              <span className="text-sm font-medium">{awayTeam.shortName}</span>
+            </div>
+            <span className="px-2 py-0.5 bg-destructive/20 text-destructive text-xs rounded font-medium">
+              {awayTeam.formation}
+            </span>
+          </div>
+          <div className="mb-2">
+            <span className={`text-xs px-2 py-0.5 rounded ${
+              suppression.homeAdvantage < -5 
+                ? 'bg-green-500/20 text-green-500' 
+                : suppression.homeAdvantage > 5 
+                  ? 'bg-destructive/20 text-destructive' 
+                  : 'bg-yellow-500/20 text-yellow-500'
+            }`}>
+              {suppression.awayType}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {suppression.awayDescription}
+          </p>
+          <div className="mt-2 pt-2 border-t border-border/30 space-y-1 text-xs text-muted-foreground">
+            <div>首发身价 {awayTeam.totalValue}</div>
+            <div>平均 {awayTeam.averageAge}岁</div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 export default function MatchDetail() {
   const { matchId } = useParams();
   const navigate = useNavigate();
@@ -1342,35 +1597,25 @@ export default function MatchDetail() {
               )}
             </div>
 
-            {/* 阵型信息 */}
-            <div className="grid grid-cols-2 gap-4">
-              {match.homeTeam.lineup && (
-                <Card className="p-3 bg-muted/20 border-border/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">{match.homeTeam.flag}</span>
-                    <span className="text-sm font-medium">{match.homeTeam.shortName}</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    <div>阵型 {match.homeTeam.lineup.formation}</div>
-                    <div>首发身价 {match.homeTeam.lineup.totalValue}</div>
-                    <div>平均 {match.homeTeam.lineup.averageAge}岁</div>
-                  </div>
-                </Card>
-              )}
-              {match.awayTeam.lineup && (
-                <Card className="p-3 bg-muted/20 border-border/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">{match.awayTeam.flag}</span>
-                    <span className="text-sm font-medium">{match.awayTeam.shortName}</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    <div>阵型 {match.awayTeam.lineup.formation}</div>
-                    <div>首发身价 {match.awayTeam.lineup.totalValue}</div>
-                    <div>平均 {match.awayTeam.lineup.averageAge}岁</div>
-                  </div>
-                </Card>
-              )}
-            </div>
+            {/* 阵型对比分析 */}
+            <FormationComparisonPanel 
+              homeTeam={{
+                name: match.homeTeam.name,
+                shortName: match.homeTeam.shortName,
+                flag: match.homeTeam.flag,
+                formation: match.homeTeam.lineup?.formation || '4-4-2',
+                totalValue: match.homeTeam.lineup?.totalValue || '-',
+                averageAge: match.homeTeam.lineup?.averageAge || 0,
+              }}
+              awayTeam={{
+                name: match.awayTeam.name,
+                shortName: match.awayTeam.shortName,
+                flag: match.awayTeam.flag,
+                formation: match.awayTeam.lineup?.formation || '4-3-3',
+                totalValue: match.awayTeam.lineup?.totalValue || '-',
+                averageAge: match.awayTeam.lineup?.averageAge || 0,
+              }}
+            />
 
             {/* 替补席 */}
             <Card className="p-4 bg-muted/20 border-border/50">
