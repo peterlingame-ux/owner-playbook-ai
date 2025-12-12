@@ -1086,29 +1086,74 @@ export default function LiveFootballAnimation({
               </div>
             </div>
             
-            {/* 简化胜率对比条 */}
-            <div className="relative h-6 bg-slate-800/60 rounded overflow-hidden">
-              {/* 主队 */}
+            {/* 动态胜率对比条 */}
+            <div className="relative h-7 bg-slate-900/80 rounded-lg overflow-hidden border border-white/10">
+              {/* 动态光效背景 */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 via-transparent to-red-900/30" />
+              
+              {/* 主队 - 动态渐变 */}
               <div 
-                className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
-                style={{ width: `${advantage.homePercentage}%` }}
-              />
-              {/* 客队 */}
+                className="absolute left-0 top-0 h-full transition-all duration-700 ease-out"
+                style={{ 
+                  width: `${advantage.homePercentage}%`,
+                  background: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #93c5fd 100%)',
+                }}
+              >
+                {/* 流动光效 */}
+                <div 
+                  className="absolute inset-0 opacity-60"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                    animation: 'shimmerLeft 2s infinite',
+                  }}
+                />
+              </div>
+              
+              {/* 客队 - 动态渐变 */}
               <div 
-                className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-600 to-red-400 transition-all duration-500"
-                style={{ width: `${advantage.awayPercentage}%` }}
-              />
-              {/* 中心点 */}
+                className="absolute right-0 top-0 h-full transition-all duration-700 ease-out"
+                style={{ 
+                  width: `${advantage.awayPercentage}%`,
+                  background: 'linear-gradient(270deg, #991b1b 0%, #dc2626 50%, #fca5a5 100%)',
+                }}
+              >
+                {/* 流动光效 */}
+                <div 
+                  className="absolute inset-0 opacity-60"
+                  style={{
+                    background: 'linear-gradient(270deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                    animation: 'shimmerRight 2s infinite',
+                  }}
+                />
+              </div>
+              
+              {/* 中心分界指示器 */}
               <div 
-                className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white z-10"
+                className="absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-700"
                 style={{ left: `${advantage.homePercentage}%`, transform: 'translateX(-50%) translateY(-50%)' }}
-              />
+              >
+                <div className="w-4 h-4 rounded-full bg-white shadow-lg shadow-white/50 animate-pulse" />
+                <div className="absolute inset-0 w-4 h-4 rounded-full bg-white/50 animate-ping" />
+              </div>
+              
               {/* 数值显示 */}
-              <div className="absolute inset-0 flex items-center justify-between px-2 z-20">
-                <span className="text-[11px] font-bold text-white">{advantage.homePercentage}%</span>
-                <span className="text-[11px] font-bold text-white">{advantage.awayPercentage}%</span>
+              <div className="absolute inset-0 flex items-center justify-between px-3 z-20">
+                <span className="text-xs font-bold text-white drop-shadow-lg">{advantage.homePercentage}%</span>
+                <span className="text-xs font-bold text-white drop-shadow-lg">{advantage.awayPercentage}%</span>
               </div>
             </div>
+            
+            {/* 动态光效CSS */}
+            <style>{`
+              @keyframes shimmerLeft {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(200%); }
+              }
+              @keyframes shimmerRight {
+                0% { transform: translateX(100%); }
+                100% { transform: translateX(-200%); }
+              }
+            `}</style>
             
             {/* 阵型特点说明 */}
             <div className="mt-4 grid grid-cols-2 gap-4">
