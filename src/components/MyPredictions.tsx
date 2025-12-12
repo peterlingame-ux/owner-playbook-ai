@@ -1151,7 +1151,7 @@ const MyPredictions = () => {
         <div 
           className="absolute inset-0 bg-no-repeat bg-right bg-contain opacity-[0.15]"
           style={{ 
-            backgroundImage: `url('/src/assets/star-haaland.jpg')`,
+            backgroundImage: `url('/src/assets/star-neymar.jpg')`,
           }}
         />
         {/* 深色渐变遮罩确保内容可读 */}
