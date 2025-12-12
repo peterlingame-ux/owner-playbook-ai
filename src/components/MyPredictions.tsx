@@ -1370,7 +1370,19 @@ const MyPredictions = () => {
                 </div>
 
                 {/* 猎人币钱包 */}
-                <div className="p-4">
+                <div className="p-4 relative">
+                  <USDTWalletDialog 
+                    trigger={
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="absolute top-2 right-2 h-7 px-2 text-xs text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        充值
+                      </Button>
+                    }
+                  />
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center">
                       <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
