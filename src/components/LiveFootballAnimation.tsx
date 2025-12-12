@@ -1852,7 +1852,7 @@ export default function LiveFootballAnimation({
                   
                   
                   <div 
-                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
+                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all cursor-pointer ${
                       isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-2 ring-cyan-300'
                     }`}
                     style={{
@@ -1860,11 +1860,15 @@ export default function LiveFootballAnimation({
                       background: 'linear-gradient(135deg, #0066ff, #00aaff)',
                       boxShadow: '0 0 16px rgba(0, 150, 255, 0.8), 0 4px 12px rgba(0, 100, 255, 0.5)'
                     }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePlayerClick(player, 'home');
+                    }}
                   >
                     <img 
                       src={player.avatar} 
                       alt={player.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover pointer-events-none"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/avatars/avatar-1.png';
                       }}
@@ -1986,7 +1990,7 @@ export default function LiveFootballAnimation({
                   
                   
                   <div 
-                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all ${
+                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden transition-all cursor-pointer ${
                       isSelected ? 'ring-4 ring-yellow-400 scale-110' : isChaser ? 'ring-4 ring-emerald-400 scale-105' : 'ring-2 ring-red-400'
                     }`}
                     style={{
@@ -1994,11 +1998,15 @@ export default function LiveFootballAnimation({
                       background: 'linear-gradient(135deg, #dc2626, #ef4444)',
                       boxShadow: '0 0 16px rgba(239, 68, 68, 0.8), 0 4px 12px rgba(220, 38, 38, 0.5)'
                     }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePlayerClick(player, 'away');
+                    }}
                   >
                     <img 
                       src={player.avatar} 
                       alt={player.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover pointer-events-none"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/avatars/avatar-6.png';
                       }}
