@@ -1147,11 +1147,11 @@ const MyPredictions = () => {
 
       {/* AI风格主卡片 */}
       <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-card via-card to-card border border-border">
-        {/* 足球明星背景图 - 平铺整个区域 */}
+        {/* 足球明星背景图 - 不重复 */}
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
+          className="absolute inset-0 bg-no-repeat bg-right bg-contain opacity-[0.15]"
           style={{ 
-            backgroundImage: `url('/src/assets/star-messi.jpg')`,
+            backgroundImage: `url('/src/assets/star-ronaldo.jpg')`,
           }}
         />
         {/* 深色渐变遮罩确保内容可读 */}
