@@ -1313,7 +1313,7 @@ const MyPredictions = () => {
         <TabsList className="grid w-full grid-cols-4 h-9">
           <TabsTrigger value="history" className="flex items-center gap-1 text-[10px] px-1">
             <History className="h-3 w-3" />
-            {t('history_records') || '历史记录'}
+            {t('player_prediction_records') || '预测记录'}
           </TabsTrigger>
           <TabsTrigger value="deposit" className="flex items-center gap-1 text-[10px] px-1">
             <CreditCard className="h-3 w-3" />
@@ -1325,7 +1325,7 @@ const MyPredictions = () => {
           </TabsTrigger>
           <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-[10px] px-1">
             <Users className="h-3 w-3" />
-            {t('copy_trade_tab') || '跟单'}
+            {t('copy_trade_records') || '跟单记录'}
           </TabsTrigger>
         </TabsList>
 
