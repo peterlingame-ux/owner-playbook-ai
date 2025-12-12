@@ -1143,44 +1143,142 @@ export default function LiveFootballAnimation({
             </div>
             
             {/* 能量条 */}
-            <div className="relative h-7 bg-slate-800/60 rounded-lg overflow-hidden border border-white/10">
+            <div className="relative h-8 bg-slate-800/60 rounded-lg overflow-hidden border border-white/10">
               {/* 主队能量 (蓝色, 从左到右) */}
               <div 
-                className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 transition-all duration-700 ease-out"
+                className="absolute left-0 top-0 h-full transition-all duration-700 ease-out overflow-hidden"
                 style={{ width: `${advantage.homePercentage}%` }}
               >
-                {/* 流动光效 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+                {/* 基础渐变 */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400" />
+                
+                {/* 流动光带动画 */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'flowRight 2s linear infinite',
+                  }}
+                />
+                
+                {/* 能量粒子效果 */}
+                <div className="absolute inset-0 overflow-hidden">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-1 h-1 rounded-full bg-white/60"
+                      style={{
+                        left: `${-10 + i * 20}%`,
+                        top: `${20 + (i % 3) * 25}%`,
+                        animation: `particleFlowRight ${1.5 + i * 0.3}s linear infinite`,
+                        animationDelay: `${i * 0.2}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* 边缘发光 */}
+                <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-l from-cyan-300/80 to-transparent" />
               </div>
               
               {/* 客队能量 (红色, 从右到左) */}
               <div 
-                className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-600 via-red-500 to-orange-400 transition-all duration-700 ease-out"
+                className="absolute right-0 top-0 h-full transition-all duration-700 ease-out overflow-hidden"
                 style={{ width: `${advantage.awayPercentage}%` }}
               >
-                {/* 流动光效 */}
-                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent animate-pulse" />
+                {/* 基础渐变 */}
+                <div className="absolute inset-0 bg-gradient-to-l from-red-600 via-red-500 to-orange-400" />
+                
+                {/* 流动光带动画 */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(270deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'flowLeft 2s linear infinite',
+                  }}
+                />
+                
+                {/* 能量粒子效果 */}
+                <div className="absolute inset-0 overflow-hidden">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-1 h-1 rounded-full bg-white/60"
+                      style={{
+                        right: `${-10 + i * 20}%`,
+                        top: `${20 + (i % 3) * 25}%`,
+                        animation: `particleFlowLeft ${1.5 + i * 0.3}s linear infinite`,
+                        animationDelay: `${i * 0.2}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* 边缘发光 */}
+                <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-orange-300/80 to-transparent" />
               </div>
               
-              {/* 中间分割线 */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/30 transform -translate-x-1/2 z-20" />
+              {/* 中间碰撞效果 */}
+              <div 
+                className="absolute top-1/2 -translate-y-1/2 z-20"
+                style={{ left: `${advantage.homePercentage}%`, transform: 'translateX(-50%) translateY(-50%)' }}
+              >
+                <div className="w-3 h-3 rounded-full bg-white/80 animate-ping" style={{ animationDuration: '1.5s' }} />
+                <div className="absolute inset-0 w-3 h-3 rounded-full bg-white shadow-lg shadow-white/50" />
+              </div>
               
               {/* 胜率数值 */}
               <div className="absolute inset-0 flex items-center justify-between px-3 z-30">
-                <div className={`flex items-center gap-1 ${advantage.homePercentage > 50 ? 'animate-pulse' : ''}`}>
-                  <span className="text-xs font-bold text-white drop-shadow-lg">{advantage.homePercentage}%</span>
+                <div className="flex items-center gap-1.5">
+                  <span 
+                    className="text-sm font-bold text-white drop-shadow-lg"
+                    style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.8)' }}
+                  >
+                    {advantage.homePercentage}%
+                  </span>
                   {advantage.homePercentage > 55 && (
-                    <span className="text-[10px] text-cyan-300">🔥</span>
+                    <span className="text-sm animate-bounce">🔥</span>
                   )}
                 </div>
-                <div className={`flex items-center gap-1 ${advantage.awayPercentage > 50 ? 'animate-pulse' : ''}`}>
+                <div className="flex items-center gap-1.5">
                   {advantage.awayPercentage > 55 && (
-                    <span className="text-[10px] text-orange-300">🔥</span>
+                    <span className="text-sm animate-bounce">🔥</span>
                   )}
-                  <span className="text-xs font-bold text-white drop-shadow-lg">{advantage.awayPercentage}%</span>
+                  <span 
+                    className="text-sm font-bold text-white drop-shadow-lg"
+                    style={{ textShadow: '0 0 10px rgba(239, 68, 68, 0.8)' }}
+                  >
+                    {advantage.awayPercentage}%
+                  </span>
                 </div>
               </div>
             </div>
+            
+            {/* CSS 动画样式 */}
+            <style>{`
+              @keyframes flowRight {
+                0% { background-position: -100% 0; }
+                100% { background-position: 100% 0; }
+              }
+              @keyframes flowLeft {
+                0% { background-position: 100% 0; }
+                100% { background-position: -100% 0; }
+              }
+              @keyframes particleFlowRight {
+                0% { transform: translateX(0); opacity: 0; }
+                20% { opacity: 1; }
+                80% { opacity: 1; }
+                100% { transform: translateX(500%); opacity: 0; }
+              }
+              @keyframes particleFlowLeft {
+                0% { transform: translateX(0); opacity: 0; }
+                20% { opacity: 1; }
+                80% { opacity: 1; }
+                100% { transform: translateX(-500%); opacity: 0; }
+              }
+            `}</style>
             
             {/* 优势指示 */}
             <div className="flex justify-center mt-2">
