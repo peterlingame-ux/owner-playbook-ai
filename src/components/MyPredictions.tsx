@@ -1147,6 +1147,17 @@ const MyPredictions = () => {
 
       {/* AI风格主卡片 */}
       <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-card via-card to-card border border-border">
+        {/* 足球明星背景图 - 透明效果 */}
+        <div 
+          className="absolute inset-0 bg-right-bottom bg-no-repeat opacity-[0.06]"
+          style={{ 
+            backgroundImage: `url('/players/player-1.png')`,
+            backgroundSize: '45%',
+          }}
+        />
+        {/* 背景渐变遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-card via-card/95 to-transparent" />
+        
         {/* 背景装饰 - AI科技感 */}
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 right-0 w-40 h-40 bg-ai-cyan/20 rounded-full blur-3xl" />
