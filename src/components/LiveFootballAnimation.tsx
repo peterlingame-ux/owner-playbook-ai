@@ -1307,13 +1307,13 @@ export default function LiveFootballAnimation({
           <>
             {/* 阵型名称标签 - 主队左上角，客队右上角 */}
             <div 
-              className={`absolute top-2 z-30 px-3 py-1 rounded-full text-xs font-bold animate-fade-in ${
+              className={`absolute top-2 z-30 px-2 py-1.5 rounded-lg text-xs font-bold animate-fade-in flex items-center gap-2 ${
                 selectedPlayer.team === 'home' ? 'left-2' : 'right-2'
               }`}
               style={{
                 background: selectedPlayer.team === 'home' 
-                  ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.9), rgba(0, 150, 255, 0.9))' 
-                  : 'linear-gradient(135deg, rgba(220, 38, 38, 0.9), rgba(239, 68, 68, 0.9))',
+                  ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.95), rgba(0, 150, 255, 0.9))' 
+                  : 'linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(239, 68, 68, 0.9))',
                 color: 'white',
                 boxShadow: selectedPlayer.team === 'home'
                   ? '0 0 20px rgba(0, 150, 255, 0.6)'
@@ -1322,7 +1322,31 @@ export default function LiveFootballAnimation({
                 animation: 'formationFadeIn 0.4s ease-out forwards'
               }}
             >
-              {selectedPlayer.team === 'home' ? `主队阵型: ${currentHomeFormation}` : `客队阵型: ${currentAwayFormation}`}
+              {/* 队伍Logo */}
+              <div 
+                className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border-2"
+                style={{
+                  borderColor: selectedPlayer.team === 'home' ? 'rgba(0, 200, 255, 0.8)' : 'rgba(255, 150, 150, 0.8)',
+                  boxShadow: selectedPlayer.team === 'home' 
+                    ? '0 0 8px rgba(0, 200, 255, 0.6)' 
+                    : '0 0 8px rgba(255, 100, 100, 0.6)'
+                }}
+              >
+                <img 
+                  src={selectedPlayer.team === 'home' ? homeTeamLogo : awayTeamLogo} 
+                  alt={selectedPlayer.team === 'home' ? homeTeamName : awayTeamName}
+                  className="w-full h-full object-contain bg-white/90"
+                />
+              </div>
+              {/* 阵型文字 */}
+              <div className="flex flex-col">
+                <span className="text-[10px] text-white/70 leading-tight">
+                  {selectedPlayer.team === 'home' ? homeTeamName : awayTeamName}
+                </span>
+                <span className="text-sm font-bold leading-tight tracking-wide">
+                  {selectedPlayer.team === 'home' ? currentHomeFormation : currentAwayFormation}
+                </span>
+              </div>
             </div>
             
             <svg 
