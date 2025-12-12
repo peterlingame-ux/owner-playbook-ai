@@ -1446,8 +1446,7 @@ const MyPredictions = () => {
         className="w-full h-11 text-sm font-bold bg-gradient-to-r from-ai-cyan via-ai-blue to-ai-purple hover:opacity-90 text-background shadow-lg shadow-ai-cyan/20 transition-all"
         onClick={() => setIsBetDialogOpen(true)}
       >
-        <Target className="h-4 w-4 mr-2" />
-        {t('start_prediction')}
+        挑战AI，开始预测
       </Button>
 
       {/* 预测对话框 */}
