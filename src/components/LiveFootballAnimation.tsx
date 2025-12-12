@@ -2416,6 +2416,10 @@ export default function LiveFootballAnimation({
                   const opacity = 0.9 - index * 0.08; // 按排名递减透明度
                   const strokeWidth = index === 0 ? 3 : 2; // 最佳选项线条更粗
                   
+                  // 计算线条中点位置用于显示概率
+                  const midX = (player.x + pass.target.x) / 2;
+                  const midY = (player.y + pass.target.y) / 2;
+                  
                   return (
                     <g key={pass.target.id}>
                       {/* 传球路线 */}
@@ -2434,6 +2438,34 @@ export default function LiveFootballAnimation({
                           animation: index === 0 ? 'passLineDash 1s linear infinite' : undefined
                         }}
                       />
+                      
+                      {/* 线条上的概率标签 */}
+                      <g>
+                        {/* 背景 */}
+                        <rect
+                          x={`${midX - 3}%`}
+                          y={`${midY - 2}%`}
+                          width="6%"
+                          height="4%"
+                          rx="4"
+                          fill="rgba(0,0,0,0.85)"
+                          stroke={successColor}
+                          strokeWidth="1"
+                          strokeOpacity={0.6}
+                        />
+                        {/* 概率文字 */}
+                        <text
+                          x={`${midX}%`}
+                          y={`${midY + 0.8}%`}
+                          textAnchor="middle"
+                          fill={successColor}
+                          fontSize="10"
+                          fontWeight="bold"
+                          fontFamily="monospace"
+                        >
+                          {pass.successRate}%
+                        </text>
+                      </g>
                       
                       {/* 目标球员光环 - 只为前3个选项显示 */}
                       {index < 3 && (
