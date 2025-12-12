@@ -187,6 +187,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_vip: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           avatar_url: string
@@ -277,6 +307,10 @@ export type Database = {
           p_prediction_type: string
           p_user_id: string
         }
+        Returns: Json
+      }
+      purchase_vip: {
+        Args: { p_cost?: number; p_duration_days?: number; p_user_id: string }
         Returns: Json
       }
       request_withdrawal: {

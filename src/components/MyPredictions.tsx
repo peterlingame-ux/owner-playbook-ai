@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles } from "lucide-react";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -96,6 +96,13 @@ interface SpendingRecord {
   pnl: number;
   created_at: string;
 }
+
+interface VipStatus {
+  is_active: boolean;
+  expires_at: string | null;
+}
+
+const VIP_COST = 500; // 500猎人币开通VIP
 
 const AVATAR_OPTIONS = [
   '/avatars/avatar-1.png',
@@ -582,6 +589,8 @@ const MyPredictions = () => {
   const [activeTab, setActiveTab] = useState("history");
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
+  const [vipStatus, setVipStatus] = useState<VipStatus | null>(null);
+  const [isPurchasingVip, setIsPurchasingVip] = useState(false);
 
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
@@ -972,6 +981,25 @@ const MyPredictions = () => {
         })) || [];
         
         setSpendingRecords(spendingList);
+
+        // 获取VIP状态
+        const { data: vipData } = await supabase
+          .from('user_vip')
+          .select('is_active, expires_at')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (vipData && vipData.is_active && new Date(vipData.expires_at) > new Date()) {
+          setVipStatus({
+            is_active: true,
+            expires_at: vipData.expires_at
+          });
+        } else {
+          setVipStatus({
+            is_active: false,
+            expires_at: null
+          });
+        }
       } catch (error) {
         console.error('Error fetching predictions:', error);
       } finally {
@@ -981,6 +1009,51 @@ const MyPredictions = () => {
 
     fetchPredictions();
   }, [user]);
+
+  // 开通VIP
+  const handlePurchaseVip = async () => {
+    if (!user) {
+      toast.error(t('vip_login_required') || '请先登录');
+      navigate('/auth');
+      return;
+    }
+
+    if (usdtBalance < VIP_COST) {
+      toast.error(t('vip_insufficient_balance') || '猎人币余额不足，请先充值');
+      return;
+    }
+
+    setIsPurchasingVip(true);
+    try {
+      const { data, error } = await supabase.rpc('purchase_vip', {
+        p_user_id: user.id,
+        p_duration_days: 30,
+        p_cost: VIP_COST
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; expires_at?: string; new_balance?: number };
+      
+      if (result.success) {
+        setVipStatus({
+          is_active: true,
+          expires_at: result.expires_at || null
+        });
+        if (result.new_balance !== undefined) {
+          setUsdtBalance(result.new_balance);
+        }
+        toast.success(t('vip_activated') || 'VIP开通成功！现在可以免费查看所有跟单预测');
+      } else {
+        toast.error(result.error || t('purchase_failed') || '开通失败');
+      }
+    } catch (error) {
+      console.error('Error purchasing VIP:', error);
+      toast.error(t('purchase_failed') || '开通失败，请重试');
+    } finally {
+      setIsPurchasingVip(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     if (!user) {
@@ -1251,6 +1324,72 @@ const MyPredictions = () => {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* VIP会员卡片 */}
+      <div className={`border rounded-lg p-3 overflow-hidden relative ${
+        vipStatus?.is_active 
+          ? 'bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border-amber-500/30' 
+          : 'bg-gradient-to-r from-muted/50 to-muted/30 border-border'
+      }`}>
+        {vipStatus?.is_active && (
+          <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-full blur-2xl" />
+        )}
+        <div className="flex items-center justify-between relative">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
+              vipStatus?.is_active 
+                ? 'bg-gradient-to-br from-amber-400 to-amber-600' 
+                : 'bg-muted'
+            }`}>
+              <Crown className={`h-5 w-5 ${vipStatus?.is_active ? 'text-white' : 'text-muted-foreground'}`} />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h3 className={`text-sm font-bold ${vipStatus?.is_active ? 'text-amber-500' : 'text-foreground'}`}>
+                  VIP {t('member') || '会员'}
+                </h3>
+                {vipStatus?.is_active && (
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-amber-500 text-white rounded">
+                    {t('active') || '已开通'}
+                  </span>
+                )}
+              </div>
+              {vipStatus?.is_active && vipStatus.expires_at ? (
+                <p className="text-[10px] text-muted-foreground">
+                  {t('expires_at') || '有效期至'}: {format(new Date(vipStatus.expires_at), 'yyyy-MM-dd')}
+                </p>
+              ) : (
+                <p className="text-[10px] text-muted-foreground">
+                  {t('vip_benefit') || '开通后可免费查看所有跟单预测'}
+                </p>
+              )}
+            </div>
+          </div>
+          
+          {vipStatus?.is_active ? (
+            <div className="flex items-center gap-1 text-amber-500">
+              <Sparkles className="h-4 w-4" />
+              <span className="text-xs font-medium">{t('vip_active') || '尊享中'}</span>
+            </div>
+          ) : (
+            <Button
+              size="sm"
+              className="h-8 px-3 text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md"
+              onClick={handlePurchaseVip}
+              disabled={isPurchasingVip}
+            >
+              {isPurchasingVip ? (
+                <span className="animate-pulse">{t('processing') || '处理中...'}</span>
+              ) : (
+                <>
+                  <Crown className="h-3 w-3 mr-1" />
+                  {VIP_COST} {t('hunter_coin_unit') || '猎人币'} / {t('month') || '月'}
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
