@@ -1459,17 +1459,17 @@ const MyPredictions = () => {
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 h-9">
-          <TabsTrigger value="history" className="flex items-center gap-1 text-[10px] px-1">
-            <History className="h-3 w-3" />
-            {t('player_prediction_records') || '预测记录'}
+          <TabsTrigger value="spending" className="flex items-center gap-1 text-[10px] px-1">
+            <Receipt className="h-3 w-3" />
+            {t('spending_records') || '消费记录'}
           </TabsTrigger>
           <TabsTrigger value="deposit" className="flex items-center gap-1 text-[10px] px-1">
             <CreditCard className="h-3 w-3" />
             {t('deposit_records') || '充值记录'}
           </TabsTrigger>
-          <TabsTrigger value="spending" className="flex items-center gap-1 text-[10px] px-1">
-            <Receipt className="h-3 w-3" />
-            {t('spending_records') || '消费记录'}
+          <TabsTrigger value="history" className="flex items-center gap-1 text-[10px] px-1">
+            <History className="h-3 w-3" />
+            {t('player_prediction_records') || '预测记录'}
           </TabsTrigger>
           <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-[10px] px-1">
             <Users className="h-3 w-3" />
