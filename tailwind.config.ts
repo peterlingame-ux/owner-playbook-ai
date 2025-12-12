@@ -75,6 +75,12 @@ export default {
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         info: "hsl(var(--info))",
+        ai: {
+          cyan: "hsl(var(--ai-cyan))",
+          "cyan-glow": "hsl(var(--ai-cyan-glow))",
+          purple: "hsl(var(--ai-purple))",
+          blue: "hsl(var(--ai-blue))",
+        },
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
