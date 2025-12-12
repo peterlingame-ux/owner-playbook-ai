@@ -1306,48 +1306,93 @@ export default function LiveFootballAnimation({
         {selectedPlayer && (
           <>
             {/* 阵型名称标签 - 主队左上角，客队右上角 */}
-            <div 
-              className={`absolute top-2 z-30 px-2 py-1.5 rounded-lg text-xs font-bold animate-fade-in flex items-center gap-2 ${
-                selectedPlayer.team === 'home' ? 'left-2' : 'right-2'
-              }`}
-              style={{
-                background: selectedPlayer.team === 'home' 
-                  ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.95), rgba(0, 150, 255, 0.9))' 
-                  : 'linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(239, 68, 68, 0.9))',
-                color: 'white',
-                boxShadow: selectedPlayer.team === 'home'
-                  ? '0 0 20px rgba(0, 150, 255, 0.6)'
-                  : '0 0 20px rgba(239, 68, 68, 0.6)',
-                border: '1px solid rgba(255,255,255,0.3)',
-                animation: 'formationFadeIn 0.4s ease-out forwards'
-              }}
-            >
-              {/* 队伍Logo */}
-              <div 
-                className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border-2"
-                style={{
-                  borderColor: selectedPlayer.team === 'home' ? 'rgba(0, 200, 255, 0.8)' : 'rgba(255, 150, 150, 0.8)',
-                  boxShadow: selectedPlayer.team === 'home' 
-                    ? '0 0 8px rgba(0, 200, 255, 0.6)' 
-                    : '0 0 8px rgba(255, 100, 100, 0.6)'
-                }}
-              >
-                <img 
-                  src={selectedPlayer.team === 'home' ? homeTeamLogo : awayTeamLogo} 
-                  alt={selectedPlayer.team === 'home' ? homeTeamName : awayTeamName}
-                  className="w-full h-full object-contain bg-white/90"
-                />
-              </div>
-              {/* 阵型文字 */}
-              <div className="flex flex-col">
-                <span className="text-[10px] text-white/70 leading-tight">
-                  {selectedPlayer.team === 'home' ? homeTeamName : awayTeamName}
-                </span>
-                <span className="text-sm font-bold leading-tight tracking-wide">
-                  {selectedPlayer.team === 'home' ? currentHomeFormation : currentAwayFormation}
-                </span>
-              </div>
-            </div>
+            {(() => {
+              const formationAdvantage = calculateFormationAdvantage(currentHomeFormation, currentAwayFormation);
+              const isHome = selectedPlayer.team === 'home';
+              const currentTeamPercentage = isHome ? formationAdvantage.homePercentage : formationAdvantage.awayPercentage;
+              const opponentPercentage = isHome ? formationAdvantage.awayPercentage : formationAdvantage.homePercentage;
+              const hasAdvantage = currentTeamPercentage > opponentPercentage;
+              const isBalanced = Math.abs(currentTeamPercentage - opponentPercentage) <= 5;
+              
+              return (
+                <div 
+                  className={`absolute top-2 z-30 px-2 py-1.5 rounded-lg text-xs font-bold animate-fade-in flex items-center gap-2 ${
+                    isHome ? 'left-2' : 'right-2'
+                  }`}
+                  style={{
+                    background: isHome 
+                      ? 'linear-gradient(135deg, rgba(0, 100, 255, 0.95), rgba(0, 150, 255, 0.9))' 
+                      : 'linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(239, 68, 68, 0.9))',
+                    color: 'white',
+                    boxShadow: isHome
+                      ? '0 0 20px rgba(0, 150, 255, 0.6)'
+                      : '0 0 20px rgba(239, 68, 68, 0.6)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    animation: 'formationFadeIn 0.4s ease-out forwards'
+                  }}
+                >
+                  {/* 队伍Logo */}
+                  <div 
+                    className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border-2"
+                    style={{
+                      borderColor: isHome ? 'rgba(0, 200, 255, 0.8)' : 'rgba(255, 150, 150, 0.8)',
+                      boxShadow: isHome 
+                        ? '0 0 8px rgba(0, 200, 255, 0.6)' 
+                        : '0 0 8px rgba(255, 100, 100, 0.6)'
+                    }}
+                  >
+                    <img 
+                      src={isHome ? homeTeamLogo : awayTeamLogo} 
+                      alt={isHome ? homeTeamName : awayTeamName}
+                      className="w-full h-full object-contain bg-white/90"
+                    />
+                  </div>
+                  {/* 阵型文字 */}
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-white/70 leading-tight">
+                      {isHome ? homeTeamName : awayTeamName}
+                    </span>
+                    <span className="text-sm font-bold leading-tight tracking-wide">
+                      {isHome ? currentHomeFormation : currentAwayFormation}
+                    </span>
+                  </div>
+                  {/* 阵型压制指示器 */}
+                  <div 
+                    className="ml-1 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1"
+                    style={{
+                      background: isBalanced 
+                        ? 'rgba(255, 193, 7, 0.9)' 
+                        : hasAdvantage 
+                          ? 'rgba(34, 197, 94, 0.9)' 
+                          : 'rgba(239, 68, 68, 0.9)',
+                      color: 'white',
+                      boxShadow: isBalanced 
+                        ? '0 0 8px rgba(255, 193, 7, 0.5)' 
+                        : hasAdvantage 
+                          ? '0 0 8px rgba(34, 197, 94, 0.5)' 
+                          : '0 0 8px rgba(239, 68, 68, 0.5)'
+                    }}
+                  >
+                    {isBalanced ? (
+                      <>
+                        <span style={{ fontSize: '12px' }}>⚖️</span>
+                        <span>均势</span>
+                      </>
+                    ) : hasAdvantage ? (
+                      <>
+                        <span style={{ fontSize: '12px' }}>🔥</span>
+                        <span>压制 +{currentTeamPercentage - 50}%</span>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: '12px' }}>⚠️</span>
+                        <span>被压制 -{50 - currentTeamPercentage}%</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
             
             <svg 
               className="absolute inset-0 w-full h-full pointer-events-none" 
