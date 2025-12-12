@@ -1342,98 +1342,52 @@ export default function LiveFootballAnimation({
               }
             `}</style>
             
-            {/* 阵型克制分析面板 */}
-            <div className="mt-4 pt-4 border-t border-white/10">
-              {/* 阵型对决展示 */}
-              <div className="flex items-center justify-between mb-3">
-                {/* 主队阵型 */}
-                <div className="flex items-center gap-2">
-                  <img src={homeTeamLogo} alt="" className="w-6 h-6 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                  <div>
-                    <div className="text-[10px] text-white/50">主队阵型</div>
-                    <div className="text-sm font-bold text-cyan-400">{currentHomeFormation}</div>
-                  </div>
+            {/* 优势指示 */}
+            <div className="flex justify-center mt-2">
+              {advantage.homePercentage > 55 ? (
+                <div className="flex items-center gap-1 text-[10px] text-cyan-400 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                  <span>◀</span>
+                  <span>主队阵型胜率更高</span>
                 </div>
-                
-                {/* 克制关系指示器 */}
-                <div className="flex flex-col items-center">
-                  {advantage.homePercentage > 55 ? (
-                    <>
-                      <div className="flex items-center gap-1 text-cyan-400">
-                        <span className="text-lg">⚔️</span>
-                        <span className="text-xs font-bold">克制</span>
-                        <span className="animate-pulse">→</span>
-                      </div>
-                      <div className="text-[9px] text-cyan-400/70 mt-0.5">+{advantage.homePercentage - 50}% 胜率</div>
-                    </>
-                  ) : advantage.awayPercentage > 55 ? (
-                    <>
-                      <div className="flex items-center gap-1 text-orange-400">
-                        <span className="animate-pulse">←</span>
-                        <span className="text-xs font-bold">克制</span>
-                        <span className="text-lg">⚔️</span>
-                      </div>
-                      <div className="text-[9px] text-orange-400/70 mt-0.5">+{advantage.awayPercentage - 50}% 胜率</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-1 text-white/60">
-                        <span className="text-lg">⚖️</span>
-                        <span className="text-xs font-medium">均势</span>
-                      </div>
-                      <div className="text-[9px] text-white/40 mt-0.5">胜率接近</div>
-                    </>
-                  )}
+              ) : advantage.awayPercentage > 55 ? (
+                <div className="flex items-center gap-1 text-[10px] text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
+                  <span>客队阵型胜率更高</span>
+                  <span>▶</span>
                 </div>
-                
-                {/* 客队阵型 */}
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <div className="text-[10px] text-white/50">客队阵型</div>
-                    <div className="text-sm font-bold text-orange-400">{currentAwayFormation}</div>
-                  </div>
-                  <img src={awayTeamLogo} alt="" className="w-6 h-6 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+              ) : (
+                <div className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded-full">
+                  双方阵型胜率接近
                 </div>
-              </div>
-              
-              {/* 克制原因卡片 */}
-              <div className={`rounded-lg p-3 ${
-                advantage.homePercentage > 55 
-                  ? 'bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-transparent border border-cyan-500/20' 
-                  : advantage.awayPercentage > 55 
-                    ? 'bg-gradient-to-l from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20'
-                    : 'bg-white/5 border border-white/10'
-              }`}>
-                <div className="flex items-start gap-2.5">
-                  <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              )}
+            </div>
+            
+            {/* 克制原因说明 */}
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
                     advantage.homePercentage > 55 
-                      ? 'bg-cyan-500/20' 
+                      ? 'bg-cyan-500/20 text-cyan-400' 
                       : advantage.awayPercentage > 55 
-                        ? 'bg-orange-500/20'
-                        : 'bg-white/10'
+                        ? 'bg-orange-500/20 text-orange-400'
+                        : 'bg-white/10 text-white/60'
                   }`}>
-                    <span className="text-sm">💡</span>
+                    💡
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      {advantage.homePercentage > 55 ? (
-                        <span className="text-[11px] font-semibold text-cyan-400">
-                          {currentHomeFormation} 克制 {currentAwayFormation}
-                        </span>
-                      ) : advantage.awayPercentage > 55 ? (
-                        <span className="text-[11px] font-semibold text-orange-400">
-                          {currentAwayFormation} 克制 {currentHomeFormation}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] font-semibold text-white/70">
-                          {currentHomeFormation} vs {currentAwayFormation}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-white/60 leading-relaxed">
-                      {advantage.reason}
-                    </p>
+                </div>
+                <div className="flex-1">
+                  <div className="text-[10px] text-white/40 mb-1">
+                    {advantage.homePercentage > 55 ? (
+                      <span>为何 <span className="text-cyan-400 font-medium">{currentHomeFormation}</span> 克制 <span className="text-orange-400 font-medium">{currentAwayFormation}</span>？</span>
+                    ) : advantage.awayPercentage > 55 ? (
+                      <span>为何 <span className="text-orange-400 font-medium">{currentAwayFormation}</span> 克制 <span className="text-cyan-400 font-medium">{currentHomeFormation}</span>？</span>
+                    ) : (
+                      <span>阵型对比分析</span>
+                    )}
                   </div>
+                  <p className="text-[11px] text-white/70 leading-relaxed">
+                    {advantage.reason}
+                  </p>
                 </div>
               </div>
             </div>
