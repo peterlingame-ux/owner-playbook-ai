@@ -2595,6 +2595,224 @@ export default function LiveFootballAnimation({
         </div>
       </div>
 
+      {/* 阵型对比面板 - 始终显示 */}
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        {/* 主队阵型面板 */}
+        <div 
+          className="rounded-lg p-3"
+          style={{
+            background: 'linear-gradient(135deg, rgba(0, 50, 100, 0.9), rgba(0, 80, 150, 0.8))',
+            border: '1px solid rgba(0, 150, 255, 0.3)',
+            boxShadow: '0 0 20px rgba(0, 100, 200, 0.2)'
+          }}
+        >
+          {/* 队伍标题 */}
+          <div className="flex items-center gap-2 mb-2">
+            <div 
+              className="w-7 h-7 rounded-full overflow-hidden border-2"
+              style={{
+                borderColor: 'rgba(0, 200, 255, 0.6)',
+                boxShadow: '0 0 8px rgba(0, 200, 255, 0.4)'
+              }}
+            >
+              <img 
+                src={homeTeamLogo} 
+                alt={homeTeamName}
+                className="w-full h-full object-contain bg-white/90"
+              />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs text-white font-bold">{homeTeamName}</div>
+              <div className="text-[10px] text-white/60">主队阵型</div>
+            </div>
+            <div 
+              className="px-2 py-1 rounded font-bold text-sm"
+              style={{
+                background: 'rgba(0, 200, 255, 0.2)',
+                border: '1px solid rgba(0, 200, 255, 0.4)',
+                color: '#00d4ff'
+              }}
+            >
+              {currentHomeFormation}
+            </div>
+          </div>
+          
+          {/* 阵型选项按钮 */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {Object.keys(formations).map(formation => (
+              <button
+                key={`home-${formation}`}
+                onClick={() => setCurrentHomeFormation(formation)}
+                className="px-2 py-1 rounded text-xs font-medium transition-all"
+                style={{
+                  background: currentHomeFormation === formation 
+                    ? 'rgba(0, 200, 255, 0.3)' 
+                    : 'rgba(255, 255, 255, 0.1)',
+                  border: currentHomeFormation === formation 
+                    ? '1px solid rgba(0, 200, 255, 0.6)' 
+                    : '1px solid rgba(255, 255, 255, 0.2)',
+                  color: currentHomeFormation === formation ? '#00d4ff' : 'rgba(255,255,255,0.7)',
+                  boxShadow: currentHomeFormation === formation ? '0 0 8px rgba(0, 200, 255, 0.3)' : 'none'
+                }}
+              >
+                {formation}
+              </button>
+            ))}
+          </div>
+          
+          {/* 阵型说明 */}
+          <div 
+            className="p-2 rounded"
+            style={{
+              background: 'rgba(0, 0, 0, 0.3)',
+              border: '1px solid rgba(0, 200, 255, 0.2)'
+            }}
+          >
+            <div className="text-[10px] font-bold text-cyan-400 mb-0.5">
+              | {formationDescriptions[currentHomeFormation]?.title || '经典阵型'}
+            </div>
+            <div className="text-[9px] text-white/60 leading-relaxed">
+              {formationDescriptions[currentHomeFormation]?.description || '平衡的攻守配置'}
+            </div>
+          </div>
+        </div>
+        
+        {/* 客队阵型面板 */}
+        <div 
+          className="rounded-lg p-3"
+          style={{
+            background: 'linear-gradient(135deg, rgba(100, 30, 30, 0.9), rgba(150, 50, 50, 0.8))',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 0 20px rgba(200, 50, 50, 0.2)'
+          }}
+        >
+          {/* 队伍标题 */}
+          <div className="flex items-center gap-2 mb-2">
+            <div 
+              className="w-7 h-7 rounded-full overflow-hidden border-2"
+              style={{
+                borderColor: 'rgba(255, 150, 150, 0.6)',
+                boxShadow: '0 0 8px rgba(255, 100, 100, 0.4)'
+              }}
+            >
+              <img 
+                src={awayTeamLogo} 
+                alt={awayTeamName}
+                className="w-full h-full object-contain bg-white/90"
+              />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs text-white font-bold">{awayTeamName}</div>
+              <div className="text-[10px] text-white/60">客队阵型</div>
+            </div>
+            <div 
+              className="px-2 py-1 rounded font-bold text-sm"
+              style={{
+                background: 'rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(239, 68, 68, 0.4)',
+                color: '#ef4444'
+              }}
+            >
+              {currentAwayFormation}
+            </div>
+          </div>
+          
+          {/* 阵型选项按钮 */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {Object.keys(formations).map(formation => (
+              <button
+                key={`away-${formation}`}
+                onClick={() => setCurrentAwayFormation(formation)}
+                className="px-2 py-1 rounded text-xs font-medium transition-all"
+                style={{
+                  background: currentAwayFormation === formation 
+                    ? 'rgba(239, 68, 68, 0.3)' 
+                    : 'rgba(255, 255, 255, 0.1)',
+                  border: currentAwayFormation === formation 
+                    ? '1px solid rgba(239, 68, 68, 0.6)' 
+                    : '1px solid rgba(255, 255, 255, 0.2)',
+                  color: currentAwayFormation === formation ? '#ef4444' : 'rgba(255,255,255,0.7)',
+                  boxShadow: currentAwayFormation === formation ? '0 0 8px rgba(239, 68, 68, 0.3)' : 'none'
+                }}
+              >
+                {formation}
+              </button>
+            ))}
+          </div>
+          
+          {/* 阵型说明 */}
+          <div 
+            className="p-2 rounded"
+            style={{
+              background: 'rgba(0, 0, 0, 0.3)',
+              border: '1px solid rgba(239, 68, 68, 0.2)'
+            }}
+          >
+            <div className="text-[10px] font-bold text-red-400 mb-0.5">
+              | {formationDescriptions[currentAwayFormation]?.title || '经典阵型'}
+            </div>
+            <div className="text-[9px] text-white/60 leading-relaxed">
+              {formationDescriptions[currentAwayFormation]?.description || '平衡的攻守配置'}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* 阵型对比压制指示器 */}
+      {(() => {
+        const advantage = calculateFormationAdvantage(currentHomeFormation, currentAwayFormation);
+        const diff = advantage.homePercentage - advantage.awayPercentage;
+        const isBalanced = Math.abs(diff) <= 5;
+        
+        return (
+          <div 
+            className="mt-2 p-2 rounded-lg flex items-center justify-center gap-4"
+            style={{
+              background: 'linear-gradient(90deg, rgba(0, 100, 200, 0.2), rgba(50, 50, 80, 0.3), rgba(200, 50, 50, 0.2))',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* 主队势力 */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-blue-400 font-bold">{homeTeamName}</span>
+              <span className="text-sm font-mono text-cyan-400">{advantage.homePercentage}%</span>
+            </div>
+            
+            {/* 中央压制指示 */}
+            <div 
+              className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
+              style={{
+                background: isBalanced 
+                  ? 'rgba(255, 193, 7, 0.3)' 
+                  : diff > 0 
+                    ? 'rgba(0, 200, 255, 0.3)' 
+                    : 'rgba(239, 68, 68, 0.3)',
+                border: isBalanced 
+                  ? '1px solid rgba(255, 193, 7, 0.5)' 
+                  : diff > 0 
+                    ? '1px solid rgba(0, 200, 255, 0.5)' 
+                    : '1px solid rgba(239, 68, 68, 0.5)',
+                color: isBalanced ? '#ffc107' : diff > 0 ? '#00d4ff' : '#ef4444'
+              }}
+            >
+              {isBalanced ? (
+                <>⚖️ {advantage.advantageText}</>
+              ) : diff > 0 ? (
+                <>🔥 {advantage.advantageText} +{diff}%</>
+              ) : (
+                <>🔥 {advantage.advantageText} {diff}%</>
+              )}
+            </div>
+            
+            {/* 客队势力 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono text-red-400">{advantage.awayPercentage}%</span>
+              <span className="text-xs text-red-400 font-bold">{awayTeamName}</span>
+            </div>
+          </div>
+        );
+      })()}
+
     </div>
   );
 }
