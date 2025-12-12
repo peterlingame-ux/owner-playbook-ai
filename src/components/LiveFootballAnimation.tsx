@@ -1361,32 +1361,174 @@ export default function LiveFootballAnimation({
               )}
             </div>
             
-            {/* 克制原因说明 */}
+            {/* 阵型克制战术讲解 */}
             <div className="mt-3 pt-3 border-t border-white/10">
-              <div className="flex items-start gap-2">
-                <div className="flex-shrink-0 mt-0.5">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                    advantage.homePercentage > 55 
-                      ? 'bg-cyan-500/20 text-cyan-400' 
-                      : advantage.awayPercentage > 55 
-                        ? 'bg-orange-500/20 text-orange-400'
-                        : 'bg-white/10 text-white/60'
-                  }`}>
-                    💡
+              {/* 标题 */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  advantage.homePercentage > 55 
+                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                    : advantage.awayPercentage > 55 
+                      ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                      : 'bg-white/10 text-white/60 border border-white/20'
+                }`}>
+                  📚 战术讲解
+                </div>
+                <div className="text-[10px] text-white/40">
+                  {advantage.homePercentage > 55 || advantage.awayPercentage > 55 
+                    ? '了解阵型克制原理' 
+                    : '阵型均衡对比'
+                  }
+                </div>
+              </div>
+              
+              {/* 阵型对决标题 */}
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <div className="flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-3 py-1.5">
+                  <span className="text-cyan-400 font-bold text-sm">{currentHomeFormation}</span>
+                  <span className="text-[10px] text-cyan-400/60">主队</span>
+                </div>
+                <div className="text-white/40 text-sm font-bold">VS</div>
+                <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-1.5">
+                  <span className="text-orange-400 font-bold text-sm">{currentAwayFormation}</span>
+                  <span className="text-[10px] text-orange-400/60">客队</span>
+                </div>
+              </div>
+              
+              {/* 克制原因详解 */}
+              <div className={`rounded-lg p-3 ${
+                advantage.homePercentage > 55 
+                  ? 'bg-gradient-to-r from-cyan-500/10 to-transparent border-l-2 border-cyan-400' 
+                  : advantage.awayPercentage > 55 
+                    ? 'bg-gradient-to-l from-orange-500/10 to-transparent border-r-2 border-orange-400'
+                    : 'bg-white/5 border-l-2 border-white/30'
+              }`}>
+                {/* 结论标签 */}
+                <div className="flex items-center gap-2 mb-2">
+                  {advantage.homePercentage > 55 ? (
+                    <>
+                      <span className="text-cyan-400 text-lg">⚔️</span>
+                      <span className="text-cyan-400 font-bold text-xs">
+                        {currentHomeFormation} 阵型克制 {currentAwayFormation}
+                      </span>
+                    </>
+                  ) : advantage.awayPercentage > 55 ? (
+                    <>
+                      <span className="text-orange-400 text-lg">⚔️</span>
+                      <span className="text-orange-400 font-bold text-xs">
+                        {currentAwayFormation} 阵型克制 {currentHomeFormation}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-white/60 text-lg">⚖️</span>
+                      <span className="text-white/70 font-bold text-xs">阵型势均力敌</span>
+                    </>
+                  )}
+                </div>
+                
+                {/* 核心原因 */}
+                <div className="mb-3">
+                  <div className="text-[10px] text-white/40 mb-1 flex items-center gap-1">
+                    <span>💡</span>
+                    <span>核心原因</span>
+                  </div>
+                  <p className="text-white/80 text-xs leading-relaxed">
+                    {advantage.reason}
+                  </p>
+                </div>
+                
+                {/* 关键对位分析 */}
+                <div className="grid grid-cols-1 gap-2">
+                  {/* 进攻端分析 */}
+                  <div className="bg-black/20 rounded p-2">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-green-400 text-[10px]">⚽</span>
+                      <span className="text-[10px] text-green-400 font-medium">进攻端对位</span>
+                    </div>
+                    <p className="text-[10px] text-white/60 leading-relaxed">
+                      {advantage.homePercentage > 55 ? (
+                        currentHomeFormation.startsWith('4-3-3') || currentHomeFormation.startsWith('3-4-3')
+                          ? `${currentHomeFormation} 的三前锋配置在边路形成人数优势，能够持续施压 ${currentAwayFormation} 的后防线`
+                          : currentHomeFormation.includes('5-3-2') || currentHomeFormation.includes('4-4-2')
+                            ? `${currentHomeFormation} 的双前锋配合默契，能够有效牵制 ${currentAwayFormation} 的中后卫`
+                            : `${currentHomeFormation} 的进攻组织能够找到 ${currentAwayFormation} 防守体系中的空间`
+                      ) : advantage.awayPercentage > 55 ? (
+                        currentAwayFormation.startsWith('4-3-3') || currentAwayFormation.startsWith('3-4-3')
+                          ? `${currentAwayFormation} 的三前锋配置在边路形成人数优势，能够持续施压 ${currentHomeFormation} 的后防线`
+                          : currentAwayFormation.includes('5-3-2') || currentAwayFormation.includes('4-4-2')
+                            ? `${currentAwayFormation} 的双前锋配合默契，能够有效牵制 ${currentHomeFormation} 的中后卫`
+                            : `${currentAwayFormation} 的进攻组织能够找到 ${currentHomeFormation} 防守体系中的空间`
+                      ) : (
+                        '双方进攻端配置相当，进攻效率将取决于球员个人能力和临场发挥'
+                      )}
+                    </p>
+                  </div>
+                  
+                  {/* 防守端分析 */}
+                  <div className="bg-black/20 rounded p-2">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-blue-400 text-[10px]">🛡️</span>
+                      <span className="text-[10px] text-blue-400 font-medium">防守端对位</span>
+                    </div>
+                    <p className="text-[10px] text-white/60 leading-relaxed">
+                      {advantage.homePercentage > 55 ? (
+                        currentHomeFormation.includes('5') 
+                          ? `${currentHomeFormation} 的五后卫体系能够完全覆盖 ${currentAwayFormation} 的进攻路线`
+                          : currentHomeFormation.includes('4-2')
+                            ? `${currentHomeFormation} 的双后腰能够有效拦截 ${currentAwayFormation} 的进攻推进`
+                            : `${currentHomeFormation} 的防守站位能够限制 ${currentAwayFormation} 的进攻空间`
+                      ) : advantage.awayPercentage > 55 ? (
+                        currentAwayFormation.includes('5')
+                          ? `${currentAwayFormation} 的五后卫体系能够完全覆盖 ${currentHomeFormation} 的进攻路线`
+                          : currentAwayFormation.includes('4-2')
+                            ? `${currentAwayFormation} 的双后腰能够有效拦截 ${currentHomeFormation} 的进攻推进`
+                            : `${currentAwayFormation} 的防守站位能够限制 ${currentHomeFormation} 的进攻空间`
+                      ) : (
+                        '双方防守端均衡，防守效果将取决于战术执行力和球员专注度'
+                      )}
+                    </p>
+                  </div>
+                  
+                  {/* 中场争夺分析 */}
+                  <div className="bg-black/20 rounded p-2">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-yellow-400 text-[10px]">🎯</span>
+                      <span className="text-[10px] text-yellow-400 font-medium">中场争夺</span>
+                    </div>
+                    <p className="text-[10px] text-white/60 leading-relaxed">
+                      {(() => {
+                        const homeMiddle = parseInt(currentHomeFormation.split('-')[1]) || 0;
+                        const awayMiddle = parseInt(currentAwayFormation.split('-')[1]) || 0;
+                        const homeMidTotal = currentHomeFormation.split('-').slice(1, -1).reduce((a, b) => a + parseInt(b), 0);
+                        const awayMidTotal = currentAwayFormation.split('-').slice(1, -1).reduce((a, b) => a + parseInt(b), 0);
+                        
+                        if (homeMidTotal > awayMidTotal) {
+                          return `${currentHomeFormation} 在中场区域拥有 ${homeMidTotal} 人配置，对 ${currentAwayFormation} 的 ${awayMidTotal} 人形成人数优势，更容易控制比赛节奏`;
+                        } else if (awayMidTotal > homeMidTotal) {
+                          return `${currentAwayFormation} 在中场区域拥有 ${awayMidTotal} 人配置，对 ${currentHomeFormation} 的 ${homeMidTotal} 人形成人数优势，更容易控制比赛节奏`;
+                        } else {
+                          return `双方中场人数配置相当，控球权争夺将非常激烈，胜负取决于中场球员的跑动和传球质量`;
+                        }
+                      })()}
+                    </p>
                   </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-[10px] text-white/40 mb-1">
-                    {advantage.homePercentage > 55 ? (
-                      <span>为何 <span className="text-cyan-400 font-medium">{currentHomeFormation}</span> 克制 <span className="text-orange-400 font-medium">{currentAwayFormation}</span>？</span>
-                    ) : advantage.awayPercentage > 55 ? (
-                      <span>为何 <span className="text-orange-400 font-medium">{currentAwayFormation}</span> 克制 <span className="text-cyan-400 font-medium">{currentHomeFormation}</span>？</span>
-                    ) : (
-                      <span>阵型对比分析</span>
-                    )}
+                
+                {/* 战术建议 */}
+                <div className="mt-3 pt-2 border-t border-white/10">
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-purple-400 text-[10px]">📋</span>
+                    <span className="text-[10px] text-purple-400 font-medium">战术建议</span>
                   </div>
-                  <p className="text-[11px] text-white/70 leading-relaxed">
-                    {advantage.reason}
+                  <p className="text-[10px] text-white/50 leading-relaxed">
+                    {advantage.homePercentage > 55 ? (
+                      `建议 ${currentAwayFormation} 方可通过调整阵型为更保守配置（如 5-3-2 或 4-2-3-1）来应对劣势局面，或加强边路防守来限制对方进攻。`
+                    ) : advantage.awayPercentage > 55 ? (
+                      `建议 ${currentHomeFormation} 方可通过调整阵型为更进攻配置（如 4-3-3 或 3-4-3）来扭转劣势，或加强中场控制来限制对方反击。`
+                    ) : (
+                      '双方阵型势均力敌，比赛胜负将更多取决于球员个人能力、体能状态和临场战术调整。建议关注双方的换人调整和阵型变化。'
+                    )}
                   </p>
                 </div>
               </div>
