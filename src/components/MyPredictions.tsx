@@ -1186,14 +1186,34 @@ const MyPredictions = () => {
               {/* 左侧头像和信息 */}
               <div className="flex items-center gap-4">
                 <div className="relative group">
-                  {/* 头像光环 */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-ai-cyan/50 via-ai-purple/30 to-ai-cyan/50 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition-opacity" />
-                  <Avatar className="relative h-14 w-14 border-2 border-ai-cyan/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+                  {/* 头像光环 - VIP时为金色 */}
+                  <div className={`absolute -inset-1 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition-opacity ${
+                    vipStatus?.is_active 
+                      ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400' 
+                      : 'bg-gradient-to-r from-ai-cyan/50 via-ai-purple/30 to-ai-cyan/50'
+                  }`} />
+                  <Avatar className={`relative h-14 w-14 border-2 shadow-lg ${
+                    vipStatus?.is_active 
+                      ? 'border-amber-400/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]' 
+                      : 'border-ai-cyan/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]'
+                  }`}>
                     <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.display_name || '用户'} />
                     <AvatarFallback className="text-lg bg-gradient-to-br from-ai-cyan/20 to-ai-purple/20 text-foreground font-bold">
                       {userProfile?.display_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
+                  
+                  {/* VIP徽章 - 显示在头像上 */}
+                  {vipStatus?.is_active && (
+                    <div className="absolute -top-1 -right-1 z-10">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-amber-400 rounded-full blur-sm animate-pulse" />
+                        <div className="relative flex items-center justify-center h-5 w-5 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full border border-amber-300 shadow-lg">
+                          <Crown className="h-3 w-3 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* 编辑按钮 */}
                   <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -1285,14 +1305,21 @@ const MyPredictions = () => {
                 </div>
                 
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
                     </h2>
-                    {vipStatus?.is_active && (
-                      <span className="px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-amber-400 to-amber-600 text-white rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)]">
-                        VIP
-                      </span>
+                    {!vipStatus?.is_active && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handlePurchaseVip}
+                        disabled={isPurchasingVip}
+                        className="h-6 px-2 text-[10px] border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300"
+                      >
+                        <Crown className="h-3 w-3 mr-1" />
+                        {isPurchasingVip ? t('purchasing') : t('activate_vip')}
+                      </Button>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground font-mono tracking-wider">
