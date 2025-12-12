@@ -1458,20 +1458,16 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-9">
-          <TabsTrigger value="spending" className="flex items-center gap-1 text-[10px] px-1">
+        <TabsList className="grid w-full grid-cols-3 h-9">
+          <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-2">
             <Receipt className="h-3 w-3" />
             {t('spending_records') || '消费记录'}
           </TabsTrigger>
-          <TabsTrigger value="deposit" className="flex items-center gap-1 text-[10px] px-1">
-            <CreditCard className="h-3 w-3" />
-            {t('deposit_records') || '充值记录'}
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-1 text-[10px] px-1">
+          <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-2">
             <History className="h-3 w-3" />
             {t('player_prediction_records') || '预测记录'}
           </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-[10px] px-1">
+          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-xs px-2">
             <Users className="h-3 w-3" />
             {t('copy_trade_records') || '跟单记录'}
           </TabsTrigger>
@@ -1482,96 +1478,6 @@ const MyPredictions = () => {
           <PlayerHistoryTable predictions={stats?.recentPredictions || []} copyTradeRecords={copyTradeRecords} />
         </TabsContent>
 
-        {/* 充值记录标签页 */}
-        <TabsContent value="deposit" className="mt-2">
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
-                {t('deposit_records') || '充值记录'}
-              </h3>
-              <p className="text-[10px] text-muted-foreground">{t('deposit_records_desc') || '查看您的USDT充值历史'}</p>
-            </div>
-            
-            {depositRecords.length > 0 ? (
-              <>
-                {/* 充值统计 */}
-                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">{depositRecords.length}</p>
-                    <p className="text-[10px] text-muted-foreground">{t('total_deposits') || '充值次数'}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${depositRecords.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('confirmed_amount') || '已到账'}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${depositRecords.filter(d => d.status === 'pending').reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('pending_amount') || '待确认'}</p>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_column') || '金额'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('network_column') || '网络'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('address_column') || '地址'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('status_column') || '状态'}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {depositRecords.map((record) => (
-                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
-                            {record.confirmed_at && (
-                              <p className="text-[9px] text-muted-foreground">
-                                {t('confirmed_at') || '确认'}: {format(new Date(record.confirmed_at), 'HH:mm')}
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-sm font-bold font-mono text-foreground">+${record.amount}</p>
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
-                              {record.network}
-                            </span>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-muted-foreground font-mono truncate max-w-[100px]">
-                              {record.wallet_address}
-                            </p>
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground font-medium">
-                              {record.status === 'confirmed' ? (t('confirmed') || '已确认') : 
-                               record.status === 'pending' ? (t('pending') || '待确认') : 
-                               (t('failed') || '失败')}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            ) : (
-              <div className="p-4 text-center">
-                <CreditCard className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_deposit_records') || '暂无充值记录'}</p>
-                <p className="text-[10px] text-muted-foreground">{t('deposit_hint') || '点击上方"充值"按钮添加USDT'}</p>
-              </div>
-            )}
-          </div>
-        </TabsContent>
 
         {/* 消费记录标签页 - 仅显示跟单消费 */}
         <TabsContent value="spending" className="mt-2">
