@@ -1449,20 +1449,6 @@ export default function LiveFootballAnimation({
                   </p>
                 </div>
               </div>
-              
-              {/* 战术建议 */}
-              <div className="mt-3 pt-2 border-t border-white/10">
-                <div className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-mono">战术建议</div>
-                <p className="text-[11px] text-white/50 leading-relaxed">
-                  {advantage.homePercentage > 55 ? (
-                    `建议 ${currentAwayFormation} 方可通过调整阵型为更保守配置（如 5-3-2 或 4-2-3-1）来应对劣势局面，或加强边路防守来限制对方进攻。`
-                  ) : advantage.awayPercentage > 55 ? (
-                    `建议 ${currentHomeFormation} 方可通过调整阵型为更进攻配置（如 4-3-3 或 3-4-3）来扭转劣势，或加强中场控制来限制对方反击。`
-                  ) : (
-                    '双方阵型势均力敌，比赛胜负将更多取决于球员个人能力、体能状态和临场战术调整。建议关注双方的换人调整和阵型变化。'
-                  )}
-                </p>
-              </div>
             </div>
           </div>
         );
