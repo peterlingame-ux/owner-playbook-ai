@@ -1110,13 +1110,38 @@ export default function LiveFootballAnimation({
               </div>
             </div>
             
-            {/* 简化结论 */}
-            <div className="mt-3 text-center text-[11px] text-white/60">
+            {/* 阵型特点说明 */}
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {/* 主队阵型特点 */}
+              <div className="text-[10px] text-white/50 space-y-1">
+                <div className="text-white/70 font-medium mb-1">{currentHomeFormation} 特点</div>
+                {currentHomeFormation === '4-4-2' && <p>经典双前锋，边路进攻强，防守稳固</p>}
+                {currentHomeFormation === '4-3-3' && <p>三前锋压迫，边锋拉扯空间，进攻火力足</p>}
+                {currentHomeFormation === '3-5-2' && <p>中场人数优势，控球能力强，边翼卫插上</p>}
+                {currentHomeFormation === '3-4-3' && <p>极致进攻阵型，前场人数多，防守风险高</p>}
+                {currentHomeFormation === '5-3-2' && <p>五后卫稳固防守，双前锋反击锐利</p>}
+                {currentHomeFormation === '4-2-3-1' && <p>攻守平衡，双后腰保护，10号位创造力强</p>}
+              </div>
+              
+              {/* 客队阵型特点 */}
+              <div className="text-[10px] text-white/50 space-y-1 text-right">
+                <div className="text-white/70 font-medium mb-1">{currentAwayFormation} 特点</div>
+                {currentAwayFormation === '4-4-2' && <p>经典双前锋，边路进攻强，防守稳固</p>}
+                {currentAwayFormation === '4-3-3' && <p>三前锋压迫，边锋拉扯空间，进攻火力足</p>}
+                {currentAwayFormation === '3-5-2' && <p>中场人数优势，控球能力强，边翼卫插上</p>}
+                {currentAwayFormation === '3-4-3' && <p>极致进攻阵型，前场人数多，防守风险高</p>}
+                {currentAwayFormation === '5-3-2' && <p>五后卫稳固防守，双前锋反击锐利</p>}
+                {currentAwayFormation === '4-2-3-1' && <p>攻守平衡，双后腰保护，10号位创造力强</p>}
+              </div>
+            </div>
+            
+            {/* 克制结论 */}
+            <div className="mt-3 pt-3 border-t border-white/10 text-center text-[11px] text-white/60">
               {advantage.homePercentage > 55 
-                ? `${currentHomeFormation} 阵型克制 ${currentAwayFormation}`
+                ? `${currentHomeFormation} 阵型克制 ${currentAwayFormation}：${advantage.reason}`
                 : advantage.awayPercentage > 55 
-                  ? `${currentAwayFormation} 阵型克制 ${currentHomeFormation}`
-                  : '阵型势均力敌'
+                  ? `${currentAwayFormation} 阵型克制 ${currentHomeFormation}：${advantage.reason}`
+                  : '阵型势均力敌：双方战术相当，胜负取决于球员能力与临场发挥'
               }
             </div>
           </div>
