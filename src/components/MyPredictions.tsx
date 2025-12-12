@@ -1328,29 +1328,18 @@ const MyPredictions = () => {
                 </div>
               </div>
               
-              {/* 右上角猎人币余额 */}
+              {/* 右侧胜率显示 - AI风格 */}
               <div className="text-right">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] text-muted-foreground">{t('hunter_coin_balance')}</p>
-                    <p className="text-lg font-bold text-amber-500 font-mono">{usdtBalance.toFixed(2)}</p>
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
+                  <div className="relative px-3 py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
+                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight">
+                      <AnimatedWinRate value={stats?.winRate || 0} />
+                      <span className="text-lg">%</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t('win_rate_label')}</p>
                   </div>
                 </div>
-                <USDTWalletDialog 
-                  trigger={
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-2 h-7 px-3 text-xs font-medium border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/15 text-amber-500"
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      {t('usdt_deposit')}
-                    </Button>
-                  }
-                />
               </div>
             </div>
           </div>
@@ -1376,11 +1365,12 @@ const MyPredictions = () => {
             </div>
           </div>
 
-          {/* 虚拟钱包区域 */}
+          {/* 钱包区域 - 双列布局 */}
           <div className="px-4 pb-4">
-            <div className="relative p-3 rounded-lg bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 hover:border-primary/40 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-3">
+              {/* 虚拟钱包 */}
+              <div className="relative p-3 rounded-lg bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 hover:border-primary/40 transition-colors">
+                <div className="flex items-center gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Wallet className="h-4 w-4 text-primary" />
                   </div>
@@ -1389,6 +1379,31 @@ const MyPredictions = () => {
                 <p className="text-xl font-bold text-foreground font-mono">
                   ${stats?.balance?.toLocaleString() || '10,000'}
                 </p>
+              </div>
+
+              {/* 猎人币钱包 */}
+              <div className="relative p-3 rounded-lg bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 hover:border-amber-500/40 transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-medium text-muted-foreground">{t('hunter_coin_balance')}</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-2">
+                  <p className="text-xl font-bold text-amber-500 font-mono">{usdtBalance.toFixed(2)}</p>
+                </div>
+                <USDTWalletDialog 
+                  trigger={
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full h-7 text-xs font-medium border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/15 text-amber-500"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      {t('usdt_deposit')}
+                    </Button>
+                  }
+                />
               </div>
             </div>
           </div>
