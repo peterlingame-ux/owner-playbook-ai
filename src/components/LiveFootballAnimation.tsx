@@ -309,12 +309,13 @@ export default function LiveFootballAnimation({
   const [selectedPlayer, setSelectedPlayer] = useState<{ id: number; team: 'home' | 'away'; x: number; y: number } | null>(null);
   const [chasingPlayer, setChasingPlayer] = useState<{ id: number; team: 'home' | 'away' } | null>(null);
   const [energyFluctuation, setEnergyFluctuation] = useState(0); // 能量波动值
-  const [predictedPass, setPredictedPass] = useState<{
+  const [predictedPasses, setPredictedPasses] = useState<Array<{
     target: PlayerPosition;
     successRate: number;
     passType: 'short' | 'medium' | 'long';
-    animated: boolean;
-  } | null>(null); // AI预测传球
+    distance: number;
+    isForward: boolean;
+  }>>([]); // AI预测传球 - 多个目标
   const [showAIIndicators, setShowAIIndicators] = useState(true); // AI指标显示开关
   const [aiUpdateTick, setAiUpdateTick] = useState(0); // AI数据更新触发器
   const [matchTime, setMatchTime] = useState(0); // 比赛时间（秒）
@@ -434,8 +435,8 @@ export default function LiveFootballAnimation({
     return distance < 5;
   }, [ballPosition.x, ballPosition.y]);
 
-  // 计算AI预测传球目标
-  const calculatePredictedPass = useCallback((player: PlayerPosition, team: 'home' | 'away') => {
+  // 计算AI预测传球目标 - 返回所有队友的传球选项
+  const calculateAllPassOptions = useCallback((player: PlayerPosition, team: 'home' | 'away') => {
     const teammates = team === 'home' ? homePlayers : awayPlayers;
     const goalY = team === 'home' ? 0 : 100;
     
@@ -449,9 +450,6 @@ export default function LiveFootballAnimation({
         
         // 判断是否是前进方向传球
         const isForward = team === 'home' ? dy < 0 : dy > 0;
-        
-        // 距离球门的距离
-        const distToGoal = Math.abs(teammate.y - goalY);
         
         // 传球类型
         let passType: 'short' | 'medium' | 'long' = 'short';
@@ -482,47 +480,31 @@ export default function LiveFootballAnimation({
         
         successRate = Math.max(25, Math.min(98, successRate));
         
-        // 综合评分 (考虑威胁性和成功率)
-        const threatValue = 100 - distToGoal;
-        const score = successRate * 0.6 + threatValue * 0.4;
-        
         return {
           target: teammate,
           distance,
           passType,
           successRate: Math.round(successRate),
-          isForward,
-          score
+          isForward
         };
       })
-      // 按综合评分排序，选择最佳传球选项
-      .sort((a, b) => b.score - a.score);
+      // 按成功率排序
+      .sort((a, b) => b.successRate - a.successRate);
     
-    return passOptions[0] || null;
+    return passOptions;
   }, [homePlayers, awayPlayers]);
 
   // 点击球员显示进攻视角
   const handlePlayerClick = (player: PlayerPosition, team: 'home' | 'away') => {
     if (selectedPlayer?.id === player.id && selectedPlayer?.team === team) {
       setSelectedPlayer(null);
-      setPredictedPass(null);
+      setPredictedPasses([]);
     } else {
       setSelectedPlayer({ id: player.id, team, x: player.x, y: player.y });
       
-      // 如果球员持球，计算传球预测
-      if (isPlayerHoldingBall(player)) {
-        const prediction = calculatePredictedPass(player, team);
-        if (prediction) {
-          setPredictedPass({
-            target: prediction.target,
-            successRate: prediction.successRate,
-            passType: prediction.passType,
-            animated: true
-          });
-        }
-      } else {
-        setPredictedPass(null);
-      }
+      // 计算所有可能的传球选项
+      const allOptions = calculateAllPassOptions(player, team);
+      setPredictedPasses(allOptions);
     }
   };
 
@@ -2385,15 +2367,17 @@ export default function LiveFootballAnimation({
           );
         })()}
 
-        {/* AI传球预测路线 - 当持球球员被选中时显示 */}
-        {selectedPlayer && predictedPass && (() => {
+        {/* AI传球预测路线 - 显示所有可能的传球选项 */}
+        {selectedPlayer && predictedPasses.length > 0 && (() => {
           const players = selectedPlayer.team === 'home' ? homePlayers : awayPlayers;
           const player = players.find(p => p.id === selectedPlayer.id);
           if (!player) return null;
           
           const teamColor = selectedPlayer.team === 'home' ? '#00aaff' : '#ef4444';
-          const successColor = predictedPass.successRate >= 80 ? '#22c55e' : 
-                               predictedPass.successRate >= 60 ? '#f59e0b' : '#ef4444';
+          
+          // 为每个传球选项生成颜色
+          const getSuccessColor = (rate: number) => 
+            rate >= 80 ? '#22c55e' : rate >= 60 ? '#f59e0b' : '#ef4444';
           
           return (
             <>
@@ -2403,13 +2387,6 @@ export default function LiveFootballAnimation({
                 style={{ overflow: 'visible' }}
               >
                 <defs>
-                  {/* 渐变定义 */}
-                  <linearGradient id="passLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor={teamColor} stopOpacity="0.9" />
-                    <stop offset="50%" stopColor={successColor} stopOpacity="1" />
-                    <stop offset="100%" stopColor={successColor} stopOpacity="0.3" />
-                  </linearGradient>
-                  
                   {/* 发光滤镜 */}
                   <filter id="passGlow" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -2419,162 +2396,180 @@ export default function LiveFootballAnimation({
                     </feMerge>
                   </filter>
                   
-                  {/* 箭头标记 */}
-                  <marker 
-                    id="passArrow" 
-                    markerWidth="10" 
-                    markerHeight="10" 
-                    refX="8" 
-                    refY="3" 
-                    orient="auto" 
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,6 L9,3 z" fill={successColor} />
+                  {/* 为不同成功率创建箭头 */}
+                  <marker id="passArrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" fill="#22c55e" />
                   </marker>
-                  
-                  {/* 动画虚线 */}
-                  <pattern id="passPattern" patternUnits="userSpaceOnUse" width="20" height="1">
-                    <line x1="0" y1="0" x2="15" y2="0" stroke={successColor} strokeWidth="2">
-                      <animate 
-                        attributeName="x1" 
-                        from="0" 
-                        to="20" 
-                        dur="0.5s" 
-                        repeatCount="indefinite" 
-                      />
-                      <animate 
-                        attributeName="x2" 
-                        from="15" 
-                        to="35" 
-                        dur="0.5s" 
-                        repeatCount="indefinite" 
-                      />
-                    </line>
-                  </pattern>
+                  <marker id="passArrowYellow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" fill="#f59e0b" />
+                  </marker>
+                  <marker id="passArrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" fill="#ef4444" />
+                  </marker>
                 </defs>
                 
-                {/* 传球路线主线 - 带动画 */}
-                <line
-                  x1={`${player.x}%`}
-                  y1={`${player.y}%`}
-                  x2={`${predictedPass.target.x}%`}
-                  y2={`${predictedPass.target.y}%`}
-                  stroke="url(#passLineGradient)"
-                  strokeWidth="3"
-                  strokeDasharray="8,4"
-                  filter="url(#passGlow)"
-                  markerEnd="url(#passArrow)"
-                  style={{
-                    animation: 'passLineDash 1s linear infinite'
-                  }}
-                />
-                
-                {/* 移动的光点 */}
-                <circle r="4" fill={successColor} filter="url(#passGlow)">
-                  <animateMotion
-                    dur="1.2s"
-                    repeatCount="indefinite"
-                    path={`M${player.x * 3.5},${player.y * 2} L${predictedPass.target.x * 3.5},${predictedPass.target.y * 2}`}
-                  />
-                </circle>
-                
-                {/* 目标球员光环 */}
-                <circle
-                  cx={`${predictedPass.target.x}%`}
-                  cy={`${predictedPass.target.y}%`}
-                  r="15"
-                  fill="none"
-                  stroke={successColor}
-                  strokeWidth="2"
-                  strokeOpacity="0.6"
-                  style={{
-                    animation: 'targetPulse 1.5s ease-in-out infinite'
-                  }}
-                />
-                <circle
-                  cx={`${predictedPass.target.x}%`}
-                  cy={`${predictedPass.target.y}%`}
-                  r="10"
-                  fill="none"
-                  stroke={successColor}
-                  strokeWidth="1.5"
-                  strokeOpacity="0.8"
-                />
+                {/* 绘制所有传球路线 */}
+                {predictedPasses.map((pass, index) => {
+                  const successColor = getSuccessColor(pass.successRate);
+                  const arrowId = pass.successRate >= 80 ? 'passArrowGreen' : 
+                                  pass.successRate >= 60 ? 'passArrowYellow' : 'passArrowRed';
+                  const opacity = 0.9 - index * 0.08; // 按排名递减透明度
+                  const strokeWidth = index === 0 ? 3 : 2; // 最佳选项线条更粗
+                  
+                  return (
+                    <g key={pass.target.id}>
+                      {/* 传球路线 */}
+                      <line
+                        x1={`${player.x}%`}
+                        y1={`${player.y}%`}
+                        x2={`${pass.target.x}%`}
+                        y2={`${pass.target.y}%`}
+                        stroke={successColor}
+                        strokeWidth={strokeWidth}
+                        strokeOpacity={opacity}
+                        strokeDasharray={index === 0 ? "8,4" : "4,4"}
+                        filter="url(#passGlow)"
+                        markerEnd={`url(#${arrowId})`}
+                        style={{
+                          animation: index === 0 ? 'passLineDash 1s linear infinite' : undefined
+                        }}
+                      />
+                      
+                      {/* 目标球员光环 - 只为前3个选项显示 */}
+                      {index < 3 && (
+                        <>
+                          <circle
+                            cx={`${pass.target.x}%`}
+                            cy={`${pass.target.y}%`}
+                            r="12"
+                            fill="none"
+                            stroke={successColor}
+                            strokeWidth="1.5"
+                            strokeOpacity={0.5}
+                            style={{
+                              animation: index === 0 ? 'targetPulse 1.5s ease-in-out infinite' : undefined
+                            }}
+                          />
+                        </>
+                      )}
+                    </g>
+                  );
+                })}
               </svg>
               
-              {/* 传球预测信息面板 */}
+              {/* 每个目标球员的成功率标签 */}
+              {predictedPasses.map((pass, index) => {
+                const successColor = getSuccessColor(pass.successRate);
+                const isTopChoice = index === 0;
+                
+                return (
+                  <div 
+                    key={pass.target.id}
+                    className="absolute z-30 pointer-events-none"
+                    style={{
+                      left: `${pass.target.x}%`,
+                      top: `${pass.target.y}%`,
+                      transform: 'translate(-50%, -130%)',
+                      animation: `formationFadeIn ${0.2 + index * 0.05}s ease-out forwards`
+                    }}
+                  >
+                    <div 
+                      className="px-2 py-1 rounded-lg backdrop-blur-md text-center"
+                      style={{
+                        background: isTopChoice 
+                          ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 40, 20, 0.95))'
+                          : 'linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(30, 30, 40, 0.9))',
+                        border: `1px solid ${successColor}${isTopChoice ? '80' : '50'}`,
+                        boxShadow: isTopChoice ? `0 0 12px ${successColor}50` : `0 0 8px ${successColor}30`
+                      }}
+                    >
+                      {/* 最佳选项标识 */}
+                      {isTopChoice && (
+                        <div className="flex items-center justify-center gap-1 mb-0.5">
+                          <div 
+                            className="w-1.5 h-1.5 rounded-full animate-pulse"
+                            style={{ background: '#00ffc8', boxShadow: '0 0 6px #00ffc8' }}
+                          />
+                          <span className="text-[7px] font-mono text-cyan-400 tracking-wider">最佳</span>
+                        </div>
+                      )}
+                      
+                      {/* 球员名和成功率 */}
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-white/80 font-medium truncate max-w-[50px]">
+                          {pass.target.name}
+                        </span>
+                        <div className="flex items-baseline">
+                          <span 
+                            className="text-sm font-bold font-mono"
+                            style={{ color: successColor }}
+                          >
+                            {pass.successRate}
+                          </span>
+                          <span className="text-[8px]" style={{ color: `${successColor}99` }}>%</span>
+                        </div>
+                      </div>
+                      
+                      {/* 传球类型 */}
+                      <div 
+                        className="mt-0.5 text-[7px] font-mono px-1.5 py-0.5 rounded"
+                        style={{
+                          background: `${successColor}15`,
+                          color: `${successColor}cc`
+                        }}
+                      >
+                        {pass.passType === 'short' ? '短传' : 
+                         pass.passType === 'medium' ? '中传' : '长传'}
+                        {pass.isForward && ' ↑'}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* AI传球分析总览面板 */}
               <div 
-                className="absolute z-30 pointer-events-none"
+                className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30"
                 style={{
-                  left: `${(player.x + predictedPass.target.x) / 2}%`,
-                  top: `${(player.y + predictedPass.target.y) / 2}%`,
-                  transform: 'translate(-50%, -50%)',
                   animation: 'formationFadeIn 0.3s ease-out forwards'
                 }}
               >
                 <div 
-                  className="px-3 py-2 rounded-lg backdrop-blur-md text-center"
+                  className="px-4 py-2 rounded-lg backdrop-blur-md"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.95))',
-                    border: `1px solid ${successColor}50`,
-                    boxShadow: `0 0 15px ${successColor}40`
+                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 30, 50, 0.95))',
+                    border: `1px solid ${teamColor}40`,
+                    boxShadow: `0 0 20px ${teamColor}30`
                   }}
                 >
-                  {/* AI标识 */}
-                  <div className="flex items-center justify-center gap-1 mb-1">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <div 
-                      className="w-1.5 h-1.5 rounded-full animate-pulse"
-                      style={{ background: '#00ffc8', boxShadow: '0 0 6px #00ffc8' }}
+                      className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: '#00ffc8', boxShadow: '0 0 8px #00ffc8' }}
                     />
-                    <span className="text-[8px] font-mono text-cyan-400 tracking-wider">AI 传球预测</span>
-                  </div>
-                  
-                  {/* 成功率 */}
-                  <div className="flex items-baseline justify-center gap-0.5">
-                    <span 
-                      className="text-2xl font-bold font-mono"
-                      style={{ color: successColor }}
-                    >
-                      {predictedPass.successRate}
+                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">
+                      AI 传球分析 · {player.name}
                     </span>
-                    <span className="text-[10px]" style={{ color: `${successColor}99` }}>%</span>
                   </div>
                   
-                  {/* 传球类型 */}
-                  <div 
-                    className="mt-1 text-[9px] font-mono px-2 py-0.5 rounded"
-                    style={{
-                      background: `${successColor}20`,
-                      color: successColor
-                    }}
-                  >
-                    {predictedPass.passType === 'short' ? '短传' : 
-                     predictedPass.passType === 'medium' ? '中距传球' : '长传'}
+                  <div className="flex items-center gap-4 text-[9px]">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full" style={{ background: '#22c55e' }} />
+                      <span className="text-white/70">高成功率 ≥80%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full" style={{ background: '#f59e0b' }} />
+                      <span className="text-white/70">中等 60-79%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full" style={{ background: '#ef4444' }} />
+                      <span className="text-white/70">风险 &lt;60%</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-              
-              {/* 目标球员名字标签 */}
-              <div 
-                className="absolute z-30 pointer-events-none"
-                style={{
-                  left: `${predictedPass.target.x}%`,
-                  top: `${predictedPass.target.y - 8}%`,
-                  transform: 'translate(-50%, -100%)',
-                  animation: 'formationFadeIn 0.4s ease-out forwards'
-                }}
-              >
-                <div 
-                  className="px-2 py-1 rounded backdrop-blur-md"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 30, 20, 0.9))',
-                    border: `1px solid ${successColor}60`,
-                    boxShadow: `0 0 10px ${successColor}30`
-                  }}
-                >
-                  <div className="text-[10px] font-bold text-white flex items-center gap-1">
-                    <span style={{ color: successColor }}>→</span>
-                    {predictedPass.target.name}
+                  
+                  <div className="mt-1.5 pt-1.5 border-t border-white/10 text-[9px] text-white/50">
+                    可传球选项: {predictedPasses.length} 人 · 
+                    最佳: {predictedPasses[0]?.target.name} ({predictedPasses[0]?.successRate}%)
                   </div>
                 </div>
               </div>
