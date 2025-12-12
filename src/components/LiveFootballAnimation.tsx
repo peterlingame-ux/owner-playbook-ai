@@ -225,6 +225,65 @@ const formationMatchups: Record<string, Record<string, number>> = {
   '4-2-3-1': { '4-4-2': 0, '4-3-3': 5, '3-5-2': 5, '3-4-3': 10, '5-3-2': -5 },
 };
 
+// 阵型克制原因说明
+const formationMatchupReasons: Record<string, Record<string, string>> = {
+  '4-4-2': {
+    '4-3-3': '双前锋牵制对方三后卫，中场人数优势压制边锋回撤',
+    '3-4-3': '中场四人链有效封锁对方三中场，防线稳固抵御三前锋',
+    '3-5-2': '五中场人数优势压制双前锋，边翼卫形成宽度优势',
+    '5-3-2': '五后卫人数优势完全压制双前锋，防守反击难以突破',
+    '4-2-3-1': '阵型结构相似，胜负取决于球员个人能力',
+  },
+  '4-3-3': {
+    '4-4-2': '三前锋宽度拉扯四后卫，边锋速度优势难以被限制',
+    '3-4-3': '同为进攻阵型，三前锋对决胜负取决于个人能力',
+    '3-5-2': '边锋高速突破克制边翼卫，三后卫难以兼顾边路',
+    '5-3-2': '三前锋持续施压五后卫，边锋拉边创造空间',
+    '4-2-3-1': '双后腰有效限制边锋内切，中路防守稳固',
+  },
+  '3-5-2': {
+    '4-4-2': '五中场人数优势控制中场，双前锋策应灵活',
+    '4-3-3': '三后卫难以防守三前锋宽度进攻，边路容易被突破',
+    '3-4-3': '五中场对四中场人数优势，控球能力更强',
+    '5-3-2': '阵型相同，胜负取决于球员质量和战术执行',
+    '4-2-3-1': '对方双后腰限制中场传球，进攻创造力受限',
+  },
+  '3-4-3': {
+    '4-4-2': '三前锋被四后卫有效盯防，中场人数劣势明显',
+    '4-3-3': '同为三前锋对决，比拼个人突破能力',
+    '3-5-2': '四中场被五中场压制，控球权争夺处于劣势',
+    '5-3-2': '三前锋强攻三后卫，进攻端人数优势明显',
+    '4-2-3-1': '双后腰有效限制三前锋活动空间，防守反击受限',
+  },
+  '5-3-2': {
+    '4-4-2': '五后卫稳固防守双前锋，反击时边翼卫插上',
+    '4-3-3': '三后卫难以应对三前锋高压逼抢，边路防守吃紧',
+    '3-5-2': '阵型相同，比拼球员能力和教练战术调整',
+    '3-4-3': '三后卫无法防守三前锋宽度拉扯，容易被打穿',
+    '4-2-3-1': '五后卫克制单前锋，对方进攻缺乏支点',
+  },
+  '4-2-3-1': {
+    '4-4-2': '阵型结构相近，双后腰提供额外保护',
+    '4-3-3': '三前腰创造力克制三中场，单前锋策应灵活',
+    '3-5-2': '三前腰活动空间大，克制五中场密集防守',
+    '3-4-3': '双后腰有效拦截对方进攻，三前腰反击犀利',
+    '5-3-2': '单前锋被五后卫限制，进攻缺乏支点',
+  },
+};
+
+// 获取克制原因
+const getMatchupReason = (homeFormation: string, awayFormation: string, homeAdvantage: boolean): string => {
+  if (homeFormation === awayFormation) {
+    return '双方阵型相同，胜负将取决于球员个人能力和战术执行力';
+  }
+  
+  if (homeAdvantage) {
+    return formationMatchupReasons[homeFormation]?.[awayFormation] || '阵型特点互有优劣，需要看场上发挥';
+  } else {
+    return formationMatchupReasons[awayFormation]?.[homeFormation] || '阵型特点互有优劣，需要看场上发挥';
+  }
+};
+
 // 计算阵型对抗优势
 const calculateFormationAdvantage = (homeFormation: string, awayFormation: string) => {
   const homeStats = formationStats[homeFormation] || formationStats['4-4-2'];
@@ -264,7 +323,10 @@ const calculateFormationAdvantage = (homeFormation: string, awayFormation: strin
     advantageText = '客队略优';
   }
   
-  return { homePercentage, awayPercentage, advantageText, homeScore, awayScore };
+  // 克制原因
+  const reason = getMatchupReason(homeFormation, awayFormation, homePercentage > awayPercentage);
+  
+  return { homePercentage, awayPercentage, advantageText, homeScore, awayScore, reason };
 };
 
 // 镜像阵型（给客队使用）
@@ -1297,6 +1359,37 @@ export default function LiveFootballAnimation({
                   双方阵型胜率接近
                 </div>
               )}
+            </div>
+            
+            {/* 克制原因说明 */}
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                    advantage.homePercentage > 55 
+                      ? 'bg-cyan-500/20 text-cyan-400' 
+                      : advantage.awayPercentage > 55 
+                        ? 'bg-orange-500/20 text-orange-400'
+                        : 'bg-white/10 text-white/60'
+                  }`}>
+                    💡
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="text-[10px] text-white/40 mb-1">
+                    {advantage.homePercentage > 55 ? (
+                      <span>为何 <span className="text-cyan-400 font-medium">{currentHomeFormation}</span> 克制 <span className="text-orange-400 font-medium">{currentAwayFormation}</span>？</span>
+                    ) : advantage.awayPercentage > 55 ? (
+                      <span>为何 <span className="text-orange-400 font-medium">{currentAwayFormation}</span> 克制 <span className="text-cyan-400 font-medium">{currentHomeFormation}</span>？</span>
+                    ) : (
+                      <span>阵型对比分析</span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-white/70 leading-relaxed">
+                    {advantage.reason}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         );
