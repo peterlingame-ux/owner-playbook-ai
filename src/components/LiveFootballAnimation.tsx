@@ -351,15 +351,15 @@ export default function LiveFootballAnimation({
           
           // 根据位置不同消耗速度不同
           // 门将消耗最慢，中场消耗最快，前锋次之
-          let consumeRate = 0.5; // 基础消耗率 - 提高以便更明显看到变化
+          let consumeRate = 0.08; // 基础消耗率
           if (playerId === 0) {
-            consumeRate = 0.15; // 门将
+            consumeRate = 0.02; // 门将
           } else if (playerId >= 1 && playerId <= 4) {
-            consumeRate = 0.4; // 后卫
+            consumeRate = 0.06; // 后卫
           } else if (playerId >= 5 && playerId <= 8) {
-            consumeRate = 0.7; // 中场消耗最大
+            consumeRate = 0.12; // 中场消耗最大
           } else {
-            consumeRate = 0.55; // 前锋
+            consumeRate = 0.09; // 前锋
           }
           
           // 追球球员额外消耗
@@ -1882,29 +1882,16 @@ export default function LiveFootballAnimation({
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
-                  {/* 能量条 */}
+                  {/* 体能条 (AI指标开启时显示小条，选中时显示详细) */}
                   {showAIIndicators && !isSelected && (() => {
                     const stamina = playerStamina[`home-${player.id}`] || 100;
+                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
                     return (
-                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-2 rounded-sm bg-black/70 overflow-hidden border border-cyan-500/40"
-                        style={{ boxShadow: '0 0 6px rgba(0, 200, 255, 0.3)' }}
-                      >
+                      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
                         <div 
-                          className="h-full transition-all duration-300"
-                          style={{ 
-                            width: `${stamina}%`, 
-                            background: `linear-gradient(90deg, 
-                              ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'} 0%, 
-                              ${stamina >= 70 ? '#00aaff' : stamina >= 40 ? '#f59e0b' : '#dc2626'} 100%)`,
-                            boxShadow: `0 0 4px ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'}`
-                          }}
+                          className="h-full rounded-full"
+                          style={{ width: `${stamina}%`, background: staminaColor }}
                         />
-                        {/* 能量格子线 */}
-                        <div className="absolute inset-0 flex">
-                          {[...Array(4)].map((_, i) => (
-                            <div key={i} className="flex-1 border-r border-black/40 last:border-r-0" />
-                          ))}
-                        </div>
                       </div>
                     );
                   })()}
@@ -1941,27 +1928,25 @@ export default function LiveFootballAnimation({
                           <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-transparent to-transparent animate-pulse" />
                         </div>
                         
-                        {/* 能量条显示 */}
+                        {/* 数值显示 */}
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
-                          <div className="flex-1 h-2 bg-slate-900/80 rounded-sm overflow-hidden border border-cyan-500/30"
-                            style={{ boxShadow: '0 0 6px rgba(0, 200, 255, 0.2)' }}
-                          >
+                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
                             <div 
-                              className="h-full transition-all duration-300"
+                              className="h-full rounded-full"
                               style={{ 
                                 width: `${stamina}%`,
-                                background: `linear-gradient(90deg, ${staminaColor} 0%, ${staminaColor}88 100%)`,
-                                boxShadow: `0 0 8px ${staminaColor}`
+                                background: staminaColor,
+                                boxShadow: `0 0 6px ${staminaColor}`
                               }}
                             />
-                            {/* 能量格子线 */}
-                            <div className="absolute inset-0 flex">
-                              {[...Array(5)].map((_, i) => (
-                                <div key={i} className="flex-1 border-r border-black/50 last:border-r-0" />
-                              ))}
-                            </div>
                           </div>
+                          <span 
+                            className="text-[10px] font-mono font-bold tabular-nums"
+                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
+                          >
+                            {Math.round(stamina)}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -2035,29 +2020,16 @@ export default function LiveFootballAnimation({
                     <span className="text-[8px] md:text-[10px] font-bold text-white">{player.id + 1}</span>
                   </div>
                   
-                  {/* 能量条 */}
+                  {/* 体能条 (AI指标开启时显示小条，选中时显示详细) */}
                   {showAIIndicators && !isSelected && (() => {
                     const stamina = playerStamina[`away-${player.id}`] || 100;
+                    const staminaColor = stamina >= 70 ? '#22c55e' : stamina >= 40 ? '#eab308' : '#ef4444';
                     return (
-                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-2 rounded-sm bg-black/70 overflow-hidden border border-red-500/40"
-                        style={{ boxShadow: '0 0 6px rgba(239, 68, 68, 0.3)' }}
-                      >
+                      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-black/60 overflow-hidden border border-white/20">
                         <div 
-                          className="h-full transition-all duration-300"
-                          style={{ 
-                            width: `${stamina}%`, 
-                            background: `linear-gradient(90deg, 
-                              ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'} 0%, 
-                              ${stamina >= 70 ? '#00aaff' : stamina >= 40 ? '#f59e0b' : '#dc2626'} 100%)`,
-                            boxShadow: `0 0 4px ${stamina >= 70 ? '#00ffc8' : stamina >= 40 ? '#fbbf24' : '#ef4444'}`
-                          }}
+                          className="h-full rounded-full"
+                          style={{ width: `${stamina}%`, background: staminaColor }}
                         />
-                        {/* 能量格子线 */}
-                        <div className="absolute inset-0 flex">
-                          {[...Array(4)].map((_, i) => (
-                            <div key={i} className="flex-1 border-r border-black/40 last:border-r-0" />
-                          ))}
-                        </div>
                       </div>
                     );
                   })()}
@@ -2094,27 +2066,25 @@ export default function LiveFootballAnimation({
                           <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-transparent to-transparent animate-pulse" />
                         </div>
                         
-                        {/* 能量条显示 */}
+                        {/* 数值显示 */}
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] text-cyan-400/80 font-mono tracking-wider">STA</span>
-                          <div className="flex-1 h-2 bg-slate-900/80 rounded-sm overflow-hidden border border-red-500/30"
-                            style={{ boxShadow: '0 0 6px rgba(239, 68, 68, 0.2)' }}
-                          >
+                          <div className="flex-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
                             <div 
-                              className="h-full transition-all duration-300"
+                              className="h-full rounded-full"
                               style={{ 
                                 width: `${stamina}%`,
-                                background: `linear-gradient(90deg, ${staminaColor} 0%, ${staminaColor}88 100%)`,
-                                boxShadow: `0 0 8px ${staminaColor}`
+                                background: staminaColor,
+                                boxShadow: `0 0 6px ${staminaColor}`
                               }}
                             />
-                            {/* 能量格子线 */}
-                            <div className="absolute inset-0 flex">
-                              {[...Array(5)].map((_, i) => (
-                                <div key={i} className="flex-1 border-r border-black/50 last:border-r-0" />
-                              ))}
-                            </div>
                           </div>
+                          <span 
+                            className="text-[10px] font-mono font-bold tabular-nums"
+                            style={{ color: staminaColor, textShadow: `0 0 8px ${staminaColor}` }}
+                          >
+                            {Math.round(stamina)}
+                          </span>
                         </div>
                       </div>
                     </div>
