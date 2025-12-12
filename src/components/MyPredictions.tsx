@@ -1133,7 +1133,7 @@ const MyPredictions = () => {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* 返回按钮 */}
       <Button 
         variant="ghost" 
@@ -1145,296 +1145,329 @@ const MyPredictions = () => {
         <span>{t('back')}</span>
       </Button>
 
-      {/* 用户资料卡片 - 紧凑设计 */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        {/* 顶部用户信息 */}
-        <div className="p-3 border-b border-border">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Avatar className="h-10 w-10 border-2 border-primary/30">
-                  <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.display_name || '用户'} />
-                  <AvatarFallback className="text-sm bg-primary/10 text-primary font-bold">
-                    {userProfile?.display_name?.charAt(0) || '?'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                {/* 编辑按钮 */}
-                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      size="icon" 
-                      variant="outline"
-                      className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-background shadow-sm"
-                    >
-                      <Edit2 className="h-2.5 w-2.5" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>{t('edit_profile')}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="display-name" className="text-sm">{t('nickname')}</Label>
-                        <Input
-                          id="display-name"
-                          value={editDisplayName}
-                          onChange={(e) => setEditDisplayName(e.target.value)}
-                          placeholder={t('enter_nickname')}
-                          maxLength={20}
-                          className="h-9"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label className="text-sm">{t('select_avatar')}</Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {AVATAR_OPTIONS.map((avatar) => (
-                            <button
-                              key={avatar}
-                              onClick={() => setSelectedAvatar(avatar)}
-                              className={`
-                                relative rounded-lg p-1.5 transition-all
-                                ${selectedAvatar === avatar 
-                                  ? 'ring-2 ring-primary bg-primary/10' 
-                                  : 'hover:bg-muted border border-border'
-                                }
-                              `}
-                            >
-                              <Avatar className="h-12 w-12 mx-auto">
-                                <AvatarImage src={avatar} />
-                              </Avatar>
-                              {selectedAvatar === avatar && (
-                                <div className="absolute top-0.5 right-0.5 bg-primary rounded-full p-0.5">
-                                  <Check className="h-2.5 w-2.5 text-primary-foreground" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
+      {/* AI风格主卡片 */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-card via-card to-card border border-border">
+        {/* 背景装饰 - AI科技感 */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-ai-cyan/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-ai-purple/15 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-ai-cyan/20 to-transparent" />
+        </div>
+        
+        {/* 扫描线动画效果 */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,transparent_calc(50%-1px),hsl(var(--ai-cyan)/0.03)_50%,transparent_calc(50%+1px),transparent_100%)] bg-[length:100%_4px] animate-pulse" />
+        </div>
+
+        <div className="relative z-10">
+          {/* 顶部用户信息区 */}
+          <div className="p-4 pb-3">
+            <div className="flex items-start justify-between">
+              {/* 左侧头像和信息 */}
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  {/* 头像光环 */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-ai-cyan/50 via-ai-purple/30 to-ai-cyan/50 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <Avatar className="relative h-14 w-14 border-2 border-ai-cyan/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+                    <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.display_name || '用户'} />
+                    <AvatarFallback className="text-lg bg-gradient-to-br from-ai-cyan/20 to-ai-purple/20 text-foreground font-bold">
+                      {userProfile?.display_name?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  {/* 编辑按钮 */}
+                  <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        size="icon" 
+                        variant="outline"
+                        className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-background/90 backdrop-blur border-ai-cyan/30 hover:border-ai-cyan shadow-sm"
+                      >
+                        <Edit2 className="h-3 w-3 text-ai-cyan" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>{t('edit_profile')}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="display-name" className="text-sm">{t('nickname')}</Label>
+                          <Input
+                            id="display-name"
+                            value={editDisplayName}
+                            onChange={(e) => setEditDisplayName(e.target.value)}
+                            placeholder={t('enter_nickname')}
+                            maxLength={20}
+                            className="h-9"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label className="text-sm">{t('select_avatar')}</Label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {AVATAR_OPTIONS.map((avatar) => (
+                              <button
+                                key={avatar}
+                                onClick={() => setSelectedAvatar(avatar)}
+                                className={`
+                                  relative rounded-lg p-1.5 transition-all
+                                  ${selectedAvatar === avatar 
+                                    ? 'ring-2 ring-ai-cyan bg-ai-cyan/10' 
+                                    : 'hover:bg-muted border border-border'
+                                  }
+                                `}
+                              >
+                                <Avatar className="h-12 w-12 mx-auto">
+                                  <AvatarImage src={avatar} />
+                                </Avatar>
+                                {selectedAvatar === avatar && (
+                                  <div className="absolute top-0.5 right-0.5 bg-ai-cyan rounded-full p-0.5">
+                                    <Check className="h-2.5 w-2.5 text-background" />
+                                  </div>
+                                )}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="flex-1 h-9"
-                        onClick={() => setIsEditDialogOpen(false)}
-                      >
-                        {t('cancel')}
-                      </Button>
-                      <Button
-                        className="flex-1 h-9"
-                        onClick={handleSaveProfile}
-                        disabled={isSaving || !editDisplayName || !editDisplayName.trim()}
-                      >
-                        {isSaving ? t('saving') : t('save')}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex-1 h-9"
+                          onClick={() => setIsEditDialogOpen(false)}
+                        >
+                          {t('cancel')}
+                        </Button>
+                        <Button
+                          className="flex-1 h-9"
+                          onClick={handleSaveProfile}
+                          disabled={isSaving || !editDisplayName || !editDisplayName.trim()}
+                        >
+                          {isSaving ? t('saving') : t('save')}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-foreground">
+                      {userProfile?.display_name || t('player')}
+                    </h2>
+                    {vipStatus?.is_active && (
+                      <span className="px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-amber-400 to-amber-600 text-white rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+                        VIP
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono tracking-wider uppercase">
+                    {t('prediction_player')}
+                  </p>
+                </div>
               </div>
               
+              {/* 右侧胜率显示 - AI风格 */}
+              <div className="text-right">
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
+                  <div className="relative px-3 py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
+                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight">
+                      <AnimatedWinRate value={stats?.winRate || 0} />
+                      <span className="text-lg">%</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t('win_rate_label')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 统计数据网格 - AI仪表盘风格 */}
+          <div className="px-4 pb-4">
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: stats?.totalPredictions || 0, label: t('total_predictions_stat'), color: 'text-foreground' },
+                { value: stats?.correctPredictions || 0, label: t('correct_result'), color: 'text-success' },
+                { value: (stats?.totalPredictions || 0) - (stats?.correctPredictions || 0), label: t('wrong_result'), color: 'text-destructive' },
+                { value: `${(stats?.profit || 0) >= 0 ? '+' : ''}${stats?.profit?.toLocaleString() || 0}`, label: t('profit_loss_label'), color: (stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive' }
+              ].map((item, index) => (
+                <div 
+                  key={index} 
+                  className="relative group p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-ai-cyan/30 transition-all"
+                >
+                  <div className="absolute inset-0 bg-ai-cyan/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <p className={`relative text-xl font-bold font-mono ${item.color}`}>{item.value}</p>
+                  <p className="relative text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 钱包区域 - 双列布局 */}
+          <div className="px-4 pb-4">
+            <div className="grid grid-cols-2 gap-3">
+              {/* 虚拟钱包 */}
+              <div className="relative p-3 rounded-lg bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 hover:border-primary/40 transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Wallet className="h-4 w-4 text-primary" />
+                  </div>
+                  <span className="text-[11px] font-medium text-muted-foreground">{t('virtual_wallet_balance')}</span>
+                </div>
+                <p className="text-xl font-bold text-foreground font-mono">
+                  ${stats?.balance?.toLocaleString() || '10,000'}
+                </p>
+              </div>
+
+              {/* 猎人币钱包 */}
+              <div className="relative p-3 rounded-lg bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 hover:border-amber-500/40 transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-medium text-muted-foreground">{t('hunter_coin_balance')}</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-2">
+                  <p className="text-xl font-bold text-amber-500 font-mono">{usdtBalance.toFixed(2)}</p>
+                </div>
+                <USDTWalletDialog 
+                  trigger={
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full h-7 text-xs font-medium border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/15 text-amber-500"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      {t('usdt_deposit')}
+                    </Button>
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* VIP会员卡片 - AI科技风格 */}
+      <div className={`relative overflow-hidden rounded-xl border transition-all ${
+        vipStatus?.is_active 
+          ? 'bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border-amber-500/30' 
+          : 'bg-card border-border hover:border-ai-cyan/30'
+      }`}>
+        {/* VIP激活状态的装饰效果 */}
+        {vipStatus?.is_active && (
+          <>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl" />
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-yellow-500/15 rounded-full blur-xl" />
+          </>
+        )}
+        
+        <div className="relative z-10 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                vipStatus?.is_active 
+                  ? 'bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 shadow-[0_0_20px_rgba(245,158,11,0.4)]' 
+                  : 'bg-muted border border-border'
+              }`}>
+                <Crown className={`h-6 w-6 ${vipStatus?.is_active ? 'text-white' : 'text-muted-foreground'}`} />
+              </div>
               <div>
-                <h2 className="text-base font-bold text-foreground">
-                  {userProfile?.display_name || t('player')}
-                </h2>
-                <p className="text-xs text-muted-foreground">{t('prediction_player')}</p>
+                <div className="flex items-center gap-2">
+                  <h3 className={`font-bold ${vipStatus?.is_active ? 'text-amber-500' : 'text-foreground'}`}>
+                    VIP {t('member') || '会员'}
+                  </h3>
+                  {vipStatus?.is_active && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 rounded-full">
+                      <Sparkles className="h-3 w-3 text-amber-400" />
+                      <span className="text-[10px] font-bold text-amber-400">{t('active') || '已开通'}</span>
+                    </div>
+                  )}
+                </div>
+                {vipStatus?.is_active && vipStatus.expires_at ? (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t('expires_at') || '有效期至'}: {format(new Date(vipStatus.expires_at), 'yyyy-MM-dd')}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t('vip_benefit') || '开通后可免费查看所有跟单预测'}
+                  </p>
+                )}
               </div>
             </div>
             
-            {/* 胜率徽章 */}
-            <div className="text-right">
-              <div className="text-xl font-bold text-foreground font-mono">
-                <AnimatedWinRate value={stats?.winRate || 0} />%
-              </div>
-              <p className="text-[10px] text-muted-foreground">{t('win_rate_label')}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 统计数据网格 */}
-        <div className="grid grid-cols-4 divide-x divide-border">
-          <div className="p-2 text-center">
-            <p className="text-lg font-bold text-foreground font-mono">{stats?.totalPredictions || 0}</p>
-            <p className="text-[10px] text-muted-foreground">{t('total_predictions_stat')}</p>
-          </div>
-          <div className="p-2 text-center">
-            <p className="text-lg font-bold text-success font-mono">{stats?.correctPredictions || 0}</p>
-            <p className="text-[10px] text-muted-foreground">{t('correct_result')}</p>
-          </div>
-          <div className="p-2 text-center">
-            <p className="text-lg font-bold text-destructive font-mono">
-              {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}
-            </p>
-            <p className="text-[10px] text-muted-foreground">{t('wrong_result')}</p>
-          </div>
-          <div className="p-2 text-center">
-            <p className={`text-lg font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
-            </p>
-            <p className="text-[10px] text-muted-foreground">{t('profit_loss_label')}</p>
-          </div>
-        </div>
-
-        {/* 钱包余额区域 - 专业版 */}
-        <div className="border-t border-border">
-          <div className="grid grid-cols-2 divide-x divide-border">
-            {/* 虚拟钱包 */}
-            <div className="p-3 bg-gradient-to-br from-primary/5 to-transparent">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center shadow-sm">
-                  <Wallet className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-xs font-medium text-muted-foreground">{t('virtual_wallet_balance')}</span>
-              </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-foreground font-mono tracking-tight">
-                  ${stats?.balance?.toLocaleString() || '10,000'}
-                </span>
-              </div>
-            </div>
-
-            {/* 猎人币钱包 */}
-            <div className="p-3 bg-gradient-to-br from-amber-500/5 to-transparent">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center shadow-sm">
-                  <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-medium text-muted-foreground">{t('hunter_coin_balance')}</span>
-              </div>
-              <div className="flex items-baseline gap-1.5 mb-2">
-                <span className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
-                  {usdtBalance.toFixed(2)}
-                </span>
-                <span className="text-xs font-medium text-muted-foreground">猎人币</span>
-              </div>
-              <USDTWalletDialog 
-                trigger={
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full h-7 text-xs font-medium border-[#26A17B]/30 bg-[#26A17B]/5 hover:bg-[#26A17B]/15 text-[#26A17B] shadow-sm"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    {t('usdt_deposit')}
-                  </Button>
-                }
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* VIP会员卡片 */}
-      <div className={`border rounded-lg p-3 overflow-hidden relative ${
-        vipStatus?.is_active 
-          ? 'bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border-amber-500/30' 
-          : 'bg-gradient-to-r from-muted/50 to-muted/30 border-border'
-      }`}>
-        {vipStatus?.is_active && (
-          <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-full blur-2xl" />
-        )}
-        <div className="flex items-center justify-between relative">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
-              vipStatus?.is_active 
-                ? 'bg-gradient-to-br from-amber-400 to-amber-600' 
-                : 'bg-muted'
-            }`}>
-              <Crown className={`h-5 w-5 ${vipStatus?.is_active ? 'text-white' : 'text-muted-foreground'}`} />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h3 className={`text-sm font-bold ${vipStatus?.is_active ? 'text-amber-500' : 'text-foreground'}`}>
-                  VIP {t('member') || '会员'}
-                </h3>
-                {vipStatus?.is_active && (
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-amber-500 text-white rounded">
-                    {t('active') || '已开通'}
-                  </span>
-                )}
-              </div>
-              {vipStatus?.is_active && vipStatus.expires_at ? (
-                <p className="text-[10px] text-muted-foreground">
-                  {t('expires_at') || '有效期至'}: {format(new Date(vipStatus.expires_at), 'yyyy-MM-dd')}
-                </p>
-              ) : (
-                <p className="text-[10px] text-muted-foreground">
-                  {t('vip_benefit') || '开通后可免费查看所有跟单预测'}
-                </p>
-              )}
-            </div>
-          </div>
-          
-          {vipStatus?.is_active ? (
-            <div className="flex items-center gap-1 text-amber-500">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-xs font-medium">{t('vip_active') || '尊享中'}</span>
-            </div>
-          ) : (
-            <Button
-              size="sm"
-              className="h-8 px-3 text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md"
-              onClick={handlePurchaseVip}
-              disabled={isPurchasingVip}
-            >
-              {isPurchasingVip ? (
-                <span className="animate-pulse">{t('processing') || '处理中...'}</span>
-              ) : (
-                <>
-                  <Crown className="h-3 w-3 mr-1" />
-                  {VIP_COST} {t('hunter_coin_unit') || '猎人币'} / {t('month') || '月'}
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* 邀请码卡片 */}
-      {userProfile?.invitation_code && (
-        <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <Users className="h-4 w-4 text-amber-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{t('my_invitation_code') || '我的邀请码'}</p>
-                <p className="text-lg font-bold font-mono text-foreground tracking-wider">{userProfile.invitation_code}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
-                <p className="text-lg font-bold text-amber-500 font-mono">{userProfile.invited_count || 0}</p>
-              </div>
+            {!vipStatus?.is_active && (
               <Button
-                variant="outline"
                 size="sm"
-                className="h-8 px-3 text-xs border-amber-500/30 hover:bg-amber-500/10 text-amber-600"
-                onClick={() => {
-                  navigator.clipboard.writeText(userProfile.invitation_code || '');
-                  toast.success(t('invitation_code_copied') || '邀请码已复制');
-                }}
+                className="h-9 px-4 text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/20"
+                onClick={handlePurchaseVip}
+                disabled={isPurchasingVip}
               >
-                {t('copy') || '复制'}
+                {isPurchasingVip ? (
+                  <span className="animate-pulse">{t('processing') || '处理中...'}</span>
+                ) : (
+                  <>
+                    <Crown className="h-3.5 w-3.5 mr-1.5" />
+                    {VIP_COST} {t('hunter_coin_unit') || '猎人币'}
+                  </>
+                )}
               </Button>
-            </div>
+            )}
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2">
-            {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 猎人币奖励'}
-          </p>
+        </div>
+      </div>
+
+      {/* 邀请码卡片 - 简洁设计 */}
+      {userProfile?.invitation_code && (
+        <div className="relative overflow-hidden rounded-xl bg-card border border-border hover:border-ai-cyan/30 transition-colors">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-1/4 w-20 h-20 bg-ai-cyan/20 rounded-full blur-2xl" />
+          </div>
+          <div className="relative z-10 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-ai-cyan/10 border border-ai-cyan/20 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-ai-cyan" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">{t('my_invitation_code') || '我的邀请码'}</p>
+                  <p className="text-lg font-bold font-mono text-foreground tracking-[0.3em]">{userProfile.invitation_code}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
+                  <p className="text-xl font-bold text-ai-cyan font-mono">{userProfile.invited_count || 0}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 text-xs border-ai-cyan/30 hover:bg-ai-cyan/10 text-ai-cyan"
+                  onClick={() => {
+                    navigator.clipboard.writeText(userProfile.invitation_code || '');
+                    toast.success(t('invitation_code_copied') || '邀请码已复制');
+                  }}
+                >
+                  {t('copy') || '复制'}
+                </Button>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/50">
+              {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 猎人币奖励'}
+            </p>
+          </div>
         </div>
       )}
 
-      {/* 开始预测按钮 */}
+      {/* 开始预测按钮 - AI风格 */}
       <Button 
-        className="w-full h-10 text-sm font-bold bg-primary hover:bg-primary/90 shadow-md"
+        className="w-full h-11 text-sm font-bold bg-gradient-to-r from-ai-cyan via-ai-blue to-ai-purple hover:opacity-90 text-background shadow-lg shadow-ai-cyan/20 transition-all"
         onClick={() => setIsBetDialogOpen(true)}
       >
+        <Target className="h-4 w-4 mr-2" />
         {t('start_prediction')}
       </Button>
 
