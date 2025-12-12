@@ -610,6 +610,75 @@ const FormationComparisonPanel = ({
         <div className="text-center text-xs text-muted-foreground mt-2">
           {suppression.reason}
         </div>
+        
+        {/* 胜率能量条 */}
+        <div className="mt-4 pt-4 border-t border-border/30">
+          <div className="flex items-center justify-between text-xs mb-2">
+            <div className="flex items-center gap-1">
+              <span>{homeTeam.flag}</span>
+              <span className="font-medium">{homeTeam.shortName}</span>
+            </div>
+            <span className="text-muted-foreground">阵型胜率对比</span>
+            <div className="flex items-center gap-1">
+              <span className="font-medium">{awayTeam.shortName}</span>
+              <span>{awayTeam.flag}</span>
+            </div>
+          </div>
+          
+          {/* 能量条 */}
+          <div className="relative h-6 bg-muted/30 rounded-full overflow-hidden">
+            {/* 主队能量 (从左到右) */}
+            <div 
+              className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-500"
+              style={{ 
+                width: `${50 + (suppression.homeAdvantage / 2)}%`,
+              }}
+            />
+            {/* 客队能量 (从右到左) */}
+            <div 
+              className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-500 to-red-400 transition-all duration-500"
+              style={{ 
+                width: `${50 - (suppression.homeAdvantage / 2)}%`,
+              }}
+            />
+            
+            {/* 中间分割线 */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/50 transform -translate-x-1/2 z-10" />
+            
+            {/* 胜率数值 */}
+            <div className="absolute inset-0 flex items-center justify-between px-3 z-20">
+              <span className={`text-xs font-bold text-white drop-shadow-md ${
+                suppression.homeAdvantage > 0 ? 'animate-pulse' : ''
+              }`}>
+                {(50 + suppression.homeAdvantage / 2).toFixed(0)}%
+              </span>
+              <span className={`text-xs font-bold text-white drop-shadow-md ${
+                suppression.homeAdvantage < 0 ? 'animate-pulse' : ''
+              }`}>
+                {(50 - suppression.homeAdvantage / 2).toFixed(0)}%
+              </span>
+            </div>
+          </div>
+          
+          {/* 优势指示器 */}
+          <div className="flex justify-center mt-2">
+            {suppression.homeAdvantage > 5 ? (
+              <div className="flex items-center gap-1 text-xs text-blue-400">
+                <span>◀</span>
+                <span>主队阵型胜率更高</span>
+              </div>
+            ) : suppression.homeAdvantage < -5 ? (
+              <div className="flex items-center gap-1 text-xs text-red-400">
+                <span>客队阵型胜率更高</span>
+                <span>▶</span>
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                双方阵型胜率接近
+              </div>
+            )}
+          </div>
+        </div>
       </Card>
       
       {/* 双方阵型详细信息 */}
