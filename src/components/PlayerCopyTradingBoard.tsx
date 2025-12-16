@@ -1556,19 +1556,6 @@ const PlayerCopyTradingBoard = () => {
         )}
       </AnimatePresence>
 
-      {/* Total Players Count */}
-      <div className="mt-6 flex items-center justify-center gap-3 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4" />
-          <span>平台总玩家数: <AnimatedPlayerCount count={allPlayers.length} /> 人</span>
-        </div>
-        <span className="text-muted-foreground/50">|</span>
-        <div className="flex items-center gap-1.5">
-          <TrendingUp className="h-3.5 w-3.5 text-green-500" />
-          <span>今日新增: <span className="font-mono font-medium text-green-500">+{Math.floor(allPlayers.length * 0.08)}</span> 人</span>
-        </div>
-      </div>
-
       {/* Disclaimer */}
       <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border/50">
         <p className="text-xs text-muted-foreground text-center leading-relaxed">
@@ -1576,23 +1563,6 @@ const PlayerCopyTradingBoard = () => {
         </p>
       </div>
     </div>
-  );
-};
-
-// 玩家数量动画组件
-const AnimatedPlayerCount = ({ count }: { count: number }) => {
-  const animatedCount = useCountAnimation(count, { duration: 1200, startValue: 0 });
-  
-  return (
-    <motion.span 
-      className="font-mono font-medium text-foreground"
-      initial={{ scale: 1 }}
-      animate={{ scale: [1, 1.05, 1] }}
-      transition={{ duration: 0.3 }}
-      key={Math.round(animatedCount)}
-    >
-      {Math.round(animatedCount).toLocaleString()}
-    </motion.span>
   );
 };
 
