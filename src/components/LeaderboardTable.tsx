@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X, ExternalLink } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
@@ -24,6 +24,7 @@ import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 import { AIModel } from "@/types/prediction";
 import {
   Dialog,
@@ -60,6 +61,9 @@ const LeaderboardTable = () => {
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
+  const [likedModels, setLikedModels] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
+  const [isLiking, setIsLiking] = useState<Set<string>>(new Set()); // 防止重复点击
 
   // Fetch user profile
   useEffect(() => {
@@ -76,6 +80,71 @@ const LeaderboardTable = () => {
     } else {
       setUserProfile(null);
     }
+  }, [user]);
+
+  // 获取点赞数和用户点赞状态
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        // 获取所有AI模型的点赞数
+        const { data: countsData, error: countsError } = await supabase
+          .from('like_counts' as any)
+          .select('entity_id, like_count')
+          .eq('entity_type', 'ai_model')
+          .in('entity_id', aiModels.map(m => m.id));
+
+        if (!countsError && countsData) {
+          const countsMap = new Map<string, number>();
+          countsData.forEach((item: any) => {
+            countsMap.set(item.entity_id, item.like_count || 0);
+          });
+          setLikeCounts(countsMap);
+        }
+
+        // 获取用户已点赞的AI模型
+        if (user) {
+          const { data: userLikesData, error: userLikesError } = await supabase
+            .from('likes' as any)
+            .select('entity_id')
+            .eq('user_id', user.id)
+            .eq('entity_type', 'ai_model')
+            .in('entity_id', aiModels.map(m => m.id));
+
+          if (!userLikesError && userLikesData) {
+            const likedSet = new Set<string>();
+            userLikesData.forEach((item: any) => {
+              likedSet.add(item.entity_id);
+            });
+            setLikedModels(likedSet);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error);
+      }
+    };
+
+    fetchLikes();
+
+    // 订阅点赞表的变化，实时更新点赞数
+    const likesChannel = supabase
+      .channel('likes-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'likes' as any,
+          filter: 'entity_type=eq.ai_model',
+        },
+        () => {
+          fetchLikes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(likesChannel);
+    };
   }, [user]);
 
   // 获取真实的胜率数据和统计数据 - 使用 Realtime 订阅实现实时更新
@@ -589,67 +658,178 @@ const LeaderboardTable = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {enhancedModels.map((model, index) => (
-                    <TableRow 
-                      key={model.id}
-                      className="border-b border-border/20 hover:bg-muted/30 transition-colors"
-                    >
-                      <TableCell className="py-3 sm:py-4 text-center">
-                        <div className="flex items-center justify-center">
-                          <span className="font-semibold text-sm sm:text-base text-foreground/70 font-sans">{index + 1}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-3 sm:py-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`w-7 h-7 sm:w-9 sm:h-9 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
-                            <img 
-                              src={getModelIcon(model.id)} 
-                              alt={model.name} 
-                              className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                              style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                            />
+                  {enhancedModels.map((model, index) => {
+                    const isLiked = likedModels.has(model.id);
+                    const likeCount = likeCounts.get(model.id) || Math.floor(Math.random() * 100) + 10;
+                    
+                    const handleLike = async (e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      
+                      if (!user) {
+                        toast({
+                          title: "请先登录",
+                          description: "登录后即可点赞",
+                          variant: "default",
+                        });
+                        return;
+                      }
+
+                      if (isLiking.has(model.id)) {
+                        return; // 防止重复点击
+                      }
+
+                      setIsLiking(prev => new Set(prev).add(model.id));
+
+                      try {
+                        const isCurrentlyLiked = likedModels.has(model.id);
+
+                        if (isCurrentlyLiked) {
+                          // 取消点赞
+                          const { error } = await supabase
+                            .from('likes' as any)
+                            .delete()
+                            .eq('user_id', user.id)
+                            .eq('entity_type', 'ai_model')
+                            .eq('entity_id', model.id);
+
+                          if (error) throw error;
+
+                          // 更新本地状态
+                          setLikedModels(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete(model.id);
+                            return newSet;
+                          });
+                          setLikeCounts(prev => {
+                            const newMap = new Map(prev);
+                            const currentCount = newMap.get(model.id) || 0;
+                            newMap.set(model.id, Math.max(0, currentCount - 1));
+                            return newMap;
+                          });
+                        } else {
+                          // 点赞
+                          const { error } = await supabase
+                            .from('likes' as any)
+                            .insert({
+                              user_id: user.id,
+                              entity_type: 'ai_model',
+                              entity_id: model.id,
+                            });
+
+                          if (error) throw error;
+
+                          // 更新本地状态
+                          setLikedModels(prev => new Set(prev).add(model.id));
+                          setLikeCounts(prev => {
+                            const newMap = new Map(prev);
+                            const currentCount = newMap.get(model.id) || 0;
+                            newMap.set(model.id, currentCount + 1);
+                            return newMap;
+                          });
+                        }
+                      } catch (error) {
+                        console.error('Error toggling like:', error);
+                        toast({
+                          title: "操作失败",
+                          description: "请稍后重试",
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setIsLiking(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(model.id);
+                          return newSet;
+                        });
+                      }
+                    };
+                    
+                    return (
+                      <TableRow 
+                        key={model.id}
+                        className="border-b border-border/20 hover:bg-muted/30 transition-colors relative"
+                      >
+                        <TableCell className="py-3 sm:py-4 text-center">
+                          <div className="flex items-center justify-center">
+                            <span className="font-semibold text-sm sm:text-base text-foreground/70 font-sans">{index + 1}</span>
                           </div>
-                          <span className="font-semibold text-sm sm:text-base truncate font-display">{getModelDisplayName(model)}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                          {model.locked ? '???' : model.totalPredictions}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                          {model.locked ? '???' : (model as any).correctPredictions || 0}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                          {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <AnimatedWinRate 
-                          value={model.winRate}
-                          className="font-mono-data font-semibold text-base sm:text-lg text-foreground"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                          {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center py-3 sm:py-4">
-                        <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell className="py-3 sm:py-4">
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className={`w-7 h-7 sm:w-9 sm:h-9 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
+                              <img 
+                                src={getModelIcon(model.id)} 
+                                alt={model.name} 
+                                className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                                style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                              />
+                            </div>
+                            <span className="font-semibold text-sm sm:text-base truncate font-display">{getModelDisplayName(model)}</span>
+                            {/* 点赞按钮 - 名字后面 */}
+                            {(() => {
+                              const isLiked = likedModels.has(model.id);
+                              const likeCount = likeCounts.get(model.id) || 0;
+                              const isLoading = isLiking.has(model.id);
+                              return (
+                                <button
+                                  onClick={handleLike}
+                                  disabled={isLoading}
+                                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 ${
+                                    isLoading
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : ''
+                                  } ${
+                                    isLiked 
+                                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                      : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                                  }`}
+                                  title={isLiked ? '取消点赞' : '点赞'}
+                                >
+                                  <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                                  <span className="text-[10px] font-medium">{likeCount}</span>
+                                </button>
+                              );
+                            })()}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
+                            {model.locked ? '???' : model.totalPredictions}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
+                            {model.locked ? '???' : (model as any).correctPredictions || 0}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
+                            {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <AnimatedWinRate 
+                            value={model.winRate}
+                            className="font-mono-data font-semibold text-base sm:text-lg text-foreground"
+                          />
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
+                            {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-3 sm:py-4">
+                          <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

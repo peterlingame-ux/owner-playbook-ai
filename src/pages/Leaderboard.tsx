@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
-import AdCarousel from "@/components/AdCarousel";
+import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
 import PlayerCopyTradingBoard from "@/components/PlayerCopyTradingBoard";
@@ -16,16 +16,16 @@ const Leaderboard = () => {
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const defaultTab = tabParam === 'players' ? 'players' : tabParam === 'copy' ? 'copy' : 'ai';
+  const defaultTab = tabParam === 'copy' ? 'copy' : tabParam === 'ai' ? 'ai' : 'players';
   
   return (
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
       
-      {/* Ad Carousel Banner */}
+      {/* Challenge AI Banner */}
       <div className="container mx-auto px-3 sm:px-4 pt-4">
-        <AdCarousel />
+        <ChallengeAIBanner />
       </div>
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">

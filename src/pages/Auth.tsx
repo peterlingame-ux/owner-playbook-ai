@@ -40,7 +40,7 @@ const Auth = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [countryCode, setCountryCode] = useState("+852");
+  const [countryCode, setCountryCode] = useState("+86");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");

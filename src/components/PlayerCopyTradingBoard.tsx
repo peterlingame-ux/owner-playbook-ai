@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users } from "lucide-react";
+import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
@@ -159,6 +159,9 @@ const PlayerCopyTradingBoard = () => {
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
   const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
+  const [likedPlayers, setLikedPlayers] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
+  const [isLiking, setIsLiking] = useState<Set<string>>(new Set()); // 防止重复点击
   
   // USDT解锁弹窗状态
   const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
@@ -328,6 +331,158 @@ const PlayerCopyTradingBoard = () => {
     
     fetchAllPlayers();
   }, []);
+
+  // 获取点赞数和用户点赞状态
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        // 获取所有玩家的ID列表
+        const playerIds = allPlayers.map(p => p.id);
+
+        if (playerIds.length === 0) return;
+
+        // 获取所有玩家的点赞数
+        const { data: countsData, error: countsError } = await supabase
+          .from('like_counts' as any)
+          .select('entity_id, like_count')
+          .eq('entity_type', 'player')
+          .in('entity_id', playerIds);
+
+        if (!countsError && countsData) {
+          const countsMap = new Map<string, number>();
+          countsData.forEach((item: any) => {
+            countsMap.set(item.entity_id, item.like_count || 0);
+          });
+          setLikeCounts(countsMap);
+        }
+
+        // 获取用户已点赞的玩家
+        if (user) {
+          const { data: userLikesData, error: userLikesError } = await supabase
+            .from('likes' as any)
+            .select('entity_id')
+            .eq('user_id', user.id)
+            .eq('entity_type', 'player')
+            .in('entity_id', playerIds);
+
+          if (!userLikesError && userLikesData) {
+            const likedSet = new Set<string>();
+            userLikesData.forEach((item: any) => {
+              likedSet.add(item.entity_id);
+            });
+            setLikedPlayers(likedSet);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error);
+      }
+    };
+
+    if (allPlayers.length > 0) {
+      fetchLikes();
+    }
+
+    // 订阅点赞表的变化，实时更新点赞数
+    const likesChannel = supabase
+      .channel('copy-trading-likes-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'likes' as any,
+          filter: 'entity_type=eq.player',
+        },
+        () => {
+          fetchLikes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(likesChannel);
+    };
+  }, [allPlayers, user]);
+
+  // 处理点赞/取消点赞
+  const handleLike = async (playerId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    if (!user) {
+      toast.error("请先登录", {
+        description: "登录后即可点赞",
+      });
+      return;
+    }
+
+    if (isLiking.has(playerId)) {
+      return; // 防止重复点击
+    }
+
+    setIsLiking(prev => new Set(prev).add(playerId));
+
+    try {
+      const isCurrentlyLiked = likedPlayers.has(playerId);
+
+      if (isCurrentlyLiked) {
+        // 取消点赞
+        const { error } = await supabase
+          .from('likes' as any)
+          .delete()
+          .eq('user_id', user.id)
+          .eq('entity_type', 'player')
+          .eq('entity_id', playerId);
+
+        if (error) throw error;
+
+        // 更新本地状态
+        setLikedPlayers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(playerId);
+          return newSet;
+        });
+        setLikeCounts(prev => {
+          const newMap = new Map(prev);
+          const currentCount = newMap.get(playerId) || 0;
+          newMap.set(playerId, Math.max(0, currentCount - 1));
+          return newMap;
+        });
+      } else {
+        // 点赞
+        const { error } = await supabase
+          .from('likes' as any)
+          .insert({
+            user_id: user.id,
+            entity_type: 'player',
+            entity_id: playerId,
+          });
+
+        if (error) throw error;
+
+        // 更新本地状态
+        setLikedPlayers(prev => new Set(prev).add(playerId));
+        setLikeCounts(prev => {
+          const newMap = new Map(prev);
+          const currentCount = newMap.get(playerId) || 0;
+          newMap.set(playerId, currentCount + 1);
+          return newMap;
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast.error("操作失败", {
+        description: "请稍后重试",
+      });
+    } finally {
+      setIsLiking(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(playerId);
+        return newSet;
+      });
+    }
+  };
 
   // 获取今日预测统计
   useEffect(() => {
@@ -644,11 +799,38 @@ const PlayerCopyTradingBoard = () => {
           <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+          <div className="flex items-center gap-1.5 mb-1">
+            <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
+            {/* 点赞按钮 - 名字后面 */}
+            {(() => {
+              const isLiked = likedPlayers.has(player.id);
+              const likeCount = likeCounts.get(player.id) || 0;
+              const isLoading = isLiking.has(player.id);
+              return (
+                <button
+                  onClick={(e) => handleLike(player.id, e)}
+                  disabled={isLoading}
+                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 flex-shrink-0 ${
+                    isLoading
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                  } ${
+                    isLiked 
+                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                      : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                  }`}
+                  title={isLiked ? '取消点赞' : '点赞'}
+                >
+                  <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                  <span className="text-[10px] font-medium">{likeCount}</span>
+                </button>
+              );
+            })()}
+          </div>
           <div className="text-[10px] sm:text-xs space-y-1">
             {/* 第一行：核心数据 */}
             <div className="flex items-center gap-3 text-muted-foreground">
-              <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+              <span>跟单 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
               <span className="text-border">|</span>
               <span>胜率 <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span></span>
               <span className="text-border">|</span>
@@ -714,7 +896,7 @@ const PlayerCopyTradingBoard = () => {
           }}
         >
           <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          <span className="hidden sm:inline">{t('copy_trade_btn') || '跟单'}</span>
+          <span className="hidden sm:inline">{t('today_copy_trade_btn') || '今日跟单'}</span>
         </Button>
       </div>
     </div>

@@ -6,8 +6,8 @@ const BottomNav = () => {
   const { t } = useTranslation();
 
   const navItems = [
-    { to: "/", icon: Home, label: t('nav_live') },
     { to: "/leaderboard", icon: Trophy, label: t('nav_rank') },
+    { to: "/", icon: Home, label: t('nav_live') },
     { to: "/history", icon: History, label: t('nav_history') },
     { to: "/models", icon: Sparkles, label: t('nav_models') },
     { to: "/my-predictions", icon: Target, label: t('nav_personal_center') },

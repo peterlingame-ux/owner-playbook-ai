@@ -8,7 +8,7 @@ const resources = {
     translation: {
       // Header
       "online_users": "ONLINE USERS",
-      "users_watching": "users watching now",
+      "users_watching": "users online",
       "nav_live": "AI PREDICTIONS",
       "nav_rank": "RANK",
       "nav_history": "HISTORY",
@@ -471,6 +471,7 @@ const resources = {
       "one_click_copy_trade": "One-Click Copy Trade",
       "copy_trade_player": "FOLLOW PLAYER",
       "copy_trade_btn": "Follow",
+      "today_copy_trade_btn": "Today Follow",
       "copy_trading_board": "Copy Trade",
       "hot_streak_board": "High Win Rate",
       "cold_streak_board": "Low Win Rate",
@@ -760,7 +761,7 @@ const resources = {
     translation: {
       // Header
       "online_users": "在线用户",
-      "users_watching": "位用户正在观看",
+      "users_watching": "位用户在线",
       "nav_live": "AI预测",
       "nav_rank": "排行榜",
       "nav_history": "历史记录",
@@ -1022,9 +1023,9 @@ const resources = {
       "copy_trade_records": "跟单记录",
       "my_purchase_history": "我的购买记录",
       "my_copy_trade_records": "我的跟单记录",
-      "welcome_title": "欢迎参加AI足球同台竞猜",
-      "welcome_message": "与多款 AI 大模型共同参与足球赛事结果预测，免费比拼预测准确率。活动期间，预测准确率排名第一的用户最高可获得 100,000 美元奖金，并与 AI 模型一同在平台展示其成绩。\n\n本平台仅作为预测准确率竞赛与技术展示工具，不提供、不鼓励任何形式的投注或博彩活动。",
-      "welcome_button": "立即参加活动免费领取100000元大奖",
+      "welcome_title": "HUNSOCCER 全面升级中，敬请期待",
+      "welcome_message": "",
+      "welcome_button": "知道了",
       "join_waitlist": "加入平台候补名单",
       "models_performance": "MODELS",
       "compare_performance": "比较不同 AI 模型在体育预测中的表现",
@@ -1222,6 +1223,7 @@ const resources = {
       "one_click_copy_trade": "一键跟单",
       "copy_trade_player": "关注玩家",
       "copy_trade_btn": "跟单",
+      "today_copy_trade_btn": "今日跟单",
       "copy_trading_board": "玩家跟单排行榜",
       "hot_streak_board": "高胜率榜",
       "cold_streak_board": "低胜率榜",
@@ -1513,7 +1515,7 @@ const resources = {
     translation: {
       // Header
       "online_users": "온라인 사용자",
-      "users_watching": "명이 시청 중",
+      "users_watching": "명 온라인",
       "nav_live": "AI 예측",
       "nav_rank": "순위",
       "nav_history": "기록",
@@ -1973,6 +1975,7 @@ const resources = {
       "one_click_copy_trade": "원클릭 카피 트레이드",
       "copy_trade_player": "플레이어 팔로우",
       "copy_trade_btn": "팔로우",
+      "today_copy_trade_btn": "오늘 팔로우",
       "copy_trading_board": "카피 트레이드",
       "hot_streak_board": "연승 순위",
       "cold_streak_board": "연패 순위",

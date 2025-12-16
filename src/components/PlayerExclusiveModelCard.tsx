@@ -24,7 +24,6 @@ import {
   Clock,
   CheckCircle2,
   Loader2,
-  BarChart3,
   Tag,
   FileText,
   Calendar,
@@ -74,7 +73,7 @@ interface PlayerExclusiveModelCardProps {
   matchIndex?: number;
   matchEntries?: Array<{ match: any; bets: BetData[] }>;
   onOpenPKDialog?: (match: any) => void;
-  onOpenAnalysis?: (matchId: number, aiId: string, match: any, aiModel: any) => void;
+  onOpenAnalysis?: (matchId: string, aiId: string, match: any, aiModel: any) => void;
   getTeamName?: (match: any, team: 'home' | 'away') => string;
   getLeagueName?: (match: any) => string;
   onPrevMatch?: (e: React.MouseEvent) => void;
@@ -585,8 +584,8 @@ const PlayerExclusiveModelCard = ({
               {bet && currentMatchData && onOpenAnalysis && (
                 <Button
                   size="sm"
-                  variant="ghost"
-                  className="h-7 px-2 text-amber-500 hover:bg-amber-500/10"
+                  variant="outline"
+                  className="h-7 px-3 bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20 hover:border-amber-500/50 font-semibold"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenAnalysis(
@@ -597,8 +596,7 @@ const PlayerExclusiveModelCard = ({
                     );
                   }}
                 >
-                  <BarChart3 className="h-3.5 w-3.5 mr-1" />
-                  <span className="text-[10px] font-bold">{t('view_analysis') || '分析'}</span>
+                  <span className="text-[11px] font-bold">AI分析</span>
                 </Button>
               )}
             </div>

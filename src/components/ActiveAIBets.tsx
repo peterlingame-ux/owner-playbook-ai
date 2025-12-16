@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
 import PlayerExclusiveModelCard from "@/components/PlayerExclusiveModelCard";
@@ -89,7 +90,11 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       // 如果未开赛，显示倒计时（时分秒格式）
       setIsLive(false);
       setShowCountdown(true);
-      const kickoffTime = new Date(match.kickoff_at);
+      const kickoffTime = getKickoffDate(match);
+      if (!kickoffTime) {
+        setTimeDisplay('--:--:--');
+        return;
+      }
       const now = new Date();
       const diff = kickoffTime.getTime() - now.getTime();
       
@@ -110,7 +115,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
     const interval = setInterval(updateTime, 1000);
     
     return () => clearInterval(interval);
-  }, [match.status_short, match.status_elapsed, match.kickoff_at, t]);
+  }, [match.status_short, match.status_elapsed, match.mgt, t]);
 
   const homeScore = match.goals_home ?? 0;
   const awayScore = match.goals_away ?? 0;
@@ -227,10 +232,20 @@ type AnalysisDialogState = {
   isLoading: boolean;
 };
 
+// 统一获取开赛时间，仅使用 mgt 毫秒时间戳
+const getKickoffDate = (match: Pick<DailyMatch, 'mgt'>): Date | null => {
+  const ms = match.mgt;
+  if (ms === undefined || ms === null) return null;
+  const parsed = typeof ms === 'string' ? Number(ms) : ms;
+  if (Number.isNaN(parsed)) return null;
+  return new Date(parsed);
+};
+
 type DailyMatch = {
-  fixture_id: number;
+  mid: string;
   date: string;
-  kickoff_at: string;
+  // mgt 为毫秒时间戳，必须提供
+  mgt: number;
   league_id?: number | null;
   league_name: string;
   league_logo?: string | null;
@@ -244,6 +259,74 @@ type DailyMatch = {
   status_elapsed?: number | null;
   home_logo?: string | null;
   away_logo?: string | null;
+  // 兼容 sports API 原始字段
+  mhn?: string | null;
+  man?: string | null;
+  mhlu?: string[] | null;
+  malu?: string[] | null;
+  tn?: string | null;
+  tnjc?: string | null;
+};
+
+// 兼容 sports API 记录，统一成组件使用的字段
+const normalizeDailyMatch = (match: any): DailyMatch => {
+  const mid = match.mid?.toString() ?? match.id?.toString() ?? '';
+  
+  // 为 logo URL 添加前缀（如果是相对路径）
+  const addLogoPrefix = (url: string | null | undefined): string | null => {
+    if (!url || typeof url !== 'string' || !url.trim()) return null;
+    const trimmedUrl = url.trim();
+    // 如果已经是完整的 URL，直接返回
+    if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+      return trimmedUrl;
+    }
+    // 如果是相对路径，添加前缀
+    const prefix = 'https://image.jganten.com';
+    // 确保路径以 / 开头
+    const path = trimmedUrl.startsWith('/') ? trimmedUrl : `/${trimmedUrl}`;
+    return `${prefix}${path}`;
+  };
+  
+  // 提取主队 logo：优先使用 mhlut（文本格式），其次使用 mhlu 数组的第一个元素
+  const getHomeLogo = () => {
+    if (match.home_logo) return addLogoPrefix(match.home_logo);
+    if (match.mhlut && typeof match.mhlut === 'string' && match.mhlut.trim()) return addLogoPrefix(match.mhlut);
+    if (Array.isArray(match.mhlu) && match.mhlu.length > 0 && match.mhlu[0]) return addLogoPrefix(match.mhlu[0]);
+    return null;
+  };
+  
+  // 提取客队 logo：优先使用 malut（文本格式），其次使用 malu 数组的第一个元素
+  const getAwayLogo = () => {
+    if (match.away_logo) return addLogoPrefix(match.away_logo);
+    if (match.malut && typeof match.malut === 'string' && match.malut.trim()) return addLogoPrefix(match.malut);
+    if (Array.isArray(match.malu) && match.malu.length > 0 && match.malu[0]) return addLogoPrefix(match.malu[0]);
+    return null;
+  };
+  
+  return {
+    mid,
+    date: match.date,
+    mgt: match.mgt ?? 0,
+    league_id: match.league_id ?? match.tid ?? null,
+    league_name: match.league_name ?? match.tn ?? match.tnjc ?? '',
+    league_logo: addLogoPrefix(match.league_logo ?? match.lurl ?? null),
+    home_team_id: match.home_team_id ?? (match.mhid ? Number(match.mhid) || match.mhid : null),
+    home_team_name: match.home_team_name ?? match.mhn ?? '',
+    away_team_id: match.away_team_id ?? (match.maid ? Number(match.maid) || match.maid : null),
+    away_team_name: match.away_team_name ?? match.man ?? '',
+    goals_home: match.goals_home ?? match.mhs ?? null,
+    goals_away: match.goals_away ?? match.mas ?? null,
+    status_short: match.status_short ?? match.mst ?? '',
+    status_elapsed: match.status_elapsed ?? match.mle ?? null,
+    home_logo: getHomeLogo(),
+    away_logo: getAwayLogo(),
+    mhn: match.mhn ?? null,
+    man: match.man ?? null,
+    mhlu: match.mhlu ?? null,
+    malu: match.malu ?? null,
+    tn: match.tn ?? null,
+    tnjc: match.tnjc ?? null,
+  };
 };
 
 type AutoBet = {
@@ -316,6 +399,8 @@ const ActiveAIBets = () => {
 
   // State to track which match index is shown for each AI
   const [currentMatchIndex, setCurrentMatchIndex] = useState<Record<string, number>>({});
+  // State to track slide direction for animation
+  const [slideDirection, setSlideDirection] = useState<Record<string, 'left' | 'right'>>({});
   
   // State for analysis dialog
   const [analysisDialog, setAnalysisDialog] = useState<AnalysisDialogState>({
@@ -365,7 +450,7 @@ const ActiveAIBets = () => {
           .from('daily_matches' as any)
           .select('*')
           .in('date', [yesterdayStr, today])
-          .order('kickoff_at', { ascending: true });
+          .order('mgt', { ascending: true });
         
         // Filter out completed matches on client side (same logic as fetch-daily-matches)
         const activeMatches = (matchesData || []).filter((match: any) => 
@@ -382,7 +467,7 @@ const ActiveAIBets = () => {
             });
           }
         } else {
-          const matchesList = (activeMatches || []) as unknown as DailyMatch[];
+          const matchesList = (activeMatches || []).map(normalizeDailyMatch) as DailyMatch[];
           setMatches(matchesList);
         }
 
@@ -537,7 +622,7 @@ const ActiveAIBets = () => {
 
   // Function to get match analysis directly from ai_match_analyses table
   const getMatchAnalysisFromDB = async (
-    matchId: number,
+    matchId: string,
     aiId: string,
     match: any,
     aiModel: any
@@ -658,15 +743,16 @@ const ActiveAIBets = () => {
   // Convert database match to component format
   const convertMatch = (match: DailyMatch) => {
     const isLive = match.status_short === 'LIVE';
+    const kickoff = getKickoffDate(match);
     return {
-      id: `match_${match.fixture_id}`,
-      fixture_id: match.fixture_id,
+      id: `match_${match.mid}`,
+      mid: match.mid,
       date: match.date,
-      time: new Date(match.kickoff_at).toLocaleTimeString('en-US', { 
+      time: kickoff ? kickoff.toLocaleTimeString('en-US', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: false 
-      }),
+      }) : '--:--',
       league: match.league_name,
       homeTeam: match.home_team_name,
       awayTeam: match.away_team_name,
@@ -751,7 +837,7 @@ const ActiveAIBets = () => {
 
   // Get matches with bets (live or upcoming)
   const matchesWithBets = matches.filter(match => 
-    autoBets.some(bet => bet.match_id === match.fixture_id)
+    autoBets.some(bet => bet.match_id?.toString() === match.mid)
   );
   
   // Only show loading state on initial load, not on refresh
@@ -788,15 +874,15 @@ const ActiveAIBets = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
         {activeAIs.map((aiModel) => {
           // Find this AI's bets from database, grouped by match
-          const betsByMatch = new Map<number, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
+          const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
           matchesWithBets.forEach(match => {
             const matchBets = autoBets
-              .filter(b => b.match_id === match.fixture_id && b.ai_id === aiModel.id)
+              .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
               .map(bet => convertBet(bet, match));
             
             if (matchBets.length > 0) {
-              betsByMatch.set(match.fixture_id, { match, bets: matchBets });
+              betsByMatch.set(match.mid, { match, bets: matchBets });
             }
           });
 
@@ -812,7 +898,7 @@ const ActiveAIBets = () => {
           
           // 如果没有 moneylineBet，从 moneylinePredictions 状态中获取输赢预测
           if (!moneylineBet && currentMatchData && currentMatchData.match) {
-            const predictionKey = `${currentMatchData.match.fixture_id}_${aiModel.id}`;
+          const predictionKey = `${currentMatchData.match.mid}_${aiModel.id}`;
             const moneylinePrediction = moneylinePredictions[predictionKey];
             
             if (moneylinePrediction) {
@@ -844,6 +930,7 @@ const ActiveAIBets = () => {
           // Handler to switch to next match
           const nextMatch = (e: React.MouseEvent) => {
             e.stopPropagation();
+            setSlideDirection(prev => ({ ...prev, [aiModel.id]: 'right' }));
             setCurrentMatchIndex(prev => ({
               ...prev,
               [aiModel.id]: ((prev[aiModel.id] || 0) + 1) % matchEntries.length
@@ -853,6 +940,7 @@ const ActiveAIBets = () => {
           // Handler to switch to previous match
           const prevMatch = (e: React.MouseEvent) => {
             e.stopPropagation();
+            setSlideDirection(prev => ({ ...prev, [aiModel.id]: 'left' }));
             setCurrentMatchIndex(prev => ({
               ...prev,
               [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + matchEntries.length) % matchEntries.length
@@ -913,13 +1001,39 @@ const ActiveAIBets = () => {
               )}
 
               {/* Content */}
-              <div className="relative z-10 space-y-3">
+              <div className="relative z-10 space-y-3 overflow-hidden">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={`${aiModel.id}-${matchIndex}`}
+                    initial={{ 
+                      opacity: 0, 
+                      x: slideDirection[aiModel.id] === 'right' ? 100 : -100 
+                    }}
+                    animate={{ 
+                      opacity: 1, 
+                      x: 0 
+                    }}
+                    exit={{ 
+                      opacity: 0, 
+                      x: slideDirection[aiModel.id] === 'right' ? -100 : 100 
+                    }}
+                    transition={{ 
+                      duration: 0.3, 
+                      ease: "easeInOut" 
+                    }}
+                    className="space-y-3"
+                  >
                 {/* Compact Header - AI Info & Actions */}
                 <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/30">
                   {/* AI Avatar & Balance */}
                   <div className="flex items-center gap-2">
                     <Avatar className="h-10 w-10 ring-1 ring-primary/30">
-                      <AvatarImage src={AI_ICONS[aiModel.id]} alt={aiModel.displayName} className="object-cover" />
+                      <AvatarImage 
+                        src={AI_ICONS[aiModel.id]} 
+                        alt={aiModel.displayName} 
+                        className="object-cover" 
+                        style={aiModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                      />
                       <AvatarFallback className="text-xs font-bold bg-primary/20">{aiModel.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
@@ -933,13 +1047,13 @@ const ActiveAIBets = () => {
                     {(moneylineBet || handicapBet || overUnderBet) && (
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-primary hover:bg-primary/10"
+                        variant="outline"
+                        className="h-7 px-3 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 font-semibold"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (currentMatchData) {
                             getMatchAnalysisFromDB(
-                              currentMatchData.match.fixture_id,
+                              currentMatchData.match.mid,
                               aiModel.id,
                               convertMatch(currentMatchData.match),
                               aiModel
@@ -947,8 +1061,7 @@ const ActiveAIBets = () => {
                           }
                         }}
                       >
-                        <BarChart3 className="h-3.5 w-3.5 mr-1" />
-                        <span className="text-[10px] font-bold">{t('view_analysis') || '分析'}</span>
+                        <span className="text-[11px] font-bold">AI分析</span>
                       </Button>
                     )}
                   </div>
@@ -1030,7 +1143,7 @@ const ActiveAIBets = () => {
                     
                     {/* Selection Grid */}
                     <div className="grid grid-cols-2 gap-1.5">
-                      <div className={`p-2 rounded-md border transition-all ${
+                      <div className={`p-2 rounded-md border transition-all min-h-[40px] flex items-center ${
                         handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
                           ? "bg-primary/15 border-primary/50" 
                           : "bg-card/50 border-border/30"
@@ -1053,7 +1166,7 @@ const ActiveAIBets = () => {
                           )}
                         </div>
                       </div>
-                      <div className={`p-2 rounded-md border transition-all ${
+                      <div className={`p-2 rounded-md border transition-all min-h-[40px] flex items-center ${
                         handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
                           ? "bg-primary/15 border-primary/50" 
                           : "bg-card/50 border-border/30"
@@ -1105,7 +1218,7 @@ const ActiveAIBets = () => {
                     
                     {/* Selection Grid */}
                     <div className="grid grid-cols-2 gap-1.5">
-                      <div className={`p-2 rounded-md border text-center transition-all ${
+                      <div className={`p-2 rounded-md border text-center transition-all min-h-[40px] flex items-center justify-center ${
                         overUnderBet.overUnderPick === 'over'
                           ? "bg-primary/15 border-primary/50" 
                           : "bg-card/50 border-border/30"
@@ -1115,7 +1228,7 @@ const ActiveAIBets = () => {
                           overUnderBet.overUnderPick === 'over' ? "text-primary" : "text-muted-foreground"
                         }`}>{overUnderBet.overUnderLine}</span>
                       </div>
-                      <div className={`p-2 rounded-md border text-center transition-all ${
+                      <div className={`p-2 rounded-md border text-center transition-all min-h-[40px] flex items-center justify-center ${
                         overUnderBet.overUnderPick === 'under'
                           ? "bg-primary/15 border-primary/50" 
                           : "bg-card/50 border-border/30"
@@ -1137,6 +1250,8 @@ const ActiveAIBets = () => {
                     </div>
                   </div>
                 )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           );
@@ -1149,15 +1264,15 @@ const ActiveAIBets = () => {
           if (!hunsoccermaxModel) return null;
 
           // Find hunsoccermax bets from database, grouped by match
-          const betsByMatch = new Map<number, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
+          const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
           matchesWithBets.forEach(match => {
             const matchBets = autoBets
-              .filter(b => b.match_id === match.fixture_id && b.ai_id === 'hunsoccermax')
+              .filter(b => b.match_id?.toString() === match.mid && b.ai_id === 'hunsoccermax')
               .map(bet => convertBet(bet, match));
             
             if (matchBets.length > 0) {
-              betsByMatch.set(match.fixture_id, { match, bets: matchBets });
+              betsByMatch.set(match.mid, { match, bets: matchBets });
             }
           });
 
@@ -1223,7 +1338,7 @@ const ActiveAIBets = () => {
         open={pkDialogOpen}
         onOpenChange={setPkDialogOpen}
         match={pkSelectedMatch ? {
-          fixture_id: pkSelectedMatch.fixture_id,
+          fixture_id: Number.isNaN(Number(pkSelectedMatch.mid)) ? 0 : Number(pkSelectedMatch.mid),
           home_team_id: pkSelectedMatch.home_team_id || undefined,
           home_team_name: pkSelectedMatch.home_team_name,
           away_team_id: pkSelectedMatch.away_team_id || undefined,
@@ -1231,7 +1346,7 @@ const ActiveAIBets = () => {
           home_logo: pkSelectedMatch.home_logo || undefined,
           away_logo: pkSelectedMatch.away_logo || undefined,
           league_name: pkSelectedMatch.league_name,
-          kickoff_at: pkSelectedMatch.kickoff_at,
+          kickoff_at: getKickoffDate(pkSelectedMatch)?.toISOString() || '',
         } : null}
       />
     </div>

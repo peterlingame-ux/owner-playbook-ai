@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, Moon, Sun } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui
 import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
+import { useTheme } from "next-themes";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -19,10 +20,11 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPredictions, setShowPredictions] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const navItems = [
-    { to: "/", label: t('nav_live') },
     { to: "/leaderboard", label: t('nav_rank') },
+    { to: "/", label: t('nav_live') },
     { to: "/history", label: t('nav_history') },
     { to: "/models", label: t('nav_models') },
     { to: "/my-predictions", label: t('nav_personal_center') },
@@ -169,6 +171,20 @@ const Header = () => {
             </Sheet>
             
             <OnlineUsers />
+
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="inline-flex h-8 w-8 p-0"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+              {theme === "light" ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )}
+            </Button>
             
             <LanguageSwitcher />
             

@@ -51,7 +51,9 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
           type="button"
           className="flex items-center gap-1.5 h-12 px-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/15 transition-colors min-w-[110px]"
         >
-          <span className="text-lg">{currentCountry.flag}</span>
+          <span className="text-sm font-medium">
+            {currentCountry.code === "+86" ? "CN" : currentCountry.flag}
+          </span>
           <span className="text-sm font-medium">{currentCountry.code}</span>
           <ChevronDown className="h-4 w-4 text-white/60 ml-auto" />
         </button>

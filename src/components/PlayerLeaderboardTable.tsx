@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp } from "lucide-react";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
 import { useState, useEffect, useCallback } from "react";
@@ -132,6 +132,9 @@ const PlayerLeaderboardTable = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [todayWinRates, setTodayWinRates] = useState<Map<string, { winRate: number; total: number; correct: number }>>(new Map());
   const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
+  const [likedPlayers, setLikedPlayers] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
+  const [isLiking, setIsLiking] = useState<Set<string>>(new Set()); // 防止重复点击
   const [selectedPlayerHistory, setSelectedPlayerHistory] = useState<{ playerId: string; playerName: string; predictions: TodayPrediction[] } | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -443,6 +446,158 @@ const PlayerLeaderboardTable = () => {
       supabase.removeChannel(balancesChannel);
     };
   }, [timeRange]);
+
+  // 获取点赞数和用户点赞状态
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        // 获取所有玩家的ID列表（包括虚拟玩家和真实玩家）
+        const playerIds = allPlayers.map(p => p.id);
+
+        if (playerIds.length === 0) return;
+
+        // 获取所有玩家的点赞数
+        const { data: countsData, error: countsError } = await supabase
+          .from('like_counts' as any)
+          .select('entity_id, like_count')
+          .eq('entity_type', 'player')
+          .in('entity_id', playerIds);
+
+        if (!countsError && countsData) {
+          const countsMap = new Map<string, number>();
+          countsData.forEach((item: any) => {
+            countsMap.set(item.entity_id, item.like_count || 0);
+          });
+          setLikeCounts(countsMap);
+        }
+
+        // 获取用户已点赞的玩家
+        if (user) {
+          const { data: userLikesData, error: userLikesError } = await supabase
+            .from('likes' as any)
+            .select('entity_id')
+            .eq('user_id', user.id)
+            .eq('entity_type', 'player')
+            .in('entity_id', playerIds);
+
+          if (!userLikesError && userLikesData) {
+            const likedSet = new Set<string>();
+            userLikesData.forEach((item: any) => {
+              likedSet.add(item.entity_id);
+            });
+            setLikedPlayers(likedSet);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error);
+      }
+    };
+
+    if (allPlayers.length > 0) {
+      fetchLikes();
+    }
+
+    // 订阅点赞表的变化，实时更新点赞数
+    const likesChannel = supabase
+      .channel('player-likes-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'likes' as any,
+          filter: 'entity_type=eq.player',
+        },
+        () => {
+          fetchLikes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(likesChannel);
+    };
+  }, [allPlayers, user]);
+
+  // 处理点赞/取消点赞
+  const handleLike = async (playerId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    if (!user) {
+      toast.error("请先登录", {
+        description: "登录后即可点赞",
+      });
+      return;
+    }
+
+    if (isLiking.has(playerId)) {
+      return; // 防止重复点击
+    }
+
+    setIsLiking(prev => new Set(prev).add(playerId));
+
+    try {
+      const isCurrentlyLiked = likedPlayers.has(playerId);
+
+      if (isCurrentlyLiked) {
+        // 取消点赞
+        const { error } = await supabase
+          .from('likes' as any)
+          .delete()
+          .eq('user_id', user.id)
+          .eq('entity_type', 'player')
+          .eq('entity_id', playerId);
+
+        if (error) throw error;
+
+        // 更新本地状态
+        setLikedPlayers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(playerId);
+          return newSet;
+        });
+        setLikeCounts(prev => {
+          const newMap = new Map(prev);
+          const currentCount = newMap.get(playerId) || 0;
+          newMap.set(playerId, Math.max(0, currentCount - 1));
+          return newMap;
+        });
+      } else {
+        // 点赞
+        const { error } = await supabase
+          .from('likes' as any)
+          .insert({
+            user_id: user.id,
+            entity_type: 'player',
+            entity_id: playerId,
+          });
+
+        if (error) throw error;
+
+        // 更新本地状态
+        setLikedPlayers(prev => new Set(prev).add(playerId));
+        setLikeCounts(prev => {
+          const newMap = new Map(prev);
+          const currentCount = newMap.get(playerId) || 0;
+          newMap.set(playerId, currentCount + 1);
+          return newMap;
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast.error("操作失败", {
+        description: "请稍后重试",
+      });
+    } finally {
+      setIsLiking(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(playerId);
+        return newSet;
+      });
+    }
+  };
 
   // 获取今日胜率数据
   useEffect(() => {
@@ -1031,142 +1186,6 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
 
-      {/* Prize Pool Banner - 整合玩家专属模型 */}
-      <Card className="border-border/50 overflow-hidden relative">
-        {/* 背景图 */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${prizeBannerBg})` }}
-        />
-        <div className="absolute inset-0 bg-background/85" />
-        <CardContent className="p-5 sm:p-6 relative">
-          <div className="flex flex-col gap-5">
-            {/* 主标题 */}
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                <span className="text-lg sm:text-xl font-bold text-foreground">挑战AI</span>
-                <span className="text-2xl sm:text-4xl font-black text-foreground">$1,000,000</span>
-                <span className="text-lg sm:text-xl font-bold text-foreground">大奖等你来拿</span>
-              </div>
-              <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                玩家预测的比赛场次、比赛胜率、盈利金额都超过当前排名最高的AI，即可领取奖金
-              </p>
-            </div>
-            
-            {/* AI vs 玩家数据对比 */}
-            <div className="w-full max-w-3xl mx-auto space-y-2">
-              {/* AI数据 */}
-              <div className="bg-muted/30 rounded-lg px-4 py-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 border-2 border-warning/50">
-                      <AvatarImage src={hunsoccerAiIcon} />
-                      <AvatarFallback>AI</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-bold text-sm">HUNSOCCER MAX</p>
-                      <p className="text-xs text-muted-foreground">AI基准</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 sm:gap-6 text-sm">
-                    <span className="text-muted-foreground">预测场次：<span className="font-bold text-foreground">247场</span></span>
-                    <span className="text-muted-foreground">预测胜率：<span className="font-bold text-foreground">78.95%</span></span>
-                    <span className="text-muted-foreground">盈利：<span className="font-bold text-foreground">$24,789</span></span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* 玩家专属模型数据 */}
-              {user ? (
-                (() => {
-                  const currentPlayer = allPlayers.find(p => p.id === user.id);
-                  const playerPredictions = currentPlayer?.totalPredictions || 0;
-                  const playerWinRate = currentPlayer?.winRate || 0;
-                  const playerProfit = currentPlayer?.profitAmount || 0;
-                  const meetsRequirements = playerPredictions >= 247 && playerWinRate >= 78.95 && playerProfit >= 2478900;
-                  
-                  return (
-                    <div className={`rounded-lg px-4 py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
-                            <Avatar className="w-10 h-10 border-2 border-primary/50">
-                              <AvatarImage src={currentPlayer?.avatarUrl || '/avatars/avatar-1.png'} />
-                              <AvatarFallback>{currentPlayer?.displayName?.charAt(0) || '玩'}</AvatarFallback>
-                            </Avatar>
-                            {currentPlayer && (
-                              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
-                                #{currentPlayer.rank}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm">{currentPlayer?.displayName || '我的专属模型'}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {meetsRequirements ? <span className="text-success">✓ 已达标</span> : '继续努力'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4 sm:gap-6 text-sm">
-                          <span className="text-muted-foreground">
-                            预测场次：<span className={`font-bold ${playerPredictions >= 247 ? 'text-success' : 'text-foreground'}`}>{playerPredictions}场</span>
-                          </span>
-                          <span className="text-muted-foreground">
-                            预测胜率：<span className={`font-bold ${playerWinRate >= 78.95 ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
-                          </span>
-                          <span className="text-muted-foreground">
-                            盈利：<span className={`font-bold ${playerProfit >= 2478900 ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : (
-                <div className="rounded-lg px-4 py-3 bg-muted/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-10 h-10 border-2 border-muted/40">
-                        <AvatarImage src="/avatars/avatar-1.png" />
-                        <AvatarFallback>玩</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-bold text-sm">玩家专属模型</p>
-                        <p className="text-xs text-muted-foreground">登录后查看您的排名和数据</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => navigate('/auth')}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                    >
-                      登录
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* 倒计时和统计 */}
-            {(() => {
-              const qualifiedCount = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-              const prizePerPerson = qualifiedCount > 0 ? Math.floor(PRIZE_POOL / qualifiedCount) : PRIZE_POOL;
-              
-              return (
-                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
-                  <span className="font-mono text-foreground">
-                    {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-                  </span>
-                  <div className="h-4 w-px bg-border" />
-                  <span><span className="font-bold text-foreground">{qualifiedCount}</span> 人已达标</span>
-                  <div className="h-4 w-px bg-border" />
-                  <span>人均奖金：<span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
-                </div>
-              );
-            })()}
-          </div>
-        </CardContent>
-      </Card>
-      
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
         {/* Left Column: 高胜率榜 (Hot Streak) */}
@@ -1277,6 +1296,31 @@ const PlayerLeaderboardTable = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-1">
                           <p className="font-semibold text-xs sm:text-sm truncate text-foreground">{maskPlayerName(player.displayName)}</p>
+                          {/* 点赞按钮 - 名字后面 */}
+                          {(() => {
+                            const isLiked = likedPlayers.has(player.id);
+                            const likeCount = likeCounts.get(player.id) || 0;
+                            const isLoading = isLiking.has(player.id);
+                            return (
+                              <button
+                                onClick={(e) => handleLike(player.id, e)}
+                                disabled={isLoading}
+                                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 flex-shrink-0 ${
+                                  isLoading
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : ''
+                                } ${
+                                  isLiked 
+                                    ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                    : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                                }`}
+                                title={isLiked ? '取消点赞' : '点赞'}
+                              >
+                                <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                                <span className="text-[10px] font-medium">{likeCount}</span>
+                              </button>
+                            );
+                          })()}
                           {(() => {
                             const todayData = todayWinRates.get(player.id);
                             if (todayData && todayData.total > 0) {
@@ -1294,7 +1338,7 @@ const PlayerLeaderboardTable = () => {
                         <div className="text-[10px] sm:text-xs space-y-1">
                           {/* 第一行：核心数据 */}
                           <div className="flex items-center gap-3 text-muted-foreground">
-                            <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+                            <span>跟单 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
                             <span className="text-border">|</span>
                             <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
                             <span className="text-border">|</span>
@@ -1322,15 +1366,17 @@ const PlayerLeaderboardTable = () => {
                         </div>
                       </div>
                     </div>
-                    <button
-                      className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                      }}
-                    >
-                      今日推荐
-                    </button>
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                      <button
+                        className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                        }}
+                      >
+                        今日推荐
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
                   </motion.div>
@@ -1448,6 +1494,31 @@ const PlayerLeaderboardTable = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-1">
                           <p className="font-semibold text-xs sm:text-sm truncate text-foreground">{maskPlayerName(player.displayName)}</p>
+                          {/* 点赞按钮 - 名字后面 */}
+                          {(() => {
+                            const isLiked = likedPlayers.has(player.id);
+                            const likeCount = likeCounts.get(player.id) || 0;
+                            const isLoading = isLiking.has(player.id);
+                            return (
+                              <button
+                                onClick={(e) => handleLike(player.id, e)}
+                                disabled={isLoading}
+                                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 flex-shrink-0 ${
+                                  isLoading
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : ''
+                                } ${
+                                  isLiked 
+                                    ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                    : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                                }`}
+                                title={isLiked ? '取消点赞' : '点赞'}
+                              >
+                                <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                                <span className="text-[10px] font-medium">{likeCount}</span>
+                              </button>
+                            );
+                          })()}
                           {(() => {
                             const todayData = todayWinRates.get(player.id);
                             if (todayData && todayData.total > 0) {
@@ -1465,7 +1536,7 @@ const PlayerLeaderboardTable = () => {
                         <div className="text-[10px] sm:text-xs space-y-1">
                           {/* 第一行：核心数据 */}
                           <div className="flex items-center gap-3 text-muted-foreground">
-                            <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+                            <span>跟单 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
                             <span className="text-border">|</span>
                             <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
                             <span className="text-border">|</span>
@@ -1495,15 +1566,17 @@ const PlayerLeaderboardTable = () => {
                         </div>
                       </div>
                     </div>
-                    <button
-                      className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                      }}
-                    >
-                      今日推荐
-                    </button>
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                      <button
+                        className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                        }}
+                      >
+                        今日推荐
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
                   </motion.div>
@@ -1621,6 +1694,31 @@ const PlayerLeaderboardTable = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-1">
                           <p className="font-semibold text-xs sm:text-sm truncate text-foreground">{maskPlayerName(player.displayName)}</p>
+                          {/* 点赞按钮 - 名字后面 */}
+                          {(() => {
+                            const isLiked = likedPlayers.has(player.id);
+                            const likeCount = likeCounts.get(player.id) || 0;
+                            const isLoading = isLiking.has(player.id);
+                            return (
+                              <button
+                                onClick={(e) => handleLike(player.id, e)}
+                                disabled={isLoading}
+                                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 flex-shrink-0 ${
+                                  isLoading
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : ''
+                                } ${
+                                  isLiked 
+                                    ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                    : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                                }`}
+                                title={isLiked ? '取消点赞' : '点赞'}
+                              >
+                                <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                                <span className="text-[10px] font-medium">{likeCount}</span>
+                              </button>
+                            );
+                          })()}
                           {(() => {
                             const todayData = todayWinRates.get(player.id);
                             if (todayData && todayData.total > 0) {
@@ -1638,7 +1736,7 @@ const PlayerLeaderboardTable = () => {
                         <div className="text-[10px] sm:text-xs space-y-1">
                           {/* 第一行：核心数据 */}
                           <div className="flex items-center gap-3 text-muted-foreground">
-                            <span>预测 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
+                            <span>跟单 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
                             <span className="text-border">|</span>
                             <span>胜率 <span className={`font-medium ${player.winRate > AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{player.winRate.toFixed(0)}%</span></span>
                             <span className="text-border">|</span>
@@ -1668,15 +1766,17 @@ const PlayerLeaderboardTable = () => {
                         </div>
                       </div>
                     </div>
-                    <button
-                      className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors flex-shrink-0 ml-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                      }}
-                    >
-                      今日推荐
-                    </button>
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                      <button
+                        className="text-[10px] sm:text-xs px-2 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                        }}
+                      >
+                        今日推荐
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
                   </motion.div>
