@@ -34,81 +34,87 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
   const { t } = useTranslation();
   const [timeDisplay, setTimeDisplay] = useState<string>('');
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
-  const [isLive, setIsLive] = useState<boolean>(false);
+  const [matchStatus, setMatchStatus] = useState<'not_started' | 'live' | 'half_time' | 'other'>('not_started');
 
   useEffect(() => {
     const updateTime = () => {
-      const status = match.status_short;
+      const status = match.status_short?.trim() || '';
+      const kickoffTime = getKickoffDate(match);
       
-      // 需要显示比分和时长的状态：LIVE, 1H, HT, 2H, ET
-      const showScoreAndTimeStatuses = ['LIVE', '1H', 'HT', '2H', 'ET'];
+      // 已开赛的状态列表
+      const startedStatuses = ['LIVE', '1H', '2H', 'ET', 'HT', 'P', 'BREAK', 'FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
       
-      // 如果比赛已开赛（不是 NS），显示进行时间
-      if (status !== 'NS') {
+      // 如果状态是已开赛，显示相应信息
+      if (startedStatuses.includes(status)) {
         setShowCountdown(false);
-        // 判断是否需要显示比分和时长
-        const shouldShowScore = showScoreAndTimeStatuses.includes(status);
-        setIsLive(shouldShowScore);
         
-        if (shouldShowScore) {
-          // 这些状态需要显示比分和时长
+        // 中场休息
+        if (status === 'HT') {
+          setMatchStatus('half_time');
+          setTimeDisplay(t('half_time_break') || '中场休息');
+          return;
+        }
+        
+        // 比赛进行中：LIVE, 1H, 2H, ET
+        if (['LIVE', '1H', '2H', 'ET'].includes(status)) {
+          setMatchStatus('live');
           const elapsed = match.status_elapsed;
+          setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
+          return;
+        }
+        
+        // 其他已开赛状态
+        setMatchStatus('other');
         switch (status) {
-          case 'HT':
-              // 中场休息，显示多语言的"半场"
-            setTimeDisplay(t('half_time') || '半场');
-              break;
-            case '1H':
-          case '2H':
-          case 'ET':
-            case 'LIVE':
-              // 显示进行分钟数
-              setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
-              break;
-            default:
-              setTimeDisplay(status);
-              break;
-          }
-        } else {
-          // 其他状态（如 P, BREAK 等）只显示状态文本
-          setIsLive(false);
-          switch (status) {
           case 'P':
             setTimeDisplay('PEN');
-              break;
+            break;
           case 'BREAK':
             setTimeDisplay('BREAK');
-              break;
+            break;
           default:
             setTimeDisplay(status);
-              break;
-        }
+            break;
         }
         return;
       }
       
-      // 如果未开赛，显示倒计时（时分秒格式）
-      setIsLive(false);
-      setShowCountdown(true);
-      const kickoffTime = getKickoffDate(match);
+      // 如果状态不是已开赛，根据比赛时间判断
       if (!kickoffTime) {
+        setMatchStatus('not_started');
+        setShowCountdown(true);
         setTimeDisplay('--:--:--');
         return;
       }
+      
       const now = new Date();
       const diff = kickoffTime.getTime() - now.getTime();
       
-      if (diff <= 0) {
+      // 如果比赛时间还未到，显示倒计时
+      if (diff > 0) {
+        setMatchStatus('not_started');
+        setShowCountdown(true);
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        // 显示时分秒格式：HH:MM:SS
+        setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        return;
+      }
+      
+      // 如果比赛时间已过但状态不是已开赛，显示"即将开始"或比赛时间
+      if (diff <= 0 && diff > -300000) { // 5分钟内
+        setMatchStatus('not_started');
+        setShowCountdown(false);
         setTimeDisplay(t('starting_soon') || '即将开始');
         return;
       }
       
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      // 显示时分秒格式：HH:MM:SS
-      setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      // 其他情况，显示空
+      setMatchStatus('other');
+      setShowCountdown(false);
+      setTimeDisplay('');
     };
 
     updateTime();
@@ -117,35 +123,42 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
     return () => clearInterval(interval);
   }, [match.status_short, match.status_elapsed, match.mgt, t]);
 
-  const homeScore = match.goals_home ?? 0;
-  const awayScore = match.goals_away ?? 0;
-
   return (
     <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
-      {isLive ? (
+      {matchStatus === 'not_started' ? (
         <>
-          {/* 比赛进行中：显示比分 */}
-          <div className="flex items-center gap-1 sm:gap-1">
-            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{homeScore}</span>
-            <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
-            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{awayScore}</span>
-          </div>
-          {/* 显示进行时间 */}
-          <span className="text-[7px] sm:text-[7px] text-success font-bold font-mono uppercase">
+          {/* 未开赛：显示 VS 和倒计时 */}
+          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+          <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
+            {t('until_match_starts') || '距离比赛开始'}
+          </span>
+          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
+            {timeDisplay}
+          </span>
+        </>
+      ) : matchStatus === 'live' ? (
+        <>
+          {/* 开赛：显示 VS 和比赛时间 */}
+          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+          <span className="text-[7px] sm:text-[7px] text-success font-bold font-mono">
+            {timeDisplay}
+          </span>
+        </>
+      ) : matchStatus === 'half_time' ? (
+        <>
+          {/* 中场休息：显示 VS 和"中场休息" */}
+          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
+          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-bold">
             {timeDisplay}
           </span>
         </>
       ) : (
         <>
-      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-          {showCountdown && (
-            <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
-              {t('until_match_starts') || '距离比赛开始'}
-            </span>
-          )}
+          {/* 其他状态 */}
+          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
           <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
-        {timeDisplay}
-      </span>
+            {timeDisplay}
+          </span>
         </>
       )}
     </div>
@@ -235,9 +248,12 @@ type AnalysisDialogState = {
 // 统一获取开赛时间，仅使用 mgt 毫秒时间戳
 const getKickoffDate = (match: Pick<DailyMatch, 'mgt'>): Date | null => {
   const ms = match.mgt;
-  if (ms === undefined || ms === null) return null;
+  if (ms === undefined || ms === null || ms === 0) return null;
   const parsed = typeof ms === 'string' ? Number(ms) : ms;
-  if (Number.isNaN(parsed)) return null;
+  if (Number.isNaN(parsed) || parsed <= 0) return null;
+  // 验证时间戳是否合理（大于 2000-01-01 的时间戳，946684800000 毫秒）
+  const MIN_VALID_TIMESTAMP = 946684800000; // 2000-01-01 00:00:00 UTC
+  if (parsed < MIN_VALID_TIMESTAMP) return null;
   return new Date(parsed);
 };
 
@@ -303,10 +319,15 @@ const normalizeDailyMatch = (match: any): DailyMatch => {
     return null;
   };
   
+  // 处理 mgt：确保是有效的毫秒时间戳
+  const mgtValue = match.mgt;
+  const parsedMgt = typeof mgtValue === 'string' ? Number(mgtValue) : mgtValue;
+  const validMgt = (parsedMgt && !Number.isNaN(parsedMgt) && parsedMgt > 0) ? parsedMgt : 0;
+  
   return {
     mid,
     date: match.date,
-    mgt: match.mgt ?? 0,
+    mgt: validMgt,
     league_id: match.league_id ?? match.tid ?? null,
     league_name: match.league_name ?? match.tn ?? match.tnjc ?? '',
     league_logo: addLogoPrefix(match.league_logo ?? match.lurl ?? null),

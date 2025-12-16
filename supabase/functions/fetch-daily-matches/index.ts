@@ -304,17 +304,8 @@ const filterMatchesByLeague = (
       continue;
     }
 
-    // 检查联赛名称是否在 league_constants 中
-    // 支持中文名匹配
-    let matched = false;
-    for (const [chineseName] of leagueConstants.entries()) {
-      if (leagueName === chineseName || leagueName.includes(chineseName) || chineseName.includes(leagueName)) {
-        matched = true;
-        break;
-      }
-    }
-
-    if (matched) {
+    // 检查联赛名称是否在 league_constants 中（完全匹配）
+    if (leagueConstants.has(leagueName)) {
       filtered.push(match);
     }
   }
@@ -773,16 +764,24 @@ const refreshExistingMatches = async (
   const allMatches = await fetchYBTYMatches(ybtyToken);
   console.log(`[fetch-daily-matches] 获取到 ${allMatches.length} 场比赛`);
 
-  // 过滤匹配联赛的比赛
-  const filteredByLeague = filterMatchesByLeague(allMatches, leagueConstants);
-  console.log(`[fetch-daily-matches] 匹配联赛后剩余 ${filteredByLeague.length} 场比赛`);
-
-  // 过滤出需要刷新的比赛
-  const matchesToUpdate = filteredByLeague.filter((match) =>
+  // 在刷新模式下，先根据 mid 匹配需要刷新的比赛（不过滤联赛）
+  // 因为需要刷新的比赛可能不在 league_constants 中，但它们已经在数据库中了
+  const matchesToUpdate = allMatches.filter((match) =>
     match.mid && matchesToRefresh.has(match.mid)
   );
 
-  console.log(`[fetch-daily-matches] 匹配到 ${matchesToUpdate.length} 场需要更新的比赛`);
+  console.log(`[fetch-daily-matches] 从 API 中匹配到 ${matchesToUpdate.length} 场需要更新的比赛（mid: ${Array.from(matchesToRefresh).slice(0, 5).join(', ')}${matchesToRefresh.size > 5 ? '...' : ''}）`);
+
+  // 如果匹配到的比赛数量少于需要刷新的数量，记录日志
+  if (matchesToUpdate.length < matchesToRefresh.size) {
+    const foundMids = new Set(matchesToUpdate.map(m => m.mid));
+    const missingMids = Array.from(matchesToRefresh).filter(mid => !foundMids.has(mid));
+    console.log(`[fetch-daily-matches] 警告：有 ${missingMids.length} 场比赛在 API 中未找到: ${missingMids.slice(0, 5).join(', ')}${missingMids.length > 5 ? '...' : ''}`);
+  }
+
+  // 过滤匹配联赛的比赛（用于统计）
+  const filteredByLeague = filterMatchesByLeague(allMatches, leagueConstants);
+  console.log(`[fetch-daily-matches] 匹配联赛后剩余 ${filteredByLeague.length} 场比赛`);
 
   if (matchesToUpdate.length === 0) {
     return { refreshed: 0, total: filteredByLeague.length };
