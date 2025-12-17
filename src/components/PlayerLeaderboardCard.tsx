@@ -256,16 +256,16 @@ export const PlayerLeaderboardCard = ({
         </div>
       </div>
       
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6">
+      {/* Stats Grid - Row 1: 4 items */}
+      <div className="grid grid-cols-4 gap-3 sm:gap-4">
         {/* Profit Amount with Mini Chart */}
         <div>
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
-          <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+          <p className={`text-sm sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
             {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
           {/* Mini Chart */}
-          <svg width="80" height="24" className="mt-1">
+          <svg width="60" height="20" className="mt-1">
             <path
               d={generateChartPath()}
               fill="none"
@@ -282,33 +282,29 @@ export const PlayerLeaderboardCard = ({
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
           <AnimatedWinRate 
             value={player.winRate}
-            className="text-base sm:text-lg font-bold font-mono-data text-foreground"
+            className="text-sm sm:text-lg font-bold font-mono-data text-foreground"
           />
         </div>
         
         {/* Bet Amount */}
-        <div className="text-right">
+        <div className="text-center">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('bet_amount_label')}</p>
-          <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
+          <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
             ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
         </div>
-      </div>
-      
-      {/* Predictions Stats Row */}
-      <div className="grid grid-cols-5 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+        
         {/* Copy Traders - Clickable */}
         <div 
-          className="cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+          className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             onViewHistory(e);
           }}
         >
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('followers_count')}</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
+          <p className="text-sm sm:text-lg font-bold font-mono-data text-primary hover:underline">
             {(() => {
-              // Generate mock copy trader count based on player stats
               const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
               const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
               const variance = (seed % 50) - 25;
@@ -316,9 +312,12 @@ export const PlayerLeaderboardCard = ({
             })()}{t('people_suffix')}
           </p>
         </div>
-        
+      </div>
+      
+      {/* Stats Grid - Row 2: 4 items */}
+      <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
         {/* Correct Predictions */}
-        <div className="text-center">
+        <div>
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('correct_matches')}</p>
           <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
             {player.correctPredictions}{t('matches_suffix')}
