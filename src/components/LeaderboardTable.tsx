@@ -627,212 +627,224 @@ const LeaderboardTable = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          {/* 滚动提示 - 仅移动端显示 */}
-          <div className="sm:hidden bg-muted/20 px-3 py-2 border-b border-border/30 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
-            <div className="flex gap-1">
-              <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-              <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-              <div className="w-1 h-1 rounded-full bg-muted-foreground/20" />
-            </div>
-          </div>
-          <div className="overflow-x-auto -mx-2 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <Table className="min-w-[800px]">
-                <TableHeader>
-                  <TableRow className="border-b border-border/40 hover:bg-transparent bg-muted/10">
-                    <TableHead className="w-10 sm:w-14 py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-center font-sans">#</TableHead>
-                    <TableHead className="py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase min-w-[120px] sm:min-w-0 font-sans">{t('model')}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('total_predictions') || '总预测'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('correct') || '正确'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('wrong') || '错误'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {t('win_rate')} <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+        <CardContent className="p-3 sm:p-4">
+          {/* AI Model Cards */}
+          <div className="space-y-3">
+            {enhancedModels.map((model, index) => {
+              const isLiked = likedModels.has(model.id);
+              const likeCount = likeCounts.get(model.id) || 0;
+              const isLoading = isLiking.has(model.id);
+              
+              const handleLike = async (e: React.MouseEvent) => {
+                e.stopPropagation();
+                
+                if (!user) {
+                  toast({
+                    title: "请先登录",
+                    description: "登录后即可点赞",
+                    variant: "default",
+                  });
+                  return;
+                }
+
+                if (isLiking.has(model.id)) {
+                  return;
+                }
+
+                setIsLiking(prev => new Set(prev).add(model.id));
+
+                try {
+                  const isCurrentlyLiked = likedModels.has(model.id);
+
+                  if (isCurrentlyLiked) {
+                    const { error } = await supabase
+                      .from('likes' as any)
+                      .delete()
+                      .eq('user_id', user.id)
+                      .eq('entity_type', 'ai_model')
+                      .eq('entity_id', model.id);
+
+                    if (error) throw error;
+
+                    setLikedModels(prev => {
+                      const newSet = new Set(prev);
+                      newSet.delete(model.id);
+                      return newSet;
+                    });
+                    setLikeCounts(prev => {
+                      const newMap = new Map(prev);
+                      const currentCount = newMap.get(model.id) || 0;
+                      newMap.set(model.id, Math.max(0, currentCount - 1));
+                      return newMap;
+                    });
+                  } else {
+                    const { error } = await supabase
+                      .from('likes' as any)
+                      .insert({
+                        user_id: user.id,
+                        entity_type: 'ai_model',
+                        entity_id: model.id,
+                      });
+
+                    if (error) throw error;
+
+                    setLikedModels(prev => new Set(prev).add(model.id));
+                    setLikeCounts(prev => {
+                      const newMap = new Map(prev);
+                      const currentCount = newMap.get(model.id) || 0;
+                      newMap.set(model.id, currentCount + 1);
+                      return newMap;
+                    });
+                  }
+                } catch (error) {
+                  console.error('Error toggling like:', error);
+                  toast({
+                    title: "操作失败",
+                    description: "请稍后重试",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsLiking(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(model.id);
+                    return newSet;
+                  });
+                }
+              };
+
+              // Generate mini chart data points based on profit trend
+              const profitAmount = (model as any).profitAmount || 0;
+              const generateChartPath = () => {
+                const points = [];
+                const width = 80;
+                const height = 24;
+                const numPoints = 8;
+                
+                for (let i = 0; i < numPoints; i++) {
+                  const x = (i / (numPoints - 1)) * width;
+                  const variance = Math.random() * 8 - 4;
+                  const trend = profitAmount >= 0 ? (i / numPoints) * 12 : -(i / numPoints) * 8;
+                  const y = height / 2 - trend + variance;
+                  points.push(`${i === 0 ? 'M' : 'L'}${x},${Math.max(2, Math.min(height - 2, y))}`);
+                }
+                return points.join(' ');
+              };
+              
+              return (
+                <div 
+                  key={model.id}
+                  className="bg-muted/20 rounded-lg border border-border/30 p-3 sm:p-4 hover:bg-muted/30 transition-colors"
+                >
+                  {/* Top Row: Avatar, Name, Buttons */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3">
+                      {/* Rank Badge */}
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                        <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
                       </div>
-                    </TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('bet_amount') || '投注金额'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('profit_amount') || '盈利金额'}</TableHead>
-                    <TableHead className="text-center py-3 sm:py-4 text-foreground/80 font-semibold text-[10px] sm:text-xs tracking-wider uppercase font-sans">{t('profit_rate') || '盈利率'}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {enhancedModels.map((model, index) => {
-                    const isLiked = likedModels.has(model.id);
-                    const likeCount = likeCounts.get(model.id) || Math.floor(Math.random() * 100) + 10;
-                    
-                    const handleLike = async (e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      
-                      if (!user) {
-                        toast({
-                          title: "请先登录",
-                          description: "登录后即可点赞",
-                          variant: "default",
-                        });
-                        return;
-                      }
-
-                      if (isLiking.has(model.id)) {
-                        return; // 防止重复点击
-                      }
-
-                      setIsLiking(prev => new Set(prev).add(model.id));
-
-                      try {
-                        const isCurrentlyLiked = likedModels.has(model.id);
-
-                        if (isCurrentlyLiked) {
-                          // 取消点赞
-                          const { error } = await supabase
-                            .from('likes' as any)
-                            .delete()
-                            .eq('user_id', user.id)
-                            .eq('entity_type', 'ai_model')
-                            .eq('entity_id', model.id);
-
-                          if (error) throw error;
-
-                          // 更新本地状态
-                          setLikedModels(prev => {
-                            const newSet = new Set(prev);
-                            newSet.delete(model.id);
-                            return newSet;
-                          });
-                          setLikeCounts(prev => {
-                            const newMap = new Map(prev);
-                            const currentCount = newMap.get(model.id) || 0;
-                            newMap.set(model.id, Math.max(0, currentCount - 1));
-                            return newMap;
-                          });
-                        } else {
-                          // 点赞
-                          const { error } = await supabase
-                            .from('likes' as any)
-                            .insert({
-                              user_id: user.id,
-                              entity_type: 'ai_model',
-                              entity_id: model.id,
-                            });
-
-                          if (error) throw error;
-
-                          // 更新本地状态
-                          setLikedModels(prev => new Set(prev).add(model.id));
-                          setLikeCounts(prev => {
-                            const newMap = new Map(prev);
-                            const currentCount = newMap.get(model.id) || 0;
-                            newMap.set(model.id, currentCount + 1);
-                            return newMap;
-                          });
-                        }
-                      } catch (error) {
-                        console.error('Error toggling like:', error);
-                        toast({
-                          title: "操作失败",
-                          description: "请稍后重试",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setIsLiking(prev => {
-                          const newSet = new Set(prev);
-                          newSet.delete(model.id);
-                          return newSet;
-                        });
-                      }
-                    };
-                    
-                    return (
-                      <TableRow 
-                        key={model.id}
-                        className="border-b border-border/20 hover:bg-muted/30 transition-colors relative"
+                      {/* Avatar */}
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
+                        <img 
+                          src={getModelIcon(model.id)} 
+                          alt={model.name} 
+                          className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                          style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                        />
+                      </div>
+                      {/* Name & Stats */}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm sm:text-base text-foreground">{getModelDisplayName(model)}</span>
+                          {/* Like Button */}
+                          <button
+                            onClick={handleLike}
+                            disabled={isLoading}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ${
+                              isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                            } ${
+                              isLiked 
+                                ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                            }`}
+                            title={isLiked ? '取消点赞' : '点赞'}
+                          >
+                            <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                            <span className="text-[10px] font-medium">{likeCount}</span>
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                          <span>👥 {(model as any).correctPredictions || 0}/{model.totalPredictions || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => fetchTodayHistory(model.id, getModelDisplayName(model))}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                       >
-                        <TableCell className="py-3 sm:py-4 text-center">
-                          <div className="flex items-center justify-center">
-                            <span className="font-semibold text-sm sm:text-base text-foreground/70 font-sans">{index + 1}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3 sm:py-4">
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <div className={`w-7 h-7 sm:w-9 sm:h-9 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 sm:p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
-                              <img 
-                                src={getModelIcon(model.id)} 
-                                alt={model.name} 
-                                className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                                style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                              />
-                            </div>
-                            <span className="font-semibold text-sm sm:text-base truncate font-display">{getModelDisplayName(model)}</span>
-                            {/* 点赞按钮 - 名字后面 */}
-                            {(() => {
-                              const isLiked = likedModels.has(model.id);
-                              const likeCount = likeCounts.get(model.id) || 0;
-                              const isLoading = isLiking.has(model.id);
-                              return (
-                                <button
-                                  onClick={handleLike}
-                                  disabled={isLoading}
-                                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 ${
-                                    isLoading
-                                      ? 'opacity-50 cursor-not-allowed'
-                                      : ''
-                                  } ${
-                                    isLiked 
-                                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                      : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
-                                  }`}
-                                  title={isLiked ? '取消点赞' : '点赞'}
-                                >
-                                  <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-                                  <span className="text-[10px] font-medium">{likeCount}</span>
-                                </button>
-                              );
-                            })()}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                            {model.locked ? '???' : model.totalPredictions}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                            {model.locked ? '???' : (model as any).correctPredictions || 0}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                            {model.locked ? '???' : ((model.totalPredictions || 0) - ((model as any).correctPredictions || 0))}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <AnimatedWinRate 
-                            value={model.winRate}
-                            className="font-mono-data font-semibold text-base sm:text-lg text-foreground"
-                          />
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className="font-mono-data font-medium text-sm sm:text-base text-muted-foreground">
-                            {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            {model.locked ? '???' : `${((model as any).profitAmount || 0) >= 0 ? '+' : ''}¥${((model as any).profitAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center py-3 sm:py-4">
-                          <span className={`font-mono-data font-medium text-sm sm:text-base ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                        历史记录
+                      </button>
+                      <button 
+                        onClick={() => navigate(`/models/${model.id}`)}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors"
+                      >
+                        详情
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                    {/* Profit Amount with Mini Chart */}
+                    <div>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 盈亏</p>
+                      <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}${profitAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                      </p>
+                      {/* Mini Chart */}
+                      <svg width="80" height="24" className="mt-1">
+                        <path
+                          d={generateChartPath()}
+                          fill="none"
+                          stroke={profitAmount >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    
+                    {/* Win Rate */}
+                    <div className="text-center">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 胜率</p>
+                      <AnimatedWinRate 
+                        value={model.winRate}
+                        className="text-base sm:text-lg font-bold font-mono-data text-warning"
+                      />
+                      {/* Profit Rate below */}
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        收益率: <span className={`font-medium ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
+                        </span>
+                      </p>
+                    </div>
+                    
+                    {/* Bet Amount */}
+                    <div className="text-right">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+                        {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                      </p>
+                      {/* Predictions below */}
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        预测: <span className="font-medium text-foreground">{model.totalPredictions || 0}场</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
