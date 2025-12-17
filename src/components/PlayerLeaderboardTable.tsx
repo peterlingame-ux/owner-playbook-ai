@@ -1876,7 +1876,7 @@ const PlayerLeaderboardTable = () => {
                   transition={{ delay: 0.35 }}
                   className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50"
                 >
-                  <Users className="h-4 w-4 text-primary" />
+                  <Users className="h-4 w-4 text-primary" fill="currentColor" />
                   <span className="text-sm text-muted-foreground">
                     已有 <span className="text-foreground font-bold">{Math.floor(Math.random() * 200) + 50}</span> 人跟单该玩家
                   </span>
