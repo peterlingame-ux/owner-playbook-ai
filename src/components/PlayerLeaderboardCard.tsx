@@ -153,8 +153,8 @@ export const PlayerLeaderboardCard = ({
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
               <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
-            {/* Like Button on Avatar */}
-            <div className="absolute -bottom-1 -right-1">
+            {/* Like Button on Avatar - Top */}
+            <div className="absolute -top-2 -right-1">
               <button
                 onClick={handleLikeWithAnimation}
                 disabled={isLiking}
