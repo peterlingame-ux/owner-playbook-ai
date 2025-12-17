@@ -759,8 +759,10 @@ const resources = {
       "invited_count": "Invited",
       "invitation_bonus_hint": "Friends who register with your code will receive 100 Hunter Coins",
       "copy": "Copy",
+      "invited_users_title": "Invited Users",
+      "registered_at": "Registered",
+      "no_invited_users": "No invitations yet",
 
-      // VIP
       "member": "Member",
       "active": "Active",
       "expires_at": "Valid until",
@@ -1547,8 +1549,10 @@ const resources = {
       "invited_count": "已邀请",
       "invitation_bonus_hint": "好友通过您的邀请码注册可获得100猎人币奖励",
       "copy": "复制",
+      "invited_users_title": "已邀请用户",
+      "registered_at": "注册时间",
+      "no_invited_users": "暂无邀请记录",
 
-      // VIP
       "member": "会员",
       "active": "已开通",
       "expires_at": "有效期至",
@@ -2331,8 +2335,10 @@ const resources = {
       "invited_count": "초대함",
       "invitation_bonus_hint": "친구가 당신의 코드로 등록하면 100 헌터 코인을 받습니다",
       "copy": "복사",
+      "invited_users_title": "초대한 사용자",
+      "registered_at": "등록일",
+      "no_invited_users": "초대 기록이 없습니다",
 
-      // VIP
       "member": "멤버",
       "active": "활성화됨",
       "expires_at": "유효기간",
