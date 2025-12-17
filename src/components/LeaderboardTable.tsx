@@ -1036,7 +1036,7 @@ const LeaderboardTable = () => {
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
                       <AnimatedWinRate 
                         value={model.winRate}
-                        className="text-base sm:text-lg font-bold font-mono-data text-warning"
+                        className="text-base sm:text-lg font-bold font-mono-data text-success"
                       />
                     </div>
                     
