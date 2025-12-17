@@ -1278,6 +1278,7 @@ const PlayerLeaderboardTable = () => {
                             calculateEstimatedPrize={calculateEstimatedPrize}
                             totalEligiblePlayers={eligiblePlayers}
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                            boardType="hot"
                           />
                         );
                       })}
@@ -1340,6 +1341,7 @@ const PlayerLeaderboardTable = () => {
                             calculateEstimatedPrize={calculateEstimatedPrize}
                             totalEligiblePlayers={eligiblePlayers}
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                            boardType="profit"
                           />
                         );
                       })}
@@ -1402,6 +1404,7 @@ const PlayerLeaderboardTable = () => {
                             calculateEstimatedPrize={calculateEstimatedPrize}
                             totalEligiblePlayers={eligiblePlayers}
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                            boardType="cold"
                           />
                         );
                       })}

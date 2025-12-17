@@ -40,6 +40,7 @@ interface PlayerLeaderboardCardProps {
   calculateEstimatedPrize: (winRate: number, rank: number, totalEligiblePlayers: number) => number;
   totalEligiblePlayers: number;
   aiBenchmarkWinRate: number;
+  boardType?: 'hot' | 'profit' | 'cold'; // 区分排行榜类型
 }
 
 // Profit Rate Badge Component
@@ -70,6 +71,7 @@ export const PlayerLeaderboardCard = ({
   calculateEstimatedPrize,
   totalEligiblePlayers,
   aiBenchmarkWinRate,
+  boardType = 'hot',
 }: PlayerLeaderboardCardProps) => {
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
 
@@ -191,7 +193,11 @@ export const PlayerLeaderboardCard = ({
               </div>
             </div>
             <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground">
-              连胜 <span className="text-primary font-bold">{player.currentStreak || 0}</span>
+              {boardType === 'cold' ? (
+                <>连败 <span className="text-destructive font-bold">{player.worstStreak || 0}</span></>
+              ) : (
+                <>连胜 <span className="text-primary font-bold">{player.currentStreak || 0}</span></>
+              )}
               <span className="mx-1.5">·</span>
               跟单 <span className="text-foreground font-medium">{Math.floor((player.id.charCodeAt(0) * 7 + player.totalPredictions * 3) % 800 + 50)}/1000</span>
             </div>
