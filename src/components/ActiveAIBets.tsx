@@ -128,35 +128,35 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       {matchStatus === 'not_started' ? (
         <>
           {/* 未开赛：显示 VS 和倒计时 */}
-          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-          <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
+          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[7px] sm:text-[8px] text-muted-foreground font-medium">
             {t('until_match_starts') || '距离比赛开始'}
           </span>
-          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
+          <span className="text-[8px] sm:text-[9px] text-foreground/70 font-mono font-semibold">
             {timeDisplay}
           </span>
         </>
       ) : matchStatus === 'live' ? (
         <>
           {/* 开赛：显示 VS 和比赛时间 */}
-          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-          <span className="text-[7px] sm:text-[7px] text-success font-bold font-mono">
+          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[9px] sm:text-[10px] text-success font-bold font-mono">
             {timeDisplay}
           </span>
         </>
       ) : matchStatus === 'half_time' ? (
         <>
           {/* 中场休息：显示 VS 和"中场休息" */}
-          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-bold">
+          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-bold">
             {timeDisplay}
           </span>
         </>
       ) : (
         <>
           {/* 其他状态 */}
-          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
+          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-mono font-semibold">
             {timeDisplay}
           </span>
         </>
@@ -1093,7 +1093,7 @@ const ActiveAIBets = () => {
                   <div className="space-y-1.5 py-1">
                     {/* League & Status Row */}
                     <div className="flex items-center justify-center gap-2">
-                      <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[80%]">
+                      <Badge variant="outline" className="text-[10px] sm:text-[11px] py-0.5 px-2.5 truncate max-w-[80%] font-semibold">
                         {getLeagueName(currentMatchData.match)}
                       </Badge>
                       {/* Match Status Indicator - 已删除直播中显示 */}
@@ -1112,7 +1112,7 @@ const ActiveAIBets = () => {
                           <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
                         </div>
                       )}
-                      <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
+                      <p className="font-bold text-[11px] sm:text-[12px] leading-tight flex-1 text-left truncate">
                         {getTeamName(currentMatchData.match, 'home')}
                       </p>
                     </div>
@@ -1121,7 +1121,7 @@ const ActiveAIBets = () => {
                       <MatchTimeDisplay match={currentMatchData.match} />
                     
                     <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
-                      <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
+                      <p className="font-bold text-[11px] sm:text-[12px] leading-tight flex-1 text-right truncate">
                         {getTeamName(currentMatchData.match, 'away')}
                       </p>
                       {currentMatchData.match.away_logo ? (
@@ -1153,7 +1153,7 @@ const ActiveAIBets = () => {
                   <div className="bg-muted/30 rounded-lg p-2.5 space-y-2">
                     {/* Bet Type Header */}
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{t('handicap_bet')}</span>
+                      <span className="text-[11px] sm:text-xs font-semibold text-foreground/80 uppercase tracking-wide">{t('handicap_bet')}</span>
                       <Badge 
                         variant="outline"
                         className={`text-[9px] px-1.5 py-0 ${handicapBet.confirmed ? "text-success border-success/40" : "text-muted-foreground"}`}
@@ -1176,9 +1176,9 @@ const ActiveAIBets = () => {
                               <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
                             </Avatar>
                           )}
-                          <span className="text-[9px] font-medium truncate flex-1">{getTeamName(currentMatchData!.match, 'home')}</span>
+                          <span className="text-[10px] sm:text-[11px] font-semibold truncate flex-1">{getTeamName(currentMatchData!.match, 'home')}</span>
                           {handicapBet.handicapLine !== undefined && (
-                            <span className={`text-[9px] font-mono-data font-bold ${
+                            <span className={`text-[10px] sm:text-[11px] font-mono-data font-bold ${
                               handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
                             }`}>
                               {((handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
@@ -1199,9 +1199,9 @@ const ActiveAIBets = () => {
                               <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
                             </Avatar>
                           )}
-                          <span className="text-[9px] font-medium truncate flex-1">{getTeamName(currentMatchData!.match, 'away')}</span>
+                          <span className="text-[10px] sm:text-[11px] font-semibold truncate flex-1">{getTeamName(currentMatchData!.match, 'away')}</span>
                           {handicapBet.handicapLine !== undefined && (
-                            <span className={`text-[9px] font-mono-data font-bold ${
+                            <span className={`text-[10px] sm:text-[11px] font-mono-data font-bold ${
                               handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
                             }`}>
                               {((handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
@@ -1213,10 +1213,10 @@ const ActiveAIBets = () => {
                     </div>
                     
                     {/* Compact Stats Row */}
-                    <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/20">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs pt-1.5 border-t border-border/20">
                       <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground">{t('confidence')}: <span className="font-semibold text-foreground">{handicapBet.confidence}%</span></span>
-                        <span className="text-muted-foreground">@<span className="font-mono-data font-semibold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                        <span className="text-muted-foreground font-medium">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
+                        <span className="text-muted-foreground font-medium">@<span className="font-mono-data font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
                       </div>
                       <span className="font-mono-data font-bold text-success">${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
@@ -1228,7 +1228,7 @@ const ActiveAIBets = () => {
                   <div className="bg-muted/30 rounded-lg p-2.5 space-y-2">
                     {/* Bet Type Header */}
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{t('over_under_bet')}</span>
+                      <span className="text-[11px] sm:text-xs font-semibold text-foreground/80 uppercase tracking-wide">{t('over_under_bet')}</span>
                       <Badge 
                         variant="outline"
                         className={`text-[9px] px-1.5 py-0 ${overUnderBet.confirmed ? "text-success border-success/40" : "text-muted-foreground"}`}
@@ -1244,8 +1244,8 @@ const ActiveAIBets = () => {
                           ? "bg-primary/15 border-primary/50" 
                           : "bg-card/50 border-border/30"
                       }`}>
-                        <span className="text-[9px] font-medium">{t('over')}</span>
-                        <span className={`ml-1 text-[10px] font-mono-data font-bold ${
+                        <span className="text-[10px] sm:text-[11px] font-semibold">{t('over')}</span>
+                        <span className={`ml-1 text-[11px] sm:text-xs font-mono-data font-bold ${
                           overUnderBet.overUnderPick === 'over' ? "text-primary" : "text-muted-foreground"
                         }`}>{overUnderBet.overUnderLine}</span>
                       </div>
@@ -1254,18 +1254,18 @@ const ActiveAIBets = () => {
                           ? "bg-primary/15 border-primary/50" 
                           : "bg-card/50 border-border/30"
                       }`}>
-                        <span className="text-[9px] font-medium">{t('under')}</span>
-                        <span className={`ml-1 text-[10px] font-mono-data font-bold ${
+                        <span className="text-[10px] sm:text-[11px] font-semibold">{t('under')}</span>
+                        <span className={`ml-1 text-[11px] sm:text-xs font-mono-data font-bold ${
                           overUnderBet.overUnderPick === 'under' ? "text-primary" : "text-muted-foreground"
                         }`}>{overUnderBet.overUnderLine}</span>
                       </div>
                     </div>
                     
                     {/* Compact Stats Row */}
-                    <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/20">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs pt-1.5 border-t border-border/20">
                       <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground">{t('confidence')}: <span className="font-semibold text-foreground">{overUnderBet.confidence}%</span></span>
-                        <span className="text-muted-foreground">@<span className="font-mono-data font-semibold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                        <span className="text-muted-foreground font-medium">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
+                        <span className="text-muted-foreground font-medium">@<span className="font-mono-data font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
                       </div>
                       <span className="font-mono-data font-bold text-success">${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
