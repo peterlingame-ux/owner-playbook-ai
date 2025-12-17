@@ -280,7 +280,7 @@ export const PlayerLeaderboardCard = ({
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
           <AnimatedWinRate 
             value={player.winRate}
-            className={`text-base sm:text-lg font-bold font-mono-data ${player.winRate >= 60 ? 'text-success' : player.winRate >= 50 ? 'text-warning' : 'text-destructive'}`}
+            className="text-base sm:text-lg font-bold font-mono-data text-foreground"
           />
         </div>
         
@@ -298,7 +298,7 @@ export const PlayerLeaderboardCard = ({
         {/* Copy Traders */}
         <div>
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">跟单人数</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-primary">
+          <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
             {(() => {
               // Generate mock copy trader count based on player stats
               const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
@@ -312,7 +312,7 @@ export const PlayerLeaderboardCard = ({
         {/* Correct Predictions */}
         <div className="text-center">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-success">
+          <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
             {player.correctPredictions}场
           </p>
         </div>
@@ -320,7 +320,7 @@ export const PlayerLeaderboardCard = ({
         {/* Incorrect Predictions */}
         <div className="text-center">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-destructive">
+          <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
             {player.totalPredictions - player.correctPredictions}场
           </p>
         </div>
