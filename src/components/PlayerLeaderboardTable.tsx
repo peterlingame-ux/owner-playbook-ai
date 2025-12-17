@@ -1189,7 +1189,7 @@ const PlayerLeaderboardTable = () => {
 
       {/* Time Range Filter - Unified for all boards */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">玩家推荐排行榜</h2>
+        <h2 className="text-lg font-bold text-foreground">{t('player_recommendation_board')}</h2>
         <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
           <button
             onClick={() => setTimeRange(1)}
@@ -1389,16 +1389,16 @@ const PlayerLeaderboardTable = () => {
                       const unlockPrice = player?.unlockPrice ?? 0;
                       return (
                         <>
-                          <span>胜率 <span className="text-foreground font-semibold">{player?.winRate.toFixed(0)}%</span></span>
-                          <span>连胜 <span className="text-foreground font-semibold">{player?.currentStreak || 0}</span></span>
+                          <span>{t('win_rate')} <span className="text-foreground font-semibold">{player?.winRate.toFixed(0)}%</span></span>
+                          <span>{t('win_streak')} <span className="text-foreground font-semibold">{player?.currentStreak || 0}</span></span>
                           {unlockPrice > 0 ? (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
-                              <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                               <span className="text-[10px] font-semibold text-foreground">{unlockPrice}</span>
                             </span>
                           ) : (
                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
-                              免费
+                              {t('free') || 'Free'}
                             </span>
                           )}
                         </>
