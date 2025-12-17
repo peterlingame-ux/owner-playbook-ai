@@ -126,6 +126,7 @@ export interface AIModel {
   change: string;
   changePercent: number;
   profitRate?: number;
+  profitAmount?: number;
   totalBetAmount?: number;
   followerCount?: number;
   followerLimit?: number;
