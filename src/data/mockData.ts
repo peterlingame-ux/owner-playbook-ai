@@ -155,6 +155,7 @@ export const aiModels: AIModel[] = [
     changePercent: 46.70,
     profitRate: 46.70,
     totalBetAmount: 24700,
+    followerCount: 1523,
     icon: deepseekIcon
   },
   {
@@ -170,6 +171,7 @@ export const aiModels: AIModel[] = [
     changePercent: 17.42,
     profitRate: 17.42,
     totalBetAmount: 31200,
+    followerCount: 892,
     icon: openaiIcon
   },
   {
@@ -185,6 +187,7 @@ export const aiModels: AIModel[] = [
     changePercent: 30.74,
     profitRate: 30.74,
     totalBetAmount: 28900,
+    followerCount: 1287,
     icon: claudeIcon
   },
   {
@@ -200,6 +203,7 @@ export const aiModels: AIModel[] = [
     changePercent: 10.02,
     profitRate: 10.02,
     totalBetAmount: 27600,
+    followerCount: 654,
     icon: geminiIcon
   },
   {
@@ -215,6 +219,7 @@ export const aiModels: AIModel[] = [
     changePercent: 24.51,
     profitRate: 24.51,
     totalBetAmount: 25800,
+    followerCount: 978,
     icon: grokIcon
   },
   {
@@ -230,6 +235,7 @@ export const aiModels: AIModel[] = [
     changePercent: 55.68,
     profitRate: 55.68,
     totalBetAmount: 32500,
+    followerCount: 3456,
     icon: hunsoccerIcon
   }
 ];

@@ -898,7 +898,7 @@ const LeaderboardTable = () => {
                           />
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                          <span>👥 {(model as any).correctPredictions || 0}/{model.totalPredictions || 0}</span>
+                          <span>👥 跟单人数: {((model as any).followerCount || 0).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
