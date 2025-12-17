@@ -113,11 +113,17 @@ export const PlayerLeaderboardCard = ({
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
+      whileHover={{ 
+        scale: 1.02, 
+        y: -2,
+        boxShadow: "0 8px 25px -5px rgba(0, 0, 0, 0.2)"
+      }}
+      whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2, delay: index * 0.03 }}
-      className={`rounded-lg border p-3 sm:p-4 transition-colors cursor-pointer ${
+      className={`rounded-lg border p-3 sm:p-4 cursor-pointer ${
         isCurrentUser 
-          ? 'bg-primary/10 border-primary/30 hover:bg-primary/15' 
-          : 'bg-muted/20 border-border/30 hover:bg-muted/30'
+          ? 'bg-primary/10 border-primary/30' 
+          : 'bg-muted/20 border-border/30'
       }`}
       onClick={onClick}
     >
