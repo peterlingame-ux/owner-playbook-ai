@@ -595,6 +595,7 @@ const MyPredictions = () => {
   const [followersList, setFollowersList] = useState<FollowUser[]>([]);
   const [isLoadingFollows, setIsLoadingFollows] = useState(false);
   const [isPredictionHistoryOpen, setIsPredictionHistoryOpen] = useState(false);
+  const [isSpendingRecordsOpen, setIsSpendingRecordsOpen] = useState(false);
 
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
@@ -1756,28 +1757,99 @@ const MyPredictions = () => {
                 </Dialog>
 
                 {/* 猎人币钱包 */}
-                <div className="p-4 relative">
+                <div className="relative">
                   <USDTWalletDialog 
                     trigger={
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="absolute top-2 right-2 h-7 px-2 text-xs text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                        className="absolute top-2 right-2 h-7 px-2 text-xs text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 z-10"
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         充值
                       </Button>
                     }
                   />
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center">
-                      <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
-                    </div>
-                    <span className="text-xs text-muted-foreground">{t('hunter_coin_balance')}</span>
-                  </div>
-                  <p className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
-                    {usdtBalance.toFixed(2)}
-                  </p>
+                  <Dialog open={isSpendingRecordsOpen} onOpenChange={setIsSpendingRecordsOpen}>
+                    <DialogTrigger asChild>
+                      <button className="w-full p-4 text-left hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs text-muted-foreground">{t('hunter_coin_balance')}</span>
+                        </div>
+                        <p className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
+                          {usdtBalance.toFixed(2)}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-1">点击查看消费记录</p>
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Receipt className="h-5 w-5 text-amber-500" />
+                          消费记录
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex-1 overflow-y-auto">
+                        {/* 消费统计 */}
+                        <div className="grid grid-cols-3 gap-2 mb-4">
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                            <p className="text-lg font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
+                            <p className="text-[10px] text-muted-foreground">跟单次数</p>
+                          </div>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                            <p className="text-lg font-bold font-mono text-foreground">
+                              ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">总消费</p>
+                          </div>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                            <p className="text-lg font-bold font-mono text-foreground">
+                              {copyTradeRecords.filter(r => r.bet_amount > 0).length}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">付费跟单</p>
+                          </div>
+                        </div>
+
+                        {/* 消费记录列表 */}
+                        {copyTradeRecords.length > 0 ? (
+                          <div className="space-y-2">
+                            {copyTradeRecords.map((record) => (
+                              <div key={record.id} className="p-3 rounded-lg border border-border bg-card">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Avatar className="h-6 w-6">
+                                      <AvatarImage src={record.followed_player_avatar} />
+                                      <AvatarFallback className="text-[8px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="text-sm font-medium text-foreground">{record.followed_player_name}</span>
+                                  </div>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {format(new Date(record.created_at), 'MM-dd HH:mm')}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">
+                                    {record.match_home_team} vs {record.match_away_team}
+                                  </span>
+                                  <span className="font-mono font-bold text-amber-500">
+                                    -{record.bet_amount} 猎人币
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12 text-muted-foreground">
+                            <Receipt className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                            <p>暂无消费记录</p>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </div>
