@@ -1643,28 +1643,6 @@ const MyPredictions = () => {
                       </DialogTitle>
                     </DialogHeader>
                     <div className="flex-1 overflow-y-auto">
-                      {/* 统计摘要 */}
-                      <div className="grid grid-cols-4 gap-2 mb-4">
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
-                          <p className="text-lg font-bold font-mono text-foreground">{stats?.totalPredictions || 0}</p>
-                          <p className="text-[10px] text-muted-foreground">总预测</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
-                          <p className="text-lg font-bold font-mono text-foreground">{stats?.correctPredictions || 0}</p>
-                          <p className="text-[10px] text-muted-foreground">正确</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
-                          <p className="text-lg font-bold font-mono text-foreground">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
-                          <p className="text-[10px] text-muted-foreground">错误</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
-                          <p className={`text-lg font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
-                            {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">盈亏</p>
-                        </div>
-                      </div>
-
                       {/* 预测历史列表 */}
                       <div className="border border-border rounded-lg overflow-hidden">
                         <table className="w-full text-xs">
