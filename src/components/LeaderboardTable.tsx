@@ -1488,7 +1488,7 @@ const LeaderboardTable = () => {
                   <div>
                     <p className="font-semibold text-sm text-foreground">{follower.name}</p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <span>🕐</span> {follower.days} 日
+                      <span>🕐</span> {follower.days} 次
                     </p>
                   </div>
                 </div>
