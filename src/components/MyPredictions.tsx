@@ -1461,31 +1461,33 @@ const MyPredictions = () => {
                 </div>
                 
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
                     </h2>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsWalletDialogOpen(true)}
-                      className="h-6 px-2 text-[10px] border-ai-cyan/50 text-ai-cyan hover:bg-ai-cyan/10"
-                    >
-                      <Wallet className="h-3 w-3 mr-1" />
-                      {t('recharge') || '充值'}
-                    </Button>
-                    {!vipStatus?.is_active && (
+                    <div className="flex items-center gap-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={handleVipButtonClick}
-                        disabled={isPurchasingVip}
-                        className="h-6 px-2 text-[10px] border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300"
+                        onClick={() => setIsWalletDialogOpen(true)}
+                        className="h-8 px-3 text-xs border-ai-cyan/50 text-ai-cyan hover:bg-ai-cyan/10 rounded-md"
                       >
-                        <Crown className="h-3 w-3 mr-1" />
-                        {isPurchasingVip ? t('purchasing') : t('activate_vip') || '开通VIP'}
+                        <Wallet className="h-4 w-4 mr-1.5" />
+                        {t('recharge') || '充值'}
                       </Button>
-                    )}
+                      {!vipStatus?.is_active && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleVipButtonClick}
+                          disabled={isPurchasingVip}
+                          className="h-8 px-3 text-xs border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-md"
+                        >
+                          <Crown className="h-4 w-4 mr-1.5" />
+                          {isPurchasingVip ? t('purchasing') : t('activate_vip') || '开通VIP'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground font-mono tracking-wider">
                     {userProfile?.signature || t('prediction_player')}
