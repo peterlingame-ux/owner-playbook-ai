@@ -5,7 +5,6 @@ import PerformanceChart from "@/components/PerformanceChart";
 import ModelCard from "@/components/ModelCard";
 import UserModelCard from "@/components/UserModelCard";
 import CryptoTicker from "@/components/CryptoTicker";
-import AdCarousel from "@/components/AdCarousel";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
@@ -174,11 +173,6 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <CryptoTicker />
-      
-      {/* App Download QR Codes */}
-      <div className="container mx-auto px-4 sm:px-6 pt-4 max-w-7xl">
-        <AdCarousel />
-      </div>
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
