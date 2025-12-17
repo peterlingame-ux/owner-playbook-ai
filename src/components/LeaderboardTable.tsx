@@ -1000,17 +1000,9 @@ const LeaderboardTable = () => {
                             </AnimatePresence>
                           </div>
                         </div>
-                        <div className="mt-0.5">
-                          <AnimatedFollowerCount 
-                            value={(model as any).followerCount || 0}
-                            limit={(model as any).followerLimit || 1000}
-                            onClick={() => {
-                              const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
-                              setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
-                              setIsFollowersDialogOpen(true);
-                            }}
-                          />
-                        </div>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                          {model.locked ? 'AI预测模型' : `${model.totalPredictions || 0}场预测`}
+                        </p>
                       </div>
                     </div>
                     {/* Action Buttons */}
@@ -1077,7 +1069,7 @@ const LeaderboardTable = () => {
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
                       <AnimatedWinRate 
                         value={model.winRate}
-                        className={`text-base sm:text-lg font-bold font-mono-data ${model.winRate >= 60 ? 'text-success' : model.winRate >= 50 ? 'text-warning' : 'text-destructive'}`}
+                        className="text-base sm:text-lg font-bold font-mono-data text-foreground"
                       />
                     </div>
                     
@@ -1091,11 +1083,26 @@ const LeaderboardTable = () => {
                   </div>
                   
                   {/* Predictions Stats Row */}
-                  <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+                  <div className="grid grid-cols-5 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+                    {/* Copy Traders - Clickable */}
+                    <div 
+                      className="cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+                      onClick={() => {
+                        const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
+                        setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
+                        setIsFollowersDialogOpen(true);
+                      }}
+                    >
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">跟单人数</p>
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
+                        {((model as any).followerCount || 0).toLocaleString()}人
+                      </p>
+                    </div>
+                    
                     {/* Correct Predictions */}
-                    <div>
+                    <div className="text-center">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-success">
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
                         {model.locked ? '???' : `${(model as any).correctPredictions || 0}场`}
                       </p>
                     </div>
@@ -1103,16 +1110,24 @@ const LeaderboardTable = () => {
                     {/* Incorrect Predictions */}
                     <div className="text-center">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-destructive">
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
                         {model.locked ? '???' : `${(model.totalPredictions || 0) - ((model as any).correctPredictions || 0)}场`}
                       </p>
                     </div>
                     
                     {/* Total Predictions */}
-                    <div className="text-right">
+                    <div className="text-center">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
                       <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
                         {model.totalPredictions || 0}场
+                      </p>
+                    </div>
+                    
+                    {/* Estimated Prize / ROI */}
+                    <div className="text-right">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预期收益</p>
+                      <p className={`text-sm sm:text-base font-bold font-mono-data ${((model as any).profitRate || 0) >= 0 ? 'text-warning' : 'text-muted-foreground'}`}>
+                        {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(1)}%`}
                       </p>
                     </div>
                   </div>
