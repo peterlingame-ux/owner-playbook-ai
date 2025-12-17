@@ -41,7 +41,6 @@ const Leaderboard = () => {
           </TabsContent>
           
           <TabsContent value="players">
-            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('all_players')}</h2>
             <PlayerLeaderboardTable />
           </TabsContent>
           
