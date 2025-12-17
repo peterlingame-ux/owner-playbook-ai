@@ -211,7 +211,9 @@ export const PlayerLeaderboardCard = ({
                       </span>
                     ))}
                     {(player.worstStreak || 0) > 5 && (
-                      <span className="text-[10px] text-muted-foreground ml-0.5">+{(player.worstStreak || 0) - 5}</span>
+                      <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/10 border border-dashed border-foreground/40 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground/70 font-medium">
+                        …
+                      </span>
                     )}
                   </span>
                 </>
@@ -225,7 +227,9 @@ export const PlayerLeaderboardCard = ({
                       </span>
                     ))}
                     {(player.currentStreak || 0) > 5 && (
-                      <span className="text-[10px] text-muted-foreground ml-0.5">+{(player.currentStreak || 0) - 5}</span>
+                      <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive/70 font-medium">
+                        …
+                      </span>
                     )}
                   </span>
                 </>
