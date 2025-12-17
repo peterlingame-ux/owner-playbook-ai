@@ -1758,18 +1758,6 @@ const MyPredictions = () => {
 
                 {/* 猎人币钱包 */}
                 <div className="relative">
-                  <USDTWalletDialog 
-                    trigger={
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="absolute top-2 right-2 h-7 px-2 text-xs text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 z-10"
-                      >
-                        <Plus className="h-3 w-3 mr-1" />
-                        充值
-                      </Button>
-                    }
-                  />
                   <Dialog open={isSpendingRecordsOpen} onOpenChange={setIsSpendingRecordsOpen}>
                     <DialogTrigger asChild>
                       <button className="w-full p-4 text-left hover:bg-muted/30 transition-colors">
