@@ -1545,8 +1545,7 @@ const MyPredictions = () => {
                 <div className="relative">
                   <div className="absolute -inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
                   <div className="relative px-3 py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
-                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight flex items-baseline justify-end gap-1">
-                      <span className="text-xs text-muted-foreground font-normal tracking-normal">{t('win_rate_label')}</span>
+                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight">
                       <AnimatedWinRate value={stats?.winRate || 0} />
                       <span className="text-lg">%</span>
                     </div>
