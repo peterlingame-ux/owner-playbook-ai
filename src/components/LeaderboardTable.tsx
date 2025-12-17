@@ -49,6 +49,35 @@ interface TodayPosition {
   created_at?: string;
   settled_at?: string;
 }
+
+// Animated Profit Rate Badge Component
+const ProfitRateBadge = ({ value, locked }: { value: number; locked?: boolean }) => {
+  const animatedValue = useCountAnimation(value, {
+    duration: 1200,
+    startValue: 0
+  });
+  
+  const isPositive = value >= 0;
+  
+  if (locked) {
+    return (
+      <span className="px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold bg-muted/50 text-muted-foreground border border-border/30">
+        收益率 ???
+      </span>
+    );
+  }
+  
+  return (
+    <span className={`px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold transition-all duration-300 ${
+      isPositive 
+        ? 'bg-success/20 text-success border border-success/30' 
+        : 'bg-destructive/20 text-destructive border border-destructive/30'
+    }`}>
+      收益率 {isPositive ? '+' : ''}{animatedValue.toFixed(2)}%
+    </span>
+  );
+};
+
 const LeaderboardTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -862,14 +891,11 @@ const LeaderboardTable = () => {
                             <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
                             <span className="text-[10px] font-medium">{likeCount}</span>
                           </button>
-                          {/* Profit Rate - More Visible with Animation */}
-                          <span className={`px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold animate-pulse ${
-                            ((model as any).profitRate || 0) >= 0 
-                              ? 'bg-success/20 text-success border border-success/30' 
-                              : 'bg-destructive/20 text-destructive border border-destructive/30'
-                          }`}>
-                            收益率 {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
-                          </span>
+                          {/* Profit Rate - Animated Growth Effect */}
+                          <ProfitRateBadge 
+                            value={(model as any).profitRate || 0} 
+                            locked={model.locked} 
+                          />
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                           <span>👥 {(model as any).correctPredictions || 0}/{model.totalPredictions || 0}</span>
