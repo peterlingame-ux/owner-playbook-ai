@@ -128,6 +128,7 @@ export interface AIModel {
   profitRate?: number;
   totalBetAmount?: number;
   followerCount?: number;
+  followerLimit?: number;
   locked?: boolean;
   icon?: string;
 }

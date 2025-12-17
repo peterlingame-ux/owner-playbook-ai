@@ -75,32 +75,37 @@ const generateMockFollowers = (modelId: string, count: number) => {
 };
 
 // Animated Follower Count Component
-const AnimatedFollowerCount = ({ value, onClick }: { value: number; onClick: () => void }) => {
+const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit: number; onClick: () => void }) => {
   const [displayValue, setDisplayValue] = useState(value);
   
   useEffect(() => {
-    // Simulate real-time growth
+    // Simulate real-time growth (but don't exceed limit)
     const interval = setInterval(() => {
       setDisplayValue(prev => {
+        if (prev >= limit) return prev;
         const increment = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 0;
-        return prev + increment;
+        return Math.min(prev + increment, limit);
       });
     }, 3000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [limit]);
   
   const animatedValue = useCountAnimation(displayValue, {
     duration: 800,
     startValue: Math.max(0, displayValue - 5)
   });
   
+  const isFull = displayValue >= limit;
+  
   return (
     <button 
       onClick={onClick}
-      className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer hover:underline"
+      className={`flex items-center gap-1 text-xs transition-colors cursor-pointer hover:underline ${
+        isFull ? 'text-destructive hover:text-destructive/80' : 'text-primary hover:text-primary/80'
+      }`}
     >
-      <span>👥 跟单人数: {Math.floor(animatedValue).toLocaleString()}</span>
+      <span>👥 跟单人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
       <span className="text-[10px]">→</span>
     </button>
   );
@@ -958,6 +963,7 @@ const LeaderboardTable = () => {
                         <div className="mt-0.5">
                           <AnimatedFollowerCount 
                             value={(model as any).followerCount || 0}
+                            limit={(model as any).followerLimit || 1000}
                             onClick={() => {
                               const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
                               setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
