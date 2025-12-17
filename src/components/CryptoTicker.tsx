@@ -146,7 +146,7 @@ const CryptoTicker = () => {
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
                 alt="iOS Download" 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-transform duration-300 group-hover:scale-150"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(59,130,246,0.5)]"
               />
               <span className="text-xs text-muted-foreground">iOS</span>
             </div>
@@ -154,7 +154,7 @@ const CryptoTicker = () => {
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
                 alt="Android Download" 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-transform duration-300 group-hover:scale-150"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(34,197,94,0.5)]"
               />
               <span className="text-xs text-muted-foreground">Android</span>
             </div>
