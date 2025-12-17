@@ -1083,7 +1083,7 @@ const LeaderboardTable = () => {
                   </div>
                   
                   {/* Predictions Stats Row */}
-                  <div className="grid grid-cols-5 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+                  <div className="grid grid-cols-4 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
                     {/* Copy Traders - Clickable */}
                     <div 
                       className="cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
@@ -1116,18 +1116,10 @@ const LeaderboardTable = () => {
                     </div>
                     
                     {/* Total Predictions */}
-                    <div className="text-center">
+                    <div className="text-right">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
                       <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
                         {model.totalPredictions || 0}场
-                      </p>
-                    </div>
-                    
-                    {/* Estimated Prize / ROI */}
-                    <div className="text-right">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预期收益</p>
-                      <p className={`text-sm sm:text-base font-bold font-mono-data ${((model as any).profitRate || 0) >= 0 ? 'text-warning' : 'text-muted-foreground'}`}>
-                        {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(1)}%`}
                       </p>
                     </div>
                   </div>
