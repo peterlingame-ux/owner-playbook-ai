@@ -15,6 +15,8 @@ import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 
 interface USDTWalletDialogProps {
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface DepositRecord {
@@ -38,9 +40,19 @@ interface WithdrawalRecord {
 
 const USDT_WALLET_ADDRESS = "TYxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
-const USDTWalletDialog = ({ trigger }: USDTWalletDialogProps) => {
+const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTWalletDialogProps) => {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // 支持受控和非受控模式
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setIsOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [amount, setAmount] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");

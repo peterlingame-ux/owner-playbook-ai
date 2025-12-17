@@ -599,8 +599,8 @@ const MyPredictions = () => {
   const [isInvitedUsersOpen, setIsInvitedUsersOpen] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string; created_at: string }>>([]);
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
+  const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
 
-  // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
     if (authUserProfile) {
       setUserProfile(prev => {
@@ -1465,6 +1465,27 @@ const MyPredictions = () => {
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
                     </h2>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsWalletDialogOpen(true)}
+                      className="h-6 px-2 text-[10px] border-ai-cyan/50 text-ai-cyan hover:bg-ai-cyan/10"
+                    >
+                      <Wallet className="h-3 w-3 mr-1" />
+                      {t('recharge') || '充值'}
+                    </Button>
+                    {!vipStatus?.is_active && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleVipButtonClick}
+                        disabled={isPurchasingVip}
+                        className="h-6 px-2 text-[10px] border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300"
+                      >
+                        <Crown className="h-3 w-3 mr-1" />
+                        {isPurchasingVip ? t('purchasing') : t('activate_vip') || '开通VIP'}
+                      </Button>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground font-mono tracking-wider">
                     {userProfile?.signature || t('prediction_player')}
@@ -2010,6 +2031,12 @@ const MyPredictions = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* 充值钱包弹窗 */}
+      <USDTWalletDialog 
+        open={isWalletDialogOpen} 
+        onOpenChange={setIsWalletDialogOpen} 
+      />
     </div>
   );
 };
