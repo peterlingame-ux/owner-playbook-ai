@@ -1426,7 +1426,7 @@ const MyPredictions = () => {
                   </Dialog>
                 </div>
                 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
@@ -1447,6 +1447,95 @@ const MyPredictions = () => {
                   <p className="text-xs text-muted-foreground font-mono tracking-wider">
                     {userProfile?.signature || t('prediction_player')}
                   </p>
+                  
+                  {/* 关注和粉丝数量 */}
+                  <div className="flex items-center gap-4 pt-1">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                          <span className="font-bold text-foreground">{followingList.length}</span>
+                          <span>关注</span>
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md max-h-[70vh]">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4 text-primary" />
+                            关注列表 ({followingList.length})
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="overflow-y-auto max-h-[50vh]">
+                          {followingList.length > 0 ? (
+                            <div className="divide-y divide-border">
+                              {followingList.map((followUser) => (
+                                <div key={followUser.id} className="py-3 flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 border border-border">
+                                      <AvatarImage src={followUser.avatar_url} />
+                                      <AvatarFallback className="text-xs">{followUser.display_name.slice(0, 2)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                      <p className="text-sm font-medium text-foreground">{followUser.display_name}</p>
+                                      <p className="text-[10px] text-muted-foreground">{followUser.signature || '暂无签名'}</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-[10px] text-muted-foreground">{format(new Date(followUser.followed_at), 'MM-dd')}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="py-8 text-center">
+                              <UserPlus className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                              <p className="text-sm text-muted-foreground">暂无关注的玩家</p>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                          <span className="font-bold text-foreground">{followersList.length}</span>
+                          <span>粉丝</span>
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md max-h-[70vh]">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <Heart className="h-4 w-4 text-destructive" />
+                            粉丝列表 ({followersList.length})
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="overflow-y-auto max-h-[50vh]">
+                          {followersList.length > 0 ? (
+                            <div className="divide-y divide-border">
+                              {followersList.map((follower) => (
+                                <div key={follower.id} className="py-3 flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 border border-border">
+                                      <AvatarImage src={follower.avatar_url} />
+                                      <AvatarFallback className="text-xs">{follower.display_name.slice(0, 2)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                      <p className="text-sm font-medium text-foreground">{follower.display_name}</p>
+                                      <p className="text-[10px] text-muted-foreground">{follower.signature || '暂无签名'}</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-[10px] text-muted-foreground">{format(new Date(follower.followed_at), 'MM-dd')}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="py-8 text-center">
+                              <Heart className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                              <p className="text-sm text-muted-foreground">暂无粉丝</p>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </div>
               
@@ -1592,37 +1681,18 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-9">
-          <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-1">
+        <TabsList className="grid w-full grid-cols-3 h-9">
+          <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-2">
             <Receipt className="h-3 w-3" />
-            <span className="hidden sm:inline">{t('spending_records') || '消费'}</span>
-            <span className="sm:hidden">消费</span>
+            {t('spending_records') || '消费记录'}
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-1">
+          <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-2">
             <History className="h-3 w-3" />
-            <span className="hidden sm:inline">{t('player_prediction_records') || '预测'}</span>
-            <span className="sm:hidden">预测</span>
+            {t('player_prediction_records') || '预测记录'}
           </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-xs px-1">
+          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-xs px-2">
             <Users className="h-3 w-3" />
-            <span className="hidden sm:inline">{t('copy_trade_records') || '跟单'}</span>
-            <span className="sm:hidden">跟单</span>
-          </TabsTrigger>
-          <TabsTrigger value="following" className="flex items-center gap-1 text-xs px-1">
-            <UserPlus className="h-3 w-3" />
-            <span className="hidden sm:inline">关注</span>
-            <span className="sm:hidden">关注</span>
-            {followingList.length > 0 && (
-              <span className="text-[9px] bg-primary/20 text-primary px-1 rounded-full">{followingList.length}</span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="followers" className="flex items-center gap-1 text-xs px-1">
-            <Heart className="h-3 w-3" />
-            <span className="hidden sm:inline">粉丝</span>
-            <span className="sm:hidden">粉丝</span>
-            {followersList.length > 0 && (
-              <span className="text-[9px] bg-destructive/20 text-destructive px-1 rounded-full">{followersList.length}</span>
-            )}
+            {t('copy_trade_records') || '跟单记录'}
           </TabsTrigger>
         </TabsList>
 
@@ -1831,102 +1901,6 @@ const MyPredictions = () => {
           </div>
         </TabsContent>
 
-        {/* 关注列表标签页 */}
-        <TabsContent value="following" className="mt-2">
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <UserPlus className="h-3.5 w-3.5 text-primary" />
-                关注列表
-              </h3>
-              <p className="text-[10px] text-muted-foreground">您关注的玩家 ({followingList.length})</p>
-            </div>
-            
-            {isLoadingFollows ? (
-              <div className="p-4 text-center">
-                <div className="h-6 w-6 mx-auto mb-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <p className="text-xs text-muted-foreground">加载中...</p>
-              </div>
-            ) : followingList.length > 0 ? (
-              <div className="divide-y divide-border">
-                {followingList.map((followUser) => (
-                  <div key={followUser.id} className="p-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border border-border">
-                        <AvatarImage src={followUser.avatar_url} />
-                        <AvatarFallback className="text-xs">{followUser.display_name.slice(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{followUser.display_name}</p>
-                        <p className="text-[10px] text-muted-foreground">{followUser.signature || '暂无签名'}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] text-muted-foreground">关注于</p>
-                      <p className="text-xs text-foreground">{format(new Date(followUser.followed_at), 'MM-dd')}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-4 text-center">
-                <UserPlus className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">暂无关注的玩家</p>
-                <p className="text-[10px] text-muted-foreground mb-2">去排行榜关注优秀玩家</p>
-                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => navigate('/leaderboard')}>
-                  浏览排行榜
-                </Button>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* 粉丝列表标签页 */}
-        <TabsContent value="followers" className="mt-2">
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <Heart className="h-3.5 w-3.5 text-destructive" />
-                粉丝列表
-              </h3>
-              <p className="text-[10px] text-muted-foreground">关注您的玩家 ({followersList.length})</p>
-            </div>
-            
-            {isLoadingFollows ? (
-              <div className="p-4 text-center">
-                <div className="h-6 w-6 mx-auto mb-2 animate-spin rounded-full border-2 border-destructive border-t-transparent" />
-                <p className="text-xs text-muted-foreground">加载中...</p>
-              </div>
-            ) : followersList.length > 0 ? (
-              <div className="divide-y divide-border">
-                {followersList.map((follower) => (
-                  <div key={follower.id} className="p-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border border-border">
-                        <AvatarImage src={follower.avatar_url} />
-                        <AvatarFallback className="text-xs">{follower.display_name.slice(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{follower.display_name}</p>
-                        <p className="text-[10px] text-muted-foreground">{follower.signature || '暂无签名'}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] text-muted-foreground">关注于</p>
-                      <p className="text-xs text-foreground">{format(new Date(follower.followed_at), 'MM-dd')}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-4 text-center">
-                <Heart className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">暂无粉丝</p>
-                <p className="text-[10px] text-muted-foreground">提高预测准确率，吸引更多玩家关注您</p>
-              </div>
-            )}
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* VIP开通确认弹窗 */}
