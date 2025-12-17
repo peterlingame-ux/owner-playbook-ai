@@ -754,6 +754,12 @@ const resources = {
       "login_now_btn": "Login Now",
       "loading_data": "Loading...",
       
+      // Invitation
+      "my_invitation_code": "My Invitation Code",
+      "invited_count": "Invited",
+      "invitation_bonus_hint": "Friends who register with your code will receive 100 Hunter Coins",
+      "copy": "Copy",
+
       // VIP
       "member": "Member",
       "active": "Active",
@@ -1536,6 +1542,12 @@ const resources = {
       "login_now_btn": "立即登录",
       "loading_data": "加载中...",
       
+      // Invitation
+      "my_invitation_code": "我的邀请码",
+      "invited_count": "已邀请",
+      "invitation_bonus_hint": "好友通过您的邀请码注册可获得100猎人币奖励",
+      "copy": "复制",
+
       // VIP
       "member": "会员",
       "active": "已开通",
@@ -2314,6 +2326,12 @@ const resources = {
       "login_now_btn": "지금 로그인",
       "loading_data": "로딩 중...",
       
+      // Invitation
+      "my_invitation_code": "내 초대 코드",
+      "invited_count": "초대함",
+      "invitation_bonus_hint": "친구가 당신의 코드로 등록하면 100 헌터 코인을 받습니다",
+      "copy": "복사",
+
       // VIP
       "member": "멤버",
       "active": "활성화됨",
