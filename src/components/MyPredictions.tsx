@@ -1545,11 +1545,14 @@ const MyPredictions = () => {
                 <div className="relative">
                   <div className="absolute -inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
                   <div className="relative px-3 py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
-                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight">
+                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight flex items-baseline justify-end gap-1">
+                      <span className="text-xs text-muted-foreground font-normal tracking-normal">{t('win_rate_label')}</span>
                       <AnimatedWinRate value={stats?.winRate || 0} />
                       <span className="text-lg">%</span>
                     </div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t('win_rate_label')}</p>
+                    <p className="text-[10px] text-primary mt-0.5">
+                      已超越 {Math.min(99, Math.round((stats?.winRate || 0) * 1.2))}% 的用户
+                    </p>
                   </div>
                 </div>
               </div>
