@@ -1557,7 +1557,7 @@ const MyPredictions = () => {
 
           {/* 统计数据网格 */}
           <div className="px-4 pb-4">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2 mb-2">
               {[
                 { value: stats?.totalPredictions || 0, label: t('total_predictions_stat') },
                 { value: stats?.correctPredictions || 0, label: t('correct_result') },
@@ -1569,6 +1569,45 @@ const MyPredictions = () => {
                   className="p-3 rounded-lg bg-muted/30 border border-border/50"
                 >
                   <p className="text-xl font-bold font-mono text-foreground">{item.value}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                </div>
+              ))}
+            </div>
+            
+            {/* 新增统计：盈利率、预期奖金、虚拟投注金额 */}
+            <div className="grid grid-cols-3 gap-2">
+              {(() => {
+                const totalWagered = stats?.recentPredictions?.reduce((sum, p) => sum + p.bet_amount, 0) || 0;
+                const profitRate = totalWagered > 0 ? ((stats?.profit || 0) / totalWagered * 100) : 0;
+                // 预期奖金计算：基于胜率超过58%的玩家可获得奖金分成
+                const winRate = stats?.winRate || 0;
+                const expectedPrize = winRate > 58 ? Math.round((winRate - 58) * 1000) : 0;
+                
+                return [
+                  { 
+                    value: `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`, 
+                    label: '盈利率',
+                    highlight: profitRate > 0
+                  },
+                  { 
+                    value: expectedPrize > 0 ? `$${expectedPrize.toLocaleString()}` : '需超过AI', 
+                    label: '预期奖金',
+                    highlight: expectedPrize > 0
+                  },
+                  { 
+                    value: `$${totalWagered.toLocaleString()}`, 
+                    label: '虚拟投注金额',
+                    highlight: false
+                  }
+                ];
+              })().map((item, index) => (
+                <div 
+                  key={index} 
+                  className="p-3 rounded-lg bg-muted/30 border border-border/50"
+                >
+                  <p className={`text-lg font-bold font-mono ${item.highlight ? 'text-primary' : 'text-foreground'}`}>
+                    {item.value}
+                  </p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
                 </div>
               ))}
