@@ -142,19 +142,19 @@ const CryptoTicker = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex items-center gap-6 sm:gap-8 mb-5"
           >
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 group cursor-pointer">
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
                 alt="iOS Download" 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-transform duration-300 group-hover:scale-150"
               />
               <span className="text-xs text-muted-foreground">iOS</span>
             </div>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 group cursor-pointer">
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
                 alt="Android Download" 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-transform duration-300 group-hover:scale-150"
               />
               <span className="text-xs text-muted-foreground">Android</span>
             </div>
