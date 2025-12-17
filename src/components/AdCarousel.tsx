@@ -1,40 +1,10 @@
 import prizeBannerGreen from "@/assets/prize-banner-green.png";
 import { Apple, Smartphone } from "lucide-react";
-import QRCode from "qrcode";
-import { useEffect, useState } from "react";
 
 const AdCarousel = () => {
-  const [iosQR, setIosQR] = useState<string>("");
-  const [androidQR, setAndroidQR] = useState<string>("");
-
-  useEffect(() => {
-    // Generate QR codes for app download links
-    const generateQRCodes = async () => {
-      try {
-        const iosCode = await QRCode.toDataURL("https://apps.apple.com/app/hunsoccer", {
-          width: 120,
-          margin: 1,
-          color: {
-            dark: "#ffffff",
-            light: "#00000000",
-          },
-        });
-        const androidCode = await QRCode.toDataURL("https://play.google.com/store/apps/hunsoccer", {
-          width: 120,
-          margin: 1,
-          color: {
-            dark: "#ffffff",
-            light: "#00000000",
-          },
-        });
-        setIosQR(iosCode);
-        setAndroidQR(androidCode);
-      } catch (err) {
-        console.error("QR generation error:", err);
-      }
-    };
-    generateQRCodes();
-  }, []);
+  // Simple placeholder QR codes using a free QR API
+  const iosQRUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://apps.apple.com/app/hunsoccer&bgcolor=1a1a1a&color=ffffff";
+  const androidQRUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://play.google.com/store/apps/hunsoccer&bgcolor=1a1a1a&color=ffffff";
 
   return (
     <div className="relative w-full overflow-hidden rounded-xl bg-card/50 border border-border/50">
@@ -52,11 +22,7 @@ const AdCarousel = () => {
         {/* iOS Download */}
         <div className="flex items-center gap-3">
           <div className="relative p-2 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg border border-border/50">
-            {iosQR ? (
-              <img src={iosQR} alt="iOS Download" className="w-16 h-16 sm:w-20 sm:h-20" />
-            ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted/20 rounded animate-pulse" />
-            )}
+            <img src={iosQRUrl} alt="iOS Download" className="w-16 h-16 sm:w-20 sm:h-20 rounded" />
           </div>
           <div className="hidden sm:flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-foreground">
@@ -77,11 +43,7 @@ const AdCarousel = () => {
         {/* Android Download */}
         <div className="flex items-center gap-3">
           <div className="relative p-2 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg border border-border/50">
-            {androidQR ? (
-              <img src={androidQR} alt="Android Download" className="w-16 h-16 sm:w-20 sm:h-20" />
-            ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted/20 rounded animate-pulse" />
-            )}
+            <img src={androidQRUrl} alt="Android Download" className="w-16 h-16 sm:w-20 sm:h-20 rounded" />
           </div>
           <div className="hidden sm:flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-foreground">
