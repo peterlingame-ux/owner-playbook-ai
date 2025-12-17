@@ -1465,18 +1465,6 @@ const MyPredictions = () => {
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
                     </h2>
-                    {!vipStatus?.is_active && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={handleVipButtonClick}
-                        disabled={isPurchasingVip}
-                        className="h-6 px-2 text-[10px] border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300"
-                      >
-                        <Crown className="h-3 w-3 mr-1" />
-                        {isPurchasingVip ? t('purchasing') : t('activate_vip')}
-                      </Button>
-                    )}
                   </div>
                   <p className="text-xs text-muted-foreground font-mono tracking-wider">
                     {userProfile?.signature || t('prediction_player')}
