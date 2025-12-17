@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Check, QrCode, Clock, CheckCircle2, XCircle, Loader2, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { Copy, Check, QrCode, Clock, CheckCircle2, XCircle, Loader2, ArrowUpRight, ArrowDownLeft, Target, MessageCircle, Gift, Gamepad2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
@@ -337,12 +337,22 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
           </DialogTitle>
         </DialogHeader>
 
-        {/* 余额显示 */}
-        <div className="bg-gradient-to-r from-amber-500/10 to-amber-500/5 rounded-lg p-4 border border-amber-500/20">
-          <p className="text-xs text-muted-foreground mb-1">猎人币余额</p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-amber-500 font-mono">{usdtBalance.toFixed(2)}</span>
-            <span className="text-sm text-muted-foreground">猎人币</span>
+        {/* 余额显示 - 参考雷速体育风格 */}
+        <div className="relative bg-gradient-to-br from-destructive/90 via-destructive/80 to-destructive/70 rounded-xl p-4 overflow-hidden">
+          {/* 背景装饰 */}
+          <div className="absolute right-0 bottom-0 opacity-20">
+            <img src={hunterCoinIcon} alt="" className="w-24 h-24 translate-x-4 translate-y-4" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-white/80">猎人币余额</p>
+              <span className="text-[10px] px-2 py-0.5 bg-amber-400/90 text-amber-900 rounded font-medium">
+                充值及赠送的猎人币不可提现或退款
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-white font-mono">{Math.floor(usdtBalance)}</span>
+            </div>
           </div>
         </div>
 
@@ -354,45 +364,44 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
-              记录
+              明细
             </TabsTrigger>
           </TabsList>
 
           {/* 充值 Tab */}
           <TabsContent value="deposit" className="mt-4">
             {!showPaymentInfo ? (
-              <div className="space-y-6">
-                {/* 充值说明 */}
-                <div className="bg-muted/50 rounded-lg p-4 text-sm flex items-start gap-3">
-                  <img src={usdtIcon} alt="USDT" className="w-8 h-8 shrink-0" />
-                  <p className="text-muted-foreground">
-                    请输入充值金额，使用 TRC20 网络转账 USDT，到账后自动兑换为猎人币（1:1）。
-                  </p>
-                </div>
-
-                {/* 快捷金额 */}
-                <div className="space-y-2">
-                  <Label>快捷金额</Label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {quickAmounts.map((quickAmount) => (
-                      <Button
-                        key={quickAmount}
-                        variant={amount === String(quickAmount) ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setAmount(String(quickAmount))}
-                        className="font-mono"
-                      >
-                        {quickAmount}
-                      </Button>
-                    ))}
-                  </div>
+              <div className="space-y-5">
+                {/* 快捷金额选择 - 网格样式 */}
+                <div className="grid grid-cols-4 gap-2">
+                  {quickAmounts.map((quickAmount) => (
+                    <button
+                      key={quickAmount}
+                      onClick={() => setAmount(String(quickAmount))}
+                      className={`relative rounded-lg border-2 p-3 transition-all ${
+                        amount === String(quickAmount) 
+                          ? 'border-destructive bg-destructive/5' 
+                          : 'border-border hover:border-destructive/50'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <p className={`text-lg font-bold font-mono ${amount === String(quickAmount) ? 'text-destructive' : 'text-foreground'}`}>
+                          {quickAmount}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">猎人币</p>
+                      </div>
+                      <p className={`text-xs mt-1 ${amount === String(quickAmount) ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        ¥{quickAmount}
+                      </p>
+                    </button>
+                  ))}
                 </div>
 
                 {/* 自定义金额 */}
                 <div className="space-y-2">
-                  <Label htmlFor="custom-amount">自定义金额 (USDT)</Label>
+                  <Label htmlFor="custom-amount" className="text-sm">自定义金额</Label>
                   <div className="relative">
-                    <img src={usdtIcon} alt="USDT" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
+                    <img src={hunterCoinIcon} alt="猎人币" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
                     <Input
                       id="custom-amount"
                       type="number"
@@ -401,23 +410,66 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                       placeholder="输入充值金额"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="pl-10 pr-16 font-mono"
+                      className="pl-10 pr-20 font-mono text-lg h-12"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                      USDT
+                      猎人币
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">最低充值金额: 10 USDT</p>
                 </div>
 
-                {/* 确认按钮 */}
+                {/* 立即充值按钮 */}
                 <Button 
-                  className="w-full" 
+                  className="w-full h-12 text-lg font-bold bg-destructive hover:bg-destructive/90 text-white rounded-full" 
                   onClick={handleProceed}
                   disabled={!amount || parseFloat(amount) < 10}
                 >
-                  确认金额
+                  立即充值
                 </Button>
+
+                {/* 提示说明 */}
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <p className="text-sm font-medium text-foreground">提示:</p>
+                  <ul className="text-xs text-muted-foreground space-y-1.5">
+                    <li>1. HUNSOCCER是<span className="text-destructive font-medium">AI足球预测平台</span>，猎人币一经充值成功，不支持提现、退款操作。</li>
+                    <li>2. 使用本充值服务前，需确认您已<span className="text-destructive font-medium">年满18周岁</span>，若您为未成年人，你使用本服务的行为将被视为已获得监护人认可。</li>
+                  </ul>
+                </div>
+
+                {/* 充值猎人币可购买内容 */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">充值猎人币可购买以下内容</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="flex flex-col items-center gap-1.5">
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                        <FileText className="h-6 w-6 text-destructive" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground text-center">跟单预测</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                        <Target className="h-6 w-6 text-destructive" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground text-center">AI分析</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                        <Gift className="h-6 w-6 text-destructive" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground text-center">VIP特权</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                        <Gamepad2 className="h-6 w-6 text-destructive" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground text-center">预测竞猜</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
