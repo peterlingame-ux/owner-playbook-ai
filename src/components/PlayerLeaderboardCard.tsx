@@ -240,6 +240,12 @@ export const PlayerLeaderboardCard = ({
         {/* Action Buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button 
+            onClick={onClick}
+            className="px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+          >
+            历史记录
+          </button>
+          <button 
             onClick={onViewHistory}
             className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-lg shadow-warning/30 hover:shadow-xl hover:shadow-warning/40 hover:scale-105 active:scale-95"
           >
