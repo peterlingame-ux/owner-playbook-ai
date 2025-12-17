@@ -72,33 +72,34 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
+    /* 柔和深蓝色调 - 更舒适的视觉体验 */
+    --background: 220 25% 10%;
+    --foreground: 210 20% 95%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 25% 13%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 25% 11%;
+    --popover-foreground: 210 20% 95%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 210 20% 95%;
+    --primary-foreground: 220 25% 12%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 210 20% 95%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 220 20% 22%;
+    --muted-foreground: 210 15% 65%;
 
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 220 20% 20%;
+    --accent-foreground: 210 20% 95%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 40%;
+    --border: 220 20% 22%;
+    --input: 220 20% 20%;
+    --ring: 210 40% 50%;
 
     /* AI Theme Colors - Dark Mode */
     --ai-cyan: 180 100% 50%;
@@ -106,7 +107,7 @@ All colors MUST be HSL.
     --ai-purple: 270 100% 70%;
     --ai-blue: 210 100% 65%;
 
-    --gradient-chart: linear-gradient(180deg, hsl(210 15% 50% / 0.15), hsl(0 0% 7% / 0));
+    --gradient-chart: linear-gradient(180deg, hsl(210 40% 50% / 0.15), hsl(220 25% 10% / 0));
     --gradient-ai: linear-gradient(135deg, hsl(180 100% 50% / 0.15), hsl(270 100% 65% / 0.1));
   }
 }
