@@ -1187,56 +1187,53 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
 
+      {/* Time Range Filter - Unified for all boards */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-foreground">玩家推荐排行榜</h2>
+        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+          <button
+            onClick={() => setTimeRange(1)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              timeRange === 1
+                ? 'bg-foreground text-background shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {t('time_filter_1d') || '日'}
+          </button>
+          <button
+            onClick={() => setTimeRange(7)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              timeRange === 7
+                ? 'bg-foreground text-background shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {t('time_filter_7d') || '周'}
+          </button>
+          <button
+            onClick={() => setTimeRange(30)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              timeRange === 30
+                ? 'bg-foreground text-background shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {t('time_filter_30d') || '月'}
+          </button>
+        </div>
+      </div>
+
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
-        {/* Left Column: 高胜率榜 (Hot Streak) */}
-        <Card className="border-border/50 bg-card/50 h-full">
-          <CardContent className="p-4 sm:p-6 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div>
-                  <h3 className="font-bold text-lg text-foreground">{t('hot_streak_board') || '高胜率榜'}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {t('best_win_streak') || '最佳连胜玩家'}
-                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                  </p>
-                </div>
-              </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d') || '日'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
-              </div>
-            </div>
-            <div className="space-y-2 flex-1">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+        {/* Column 1: 高胜率榜 */}
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <CardTitle className="text-base font-bold text-foreground">{t('hot_streak_board') || '高胜率榜'}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('best_win_streak') || '最佳连胜玩家'} · 前10名</p>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
+            <div className="space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -1291,54 +1288,14 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Middle Column: 高盈利榜 (Profit Board) */}
-        <Card className="border-border/50 bg-card/50 h-full">
-          <CardContent className="p-4 sm:p-6 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div>
-                  <h3 className="font-bold text-lg text-foreground">{t('profit_board') || '高盈利榜'}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {t('highest_profit_players') || '最高盈利玩家'}
-                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                  </p>
-                </div>
-              </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d') || '日'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
-              </div>
-            </div>
-            <div className="space-y-2 flex-1">
+        {/* Column 2: 高盈利榜 */}
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <CardTitle className="text-base font-bold text-foreground">{t('profit_board') || '高盈利榜'}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('highest_profit_players') || '最高盈利玩家'} · 前10名</p>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
+            <div className="space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -1393,54 +1350,14 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Right Column: 低胜率榜 (Cold Streak) */}
-        <Card className="border-border/50 bg-card/50 h-full">
-          <CardContent className="p-4 sm:p-6 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div>
-                  <h3 className="font-bold text-lg text-foreground">{t('cold_streak_board') || '低胜率榜'}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {t('worst_lose_streak') || '最差连黑玩家'}
-                    <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                  </p>
-                </div>
-              </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d') || '日'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
-              </div>
-            </div>
-            <div className="space-y-2 flex-1">
+        {/* Column 3: 低胜率榜 */}
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <CardTitle className="text-base font-bold text-foreground">{t('cold_streak_board') || '低胜率榜'}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · 前10名</p>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
+            <div className="space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
