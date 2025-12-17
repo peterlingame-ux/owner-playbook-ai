@@ -231,9 +231,12 @@ export const PlayerLeaderboardCard = ({
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button 
             onClick={onViewHistory}
-            className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+            className="relative px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-destructive via-destructive/90 to-destructive text-destructive-foreground hover:from-destructive/90 hover:to-destructive transition-all duration-300 shadow-lg shadow-destructive/30 hover:shadow-xl hover:shadow-destructive/40 hover:scale-105 active:scale-95 animate-pulse"
           >
-            今日推荐
+            <span className="relative z-10 flex items-center gap-1.5">
+              🔥 今日推荐
+            </span>
+            <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-destructive via-destructive/80 to-destructive opacity-0 hover:opacity-100 transition-opacity" />
           </button>
         </div>
       </div>
