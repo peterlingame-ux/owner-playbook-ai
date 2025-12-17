@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
@@ -153,6 +154,7 @@ const LeaderboardTable = () => {
   const [likedModels, setLikedModels] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
   const [isLiking, setIsLiking] = useState<Set<string>>(new Set());
+  const [floatingHearts, setFloatingHearts] = useState<Map<string, number[]>>(new Map());
   const [copyTradeModel, setCopyTradeModel] = useState<{ id: string; name: string } | null>(null);
   const [isCopyTradeDialogOpen, setIsCopyTradeDialogOpen] = useState(false);
   const [copyTradeAmount, setCopyTradeAmount] = useState<number>(100);
@@ -877,6 +879,22 @@ const LeaderboardTable = () => {
                       newMap.set(model.id, currentCount + 1);
                       return newMap;
                     });
+                    
+                    // Trigger floating hearts animation
+                    const heartIds = [Date.now(), Date.now() + 1, Date.now() + 2];
+                    setFloatingHearts(prev => {
+                      const newMap = new Map(prev);
+                      newMap.set(model.id, heartIds);
+                      return newMap;
+                    });
+                    // Clear hearts after animation completes
+                    setTimeout(() => {
+                      setFloatingHearts(prev => {
+                        const newMap = new Map(prev);
+                        newMap.delete(model.id);
+                        return newMap;
+                      });
+                    }, 1000);
                   }
                 } catch (error) {
                   console.error('Error toggling like:', error);
@@ -942,22 +960,45 @@ const LeaderboardTable = () => {
                             value={(model as any).profitRate || 0} 
                             locked={model.locked} 
                           />
-                          {/* Like Button */}
-                          <button
-                            onClick={handleLike}
-                            disabled={isLoading}
-                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ${
-                              isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                            } ${
-                              isLiked 
-                                ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
-                            }`}
-                            title={isLiked ? '取消点赞' : '点赞'}
-                          >
-                            <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-                            <span className="text-[10px] font-medium">{likeCount}</span>
-                          </button>
+                          {/* Like Button with Floating Hearts */}
+                          <div className="relative">
+                            <button
+                              onClick={handleLike}
+                              disabled={isLoading}
+                              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ${
+                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                              } ${
+                                isLiked 
+                                  ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                              }`}
+                              title={isLiked ? '取消点赞' : '点赞'}
+                            >
+                              <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                              <span className="text-[10px] font-medium">{likeCount}</span>
+                            </button>
+                            {/* Floating Hearts Animation */}
+                            <AnimatePresence>
+                              {floatingHearts.get(model.id)?.map((heartId, idx) => (
+                                <motion.div
+                                  key={heartId}
+                                  initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                                  animate={{ 
+                                    opacity: 0, 
+                                    y: -40, 
+                                    x: (idx - 1) * 12,
+                                    scale: 1,
+                                    rotate: (idx - 1) * 15
+                                  }}
+                                  exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.8, ease: "easeOut" }}
+                                  className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
+                                >
+                                  <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+                                </motion.div>
+                              ))}
+                            </AnimatePresence>
+                          </div>
                         </div>
                         <div className="mt-0.5">
                           <AnimatedFollowerCount 
