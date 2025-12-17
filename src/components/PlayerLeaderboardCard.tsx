@@ -4,6 +4,7 @@ import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize } from "./AnimatedPrize";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface PlayerData {
   id: string;
@@ -73,6 +74,7 @@ export const PlayerLeaderboardCard = ({
   aiBenchmarkWinRate,
   boardType = 'hot',
 }: PlayerLeaderboardCardProps) => {
+  const { t } = useTranslation();
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
 
   const handleLikeWithAnimation = (e: React.MouseEvent) => {
@@ -203,11 +205,11 @@ export const PlayerLeaderboardCard = ({
             <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
               {boardType === 'cold' ? (
                 <>
-                  连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
+                  {t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
                   <span className="flex items-center gap-0.5 ml-1">
                     {Array.from({ length: Math.min(player.worstStreak || 0, 5) }).map((_, i) => (
                       <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground font-bold">
-                        败
+                        {t('loss_badge')}
                       </span>
                     ))}
                     {(player.worstStreak || 0) > 5 && (
@@ -219,11 +221,11 @@ export const PlayerLeaderboardCard = ({
                 </>
               ) : (
                 <>
-                  连胜 <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
+                  {t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
                   <span className="flex items-center gap-0.5 ml-1">
                     {Array.from({ length: Math.min(player.currentStreak || 0, 5) }).map((_, i) => (
                       <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
-                        胜
+                        {t('win_badge')}
                       </span>
                     ))}
                     {(player.currentStreak || 0) > 5 && (
@@ -243,13 +245,13 @@ export const PlayerLeaderboardCard = ({
             onClick={onClick}
             className="px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
           >
-            历史记录
+            {t('view_history')}
           </button>
           <button 
             onClick={onViewHistory}
             className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-lg shadow-warning/30 hover:shadow-xl hover:shadow-warning/40 hover:scale-105 active:scale-95"
           >
-            今日推荐
+            {t('today_recommendations')}
           </button>
         </div>
       </div>
@@ -258,7 +260,7 @@ export const PlayerLeaderboardCard = ({
       <div className="grid grid-cols-3 gap-4 sm:gap-6">
         {/* Profit Amount with Mini Chart */}
         <div>
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
           <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
             {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
@@ -277,7 +279,7 @@ export const PlayerLeaderboardCard = ({
         
         {/* Win Rate */}
         <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
           <AnimatedWinRate 
             value={player.winRate}
             className="text-base sm:text-lg font-bold font-mono-data text-foreground"
@@ -286,7 +288,7 @@ export const PlayerLeaderboardCard = ({
         
         {/* Bet Amount */}
         <div className="text-right">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('bet_amount_label')}</p>
           <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
             ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
@@ -303,7 +305,7 @@ export const PlayerLeaderboardCard = ({
             onViewHistory(e);
           }}
         >
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">跟单人数</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('followers_count')}</p>
           <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
             {(() => {
               // Generate mock copy trader count based on player stats
@@ -311,41 +313,41 @@ export const PlayerLeaderboardCard = ({
               const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
               const variance = (seed % 50) - 25;
               return Math.max(0, baseCount + variance);
-            })()}人
+            })()}{t('people_suffix')}
           </p>
         </div>
         
         {/* Correct Predictions */}
         <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('correct_matches')}</p>
           <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-            {player.correctPredictions}场
+            {player.correctPredictions}{t('matches_suffix')}
           </p>
         </div>
         
         {/* Incorrect Predictions */}
         <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('incorrect_matches')}</p>
           <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-            {player.totalPredictions - player.correctPredictions}场
+            {player.totalPredictions - player.correctPredictions}{t('matches_suffix')}
           </p>
         </div>
         
         {/* Total Predictions */}
         <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('total_predictions')}</p>
           <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-            {player.totalPredictions}场
+            {player.totalPredictions}{t('matches_suffix')}
           </p>
         </div>
         
         {/* Estimated Prize */}
         <div className="text-right">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预期奖金</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('estimated_prize')}</p>
           {prize > 0 ? (
             <AnimatedPrize value={prize} className="text-sm sm:text-base font-bold text-warning" duration={600} />
           ) : (
-            <span className="text-sm sm:text-base text-muted-foreground/50">未达标</span>
+            <span className="text-sm sm:text-base text-muted-foreground/50">{t('not_qualified')}</span>
           )}
         </div>
       </div>
