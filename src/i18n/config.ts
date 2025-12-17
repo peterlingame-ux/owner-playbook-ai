@@ -777,8 +777,18 @@ const resources = {
       "purchase_failed": "Purchase failed, please try again",
       "vip_insufficient_balance": "Insufficient Hunter Coins, please deposit first",
       "vip_login_required": "Please login first",
-      
-      // Platform disclaimer
+      "vip_privilege_1_title": "Free Access to All Predictions",
+      "vip_privilege_1_desc": "View any player's prediction details without spending Hunter Coins",
+      "vip_privilege_2_title": "Exclusive AI Analysis Reports",
+      "vip_privilege_2_desc": "Get more detailed AI match analysis and prediction suggestions",
+      "vip_privilege_3_title": "Top Player Recommendations",
+      "vip_privilege_3_desc": "Priority notifications for winning streak players' latest predictions",
+      "vip_privilege_4_title": "VIP Identity Badge",
+      "vip_privilege_4_desc": "Display VIP badge on your avatar to show your premium status",
+      "vip_cost_label": "Activation Cost",
+      "vip_duration": "Valid for 30 days",
+      "recharge": "Deposit",
+
       "platform_disclaimer": "Platform Disclaimer",
       "platform_disclaimer_content": "HUNSOCCER is solely for demonstrating AI capabilities in football match analysis and does not provide any form of betting or gambling services. The platform features 6 independent AI analysis models, each with identical virtual funds (10,000), making professional judgments and strategies based on real match schedules. The system records their win rates to compare the analytical capabilities of different AIs, with the ultimate goal of identifying the optimal analysis approach over the long term.",
       "disclaimer_text": "HUNSOCCER All content is simulated analysis results, solely for AI technology research and match analysis demonstration. We do not provide or guide any form of betting or gambling activities.",
@@ -1567,8 +1577,18 @@ const resources = {
       "purchase_failed": "开通失败，请重试",
       "vip_insufficient_balance": "猎人币余额不足，请先充值",
       "vip_login_required": "请先登录",
-      
-      // Platform disclaimer
+      "vip_privilege_1_title": "免费查看所有跟单预测",
+      "vip_privilege_1_desc": "无需支付猎人币即可查看任意玩家的预测详情",
+      "vip_privilege_2_title": "专属AI分析报告",
+      "vip_privilege_2_desc": "获取更详细的AI赛事分析和预测建议",
+      "vip_privilege_3_title": "高胜率玩家推荐",
+      "vip_privilege_3_desc": "优先推送连胜玩家的最新预测动态",
+      "vip_privilege_4_title": "VIP专属身份标识",
+      "vip_privilege_4_desc": "头像显示VIP徽章，彰显尊贵身份",
+      "vip_cost_label": "开通费用",
+      "vip_duration": "有效期30天",
+      "recharge": "充值",
+
       "platform_disclaimer": "平台声明",
       "platform_disclaimer_content": "HUNSOCCER仅用于展示 AI 在足球赛事分析能力，不提供任何形式的投注或赌博行为。平台内共设定 6 个独立的AI分析模型，每个模型都拥有相同的虚拟资金（10,000），在真实赛程基础上给出各自的专业判断与策略，系统会记录其胜率用于比较不同AI的分析水平，最终目的是找出在长期维度下表现最优的分析路径。",
       "disclaimer_text": "HUNSOCCER 所有内容均为模拟分析结果，仅供 AI 技术研究与赛事分析展示使用，不提供、不引导任何形式的投注或博彩活动。",
@@ -2353,8 +2373,18 @@ const resources = {
       "purchase_failed": "구매 실패, 다시 시도하세요",
       "vip_insufficient_balance": "헌터 코인 잔액 부족, 먼저 입금하세요",
       "vip_login_required": "먼저 로그인하세요",
-      
-      // Platform disclaimer
+      "vip_privilege_1_title": "모든 카피 트레이드 무료 열람",
+      "vip_privilege_1_desc": "헌터 코인 없이 모든 플레이어의 예측 상세 정보를 볼 수 있습니다",
+      "vip_privilege_2_title": "전용 AI 분석 보고서",
+      "vip_privilege_2_desc": "더 상세한 AI 경기 분석과 예측 제안을 받으세요",
+      "vip_privilege_3_title": "고승률 플레이어 추천",
+      "vip_privilege_3_desc": "연승 중인 플레이어의 최신 예측을 우선 알림",
+      "vip_privilege_4_title": "VIP 전용 배지",
+      "vip_privilege_4_desc": "아바타에 VIP 배지를 표시하여 프리미엄 상태를 보여주세요",
+      "vip_cost_label": "활성화 비용",
+      "vip_duration": "30일 유효",
+      "recharge": "입금",
+
       "platform_disclaimer": "플랫폼 면책조항",
       "platform_disclaimer_content": "HUNSOCCER는 축구 경기 분석에서 AI 능력을 보여주기 위한 것이며, 어떠한 형태의 베팅이나 도박 서비스도 제공하지 않습니다.",
       "disclaimer_text": "HUNSOCCER의 모든 콘텐츠는 시뮬레이션 분석 결과이며, AI 기술 연구 및 경기 분석 시연용으로만 사용됩니다. 어떠한 형태의 베팅이나 도박 활동도 제공하거나 유도하지 않습니다.",

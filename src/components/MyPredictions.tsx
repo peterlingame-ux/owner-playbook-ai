@@ -1958,13 +1958,59 @@ const MyPredictions = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
-              <p className="text-sm text-foreground font-medium mb-2">开通后，当月预测所有免费</p>
-              <p className="text-xs text-muted-foreground">VIP会员可免费查看所有跟单预测，有效期30天</p>
+            {/* VIP特权列表 */}
+            <div className="space-y-2">
+              <div className="flex items-start gap-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-4 w-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_1_title') || '免费查看所有跟单预测'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_1_desc') || '无需支付猎人币即可查看任意玩家的预测详情'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <Target className="h-4 w-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_2_title') || '专属AI分析报告'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_2_desc') || '获取更详细的AI赛事分析和预测建议'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="h-4 w-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_3_title') || '高胜率玩家推荐'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_3_desc') || '优先推送连胜玩家的最新预测动态'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <Crown className="h-4 w-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_4_title') || 'VIP专属身份标识'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_4_desc') || '头像显示VIP徽章，彰显尊贵身份'}</p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-              <span className="text-sm text-muted-foreground">扣除猎人币</span>
-              <span className="text-lg font-bold text-amber-500 font-mono">{VIP_COST}</span>
+            
+            {/* 费用说明 */}
+            <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3 border border-border">
+              <div>
+                <span className="text-sm text-muted-foreground">{t('vip_cost_label') || '开通费用'}</span>
+                <p className="text-[10px] text-muted-foreground/70">{t('vip_duration') || '有效期30天'}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5" />
+                <span className="text-xl font-bold text-amber-500 font-mono">{VIP_COST}</span>
+              </div>
             </div>
           </div>
           <div className="flex gap-3">
