@@ -66,10 +66,15 @@ const generatePrizeSchedule = (year: number, month: number) => {
 // Generate mock winner
 const generateMockWinner = () => {
   const names = ["玩***8", "预***王", "足***3", "猜***手", "神***人", "冠***7", "赢***星", "胜***9"];
+  const predictions = Math.floor(Math.random() * 50) + 30;
+  const winRate = Math.floor(Math.random() * 30) + 55; // 55-85%
+  const profit = Math.floor(Math.random() * 8000) + 2000; // 2000-10000
   return {
     name: names[Math.floor(Math.random() * names.length)],
     avatar: `/avatars/avatar-${Math.floor(Math.random() * 9) + 1}.png`,
-    predictions: Math.floor(Math.random() * 50) + 30,
+    predictions,
+    winRate,
+    profit,
   };
 };
 
@@ -378,14 +383,16 @@ const Waitlist = () => {
                           alt="" 
                           className="w-10 h-10 rounded-full border border-border"
                         />
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
                             <CheckCircle2 className="w-3.5 h-3.5 text-foreground" />
                             <span className="font-medium text-foreground text-sm">{selectedDayPrize.winner.name}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            当日完成 {selectedDayPrize.winner.predictions} 场预测
-                          </p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span>胜率 <span className="text-foreground font-medium">{selectedDayPrize.winner.winRate}%</span></span>
+                            <span>盈利 <span className="text-foreground font-medium">¥{selectedDayPrize.winner.profit.toLocaleString()}</span></span>
+                            <span>预测 <span className="text-foreground font-medium">{selectedDayPrize.winner.predictions}场</span></span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -427,25 +434,29 @@ const Waitlist = () => {
                   <img 
                     src={dayData.winner!.avatar} 
                     alt="" 
-                    className="w-9 h-9 rounded-full border border-border"
+                    className="w-10 h-10 rounded-full border border-border flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-foreground text-sm">{dayData.winner!.name}</span>
                       <span className="text-xs text-muted-foreground">
                         {format(dayData.date, "MM/dd")}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
-                      获得 {dayData.prize.name}
-                    </p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>胜率 <span className="text-foreground font-medium">{dayData.winner!.winRate}%</span></span>
+                      <span>盈利 <span className="text-foreground font-medium">¥{dayData.winner!.profit.toLocaleString()}</span></span>
+                      <span>预测 <span className="text-foreground font-medium">{dayData.winner!.predictions}场</span></span>
+                    </div>
                   </div>
-                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                    <img 
-                      src={dayData.prize.image} 
-                      alt={dayData.prize.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted">
+                      <img 
+                        src={dayData.prize.image} 
+                        alt={dayData.prize.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
