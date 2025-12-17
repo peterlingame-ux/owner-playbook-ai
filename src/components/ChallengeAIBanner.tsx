@@ -76,7 +76,7 @@ const ChallengeAIBanner = () => {
           totalPredictions: vp.totalPredictions,
           correctPredictions: vp.correctPredictions,
           winRate: vp.winRate,
-          profitAmount: vp.profitAmount || 0,
+          profitAmount: vp.profit || 0,
           rank: index + 1,
         }));
 
@@ -130,7 +130,7 @@ const ChallengeAIBanner = () => {
           totalPredictions: vp.totalPredictions,
           correctPredictions: vp.correctPredictions,
           winRate: vp.winRate,
-          profitAmount: vp.profitAmount || 0,
+          profitAmount: vp.profit || 0,
           rank: index + 1,
         })));
       }
