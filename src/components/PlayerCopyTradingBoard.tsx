@@ -940,16 +940,16 @@ const PlayerCopyTradingBoard = () => {
           </div>
         </div>
         
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 sm:gap-6">
+        {/* Stats Grid - Row 1: 4 items */}
+        <div className="grid grid-cols-4 gap-3 sm:gap-4">
           {/* Profit Amount with Mini Chart */}
           <div>
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
-            <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+            <p className={`text-sm sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
             {/* Mini Chart */}
-            <svg width="80" height="24" className="mt-1">
+            <svg width="60" height="20" className="mt-1">
               <path
                 d={generateChartPath()}
                 fill="none"
@@ -964,32 +964,29 @@ const PlayerCopyTradingBoard = () => {
           {/* Win Rate */}
           <div className="text-center">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-            <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
               {player.winRate.toFixed(0)}%
             </p>
           </div>
           
           {/* Bet Amount */}
-          <div className="text-right">
+          <div className="text-center">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
-            <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
               ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
-        </div>
-        
-        {/* Predictions Stats Row */}
-        <div className="grid grid-cols-5 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+          
           {/* Copy Traders - Clickable */}
           <div 
-            className="cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+            className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               fetchTodayPredictions(player);
             }}
           >
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">跟单人数</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
@@ -998,9 +995,12 @@ const PlayerCopyTradingBoard = () => {
               })()}人
             </p>
           </div>
-          
+        </div>
+        
+        {/* Stats Grid - Row 2: 4 items */}
+        <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
           {/* Correct Predictions */}
-          <div className="text-center">
+          <div>
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
             <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
               {player.correctPredictions}场
