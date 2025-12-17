@@ -200,11 +200,29 @@ export const PlayerLeaderboardCard = ({
               {/* Profit Rate Badge */}
               <ProfitRateBadge value={profitRate} />
             </div>
-            <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground">
+            <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
               {boardType === 'cold' ? (
-                <>连败 <span className="text-destructive font-bold">{player.worstStreak || 0}</span></>
+                <>
+                  连败 <span className="text-destructive font-bold">{player.worstStreak || 0}</span>
+                  <span className="flex items-center gap-0.5 ml-1">
+                    {Array.from({ length: Math.min(player.worstStreak || 0, 10) }).map((_, i) => (
+                      <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
+                        败
+                      </span>
+                    ))}
+                  </span>
+                </>
               ) : (
-                <>连胜 <span className="text-primary font-bold">{player.currentStreak || 0}</span></>
+                <>
+                  连胜 <span className="text-primary font-bold">{player.currentStreak || 0}</span>
+                  <span className="flex items-center gap-0.5 ml-1">
+                    {Array.from({ length: Math.min(player.currentStreak || 0, 10) }).map((_, i) => (
+                      <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center text-[8px] sm:text-[9px] text-primary font-bold">
+                        胜
+                      </span>
+                    ))}
+                  </span>
+                </>
               )}
             </div>
           </div>
