@@ -1,4 +1,4 @@
-import { Trophy, ThumbsUp, Heart, Copy } from "lucide-react";
+import { Trophy, ThumbsUp, Heart, Copy, Users } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize } from "./AnimatedPrize";
@@ -302,7 +302,7 @@ export const PlayerLeaderboardCard = ({
             onViewHistory(e);
           }}
         >
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('followers_count')}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
           <p className="text-sm sm:text-lg font-bold font-mono-data text-primary hover:underline">
             {(() => {
               const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
