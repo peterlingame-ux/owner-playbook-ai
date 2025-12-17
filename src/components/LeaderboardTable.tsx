@@ -937,6 +937,11 @@ const LeaderboardTable = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-sm sm:text-base text-foreground">{getModelDisplayName(model)}</span>
+                          {/* Profit Rate - Animated Growth Effect */}
+                          <ProfitRateBadge 
+                            value={(model as any).profitRate || 0} 
+                            locked={model.locked} 
+                          />
                           {/* Like Button */}
                           <button
                             onClick={handleLike}
@@ -953,11 +958,6 @@ const LeaderboardTable = () => {
                             <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
                             <span className="text-[10px] font-medium">{likeCount}</span>
                           </button>
-                          {/* Profit Rate - Animated Growth Effect */}
-                          <ProfitRateBadge 
-                            value={(model as any).profitRate || 0} 
-                            locked={model.locked} 
-                          />
                         </div>
                         <div className="mt-0.5">
                           <AnimatedFollowerCount 
