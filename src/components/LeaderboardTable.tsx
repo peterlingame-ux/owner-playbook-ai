@@ -1014,7 +1014,7 @@ const LeaderboardTable = () => {
                   <div className="grid grid-cols-3 gap-4 sm:gap-6">
                     {/* Profit Amount with Mini Chart */}
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 盈利金额</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
                       <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}${profitAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                       </p>
@@ -1033,7 +1033,7 @@ const LeaderboardTable = () => {
                     
                     {/* Win Rate */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 胜率</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
                       <AnimatedWinRate 
                         value={model.winRate}
                         className="text-base sm:text-lg font-bold font-mono-data text-warning"
