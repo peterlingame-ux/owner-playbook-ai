@@ -778,129 +778,236 @@ const PlayerCopyTradingBoard = () => {
     showStreak?: boolean; 
     streakType?: 'best' | 'worst';
     rank?: number;
-  }) => (
-    <div 
-      className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-      onClick={() => navigate(`/player/${player.id}`)}
-    >
-      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-        {rank !== undefined && (
-          <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${
-            rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
-            rank === 2 ? 'bg-gray-400/20 text-gray-400' :
-            rank === 3 ? 'bg-orange-600/20 text-orange-600' :
-            'bg-muted text-muted-foreground'
-          }`}>
-            {rank}
-          </div>
-        )}
-        <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-border/40 flex-shrink-0">
-          <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-          <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-1">
-            <p className="font-semibold text-xs sm:text-sm truncate">{maskPlayerName(player.displayName)}</p>
-            {/* 点赞按钮 - 名字后面 */}
-            {(() => {
-              const isLiked = likedPlayers.has(player.id);
-              const likeCount = likeCounts.get(player.id) || 0;
-              const isLoading = isLiking.has(player.id);
-              return (
+  }) => {
+    const profitAmount = player.profitAmount || 0;
+    const profitRate = player.changePercent || 0;
+    
+    // Generate mini chart path
+    const generateChartPath = () => {
+      const points = [];
+      const width = 80;
+      const height = 24;
+      const numPoints = 8;
+      const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+      
+      for (let i = 0; i < numPoints; i++) {
+        const x = (i / (numPoints - 1)) * width;
+        const variance = ((seed * (i + 1)) % 16) - 8;
+        const trend = profitAmount >= 0 ? (i / numPoints) * 12 : -(i / numPoints) * 8;
+        const y = height / 2 - trend + variance;
+        points.push(`${i === 0 ? 'M' : 'L'}${x},${Math.max(2, Math.min(height - 2, y))}`);
+      }
+      return points.join(' ');
+    };
+
+    const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+    const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
+    const isLiked = likedPlayers.has(player.id);
+    const likeCount = likeCounts.get(player.id) || 0;
+    const isLikingPlayer = isLiking.has(player.id);
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        whileHover={{ 
+          scale: 1.02, 
+          y: -2,
+          boxShadow: "0 8px 25px -5px rgba(0, 0, 0, 0.2)"
+        }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2, delay: (rank || 0) * 0.03 }}
+        className="rounded-lg border bg-muted/20 border-border/30 p-3 sm:p-4 cursor-pointer"
+        onClick={() => navigate(`/player/${player.id}`)}
+      >
+        {/* Top Row: Rank, Avatar, Name, Buttons */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-3">
+            {/* Rank Badge */}
+            {rank !== undefined && (
+              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                rank === 1 ? 'bg-yellow-500/20' :
+                rank === 2 ? 'bg-gray-400/20' :
+                rank === 3 ? 'bg-amber-600/20' :
+                'bg-muted'
+              }`}>
+                {rank <= 3 ? (
+                  <Trophy className={`h-3 w-3 ${
+                    rank === 1 ? 'text-yellow-500' :
+                    rank === 2 ? 'text-gray-400' :
+                    'text-amber-600'
+                  }`} />
+                ) : (
+                  <span className="text-xs font-semibold text-muted-foreground">{rank}</span>
+                )}
+              </div>
+            )}
+            {/* Avatar with Like Button */}
+            <div className="relative flex-shrink-0">
+              <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border border-border">
+                <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              {/* Like Button on Avatar */}
+              <div className="absolute -bottom-1 -right-1">
                 <button
                   onClick={(e) => handleLike(player.id, e)}
-                  disabled={isLoading}
-                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ml-1 flex-shrink-0 ${
-                    isLoading
-                      ? 'opacity-50 cursor-not-allowed'
-                      : ''
+                  disabled={isLikingPlayer}
+                  className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[10px] border ${
+                    isLikingPlayer ? 'opacity-50 cursor-not-allowed' : ''
                   } ${
                     isLiked 
-                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                      ? 'bg-primary text-primary-foreground border-primary' 
+                      : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                   }`}
                   title={isLiked ? '取消点赞' : '点赞'}
                 >
-                  <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-                  <span className="text-[10px] font-medium">{likeCount}</span>
+                  <ThumbsUp className={`h-2.5 w-2.5 ${isLiked ? 'fill-current' : ''}`} />
+                  <span className="font-medium">{likeCount}</span>
                 </button>
-              );
-            })()}
-          </div>
-          <div className="text-[10px] sm:text-xs space-y-1">
-            {/* 第一行：核心数据 */}
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <span>跟单 <span className="text-foreground font-medium">{player.totalPredictions}</span></span>
-              <span className="text-border">|</span>
-              <span>胜率 <span className="text-foreground font-medium">{player.winRate.toFixed(0)}%</span></span>
-              <span className="text-border">|</span>
-              <span>{streakType === 'best' ? '连胜' : '连黑'} <span className="text-foreground font-medium">{streakType === 'best' ? player.bestStreak : player.worstStreak}</span></span>
+              </div>
             </div>
-            {/* 第二行：战绩、投注、盈利金额 */}
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <span>战绩 <span className="text-foreground font-medium">{player.correctPredictions}/{player.totalPredictions - player.correctPredictions}</span></span>
-              <span className="text-border">|</span>
-              <span>投注 <span className="text-foreground font-medium">¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</span></span>
-              <span className="text-border">|</span>
-              <span>盈利 <span className="text-foreground font-medium">{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 0, signDisplay: 'always' })}</span></span>
-              <span className="text-border">|</span>
-              <span>盈利率 <span className="text-foreground font-medium">{player.changePercent >= 0 ? '+' : ''}{player.changePercent.toFixed(1)}%</span></span>
-            </div>
-            {/* 第三行：预期奖金 */}
-            <div className="flex items-center gap-1.5 pt-1 border-t border-border/20">
-              <span className="text-warning font-medium text-[10px] sm:text-xs">预期奖金</span>
-              {(() => {
-                const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-                const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
-                return prize > 0 ? (
-                  <AnimatedPrize value={prize} className="text-warning font-bold" duration={600} />
+            {/* Name & Streak Stats */}
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
+                {/* Profit Rate Badge */}
+                <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium ${
+                  profitRate >= 0 
+                    ? 'bg-success/20 text-success' 
+                    : 'bg-destructive/20 text-destructive'
+                }`}>
+                  {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+                </span>
+              </div>
+              <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
+                {streakType === 'worst' ? (
+                  <>
+                    连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
+                    <span className="flex items-center gap-0.5 ml-1">
+                      {Array.from({ length: Math.min(player.worstStreak || 0, 5) }).map((_, i) => (
+                        <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground font-bold">
+                          败
+                        </span>
+                      ))}
+                      {(player.worstStreak || 0) > 5 && (
+                        <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/10 border border-dashed border-foreground/40 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground/70 font-medium">
+                          …
+                        </span>
+                      )}
+                    </span>
+                  </>
                 ) : (
-                  <span className="text-muted-foreground/50 text-[10px]">未达标</span>
-                );
-              })()}
+                  <>
+                    连胜 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
+                    <span className="flex items-center gap-0.5 ml-1">
+                      {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
+                        <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
+                          胜
+                        </span>
+                      ))}
+                      {(player.currentStreak || player.bestStreak || 0) > 5 && (
+                        <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive/70 font-medium">
+                          …
+                        </span>
+                      )}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
+          </div>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                fetchTodayPredictions(player);
+              }}
+              className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-lg shadow-warning/30 hover:shadow-xl hover:shadow-warning/40 hover:scale-105 active:scale-95"
+            >
+              今日推荐
+            </button>
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-        {/* 今日预测按钮 - 手机端隐藏文字，只显示图标 */}
-        <Button
-          size="sm"
-          variant="ghost"
-          className="text-xs gap-1 px-2 sm:px-2"
-          onClick={(e) => {
-            e.stopPropagation();
-            fetchTodayPredictions(player);
-          }}
-        >
-          <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          <span className="hidden sm:inline text-muted-foreground">昨日跟单:</span>
-          {(() => {
-            const stats = todayStats.get(player.id);
-            if (!stats || stats.total === 0) return <span className="hidden sm:inline">-</span>;
-            return (
-              <span className={`${streakType === 'best' ? 'text-destructive font-medium' : 'text-success font-medium'} hidden sm:inline`}>
-                {stats.correct}/{stats.total} {stats.winRate.toFixed(0)}%
-              </span>
-            );
-          })()}
-        </Button>
-        {/* 跟单按钮 - 手机端只显示图标 */}
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-xs gap-1 px-2 sm:px-3"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCopyTrade(player);
-          }}
-        >
-          <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          <span className="hidden sm:inline">{t('today_copy_trade_btn') || '今日跟单'}</span>
-        </Button>
-      </div>
-    </div>
-  );
+        
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-4 sm:gap-6">
+          {/* Profit Amount with Mini Chart */}
+          <div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+            <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </p>
+            {/* Mini Chart */}
+            <svg width="80" height="24" className="mt-1">
+              <path
+                d={generateChartPath()}
+                fill="none"
+                stroke={profitAmount >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          
+          {/* Win Rate */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
+            <p className={`text-base sm:text-lg font-bold font-mono-data ${player.winRate >= 60 ? 'text-success' : player.winRate >= 50 ? 'text-warning' : 'text-destructive'}`}>
+              {player.winRate.toFixed(0)}%
+            </p>
+          </div>
+          
+          {/* Bet Amount */}
+          <div className="text-right">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
+            <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
+              ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </p>
+          </div>
+        </div>
+        
+        {/* Predictions Stats Row */}
+        <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+          {/* Correct Predictions */}
+          <div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
+            <p className="text-sm sm:text-base font-semibold font-mono-data text-success">
+              {player.correctPredictions}场
+            </p>
+          </div>
+          
+          {/* Incorrect Predictions */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
+            <p className="text-sm sm:text-base font-semibold font-mono-data text-destructive">
+              {player.totalPredictions - player.correctPredictions}场
+            </p>
+          </div>
+          
+          {/* Total Predictions */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
+            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+              {player.totalPredictions}场
+            </p>
+          </div>
+          
+          {/* Estimated Prize */}
+          <div className="text-right">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预期奖金</p>
+            {prize > 0 ? (
+              <AnimatedPrize value={prize} className="text-sm sm:text-base font-bold text-warning" duration={600} />
+            ) : (
+              <span className="text-sm sm:text-base text-muted-foreground/50">未达标</span>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
 
   if (isLoading) {
     return (
