@@ -928,10 +928,6 @@ const LeaderboardTable = () => {
                       <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
                         {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                       </p>
-                      {/* Predictions below */}
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        预测: <span className="font-medium text-foreground">{model.totalPredictions || 0}场</span>
-                      </p>
                     </div>
                   </div>
                   
