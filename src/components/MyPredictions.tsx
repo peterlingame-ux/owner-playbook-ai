@@ -594,6 +594,7 @@ const MyPredictions = () => {
   const [followingList, setFollowingList] = useState<FollowUser[]>([]);
   const [followersList, setFollowersList] = useState<FollowUser[]>([]);
   const [isLoadingFollows, setIsLoadingFollows] = useState(false);
+  const [isPredictionHistoryOpen, setIsPredictionHistoryOpen] = useState(false);
 
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
@@ -1618,18 +1619,138 @@ const MyPredictions = () => {
           <div className="px-4 pb-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="grid grid-cols-2 divide-x divide-border">
-                {/* 虚拟钱包 */}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center">
-                      <Wallet className="h-4 w-4 text-muted-foreground" />
+                {/* 虚拟钱包 - 可点击查看预测历史 */}
+                <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
+                  <DialogTrigger asChild>
+                    <button className="p-4 text-left hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center">
+                          <Wallet className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-xs text-muted-foreground">{t('virtual_wallet_balance')}</span>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground font-mono tracking-tight">
+                        ${stats?.balance?.toLocaleString() || '10,000'}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1">点击查看预测记录</p>
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <History className="h-5 w-5 text-primary" />
+                        预测历史记录
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto">
+                      {/* 统计摘要 */}
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                          <p className="text-lg font-bold font-mono text-foreground">{stats?.totalPredictions || 0}</p>
+                          <p className="text-[10px] text-muted-foreground">总预测</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                          <p className="text-lg font-bold font-mono text-foreground">{stats?.correctPredictions || 0}</p>
+                          <p className="text-[10px] text-muted-foreground">正确</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                          <p className="text-lg font-bold font-mono text-foreground">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
+                          <p className="text-[10px] text-muted-foreground">错误</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
+                          <p className={`text-lg font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                            {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">盈亏</p>
+                        </div>
+                      </div>
+
+                      {/* 预测历史列表 */}
+                      <div className="border border-border rounded-lg overflow-hidden">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-border bg-muted/30">
+                              <th className="text-left py-2 px-3 font-medium text-muted-foreground">日期</th>
+                              <th className="text-left py-2 px-3 font-medium text-muted-foreground">比赛</th>
+                              <th className="text-left py-2 px-3 font-medium text-muted-foreground">玩法</th>
+                              <th className="text-left py-2 px-3 font-medium text-muted-foreground">预测</th>
+                              <th className="text-right py-2 px-3 font-medium text-muted-foreground">投注</th>
+                              <th className="text-right py-2 px-3 font-medium text-muted-foreground">盈亏</th>
+                              <th className="text-center py-2 px-3 font-medium text-muted-foreground">结果</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(stats?.recentPredictions || []).length === 0 ? (
+                              <tr>
+                                <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                                  暂无预测记录
+                                </td>
+                              </tr>
+                            ) : (
+                              stats?.recentPredictions.map((pred) => {
+                                const profit = pred.actual_payout - pred.bet_amount;
+                                return (
+                                  <tr key={pred.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                                    <td className="py-2 px-3 text-muted-foreground whitespace-nowrap">
+                                      {format(new Date(pred.created_at), 'MM-dd')}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <div className="flex items-center gap-1">
+                                        {pred.match?.home_logo && (
+                                          <img src={pred.match.home_logo} alt="" className="w-4 h-4 object-contain" />
+                                        )}
+                                        <span className="text-foreground truncate max-w-[60px]">
+                                          {pred.match?.home_team_name || '主队'}
+                                        </span>
+                                        <span className="text-muted-foreground">vs</span>
+                                        <span className="text-foreground truncate max-w-[60px]">
+                                          {pred.match?.away_team_name || '客队'}
+                                        </span>
+                                        {pred.match?.away_logo && (
+                                          <img src={pred.match.away_logo} alt="" className="w-4 h-4 object-contain" />
+                                        )}
+                                      </div>
+                                      {pred.match?.goals_home !== undefined && (
+                                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                                          {pred.match.goals_home} : {pred.match.goals_away}
+                                        </p>
+                                      )}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <span className="px-1.5 py-0.5 rounded bg-muted text-foreground text-[10px]">
+                                        {pred.prediction_type === 'handicap' ? 'Handicap' : 'Over/Under'}
+                                      </span>
+                                    </td>
+                                    <td className="py-2 px-3 text-foreground font-medium">
+                                      {pred.prediction}
+                                    </td>
+                                    <td className="py-2 px-3 text-right font-mono text-foreground">
+                                      ${pred.bet_amount}
+                                    </td>
+                                    <td className="py-2 px-3 text-right font-mono font-bold">
+                                      <span className={profit >= 0 ? 'text-primary' : 'text-destructive'}>
+                                        {profit >= 0 ? '+' : ''}{profit}
+                                      </span>
+                                    </td>
+                                    <td className="py-2 px-3 text-center">
+                                      {pred.result === 'win' ? (
+                                        <CheckCircle2 className="h-4 w-4 text-primary inline-block" />
+                                      ) : pred.result === 'loss' ? (
+                                        <XCircle className="h-4 w-4 text-destructive inline-block" />
+                                      ) : (
+                                        <span className="text-muted-foreground">-</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">{t('virtual_wallet_balance')}</span>
-                  </div>
-                  <p className="text-2xl font-bold text-foreground font-mono tracking-tight">
-                    ${stats?.balance?.toLocaleString() || '10,000'}
-                  </p>
-                </div>
+                  </DialogContent>
+                </Dialog>
 
                 {/* 猎人币钱包 */}
                 <div className="p-4 relative">
