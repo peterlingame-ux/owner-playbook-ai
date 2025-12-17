@@ -1679,111 +1679,87 @@ const MyPredictions = () => {
       />
 
 
-      {/* 标签页 */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-9">
-          <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-2">
-            <Receipt className="h-3 w-3" />
+      {/* 消费记录 */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="p-2 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <Receipt className="h-3.5 w-3.5 text-muted-foreground" />
             {t('spending_records') || '消费记录'}
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-2">
-            <History className="h-3 w-3" />
-            {t('player_prediction_records') || '预测记录'}
-          </TabsTrigger>
-        </TabsList>
-
-        {/* 完整历史记录标签页 */}
-        <TabsContent value="history" className="mt-2">
-          <PlayerHistoryTable predictions={stats?.recentPredictions || []} copyTradeRecords={copyTradeRecords} />
-        </TabsContent>
-
-
-        {/* 消费记录标签页 - 仅显示跟单消费 */}
-        <TabsContent value="spending" className="mt-2">
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <Receipt className="h-3.5 w-3.5 text-muted-foreground" />
-                {t('spending_records') || '消费记录'}
-              </h3>
-              <p className="text-[10px] text-muted-foreground">{t('copy_trade_spending_desc') || '查看您的跟单消费明细'}</p>
-            </div>
-            
-            {copyTradeRecords.length > 0 ? (
-              <>
-                {/* 跟单消费统计 */}
-                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                    <p className="text-[10px] text-muted-foreground">{t('copy_trade_count') || '跟单次数'}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('total_spent') || '总消费'}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      {copyTradeRecords.filter(r => r.bet_amount > 0).length}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('paid_copy_trades') || '付费跟单'}</p>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player') || '跟单玩家'}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('is_paid') || '是否付费'}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_spent') || '消费金额'}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {copyTradeRecords.map((record) => (
-                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <div className="flex items-center gap-1.5">
-                              <Avatar className="h-5 w-5">
-                                <AvatarImage src={record.followed_player_avatar} />
-                                <AvatarFallback className="text-[8px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
-                              </Avatar>
-                              <span className="text-[10px] text-foreground font-medium">{record.followed_player_name}</span>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
-                              {record.bet_amount > 0 ? (t('paid') || '付费') : (t('free') || '免费')}
-                            </span>
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-[10px] font-mono font-bold text-foreground">
-                              {record.bet_amount > 0 ? `-$${record.bet_amount}` : '$0'}
-                            </p>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            ) : (
-              <div className="p-4 text-center">
-                <Receipt className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_spending') || '暂无跟单消费记录'}</p>
-                <p className="text-[10px] text-muted-foreground">{t('start_copy_trading_hint') || '跟单其他玩家后，消费记录将在此显示'}</p>
+          </h3>
+          <p className="text-[10px] text-muted-foreground">{t('copy_trade_spending_desc') || '查看您的跟单消费明细'}</p>
+        </div>
+        
+        {copyTradeRecords.length > 0 ? (
+          <>
+            {/* 跟单消费统计 */}
+            <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+              <div className="p-2 text-center">
+                <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
+                <p className="text-[10px] text-muted-foreground">{t('copy_trade_count') || '跟单次数'}</p>
               </div>
-            )}
+              <div className="p-2 text-center">
+                <p className="text-sm font-bold font-mono text-foreground">
+                  ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-muted-foreground">{t('total_spent') || '总消费'}</p>
+              </div>
+              <div className="p-2 text-center">
+                <p className="text-sm font-bold font-mono text-foreground">
+                  {copyTradeRecords.filter(r => r.bet_amount > 0).length}
+                </p>
+                <p className="text-[10px] text-muted-foreground">{t('paid_copy_trades') || '付费跟单'}</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('date_column') || '时间'}</th>
+                    <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player') || '跟单玩家'}</th>
+                    <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('is_paid') || '是否付费'}</th>
+                    <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('amount_spent') || '消费金额'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {copyTradeRecords.map((record) => (
+                    <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                      <td className="py-1.5 px-2">
+                        <p className="text-[10px] text-foreground">{format(new Date(record.created_at), 'MM-dd HH:mm')}</p>
+                      </td>
+                      <td className="py-1.5 px-2">
+                        <div className="flex items-center gap-1.5">
+                          <Avatar className="h-5 w-5">
+                            <AvatarImage src={record.followed_player_avatar} />
+                            <AvatarFallback className="text-[8px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <span className="text-[10px] text-foreground font-medium">{record.followed_player_name}</span>
+                        </div>
+                      </td>
+                      <td className="py-1.5 px-2 text-center">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
+                          {record.bet_amount > 0 ? (t('paid') || '付费') : (t('free') || '免费')}
+                        </span>
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <p className="text-[10px] font-mono font-bold text-foreground">
+                          {record.bet_amount > 0 ? `-$${record.bet_amount}` : '$0'}
+                        </p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="p-4 text-center">
+            <Receipt className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+            <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_spending') || '暂无跟单消费记录'}</p>
+            <p className="text-[10px] text-muted-foreground">{t('start_copy_trading_hint') || '跟单其他玩家后，消费记录将在此显示'}</p>
           </div>
-        </TabsContent>
-
-
-      </Tabs>
+        )}
+      </div>
 
       {/* VIP开通确认弹窗 */}
       <Dialog open={showVipConfirmDialog} onOpenChange={setShowVipConfirmDialog}>
