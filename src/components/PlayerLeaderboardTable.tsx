@@ -1229,8 +1229,16 @@ const PlayerLeaderboardTable = () => {
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
-            <CardTitle className="text-base font-bold text-foreground">{t('hot_streak_board') || '高胜率榜'}</CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('best_win_streak') || '最佳连胜玩家'} · 前10名</p>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+              <div>
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-500" />
+                  {t('hot_streak_board') || '高胜率榜'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players') || '胜率最高玩家'} · <span className="text-amber-500 font-medium">前10名</span></p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
