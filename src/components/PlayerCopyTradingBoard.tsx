@@ -985,7 +985,7 @@ const PlayerCopyTradingBoard = () => {
               fetchTodayPredictions(player);
             }}
           >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" />跟单人数</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
             <p className="text-sm sm:text-lg font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
@@ -1576,7 +1576,7 @@ const PlayerCopyTradingBoard = () => {
                   transition={{ delay: 0.35 }}
                   className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-muted/30 border border-border/30"
                 >
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Users className="h-4 w-4 text-muted-foreground" fill="currentColor" />
                   <span className="text-sm text-muted-foreground">
                     已有 <span className="text-foreground font-bold">{Math.floor(Math.random() * 200) + 50}</span> 人跟单该玩家
                   </span>

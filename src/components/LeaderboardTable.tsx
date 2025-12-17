@@ -1095,7 +1095,7 @@ const LeaderboardTable = () => {
                         setIsFollowersDialogOpen(true);
                       }}
                     >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" />跟单人数</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
                       <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
                         {((model as any).followerCount || 0).toLocaleString()}人
                       </p>
