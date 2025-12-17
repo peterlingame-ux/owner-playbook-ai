@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles, UserPlus, Heart } from "lucide-react";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import personalCenterBg from "@/assets/personal-center-bg.jpg";
 import { AnimatedWinRate } from "./AnimatedWinRate";
@@ -102,6 +102,14 @@ interface SpendingRecord {
 interface VipStatus {
   is_active: boolean;
   expires_at: string | null;
+}
+
+interface FollowUser {
+  id: string;
+  display_name: string;
+  avatar_url: string;
+  signature?: string;
+  followed_at: string;
 }
 
 const VIP_COST = 500; // 500猎人币开通VIP
@@ -583,6 +591,9 @@ const MyPredictions = () => {
   const [vipStatus, setVipStatus] = useState<VipStatus | null>(null);
   const [isPurchasingVip, setIsPurchasingVip] = useState(false);
   const [showVipConfirmDialog, setShowVipConfirmDialog] = useState(false);
+  const [followingList, setFollowingList] = useState<FollowUser[]>([]);
+  const [followersList, setFollowersList] = useState<FollowUser[]>([]);
+  const [isLoadingFollows, setIsLoadingFollows] = useState(false);
 
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
@@ -1003,6 +1014,120 @@ const MyPredictions = () => {
     };
 
     fetchPredictions();
+  }, [user]);
+
+  // 获取关注和粉丝列表
+  useEffect(() => {
+    const fetchFollowData = async () => {
+      if (!user) {
+        // 模拟数据用于演示
+        setFollowingList([
+          {
+            id: 'demo1',
+            display_name: 'GoldenAce7788',
+            avatar_url: '/avatars/avatar-3.png',
+            signature: '连胜王者',
+            followed_at: new Date(Date.now() - 86400000 * 2).toISOString()
+          },
+          {
+            id: 'demo2',
+            display_name: 'LuckyDragon9999',
+            avatar_url: '/avatars/avatar-5.png',
+            signature: '稳健玩家',
+            followed_at: new Date(Date.now() - 86400000 * 5).toISOString()
+          }
+        ]);
+        setFollowersList([
+          {
+            id: 'demo3',
+            display_name: 'StarPlayer123',
+            avatar_url: '/avatars/avatar-2.png',
+            signature: '新手上路',
+            followed_at: new Date(Date.now() - 86400000 * 1).toISOString()
+          }
+        ]);
+        return;
+      }
+
+      setIsLoadingFollows(true);
+      try {
+        // 获取关注列表
+        const { data: followingData } = await supabase
+          .from('user_follows')
+          .select(`
+            id,
+            following_id,
+            created_at
+          `)
+          .eq('follower_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (followingData && followingData.length > 0) {
+          const followingIds = followingData.map(f => f.following_id);
+          const { data: usersData } = await supabase
+            .from('users')
+            .select('id, display_name, avatar_url, signature')
+            .in('id', followingIds);
+
+          if (usersData) {
+            const followingList = followingData.map(f => {
+              const userData = usersData.find(u => u.id === f.following_id);
+              return {
+                id: f.following_id,
+                display_name: userData?.display_name || '未知用户',
+                avatar_url: userData?.avatar_url || '/avatars/avatar-1.png',
+                signature: userData?.signature || '',
+                followed_at: f.created_at
+              };
+            });
+            setFollowingList(followingList);
+          }
+        } else {
+          setFollowingList([]);
+        }
+
+        // 获取粉丝列表
+        const { data: followersData } = await supabase
+          .from('user_follows')
+          .select(`
+            id,
+            follower_id,
+            created_at
+          `)
+          .eq('following_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (followersData && followersData.length > 0) {
+          const followerIds = followersData.map(f => f.follower_id);
+          const { data: usersData } = await supabase
+            .from('users')
+            .select('id, display_name, avatar_url, signature')
+            .in('id', followerIds);
+
+          if (usersData) {
+            const followersList = followersData.map(f => {
+              const userData = usersData.find(u => u.id === f.follower_id);
+              return {
+                id: f.follower_id,
+                display_name: userData?.display_name || '未知用户',
+                avatar_url: userData?.avatar_url || '/avatars/avatar-1.png',
+                signature: userData?.signature || '',
+                followed_at: f.created_at
+              };
+            });
+            setFollowersList(followersList);
+          }
+        } else {
+          setFollowersList([]);
+        }
+      } catch (error) {
+        console.error('Error fetching follow data:', error);
+      } finally {
+        setIsLoadingFollows(false);
+      }
+    };
+
+    fetchFollowData();
   }, [user]);
 
   // 点击开通VIP按钮 - 显示确认弹窗
@@ -1467,18 +1592,37 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-9">
-          <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-2">
+        <TabsList className="grid w-full grid-cols-5 h-9">
+          <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-1">
             <Receipt className="h-3 w-3" />
-            {t('spending_records') || '消费记录'}
+            <span className="hidden sm:inline">{t('spending_records') || '消费'}</span>
+            <span className="sm:hidden">消费</span>
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-2">
+          <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-1">
             <History className="h-3 w-3" />
-            {t('player_prediction_records') || '预测记录'}
+            <span className="hidden sm:inline">{t('player_prediction_records') || '预测'}</span>
+            <span className="sm:hidden">预测</span>
           </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-xs px-2">
+          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-xs px-1">
             <Users className="h-3 w-3" />
-            {t('copy_trade_records') || '跟单记录'}
+            <span className="hidden sm:inline">{t('copy_trade_records') || '跟单'}</span>
+            <span className="sm:hidden">跟单</span>
+          </TabsTrigger>
+          <TabsTrigger value="following" className="flex items-center gap-1 text-xs px-1">
+            <UserPlus className="h-3 w-3" />
+            <span className="hidden sm:inline">关注</span>
+            <span className="sm:hidden">关注</span>
+            {followingList.length > 0 && (
+              <span className="text-[9px] bg-primary/20 text-primary px-1 rounded-full">{followingList.length}</span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="followers" className="flex items-center gap-1 text-xs px-1">
+            <Heart className="h-3 w-3" />
+            <span className="hidden sm:inline">粉丝</span>
+            <span className="sm:hidden">粉丝</span>
+            {followersList.length > 0 && (
+              <span className="text-[9px] bg-destructive/20 text-destructive px-1 rounded-full">{followersList.length}</span>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -1682,6 +1826,103 @@ const MyPredictions = () => {
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => navigate('/leaderboard')}>
                   {t('view_leaderboard')}
                 </Button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* 关注列表标签页 */}
+        <TabsContent value="following" className="mt-2">
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <UserPlus className="h-3.5 w-3.5 text-primary" />
+                关注列表
+              </h3>
+              <p className="text-[10px] text-muted-foreground">您关注的玩家 ({followingList.length})</p>
+            </div>
+            
+            {isLoadingFollows ? (
+              <div className="p-4 text-center">
+                <div className="h-6 w-6 mx-auto mb-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <p className="text-xs text-muted-foreground">加载中...</p>
+              </div>
+            ) : followingList.length > 0 ? (
+              <div className="divide-y divide-border">
+                {followingList.map((followUser) => (
+                  <div key={followUser.id} className="p-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border border-border">
+                        <AvatarImage src={followUser.avatar_url} />
+                        <AvatarFallback className="text-xs">{followUser.display_name.slice(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{followUser.display_name}</p>
+                        <p className="text-[10px] text-muted-foreground">{followUser.signature || '暂无签名'}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground">关注于</p>
+                      <p className="text-xs text-foreground">{format(new Date(followUser.followed_at), 'MM-dd')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 text-center">
+                <UserPlus className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground mb-1">暂无关注的玩家</p>
+                <p className="text-[10px] text-muted-foreground mb-2">去排行榜关注优秀玩家</p>
+                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => navigate('/leaderboard')}>
+                  浏览排行榜
+                </Button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* 粉丝列表标签页 */}
+        <TabsContent value="followers" className="mt-2">
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <Heart className="h-3.5 w-3.5 text-destructive" />
+                粉丝列表
+              </h3>
+              <p className="text-[10px] text-muted-foreground">关注您的玩家 ({followersList.length})</p>
+            </div>
+            
+            {isLoadingFollows ? (
+              <div className="p-4 text-center">
+                <div className="h-6 w-6 mx-auto mb-2 animate-spin rounded-full border-2 border-destructive border-t-transparent" />
+                <p className="text-xs text-muted-foreground">加载中...</p>
+              </div>
+            ) : followersList.length > 0 ? (
+              <div className="divide-y divide-border">
+                {followersList.map((follower) => (
+                  <div key={follower.id} className="p-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border border-border">
+                        <AvatarImage src={follower.avatar_url} />
+                        <AvatarFallback className="text-xs">{follower.display_name.slice(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{follower.display_name}</p>
+                        <p className="text-[10px] text-muted-foreground">{follower.signature || '暂无签名'}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground">关注于</p>
+                      <p className="text-xs text-foreground">{format(new Date(follower.followed_at), 'MM-dd')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 text-center">
+                <Heart className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground mb-1">暂无粉丝</p>
+                <p className="text-[10px] text-muted-foreground">提高预测准确率，吸引更多玩家关注您</p>
               </div>
             )}
           </div>
