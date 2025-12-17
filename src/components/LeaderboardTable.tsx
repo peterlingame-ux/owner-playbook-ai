@@ -123,7 +123,7 @@ const ProfitRateBadge = ({ value, locked }: { value: number; locked?: boolean })
   if (locked) {
     return (
       <span className="px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold bg-muted/50 text-muted-foreground border border-border/30">
-        收益率 ???
+        ???
       </span>
     );
   }
@@ -134,7 +134,7 @@ const ProfitRateBadge = ({ value, locked }: { value: number; locked?: boolean })
         ? 'bg-success/20 text-success border border-success/30' 
         : 'bg-destructive/20 text-destructive border border-destructive/30'
     }`}>
-      收益率 {isPositive ? '+' : ''}{animatedValue.toFixed(2)}%
+      {isPositive ? '+' : ''}{animatedValue.toFixed(2)}%
     </span>
   );
 };
