@@ -921,7 +921,7 @@ const LeaderboardTable = () => {
                   </div>
                   
                   {/* Stats Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-3 gap-4 sm:gap-6">
                     {/* Profit Amount with Mini Chart */}
                     <div>
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 盈利金额</p>
@@ -953,7 +953,7 @@ const LeaderboardTable = () => {
                     {/* Bet Amount */}
                     <div className="text-right">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+                      <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
                         {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                       </p>
                     </div>
