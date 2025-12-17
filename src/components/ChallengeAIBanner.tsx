@@ -166,6 +166,26 @@ const ChallengeAIBanner = () => {
       />
       <CardContent className="p-5 sm:p-6 relative">
         <div className="flex flex-col gap-5">
+          {/* App下载二维码 */}
+          <div className="flex items-center justify-center gap-6 sm:gap-8">
+            <div className="flex items-center gap-2">
+              <img 
+                src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
+                alt="iOS Download" 
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded bg-white p-0.5"
+              />
+              <span className="text-xs text-white/80">iOS</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <img 
+                src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
+                alt="Android Download" 
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded bg-white p-0.5"
+              />
+              <span className="text-xs text-white/80">Android</span>
+            </div>
+          </div>
+
           {/* 主标题 */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
