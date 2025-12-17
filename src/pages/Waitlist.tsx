@@ -7,23 +7,33 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   Trophy, ChevronRight, ChevronLeft, Gift, Clock, Calendar, 
-  Smartphone, Watch, Laptop, Headphones, Gamepad2, Camera, 
-  Tv, Speaker, Tablet, Star, Sparkles, Crown, Users
+  Star, Sparkles, Users, CheckCircle2
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, addMonths, subMonths, getDay } from "date-fns";
 import { zhCN } from "date-fns/locale";
 
-// Prize types with icons and colors
+// Import product images
+import iphoneImg from "@/assets/prizes/iphone.jpg";
+import watchImg from "@/assets/prizes/watch.jpg";
+import macbookImg from "@/assets/prizes/macbook.jpg";
+import airpodsImg from "@/assets/prizes/airpods.jpg";
+import ps5Img from "@/assets/prizes/ps5.jpg";
+import cameraImg from "@/assets/prizes/camera.jpg";
+import tvImg from "@/assets/prizes/tv.jpg";
+import speakerImg from "@/assets/prizes/speaker.jpg";
+import ipadImg from "@/assets/prizes/ipad.jpg";
+
+// Prize types with images and colors
 const prizeTypes = {
-  iphone: { name: "iPhone 16 Pro", icon: Smartphone, color: "from-blue-500 to-purple-600", value: 8999 },
-  watch: { name: "Apple Watch Ultra", icon: Watch, color: "from-amber-500 to-orange-600", value: 6499 },
-  macbook: { name: "MacBook Pro 14\"", icon: Laptop, color: "from-gray-600 to-gray-800", value: 14999 },
-  airpods: { name: "AirPods Pro 2", icon: Headphones, color: "from-cyan-500 to-blue-500", value: 1899 },
-  ps5: { name: "PlayStation 5", icon: Gamepad2, color: "from-indigo-600 to-blue-700", value: 4299 },
-  camera: { name: "Sony A7C II", icon: Camera, color: "from-rose-500 to-pink-600", value: 12999 },
-  tv: { name: "三星 65\" OLED TV", icon: Tv, color: "from-green-500 to-emerald-600", value: 15999 },
-  speaker: { name: "HomePod 2", icon: Speaker, color: "from-violet-500 to-purple-600", value: 2299 },
-  ipad: { name: "iPad Pro 12.9\"", icon: Tablet, color: "from-slate-500 to-zinc-700", value: 9999 },
+  iphone: { name: "iPhone 16 Pro", image: iphoneImg, color: "from-blue-500 to-purple-600", value: 8999 },
+  watch: { name: "Apple Watch Ultra", image: watchImg, color: "from-amber-500 to-orange-600", value: 6499 },
+  macbook: { name: "MacBook Pro 14\"", image: macbookImg, color: "from-gray-600 to-gray-800", value: 14999 },
+  airpods: { name: "AirPods Pro 2", image: airpodsImg, color: "from-cyan-500 to-blue-500", value: 1899 },
+  ps5: { name: "PlayStation 5", image: ps5Img, color: "from-indigo-600 to-blue-700", value: 4299 },
+  camera: { name: "Sony A7C II", image: cameraImg, color: "from-rose-500 to-pink-600", value: 12999 },
+  tv: { name: "三星 65\" OLED TV", image: tvImg, color: "from-green-500 to-emerald-600", value: 15999 },
+  speaker: { name: "HomePod 2", image: speakerImg, color: "from-violet-500 to-purple-600", value: 2299 },
+  ipad: { name: "iPad Pro 12.9\"", image: ipadImg, color: "from-slate-500 to-zinc-700", value: 9999 },
 };
 
 // Generate prize schedule for the month
@@ -190,8 +200,12 @@ const Waitlist = () => {
                 </div>
                 
                 <div className="flex-shrink-0">
-                  <div className="w-20 h-20 sm:w-28 sm:h-28 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-                    <todayPrize.prize.icon className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/30">
+                    <img 
+                      src={todayPrize.prize.image} 
+                      alt={todayPrize.prize.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
               </div>
@@ -284,7 +298,6 @@ const Waitlist = () => {
             
             {/* Days with prizes */}
             {prizeSchedule.map((dayData) => {
-              const Icon = dayData.prize.icon;
               const isSelected = selectedDay && isSameDay(dayData.date, selectedDay);
               const isPast = dayData.isDrawn;
               const isTodayDate = isToday(dayData.date);
@@ -295,30 +308,48 @@ const Waitlist = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDay(dayData.date)}
-                  className={`aspect-square rounded-lg p-1 transition-all relative ${
+                  className={`aspect-square rounded-lg p-0.5 transition-all relative overflow-hidden ${
                     isSelected 
-                      ? 'bg-primary ring-2 ring-primary ring-offset-2 ring-offset-background' 
+                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
                       : isTodayDate
-                        ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500'
+                        ? 'ring-2 ring-amber-500'
                         : isPast
-                          ? 'bg-muted/50 opacity-60'
-                          : 'bg-muted/30 hover:bg-muted/50'
+                          ? 'opacity-60'
+                          : 'hover:ring-1 hover:ring-border'
                   }`}
                 >
-                  <div className="text-[10px] sm:text-xs font-medium text-muted-foreground mb-0.5">
-                    {format(dayData.date, "d")}
+                  {/* Product image background */}
+                  <div className="absolute inset-0">
+                    <img 
+                      src={dayData.prize.image} 
+                      alt={dayData.prize.name}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <div className={`absolute inset-0 rounded-lg ${
+                      isPast ? 'bg-black/50' : 'bg-black/30'
+                    }`} />
                   </div>
-                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 mx-auto ${
-                    isSelected ? 'text-primary-foreground' : isTodayDate ? 'text-amber-500' : 'text-muted-foreground'
-                  }`} />
+                  
+                  {/* Day number */}
+                  <div className="relative z-10 h-full flex flex-col items-center justify-center">
+                    <span className={`text-xs sm:text-sm font-bold ${
+                      isTodayDate ? 'text-amber-400' : 'text-white'
+                    }`}>
+                      {format(dayData.date, "d")}
+                    </span>
+                  </div>
+                  
+                  {/* Today indicator */}
                   {isTodayDate && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+                    <div className="absolute top-0.5 right-0.5 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
                       <Sparkles className="w-2 h-2 text-white" />
                     </div>
                   )}
+                  
+                  {/* Won indicator */}
                   {isPast && dayData.winner && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full flex items-center justify-center">
-                      <Crown className="w-2.5 h-2.5 text-white" />
+                    <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-success rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-2 h-2 text-white" />
                     </div>
                   )}
                 </motion.button>
@@ -329,7 +360,7 @@ const Waitlist = () => {
           {/* Legend */}
           <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-amber-500/30 border border-amber-500" />
+              <div className="w-3 h-3 rounded ring-2 ring-amber-500" />
               <span>今日</span>
             </div>
             <div className="flex items-center gap-1">
@@ -354,8 +385,12 @@ const Waitlist = () => {
               className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-8"
             >
               <div className="flex items-start gap-4">
-                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${selectedDayPrize.prize.color} flex items-center justify-center flex-shrink-0`}>
-                  <selectedDayPrize.prize.icon className="w-8 h-8 text-white" />
+                <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-lg">
+                  <img 
+                    src={selectedDayPrize.prize.image} 
+                    alt={selectedDayPrize.prize.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-muted-foreground mb-1">
@@ -379,7 +414,7 @@ const Waitlist = () => {
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <Crown className="w-4 h-4 text-success" />
+                            <Trophy className="w-4 h-4 text-success" />
                             <span className="font-medium text-foreground">{selectedDayPrize.winner.name}</span>
                           </div>
                           <p className="text-xs text-muted-foreground">
@@ -445,8 +480,12 @@ const Waitlist = () => {
                       获得 {dayData.prize.name}
                     </p>
                   </div>
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${dayData.prize.color} flex items-center justify-center flex-shrink-0`}>
-                    <dayData.prize.icon className="w-5 h-5 text-white" />
+                  <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
+                    <img 
+                      src={dayData.prize.image} 
+                      alt={dayData.prize.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </motion.div>
               ))}
