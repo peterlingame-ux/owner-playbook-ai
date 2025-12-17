@@ -205,22 +205,28 @@ export const PlayerLeaderboardCard = ({
                 <>
                   连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
                   <span className="flex items-center gap-0.5 ml-1">
-                    {Array.from({ length: Math.min(player.worstStreak || 0, 10) }).map((_, i) => (
+                    {Array.from({ length: Math.min(player.worstStreak || 0, 5) }).map((_, i) => (
                       <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground font-bold">
                         败
                       </span>
                     ))}
+                    {(player.worstStreak || 0) > 5 && (
+                      <span className="text-[10px] text-muted-foreground ml-0.5">+{(player.worstStreak || 0) - 5}</span>
+                    )}
                   </span>
                 </>
               ) : (
                 <>
                   连胜 <span className="text-destructive font-bold">{player.currentStreak || 0}</span>
                   <span className="flex items-center gap-0.5 ml-1">
-                    {Array.from({ length: Math.min(player.currentStreak || 0, 10) }).map((_, i) => (
+                    {Array.from({ length: Math.min(player.currentStreak || 0, 5) }).map((_, i) => (
                       <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
                         胜
                       </span>
                     ))}
+                    {(player.currentStreak || 0) > 5 && (
+                      <span className="text-[10px] text-muted-foreground ml-0.5">+{(player.currentStreak || 0) - 5}</span>
+                    )}
                   </span>
                 </>
               )}
