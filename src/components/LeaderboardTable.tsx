@@ -862,6 +862,14 @@ const LeaderboardTable = () => {
                             <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
                             <span className="text-[10px] font-medium">{likeCount}</span>
                           </button>
+                          {/* Profit Rate - More Visible */}
+                          <span className={`px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold ${
+                            ((model as any).profitRate || 0) >= 0 
+                              ? 'bg-success/20 text-success' 
+                              : 'bg-destructive/20 text-destructive'
+                          }`}>
+                            {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                           <span>👥 {(model as any).correctPredictions || 0}/{model.totalPredictions || 0}</span>
@@ -914,12 +922,6 @@ const LeaderboardTable = () => {
                         value={model.winRate}
                         className="text-base sm:text-lg font-bold font-mono-data text-warning"
                       />
-                      {/* Profit Rate below */}
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        收益率: <span className={`font-medium ${((model as any).profitRate || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
-                        </span>
-                      </p>
                     </div>
                     
                     {/* Bet Amount */}
