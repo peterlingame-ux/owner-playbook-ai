@@ -862,13 +862,13 @@ const LeaderboardTable = () => {
                             <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
                             <span className="text-[10px] font-medium">{likeCount}</span>
                           </button>
-                          {/* Profit Rate - More Visible */}
-                          <span className={`px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold ${
+                          {/* Profit Rate - More Visible with Animation */}
+                          <span className={`px-2 py-0.5 rounded-md text-xs sm:text-sm font-bold animate-pulse ${
                             ((model as any).profitRate || 0) >= 0 
-                              ? 'bg-success/20 text-success' 
-                              : 'bg-destructive/20 text-destructive'
+                              ? 'bg-success/20 text-success border border-success/30' 
+                              : 'bg-destructive/20 text-destructive border border-destructive/30'
                           }`}>
-                            {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
+                            收益率 {model.locked ? '???' : `${((model as any).profitRate || 0) >= 0 ? '+' : ''}${((model as any).profitRate || 0).toFixed(2)}%`}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
