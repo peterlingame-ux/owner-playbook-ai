@@ -132,33 +132,28 @@ const CryptoTicker = () => {
           />
         </div>
 
+        {/* App Download QR Codes - Top Right */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 flex items-center gap-4 sm:gap-5">
+          <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
+            <img 
+              src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
+              alt="iOS Download" 
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(59,130,246,0.5)]"
+            />
+            <span className="text-[10px] sm:text-xs font-mono-data font-medium tracking-wider text-muted-foreground uppercase">iOS</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
+            <img 
+              src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
+              alt="Android Download" 
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(34,197,94,0.5)]"
+            />
+            <span className="text-[10px] sm:text-xs font-mono-data font-medium tracking-wider text-muted-foreground uppercase">Android</span>
+          </div>
+        </div>
+
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-10 sm:py-12 lg:py-14 flex flex-col items-center justify-center text-center">
-
-          {/* App Download QR Codes */}
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex items-center gap-6 sm:gap-8 mb-5"
-          >
-            <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
-              <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
-                alt="iOS Download" 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(59,130,246,0.5)]"
-              />
-              <span className="text-[10px] sm:text-xs font-mono-data font-medium tracking-wider text-muted-foreground uppercase">iOS</span>
-            </div>
-            <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
-              <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
-                alt="Android Download" 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(34,197,94,0.5)]"
-              />
-              <span className="text-[10px] sm:text-xs font-mono-data font-medium tracking-wider text-muted-foreground uppercase">Android</span>
-            </div>
-          </motion.div>
 
           {/* Main Title */}
           <motion.h1 
