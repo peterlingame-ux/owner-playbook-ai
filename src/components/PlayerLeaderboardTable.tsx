@@ -1225,7 +1225,7 @@ const PlayerLeaderboardTable = () => {
       </div>
 
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
@@ -1286,76 +1286,6 @@ const PlayerLeaderboardTable = () => {
                             totalEligiblePlayers={eligiblePlayers}
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
                             boardType="hot"
-                          />
-                        );
-                      })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Column 2: 高盈利榜 */}
-        <Card className="border-border/50 bg-card/50">
-          <CardHeader className="pb-3 pt-4 px-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full" />
-              <div>
-                <CardTitle className="text-lg font-bold text-foreground">
-                  {t('profit_board') || '高盈利榜'}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-0.5">{t('highest_profit_players') || '最高盈利玩家'} · <span className="text-emerald-500 font-medium">前10名</span></p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="px-4 pb-4 pt-0">
-            <div className="space-y-2">
-              <AnimatePresence mode="wait">
-                {isLoading ? (
-                  <motion.div
-                    key="loading-profit"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center justify-center py-8"
-                  >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key={`profit-${timeRange}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="space-y-2"
-                  >
-                    {[...allPlayers]
-                      .sort((a, b) => (b.profitAmount || 0) - (a.profitAmount || 0))
-                      .slice(0, 10)
-                      .map((player, index) => {
-                        const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-                        return (
-                          <PlayerLeaderboardCard
-                            key={player.id}
-                            player={player}
-                            index={index}
-                            isCurrentUser={!!(user && player.id === user.id)}
-                            isLiked={likedPlayers.has(player.id)}
-                            likeCount={likeCounts.get(player.id) || 0}
-                            isLiking={isLiking.has(player.id)}
-                            onLike={(e) => handleLike(player.id, e)}
-                            onClick={() => navigate(`/player/${player.id}`)}
-                            onViewHistory={(e) => {
-                              e.stopPropagation();
-                              fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                            }}
-                            maskPlayerName={maskPlayerName}
-                            calculateEstimatedPrize={calculateEstimatedPrize}
-                            totalEligiblePlayers={eligiblePlayers}
-                            aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
-                            boardType="profit"
                           />
                         );
                       })}
