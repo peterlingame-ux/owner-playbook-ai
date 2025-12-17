@@ -50,6 +50,62 @@ interface TodayPosition {
   settled_at?: string;
 }
 
+// Mock follower data for each AI model
+const generateMockFollowers = (modelId: string, count: number) => {
+  const names = ['田雨', '慢慢扛', '小明', '阿杰', '球迷王', '预测达人', '足彩老手', '胜率之王', '稳赚不赔', '神预测'];
+  const avatars = ['/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png', '/avatars/avatar-5.png', '/avatars/avatar-6.png'];
+  
+  return Array.from({ length: Math.min(count, 20) }, (_, i) => {
+    const isTop3 = i < 3;
+    const baseCopyAmount = isTop3 ? 800 + Math.random() * 600 : 200 + Math.random() * 500;
+    const profit = (Math.random() - 0.3) * baseCopyAmount * 0.3;
+    
+    return {
+      id: `${modelId}-follower-${i}`,
+      rank: i + 1,
+      name: Math.random() > 0.5 
+        ? names[Math.floor(Math.random() * names.length)] 
+        : `${Math.floor(100 + Math.random() * 900)}***${Math.floor(1000 + Math.random() * 9000)}`,
+      avatar: avatars[Math.floor(Math.random() * avatars.length)],
+      days: Math.floor(1 + Math.random() * 30),
+      profit: profit,
+      copyAmount: baseCopyAmount,
+    };
+  });
+};
+
+// Animated Follower Count Component
+const AnimatedFollowerCount = ({ value, onClick }: { value: number; onClick: () => void }) => {
+  const [displayValue, setDisplayValue] = useState(value);
+  
+  useEffect(() => {
+    // Simulate real-time growth
+    const interval = setInterval(() => {
+      setDisplayValue(prev => {
+        const increment = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 0;
+        return prev + increment;
+      });
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  const animatedValue = useCountAnimation(displayValue, {
+    duration: 800,
+    startValue: Math.max(0, displayValue - 5)
+  });
+  
+  return (
+    <button 
+      onClick={onClick}
+      className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer hover:underline"
+    >
+      <span>👥 跟单人数: {Math.floor(animatedValue).toLocaleString()}</span>
+      <span className="text-[10px]">→</span>
+    </button>
+  );
+};
+
 // Animated Profit Rate Badge Component
 const ProfitRateBadge = ({ value, locked }: { value: number; locked?: boolean }) => {
   const animatedValue = useCountAnimation(value, {
@@ -97,6 +153,8 @@ const LeaderboardTable = () => {
   const [isCopyTradeDialogOpen, setIsCopyTradeDialogOpen] = useState(false);
   const [copyTradeAmount, setCopyTradeAmount] = useState<number>(100);
   const [isCopyTrading, setIsCopyTrading] = useState(false);
+  const [isFollowersDialogOpen, setIsFollowersDialogOpen] = useState(false);
+  const [selectedModelFollowers, setSelectedModelFollowers] = useState<{ modelId: string; modelName: string; followers: any[] } | null>(null);
 
   // Fetch user profile
   useEffect(() => {
@@ -897,8 +955,15 @@ const LeaderboardTable = () => {
                             locked={model.locked} 
                           />
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                          <span>👥 跟单人数: {((model as any).followerCount || 0).toLocaleString()}</span>
+                        <div className="mt-0.5">
+                          <AnimatedFollowerCount 
+                            value={(model as any).followerCount || 0}
+                            onClick={() => {
+                              const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
+                              setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
+                              setIsFollowersDialogOpen(true);
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1300,6 +1365,81 @@ const LeaderboardTable = () => {
               )}
             </button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Followers Dialog */}
+      <Dialog open={isFollowersDialogOpen} onOpenChange={setIsFollowersDialogOpen}>
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold">
+              {selectedModelFollowers?.modelName} - 跟单用户
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground">
+              更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </DialogHeader>
+          
+          {/* Header */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground py-2 border-b border-border">
+            <span>排名</span>
+            <span>收益 (USDT) | 跟单总额 (USDT)</span>
+          </div>
+          
+          {/* Followers List */}
+          <div className="flex-1 overflow-y-auto space-y-3 py-2">
+            {selectedModelFollowers?.followers.map((follower, index) => (
+              <div key={follower.id} className="flex items-center justify-between py-2">
+                {/* Left: Rank + Avatar + Info */}
+                <div className="flex items-center gap-3">
+                  {/* Rank Badge */}
+                  <div className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
+                    index === 0 ? 'bg-warning/20 text-warning' :
+                    index === 1 ? 'bg-muted text-muted-foreground' :
+                    index === 2 ? 'bg-orange-500/20 text-orange-500' :
+                    'text-muted-foreground'
+                  }`}>
+                    {index < 3 ? (
+                      <span className="text-sm">{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>
+                    ) : (
+                      follower.rank
+                    )}
+                  </div>
+                  
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
+                    <img src={follower.avatar} alt={follower.name} className="w-full h-full object-cover" />
+                  </div>
+                  
+                  {/* Name & Days */}
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{follower.name}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span>🕐</span> {follower.days} 日
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Right: Profit & Copy Amount */}
+                <div className="text-right">
+                  <p className={`font-bold text-base ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
+                  </p>
+                  <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
+                    <span>⊙</span> {follower.copyAmount.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Close Button */}
+          <button
+            onClick={() => setIsFollowersDialogOpen(false)}
+            className="w-full py-2.5 text-sm font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors mt-2"
+          >
+            关闭
+          </button>
         </DialogContent>
       </Dialog>
 
