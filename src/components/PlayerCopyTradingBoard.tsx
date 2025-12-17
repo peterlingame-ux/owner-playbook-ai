@@ -980,10 +980,16 @@ const PlayerCopyTradingBoard = () => {
         
         {/* Predictions Stats Row */}
         <div className="grid grid-cols-5 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
-          {/* Copy Traders */}
-          <div>
+          {/* Copy Traders - Clickable */}
+          <div 
+            className="cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchTodayPredictions(player);
+            }}
+          >
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">跟单人数</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+            <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
