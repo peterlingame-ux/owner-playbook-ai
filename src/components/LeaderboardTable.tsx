@@ -1035,8 +1035,7 @@ const LeaderboardTable = () => {
                                 : 'bg-warning text-warning-foreground hover:bg-warning/90'
                             }`}
                           >
-                            <Copy className="w-3 h-3" />
-                            {isFull ? '名额已满' : '跟单'}
+                            {isFull ? '名额已满' : '自动跟单'}
                           </button>
                         );
                       })()}
