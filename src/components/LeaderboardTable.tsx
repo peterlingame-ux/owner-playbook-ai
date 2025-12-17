@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
@@ -63,7 +63,11 @@ const LeaderboardTable = () => {
   const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
   const [likedModels, setLikedModels] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
-  const [isLiking, setIsLiking] = useState<Set<string>>(new Set()); // 防止重复点击
+  const [isLiking, setIsLiking] = useState<Set<string>>(new Set());
+  const [copyTradeModel, setCopyTradeModel] = useState<{ id: string; name: string } | null>(null);
+  const [isCopyTradeDialogOpen, setIsCopyTradeDialogOpen] = useState(false);
+  const [copyTradeAmount, setCopyTradeAmount] = useState<number>(100);
+  const [isCopyTrading, setIsCopyTrading] = useState(false);
 
   // Fetch user profile
   useEffect(() => {
@@ -503,6 +507,93 @@ const LeaderboardTable = () => {
     }
   };
 
+  // 处理跟单
+  const handleCopyTrade = async () => {
+    if (!user) {
+      toast({
+        title: "请先登录",
+        description: "登录后即可跟单AI模型",
+        variant: "default",
+      });
+      return;
+    }
+
+    if (!copyTradeModel) return;
+
+    setIsCopyTrading(true);
+    try {
+      // 检查用户余额
+      const { data: balanceData, error: balanceError } = await supabase
+        .from('user_balances')
+        .select('balance')
+        .eq('user_id', user.id)
+        .single();
+
+      if (balanceError || !balanceData) {
+        toast({
+          title: "获取余额失败",
+          description: "请稍后重试",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (balanceData.balance < copyTradeAmount) {
+        toast({
+          title: "余额不足",
+          description: `当前余额: ¥${balanceData.balance.toFixed(2)}，需要: ¥${copyTradeAmount}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // 扣除余额
+      const { error: updateError } = await supabase
+        .from('user_balances')
+        .update({ 
+          balance: balanceData.balance - copyTradeAmount,
+          total_wagered: (balanceData as any).total_wagered + copyTradeAmount,
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      toast({
+        title: "跟单成功！",
+        description: `已跟单 ${copyTradeModel.name}，投入 ¥${copyTradeAmount}`,
+      });
+
+      setIsCopyTradeDialogOpen(false);
+      setCopyTradeModel(null);
+      setCopyTradeAmount(100);
+    } catch (error) {
+      console.error('Copy trade error:', error);
+      toast({
+        title: "跟单失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCopyTrading(false);
+    }
+  };
+
+  const openCopyTradeDialog = (modelId: string, modelName: string) => {
+    if (!user) {
+      toast({
+        title: "请先登录",
+        description: "登录后即可跟单AI模型",
+        variant: "default",
+      });
+      navigate('/auth');
+      return;
+    }
+    setCopyTradeModel({ id: modelId, name: modelName });
+    setIsCopyTradeDialogOpen(true);
+  };
+
   // Calculate additional stats for each model
   const enhancedModels = modelsWithRealData
     .map(model => ({
@@ -778,18 +869,19 @@ const LeaderboardTable = () => {
                       </div>
                     </div>
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       <button 
                         onClick={() => fetchTodayHistory(model.id, getModelDisplayName(model))}
-                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                        className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                       >
                         历史记录
                       </button>
                       <button 
-                        onClick={() => navigate(`/models/${model.id}`)}
-                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors"
+                        onClick={() => openCopyTradeDialog(model.id, getModelDisplayName(model))}
+                        className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors flex items-center gap-1"
                       >
-                        详情
+                        <Copy className="w-3 h-3" />
+                        跟单
                       </button>
                     </div>
                   </div>
@@ -1065,6 +1157,97 @@ const LeaderboardTable = () => {
                 ))}
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Copy Trade Dialog */}
+      <Dialog open={isCopyTradeDialogOpen} onOpenChange={setIsCopyTradeDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Copy className="w-5 h-5 text-warning" />
+              跟单 {copyTradeModel?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Model Info */}
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <div className="w-10 h-10 rounded-lg bg-background p-1.5 border border-border/40">
+                <img 
+                  src={copyTradeModel ? getModelIcon(copyTradeModel.id) : ''} 
+                  alt={copyTradeModel?.name || ''} 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">{copyTradeModel?.name}</p>
+                <p className="text-xs text-muted-foreground">跟随AI模型的下一场预测</p>
+              </div>
+            </div>
+            
+            {/* Amount Input */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">跟单金额 (猎人币)</label>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {[50, 100, 200, 500].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => setCopyTradeAmount(amount)}
+                    className={`py-2 text-sm font-medium rounded-md transition-colors ${
+                      copyTradeAmount === amount
+                        ? 'bg-warning text-warning-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    ¥{amount}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="number"
+                value={copyTradeAmount}
+                onChange={(e) => setCopyTradeAmount(Math.max(10, parseInt(e.target.value) || 0))}
+                className="w-full px-3 py-2 bg-muted/50 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-warning/50"
+                placeholder="自定义金额"
+                min={10}
+              />
+            </div>
+            
+            {/* Info Note */}
+            <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg">
+              <p className="text-xs text-warning">
+                跟单后，系统将在该AI模型下一次预测时，自动为您投注相同的选项
+              </p>
+            </div>
+          </div>
+          
+          {/* Actions */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsCopyTradeDialogOpen(false)}
+              className="flex-1 py-2.5 text-sm font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={handleCopyTrade}
+              disabled={isCopyTrading || copyTradeAmount < 10}
+              className="flex-1 py-2.5 text-sm font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isCopyTrading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-warning-foreground/30 border-t-warning-foreground rounded-full animate-spin" />
+                  处理中...
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  确认跟单
+                </>
+              )}
+            </button>
           </div>
         </DialogContent>
       </Dialog>
