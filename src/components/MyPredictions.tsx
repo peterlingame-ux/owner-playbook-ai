@@ -1681,7 +1681,7 @@ const MyPredictions = () => {
 
       {/* 标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-9">
+        <TabsList className="grid w-full grid-cols-2 h-9">
           <TabsTrigger value="spending" className="flex items-center gap-1 text-xs px-2">
             <Receipt className="h-3 w-3" />
             {t('spending_records') || '消费记录'}
@@ -1689,10 +1689,6 @@ const MyPredictions = () => {
           <TabsTrigger value="history" className="flex items-center gap-1 text-xs px-2">
             <History className="h-3 w-3" />
             {t('player_prediction_records') || '预测记录'}
-          </TabsTrigger>
-          <TabsTrigger value="copy-trade" className="flex items-center gap-1 text-xs px-2">
-            <Users className="h-3 w-3" />
-            {t('copy_trade_records') || '跟单记录'}
           </TabsTrigger>
         </TabsList>
 
@@ -1786,120 +1782,6 @@ const MyPredictions = () => {
           </div>
         </TabsContent>
 
-        {/* 跟单记录标签页 */}
-        <TabsContent value="copy-trade" className="mt-2">
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground">{t('copy_trade_records_title')}</h3>
-              <p className="text-[10px] text-muted-foreground">{t('following_other_players')}</p>
-            </div>
-            
-            {copyTradeRecords.length > 0 ? (
-              <>
-                <div className="grid grid-cols-4 divide-x divide-border border-b border-border">
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                    <p className="text-[10px] text-muted-foreground">{t('copy_trade_count')}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('total_investment')}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      ${copyTradeRecords.filter(r => r.result === 'win').reduce((sum, r) => sum + r.bet_amount + r.pnl, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('won_amount')}</p>
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-bold font-mono text-foreground">
-                      {copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0) >= 0 ? '+' : ''}
-                      ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{t('net_profit_loss')}</p>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('followed_player')}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('match_column')}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_type_label')}</th>
-                        <th className="text-left py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('prediction_column')}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('odds_label')}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('follow_amount')}</th>
-                        <th className="text-right py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('profit_loss_label')}</th>
-                        <th className="text-center py-2 px-2 font-medium text-muted-foreground text-[10px]">{t('result_column')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {copyTradeRecords.map((record) => (
-                        <tr key={record.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                          <td className="py-1.5 px-2">
-                            <div className="flex items-center gap-1.5">
-                              <Avatar className="h-5 w-5 border border-border">
-                                <AvatarImage src={record.followed_player_avatar} />
-                                <AvatarFallback className="text-[9px]">{record.followed_player_name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-[10px] font-medium text-foreground truncate max-w-[70px]">{record.followed_player_name}</p>
-                                <p className="text-[9px] text-muted-foreground">{format(new Date(record.created_at), 'MM-dd')}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <p className="text-[10px] text-foreground">{record.match_home_team} vs {record.match_away_team}</p>
-                          </td>
-                          <td className="py-1.5 px-2">
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-foreground">
-                              {record.prediction_type === 'handicap' ? t('handicap') : t('over_under')}
-                            </span>
-                          </td>
-                          <td className="py-1.5 px-2 text-[10px] text-foreground">
-                            {record.prediction}
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
-                            <span className="text-[10px] font-mono text-foreground font-medium">{record.odds.toFixed(2)}</span>
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-[10px] font-mono font-bold text-foreground">${record.bet_amount}</p>
-                          </td>
-                          <td className="py-1.5 px-2 text-right">
-                            <p className="text-[10px] font-mono font-bold text-foreground">
-                              {record.pnl >= 0 ? '+' : ''}${record.pnl}
-                            </p>
-                          </td>
-                          <td className="py-1.5 px-2 text-center">
-                            {record.result === 'win' ? (
-                              <CheckCircle2 className="h-3 w-3 text-foreground inline-block" />
-                            ) : record.result === 'loss' ? (
-                              <XCircle className="h-3 w-3 text-muted-foreground inline-block" />
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground">-</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            ) : (
-              <div className="p-4 text-center">
-                <Users className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground mb-1">{t('no_copy_trade_records')}</p>
-                <p className="text-[10px] text-muted-foreground mb-2">{t('go_to_leaderboard')}</p>
-                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => navigate('/leaderboard')}>
-                  {t('view_leaderboard')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </TabsContent>
 
       </Tabs>
 
