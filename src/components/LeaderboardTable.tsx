@@ -981,13 +981,33 @@ const LeaderboardTable = () => {
                       >
                         历史记录
                       </button>
-                      <button 
-                        onClick={() => openCopyTradeDialog(model.id, getModelDisplayName(model))}
-                        className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors flex items-center gap-1"
-                      >
-                        <Copy className="w-3 h-3" />
-                        跟单
-                      </button>
+                      {(() => {
+                        const isFull = ((model as any).followerCount || 0) >= ((model as any).followerLimit || 1000);
+                        return (
+                          <button 
+                            onClick={() => {
+                              if (isFull) {
+                                toast({
+                                  title: "跟单名额已满",
+                                  description: `${getModelDisplayName(model)} 的跟单名额已满，请稍后再试或选择其他AI模型`,
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              openCopyTradeDialog(model.id, getModelDisplayName(model));
+                            }}
+                            disabled={isFull}
+                            className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md transition-colors flex items-center gap-1 ${
+                              isFull 
+                                ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-60' 
+                                : 'bg-warning text-warning-foreground hover:bg-warning/90'
+                            }`}
+                          >
+                            <Copy className="w-3 h-3" />
+                            {isFull ? '名额已满' : '跟单'}
+                          </button>
+                        );
+                      })()}
                     </div>
                   </div>
                   
