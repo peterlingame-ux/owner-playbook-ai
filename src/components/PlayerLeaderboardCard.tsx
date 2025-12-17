@@ -141,56 +141,58 @@ export const PlayerLeaderboardCard = ({
               <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
             )}
           </div>
-          {/* Avatar */}
-          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border border-border flex-shrink-0">
-            <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-            <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-          </Avatar>
+          {/* Avatar with Like Button */}
+          <div className="relative flex-shrink-0">
+            <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border border-border">
+              <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+              <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+            </Avatar>
+            {/* Like Button on Avatar */}
+            <div className="absolute -bottom-1 -right-1">
+              <button
+                onClick={handleLikeWithAnimation}
+                disabled={isLiking}
+                className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[10px] border ${
+                  isLiking ? 'opacity-50 cursor-not-allowed' : ''
+                } ${
+                  isLiked 
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+                }`}
+                title={isLiked ? '取消点赞' : '点赞'}
+              >
+                <ThumbsUp className={`h-2.5 w-2.5 ${isLiked ? 'fill-current' : ''}`} />
+                <span className="font-medium">{likeCount}</span>
+              </button>
+              {/* Floating Hearts Animation */}
+              <AnimatePresence>
+                {floatingHearts.map((heartId, idx) => (
+                  <motion.div
+                    key={heartId}
+                    initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                    animate={{ 
+                      opacity: 0, 
+                      y: -40, 
+                      x: (idx - 1) * 12,
+                      scale: 1,
+                      rotate: (idx - 1) * 15
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
+                  >
+                    <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
           {/* Name & Stats */}
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
               {/* Profit Rate Badge */}
               <ProfitRateBadge value={profitRate} />
-              {/* Like Button with Floating Hearts */}
-              <div className="relative">
-                <button
-                  onClick={handleLikeWithAnimation}
-                  disabled={isLiking}
-                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ${
-                    isLiking ? 'opacity-50 cursor-not-allowed' : ''
-                  } ${
-                    isLiked 
-                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
-                  }`}
-                  title={isLiked ? '取消点赞' : '点赞'}
-                >
-                  <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-                  <span className="text-[10px] font-medium">{likeCount}</span>
-                </button>
-                {/* Floating Hearts Animation */}
-                <AnimatePresence>
-                  {floatingHearts.map((heartId, idx) => (
-                    <motion.div
-                      key={heartId}
-                      initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                      animate={{ 
-                        opacity: 0, 
-                        y: -40, 
-                        x: (idx - 1) * 12,
-                        scale: 1,
-                        rotate: (idx - 1) * 15
-                      }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
-                    >
-                      <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
             </div>
             <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground">
               {boardType === 'cold' ? (
