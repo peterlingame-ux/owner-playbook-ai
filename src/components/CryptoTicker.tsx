@@ -140,9 +140,9 @@ const CryptoTicker = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex items-center gap-5 sm:gap-6 mb-5"
+            className="flex items-center gap-6 sm:gap-8 mb-5"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-1">
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
                 alt="iOS Download" 
@@ -150,7 +150,7 @@ const CryptoTicker = () => {
               />
               <span className="text-xs text-muted-foreground">iOS</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-1">
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
                 alt="Android Download" 
