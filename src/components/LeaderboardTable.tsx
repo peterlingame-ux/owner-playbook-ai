@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
@@ -1095,7 +1095,7 @@ const LeaderboardTable = () => {
                         setIsFollowersDialogOpen(true);
                       }}
                     >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">跟单人数</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" />跟单人数</p>
                       <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
                         {((model as any).followerCount || 0).toLocaleString()}人
                       </p>
