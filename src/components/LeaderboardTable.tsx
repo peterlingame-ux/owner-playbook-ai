@@ -887,10 +887,10 @@ const LeaderboardTable = () => {
                   </div>
                   
                   {/* Stats Grid */}
-                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                     {/* Profit Amount with Mini Chart */}
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 盈亏</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{timeRange}天 盈利金额</p>
                       <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}${profitAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                       </p>
@@ -931,6 +931,33 @@ const LeaderboardTable = () => {
                       {/* Predictions below */}
                       <p className="text-[10px] text-muted-foreground mt-1">
                         预测: <span className="font-medium text-foreground">{model.totalPredictions || 0}场</span>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Predictions Stats Row */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+                    {/* Correct Predictions */}
+                    <div>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-success">
+                        {model.locked ? '???' : `${(model as any).correctPredictions || 0}场`}
+                      </p>
+                    </div>
+                    
+                    {/* Incorrect Predictions */}
+                    <div className="text-center">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-destructive">
+                        {model.locked ? '???' : `${(model.totalPredictions || 0) - ((model as any).correctPredictions || 0)}场`}
+                      </p>
+                    </div>
+                    
+                    {/* Total Predictions */}
+                    <div className="text-right">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
+                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+                        {model.totalPredictions || 0}场
                       </p>
                     </div>
                   </div>
