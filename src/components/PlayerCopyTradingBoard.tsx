@@ -964,7 +964,7 @@ const PlayerCopyTradingBoard = () => {
           {/* Win Rate */}
           <div className="text-center">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-            <p className={`text-base sm:text-lg font-bold font-mono-data ${player.winRate >= 60 ? 'text-success' : player.winRate >= 50 ? 'text-warning' : 'text-destructive'}`}>
+            <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
               {player.winRate.toFixed(0)}%
             </p>
           </div>
@@ -983,7 +983,7 @@ const PlayerCopyTradingBoard = () => {
           {/* Correct Predictions */}
           <div>
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-success">
+            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
               {player.correctPredictions}场
             </p>
           </div>
@@ -991,7 +991,7 @@ const PlayerCopyTradingBoard = () => {
           {/* Incorrect Predictions */}
           <div className="text-center">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-destructive">
+            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
               {player.totalPredictions - player.correctPredictions}场
             </p>
           </div>
