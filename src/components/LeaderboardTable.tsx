@@ -106,7 +106,6 @@ const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit
       }`}
     >
       <span>👥 跟单人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
-      <span className="text-[10px]">→</span>
     </button>
   );
 };
