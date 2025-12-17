@@ -1443,63 +1443,70 @@ const LeaderboardTable = () => {
 
       {/* Followers Dialog */}
       <Dialog open={isFollowersDialogOpen} onOpenChange={setIsFollowersDialogOpen}>
-        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold">
-              {selectedModelFollowers?.modelName} - 跟单用户
-            </DialogTitle>
-            <p className="text-xs text-muted-foreground">
-              更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
-            </p>
-          </DialogHeader>
-          
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col p-0">
           {/* Header */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground py-2 border-b border-border">
+          <div className="px-5 pt-5 pb-3">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-bold text-foreground">
+                {selectedModelFollowers?.modelName} - 跟单用户
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </DialogHeader>
+          </div>
+          
+          {/* Table Header */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
             <span>排名</span>
             <span>收益 (USDT) | 跟单总额 (USDT)</span>
           </div>
           
           {/* Followers List */}
-          <div className="flex-1 overflow-y-auto space-y-3 py-2">
+          <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1">
             {selectedModelFollowers?.followers.map((follower, index) => (
-              <div key={follower.id} className="flex items-center justify-between py-2">
+              <div 
+                key={follower.id} 
+                className="flex items-center justify-between py-3 border-b border-border/30 last:border-b-0"
+              >
                 {/* Left: Rank + Avatar + Info */}
                 <div className="flex items-center gap-3">
                   {/* Rank Badge */}
-                  <div className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
-                    index === 0 ? 'bg-warning/20 text-warning' :
-                    index === 1 ? 'bg-muted text-muted-foreground' :
-                    index === 2 ? 'bg-orange-500/20 text-orange-500' :
-                    'text-muted-foreground'
-                  }`}>
-                    {index < 3 ? (
-                      <span className="text-sm">{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    {index === 0 ? (
+                      <span className="text-xl">🥇</span>
+                    ) : index === 1 ? (
+                      <span className="text-xl">🥈</span>
+                    ) : index === 2 ? (
+                      <span className="text-xl">🥉</span>
                     ) : (
-                      follower.rank
+                      <span className="text-base font-bold text-muted-foreground">{follower.rank}</span>
                     )}
                   </div>
                   
                   {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-muted border-2 border-border/50">
                     <img src={follower.avatar} alt={follower.name} className="w-full h-full object-cover" />
                   </div>
                   
-                  {/* Name & Days */}
+                  {/* Name & Count */}
                   <div>
-                    <p className="font-semibold text-sm text-foreground">{follower.name}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <span>🕐</span> {follower.days} 次
+                    <p className="font-bold text-sm text-foreground">{follower.name}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <span className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-[10px]">🕐</span>
+                      <span>{follower.days} 次</span>
                     </p>
                   </div>
                 </div>
                 
                 {/* Right: Profit & Copy Amount */}
                 <div className="text-right">
-                  <p className={`font-bold text-base ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <p className={`font-bold text-lg tabular-nums ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
                   </p>
-                  <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
-                    <span>⊙</span> {follower.copyAmount.toFixed(2)}
+                  <p className="text-xs text-muted-foreground flex items-center justify-end gap-1 mt-0.5">
+                    <span className="opacity-60">⊙</span>
+                    <span className="tabular-nums">{follower.copyAmount.toFixed(2)}</span>
                   </p>
                 </div>
               </div>
@@ -1507,12 +1514,14 @@ const LeaderboardTable = () => {
           </div>
           
           {/* Close Button */}
-          <button
-            onClick={() => setIsFollowersDialogOpen(false)}
-            className="w-full py-2.5 text-sm font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors mt-2"
-          >
-            关闭
-          </button>
+          <div className="px-5 pb-5 pt-3">
+            <button
+              onClick={() => setIsFollowersDialogOpen(false)}
+              className="w-full py-3 text-sm font-medium rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+            >
+              关闭
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
