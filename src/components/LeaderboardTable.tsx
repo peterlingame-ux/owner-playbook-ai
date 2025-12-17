@@ -942,14 +942,56 @@ const LeaderboardTable = () => {
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
                         <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
                       </div>
-                      {/* Avatar */}
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 flex-shrink-0 overflow-hidden`}>
-                        <img 
-                          src={getModelIcon(model.id)} 
-                          alt={model.name} 
-                          className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                          style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                        />
+                      {/* Avatar with Like Button */}
+                      <div className="relative flex-shrink-0">
+                        {/* Like Button on top of Avatar */}
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
+                          <button
+                            onClick={handleLike}
+                            disabled={isLoading}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full transition-all shadow-sm ${
+                              isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                            } ${
+                              isLiked 
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                : 'bg-background border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                            }`}
+                            title={isLiked ? '取消点赞' : '点赞'}
+                          >
+                            <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                            <span className="text-[10px] font-medium">{likeCount}</span>
+                          </button>
+                          {/* Floating Hearts Animation */}
+                          <AnimatePresence>
+                            {floatingHearts.get(model.id)?.map((heartId, idx) => (
+                              <motion.div
+                                key={heartId}
+                                initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                                animate={{ 
+                                  opacity: 0, 
+                                  y: -40, 
+                                  x: (idx - 1) * 12,
+                                  scale: 1,
+                                  rotate: (idx - 1) * 15
+                                }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
+                              >
+                                <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                        {/* Avatar */}
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 overflow-hidden mt-2`}>
+                          <img 
+                            src={getModelIcon(model.id)} 
+                            alt={model.name} 
+                            className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                            style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                          />
+                        </div>
                       </div>
                       {/* Name & Stats */}
                       <div>
@@ -960,45 +1002,6 @@ const LeaderboardTable = () => {
                             value={(model as any).profitRate || 0} 
                             locked={model.locked} 
                           />
-                          {/* Like Button with Floating Hearts */}
-                          <div className="relative">
-                            <button
-                              onClick={handleLike}
-                              disabled={isLoading}
-                              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all ${
-                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                              } ${
-                                isLiked 
-                                  ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
-                              }`}
-                              title={isLiked ? '取消点赞' : '点赞'}
-                            >
-                              <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-                              <span className="text-[10px] font-medium">{likeCount}</span>
-                            </button>
-                            {/* Floating Hearts Animation */}
-                            <AnimatePresence>
-                              {floatingHearts.get(model.id)?.map((heartId, idx) => (
-                                <motion.div
-                                  key={heartId}
-                                  initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                                  animate={{ 
-                                    opacity: 0, 
-                                    y: -40, 
-                                    x: (idx - 1) * 12,
-                                    scale: 1,
-                                    rotate: (idx - 1) * 15
-                                  }}
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.8, ease: "easeOut" }}
-                                  className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
-                                >
-                                  <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-                                </motion.div>
-                              ))}
-                            </AnimatePresence>
-                          </div>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           {model.locked ? 'AI预测模型' : `${model.totalPredictions || 0}场预测`}
