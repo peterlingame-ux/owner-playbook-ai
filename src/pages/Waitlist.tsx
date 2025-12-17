@@ -330,13 +330,18 @@ const Waitlist = () => {
                     }`} />
                   </div>
                   
-                  {/* Day number */}
-                  <div className="relative z-10 h-full flex flex-col items-center justify-center">
+                  {/* Day number and status */}
+                  <div className="relative z-10 h-full flex flex-col items-center justify-center gap-0.5">
                     <span className={`text-xs sm:text-sm font-bold ${
                       isTodayDate ? 'text-amber-400' : 'text-white'
                     }`}>
                       {format(dayData.date, "d")}
                     </span>
+                    {isPast && (
+                      <span className="text-[8px] sm:text-[10px] font-medium text-white/90 bg-black/40 px-1 rounded">
+                        已开奖
+                      </span>
+                    )}
                   </div>
                   
                   {/* Today indicator */}
