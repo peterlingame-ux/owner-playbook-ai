@@ -1846,27 +1846,29 @@ const MyPredictions = () => {
       </div>
 
       {/* 邀请码卡片 - 简洁设计 */}
-      {userProfile?.invitation_code && (
-        <div className="relative overflow-hidden rounded-xl bg-card border border-border hover:border-ai-cyan/30 transition-colors">
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-1/4 w-20 h-20 bg-ai-cyan/20 rounded-full blur-2xl" />
-          </div>
-          <div className="relative z-10 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-ai-cyan/10 border border-ai-cyan/20 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-ai-cyan" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">{t('my_invitation_code') || '我的邀请码'}</p>
-                  <p className="text-lg font-bold font-mono text-foreground tracking-[0.3em]">{userProfile.invitation_code}</p>
-                </div>
+      <div className="relative overflow-hidden rounded-xl bg-card border border-border hover:border-ai-cyan/30 transition-colors">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 left-1/4 w-20 h-20 bg-ai-cyan/20 rounded-full blur-2xl" />
+        </div>
+        <div className="relative z-10 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-ai-cyan/10 border border-ai-cyan/20 flex items-center justify-center">
+                <Users className="h-5 w-5 text-ai-cyan" />
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
-                  <p className="text-xl font-bold text-ai-cyan font-mono">{userProfile.invited_count || 0}</p>
-                </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">{t('my_invitation_code') || '我的邀请码'}</p>
+                <p className="text-lg font-bold font-mono text-foreground tracking-[0.3em]">
+                  {userProfile?.invitation_code || '--------'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
+                <p className="text-xl font-bold text-ai-cyan font-mono">{userProfile?.invited_count || 0}</p>
+              </div>
+              {userProfile?.invitation_code && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -1878,14 +1880,14 @@ const MyPredictions = () => {
                 >
                   {t('copy') || '复制'}
                 </Button>
-              </div>
+              )}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/50">
-              {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 猎人币奖励'}
-            </p>
           </div>
+          <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/50">
+            {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 猎人币奖励'}
+          </p>
         </div>
-      )}
+      </div>
 
       {/* 开始预测按钮 - AI风格 */}
       <Button 
