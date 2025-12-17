@@ -169,12 +169,12 @@ const ChallengeAIBanner = () => {
           {/* 主标题 */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-              <span className="text-lg sm:text-xl font-bold text-foreground">挑战AI</span>
+              <span className="text-lg sm:text-xl font-bold text-foreground">{t('challenge_ai')}</span>
               <span className="text-2xl sm:text-4xl font-black text-foreground">$1,000,000</span>
-              <span className="text-lg sm:text-xl font-bold text-foreground">大奖等你来拿</span>
+              <span className="text-lg sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </div>
             <p className="text-sm text-white max-w-lg mx-auto">
-              比赛场次、比赛胜率、盈利金额都超过当前排名的AI，即可领取奖金
+              {t('challenge_description')}
             </p>
           </div>
           
@@ -190,13 +190,13 @@ const ChallengeAIBanner = () => {
                   </Avatar>
                   <div>
                     <p className="font-bold text-sm">HUNSOCCER MAX</p>
-                    <p className="text-xs text-muted-foreground">AI基准</p>
+                    <p className="text-xs text-muted-foreground">{t('ai_benchmark')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 sm:gap-6 text-sm">
-                  <span className="text-muted-foreground">预测场次：<span className="font-bold text-foreground">247场</span></span>
-                  <span className="text-muted-foreground">预测胜率：<span className="font-bold text-foreground">78.95%</span></span>
-                  <span className="text-muted-foreground">盈利：<span className="font-bold text-foreground">$24,789</span></span>
+                  <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">247{t('matches_suffix')}</span></span>
+                  <span className="text-muted-foreground">{t('banner_win_rate')} <span className="font-bold text-foreground">78.95%</span></span>
+                  <span className="text-muted-foreground">{t('banner_profit')} <span className="font-bold text-foreground">$24,789</span></span>
                 </div>
               </div>
             </div>
@@ -209,7 +209,7 @@ const ChallengeAIBanner = () => {
                     <div className="relative">
                       <Avatar className="w-10 h-10 border-2 border-primary/50">
                         <AvatarImage src={currentPlayer?.avatarUrl || '/avatars/avatar-1.png'} />
-                        <AvatarFallback>{currentPlayer?.displayName?.charAt(0) || '玩'}</AvatarFallback>
+                        <AvatarFallback>{currentPlayer?.displayName?.charAt(0) || 'P'}</AvatarFallback>
                       </Avatar>
                       {currentPlayer && currentPlayer.rank > 0 && (
                         <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
@@ -218,21 +218,21 @@ const ChallengeAIBanner = () => {
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-sm">{currentPlayer?.displayName || '我的专属模型'}</p>
+                      <p className="font-bold text-sm">{currentPlayer?.displayName || t('banner_my_model')}</p>
                       <p className="text-xs text-muted-foreground">
-                        {meetsRequirements ? <span className="text-success">✓ 已达标</span> : '继续努力'}
+                        {meetsRequirements ? <span className="text-success">✓ {t('qualified_status')}</span> : t('keep_going')}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 sm:gap-6 text-sm">
                     <span className="text-muted-foreground">
-                      预测场次：<span className={`font-bold ${playerPredictions >= AI_BENCHMARK_PREDICTIONS ? 'text-success' : 'text-foreground'}`}>{playerPredictions}场</span>
+                      {t('banner_predictions')} <span className={`font-bold ${playerPredictions >= AI_BENCHMARK_PREDICTIONS ? 'text-success' : 'text-foreground'}`}>{playerPredictions}{t('matches_suffix')}</span>
                     </span>
                     <span className="text-muted-foreground">
-                      预测胜率：<span className={`font-bold ${playerWinRate >= AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
+                      {t('banner_win_rate')} <span className={`font-bold ${playerWinRate >= AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
                     </span>
                     <span className="text-muted-foreground">
-                      盈利：<span className={`font-bold ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
+                      {t('banner_profit')} <span className={`font-bold ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
                     </span>
                   </div>
                 </div>
@@ -243,18 +243,18 @@ const ChallengeAIBanner = () => {
                   <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10 border-2 border-muted/40">
                       <AvatarImage src="/avatars/avatar-1.png" />
-                      <AvatarFallback>玩</AvatarFallback>
+                      <AvatarFallback>P</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-bold text-sm">我的专属模型</p>
-                      <p className="text-xs text-muted-foreground">登录后查看您的排名和数据</p>
+                      <p className="font-bold text-sm">{t('banner_my_model')}</p>
+                      <p className="text-xs text-muted-foreground">{t('login_to_view')}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => navigate('/auth')}
                     className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
                   >
-                    登录
+                    {t('login')}
                   </button>
                 </div>
               </div>
@@ -264,12 +264,12 @@ const ChallengeAIBanner = () => {
           {/* 倒计时和统计 */}
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
             <span className="font-mono text-foreground">
-              {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+              {countdown.days}{t('days_unit')} {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
             </span>
             <div className="h-4 w-px bg-border" />
-            <span><span className="font-bold text-foreground">{qualifiedCount}</span> 人已达标</span>
+            <span><span className="font-bold text-foreground">{qualifiedCount}</span> {t('people_qualified')}</span>
             <div className="h-4 w-px bg-border" />
-            <span>人均奖金：<span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
+            <span>{t('per_capita_prize')} <span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
           </div>
         </div>
       </CardContent>
