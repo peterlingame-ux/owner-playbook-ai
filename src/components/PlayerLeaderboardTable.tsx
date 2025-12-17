@@ -1224,38 +1224,6 @@ const PlayerLeaderboardTable = () => {
         </div>
       </div>
 
-      {/* Prize Info Banner */}
-      {(() => {
-        const qualifiedCount = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-        const prizePerPerson = qualifiedCount > 0 ? Math.floor(PRIZE_POOL / qualifiedCount) : PRIZE_POOL;
-        return (
-          <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-warning/10 via-warning/5 to-transparent border border-warning/20">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-warning" />
-                  <span className="text-xs text-muted-foreground">达标人数</span>
-                  <span className="text-sm font-bold text-warning">{qualifiedCount}</span>
-                  <span className="text-xs text-muted-foreground">人</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-warning" />
-                  <span className="text-xs text-muted-foreground">人均奖金</span>
-                  <span className="text-sm font-bold text-warning">${prizePerPerson.toLocaleString()}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-warning" />
-                <span className="text-xs text-muted-foreground">本轮剩余</span>
-                <span className="text-sm font-bold text-warning font-mono">
-                  {countdown.days}天 {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-                </span>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
         {/* Column 1: 高胜率榜 */}
