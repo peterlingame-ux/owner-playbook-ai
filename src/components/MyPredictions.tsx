@@ -596,6 +596,9 @@ const MyPredictions = () => {
   const [isLoadingFollows, setIsLoadingFollows] = useState(false);
   const [isPredictionHistoryOpen, setIsPredictionHistoryOpen] = useState(false);
   const [isSpendingRecordsOpen, setIsSpendingRecordsOpen] = useState(false);
+  const [isInvitedUsersOpen, setIsInvitedUsersOpen] = useState(false);
+  const [invitedUsers, setInvitedUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string; created_at: string }>>([]);
+  const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
 
   // 同步AuthContext中的用户资料到本地状态
   useEffect(() => {
@@ -1131,6 +1134,35 @@ const MyPredictions = () => {
 
     fetchFollowData();
   }, [user]);
+
+  // 获取被邀请用户列表
+  const fetchInvitedUsers = async () => {
+    if (!user || !userProfile?.invitation_code) return;
+    
+    setIsLoadingInvitedUsers(true);
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, display_name, avatar_url, created_at')
+        .eq('invited_by', userProfile.invitation_code)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setInvitedUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching invited users:', error);
+    } finally {
+      setIsLoadingInvitedUsers(false);
+    }
+  };
+
+  // 打开被邀请用户列表弹窗
+  const handleOpenInvitedUsers = () => {
+    if ((userProfile?.invited_count || 0) > 0) {
+      setIsInvitedUsersOpen(true);
+      fetchInvitedUsers();
+    }
+  };
 
   // 点击开通VIP按钮 - 显示确认弹窗
   const handleVipButtonClick = () => {
@@ -1864,7 +1896,10 @@ const MyPredictions = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-right">
+              <div 
+                className={`text-right ${(userProfile?.invited_count || 0) > 0 ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                onClick={handleOpenInvitedUsers}
+              >
                 <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
                 <p className="text-xl font-bold text-ai-cyan font-mono">{userProfile?.invited_count || 0}</p>
               </div>
@@ -1937,6 +1972,53 @@ const MyPredictions = () => {
             >
               确认开通
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 被邀请用户列表弹窗 */}
+      <Dialog open={isInvitedUsersOpen} onOpenChange={setIsInvitedUsersOpen}>
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-ai-cyan" />
+              {t('invited_users_title') || '已邀请用户'}
+              <span className="text-sm font-normal text-muted-foreground">({invitedUsers.length})</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto py-2 -mx-6 px-6">
+            {isLoadingInvitedUsers ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin h-6 w-6 border-2 border-ai-cyan border-t-transparent rounded-full" />
+              </div>
+            ) : invitedUsers.length > 0 ? (
+              <div className="space-y-2">
+                {invitedUsers.map((invitedUser) => (
+                  <div 
+                    key={invitedUser.id} 
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
+                  >
+                    <Avatar className="h-10 w-10 border border-ai-cyan/30">
+                      <AvatarImage src={invitedUser.avatar_url} alt={invitedUser.display_name} />
+                      <AvatarFallback>{invitedUser.display_name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {invitedUser.display_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('registered_at') || '注册时间'}: {format(new Date(invitedUser.created_at), 'yyyy-MM-dd HH:mm')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                <p className="text-sm">{t('no_invited_users') || '暂无邀请记录'}</p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
