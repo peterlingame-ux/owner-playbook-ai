@@ -1300,8 +1300,16 @@ const PlayerLeaderboardTable = () => {
         {/* Column 2: 高盈利榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
-            <CardTitle className="text-base font-bold text-foreground">{t('profit_board') || '高盈利榜'}</CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('highest_profit_players') || '最高盈利玩家'} · 前10名</p>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full" />
+              <div>
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-emerald-500" />
+                  {t('profit_board') || '高盈利榜'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">{t('highest_profit_players') || '最高盈利玩家'} · <span className="text-emerald-500 font-medium">前10名</span></p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
@@ -1363,8 +1371,16 @@ const PlayerLeaderboardTable = () => {
         {/* Column 3: 低胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
-            <CardTitle className="text-base font-bold text-foreground">{t('cold_streak_board') || '低胜率榜'}</CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · 前10名</p>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+              <div>
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <TrendingDown className="w-5 h-5 text-red-500" />
+                  {t('cold_streak_board') || '低胜率榜'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · <span className="text-red-500 font-medium">前10名</span></p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
