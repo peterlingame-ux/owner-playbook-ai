@@ -241,7 +241,7 @@ export const PlayerLeaderboardCard = ({
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button 
             onClick={onViewHistory}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-destructive to-destructive/90 text-destructive-foreground hover:from-destructive/90 hover:to-destructive transition-all duration-300 shadow-lg shadow-destructive/30 hover:shadow-xl hover:shadow-destructive/40 hover:scale-105 active:scale-95"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-lg shadow-warning/30 hover:shadow-xl hover:shadow-warning/40 hover:scale-105 active:scale-95"
           >
             今日推荐
           </button>
