@@ -3,581 +3,511 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target, TrendingUp, ChevronRight, CheckCircle2, Users, Calendar, Quote, Award, Clock } from "lucide-react";
-import { differenceInDays, endOfMonth, startOfMonth, format, getDaysInMonth } from "date-fns";
+import { 
+  Trophy, ChevronRight, ChevronLeft, Gift, Clock, Calendar, 
+  Smartphone, Watch, Laptop, Headphones, Gamepad2, Camera, 
+  Tv, Speaker, Tablet, Star, Sparkles, Crown, Users
+} from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, addMonths, subMonths, getDay } from "date-fns";
+import { zhCN } from "date-fns/locale";
 
-import claudeIcon from "@/assets/claude-icon.png";
-import geminiIcon from "@/assets/gemini-icon.png";
-import openaiIcon from "@/assets/openai-icon.png";
+// Prize types with icons and colors
+const prizeTypes = {
+  iphone: { name: "iPhone 16 Pro", icon: Smartphone, color: "from-blue-500 to-purple-600", value: 8999 },
+  watch: { name: "Apple Watch Ultra", icon: Watch, color: "from-amber-500 to-orange-600", value: 6499 },
+  macbook: { name: "MacBook Pro 14\"", icon: Laptop, color: "from-gray-600 to-gray-800", value: 14999 },
+  airpods: { name: "AirPods Pro 2", icon: Headphones, color: "from-cyan-500 to-blue-500", value: 1899 },
+  ps5: { name: "PlayStation 5", icon: Gamepad2, color: "from-indigo-600 to-blue-700", value: 4299 },
+  camera: { name: "Sony A7C II", icon: Camera, color: "from-rose-500 to-pink-600", value: 12999 },
+  tv: { name: "三星 65\" OLED TV", icon: Tv, color: "from-green-500 to-emerald-600", value: 15999 },
+  speaker: { name: "HomePod 2", icon: Speaker, color: "from-violet-500 to-purple-600", value: 2299 },
+  ipad: { name: "iPad Pro 12.9\"", icon: Tablet, color: "from-slate-500 to-zinc-700", value: 9999 },
+};
 
-const aiIcons: Record<string, string> = {
-  "Claude 3.5 Sonnet": claudeIcon,
-  "GPT-4o": openaiIcon,
-  "Gemini 1.5 Pro": geminiIcon,
+// Generate prize schedule for the month
+const generatePrizeSchedule = (year: number, month: number) => {
+  const prizeKeys = Object.keys(prizeTypes) as Array<keyof typeof prizeTypes>;
+  const start = startOfMonth(new Date(year, month));
+  const end = endOfMonth(new Date(year, month));
+  const days = eachDayOfInterval({ start, end });
+  
+  return days.map((date, index) => {
+    // Rotate through prizes, with special prizes on weekends
+    const dayOfWeek = getDay(date);
+    let prizeKey: keyof typeof prizeTypes;
+    
+    if (dayOfWeek === 0) { // Sunday - big prizes
+      prizeKey = ['macbook', 'tv', 'camera'][index % 3] as keyof typeof prizeTypes;
+    } else if (dayOfWeek === 6) { // Saturday - medium prizes
+      prizeKey = ['iphone', 'ipad', 'ps5'][index % 3] as keyof typeof prizeTypes;
+    } else { // Weekdays
+      prizeKey = prizeKeys[index % prizeKeys.length];
+    }
+    
+    return {
+      date,
+      prize: prizeTypes[prizeKey],
+      prizeKey,
+      isDrawn: isBefore(date, new Date()) && !isToday(date),
+      winner: isBefore(date, new Date()) && !isToday(date) ? generateMockWinner() : null,
+    };
+  });
+};
+
+// Generate mock winner
+const generateMockWinner = () => {
+  const names = ["玩***8", "预***王", "足***3", "猜***手", "神***人", "冠***7", "赢***星", "胜***9"];
+  return {
+    name: names[Math.floor(Math.random() * names.length)],
+    avatar: `/avatars/avatar-${Math.floor(Math.random() * 9) + 1}.png`,
+    predictions: Math.floor(Math.random() * 50) + 30,
+  };
 };
 
 const Waitlist = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [userStats, setUserStats] = useState<{
-    totalPredictions: number;
-    wins: number;
-    winRate: number;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedRound, setSelectedRound] = useState<string>("all");
-
-  const currentAI = {
-    model: "GPT-4o",
-    winRate: 73.2,
-    predictions: 120, // AI当前轮次预测场次
-  };
-
-  // Calculate days until next prize distribution (end of current month)
-  const now = new Date();
-  const monthStart = startOfMonth(now);
-  const monthEnd = endOfMonth(now);
-  const totalDaysInMonth = getDaysInMonth(now);
-  const daysPassed = differenceInDays(now, monthStart);
-  const daysRemaining = differenceInDays(monthEnd, now);
-  const progressPercent = Math.round((daysPassed / totalDaysInMonth) * 100);
-  const nextAwardDate = format(monthEnd, "yyyy-MM-dd");
-  const currentRound = `S1-00${7}`; // Next round number
-
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [prizeSchedule, setPrizeSchedule] = useState<ReturnType<typeof generatePrizeSchedule>>([]);
+  
+  // Countdown to today's draw (assume 21:00 draw time)
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  
   useEffect(() => {
-    const fetchUserStats = async () => {
-      if (!user) {
-        setLoading(false);
+    const schedule = generatePrizeSchedule(currentMonth.getFullYear(), currentMonth.getMonth());
+    setPrizeSchedule(schedule);
+  }, [currentMonth]);
+  
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const drawTime = new Date();
+      drawTime.setHours(21, 0, 0, 0);
+      
+      if (now > drawTime) {
+        // Draw already happened today
+        setCountdown({ hours: 0, minutes: 0, seconds: 0 });
         return;
       }
       
-      try {
-        const { data: predictions } = await supabase
-          .from('user_predictions')
-          .select('*')
-          .eq('user_id', user.id);
-        
-        if (predictions) {
-          const total = predictions.length;
-          const wins = predictions.filter(p => p.result === 'win').length;
-          const winRate = total > 0 ? (wins / total) * 100 : 0;
-          
-          setUserStats({
-            totalPredictions: total,
-            wins,
-            winRate,
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user stats:', error);
-      } finally {
-        setLoading(false);
-      }
+      const diff = drawTime.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setCountdown({ hours, minutes, seconds });
     };
     
-    fetchUserStats();
-  }, [user]);
-
-  const historyData = [
-    { round: "S1-006", aiModel: "Claude 3.5 Sonnet", aiWinRate: 72.3, winners: 3, totalPaid: 255000, awardDate: "2024-12-01" },
-    { round: "S1-005", aiModel: "GPT-4o", aiWinRate: 74.8, winners: 0, totalPaid: 0, awardDate: "2024-11-01" },
-    { round: "S1-004", aiModel: "Claude 3.5 Sonnet", aiWinRate: 71.5, winners: 2, totalPaid: 320000, awardDate: "2024-10-01" },
-    { round: "S1-003", aiModel: "Gemini 1.5 Pro", aiWinRate: 69.2, winners: 3, totalPaid: 330000, awardDate: "2024-09-01" },
-    { round: "S1-002", aiModel: "GPT-4o", aiWinRate: 76.5, winners: 0, totalPaid: 0, awardDate: "2024-08-01" },
-    { round: "S1-001", aiModel: "Claude 3.5 Sonnet", aiWinRate: 70.2, winners: 1, totalPaid: 250000, awardDate: "2024-07-01" },
-  ];
-
-  // All winners data organized by round
-  const allWinners = [
-    // S1-006
-    {
-      name: "S***r8821",
-      avatar: "/avatars/avatar-3.png",
-      round: "S1-006",
-      winRate: 78.5,
-      aiWinRate: 72.3,
-      aiModel: "Claude 3.5 Sonnet",
-      predictions: 156,
-      prize: 125000,
-      virtualProfit: 28500,
-      quote: "坚持数据分析，不跟风盲猜",
-    },
-    {
-      name: "L***e3392",
-      avatar: "/avatars/avatar-2.png",
-      round: "S1-006",
-      winRate: 75.2,
-      aiWinRate: 72.3,
-      aiModel: "Claude 3.5 Sonnet",
-      predictions: 142,
-      prize: 85000,
-      virtualProfit: 21200,
-      quote: "保持冷静，不追热门",
-    },
-    {
-      name: "B***f7756",
-      avatar: "/avatars/avatar-8.png",
-      round: "S1-006",
-      winRate: 73.8,
-      aiWinRate: 72.3,
-      aiModel: "Claude 3.5 Sonnet",
-      predictions: 168,
-      prize: 45000,
-      virtualProfit: 18600,
-      quote: "多看赔率变化，找准时机",
-    },
-    // S1-004
-    {
-      name: "B***n2156",
-      avatar: "/avatars/avatar-7.png",
-      round: "S1-004",
-      winRate: 81.2,
-      aiWinRate: 71.5,
-      aiModel: "Claude 3.5 Sonnet",
-      predictions: 178,
-      prize: 200000,
-      virtualProfit: 45800,
-      quote: "专注五大联赛，深耕自己熟悉的领域",
-    },
-    {
-      name: "W***n4423",
-      avatar: "/avatars/avatar-4.png",
-      round: "S1-004",
-      winRate: 76.8,
-      aiWinRate: 71.5,
-      aiModel: "Claude 3.5 Sonnet",
-      predictions: 145,
-      prize: 120000,
-      virtualProfit: 32100,
-      quote: "关注球队伤病情况很重要",
-    },
-    // S1-003
-    {
-      name: "N***n5567",
-      avatar: "/avatars/avatar-1.png",
-      round: "S1-003",
-      winRate: 79.5,
-      aiWinRate: 69.2,
-      aiModel: "Gemini 1.5 Pro",
-      predictions: 134,
-      prize: 180000,
-      virtualProfit: 38200,
-      quote: "AI预测可以参考，但要有自己判断",
-    },
-    {
-      name: "E***r8834",
-      avatar: "/avatars/avatar-6.png",
-      round: "S1-003",
-      winRate: 74.1,
-      aiWinRate: 69.2,
-      aiModel: "Gemini 1.5 Pro",
-      predictions: 156,
-      prize: 95000,
-      virtualProfit: 24500,
-      quote: "控制每日预测数量，精选比赛",
-    },
-    {
-      name: "C***k2290",
-      avatar: "/avatars/avatar-9.png",
-      round: "S1-003",
-      winRate: 71.8,
-      aiWinRate: 69.2,
-      aiModel: "Gemini 1.5 Pro",
-      predictions: 123,
-      prize: 55000,
-      virtualProfit: 15800,
-      quote: "坚持自己的策略，不被情绪左右",
-    },
-    // S1-001
-    {
-      name: "Q***e3345",
-      avatar: "/avatars/avatar-5.png",
-      round: "S1-001",
-      winRate: 82.3,
-      aiWinRate: 70.2,
-      aiModel: "Claude 3.5 Sonnet",
-      predictions: 112,
-      prize: 250000,
-      virtualProfit: 52300,
-      quote: "每场比赛都认真研究，质量比数量更重要",
-    },
-  ];
-
-  // Get rounds that have winners
-  const roundsWithWinners = historyData.filter(r => r.winners > 0).map(r => r.round);
-
-  // Filter winners based on selected round
-  const filteredWinners = selectedRound === "all" 
-    ? allWinners.slice(0, 3) // Show top 3 when "all" is selected
-    : allWinners.filter(w => w.round === selectedRound);
-
-  const totalDistributed = historyData.reduce((sum, item) => sum + item.totalPaid, 0);
-  const totalWinners = historyData.reduce((sum, item) => sum + item.winners, 0);
-
-  const isEligible = userStats && userStats.totalPredictions >= currentAI.predictions;
-  const beatsAI = userStats && userStats.winRate > currentAI.winRate;
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  const todayPrize = prizeSchedule.find(p => isToday(p.date));
+  const selectedDayPrize = selectedDay ? prizeSchedule.find(p => isSameDay(p.date, selectedDay)) : null;
+  
+  const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+  
+  // Get first day offset
+  const firstDayOfMonth = startOfMonth(currentMonth);
+  const startOffset = getDay(firstDayOfMonth);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
+      <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
+          className="text-center mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
-            {t('prize_hero_title')}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 mb-4">
+            <Gift className="w-4 h-4 text-amber-500" />
+            <span className="text-sm font-medium text-amber-500">每日竞猜大奖</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+            每天参与预测，赢取精美奖品
           </h1>
           <p className="text-muted-foreground">
-            {t('prize_pool_each_round')} <span className="text-foreground font-semibold">$1,000,000</span>
+            完成每日预测任务，即可参与当日奖品抽取
           </p>
         </motion.div>
 
-        {/* Current Round Countdown */}
+        {/* Today's Prize Feature */}
+        {todayPrize && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className={`relative overflow-hidden rounded-2xl p-6 mb-8 bg-gradient-to-br ${todayPrize.prize.color}`}
+          >
+            {/* Background decoration */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+            </div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 text-white/80 text-sm mb-2">
+                <Star className="w-4 h-4" />
+                <span>今日奖品</span>
+                <span className="ml-auto">{format(new Date(), "MM月dd日")}</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                    {todayPrize.prize.name}
+                  </h2>
+                  <p className="text-white/80 text-lg mb-4">
+                    价值 <span className="text-white font-bold">¥{todayPrize.prize.value.toLocaleString()}</span>
+                  </p>
+                  
+                  {/* Countdown */}
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-4 h-4 text-white/80" />
+                    <span className="text-white/80 text-sm">距离开奖</span>
+                    <div className="flex items-center gap-1">
+                      <span className="bg-white/20 backdrop-blur px-2 py-1 rounded text-white font-mono font-bold">
+                        {String(countdown.hours).padStart(2, '0')}
+                      </span>
+                      <span className="text-white">:</span>
+                      <span className="bg-white/20 backdrop-blur px-2 py-1 rounded text-white font-mono font-bold">
+                        {String(countdown.minutes).padStart(2, '0')}
+                      </span>
+                      <span className="text-white">:</span>
+                      <span className="bg-white/20 backdrop-blur px-2 py-1 rounded text-white font-mono font-bold">
+                        {String(countdown.seconds).padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 sm:w-28 sm:h-28 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                    <todayPrize.prize.icon className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => navigate(user ? '/' : '/auth')}
+                className="mt-4 bg-white text-gray-900 hover:bg-white/90"
+              >
+                {user ? '立即参与预测' : '免费注册参与'}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* How to Participate */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 mb-8"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground">{t('current_round')} {currentRound}</div>
-                <div className="text-xs text-muted-foreground">{t('award_date')}: {nextAwardDate}</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-foreground">{daysRemaining}</div>
-              <div className="text-xs text-muted-foreground">{t('days_until_award')}</div>
-            </div>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{t('days_passed')} {daysPassed}</span>
-              <span>{progressPercent}%</span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-primary rounded-full"
-              />
-            </div>
-          </div>
-        </motion.div>
-
-        {/* How to Win - 3 Steps */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-card border border-border rounded-xl p-6 mb-8"
-        >
-          <h2 className="text-lg font-semibold text-foreground mb-6 text-center">{t('how_to_win')}</h2>
-          
-          <div className="space-y-6">
-            {/* Step 1 */}
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-primary font-bold">1</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">{t('step1_title')}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('step1_desc')}
-                </p>
-                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <img src={aiIcons[currentAI.model]} alt="" className="w-4 h-4 rounded" />
-                  <span>{t('ai_predicted_matches')} <span className="font-semibold text-foreground">{currentAI.predictions}</span> {t('matches_count')}</span>
-                </div>
-                {userStats && (
-                  <div className="mt-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${Math.min(100, (userStats.totalPredictions / currentAI.predictions) * 100)}%` }}
-                        />
-                      </div>
-                      <span className={`font-medium ${isEligible ? 'text-success' : 'text-foreground'}`}>
-                        {userStats.totalPredictions}/{currentAI.predictions}
-                      </span>
-                      {isEligible && <CheckCircle2 className="w-4 h-4 text-success" />}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-primary font-bold">2</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">{t('step2_title')}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('step2_desc')}:
-                  <span className="inline-flex items-center gap-1 ml-1">
-                    <img src={aiIcons[currentAI.model]} alt="" className="w-4 h-4 rounded" />
-                    <span className="font-medium text-foreground">{currentAI.winRate}%</span>
-                  </span>
-                </p>
-                {userStats && userStats.totalPredictions > 0 && (
-                  <div className="mt-2 flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">{t('your_win_rate')}:</span>
-                    <span className={`font-semibold ${beatsAI ? 'text-success' : 'text-foreground'}`}>
-                      {userStats.winRate.toFixed(1)}%
-                    </span>
-                    {beatsAI && <CheckCircle2 className="w-4 h-4 text-success" />}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-primary font-bold">3</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-foreground mb-1">{t('step3_title')}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('step3_desc')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* CTA Button */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-center mb-10"
+          className="grid grid-cols-3 gap-4 mb-8"
         >
-          {user ? (
-            <Button size="lg" onClick={() => navigate('/')} className="px-8">
-              {t('start_prediction_btn')}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          ) : (
-            <Button size="lg" onClick={() => navigate('/auth')} className="px-8">
-              {t('free_register_btn')}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-          <p className="text-xs text-muted-foreground mt-2">{t('no_deposit_free')}</p>
+          {[
+            { step: 1, title: "完成预测", desc: "每日完成5场比赛预测" },
+            { step: 2, title: "获取抽奖资格", desc: "预测准确率≥50%即可" },
+            { step: 3, title: "等待开奖", desc: "每晚21:00自动开奖" },
+          ].map((item) => (
+            <div key={item.step} className="bg-card border border-border rounded-xl p-4 text-center">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center mx-auto mb-2">
+                {item.step}
+              </div>
+              <h3 className="font-medium text-foreground text-sm mb-1">{item.title}</h3>
+              <p className="text-xs text-muted-foreground">{item.desc}</p>
+            </div>
+          ))}
         </motion.div>
 
-        {/* Stats */}
-        <motion.div 
+        {/* Prize Calendar */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="grid grid-cols-3 gap-4 mb-10"
+          className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-8"
         >
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <Calendar className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-            <div className="text-xl font-bold text-foreground">{historyData.length}</div>
-            <div className="text-xs text-muted-foreground">{t('completed_rounds')}</div>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <Users className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-            <div className="text-xl font-bold text-foreground">{totalWinners}</div>
-            <div className="text-xs text-muted-foreground">{t('total_winners')}</div>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <Trophy className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-            <div className="text-xl font-bold text-foreground">${(totalDistributed / 1000000).toFixed(2)}M</div>
-            <div className="text-xs text-muted-foreground">{t('total_distributed')}</div>
-          </div>
-        </motion.div>
-
-        {/* Featured Winners */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-10"
-        >
+          {/* Calendar Header */}
           <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              奖品日历
+            </h2>
             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-amber-500" />
-              <h2 className="text-sm font-medium text-foreground">{t('featured_winners')}</h2>
-            </div>
-            
-            {/* Round Filter */}
-            <div className="flex items-center gap-1 overflow-x-auto">
               <button
-                onClick={() => setSelectedRound("all")}
-                className={`px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap ${
-                  selectedRound === "all"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                {t('featured')}
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              {roundsWithWinners.map((round) => (
-                <button
-                  key={round}
-                  onClick={() => setSelectedRound(round)}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap ${
-                    selectedRound === round
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {round}
-                </button>
-              ))}
+              <span className="font-medium text-foreground min-w-[100px] text-center">
+                {format(currentMonth, "yyyy年MM月", { locale: zhCN })}
+              </span>
+              <button
+                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
           
-          <div className="space-y-4">
-            {filteredWinners.length > 0 ? (
-              filteredWinners.map((winner, index) => (
-                <motion.div
-                  key={`${winner.name}-${winner.round}`}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05 }}
-                  className="bg-card border border-border rounded-lg p-4"
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <img 
-                        src={winner.avatar} 
-                        alt="" 
-                        className="w-12 h-12 rounded-full border-2 border-amber-500/30"
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
-                        <Trophy className="w-3 h-3 text-white" />
-                      </div>
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <span className="font-mono font-medium text-foreground">{winner.name}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{winner.round}</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-lg font-bold text-success">${winner.prize.toLocaleString()}</span>
-                          <span className="text-xs text-muted-foreground ml-1">{t('prize_won')}</span>
-                        </div>
-                      </div>
-
-                      {/* Stats */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-3">
-                        <div>
-                          <span className="text-muted-foreground">{t('player_win_rate')} </span>
-                          <span className="font-semibold text-success">{winner.winRate}%</span>
-                        </div>
-                        <div className="text-muted-foreground">vs</div>
-                        <div className="flex items-center gap-1">
-                          <img src={aiIcons[winner.aiModel]} alt="" className="w-3.5 h-3.5 rounded" />
-                          <span className="text-muted-foreground">{winner.aiWinRate}%</span>
-                        </div>
-                        <div className="text-muted-foreground">·</div>
-                        <div className="text-muted-foreground">{winner.predictions} {t('predictions_count')}</div>
-                        <div className="text-muted-foreground">·</div>
-                        <div>
-                          <span className="text-muted-foreground">{t('virtual_profit')} </span>
-                          <span className="font-semibold text-amber-500">+{winner.virtualProfit.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      {/* Quote */}
-                      <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/30 rounded-md px-3 py-2">
-                        <Quote className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-muted-foreground/50" />
-                        <span className="italic">{winner.quote}</span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                {t('no_winners_round')}
+          {/* Week days header */}
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {weekDays.map((day, index) => (
+              <div 
+                key={day} 
+                className={`text-center text-xs font-medium py-2 ${
+                  index === 0 || index === 6 ? 'text-amber-500' : 'text-muted-foreground'
+                }`}
+              >
+                {day}
               </div>
-            )}
+            ))}
+          </div>
+          
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {/* Empty cells for offset */}
+            {Array.from({ length: startOffset }).map((_, index) => (
+              <div key={`empty-${index}`} className="aspect-square" />
+            ))}
+            
+            {/* Days with prizes */}
+            {prizeSchedule.map((dayData) => {
+              const Icon = dayData.prize.icon;
+              const isSelected = selectedDay && isSameDay(dayData.date, selectedDay);
+              const isPast = dayData.isDrawn;
+              const isTodayDate = isToday(dayData.date);
+              
+              return (
+                <motion.button
+                  key={dayData.date.toISOString()}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedDay(dayData.date)}
+                  className={`aspect-square rounded-lg p-1 transition-all relative ${
+                    isSelected 
+                      ? 'bg-primary ring-2 ring-primary ring-offset-2 ring-offset-background' 
+                      : isTodayDate
+                        ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500'
+                        : isPast
+                          ? 'bg-muted/50 opacity-60'
+                          : 'bg-muted/30 hover:bg-muted/50'
+                  }`}
+                >
+                  <div className="text-[10px] sm:text-xs font-medium text-muted-foreground mb-0.5">
+                    {format(dayData.date, "d")}
+                  </div>
+                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 mx-auto ${
+                    isSelected ? 'text-primary-foreground' : isTodayDate ? 'text-amber-500' : 'text-muted-foreground'
+                  }`} />
+                  {isTodayDate && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+                      <Sparkles className="w-2 h-2 text-white" />
+                    </div>
+                  )}
+                  {isPast && dayData.winner && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full flex items-center justify-center">
+                      <Crown className="w-2.5 h-2.5 text-white" />
+                    </div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+          
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded bg-amber-500/30 border border-amber-500" />
+              <span>今日</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded bg-success" />
+              <span>已开奖</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded bg-muted" />
+              <span>待开奖</span>
+            </div>
           </div>
         </motion.div>
 
-        {/* History Table - Simplified */}
-        <motion.div 
+        {/* Selected Day Details */}
+        <AnimatePresence mode="wait">
+          {selectedDayPrize && (
+            <motion.div
+              key={selectedDay?.toISOString()}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${selectedDayPrize.prize.color} flex items-center justify-center flex-shrink-0`}>
+                  <selectedDayPrize.prize.icon className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm text-muted-foreground mb-1">
+                    {format(selectedDayPrize.date, "yyyy年MM月dd日", { locale: zhCN })}
+                    {isToday(selectedDayPrize.date) && (
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-xs">今日</span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground">{selectedDayPrize.prize.name}</h3>
+                  <p className="text-muted-foreground">
+                    价值 <span className="text-foreground font-semibold">¥{selectedDayPrize.prize.value.toLocaleString()}</span>
+                  </p>
+                  
+                  {selectedDayPrize.isDrawn && selectedDayPrize.winner ? (
+                    <div className="mt-3 p-3 rounded-lg bg-success/10 border border-success/20">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={selectedDayPrize.winner.avatar} 
+                          alt="" 
+                          className="w-10 h-10 rounded-full border-2 border-success/30"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Crown className="w-4 h-4 text-success" />
+                            <span className="font-medium text-foreground">{selectedDayPrize.winner.name}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            当日完成 {selectedDayPrize.winner.predictions} 场预测
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : isToday(selectedDayPrize.date) ? (
+                    <div className="mt-3 flex items-center gap-2 text-amber-500 text-sm">
+                      <Clock className="w-4 h-4" />
+                      <span>今晚 21:00 开奖</span>
+                    </div>
+                  ) : (
+                    <div className="mt-3 text-sm text-muted-foreground">
+                      等待开奖中...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Recent Winners */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.4 }}
           className="mb-8"
         >
-          <h2 className="text-sm font-medium text-foreground mb-4">{t('history_records_title')}</h2>
-          <div className="border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/50 border-b border-border">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('round_column')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('date_column_prize')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('ai_win_rate_label')}</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('winners_column')}</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('distributed_column')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {historyData.map((item) => (
-                  <tr key={item.round} className="border-b border-border/50 last:border-0">
-                    <td className="py-3 px-4 font-mono text-foreground">{item.round}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{item.awardDate}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-1.5">
-                        <img src={aiIcons[item.aiModel]} alt="" className="w-4 h-4 rounded" />
-                        <span className="text-muted-foreground">{item.aiWinRate}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {item.winners > 0 ? (
-                        <span className="text-success">{item.winners}</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-right font-mono">
-                      {item.totalPaid > 0 ? (
-                        <span className="text-foreground">${item.totalPaid.toLocaleString()}</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-amber-500" />
+            近期获奖名单
+          </h2>
+          
+          <div className="space-y-3">
+            {prizeSchedule
+              .filter(p => p.isDrawn && p.winner)
+              .slice(-5)
+              .reverse()
+              .map((dayData, index) => (
+                <motion.div
+                  key={dayData.date.toISOString()}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex items-center gap-4 p-3 bg-card border border-border rounded-lg"
+                >
+                  <img 
+                    src={dayData.winner!.avatar} 
+                    alt="" 
+                    className="w-10 h-10 rounded-full border border-border"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground">{dayData.winner!.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {format(dayData.date, "MM/dd")}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground truncate">
+                      获得 {dayData.prize.name}
+                    </p>
+                  </div>
+                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${dayData.prize.color} flex items-center justify-center flex-shrink-0`}>
+                    <dayData.prize.icon className="w-5 h-5 text-white" />
+                  </div>
+                </motion.div>
+              ))}
           </div>
+        </motion.div>
+
+        {/* Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="grid grid-cols-3 gap-4 mb-8"
+        >
+          <div className="bg-card border border-border rounded-xl p-4 text-center">
+            <Gift className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-foreground">
+              {prizeSchedule.filter(p => p.isDrawn).length}
+            </div>
+            <div className="text-xs text-muted-foreground">已送出奖品</div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 text-center">
+            <Users className="w-6 h-6 text-primary mx-auto mb-2" fill="currentColor" />
+            <div className="text-2xl font-bold text-foreground">
+              {Math.floor(Math.random() * 5000) + 8000}
+            </div>
+            <div className="text-xs text-muted-foreground">参与用户</div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 text-center">
+            <Trophy className="w-6 h-6 text-success mx-auto mb-2" />
+            <div className="text-2xl font-bold text-foreground">
+              ¥{((prizeSchedule.filter(p => p.isDrawn).reduce((sum, p) => sum + p.prize.value, 0)) / 10000).toFixed(1)}万
+            </div>
+            <div className="text-xs text-muted-foreground">累计奖品价值</div>
+          </div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="text-center pb-8"
+        >
+          <Button 
+            size="lg" 
+            onClick={() => navigate(user ? '/' : '/auth')}
+            className="px-8"
+          >
+            {user ? '立即参与今日预测' : '免费注册，立即参与'}
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            无需充值，完成预测即可参与抽奖
+          </p>
         </motion.div>
 
         {/* Disclaimer */}
-        <div className="text-xs text-muted-foreground text-center pb-8">
+        <div className="text-xs text-muted-foreground text-center pb-8 border-t border-border pt-6">
           <p>
-            {t('prize_disclaimer')}
+            HUNSOCCER 每日竞猜活动仅为平台用户福利活动，所有奖品均为实物奖品。
+            本活动最终解释权归 HUNSOCCER 所有。
           </p>
         </div>
       </main>
