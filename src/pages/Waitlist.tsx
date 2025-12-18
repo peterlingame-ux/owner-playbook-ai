@@ -401,8 +401,7 @@ const Waitlist = () => {
               
               {/* Winner Info */}
               <div className="bg-card border border-border rounded-lg p-4">
-                <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-warning" />
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">
                   中奖信息
                 </h4>
                 
