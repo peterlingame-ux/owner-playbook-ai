@@ -201,7 +201,7 @@ const Index = () => {
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
             HUNSOCCER独家AI分析
           </h2>
-          <div className="relative w-full max-w-2xl mx-auto aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
+          <div className="relative w-full max-w-3xl mx-auto aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
             <video
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               src="/videos/hunsoccer-promo.mp4"
