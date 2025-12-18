@@ -310,15 +310,25 @@ export const PlayerLeaderboardCard = ({
           </p>
         </div>
         
+        {/* Estimated Prize */}
+        <div className="text-center">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('estimated_prize')}</p>
+          {prize > 0 ? (
+            <AnimatedPrize value={prize} className="text-sm sm:text-base font-bold text-warning" duration={600} />
+          ) : (
+            <span className="text-sm sm:text-base text-muted-foreground/50">{t('not_qualified')}</span>
+          )}
+        </div>
+        
         {/* Copy Traders - Clickable */}
         <div 
-          className="text-center cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+          className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             onViewHistory(e);
           }}
         >
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-center gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
           <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
             {(() => {
               const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
@@ -327,16 +337,6 @@ export const PlayerLeaderboardCard = ({
               return Math.max(0, baseCount + variance);
             })()}{t('people_suffix')}
           </p>
-        </div>
-        
-        {/* Estimated Prize */}
-        <div className="text-right">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('estimated_prize')}</p>
-          {prize > 0 ? (
-            <AnimatedPrize value={prize} className="text-sm sm:text-base font-bold text-warning" duration={600} />
-          ) : (
-            <span className="text-sm sm:text-base text-muted-foreground/50">{t('not_qualified')}</span>
-          )}
         </div>
       </div>
     </motion.div>
