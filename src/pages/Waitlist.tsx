@@ -210,7 +210,7 @@ const Waitlist = () => {
                             <img 
                               src={prize.image}
                               alt={prize.name}
-                              className={`w-full h-full object-cover transition-all duration-300 ${isPast ? 'grayscale' : ''}`}
+                              className="w-full h-full object-cover"
                             />
                             {/* Date overlay - top left */}
                             <div className={`
