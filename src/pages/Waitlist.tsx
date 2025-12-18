@@ -303,14 +303,25 @@ const Waitlist = () => {
           transition={{ delay: 0.6 }}
           className="text-center"
         >
-          <Button 
+          <motion.button
             onClick={() => navigate(user ? '/' : '/auth')}
-            size="lg"
-            className="px-8"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="
+              px-12 py-4 text-lg font-bold rounded-xl
+              bg-gradient-to-r from-warning via-amber-500 to-warning
+              text-warning-foreground shadow-lg shadow-warning/30
+              hover:shadow-xl hover:shadow-warning/40
+              transition-all duration-300
+              flex items-center gap-2 mx-auto
+            "
           >
-            {user ? '立即参与预测' : '免费注册参与'}
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
+            {user ? '🎯 立即参与预测' : '🎁 立即参与抽奖'}
+            <ChevronRight className="w-5 h-5" />
+          </motion.button>
+          <p className="text-sm text-muted-foreground mt-3">
+            {user ? '完成预测即可参与当日抽奖' : '注册即送10,000猎人币'}
+          </p>
         </motion.div>
 
         {/* Disclaimer */}
