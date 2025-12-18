@@ -917,14 +917,27 @@ const PlayerCopyTradingBoard = () => {
               </div>
             </div>
           </div>
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          {/* Action Buttons & Prize */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {/* Estimated Prize Badge */}
+            {prize > 0 ? (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-[10px] sm:text-xs font-bold shadow-sm">
+                <span className="text-warning/80 font-medium hidden sm:inline">预期奖金:</span>
+                <span className="text-warning font-bold">$</span>
+                <AnimatedPrize value={prize} className="text-[10px] sm:text-xs font-bold text-warning" duration={600} />
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-[10px] sm:text-xs">
+                <span className="font-medium hidden sm:inline">预期奖金:</span>
+                <span>未达标</span>
+              </span>
+            )}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/player/${player.id}`);
               }}
-              className="px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+              className="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
             >
               历史记录
             </button>
@@ -933,47 +946,71 @@ const PlayerCopyTradingBoard = () => {
                 e.stopPropagation();
                 fetchTodayPredictions(player);
               }}
-              className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-lg shadow-warning/30 hover:shadow-xl hover:shadow-warning/40 hover:scale-105 active:scale-95"
+              className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 hover:shadow-lg hover:shadow-warning/40 hover:scale-105 active:scale-95"
             >
               今日跟单
             </button>
           </div>
         </div>
         
-        {/* Stats Grid - Row 1: 4 items */}
+        {/* Stats Grid - Row 1: 预测, 正确, 错误, 胜率 */}
         <div className="grid grid-cols-4 gap-3 sm:gap-4">
-          {/* Profit Amount with Mini Chart */}
+          {/* Total Predictions */}
           <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
-            <p className={`text-sm sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测</p>
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
+              {player.totalPredictions}场
             </p>
-            {/* Mini Chart */}
-            <svg width="60" height="20" className="mt-1">
-              <path
-                d={generateChartPath()}
-                fill="none"
-                stroke={profitAmount >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          </div>
+          
+          {/* Correct Predictions */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确</p>
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
+              {player.correctPredictions}场
+            </p>
+          </div>
+          
+          {/* Incorrect Predictions */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误</p>
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
+              {player.totalPredictions - player.correctPredictions}场
+            </p>
           </div>
           
           {/* Win Rate */}
-          <div className="text-center">
+          <div className="text-right">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
             <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
               {player.winRate.toFixed(0)}%
             </p>
           </div>
-          
+        </div>
+        
+        {/* Stats Grid - Row 2: 投注金额, 盈利金额, 盈利率, 跟单人数 */}
+        <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
           {/* Bet Amount */}
-          <div className="text-center">
+          <div>
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
+            <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
               ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </p>
+          </div>
+          
+          {/* Profit Amount */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+            <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </p>
+          </div>
+          
+          {/* Profit Rate */}
+          <div className="text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+            <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
             </p>
           </div>
           
@@ -985,8 +1022,8 @@ const PlayerCopyTradingBoard = () => {
               fetchTodayPredictions(player);
             }}
           >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-primary hover:underline">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
+            <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
@@ -994,43 +1031,6 @@ const PlayerCopyTradingBoard = () => {
                 return Math.max(0, baseCount + variance);
               })()}人
             </p>
-          </div>
-        </div>
-        
-        {/* Stats Grid - Row 2: 4 items */}
-        <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
-          {/* Correct Predictions */}
-          <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-              {player.correctPredictions}场
-            </p>
-          </div>
-          
-          {/* Incorrect Predictions */}
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-              {player.totalPredictions - player.correctPredictions}场
-            </p>
-          </div>
-          
-          {/* Total Predictions */}
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
-            <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-              {player.totalPredictions}场
-            </p>
-          </div>
-          
-          {/* Estimated Prize */}
-          <div className="text-right">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预期奖金</p>
-            {prize > 0 ? (
-              <AnimatedPrize value={prize} className="text-sm sm:text-base font-bold text-warning" duration={600} />
-            ) : (
-              <span className="text-sm sm:text-base text-muted-foreground/50">未达标</span>
-            )}
           </div>
         </div>
       </motion.div>
