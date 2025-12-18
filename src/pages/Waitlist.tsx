@@ -17,7 +17,6 @@ import tvImg from "@/assets/prizes/tv.jpg";
 import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
 import dogeBannerImg from "@/assets/doge-banner.png";
-import footballIcon from "@/assets/football-icon.webp";
 
 // Prize images array
 const prizeImages = [
@@ -92,84 +91,11 @@ const Waitlist = () => {
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
             完成每日预测任务，即可参与当日奖品抽取，iPhone、MacBook、PS5 等你来拿
           </p>
-          
-          {/* Banner with animated footballs */}
-          <div className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-lg">
-            <img 
-              src={dogeBannerImg} 
-              alt="Daily Prize Banner" 
-              className="w-full rounded-lg"
-            />
-            
-            {/* Animated football light beams */}
-            {[...Array(8)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute pointer-events-none"
-                initial={{ 
-                  x: -100, 
-                  y: `${10 + i * 12}%`,
-                  rotate: 0,
-                  opacity: 0
-                }}
-                animate={{ 
-                  x: ['calc(-100px)', 'calc(100% + 100px)'],
-                  rotate: [0, 360, 720],
-                  opacity: [0, 1, 1, 0]
-                }}
-                transition={{
-                  duration: 3 + i * 0.5,
-                  delay: i * 0.8,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{ top: `${5 + i * 10}%` }}
-              >
-                <div className="relative">
-                  <img 
-                    src={footballIcon} 
-                    alt="" 
-                    className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 drop-shadow-[0_0_15px_rgba(255,200,0,0.8)]"
-                  />
-                  {/* Light trail effect */}
-                  <div className="absolute inset-0 -z-10 blur-md bg-gradient-to-r from-transparent via-warning/50 to-transparent w-24 -left-16" />
-                </div>
-              </motion.div>
-            ))}
-            
-            {/* Reverse direction footballs */}
-            {[...Array(4)].map((_, i) => (
-              <motion.div
-                key={`rev-${i}`}
-                className="absolute pointer-events-none"
-                initial={{ 
-                  x: 'calc(100% + 100px)', 
-                  rotate: 0,
-                  opacity: 0
-                }}
-                animate={{ 
-                  x: ['calc(100% + 100px)', 'calc(-100px)'],
-                  rotate: [0, -360, -720],
-                  opacity: [0, 1, 1, 0]
-                }}
-                transition={{
-                  duration: 4 + i * 0.6,
-                  delay: 2 + i * 1.2,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{ top: `${20 + i * 20}%` }}
-              >
-                <div className="relative">
-                  <img 
-                    src={footballIcon} 
-                    alt="" 
-                    className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 drop-shadow-[0_0_12px_rgba(255,180,0,0.7)]"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <img 
+            src={dogeBannerImg} 
+            alt="Daily Prize Banner" 
+            className="w-full max-w-4xl mx-auto rounded-lg"
+          />
         </motion.div>
 
         {/* Steps Section */}
