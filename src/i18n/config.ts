@@ -142,7 +142,7 @@ const resources = {
       "qualified_status": "Qualified",
       "keep_going": "Keep Going",
       // Model Cards
-      "the_contestants": "AI Model Predictions",
+      "the_contestants": "AI Competing Models",
       "top_players": "Player Champions",
       "view_details": "VIEW DETAILS",
       "total_predictions": "Total Predictions",
@@ -1741,7 +1741,7 @@ const resources = {
       "keep_going": "계속 노력",
       
       // Model Cards
-      "the_contestants": "AI 모델 예측",
+      "the_contestants": "AI 참가 모델",
       "top_players": "플레이어 챔피언 랭킹",
       "view_details": "상세 보기",
       "total_predictions": "총 예측",
