@@ -254,9 +254,9 @@ const Index = () => {
                   <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
                   <span className="text-xs text-muted-foreground">数据分析</span>
                 </div>
-                <h4 className="text-sm font-medium text-foreground mb-1">控球率分析</h4>
-                <div className="text-lg font-bold text-primary">58%</div>
-                <p className="text-xs text-muted-foreground">vs 42%</p>
+                <h4 className="text-sm font-medium text-foreground mb-1">进攻欲望分析</h4>
+                <div className="text-lg font-bold text-primary">87%</div>
+                <p className="text-xs text-muted-foreground">高进攻意图</p>
               </div>
             </div>
           </div>
