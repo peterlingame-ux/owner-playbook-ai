@@ -418,153 +418,63 @@ const Waitlist = () => {
           )}
         </AnimatePresence>
 
-        {/* Recent Winners - Professional Table Design */}
+        {/* Recent Winners - Simplified Professional Design */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mb-6"
+          className="mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-warning" />
-              <h2 className="text-base font-semibold text-foreground">近期获奖名单</h2>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Shield className="w-3.5 h-3.5 text-success" />
-              <span>已验证发放</span>
-            </div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-foreground">近期获奖</h2>
+            <span className="text-xs text-muted-foreground">{drawnCount} 件已发放</span>
           </div>
           
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            {/* Table Header */}
-            <div className="grid grid-cols-12 gap-2 px-4 py-3 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">
-              <div className="col-span-3">中奖日期</div>
-              <div className="col-span-4">中奖用户</div>
-              <div className="col-span-3">获奖奖品</div>
-              <div className="col-span-2 text-right">状态</div>
-            </div>
-            
-            {/* Table Body */}
-            <div className="divide-y divide-border">
-              {prizeSchedule
-                .filter(p => p.isDrawn && p.winner)
-                .slice(-7)
-                .reverse()
-                .map((dayData, index) => (
-                  <div
-                    key={dayData.date.toISOString()}
-                    className={`grid grid-cols-12 gap-2 px-4 py-3 items-center ${
-                      index === 0 ? 'bg-warning/5' : 'hover:bg-muted/30'
-                    } transition-colors`}
-                  >
-                    {/* Date Column */}
-                    <div className="col-span-3">
-                      <div className="text-sm font-medium text-foreground">
-                        {format(dayData.date, "MM月dd日")}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {dayData.winner!.claimTime} 领取
-                      </div>
-                    </div>
-                    
-                    {/* Winner Column */}
-                    <div className="col-span-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="relative">
-                          <img 
-                            src={dayData.winner!.avatar} 
-                            alt="" 
-                            className="w-9 h-9 rounded-full border border-border"
-                          />
-                          {index === 0 && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-warning rounded-full flex items-center justify-center">
-                              <Award className="w-2.5 h-2.5 text-warning-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-medium text-foreground text-sm truncate">
-                              {dayData.winner!.name}
-                            </span>
-                            <CheckCircle2 className="w-3.5 h-3.5 text-success flex-shrink-0" />
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            ID: {dayData.winner!.verificationId}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Prize Column */}
-                    <div className="col-span-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                          <img 
-                            src={dayData.prize.image} 
-                            alt={dayData.prize.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium text-foreground truncate">
-                            {dayData.prize.name}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            ¥{dayData.prize.value.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Status Column */}
-                    <div className="col-span-2 text-right">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-success/10 text-success text-xs font-medium">
-                        <CheckCircle2 className="w-3 h-3" />
-                        已发放
+          <div className="space-y-2">
+            {prizeSchedule
+              .filter(p => p.isDrawn && p.winner)
+              .slice(-5)
+              .reverse()
+              .map((dayData, index) => (
+                <div
+                  key={dayData.date.toISOString()}
+                  className={`flex items-center gap-3 p-3 rounded-lg border border-border ${
+                    index === 0 ? 'bg-card' : 'bg-card/50'
+                  }`}
+                >
+                  {/* Prize Image */}
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                    <img 
+                      src={dayData.prize.image} 
+                      alt={dayData.prize.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  {/* Prize & Winner Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                      <span className="font-medium text-foreground text-sm truncate">
+                        {dayData.prize.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground flex-shrink-0">
+                        {format(dayData.date, "MM/dd")}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <img 
+                        src={dayData.winner!.avatar} 
+                        alt="" 
+                        className="w-4 h-4 rounded-full"
+                      />
+                      <span>{dayData.winner!.name}</span>
+                      <span className="text-foreground/60">|</span>
+                      <span>胜率 {dayData.winner!.winRate}%</span>
+                      <CheckCircle2 className="w-3 h-3 text-success ml-auto flex-shrink-0" />
+                    </div>
                   </div>
-                ))}
-            </div>
-            
-            {/* Table Footer */}
-            <div className="px-4 py-3 bg-muted/30 border-t border-border">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex items-center gap-4">
-                  <span>数据来源：HUNSOCCER 官方记录</span>
-                  <span className="hidden sm:inline">|</span>
-                  <span className="hidden sm:inline">更新时间：{format(new Date(), "MM-dd HH:mm")}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Shield className="w-3 h-3 text-success" />
-                  <span>区块链存证</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-        </motion.div>
-
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="grid grid-cols-3 gap-3 mb-6"
-        >
-          <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
-            <div className="text-xl sm:text-2xl font-bold text-foreground">{drawnCount}</div>
-            <div className="text-xs text-muted-foreground">已送出奖品</div>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
-            <div className="text-xl sm:text-2xl font-bold text-foreground">{participantCount.toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground">参与用户</div>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
-            <div className="text-xl sm:text-2xl font-bold text-foreground">¥{(totalPrizeValue / 10000).toFixed(1)}万</div>
-            <div className="text-xs text-muted-foreground">累计奖品价值</div>
+              ))}
           </div>
         </motion.div>
 
@@ -572,29 +482,21 @@ const Waitlist = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="text-center pb-8"
+          transition={{ delay: 0.5 }}
+          className="text-center pb-6"
         >
           <Button 
             size="lg" 
             onClick={() => navigate(user ? '/' : '/auth')}
-            className="px-8"
+            className="w-full max-w-sm"
           >
-            {user ? '立即参与今日预测' : '免费注册，立即参与'}
+            {user ? '立即参与今日预测' : '免费注册参与'}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            无需充值，完成预测即可参与抽奖
+          <p className="text-xs text-muted-foreground mt-3">
+            活动最终解释权归 HUNSOCCER 所有
           </p>
         </motion.div>
-
-        {/* Disclaimer */}
-        <div className="text-xs text-muted-foreground text-center pb-8 border-t border-border pt-6">
-          <p>
-            HUNSOCCER 每日竞猜活动仅为平台用户福利活动，所有奖品均为实物奖品。
-            本活动最终解释权归 HUNSOCCER 所有。
-          </p>
-        </div>
       </main>
     </div>
   );
