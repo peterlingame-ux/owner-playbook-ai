@@ -225,9 +225,21 @@ const LiveMatchTracker = () => {
           ))}
         </div>
       </div>
+
+      {/* Footer with navigation dots */}
+      <div className="flex items-center justify-center gap-1.5 pb-3">
+        {matches.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-1.5 h-1.5 rounded-full transition-all ${
+              index === currentIndex ? 'bg-primary w-3' : 'bg-muted-foreground/30'
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
-
 
 export default LiveMatchTracker;
