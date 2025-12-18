@@ -131,27 +131,15 @@ const LiveMatchTracker = () => {
         </div>
       </div>
 
-      {/* Official Promo Video Section */}
-      <div className="p-3 sm:p-4 border-b border-border/30">
-        <div className="relative aspect-video rounded-lg overflow-hidden bg-black/50">
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
-                <div className="w-0 h-0 border-l-[20px] border-l-primary border-y-[12px] border-y-transparent ml-1" />
-              </div>
-              <p className="text-muted-foreground text-sm">官方宣传片</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">视频即将上线</p>
-            </div>
-          </div>
-          {/* Uncomment below and add your video source when ready */}
-          {/* <video 
-            className="w-full h-full object-cover"
-            controls
-            poster="/path-to-poster.jpg"
-          >
-            <source src="/path-to-video.mp4" type="video/mp4" />
-          </video> */}
+      {/* Official Promo Video Section - Title Style */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+        <div className="flex items-center gap-2">
+          <div className="w-0 h-0 border-l-[10px] border-l-primary border-y-[6px] border-y-transparent" />
+          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            官方宣传片
+          </h3>
         </div>
+        <span className="text-xs text-muted-foreground">视频即将上线</span>
       </div>
 
       {/* Match Cards */}
