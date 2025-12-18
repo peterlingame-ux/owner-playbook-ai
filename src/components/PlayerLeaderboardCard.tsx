@@ -256,21 +256,13 @@ export const PlayerLeaderboardCard = ({
         </div>
       </div>
       
-      {/* Stats Grid - Row 1: 预测, 投注金额, 正确, 错误 */}
+      {/* Stats Grid - Row 1: 预测, 正确, 错误, 胜率 */}
       <div className="grid grid-cols-4 gap-3 sm:gap-4">
         {/* Total Predictions */}
         <div>
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('total_predictions')}</p>
           <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
             {player.totalPredictions}{t('matches_suffix')}
-          </p>
-        </div>
-        
-        {/* Bet Amount */}
-        <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('bet_amount_label')}</p>
-          <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
-            ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
         </div>
         
@@ -283,23 +275,31 @@ export const PlayerLeaderboardCard = ({
         </div>
         
         {/* Incorrect Predictions */}
-        <div className="text-right">
+        <div className="text-center">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('incorrect_matches')}</p>
           <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
             {player.totalPredictions - player.correctPredictions}{t('matches_suffix')}
           </p>
         </div>
-      </div>
-      
-      {/* Stats Grid - Row 2: 胜率, 盈利金额, 跟单人数, 预期奖金 */}
-      <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+        
         {/* Win Rate */}
-        <div>
+        <div className="text-right">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
           <AnimatedWinRate 
             value={player.winRate}
             className="text-sm sm:text-base font-bold font-mono-data text-foreground"
           />
+        </div>
+      </div>
+      
+      {/* Stats Grid - Row 2: 投注金额, 盈利金额, 跟单人数, 预期奖金 */}
+      <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+        {/* Bet Amount */}
+        <div>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('bet_amount_label')}</p>
+          <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
+            ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </p>
         </div>
         
         {/* Profit Amount */}
