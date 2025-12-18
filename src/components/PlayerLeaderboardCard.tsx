@@ -256,34 +256,14 @@ export const PlayerLeaderboardCard = ({
         </div>
       </div>
       
-      {/* Stats Grid - Row 1: 4 items */}
+      {/* Stats Grid - Row 1: 预测, 投注金额, 正确, 错误 */}
       <div className="grid grid-cols-4 gap-3 sm:gap-4">
-        {/* Profit Amount with Mini Chart */}
+        {/* Total Predictions */}
         <div>
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
-          <p className={`text-sm sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-            {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('total_predictions')}</p>
+          <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
+            {player.totalPredictions}{t('matches_suffix')}
           </p>
-          {/* Mini Chart */}
-          <svg width="60" height="20" className="mt-1">
-            <path
-              d={generateChartPath()}
-              fill="none"
-              stroke={profitAmount >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-        
-        {/* Win Rate */}
-        <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
-          <AnimatedWinRate 
-            value={player.winRate}
-            className="text-sm sm:text-lg font-bold font-mono-data text-foreground"
-          />
         </div>
         
         {/* Bet Amount */}
@@ -294,49 +274,58 @@ export const PlayerLeaderboardCard = ({
           </p>
         </div>
         
+        {/* Correct Predictions */}
+        <div className="text-center">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('correct_matches')}</p>
+          <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
+            {player.correctPredictions}{t('matches_suffix')}
+          </p>
+        </div>
+        
+        {/* Incorrect Predictions */}
+        <div className="text-right">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('incorrect_matches')}</p>
+          <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
+            {player.totalPredictions - player.correctPredictions}{t('matches_suffix')}
+          </p>
+        </div>
+      </div>
+      
+      {/* Stats Grid - Row 2: 胜率, 盈利金额, 跟单人数, 预期奖金 */}
+      <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+        {/* Win Rate */}
+        <div>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
+          <AnimatedWinRate 
+            value={player.winRate}
+            className="text-sm sm:text-base font-bold font-mono-data text-foreground"
+          />
+        </div>
+        
+        {/* Profit Amount */}
+        <div className="text-center">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
+          <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </p>
+        </div>
+        
         {/* Copy Traders - Clickable */}
         <div 
-          className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+          className="text-center cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             onViewHistory(e);
           }}
         >
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
-          <p className="text-sm sm:text-lg font-bold font-mono-data text-primary hover:underline">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-center gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
+          <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
             {(() => {
               const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
               const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
               const variance = (seed % 50) - 25;
               return Math.max(0, baseCount + variance);
             })()}{t('people_suffix')}
-          </p>
-        </div>
-      </div>
-      
-      {/* Stats Grid - Row 2: 4 items */}
-      <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
-        {/* Correct Predictions */}
-        <div>
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('correct_matches')}</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-            {player.correctPredictions}{t('matches_suffix')}
-          </p>
-        </div>
-        
-        {/* Incorrect Predictions */}
-        <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('incorrect_matches')}</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-            {player.totalPredictions - player.correctPredictions}{t('matches_suffix')}
-          </p>
-        </div>
-        
-        {/* Total Predictions */}
-        <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('total_predictions')}</p>
-          <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-            {player.totalPredictions}{t('matches_suffix')}
           </p>
         </div>
         
