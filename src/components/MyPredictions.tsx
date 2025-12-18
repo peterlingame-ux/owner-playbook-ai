@@ -2083,7 +2083,8 @@ const MyPredictions = () => {
       {/* 充值钱包弹窗 */}
       <USDTWalletDialog 
         open={isWalletDialogOpen} 
-        onOpenChange={setIsWalletDialogOpen} 
+        onOpenChange={setIsWalletDialogOpen}
+        trigger={<span className="hidden" />}
       />
     </div>
   );
