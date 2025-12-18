@@ -29,17 +29,18 @@ const dayPrizes = Array.from({ length: 30 }, (_, i) => ({
   image: prizeImages[i % prizeImages.length],
 }));
 
-// Letter pixel maps for HUNSOCCER (3x5 grid each, compact)
+// Letter pixel maps for HUNSOCCER (render only first 30 filled cells)
 const letterMaps: Record<string, number[][]> = {
-  H: [[1,0,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
-  U: [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
-  N: [[1,0,1],[1,1,1],[1,1,1],[1,0,1],[1,0,1]],
-  S: [[1,1,1],[1,0,0],[1,1,1],[0,0,1],[1,1,1]],
-  O: [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
-  C: [[1,1,1],[1,0,0],[1,0,0],[1,0,0],[1,1,1]],
-  E: [[1,1,1],[1,0,0],[1,1,1],[1,0,0],[1,1,1]],
-  R: [[1,1,1],[1,0,1],[1,1,1],[1,1,0],[1,0,1]],
+  H: [[1,0,1],[1,1,1],[1,0,1]],
+  U: [[1,0,1],[1,0,1],[1,1,1]],
+  N: [[1,0,1],[1,1,1],[1,0,1]],
+  S: [[1,1,1],[0,1,0],[1,1,1]],
+  O: [[1,1,1],[1,0,1],[1,1,1]],
+  C: [[1,1,1],[1,0,0],[1,1,1]],
+  E: [[1,1,1],[1,1,0],[1,1,1]],
+  R: [[1,1,1],[1,1,0],[1,0,1]],
 };
+const MAX_CELLS = 30;
 
 const Waitlist = () => {
   const navigate = useNavigate();
@@ -138,8 +139,8 @@ const Waitlist = () => {
                     {map.map((row, rowIdx) => (
                       <div key={rowIdx} className="flex gap-[3px] sm:gap-1">
                         {row.map((cell, cellIdx) => {
-                          if (cell === 1) {
-                            const currentDay = dayPrizes[dayIndex % 30];
+                          if (cell === 1 && dayIndex < MAX_CELLS) {
+                            const currentDay = dayPrizes[dayIndex];
                             dayIndex++;
                             return (
                               <div
