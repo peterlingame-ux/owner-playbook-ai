@@ -316,12 +316,9 @@ const Waitlist = () => {
               flex items-center gap-2 mx-auto
             "
           >
-            {user ? '🎯 立即参与预测' : '🎁 立即参与抽奖'}
+            {user ? '立即参与预测' : '立即参与抽奖'}
             <ChevronRight className="w-5 h-5" />
           </motion.button>
-          <p className="text-sm text-muted-foreground mt-3">
-            {user ? '完成预测即可参与当日抽奖' : '注册即送10,000猎人币'}
-          </p>
         </motion.div>
 
         {/* Disclaimer */}
