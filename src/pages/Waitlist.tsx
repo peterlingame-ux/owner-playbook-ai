@@ -10,28 +10,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
 // Import product images
-import iphoneImg from "@/assets/prizes/iphone.jpg";
-import watchImg from "@/assets/prizes/watch.jpg";
-import macbookImg from "@/assets/prizes/macbook.jpg";
-import airpodsImg from "@/assets/prizes/airpods.jpg";
-import ps5Img from "@/assets/prizes/ps5.jpg";
-import cameraImg from "@/assets/prizes/camera.jpg";
-import tvImg from "@/assets/prizes/tv.jpg";
-import speakerImg from "@/assets/prizes/speaker.jpg";
-import ipadImg from "@/assets/prizes/ipad.jpg";
+import appleWatchImg from "@/assets/prizes/apple-watch.png";
+import appleAirpodsImg from "@/assets/prizes/apple-airpods.png";
+import appleMacbookImg from "@/assets/prizes/apple-macbook.png";
+import appleIpadImg from "@/assets/prizes/apple-ipad.png";
+import appleVisionImg from "@/assets/prizes/apple-vision.png";
 import dogeBannerImg from "@/assets/doge-banner.png";
 
-// Prize data with names
+// Prize data with names - 5 Apple products rotating
 const prizeData = [
-  { name: "iPhone 15 Pro", image: iphoneImg },
-  { name: "Apple Watch Ultra", image: watchImg },
-  { name: "MacBook Pro 14", image: macbookImg },
-  { name: "AirPods Pro", image: airpodsImg },
-  { name: "PlayStation 5", image: ps5Img },
-  { name: "Canon EOS R6", image: cameraImg },
-  { name: "Samsung 65\" OLED TV", image: tvImg },
-  { name: "Bose SoundLink", image: speakerImg },
-  { name: "iPad Pro 12.9", image: ipadImg },
+  { name: "Apple Watch Ultra", image: appleWatchImg },
+  { name: "AirPods Pro", image: appleAirpodsImg },
+  { name: "MacBook Pro", image: appleMacbookImg },
+  { name: "iPad Pro", image: appleIpadImg },
+  { name: "Apple Vision Pro", image: appleVisionImg },
 ];
 
 // Generate 30 days of prizes
