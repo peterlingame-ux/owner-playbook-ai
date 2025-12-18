@@ -6,7 +6,6 @@ import ModelCard from "@/components/ModelCard";
 import UserModelCard from "@/components/UserModelCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
-import LiveMatchTracker from "@/components/LiveMatchTracker";
 import Disclaimer from "@/components/Disclaimer";
 import { aiModels } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
@@ -197,11 +196,6 @@ const Index = () => {
       </Dialog>
       
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
-        {/* Live Match Tracker */}
-        <section className="mb-10 sm:mb-12 lg:mb-14">
-          <LiveMatchTracker />
-        </section>
-
         {/* AI Betting Cards - Match Predictions Today */}
         <section id="match-predictions" className="mb-10 sm:mb-12 lg:mb-14 scroll-mt-20">
           <ActiveAIBets />
