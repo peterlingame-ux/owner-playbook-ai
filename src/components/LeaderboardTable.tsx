@@ -912,8 +912,9 @@ const LeaderboardTable = () => {
                 }
               };
 
-              // Generate mini chart data points based on profit trend
+              // Get profit data
               const profitAmount = (model as any).profitAmount || 0;
+              const profitRate = (model as any).profitRate || 0;
               const generateChartPath = () => {
                 const points = [];
                 const width = 80;
@@ -1045,83 +1046,80 @@ const LeaderboardTable = () => {
                     </div>
                   </div>
                   
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-3 gap-4 sm:gap-6">
-                    {/* Profit Amount with Mini Chart */}
+                  {/* Stats Grid - Row 1: 预测, 正确场次, 错误场次, 胜率 */}
+                  <div className="grid grid-cols-4 gap-3 sm:gap-4">
+                    {/* Total Predictions */}
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
-                      <p className={`text-base sm:text-lg font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}¥${profitAmount.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                      </p>
-                      {/* Mini Chart */}
-                      <svg width="80" height="24" className="mt-1">
-                        <path
-                          d={generateChartPath()}
-                          fill="none"
-                          stroke={profitAmount >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                    
-                    {/* Win Rate */}
-                    <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-                      <AnimatedWinRate 
-                        value={model.winRate}
-                        className="text-base sm:text-lg font-bold font-mono-data text-foreground"
-                      />
-                    </div>
-                    
-                    {/* Bet Amount */}
-                    <div className="text-right">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
-                      <p className="text-base sm:text-lg font-bold font-mono-data text-foreground">
-                        {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Predictions Stats Row */}
-                  <div className="grid grid-cols-4 gap-2 sm:gap-4 mt-3 pt-3 border-t border-border/50">
-                    {/* Copy Traders - Clickable */}
-                    <div 
-                      className="cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
-                      onClick={() => {
-                        const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
-                        setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
-                        setIsFollowersDialogOpen(true);
-                      }}
-                    >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-primary hover:underline">
-                        {((model as any).followerCount || 0).toLocaleString()}人
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测</p>
+                      <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
+                        {model.totalPredictions || 0}场
                       </p>
                     </div>
                     
                     {/* Correct Predictions */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确场次</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确</p>
+                      <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
                         {model.locked ? '???' : `${(model as any).correctPredictions || 0}场`}
                       </p>
                     </div>
                     
                     {/* Incorrect Predictions */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误场次</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误</p>
+                      <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
                         {model.locked ? '???' : `${(model.totalPredictions || 0) - ((model as any).correctPredictions || 0)}场`}
                       </p>
                     </div>
                     
-                    {/* Total Predictions */}
+                    {/* Win Rate */}
                     <div className="text-right">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">总预测</p>
-                      <p className="text-sm sm:text-base font-semibold font-mono-data text-foreground">
-                        {model.totalPredictions || 0}场
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
+                      <AnimatedWinRate 
+                        value={model.winRate}
+                        className="text-sm sm:text-lg font-bold font-mono-data text-foreground"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Stats Grid - Row 2: 投注金额, 盈利金额, 盈利率, 跟单人数 */}
+                  <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
+                    {/* Bet Amount */}
+                    <div>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
+                      <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
+                        {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                      </p>
+                    </div>
+                    
+                    {/* Profit Amount */}
+                    <div className="text-center">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+                      <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}¥${profitAmount.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                      </p>
+                    </div>
+                    
+                    {/* Profit Rate */}
+                    <div className="text-center">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+                      <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
+                      </p>
+                    </div>
+                    
+                    {/* Copy Traders - Clickable */}
+                    <div 
+                      className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+                      onClick={() => {
+                        const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
+                        setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
+                        setIsFollowersDialogOpen(true);
+                      }}
+                    >
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
+                      <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
+                        {((model as any).followerCount || 0).toLocaleString()}人
                       </p>
                     </div>
                   </div>
