@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
 import { PlayCircle, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -91,10 +90,6 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   const colorTint = getColorTint(model.id);
   
-  const handleCopyTrade = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toast('请联系HUNSOCCER工作人员开通自动跟单功能', { icon: null });
-  };
   
   const handleCardClick = () => {
     if (!authLoading && !user) {
@@ -209,16 +204,6 @@ const ModelCard = ({ model }: ModelCardProps) => {
                 {model.totalPredictions - model.correctPredictions}
               </p>
             </div>
-          </div>
-          
-          {/* Follow Model Button */}
-          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
-            <Button 
-              onClick={handleCopyTrade}
-              className="w-full h-9 sm:h-10 bg-secondary/50 hover:bg-secondary/80 border border-border/30 font-medium text-[10px] sm:text-xs text-foreground transition-colors"
-            >
-              <span>{t('one_click_copy_trade')}</span>
-            </Button>
           </div>
         </div>
       </div>
