@@ -199,8 +199,15 @@ export const PlayerLeaderboardCard = ({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
-              {/* Profit Rate Badge */}
-              <ProfitRateBadge value={profitRate} />
+              {/* Estimated Prize Badge */}
+              {prize > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-warning/20 text-warning text-xs font-bold">
+                  <span>$</span>
+                  <AnimatedPrize value={prize} className="text-xs font-bold text-warning" duration={600} />
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground text-xs">{t('not_qualified')}</span>
+              )}
             </div>
             <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
               {boardType === 'cold' ? (
@@ -310,14 +317,12 @@ export const PlayerLeaderboardCard = ({
           </p>
         </div>
         
-        {/* Estimated Prize */}
+        {/* Profit Rate */}
         <div className="text-center">
-          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('estimated_prize')}</p>
-          {prize > 0 ? (
-            <AnimatedPrize value={prize} className="text-sm sm:text-base font-bold text-warning" duration={600} />
-          ) : (
-            <span className="text-sm sm:text-base text-muted-foreground/50">{t('not_qualified')}</span>
-          )}
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_rate')}</p>
+          <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+          </p>
         </div>
         
         {/* Copy Traders - Clickable */}
