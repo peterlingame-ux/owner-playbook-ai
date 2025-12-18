@@ -240,182 +240,137 @@ const Waitlist = () => {
           ))}
         </motion.div>
 
-        {/* Prize Calendar */}
+        {/* HUNSOCCER Prize Letters */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-card border border-border rounded-xl p-4 sm:p-5 mb-6"
+          className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-6"
         >
-          {/* Calendar Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-foreground">奖品日历</h2>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                className="p-1.5 rounded hover:bg-muted transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="font-medium text-foreground min-w-[100px] text-center text-sm">
-                {format(currentMonth, "yyyy年MM月", { locale: zhCN })}
-              </span>
-              <button
-                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                className="p-1.5 rounded hover:bg-muted transition-colors"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+          <div className="text-center mb-4">
+            <h2 className="text-base font-semibold text-foreground mb-1">奖品日历</h2>
+            <p className="text-xs text-muted-foreground">点击字母查看奖品详情</p>
           </div>
           
-          {/* Week days header */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {weekDays.map((day, index) => (
-              <div 
-                key={day} 
-                className={`text-center text-xs font-medium py-1.5 ${
-                  index === 0 || index === 6 ? 'text-muted-foreground' : 'text-muted-foreground'
-                }`}
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-          
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {Array.from({ length: startOffset }).map((_, index) => (
-              <div key={`empty-${index}`} className="aspect-square" />
-            ))}
-            
-            {prizeSchedule.map((dayData) => {
-              const isSelected = selectedDay && isSameDay(dayData.date, selectedDay);
-              const isPast = dayData.isDrawn;
-              const isTodayDate = isToday(dayData.date);
+          {/* HUNSOCCER Letters Grid */}
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            {(() => {
+              const letters = "HUNSOCCER".split("");
+              const prizeKeys = Object.keys(prizeTypes) as Array<keyof typeof prizeTypes>;
               
-              return (
-                <button
-                  key={dayData.date.toISOString()}
-                  onClick={() => setSelectedDay(dayData.date)}
-                  className={`aspect-square rounded-lg transition-all relative overflow-hidden ${
-                    isSelected 
-                      ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' 
-                      : isTodayDate
-                        ? 'ring-2 ring-foreground'
+              return letters.map((letter, index) => {
+                const prizeKey = prizeKeys[index];
+                const prize = prizeTypes[prizeKey];
+                const isSelected = selectedDay && selectedDay.getDate() === index + 1;
+                
+                return (
+                  <button
+                    key={`${letter}-${index}`}
+                    onClick={() => {
+                      const date = new Date();
+                      date.setDate(index + 1);
+                      setSelectedDay(date);
+                    }}
+                    className={`relative w-12 h-16 sm:w-16 sm:h-20 rounded-lg overflow-hidden transition-all hover:scale-105 ${
+                      isSelected 
+                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105' 
                         : 'hover:ring-1 hover:ring-border'
-                  }`}
-                >
-                  {/* Product image background */}
-                  <div className="absolute inset-0">
-                    <img 
-                      src={dayData.prize.image} 
-                      alt={dayData.prize.name}
-                      className={`w-full h-full object-cover ${isPast ? 'grayscale opacity-50' : ''}`}
-                    />
-                    <div className={`absolute inset-0 ${
-                      isPast ? 'bg-black/50' : 'bg-black/30'
-                    }`} />
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="relative z-10 h-full flex flex-col items-center justify-center">
-                    {isPast ? (
-                      <>
-                        <span className="text-[10px] text-white/80 mb-0.5">
-                          {format(dayData.date, "d")}
-                        </span>
-                        <span className="text-[9px] sm:text-[10px] font-medium text-white bg-black/40 px-1.5 py-0.5 rounded">
-                          已开奖
-                        </span>
-                      </>
-                    ) : (
-                      <span className={`text-sm sm:text-base font-bold ${
-                        isTodayDate ? 'text-white' : 'text-white'
-                      }`}>
-                        {format(dayData.date, "d")}
+                    }`}
+                  >
+                    {/* Prize image background */}
+                    <div className="absolute inset-0">
+                      <img 
+                        src={prize.image} 
+                        alt={prize.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
+                    </div>
+                    
+                    {/* Letter */}
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <span className="text-2xl sm:text-3xl font-black text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+                        {letter}
                       </span>
-                    )}
-                  </div>
-                  
-                  {/* Today indicator */}
-                  {isTodayDate && (
-                    <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-white rounded-full" />
-                  )}
-                </button>
-              );
-            })}
+                    </div>
+                  </button>
+                );
+              });
+            })()}
           </div>
         </motion.div>
 
-        {/* Selected Day Details */}
+        {/* Selected Letter Prize Details */}
         <AnimatePresence mode="wait">
-          {selectedDayPrize && (
-            <motion.div
-              key={selectedDay?.toISOString()}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-card border border-border rounded-xl p-4 sm:p-5 mb-6"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                  <img 
-                    src={selectedDayPrize.prize.image} 
-                    alt={selectedDayPrize.prize.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {format(selectedDayPrize.date, "yyyy年MM月dd日", { locale: zhCN })}
-                    {isToday(selectedDayPrize.date) && (
-                      <span className="px-1.5 py-0.5 rounded bg-muted text-foreground text-xs">今日</span>
-                    )}
+          {selectedDay && (() => {
+            const letters = "HUNSOCCER".split("");
+            const prizeKeys = Object.keys(prizeTypes) as Array<keyof typeof prizeTypes>;
+            const letterIndex = selectedDay.getDate() - 1;
+            if (letterIndex < 0 || letterIndex >= 9) return null;
+            
+            const letter = letters[letterIndex];
+            const prizeKey = prizeKeys[letterIndex];
+            const prize = prizeTypes[prizeKey];
+            const mockWinner = generateMockWinner();
+            
+            return (
+              <motion.div
+                key={letterIndex}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-card border border-border rounded-xl p-4 sm:p-5 mb-6"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0 relative">
+                    <img 
+                      src={prize.image} 
+                      alt={prize.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <span className="text-2xl font-black text-white drop-shadow-lg">{letter}</span>
+                    </div>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-foreground">{selectedDayPrize.prize.name}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    价值 <span className="text-foreground font-medium">¥{selectedDayPrize.prize.value.toLocaleString()}</span>
-                  </p>
-                  
-                  {selectedDayPrize.isDrawn && selectedDayPrize.winner ? (
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                      <span className="px-2 py-0.5 rounded bg-muted text-foreground text-xs font-bold">
+                        字母 {letter}
+                      </span>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold text-foreground">{prize.name}</h3>
+                    <p className="text-muted-foreground text-sm">
+                      价值 <span className="text-foreground font-medium">¥{prize.value.toLocaleString()}</span>
+                    </p>
+                    
                     <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
                       <div className="flex items-center gap-3">
                         <img 
-                          src={selectedDayPrize.winner.avatar} 
+                          src={mockWinner.avatar} 
                           alt="" 
                           className="w-10 h-10 rounded-full border border-border"
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <CheckCircle2 className="w-3.5 h-3.5 text-foreground" />
-                            <span className="font-medium text-foreground text-sm">{selectedDayPrize.winner.name}</span>
+                            <span className="font-medium text-foreground text-sm">{mockWinner.name}</span>
+                            <span className="text-xs text-muted-foreground">上期获奖</span>
                           </div>
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span>胜率 <span className="text-foreground font-medium">{selectedDayPrize.winner.winRate}%</span></span>
-                            <span>盈利 <span className="text-foreground font-medium">¥{selectedDayPrize.winner.profit.toLocaleString()}</span></span>
-                            <span>预测 <span className="text-foreground font-medium">{selectedDayPrize.winner.predictions}场</span></span>
+                            <span>胜率 <span className="text-foreground font-medium">{mockWinner.winRate}%</span></span>
+                            <span>盈利 <span className="text-foreground font-medium">¥{mockWinner.profit.toLocaleString()}</span></span>
+                            <span>预测 <span className="text-foreground font-medium">{mockWinner.predictions}场</span></span>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ) : isToday(selectedDayPrize.date) ? (
-                    <div className="mt-3 flex items-center gap-2 text-muted-foreground text-sm">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>今晚 21:00 开奖</span>
-                    </div>
-                  ) : (
-                    <div className="mt-3 text-sm text-muted-foreground">
-                      等待开奖中
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            );
+          })()}
         </AnimatePresence>
 
         {/* Recent Winners - Simplified Professional Design */}
