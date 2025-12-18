@@ -297,6 +297,29 @@ const Waitlist = () => {
           </Button>
         </motion.div>
 
+        {/* Disclaimer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-16 pt-8 border-t border-border/50"
+        >
+          <div className="text-xs text-muted-foreground/70 text-center space-y-2 max-w-3xl mx-auto">
+            <p className="font-medium text-muted-foreground">免责声明</p>
+            <p>
+              本活动为 HUNSOCCER 平台举办的虚拟预测竞猜活动，所有奖品抽取结果由系统随机生成，与任何形式的赌博或博彩活动无关。
+              参与者需年满18周岁，活动最终解释权归 HUNSOCCER 所有。
+            </p>
+            <p>
+              奖品发放需中奖者在7日内完成身份验证及收货地址确认，逾期视为自动放弃。
+              因不可抗力因素导致奖品无法发放时，平台保留更换等值奖品的权利。
+            </p>
+            <p className="text-muted-foreground/50">
+              © 2025 HUNSOCCER. All rights reserved.
+            </p>
+          </div>
+        </motion.div>
+
       </main>
 
       {/* Prize Detail Dialog */}
