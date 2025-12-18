@@ -28,10 +28,46 @@ const prizeData = [
   { name: "Apple Vision Pro", image: appleVisionImg },
 ];
 
-// Generate 30 days of prizes
+// Mock winners data for demonstration
+const mockWinners = [
+  { display_name: "足球达人王", avatar_url: "/avatars/avatar-1.png", created_at: "2025-12-01" },
+  { display_name: "Soccer李明", avatar_url: "/avatars/avatar-2.png", created_at: "2025-12-02" },
+  { display_name: "预测高手张", avatar_url: "/avatars/avatar-3.png", created_at: "2025-12-03" },
+  { display_name: "球迷小陈", avatar_url: "/avatars/avatar-4.png", created_at: "2025-12-04" },
+  { display_name: "Winner刘洋", avatar_url: "/avatars/avatar-5.png", created_at: "2025-12-05" },
+  { display_name: "足彩专家赵", avatar_url: "/avatars/avatar-6.png", created_at: "2025-12-06" },
+  { display_name: "Lucky周杰", avatar_url: "/avatars/avatar-7.png", created_at: "2025-12-07" },
+  { display_name: "神预测吴飞", avatar_url: "/avatars/avatar-8.png", created_at: "2025-12-08" },
+  { display_name: "足球迷孙红", avatar_url: "/avatars/avatar-9.png", created_at: "2025-12-09" },
+  { display_name: "BetKing郑伟", avatar_url: "/avatars/avatar-1.png", created_at: "2025-12-10" },
+  { display_name: "预测达人黄", avatar_url: "/avatars/avatar-2.png", created_at: "2025-12-11" },
+  { display_name: "TopPlayer林", avatar_url: "/avatars/avatar-3.png", created_at: "2025-12-12" },
+  { display_name: "足彩王者许", avatar_url: "/avatars/avatar-4.png", created_at: "2025-12-13" },
+  { display_name: "Champion何", avatar_url: "/avatars/avatar-5.png", created_at: "2025-12-14" },
+  { display_name: "球迷达人谢", avatar_url: "/avatars/avatar-6.png", created_at: "2025-12-15" },
+  { display_name: "Winner梁涛", avatar_url: "/avatars/avatar-7.png", created_at: "2025-12-16" },
+  { display_name: "预测专家宋", avatar_url: "/avatars/avatar-8.png", created_at: "2025-12-17" },
+  { display_name: "足球王者杨", avatar_url: "/avatars/avatar-9.png", created_at: "2025-12-18" },
+  { display_name: "Lucky高飞", avatar_url: "/avatars/avatar-1.png", created_at: "2025-12-19" },
+  { display_name: "BetMaster马", avatar_url: "/avatars/avatar-2.png", created_at: "2025-12-20" },
+  { display_name: "神预测田野", avatar_url: "/avatars/avatar-3.png", created_at: "2025-12-21" },
+  { display_name: "足彩高手罗", avatar_url: "/avatars/avatar-4.png", created_at: "2025-12-22" },
+  { display_name: "Champion曹", avatar_url: "/avatars/avatar-5.png", created_at: "2025-12-23" },
+  { display_name: "预测王者魏", avatar_url: "/avatars/avatar-6.png", created_at: "2025-12-24" },
+  { display_name: "Winner严明", avatar_url: "/avatars/avatar-7.png", created_at: "2025-12-25" },
+  { display_name: "足球达人钟", avatar_url: "/avatars/avatar-8.png", created_at: "2025-12-26" },
+  { display_name: "TopBet韩飞", avatar_url: "/avatars/avatar-9.png", created_at: "2025-12-27" },
+  { display_name: "Lucky唐明", avatar_url: "/avatars/avatar-1.png", created_at: "2025-12-28" },
+  { display_name: "预测专家冯", avatar_url: "/avatars/avatar-2.png", created_at: "2025-12-29" },
+  { display_name: "Champion蒋", avatar_url: "/avatars/avatar-3.png", created_at: "2025-12-30" },
+];
+
+// Generate 30 days of prizes with mock winners for past days
+const today = new Date().getDate();
 const dayPrizes = Array.from({ length: 30 }, (_, i) => ({
   day: i + 1,
   ...prizeData[i % prizeData.length],
+  mockWinner: i + 1 < today ? mockWinners[i] : null,
 }));
 
 interface PrizeWinner {
@@ -220,40 +256,29 @@ const Waitlist = () => {
                             `}>
                               {currentMonth}/{prize.day}
                             </div>
-                            {/* Winner indicator with avatar and name */}
-                            {winner?.is_drawn && winner.winner && (
+                            {/* Winner indicator with avatar and name - show mock winner for past days */}
+                            {isPast && (winner?.winner || prize.mockWinner) && (
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 sm:p-1.5">
                                 <div className="flex items-center gap-1">
                                   <img 
-                                    src={winner.winner.avatar_url}
+                                    src={winner?.winner?.avatar_url || prize.mockWinner?.avatar_url}
                                     alt=""
                                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-warning"
                                   />
                                   <span className="text-[8px] sm:text-[10px] font-medium text-white truncate">
-                                    {winner.winner.display_name.slice(0, 1)}**{winner.winner.display_name.slice(-1)}
+                                    {(() => {
+                                      const name = winner?.winner?.display_name || prize.mockWinner?.display_name || '';
+                                      return name.slice(0, 1) + '**' + name.slice(-1);
+                                    })()}
                                   </span>
                                   <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-warning ml-auto flex-shrink-0" />
                                 </div>
-                              </div>
-                            )}
-                            {/* Drawn but no winner */}
-                            {winner?.is_drawn && !winner.winner && isPast && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1">
-                                <span className="text-[8px] sm:text-[10px] text-white/70 block text-center">无人中奖</span>
                               </div>
                             )}
                             {/* Hover overlay */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <span className="text-xs sm:text-sm font-bold text-white text-center px-1">{prize.name}</span>
                             </div>
-                            {/* Past day overlay - only show if not drawn */}
-                            {isPast && !winner?.is_drawn && (
-                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <span className="text-[10px] sm:text-xs font-medium text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
-                                  已结束
-                                </span>
-                              </div>
-                            )}
                           </div>
                         );
                       })}
@@ -376,44 +401,54 @@ const Waitlist = () => {
                   中奖信息
                 </h4>
                 
-                {selectedWinner?.is_drawn && selectedWinner.winner ? (
-                  <div className="space-y-3">
-                    {/* Winner Avatar & Name */}
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={selectedWinner.winner.avatar_url}
-                        alt={selectedWinner.winner.display_name}
-                        className="w-10 h-10 rounded-full border-2 border-warning"
-                      />
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {selectedWinner.winner.display_name.slice(0, 1)}***{selectedWinner.winner.display_name.slice(-2)}
-                        </p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          注册于 {format(new Date(selectedWinner.winner.created_at), 'yyyy-MM-dd')}
-                        </p>
+                {/* Show mock winner for past days, real winner if available */}
+                {(() => {
+                  const mockWinner = selectedPrize?.mockWinner;
+                  const realWinner = selectedWinner?.winner;
+                  const winner = realWinner || mockWinner;
+                  const isPast = (selectedDay || 0) < new Date().getDate();
+                  
+                  if (winner && isPast) {
+                    return (
+                      <div className="space-y-3">
+                        {/* Winner Avatar & Name */}
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={winner.avatar_url}
+                            alt={winner.display_name}
+                            className="w-10 h-10 rounded-full border-2 border-warning"
+                          />
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {winner.display_name.slice(0, 1)}***{winner.display_name.slice(-2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              注册于 {winner.created_at}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Draw Time */}
+                        <div className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          开奖时间: {new Date().getFullYear()}-{String(new Date().getMonth() + 1).padStart(2, '0')}-{String(selectedDay).padStart(2, '0')} 21:00
+                        </div>
                       </div>
+                    );
+                  }
+                  
+                  return (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground text-sm">
+                        {isPast ? '无人中奖' : '等待开奖'}
+                      </p>
+                      {new Date().getDate() === selectedDay && (
+                        <p className="text-xs text-warning mt-1">今晚 21:00 开奖</p>
+                      )}
                     </div>
-                    
-                    {/* Draw Time */}
-                    {selectedWinner.drawn_at && (
-                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        开奖时间: {format(new Date(selectedWinner.drawn_at), 'yyyy-MM-dd HH:mm')}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground text-sm">
-                      {new Date().getDate() > (selectedDay || 0) ? '无人中奖' : '等待开奖'}
-                    </p>
-                    {new Date().getDate() === selectedDay && (
-                      <p className="text-xs text-warning mt-1">今晚 21:00 开奖</p>
-                    )}
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
           )}
