@@ -127,7 +127,7 @@ const Waitlist = () => {
           transition={{ delay: 0.3 }}
           className="mb-16"
         >
-          <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4">
+          <div className="flex justify-center items-center gap-3 sm:gap-4 md:gap-6">
             {(() => {
               let dayIndex = 0;
               return letters.map((letter, letterIdx) => {
@@ -135,9 +135,9 @@ const Waitlist = () => {
                 if (!map) return null;
                 
                 return (
-                  <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-[3px] sm:gap-1">
+                  <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-1 sm:gap-1.5">
                     {map.map((row, rowIdx) => (
-                      <div key={rowIdx} className="flex gap-[3px] sm:gap-1">
+                      <div key={rowIdx} className="flex gap-1 sm:gap-1.5">
                         {row.map((cell, cellIdx) => {
                           if (cell === 1 && dayIndex < MAX_CELLS) {
                             const currentDay = dayPrizes[dayIndex];
@@ -145,7 +145,7 @@ const Waitlist = () => {
                             return (
                               <div
                                 key={cellIdx}
-                                className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 rounded-sm overflow-hidden relative group cursor-pointer"
+                                className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-sm overflow-hidden relative group cursor-pointer"
                                 title={`第${currentDay.day}天`}
                               >
                                 <img 
@@ -154,7 +154,7 @@ const Waitlist = () => {
                                   className="w-full h-full object-cover"
                                 />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <span className="text-[8px] sm:text-xs font-bold text-white">{currentDay.day}</span>
+                                  <span className="text-xs sm:text-sm font-bold text-white">{currentDay.day}</span>
                                 </div>
                               </div>
                             );
@@ -162,7 +162,7 @@ const Waitlist = () => {
                           return (
                             <div
                               key={cellIdx}
-                              className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 bg-transparent"
+                              className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-transparent"
                             />
                           );
                         })}
