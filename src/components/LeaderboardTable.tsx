@@ -998,11 +998,6 @@ const LeaderboardTable = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-sm sm:text-base text-foreground">{getModelDisplayName(model)}</span>
-                          {/* Profit Rate - Animated Growth Effect */}
-                          <ProfitRateBadge 
-                            value={(model as any).profitRate || 0} 
-                            locked={model.locked} 
-                          />
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           {model.locked ? 'AI预测模型' : `${model.totalPredictions || 0}场预测`}
