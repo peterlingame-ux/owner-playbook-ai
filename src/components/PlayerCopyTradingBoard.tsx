@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp } from "lucide-react";
+import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
 import { AnimatedPrize } from "@/components/AnimatedPrize";
+import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import winningStreakBg from "@/assets/winning-streak-bg.png";
 import losingStreakBg from "@/assets/losing-streak-bg.png";
@@ -335,6 +336,9 @@ const PlayerCopyTradingBoard = () => {
   // 获取点赞数和用户点赞状态
   useEffect(() => {
     const fetchLikes = async () => {
+      // 如果正在加载，不执行
+      if (isLoading) return;
+      
       try {
         // 获取所有玩家的ID列表
         const playerIds = allPlayers.map(p => p.id);
@@ -378,7 +382,8 @@ const PlayerCopyTradingBoard = () => {
       }
     };
 
-    if (allPlayers.length > 0) {
+    // 只在非加载状态下且玩家列表不为空时获取点赞数据
+    if (!isLoading && allPlayers.length > 0) {
       fetchLikes();
     }
 
@@ -394,7 +399,9 @@ const PlayerCopyTradingBoard = () => {
           filter: 'entity_type=eq.player',
         },
         () => {
-          fetchLikes();
+          if (!isLoading) {
+            fetchLikes();
+          }
         }
       )
       .subscribe();
@@ -402,7 +409,7 @@ const PlayerCopyTradingBoard = () => {
     return () => {
       supabase.removeChannel(likesChannel);
     };
-  }, [allPlayers, user]);
+  }, [allPlayers, user, isLoading]);
 
   // 处理点赞/取消点赞
   const handleLike = async (playerId: string, e?: React.MouseEvent) => {
@@ -779,6 +786,7 @@ const PlayerCopyTradingBoard = () => {
     streakType?: 'best' | 'worst';
     rank?: number;
   }) => {
+    const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
     const profitAmount = player.profitAmount || 0;
     const profitRate = player.changePercent || 0;
     
@@ -805,6 +813,16 @@ const PlayerCopyTradingBoard = () => {
     const isLiked = likedPlayers.has(player.id);
     const likeCount = likeCounts.get(player.id) || 0;
     const isLikingPlayer = isLiking.has(player.id);
+    
+    const handleLikeWithAnimation = (e: React.MouseEvent) => {
+      if (!isLiked) {
+        // Trigger floating hearts animation
+        const heartIds = [Date.now(), Date.now() + 1, Date.now() + 2];
+        setFloatingHearts(heartIds);
+        setTimeout(() => setFloatingHearts([]), 1000);
+      }
+      handleLike(player.id, e);
+    };
     
     return (
       <motion.div
@@ -848,10 +866,10 @@ const PlayerCopyTradingBoard = () => {
                 <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                 <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
               </Avatar>
-              {/* Like Button on Avatar */}
-              <div className="absolute -bottom-1 -right-1">
+              {/* Like Button on Avatar - Top */}
+              <div className="absolute -top-2 -right-1">
                 <button
-                  onClick={(e) => handleLike(player.id, e)}
+                  onClick={handleLikeWithAnimation}
                   disabled={isLikingPlayer}
                   className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[10px] border ${
                     isLikingPlayer ? 'opacity-50 cursor-not-allowed' : ''
@@ -865,6 +883,27 @@ const PlayerCopyTradingBoard = () => {
                   <ThumbsUp className={`h-2.5 w-2.5 ${isLiked ? 'fill-current' : ''}`} />
                   <span className="font-medium">{likeCount}</span>
                 </button>
+                {/* Floating Hearts Animation */}
+                <AnimatePresence>
+                  {floatingHearts.map((heartId, idx) => (
+                    <motion.div
+                      key={heartId}
+                      initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                      animate={{ 
+                        opacity: 0, 
+                        y: -40, 
+                        x: (idx - 1) * 12,
+                        scale: 1,
+                        rotate: (idx - 1) * 15
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
+                    >
+                      <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
             {/* Name & Streak Stats */}
@@ -883,11 +922,11 @@ const PlayerCopyTradingBoard = () => {
               <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
                 {streakType === 'worst' ? (
                   <>
-                    连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
+                    {t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
                     <span className="flex items-center gap-0.5 ml-1">
                       {Array.from({ length: Math.min(player.worstStreak || 0, 5) }).map((_, i) => (
                         <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground font-bold">
-                          败
+                          {t('loss_badge')}
                         </span>
                       ))}
                       {(player.worstStreak || 0) > 5 && (
@@ -899,11 +938,11 @@ const PlayerCopyTradingBoard = () => {
                   </>
                 ) : (
                   <>
-                    连胜 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
+                    {t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
                     <span className="flex items-center gap-0.5 ml-1">
                       {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
                         <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
-                          胜
+                          {t('win_badge')}
                         </span>
                       ))}
                       {(player.currentStreak || player.bestStreak || 0) > 5 && (
@@ -922,14 +961,14 @@ const PlayerCopyTradingBoard = () => {
             {/* Estimated Prize Badge */}
             {prize > 0 ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-[10px] sm:text-xs font-bold shadow-sm">
-                <span className="text-warning/80 font-medium hidden sm:inline">预期奖金:</span>
+                <span className="text-warning/80 font-medium hidden sm:inline">{t('estimated_prize')}:</span>
                 <span className="text-warning font-bold">$</span>
                 <AnimatedPrize value={prize} className="text-[10px] sm:text-xs font-bold text-warning" duration={600} />
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-[10px] sm:text-xs">
-                <span className="font-medium hidden sm:inline">预期奖金:</span>
-                <span>未达标</span>
+                <span className="font-medium hidden sm:inline">{t('estimated_prize')}:</span>
+                <span>{t('not_qualified')}</span>
               </span>
             )}
             <button 
@@ -939,7 +978,7 @@ const PlayerCopyTradingBoard = () => {
               }}
               className="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
             >
-              历史记录
+              {t('view_history')}
             </button>
             <button 
               onClick={(e) => {
@@ -948,7 +987,7 @@ const PlayerCopyTradingBoard = () => {
               }}
               className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 hover:shadow-lg hover:shadow-warning/40 hover:scale-105 active:scale-95"
             >
-              今日跟单
+              {t('today_copy_trade_btn')}
             </button>
           </div>
         </div>
@@ -957,34 +996,35 @@ const PlayerCopyTradingBoard = () => {
         <div className="grid grid-cols-4 gap-3 sm:gap-4">
           {/* Total Predictions */}
           <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('total_predictions')}</p>
             <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
-              {player.totalPredictions}场
+              {player.totalPredictions}{t('matches_suffix')}
             </p>
           </div>
           
           {/* Correct Predictions */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('correct_matches')}</p>
             <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
-              {player.correctPredictions}场
+              {player.correctPredictions}{t('matches_suffix')}
             </p>
           </div>
           
           {/* Incorrect Predictions */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('incorrect_matches')}</p>
             <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
-              {player.totalPredictions - player.correctPredictions}场
+              {player.totalPredictions - player.correctPredictions}{t('matches_suffix')}
             </p>
           </div>
           
           {/* Win Rate */}
           <div className="text-right">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
-              {player.winRate.toFixed(0)}%
-            </p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
+            <AnimatedWinRate 
+              value={player.winRate}
+              className="text-sm sm:text-lg font-bold font-mono-data text-foreground"
+            />
           </div>
         </div>
         
@@ -992,7 +1032,7 @@ const PlayerCopyTradingBoard = () => {
         <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
           {/* Bet Amount */}
           <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('bet_amount_label')}</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
               ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
@@ -1000,7 +1040,7 @@ const PlayerCopyTradingBoard = () => {
           
           {/* Profit Amount */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
@@ -1008,7 +1048,7 @@ const PlayerCopyTradingBoard = () => {
           
           {/* Profit Rate */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_rate')}</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
             </p>
@@ -1022,14 +1062,14 @@ const PlayerCopyTradingBoard = () => {
               fetchTodayPredictions(player);
             }}
           >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
                 const variance = (seed % 50) - 25;
                 return Math.max(0, baseCount + variance);
-              })()}人
+              })()}{t('people_suffix')}
             </p>
           </div>
         </div>
@@ -1037,132 +1077,96 @@ const PlayerCopyTradingBoard = () => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Leaderboard Table - Split into Hot Streak and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 连红榜 - Winning Streak */}
-        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 背景图片 */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
-            style={{ backgroundImage: `url(${winningStreakBg})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
               <div>
-                <h3 className="font-bold text-lg text-foreground">玩家连红榜</h3>
-                <p className="text-xs text-muted-foreground">
-                  胜率最高玩家
-                  <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                </p>
-              </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d') || '日'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
+                <CardTitle className="text-lg font-bold text-foreground">
+                  {t('hot_streak_board') || '玩家连红榜'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players') || '胜率最高玩家'} · <span className="text-amber-500 font-medium">{t('top_10') || '前10名'}</span></p>
               </div>
             </div>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
-              {topStreakPlayers.map((player, index) => (
-                <PlayerCard key={player.id} player={player} showStreak streakType="best" rank={index + 1} />
-              ))}
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading-hot"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
+                  >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`hot-streak-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {topStreakPlayers.map((player, index) => (
+                      <PlayerCard key={player.id} player={player} showStreak streakType="best" rank={index + 1} />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </CardContent>
         </Card>
 
         {/* 连黑榜 - Losing Streak */}
-        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 背景图片 */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
-            style={{ backgroundImage: `url(${losingStreakBg})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
               <div>
-                <h3 className="font-bold text-lg text-foreground">玩家连黑榜</h3>
-                <p className="text-xs text-muted-foreground">
-                  胜率最低玩家
-                  <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                </p>
-              </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d') || '日'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
+                <CardTitle className="text-lg font-bold text-foreground">
+                  {t('cold_streak_board') || '玩家连黑榜'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · <span className="text-red-500 font-medium">{t('top_10') || '前10名'}</span></p>
               </div>
             </div>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
-              {worstStreakPlayers.map((player, index) => (
-                <PlayerCard key={player.id} player={player} showStreak streakType="worst" rank={index + 1} />
-              ))}
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading-cold"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
+                  >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`cold-streak-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {worstStreakPlayers.map((player, index) => (
+                      <PlayerCard key={player.id} player={player} showStreak streakType="worst" rank={index + 1} />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </CardContent>
         </Card>

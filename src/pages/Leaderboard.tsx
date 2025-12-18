@@ -45,7 +45,7 @@ const Leaderboard = () => {
           </TabsContent>
           
           <TabsContent value="copy">
-            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('copy_trading_board') || '玩家跟单排行榜'}</h2>
+            <h2 className="text-lg font-bold mb-4 px-2 leading-tight">{t('copy_trading_board') || '玩家跟单排行榜'}</h2>
             <PlayerCopyTradingBoard />
           </TabsContent>
         </Tabs>
