@@ -201,17 +201,64 @@ const Index = () => {
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
             HUNSOCCER独家AI分析
           </h2>
-          <div className="relative w-full max-w-3xl mx-auto aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
-            <video
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              src="/videos/hunsoccer-promo.mp4"
-              playsInline
-              autoPlay
-              loop
-              muted
-            >
-              您的浏览器不支持视频播放
-            </video>
+          <div className="flex items-center justify-center gap-3 sm:gap-4 lg:gap-6">
+            {/* Left Stats Panel */}
+            <div className="hidden md:flex flex-col gap-3 w-40 lg:w-48">
+              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 lg:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground">实时监测</span>
+                </div>
+                <h4 className="text-sm font-medium text-foreground mb-1">场上球员监测</h4>
+                <div className="text-2xl font-bold text-primary">22</div>
+                <p className="text-xs text-muted-foreground">活跃球员</p>
+              </div>
+              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 lg:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground">AI识别</span>
+                </div>
+                <h4 className="text-sm font-medium text-foreground mb-1">当前阵型监测</h4>
+                <div className="text-lg font-bold text-primary">4-3-3</div>
+                <p className="text-xs text-muted-foreground">vs 4-4-2</p>
+              </div>
+            </div>
+
+            {/* Video */}
+            <div className="relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
+              <video
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                src="/videos/hunsoccer-promo.mp4"
+                playsInline
+                autoPlay
+                loop
+                muted
+              >
+                您的浏览器不支持视频播放
+              </video>
+            </div>
+
+            {/* Right Stats Panel */}
+            <div className="hidden md:flex flex-col gap-3 w-40 lg:w-48">
+              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 lg:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground">速度追踪</span>
+                </div>
+                <h4 className="text-sm font-medium text-foreground mb-1">球员时速监测</h4>
+                <div className="text-2xl font-bold text-primary">32.4</div>
+                <p className="text-xs text-muted-foreground">km/h 最高速度</p>
+              </div>
+              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 lg:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground">数据分析</span>
+                </div>
+                <h4 className="text-sm font-medium text-foreground mb-1">控球率分析</h4>
+                <div className="text-lg font-bold text-primary">58%</div>
+                <p className="text-xs text-muted-foreground">vs 42%</p>
+              </div>
+            </div>
           </div>
         </section>
 
