@@ -43,6 +43,53 @@ export type Database = {
           },
         ]
       }
+      daily_prize_winners: {
+        Row: {
+          created_at: string
+          day_number: number
+          drawn_at: string | null
+          id: string
+          is_drawn: boolean
+          month: number
+          prize_image_url: string | null
+          prize_name: string
+          winner_id: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          drawn_at?: string | null
+          id?: string
+          is_drawn?: boolean
+          month: number
+          prize_image_url?: string | null
+          prize_name: string
+          winner_id?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          drawn_at?: string | null
+          id?: string
+          is_drawn?: boolean
+          month?: number
+          prize_image_url?: string | null
+          prize_name?: string
+          winner_id?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_prize_winners_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deposit_records: {
         Row: {
           amount: number

@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Trophy, Calendar, User, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 // Import product images
 import iphoneImg from "@/assets/prizes/iphone.jpg";
@@ -18,23 +21,78 @@ import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
 import dogeBannerImg from "@/assets/doge-banner.png";
 
-// Prize images array
-const prizeImages = [
-  iphoneImg, watchImg, macbookImg, airpodsImg, ps5Img, 
-  cameraImg, tvImg, speakerImg, ipadImg
+// Prize data with names
+const prizeData = [
+  { name: "iPhone 15 Pro", image: iphoneImg },
+  { name: "Apple Watch Ultra", image: watchImg },
+  { name: "MacBook Pro 14", image: macbookImg },
+  { name: "AirPods Pro", image: airpodsImg },
+  { name: "PlayStation 5", image: ps5Img },
+  { name: "Canon EOS R6", image: cameraImg },
+  { name: "Samsung 65\" OLED TV", image: tvImg },
+  { name: "Bose SoundLink", image: speakerImg },
+  { name: "iPad Pro 12.9", image: ipadImg },
 ];
 
 // Generate 30 days of prizes
 const dayPrizes = Array.from({ length: 30 }, (_, i) => ({
   day: i + 1,
-  image: prizeImages[i % prizeImages.length],
+  ...prizeData[i % prizeData.length],
 }));
+
+interface PrizeWinner {
+  id: string;
+  day_number: number;
+  prize_name: string;
+  is_drawn: boolean;
+  drawn_at: string | null;
+  winner: {
+    display_name: string;
+    avatar_url: string;
+    created_at: string;
+  } | null;
+}
 
 
 const Waitlist = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [prizeWinners, setPrizeWinners] = useState<Record<number, PrizeWinner>>({});
+  
+  // Fetch prize winners
+  useEffect(() => {
+    const fetchWinners = async () => {
+      const now = new Date();
+      const { data } = await supabase
+        .from('daily_prize_winners')
+        .select(`
+          id,
+          day_number,
+          prize_name,
+          is_drawn,
+          drawn_at,
+          winner:winner_id (
+            display_name,
+            avatar_url,
+            created_at
+          )
+        `)
+        .eq('month', now.getMonth() + 1)
+        .eq('year', now.getFullYear());
+      
+      if (data) {
+        const winnersMap: Record<number, PrizeWinner> = {};
+        data.forEach((item: any) => {
+          winnersMap[item.day_number] = item;
+        });
+        setPrizeWinners(winnersMap);
+      }
+    };
+    
+    fetchWinners();
+  }, []);
   
   useEffect(() => {
     const updateCountdown = () => {
@@ -60,7 +118,8 @@ const Waitlist = () => {
     return () => clearInterval(interval);
   }, []);
 
-  
+  const selectedPrize = selectedDay !== null ? dayPrizes[selectedDay - 1] : null;
+  const selectedWinner = selectedDay !== null ? prizeWinners[selectedDay] : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -136,10 +195,12 @@ const Waitlist = () => {
                         const today = new Date().getDate();
                         const isToday = prize.day === today;
                         const isPast = prize.day < today;
+                        const winner = prizeWinners[prize.day];
                         
                         return (
                           <div
                             key={colIdx}
+                            onClick={() => setSelectedDay(prize.day)}
                             className={`
                               w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
                               rounded-lg overflow-hidden relative group cursor-pointer
@@ -147,11 +208,11 @@ const Waitlist = () => {
                               ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
                               ${isPast ? 'opacity-60' : ''}
                             `}
-                            title={`第${prize.day}天`}
+                            title={`第${prize.day}天 - ${prize.name}`}
                           >
                             <img 
                               src={prize.image}
-                              alt={`Day ${prize.day}`}
+                              alt={prize.name}
                               className="w-full h-full object-cover"
                             />
                             {/* Day number overlay */}
@@ -163,14 +224,22 @@ const Waitlist = () => {
                             `}>
                               {prize.day}
                             </div>
+                            {/* Winner indicator */}
+                            {winner?.is_drawn && (
+                              <div className="absolute top-1 left-1">
+                                <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-warning" />
+                              </div>
+                            )}
                             {/* Hover overlay */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="text-sm font-bold text-white">查看详情</span>
+                              <span className="text-xs sm:text-sm font-bold text-white text-center px-1">{prize.name}</span>
                             </div>
                             {/* Past day overlay */}
                             {isPast && (
                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <span className="text-xs font-medium text-white/80 bg-black/50 px-2 py-0.5 rounded">已开奖</span>
+                                <span className="text-[10px] sm:text-xs font-medium text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
+                                  {winner?.is_drawn ? '已开奖' : '已结束'}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -237,14 +306,92 @@ const Waitlist = () => {
         >
           <h2 className="text-xl font-semibold text-foreground text-center mb-8">奖品展示</h2>
           <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3">
-            {prizeImages.map((img, idx) => (
+            {prizeData.map((prize, idx) => (
               <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-card border border-border">
-                <img src={img} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+                <img src={prize.image} alt={prize.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
               </div>
             ))}
           </div>
         </motion.div>
       </main>
+
+      {/* Prize Detail Dialog */}
+      <Dialog open={selectedDay !== null} onOpenChange={() => setSelectedDay(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-warning" />
+              第 {selectedDay} 天奖品详情
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedPrize && (
+            <div className="space-y-4">
+              {/* Prize Image */}
+              <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                <img 
+                  src={selectedPrize.image} 
+                  alt={selectedPrize.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Prize Name */}
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-foreground">{selectedPrize.name}</h3>
+                <p className="text-sm text-muted-foreground">当日奖品</p>
+              </div>
+              
+              {/* Winner Info */}
+              <div className="bg-card border border-border rounded-lg p-4">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-warning" />
+                  中奖信息
+                </h4>
+                
+                {selectedWinner?.is_drawn && selectedWinner.winner ? (
+                  <div className="space-y-3">
+                    {/* Winner Avatar & Name */}
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={selectedWinner.winner.avatar_url}
+                        alt={selectedWinner.winner.display_name}
+                        className="w-10 h-10 rounded-full border-2 border-warning"
+                      />
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {selectedWinner.winner.display_name.slice(0, 1)}***{selectedWinner.winner.display_name.slice(-2)}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          注册于 {format(new Date(selectedWinner.winner.created_at), 'yyyy-MM-dd')}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Draw Time */}
+                    {selectedWinner.drawn_at && (
+                      <div className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        开奖时间: {format(new Date(selectedWinner.drawn_at), 'yyyy-MM-dd HH:mm')}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground text-sm">
+                      {new Date().getDate() > (selectedDay || 0) ? '无人中奖' : '等待开奖'}
+                    </p>
+                    {new Date().getDate() === selectedDay && (
+                      <p className="text-xs text-warning mt-1">今晚 21:00 开奖</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
