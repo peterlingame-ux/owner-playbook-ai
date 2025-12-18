@@ -197,21 +197,8 @@ export const PlayerLeaderboardCard = ({
           </div>
           {/* Name & Stats */}
           <div>
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
-              {/* Estimated Prize Badge */}
-              {prize > 0 ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-sm font-bold shadow-sm ml-2">
-                  <span className="text-warning/80 font-medium">{t('estimated_prize')}:</span>
-                  <span className="text-warning font-bold">$</span>
-                  <AnimatedPrize value={prize} className="text-sm font-bold text-warning" duration={600} />
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-muted/40 border border-border/50 text-muted-foreground text-sm ml-2">
-                  <span className="font-medium">{t('estimated_prize')}:</span>
-                  <span>{t('not_qualified')}</span>
-                </span>
-              )}
             </div>
             <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
               {boardType === 'cold' ? (
@@ -250,8 +237,21 @@ export const PlayerLeaderboardCard = ({
             </div>
           </div>
         </div>
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* Action Buttons & Prize */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Estimated Prize Badge */}
+          {prize > 0 ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-xs sm:text-sm font-bold shadow-sm">
+              <span className="text-warning/80 font-medium hidden sm:inline">{t('estimated_prize')}:</span>
+              <span className="text-warning font-bold">$</span>
+              <AnimatedPrize value={prize} className="text-xs sm:text-sm font-bold text-warning" duration={600} />
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/40 border border-border/50 text-muted-foreground text-xs sm:text-sm">
+              <span className="font-medium hidden sm:inline">{t('estimated_prize')}:</span>
+              <span>{t('not_qualified')}</span>
+            </span>
+          )}
           <button 
             onClick={onClick}
             className="px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
