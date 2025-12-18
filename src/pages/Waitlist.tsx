@@ -16,6 +16,7 @@ import cameraImg from "@/assets/prizes/camera.jpg";
 import tvImg from "@/assets/prizes/tv.jpg";
 import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
+import dogeBannerImg from "@/assets/doge-banner.png";
 
 // Prize images array
 const prizeImages = [
@@ -87,9 +88,14 @@ const Waitlist = () => {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             每日竞猜赢取大奖
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
             完成每日预测任务，即可参与当日奖品抽取，iPhone、MacBook、PS5 等你来拿
           </p>
+          <img 
+            src={dogeBannerImg} 
+            alt="Daily Prize Banner" 
+            className="w-full max-w-4xl mx-auto rounded-lg"
+          />
         </motion.div>
 
         {/* Steps Section */}
