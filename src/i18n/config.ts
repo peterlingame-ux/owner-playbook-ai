@@ -816,7 +816,7 @@ const resources = {
       "nav_models": "赛事中心",
       "nav_my": "我的",
       "nav_personal_center": "个人中心",
-      "nav_prize": "竞猜大奖",
+      "nav_prize": "每日大奖",
       
       // Prize/Waitlist page
       "prize_hero_title": "战胜AI，赢取奖金",
