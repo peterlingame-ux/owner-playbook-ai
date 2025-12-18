@@ -17,122 +17,31 @@ import tvImg from "@/assets/prizes/tv.jpg";
 import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
 
-// Prize images array
+// Prize images array (cycle through for 30 items)
 const prizeImages = [
   iphoneImg, watchImg, macbookImg, airpodsImg, ps5Img, 
   cameraImg, tvImg, speakerImg, ipadImg
 ];
 
-// Letter pixel maps for HUNSOCCER (5x7 grid each)
-const letterMaps: Record<string, number[][]> = {
-  H: [
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,1,1,1,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-  ],
-  U: [
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [0,1,1,1,0],
-  ],
-  N: [
-    [1,0,0,0,1],
-    [1,1,0,0,1],
-    [1,0,1,0,1],
-    [1,0,0,1,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-  ],
-  S: [
-    [0,1,1,1,1],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [0,1,1,1,0],
-    [0,0,0,0,1],
-    [0,0,0,0,1],
-    [1,1,1,1,0],
-  ],
-  O: [
-    [0,1,1,1,0],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [0,1,1,1,0],
-  ],
-  C: [
-    [0,1,1,1,1],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [0,1,1,1,1],
-  ],
-  E: [
-    [1,1,1,1,1],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [1,1,1,1,0],
-    [1,0,0,0,0],
-    [1,0,0,0,0],
-    [1,1,1,1,1],
-  ],
-  R: [
-    [1,1,1,1,0],
-    [1,0,0,0,1],
-    [1,0,0,0,1],
-    [1,1,1,1,0],
-    [1,0,1,0,0],
-    [1,0,0,1,0],
-    [1,0,0,0,1],
-  ],
+// Generate 30 prize slots
+const generate30Prizes = () => {
+  return Array.from({ length: 30 }, (_, i) => ({
+    id: i + 1,
+    image: prizeImages[i % prizeImages.length],
+    day: i + 1,
+  }));
 };
 
-// Component for rendering a single letter made of images
-const MosaicLetter = ({ letter, index }: { letter: string; index: number }) => {
-  const map = letterMaps[letter];
-  if (!map) return null;
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 * index }}
-      className="flex flex-col gap-0.5"
-    >
-      {map.map((row, rowIdx) => (
-        <div key={rowIdx} className="flex gap-0.5">
-          {row.map((cell, cellIdx) => (
-            <div
-              key={cellIdx}
-              className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-[2px] overflow-hidden"
-            >
-              {cell === 1 ? (
-                <img 
-                  src={prizeImages[(rowIdx * 5 + cellIdx + index * 3) % prizeImages.length]}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-transparent" />
-              )}
-            </div>
-          ))}
-        </div>
-      ))}
-    </motion.div>
-  );
+// Letter pixel maps for HUNSOCCER (3x5 grid each, compact)
+const letterMaps: Record<string, number[][]> = {
+  H: [[1,0,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
+  U: [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
+  N: [[1,0,1],[1,1,1],[1,1,1],[1,0,1],[1,0,1]],
+  S: [[1,1,1],[1,0,0],[1,1,1],[0,0,1],[1,1,1]],
+  O: [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
+  C: [[1,1,1],[1,0,0],[1,0,0],[1,0,0],[1,1,1]],
+  E: [[1,1,1],[1,0,0],[1,1,1],[1,0,0],[1,1,1]],
+  R: [[1,1,1],[1,0,1],[1,1,1],[1,1,0],[1,0,1]],
 };
 
 const Waitlist = () => {
@@ -214,16 +123,65 @@ const Waitlist = () => {
           ))}
         </motion.div>
 
-        {/* HUNSOCCER Mosaic Letters */}
+        {/* HUNSOCCER with 30 Prize Grid - Single Row */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="flex flex-wrap justify-center items-end gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-16"
+          className="mb-16"
         >
-          {letters.map((letter, index) => (
-            <MosaicLetter key={`${letter}-${index}`} letter={letter} index={index} />
-          ))}
+          <div className="flex justify-center items-center gap-1 sm:gap-2">
+            {letters.map((letter, letterIdx) => {
+              const map = letterMaps[letter];
+              if (!map) return null;
+              
+              return (
+                <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-[2px]">
+                  {map.map((row, rowIdx) => (
+                    <div key={rowIdx} className="flex gap-[2px]">
+                      {row.map((cell, cellIdx) => {
+                        const prizeIdx = (letterIdx * 3 + rowIdx + cellIdx) % prizeImages.length;
+                        return (
+                          <div
+                            key={cellIdx}
+                            className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-[1px] overflow-hidden"
+                          >
+                            {cell === 1 ? (
+                              <img 
+                                src={prizeImages[prizeIdx]}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-transparent" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* 30 Prize Row Below */}
+          <div className="mt-8">
+            <p className="text-center text-sm text-muted-foreground mb-4">30天奖品预览</p>
+            <div className="flex justify-center gap-1 flex-wrap max-w-4xl mx-auto">
+              {generate30Prizes().map((prize) => (
+                <div 
+                  key={prize.id}
+                  className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-md overflow-hidden border border-border bg-card hover:scale-110 transition-transform cursor-pointer group"
+                >
+                  <img src={prize.image} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] text-white font-bold">{prize.day}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </motion.div>
 
         {/* Countdown Section */}
