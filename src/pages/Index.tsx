@@ -196,6 +196,23 @@ const Index = () => {
       </Dialog>
       
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
+        {/* Official Promotional Video Section */}
+        <section className="mb-10 sm:mb-12 lg:mb-14">
+          <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
+            官方宣传片
+          </h2>
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
+            <iframe
+              className="absolute inset-0 w-full h-full"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="官方宣传片"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </section>
+
         {/* AI Betting Cards - Match Predictions Today */}
         <section id="match-predictions" className="mb-10 sm:mb-12 lg:mb-14 scroll-mt-20">
           <ActiveAIBets />
