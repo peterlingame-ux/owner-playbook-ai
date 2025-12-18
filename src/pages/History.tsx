@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter } from "lucide-react";
+import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { aiModels } from "@/data/mockData";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
@@ -525,6 +526,16 @@ const History = () => {
       <Header />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
+        {/* 返回按钮 */}
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/leaderboard")}
+          className="mb-4 sm:mb-6 text-xs sm:text-sm h-8 sm:h-10"
+        >
+          <ArrowLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+          返回
+        </Button>
+
         {/* 赞助商滚动展示 */}
         <div className="mb-4 sm:mb-6">
           <CryptoTicker />

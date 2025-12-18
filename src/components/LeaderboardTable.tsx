@@ -1006,7 +1006,7 @@ const LeaderboardTable = () => {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <button 
-                        onClick={() => fetchTodayHistory(model.id, getModelDisplayName(model))}
+                        onClick={() => navigate('/history')}
                         className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                       >
                         历史记录

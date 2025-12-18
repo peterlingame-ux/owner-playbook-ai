@@ -876,7 +876,7 @@ const ActiveAIBets = () => {
   }
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative overflow-x-hidden max-w-full">
       {/* Subtle refresh indicator */}
       {isRefreshing && (
         <div className="absolute top-0 right-0 z-50">

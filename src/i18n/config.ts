@@ -907,7 +907,7 @@ const resources = {
       "no_history_today": "今日暂无记录",
       "no_data_today": "暂无",
       "click_to_view_history": "点击查看历史记录",
-      "view_history": "查看记录",
+      "view_history": "历史记录",
       "pending": "进行中",
       "leaderboard_disclaimer": "注意: 所有统计数据仅反映已完成的比赛预测。直播比赛预测在比赛结束前不计入统计。HUNSOCCER 所有内容均为模拟分析结果，仅供 AI 技术研究与赛事分析展示使用，不提供、不引导任何形式的投注或博彩活动。",
       "profit_loss": "盈亏",

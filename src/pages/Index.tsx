@@ -165,14 +165,16 @@ const Index = () => {
       supabase.removeChannel(balancesChannel);
     };
   }, []);
-  
+
   // Sort models by win rate
   const sortedModels = [...modelsWithRealData].sort((a, b) => b.winRate - a.winRate);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <CryptoTicker />
+    <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-full">
+      <div className="w-full max-w-full overflow-x-hidden">
+        <Header />
+        <CryptoTicker />
+      </div>
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
@@ -193,7 +195,7 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
         {/* AI Betting Cards - Match Predictions Today */}
         <section id="match-predictions" className="mb-10 sm:mb-12 lg:mb-14 scroll-mt-20">
           <ActiveAIBets />

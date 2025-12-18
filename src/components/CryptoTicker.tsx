@@ -41,9 +41,9 @@ const CryptoTicker = () => {
   }));
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden w-full max-w-full overflow-x-hidden">
       {/* Main Banner */}
-      <div className="relative min-h-[260px] sm:min-h-[300px] lg:min-h-[340px]">
+      <div className="relative min-h-[260px] sm:min-h-[300px] lg:min-h-[340px] overflow-x-hidden">
         {/* Background Image */}
         <motion.div 
           initial={{ opacity: 0, scale: 1.1 }}
@@ -220,7 +220,8 @@ const CryptoTicker = () => {
 
             {/* Golden glow effect */}
             <motion.div 
-              className="absolute inset-0 -inset-x-8 -inset-y-4 bg-gradient-to-r from-yellow-500/20 via-amber-400/30 to-yellow-500/20 blur-2xl rounded-full"
+              className="absolute inset-0 -inset-y-4 bg-gradient-to-r from-yellow-500/20 via-amber-400/30 to-yellow-500/20 blur-2xl rounded-full"
+              style={{ left: '-2rem', right: '-2rem' }}
               animate={{ 
                 opacity: [0.4, 0.7, 0.4],
                 scale: [0.95, 1.05, 0.95],
@@ -228,7 +229,8 @@ const CryptoTicker = () => {
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.div 
-              className="absolute inset-0 -inset-x-4 -inset-y-2 bg-amber-400/20 blur-xl rounded-full"
+              className="absolute inset-0 -inset-y-2 bg-amber-400/20 blur-xl rounded-full"
+              style={{ left: '-1rem', right: '-1rem' }}
               animate={{ 
                 opacity: [0.3, 0.6, 0.3],
               }}

@@ -5,6 +5,7 @@ import { AnimatedPrize } from "./AnimatedPrize";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 interface PlayerData {
   id: string;
@@ -75,6 +76,7 @@ export const PlayerLeaderboardCard = ({
   boardType = 'hot',
 }: PlayerLeaderboardCardProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
 
   const handleLikeWithAnimation = (e: React.MouseEvent) => {
@@ -253,7 +255,10 @@ export const PlayerLeaderboardCard = ({
             </span>
           )}
           <button 
-            onClick={onClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/history');
+            }}
             className="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
           >
             {t('view_history')}

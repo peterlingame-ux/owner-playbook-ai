@@ -623,15 +623,18 @@ const checkExistingAnalysis = async (
   }
 
   try {
-    const today = new Date().toISOString().split('T')[0];
+    // 使用 UTC+8 时区获取今天的日期（与数据库存储一致）
+    const today = getUTC8DateString(new Date());
     
     // 查询今天是否有该AI对该比赛的分析记录
+    // 注意：inserted_at 是 TIMESTAMPTZ，需要转换为 UTC+8 时区的开始时间
+    const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
     const { data, error } = await supabase
       .from(ANALYSIS_TABLE)
       .select('id, provider_model_id, analysis, bet_snapshot')
       .eq('match_id', matchId)
       .eq('ai_id', aiId)
-      .gte('inserted_at', `${today}T00:00:00Z`)
+      .gte('inserted_at', todayStartUTC8)
       .order('inserted_at', { ascending: false })
       .limit(1);
 
@@ -790,6 +793,24 @@ const createAutoBet = async (
       placed: false,
       reason: "Supabase 未配置，无法记录下注",
     };
+  }
+
+  // 检查是否已经为同一场比赛下过注（防止重复下注）
+  if (matchId && aiId) {
+    const { data: existingBets } = await supabase
+      .from(AUTO_BET_TABLE)
+      .select("id, bet_type")
+      .eq("match_id", matchId)
+      .eq("ai_id", aiId)
+      .in("status", ["pending", "won", "lost"]); // 只检查未结算或已结算的投注
+
+    if (existingBets && existingBets.length > 0) {
+      console.log(`[match-analysis] 比赛 ${matchId} 已存在投注记录，跳过重复下注`);
+      return {
+        placed: false,
+        reason: `该比赛已存在投注记录（${existingBets.map(b => b.bet_type).join(', ')}）`,
+      };
+    }
   }
 
   const { data: balance, error: balanceError } = await supabase
@@ -1183,13 +1204,16 @@ serve(async (req) => {
     // 获取今天已下注次数
     const getTodayBetsCount = async (aiId: string) => {
       if (!supabase) return 0;
-      const today = new Date().toISOString().split('T')[0];
+      // 使用 UTC+8 时区获取今天的日期（与数据库存储一致）
+      const today = getUTC8DateString(new Date());
+      // inserted_at 是 TIMESTAMPTZ，需要转换为 UTC+8 时区的开始时间
+      const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
       const { count } = await supabase
         .from(AUTO_BET_TABLE)
         .select('*', { count: 'exact', head: true })
         .eq('ai_id', aiId)
         .eq('status', 'pending')
-        .gte('inserted_at', `${today}T00:00:00Z`);
+        .gte('inserted_at', todayStartUTC8);
       return count || 0;
     };
 
@@ -1853,9 +1877,22 @@ serve(async (req) => {
         const sortedForBetting = allBetsToConsider
           .sort((a, b) => (b.betInfo.confidence || 0) - (a.betInfo.confidence || 0));
 
+        // 去重：确保每场比赛只选择一个投注（选择置信度最高的）
+        const uniqueMatchesMap = new Map<number, typeof sortedForBetting[0]>();
+        for (const bet of sortedForBetting) {
+          const matchId = bet.match.matchId;
+          if (matchId) {
+            const existing = uniqueMatchesMap.get(matchId);
+            if (!existing || (bet.betInfo.confidence || 0) > (existing.betInfo.confidence || 0)) {
+              uniqueMatchesMap.set(matchId, bet);
+            }
+          }
+        }
+        const uniqueBets = Array.from(uniqueMatchesMap.values());
+
         // 确保至少下注 minBets 个，但不超过 maxBets 个
-        const targetBetsCount = Math.max(minBets, Math.min(maxBets, sortedForBetting.length));
-        const betsToPlace = sortedForBetting.slice(0, targetBetsCount);
+        const targetBetsCount = Math.max(minBets, Math.min(maxBets, uniqueBets.length));
+        const betsToPlace = uniqueBets.slice(0, targetBetsCount);
 
         // 第三步：执行下注
         let actualBetsPlaced = 0;

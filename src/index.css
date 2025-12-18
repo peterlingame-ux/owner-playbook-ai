@@ -115,19 +115,35 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     line-height: 1.7;
     letter-spacing: 0.02em;
-    overflow-x: hidden;
     /* iOS 优化：防止橡皮筋效果 */
     overscroll-behavior-y: none;
     /* 优化字体渲染 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+  
+  #root {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
   }
   
   /* iOS 安全区域适配 */
@@ -149,6 +165,9 @@ All colors MUST be HSL.
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
   }
   
   /* 优化图片显示，防止变形 */

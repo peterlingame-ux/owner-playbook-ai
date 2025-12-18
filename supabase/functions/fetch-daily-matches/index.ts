@@ -66,6 +66,30 @@ const getYesterdayDate = (timezone = DEFAULT_TIMEZONE) => {
     );
 };
 
+// 从时间戳获取指定时区的日期字符串
+const getDateFromTimestamp = (
+  timestamp: number,
+  timezone: string = DEFAULT_TIMEZONE,
+): string => {
+  const date = new Date(timestamp);
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  return formatter
+    .formatToParts(date)
+    .map((part) => part.value)
+    .join("")
+    .replace(/[^0-9]/g, "")
+    .replace(
+      /^(\d{4})(\d{2})(\d{2})$/,
+      "$1-$2-$3",
+    );
+};
+
 // 从缓存获取 token
 const getTokensFromCache = async (): Promise<{
   fqty_token?: string;
@@ -798,7 +822,8 @@ const refreshExistingMatches = async (
     const matchTimestamp = typeof match.mgt === "string"
       ? parseInt(match.mgt)
       : match.mgt;
-    const matchDate = new Date(matchTimestamp).toISOString().slice(0, 10);
+    // 使用与 filterTodayMatches 相同的时区逻辑计算日期，确保一致性
+    const matchDate = getDateFromTimestamp(matchTimestamp, timezone);
 
     // 只更新昨天和今天的比赛
     if (datesToRefresh.includes(matchDate)) {

@@ -1281,25 +1281,6 @@ const MyPredictions = () => {
 
   // 移除加载状态显示，直接显示内容
 
-  if (!stats) {
-    return (
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            {t('my_predictions')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <p className="text-muted-foreground mb-4">{t('no_prediction_records')}</p>
-          <Button onClick={() => navigate('/')}>
-            {t('start_prediction')}
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {/* 返回按钮 */}

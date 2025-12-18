@@ -197,9 +197,6 @@ const Waitlist = () => {
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 {item.desc}
               </p>
-              <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-muted">
-                了解更多
-              </Button>
             </div>
           ))}
         </motion.div>
