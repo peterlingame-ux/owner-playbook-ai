@@ -241,13 +241,13 @@ export const PlayerLeaderboardCard = ({
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Estimated Prize Badge */}
           {prize > 0 ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-xs sm:text-sm font-bold shadow-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-[10px] sm:text-xs font-bold shadow-sm">
               <span className="text-warning/80 font-medium hidden sm:inline">{t('estimated_prize')}:</span>
               <span className="text-warning font-bold">$</span>
-              <AnimatedPrize value={prize} className="text-xs sm:text-sm font-bold text-warning" duration={600} />
+              <AnimatedPrize value={prize} className="text-[10px] sm:text-xs font-bold text-warning" duration={600} />
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/40 border border-border/50 text-muted-foreground text-xs sm:text-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-[10px] sm:text-xs">
               <span className="font-medium hidden sm:inline">{t('estimated_prize')}:</span>
               <span>{t('not_qualified')}</span>
             </span>
