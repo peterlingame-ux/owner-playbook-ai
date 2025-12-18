@@ -146,7 +146,7 @@ const resources = {
       "top_players": "Player Champions",
       "view_details": "VIEW DETAILS",
       // AI Analysis Section
-      "ai_analysis_title": "HUNSOCCER Exclusive AI Analysis",
+      "ai_analysis_title": "HUNSOCCER Exclusive AI Monitoring",
       "realtime_monitoring": "Real-time",
       "player_monitoring": "Player Monitoring",
       "active_players": "Active Players",
@@ -964,7 +964,7 @@ const resources = {
       "top_players": "玩家冠军排行榜",
       "view_details": "查看详情",
       // AI Analysis Section
-      "ai_analysis_title": "HUNSOCCER独家AI分析",
+      "ai_analysis_title": "HUNSOCCER独家AI监测",
       "realtime_monitoring": "实时监测",
       "player_monitoring": "场上球员监测",
       "active_players": "活跃球员",
@@ -1783,7 +1783,7 @@ const resources = {
       "top_players": "플레이어 챔피언 랭킹",
       "view_details": "상세 보기",
       // AI Analysis Section
-      "ai_analysis_title": "HUNSOCCER 독점 AI 분석",
+      "ai_analysis_title": "HUNSOCCER 독점 AI 모니터링",
       "realtime_monitoring": "실시간",
       "player_monitoring": "선수 모니터링",
       "active_players": "활성 선수",
