@@ -16,7 +16,7 @@ import cameraImg from "@/assets/prizes/camera.jpg";
 import tvImg from "@/assets/prizes/tv.jpg";
 import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
-import dogeBannerImg from "@/assets/doge-banner.png";
+import prizeBannerHeroImg from "@/assets/prize-banner-hero.png";
 
 // Prize images array
 const prizeImages = [
@@ -92,7 +92,7 @@ const Waitlist = () => {
             完成每日预测任务，即可参与当日奖品抽取，iPhone、MacBook、PS5 等你来拿
           </p>
           <img 
-            src={dogeBannerImg} 
+            src={prizeBannerHeroImg} 
             alt="Daily Prize Banner" 
             className="w-full max-w-4xl mx-auto rounded-lg"
           />
