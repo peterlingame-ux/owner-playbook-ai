@@ -30,18 +30,6 @@ const dayPrizes = Array.from({ length: 30 }, (_, i) => ({
   image: prizeImages[i % prizeImages.length],
 }));
 
-// Letter pixel maps for HUNSOCCER (render only first 30 filled cells)
-const letterMaps: Record<string, number[][]> = {
-  H: [[1,0,1],[1,1,1],[1,0,1]],
-  U: [[1,0,1],[1,0,1],[1,1,1]],
-  N: [[1,0,1],[1,1,1],[1,0,1]],
-  S: [[1,1,1],[0,1,0],[1,1,1]],
-  O: [[1,1,1],[1,0,1],[1,1,1]],
-  C: [[1,1,1],[1,0,0],[1,1,1]],
-  E: [[1,1,1],[1,1,0],[1,1,1]],
-  R: [[1,1,1],[1,1,0],[1,0,1]],
-};
-const MAX_CELLS = 30;
 
 const Waitlist = () => {
   const navigate = useNavigate();
@@ -72,7 +60,7 @@ const Waitlist = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const letters = "HUNSOCCER".split("");
+  
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,57 +115,75 @@ const Waitlist = () => {
           ))}
         </motion.div>
 
+        {/* Prize Calendar Grid */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
           className="mb-16"
         >
-          <div className="flex justify-center items-center gap-1 sm:gap-2 md:gap-3 overflow-x-auto">
-            {(() => {
-              let dayIndex = 0;
-              return letters.map((letter, letterIdx) => {
-                const map = letterMaps[letter];
-                if (!map) return null;
-                
-                return (
-                  <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-0.5 sm:gap-1">
-                    {map.map((row, rowIdx) => (
-                      <div key={rowIdx} className="flex gap-0.5 sm:gap-1">
-                        {row.map((cell, cellIdx) => {
-                          if (cell === 1) {
-                            const currentDay = dayPrizes[dayIndex % 30];
-                            dayIndex++;
-                            return (
-                              <div
-                                key={cellIdx}
-                                className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-[2px] overflow-hidden relative group cursor-pointer"
-                                title={`第${currentDay.day}天`}
-                              >
-                                <img 
-                                  src={currentDay.image}
-                                  alt={`Day ${currentDay.day}`}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <span className="text-[8px] sm:text-xs font-bold text-white">{currentDay.day}</span>
-                                </div>
-                              </div>
-                            );
-                          }
-                          return (
-                            <div
-                              key={cellIdx}
-                              className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-transparent"
+          <div className="relative">
+            {/* Horizontal scrollable container */}
+            <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-background">
+              <div className="inline-flex gap-2 min-w-max px-4">
+                {/* 3 rows x 10 columns = 30 days */}
+                <div className="flex flex-col gap-2">
+                  {[0, 1, 2].map((rowIdx) => (
+                    <div key={rowIdx} className="flex gap-2">
+                      {Array.from({ length: 10 }, (_, colIdx) => {
+                        const dayIndex = rowIdx * 10 + colIdx;
+                        const prize = dayPrizes[dayIndex];
+                        const today = new Date().getDate();
+                        const isToday = prize.day === today;
+                        const isPast = prize.day < today;
+                        
+                        return (
+                          <div
+                            key={colIdx}
+                            className={`
+                              w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
+                              rounded-lg overflow-hidden relative group cursor-pointer
+                              border-2 transition-all duration-300
+                              ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
+                              ${isPast ? 'opacity-60' : ''}
+                            `}
+                            title={`第${prize.day}天`}
+                          >
+                            <img 
+                              src={prize.image}
+                              alt={`Day ${prize.day}`}
+                              className="w-full h-full object-cover"
                             />
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                );
-              });
-            })()}
+                            {/* Day number overlay */}
+                            <div className={`
+                              absolute top-1 right-1 w-5 h-5 sm:w-6 sm:h-6 
+                              rounded-full flex items-center justify-center
+                              text-[10px] sm:text-xs font-bold
+                              ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/70 text-white'}
+                            `}>
+                              {prize.day}
+                            </div>
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="text-sm font-bold text-white">查看详情</span>
+                            </div>
+                            {/* Past day overlay */}
+                            {isPast && (
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <span className="text-xs font-medium text-white/80 bg-black/50 px-2 py-0.5 rounded">已开奖</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Scroll indicators */}
+            <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
           </div>
         </motion.div>
 
