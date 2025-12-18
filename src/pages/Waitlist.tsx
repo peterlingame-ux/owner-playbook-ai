@@ -130,21 +130,21 @@ const Waitlist = () => {
           transition={{ delay: 0.3 }}
           className="mb-16"
         >
-          <div className="flex justify-center items-center gap-1 sm:gap-2">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4">
             {letters.map((letter, letterIdx) => {
               const map = letterMaps[letter];
               if (!map) return null;
               
               return (
-                <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-[2px]">
+                <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-[3px] sm:gap-1">
                   {map.map((row, rowIdx) => (
-                    <div key={rowIdx} className="flex gap-[2px]">
+                    <div key={rowIdx} className="flex gap-[3px] sm:gap-1">
                       {row.map((cell, cellIdx) => {
                         const prizeIdx = (letterIdx * 3 + rowIdx + cellIdx) % prizeImages.length;
                         return (
                           <div
                             key={cellIdx}
-                            className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-[1px] overflow-hidden"
+                            className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 rounded-sm overflow-hidden"
                           >
                             {cell === 1 ? (
                               <img 
