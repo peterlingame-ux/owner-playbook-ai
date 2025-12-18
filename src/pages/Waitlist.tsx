@@ -17,20 +17,17 @@ import tvImg from "@/assets/prizes/tv.jpg";
 import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
 
-// Prize images array (cycle through for 30 items)
+// Prize images array
 const prizeImages = [
   iphoneImg, watchImg, macbookImg, airpodsImg, ps5Img, 
   cameraImg, tvImg, speakerImg, ipadImg
 ];
 
-// Generate 30 prize slots
-const generate30Prizes = () => {
-  return Array.from({ length: 30 }, (_, i) => ({
-    id: i + 1,
-    image: prizeImages[i % prizeImages.length],
-    day: i + 1,
-  }));
-};
+// Generate 30 days of prizes
+const dayPrizes = Array.from({ length: 30 }, (_, i) => ({
+  day: i + 1,
+  image: prizeImages[i % prizeImages.length],
+}));
 
 // Letter pixel maps for HUNSOCCER (3x5 grid each, compact)
 const letterMaps: Record<string, number[][]> = {
@@ -123,7 +120,6 @@ const Waitlist = () => {
           ))}
         </motion.div>
 
-        {/* HUNSOCCER with 30 Prize Grid - Single Row */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -131,38 +127,50 @@ const Waitlist = () => {
           className="mb-16"
         >
           <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4">
-            {letters.map((letter, letterIdx) => {
-              const map = letterMaps[letter];
-              if (!map) return null;
-              
-              return (
-                <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-[3px] sm:gap-1">
-                  {map.map((row, rowIdx) => (
-                    <div key={rowIdx} className="flex gap-[3px] sm:gap-1">
-                      {row.map((cell, cellIdx) => {
-                        const prizeIdx = (letterIdx * 3 + rowIdx + cellIdx) % prizeImages.length;
-                        return (
-                          <div
-                            key={cellIdx}
-                            className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 rounded-sm overflow-hidden"
-                          >
-                            {cell === 1 ? (
-                              <img 
-                                src={prizeImages[prizeIdx]}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-transparent" />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
+            {(() => {
+              let dayIndex = 0;
+              return letters.map((letter, letterIdx) => {
+                const map = letterMaps[letter];
+                if (!map) return null;
+                
+                return (
+                  <div key={`${letter}-${letterIdx}`} className="flex flex-col gap-[3px] sm:gap-1">
+                    {map.map((row, rowIdx) => (
+                      <div key={rowIdx} className="flex gap-[3px] sm:gap-1">
+                        {row.map((cell, cellIdx) => {
+                          if (cell === 1) {
+                            const currentDay = dayPrizes[dayIndex % 30];
+                            dayIndex++;
+                            return (
+                              <div
+                                key={cellIdx}
+                                className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 rounded-sm overflow-hidden relative group cursor-pointer"
+                                title={`第${currentDay.day}天`}
+                              >
+                                <img 
+                                  src={currentDay.image}
+                                  alt={`Day ${currentDay.day}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <span className="text-[8px] sm:text-xs font-bold text-white">{currentDay.day}</span>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div
+                              key={cellIdx}
+                              className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 bg-transparent"
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                );
+              });
+            })()}
           </div>
         </motion.div>
 
