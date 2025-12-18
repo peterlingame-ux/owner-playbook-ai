@@ -277,7 +277,6 @@ const Waitlist = () => {
                                       return name.slice(0, 1) + '**' + name.slice(-1);
                                     })()}
                                   </span>
-                                  <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-warning ml-auto flex-shrink-0" />
                                 </div>
                               </div>
                             )}
