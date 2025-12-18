@@ -199,7 +199,7 @@ const Index = () => {
         {/* Official Promotional Video Section */}
         <section className="mb-10 sm:mb-12 lg:mb-14">
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
-            官方宣传片
+            HUNSOCCER独家AI分析
           </h2>
           <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
             <iframe
