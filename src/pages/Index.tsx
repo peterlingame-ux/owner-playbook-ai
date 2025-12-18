@@ -255,7 +255,7 @@ const Index = () => {
             <div className="relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
               <video
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                src="/videos/hunsoccer-promo.mp4"
+                src="/videos/hunsoccer-promo.mp4?v=2"
                 playsInline
                 autoPlay
                 loop
