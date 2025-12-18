@@ -91,17 +91,17 @@ export const PlayerLeaderboardCard = ({
   const profitAmount = player.profitAmount || 0;
   const generateChartPath = () => {
     const points = [];
-    const width = 50;
-    const height = 16;
-    const numPoints = 6;
+    const width = 80;
+    const height = 24;
+    const numPoints = 8;
     
     // Use player id as seed for consistent chart
     const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
     
     for (let i = 0; i < numPoints; i++) {
       const x = (i / (numPoints - 1)) * width;
-      const variance = ((seed * (i + 1)) % 10) - 5;
-      const trend = profitAmount >= 0 ? (i / numPoints) * 8 : -(i / numPoints) * 6;
+      const variance = ((seed * (i + 1)) % 16) - 8;
+      const trend = profitAmount >= 0 ? (i / numPoints) * 12 : -(i / numPoints) * 8;
       const y = height / 2 - trend + variance;
       points.push(`${i === 0 ? 'M' : 'L'}${x},${Math.max(2, Math.min(height - 2, y))}`);
     }
@@ -302,24 +302,12 @@ export const PlayerLeaderboardCard = ({
           />
         </div>
         
-        {/* Profit Amount with Mini Chart */}
+        {/* Profit Amount */}
         <div className="text-center">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
-          <div className="flex items-center justify-center gap-2">
-            <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </p>
-            <svg width="50" height="16" className="flex-shrink-0">
-              <path
-                d={generateChartPath()}
-                fill="none"
-                stroke={profitAmount >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+          <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </p>
         </div>
         
         {/* Copy Traders - Clickable */}
