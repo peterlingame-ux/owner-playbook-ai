@@ -186,7 +186,10 @@ const Waitlist = () => {
                       {Array.from({ length: 10 }, (_, colIdx) => {
                         const dayIndex = rowIdx * 10 + colIdx;
                         const prize = dayPrizes[dayIndex];
-                        const today = new Date().getDate();
+                        const now = new Date();
+                        const today = now.getDate();
+                        const currentMonth = now.getMonth() + 1;
+                        const currentYear = now.getFullYear();
                         const isToday = prize.day === today;
                         const isPast = prize.day < today;
                         const winner = prizeWinners[prize.day];
@@ -202,21 +205,20 @@ const Waitlist = () => {
                               ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
                               ${isPast ? 'opacity-60' : ''}
                             `}
-                            title={`第${prize.day}天 - ${prize.name}`}
+                            title={`${currentMonth}月${prize.day}日 - ${prize.name}`}
                           >
                             <img 
                               src={prize.image}
                               alt={prize.name}
                               className="w-full h-full object-cover"
                             />
-                            {/* Day number overlay */}
+                            {/* Date overlay - top left */}
                             <div className={`
-                              absolute top-1 right-1 w-5 h-5 sm:w-6 sm:h-6 
-                              rounded-full flex items-center justify-center
-                              text-[10px] sm:text-xs font-bold
+                              absolute top-1 left-1 px-1 py-0.5 rounded
+                              text-[8px] sm:text-[10px] font-bold
                               ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/70 text-white'}
                             `}>
-                              {prize.day}
+                              {currentMonth}/{prize.day}
                             </div>
                             {/* Winner indicator with avatar and name */}
                             {winner?.is_drawn && winner.winner && (
