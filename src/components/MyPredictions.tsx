@@ -1460,44 +1460,21 @@ const MyPredictions = () => {
                   </Dialog>
                 </div>
                 
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-foreground">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-lg font-bold text-foreground truncate">
                       {userProfile?.display_name || t('player')}
                     </h2>
-                    <div className="flex flex-col gap-1.5">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setIsWalletDialogOpen(true)}
-                        className="h-7 px-3 text-xs border-ai-cyan/50 text-ai-cyan hover:bg-ai-cyan/10 rounded-md"
-                      >
-                        <Wallet className="h-3.5 w-3.5 mr-1.5" />
-                        {t('recharge') || '充值'}
-                      </Button>
-                      {!vipStatus?.is_active && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleVipButtonClick}
-                          disabled={isPurchasingVip}
-                          className="h-7 px-3 text-xs border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-md"
-                        >
-                          <Crown className="h-3.5 w-3.5 mr-1.5" />
-                          {isPurchasingVip ? t('purchasing') : t('activate_vip') || '开通VIP'}
-                        </Button>
-                      )}
-                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground font-mono tracking-wider">
+                  <p className="text-xs text-muted-foreground font-mono tracking-wider mb-2">
                     {userProfile?.signature || t('prediction_player')}
                   </p>
                   
-                  {/* 关注和粉丝数量 */}
-                  <div className="flex items-center gap-4 pt-1">
+                  {/* 关注和粉丝数量 - 紧凑排列 */}
+                  <div className="flex items-center gap-3">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                        <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                           <span className="font-bold text-foreground">{followingList.length}</span>
                           <span>关注</span>
                         </button>
@@ -1538,9 +1515,11 @@ const MyPredictions = () => {
                       </DialogContent>
                     </Dialog>
                     
+                    <span className="text-border">|</span>
+                    
                     <Dialog>
                       <DialogTrigger asChild>
-                        <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                        <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                           <span className="font-bold text-foreground">{followersList.length}</span>
                           <span>粉丝</span>
                         </button>
@@ -1584,8 +1563,9 @@ const MyPredictions = () => {
                 </div>
               </div>
               
-              {/* 右侧胜率显示 - AI风格 */}
-              <div className="text-right">
+              {/* 右侧胜率和操作按钮 */}
+              <div className="flex flex-col items-end gap-2">
+                {/* 胜率显示 */}
                 <div className="relative">
                   <div className="absolute -inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
                   <div className="relative px-3 py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
@@ -1593,92 +1573,119 @@ const MyPredictions = () => {
                       <AnimatedWinRate value={stats?.winRate || 0} />
                       <span className="text-lg">%</span>
                     </div>
-                    <p className="text-[10px] text-primary mt-0.5">
+                    <p className="text-[10px] text-primary text-center">
                       已超越 {Math.min(99, Math.round((stats?.winRate || 0) * 1.2))}% 的用户
                     </p>
                   </div>
+                </div>
+                
+                {/* 操作按钮 - 横向排列 */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsWalletDialogOpen(true)}
+                    className="h-7 px-2.5 text-xs border-ai-cyan/50 text-ai-cyan hover:bg-ai-cyan/10 rounded-md"
+                  >
+                    <Wallet className="h-3.5 w-3.5 mr-1" />
+                    {t('recharge') || '充值'}
+                  </Button>
+                  {!vipStatus?.is_active && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleVipButtonClick}
+                      disabled={isPurchasingVip}
+                      className="h-7 px-2.5 text-xs border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-md"
+                    >
+                      <Crown className="h-3.5 w-3.5 mr-1" />
+                      {isPurchasingVip ? '...' : 'VIP'}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 统计数据网格 */}
-          <div className="px-4 pb-4">
-            <div className="grid grid-cols-4 gap-2 mb-2">
-              {[
-                { value: stats?.totalPredictions || 0, label: t('total_predictions_stat') },
-                { value: stats?.correctPredictions || 0, label: t('correct_result') },
-                { value: (stats?.totalPredictions || 0) - (stats?.correctPredictions || 0), label: t('wrong_result') },
-                { value: `${(stats?.profit || 0) >= 0 ? '+' : ''}${stats?.profit?.toLocaleString() || 0}`, label: t('profit_loss_label') }
-              ].map((item, index) => (
-                <div 
-                  key={index} 
-                  className="p-3 rounded-lg bg-muted/30 border border-border/50"
-                >
-                  <p className="text-xl font-bold font-mono text-foreground">{item.value}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+          {/* 统计数据网格 - 紧凑布局 */}
+          <div className="px-4 pb-3">
+            <div className="grid grid-cols-2 gap-2">
+              {/* 左侧：预测统计 */}
+              <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] text-muted-foreground">预测统计</span>
+                  <Target className="h-3 w-3 text-muted-foreground" />
                 </div>
-              ))}
-            </div>
-            
-            {/* 新增统计：盈利率、预期奖金、虚拟投注金额 */}
-            <div className="grid grid-cols-3 gap-2">
-              {(() => {
-                const totalWagered = stats?.recentPredictions?.reduce((sum, p) => sum + p.bet_amount, 0) || 0;
-                const profitRate = totalWagered > 0 ? ((stats?.profit || 0) / totalWagered * 100) : 0;
-                // 预期奖金计算：基于胜率超过58%的玩家可获得奖金分成
-                const winRate = stats?.winRate || 0;
-                const expectedPrize = winRate > 58 ? Math.round((winRate - 58) * 1000) : 0;
-                
-                return [
-                  { 
-                    value: `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`, 
-                    label: '盈利率',
-                    highlight: profitRate > 0
-                  },
-                  { 
-                    value: expectedPrize > 0 ? `$${expectedPrize.toLocaleString()}` : '需超过AI', 
-                    label: '预期奖金',
-                    highlight: expectedPrize > 0
-                  },
-                  { 
-                    value: `$${totalWagered.toLocaleString()}`, 
-                    label: '虚拟投注金额',
-                    highlight: false
-                  }
-                ];
-              })().map((item, index) => (
-                <div 
-                  key={index} 
-                  className="p-3 rounded-lg bg-muted/30 border border-border/50"
-                >
-                  <p className={`text-lg font-bold font-mono ${item.highlight ? 'text-primary' : 'text-foreground'}`}>
-                    {item.value}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                <div className="grid grid-cols-3 gap-1 text-center">
+                  <div>
+                    <p className="text-lg font-bold font-mono text-foreground">{stats?.totalPredictions || 0}</p>
+                    <p className="text-[9px] text-muted-foreground">总预测</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold font-mono text-primary">{stats?.correctPredictions || 0}</p>
+                    <p className="text-[9px] text-muted-foreground">正确</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold font-mono text-destructive">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
+                    <p className="text-[9px] text-muted-foreground">错误</p>
+                  </div>
                 </div>
-              ))}
+              </div>
+              
+              {/* 右侧：盈亏统计 */}
+              <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] text-muted-foreground">盈亏统计</span>
+                  <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                </div>
+                {(() => {
+                  const totalWagered = stats?.recentPredictions?.reduce((sum, p) => sum + p.bet_amount, 0) || 0;
+                  const profitRate = totalWagered > 0 ? ((stats?.profit || 0) / totalWagered * 100) : 0;
+                  const winRate = stats?.winRate || 0;
+                  const expectedPrize = winRate > 58 ? Math.round((winRate - 58) * 1000) : 0;
+                  
+                  return (
+                    <div className="grid grid-cols-3 gap-1 text-center">
+                      <div>
+                        <p className={`text-lg font-bold font-mono ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                          {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">盈亏</p>
+                      </div>
+                      <div>
+                        <p className={`text-lg font-bold font-mono ${profitRate >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                          {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">盈利率</p>
+                      </div>
+                      <div>
+                        <p className={`text-lg font-bold font-mono ${expectedPrize > 0 ? 'text-warning' : 'text-muted-foreground'}`}>
+                          {expectedPrize > 0 ? `$${expectedPrize.toLocaleString()}` : '-'}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">预期奖金</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           </div>
 
-          {/* 钱包区域 - 统一卡片设计 */}
+          {/* 钱包区域 - 简化设计 */}
           <div className="px-4 pb-4">
-            <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="rounded-lg border border-border bg-card/50 overflow-hidden">
               <div className="grid grid-cols-2 divide-x divide-border">
-                {/* 虚拟钱包 - 可点击查看预测历史 */}
+                {/* 虚拟钱包 */}
                 <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
                   <DialogTrigger asChild>
-                    <button className="p-4 text-left hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center">
-                          <Wallet className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <span className="text-xs text-muted-foreground">{t('virtual_wallet_balance')}</span>
+                    <button className="p-3 text-left hover:bg-muted/30 transition-colors group">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Wallet className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        <span className="text-[10px] text-muted-foreground">{t('virtual_wallet_balance')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-foreground font-mono tracking-tight">
+                      <p className="text-xl font-bold text-foreground font-mono">
                         ${stats?.balance?.toLocaleString() || '10,000'}
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-1">点击查看预测记录</p>
                     </button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -1800,22 +1807,18 @@ const MyPredictions = () => {
                 </Dialog>
 
                 {/* 猎人币钱包 */}
-                <div className="relative">
-                  <Dialog open={isSpendingRecordsOpen} onOpenChange={setIsSpendingRecordsOpen}>
-                    <DialogTrigger asChild>
-                      <button className="w-full p-4 text-left hover:bg-muted/30 transition-colors">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
-                          </div>
-                          <span className="text-xs text-muted-foreground">{t('hunter_coin_balance')}</span>
-                        </div>
-                        <p className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
-                          {usdtBalance.toFixed(2)}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground mt-1">点击查看消费记录</p>
-                      </button>
-                    </DialogTrigger>
+                <Dialog open={isSpendingRecordsOpen} onOpenChange={setIsSpendingRecordsOpen}>
+                  <DialogTrigger asChild>
+                    <button className="p-3 text-left hover:bg-muted/30 transition-colors group">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                        <span className="text-[10px] text-muted-foreground">{t('hunter_coin_balance')}</span>
+                      </div>
+                      <p className="text-xl font-bold text-amber-500 font-mono">
+                        {usdtBalance.toFixed(0)}
+                      </p>
+                    </button>
+                  </DialogTrigger>
                     <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
@@ -1880,8 +1883,7 @@ const MyPredictions = () => {
                         )}
                       </div>
                     </DialogContent>
-                  </Dialog>
-                </div>
+                </Dialog>
               </div>
             </div>
           </div>
