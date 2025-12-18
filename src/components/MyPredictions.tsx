@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles, UserPlus, Heart } from "lucide-react";
+import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles, UserPlus, Heart, Star } from "lucide-react";
+import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import personalCenterBg from "@/assets/personal-center-bg.jpg";
 import { AnimatedWinRate } from "./AnimatedWinRate";
@@ -573,6 +574,7 @@ const MyPredictions = () => {
   const { t } = useTranslation();
   const { user, userProfile: authUserProfile, refreshUserProfile } = useAuth();
   const navigate = useNavigate();
+  const { level, totalMinutes, formatOnlineTime, getNextLevelProgress } = useOnlineTracking();
   const [stats, setStats] = useState<PredictionStats | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -1461,10 +1463,18 @@ const MyPredictions = () => {
                 </div>
                 
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
                     </h2>
+                    {/* 等级显示 */}
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-ai-cyan/40 to-ai-purple/40 rounded blur-sm opacity-60 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative flex items-center gap-1 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded border border-ai-cyan/30 text-ai-cyan">
+                        <Star className="h-3 w-3 fill-current" />
+                        <span className="text-xs font-bold font-mono">Lv.{user ? level : 1}</span>
+                      </div>
+                    </div>
                     <Button
                       size="sm"
                       variant="outline"
