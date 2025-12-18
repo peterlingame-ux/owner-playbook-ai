@@ -164,24 +164,6 @@ const Waitlist = () => {
               );
             })}
           </div>
-          
-          {/* 30 Prize Row Below */}
-          <div className="mt-8">
-            <p className="text-center text-sm text-muted-foreground mb-4">30天奖品预览</p>
-            <div className="flex justify-center gap-1 flex-wrap max-w-4xl mx-auto">
-              {generate30Prizes().map((prize) => (
-                <div 
-                  key={prize.id}
-                  className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-md overflow-hidden border border-border bg-card hover:scale-110 transition-transform cursor-pointer group"
-                >
-                  <img src={prize.image} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-[10px] text-white font-bold">{prize.day}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </motion.div>
 
         {/* Countdown Section */}
