@@ -202,14 +202,15 @@ const Index = () => {
             HUNSOCCER独家AI分析
           </h2>
           <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
-            <iframe
-              className="absolute inset-0 w-full h-full"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="官方宣传片"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              src="/videos/hunsoccer-promo.mp4"
+              controls
+              playsInline
+              preload="metadata"
+            >
+              您的浏览器不支持视频播放
+            </video>
           </div>
         </section>
 
