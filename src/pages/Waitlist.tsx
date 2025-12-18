@@ -224,21 +224,37 @@ const Waitlist = () => {
                             `}>
                               {prize.day}
                             </div>
-                            {/* Winner indicator */}
-                            {winner?.is_drawn && (
-                              <div className="absolute top-1 left-1">
-                                <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-warning" />
+                            {/* Winner indicator with avatar and name */}
+                            {winner?.is_drawn && winner.winner && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 sm:p-1.5">
+                                <div className="flex items-center gap-1">
+                                  <img 
+                                    src={winner.winner.avatar_url}
+                                    alt=""
+                                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-warning"
+                                  />
+                                  <span className="text-[8px] sm:text-[10px] font-medium text-white truncate">
+                                    {winner.winner.display_name.slice(0, 1)}**{winner.winner.display_name.slice(-1)}
+                                  </span>
+                                  <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-warning ml-auto flex-shrink-0" />
+                                </div>
+                              </div>
+                            )}
+                            {/* Drawn but no winner */}
+                            {winner?.is_drawn && !winner.winner && isPast && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1">
+                                <span className="text-[8px] sm:text-[10px] text-white/70 block text-center">无人中奖</span>
                               </div>
                             )}
                             {/* Hover overlay */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <span className="text-xs sm:text-sm font-bold text-white text-center px-1">{prize.name}</span>
                             </div>
-                            {/* Past day overlay */}
-                            {isPast && (
+                            {/* Past day overlay - only show if not drawn */}
+                            {isPast && !winner?.is_drawn && (
                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                 <span className="text-[10px] sm:text-xs font-medium text-white/80 bg-black/50 px-1.5 py-0.5 rounded">
-                                  {winner?.is_drawn ? '已开奖' : '已结束'}
+                                  已结束
                                 </span>
                               </div>
                             )}
