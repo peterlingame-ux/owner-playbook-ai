@@ -287,6 +287,40 @@ const Index = () => {
               </div>
             </div>
           </div>
+          
+          {/* Mobile Stats Panel - Below Video */}
+          <div className="grid grid-cols-3 gap-2 mt-4 md:hidden">
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
+              <span className="text-[10px] text-muted-foreground block">球员监测</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.activePlayers}</div>
+              <p className="text-[10px] text-muted-foreground">活跃</p>
+            </div>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
+              <span className="text-[10px] text-muted-foreground block">阵型识别</span>
+              <div className="text-sm font-bold text-primary">{liveStats.formation}</div>
+              <p className="text-[10px] text-muted-foreground">vs {liveStats.opponentFormation}</p>
+            </div>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
+              <span className="text-[10px] text-muted-foreground block">传球距离</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.passDistance}</div>
+              <p className="text-[10px] text-muted-foreground">米</p>
+            </div>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
+              <span className="text-[10px] text-muted-foreground block">时速监测</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.playerSpeed}</div>
+              <p className="text-[10px] text-muted-foreground">km/h</p>
+            </div>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
+              <span className="text-[10px] text-muted-foreground block">进攻欲望</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.attackIntent}%</div>
+              <p className="text-[10px] text-muted-foreground">高意图</p>
+            </div>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
+              <span className="text-[10px] text-muted-foreground block">路线预测</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}条</div>
+              <p className="text-[10px] text-muted-foreground">最优</p>
+            </div>
+          </div>
         </section>
 
         {/* AI Betting Cards - Match Predictions Today */}
