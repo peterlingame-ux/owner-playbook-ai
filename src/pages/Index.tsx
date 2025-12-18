@@ -205,28 +205,19 @@ const Index = () => {
             {/* Left Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">实时监测</span>
-                </div>
+                <span className="text-xs text-muted-foreground">实时监测</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">场上球员监测</h4>
                 <div className="text-xl font-bold text-primary">22</div>
                 <p className="text-xs text-muted-foreground">活跃球员</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">AI识别</span>
-                </div>
+                <span className="text-xs text-muted-foreground">AI识别</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">当前阵型监测</h4>
                 <div className="text-lg font-bold text-primary">4-3-3</div>
                 <p className="text-xs text-muted-foreground">vs 4-4-2</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">距离追踪</span>
-                </div>
+                <span className="text-xs text-muted-foreground">距离追踪</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">传球距离监测</h4>
                 <div className="text-xl font-bold text-primary">18.5</div>
                 <p className="text-xs text-muted-foreground">米/平均传球</p>
@@ -250,28 +241,19 @@ const Index = () => {
             {/* Right Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">速度追踪</span>
-                </div>
+                <span className="text-xs text-muted-foreground">速度追踪</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">球员时速监测</h4>
                 <div className="text-xl font-bold text-primary">32.4</div>
                 <p className="text-xs text-muted-foreground">km/h 最高速度</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">数据分析</span>
-                </div>
+                <span className="text-xs text-muted-foreground">数据分析</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">进攻欲望分析</h4>
                 <div className="text-lg font-bold text-primary">87%</div>
                 <p className="text-xs text-muted-foreground">高进攻意图</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">AI预测</span>
-                </div>
+                <span className="text-xs text-muted-foreground">AI预测</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">传导路线预测</h4>
                 <div className="text-lg font-bold text-primary">3条</div>
                 <p className="text-xs text-muted-foreground">最优路线</p>
