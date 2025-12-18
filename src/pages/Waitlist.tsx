@@ -139,8 +139,8 @@ const Waitlist = () => {
                     {map.map((row, rowIdx) => (
                       <div key={rowIdx} className="flex gap-1 sm:gap-1.5">
                         {row.map((cell, cellIdx) => {
-                          if (cell === 1 && dayIndex < MAX_CELLS) {
-                            const currentDay = dayPrizes[dayIndex];
+                          if (cell === 1) {
+                            const currentDay = dayPrizes[dayIndex % 30];
                             dayIndex++;
                             return (
                               <div
