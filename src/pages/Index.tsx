@@ -208,6 +208,9 @@ const Index = () => {
               controls
               playsInline
               preload="metadata"
+              autoPlay
+              loop
+              muted
             >
               您的浏览器不支持视频播放
             </video>
