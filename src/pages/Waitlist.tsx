@@ -297,22 +297,6 @@ const Waitlist = () => {
           </Button>
         </motion.div>
 
-        {/* Prize List */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="mt-16 pt-12 border-t border-border"
-        >
-          <h2 className="text-xl font-semibold text-foreground text-center mb-8">奖品展示</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3">
-            {prizeData.map((prize, idx) => (
-              <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-card border border-border">
-                <img src={prize.image} alt={prize.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </main>
 
       {/* Prize Detail Dialog */}
