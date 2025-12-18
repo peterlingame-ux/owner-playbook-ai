@@ -1460,15 +1460,6 @@ const MyPredictions = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
-                  {/* 等级显示 - 头像下方 */}
-                  <div className="flex justify-center mt-1">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-ai-cyan/40 to-ai-purple/40 rounded blur-sm opacity-60 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded border border-ai-cyan/30 text-ai-cyan">
-                        <span className="text-xs font-bold font-mono">Lv.{user ? level : 1}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
                 
                 <div className="space-y-1.5">
@@ -1476,6 +1467,14 @@ const MyPredictions = () => {
                     <h2 className="text-lg font-bold text-foreground">
                       {userProfile?.display_name || t('player')}
                     </h2>
+                    {/* 等级显示 */}
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-ai-cyan/40 to-ai-purple/40 rounded blur-sm opacity-60 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative flex items-center gap-1 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded border border-ai-cyan/30 text-ai-cyan">
+                        <Star className="h-3 w-3 fill-current" />
+                        <span className="text-xs font-bold font-mono">Lv.{user ? level : 1}</span>
+                      </div>
+                    </div>
                     <Button
                       size="sm"
                       variant="outline"
