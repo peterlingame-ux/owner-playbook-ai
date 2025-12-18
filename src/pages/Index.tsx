@@ -25,6 +25,33 @@ const Index = () => {
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  
+  // Real-time stats for video section
+  const [liveStats, setLiveStats] = useState({
+    activePlayers: 22,
+    formation: '4-3-3',
+    opponentFormation: '4-4-2',
+    passDistance: 18.5,
+    playerSpeed: 32.4,
+    attackIntent: 87,
+    optimalRoutes: 3
+  });
+
+  // Simulate real-time data updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveStats(prev => ({
+        activePlayers: Math.random() > 0.9 ? (prev.activePlayers === 22 ? 21 : 22) : prev.activePlayers,
+        formation: prev.formation,
+        opponentFormation: prev.opponentFormation,
+        passDistance: Math.round((15 + Math.random() * 10) * 10) / 10,
+        playerSpeed: Math.round((28 + Math.random() * 8) * 10) / 10,
+        attackIntent: Math.round(70 + Math.random() * 25),
+        optimalRoutes: Math.floor(2 + Math.random() * 3)
+      }));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Check if user has seen the welcome dialog
   useEffect(() => {
@@ -207,19 +234,19 @@ const Index = () => {
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">实时监测</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">场上球员监测</h4>
-                <div className="text-xl font-bold text-primary">22</div>
+                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.activePlayers}</div>
                 <p className="text-xs text-muted-foreground">活跃球员</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">AI识别</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">当前阵型监测</h4>
-                <div className="text-lg font-bold text-primary">4-3-3</div>
-                <p className="text-xs text-muted-foreground">vs 4-4-2</p>
+                <div className="text-lg font-bold text-primary">{liveStats.formation}</div>
+                <p className="text-xs text-muted-foreground">vs {liveStats.opponentFormation}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">距离追踪</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">传球距离监测</h4>
-                <div className="text-xl font-bold text-primary">18.5</div>
+                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.passDistance}</div>
                 <p className="text-xs text-muted-foreground">米/平均传球</p>
               </div>
             </div>
@@ -243,19 +270,19 @@ const Index = () => {
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">速度追踪</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">球员时速监测</h4>
-                <div className="text-xl font-bold text-primary">32.4</div>
+                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.playerSpeed}</div>
                 <p className="text-xs text-muted-foreground">km/h 最高速度</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">数据分析</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">进攻欲望分析</h4>
-                <div className="text-lg font-bold text-primary">87%</div>
+                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.attackIntent}%</div>
                 <p className="text-xs text-muted-foreground">高进攻意图</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">AI预测</span>
                 <h4 className="text-xs font-medium text-foreground mb-0.5">传导路线预测</h4>
-                <div className="text-lg font-bold text-primary">3条</div>
+                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}条</div>
                 <p className="text-xs text-muted-foreground">最优路线</p>
               </div>
             </div>
