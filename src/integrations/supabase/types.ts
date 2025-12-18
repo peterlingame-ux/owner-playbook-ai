@@ -169,6 +169,33 @@ export type Database = {
           },
         ]
       }
+      user_online_time: {
+        Row: {
+          created_at: string
+          id: string
+          last_active_at: string | null
+          total_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_active_at?: string | null
+          total_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_active_at?: string | null
+          total_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_predictions: {
         Row: {
           actual_payout: number | null
