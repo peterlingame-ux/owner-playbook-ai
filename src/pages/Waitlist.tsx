@@ -211,6 +211,12 @@ const Waitlist = () => {
           transition={{ delay: 0.3 }}
           className="mb-16"
         >
+          {/* Section Title */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">每日奖品</h2>
+            <p className="text-muted-foreground text-sm">每天21:00准时开奖，完成预测即可参与</p>
+          </div>
+          
           <div className="relative">
             {/* Horizontal scrollable container */}
             <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-background">
@@ -248,13 +254,13 @@ const Waitlist = () => {
                               alt={prize.name}
                               className="w-full h-full object-cover"
                             />
-                            {/* Date overlay - top left */}
+                            {/* Date overlay - top left with clear format */}
                             <div className={`
-                              absolute top-1 left-1 px-1 py-0.5 rounded
-                              text-[8px] sm:text-[10px] font-bold
-                              ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/70 text-white'}
+                              absolute top-1 left-1 px-1.5 py-0.5 rounded
+                              text-[9px] sm:text-[11px] font-bold
+                              ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/80 text-white'}
                             `}>
-                              {currentMonth}/{prize.day}
+                              {currentMonth}月{prize.day}日
                             </div>
                             {/* Winner indicator with avatar and name - show mock winner for past days */}
                             {isPast && (winner?.winner || prize.mockWinner) && (
