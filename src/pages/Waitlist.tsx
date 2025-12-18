@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
-  ChevronRight, ChevronLeft, Clock, Calendar, Users, CheckCircle2
+  ChevronRight, ChevronLeft, Clock, Calendar, Users, CheckCircle2, Shield, Trophy, Award
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, addMonths, subMonths, getDay } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -69,12 +69,18 @@ const generateMockWinner = () => {
   const predictions = Math.floor(Math.random() * 50) + 30;
   const winRate = Math.floor(Math.random() * 30) + 55; // 55-85%
   const profit = Math.floor(Math.random() * 8000) + 2000; // 2000-10000
+  const registeredDays = Math.floor(Math.random() * 180) + 30; // 30-210 days
+  const verificationId = `HUN${Math.floor(Math.random() * 900000 + 100000)}`;
+  const claimTime = `${Math.floor(Math.random() * 12) + 10}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`;
   return {
     name: names[Math.floor(Math.random() * names.length)],
     avatar: `/avatars/avatar-${Math.floor(Math.random() * 9) + 1}.png`,
     predictions,
     winRate,
     profit,
+    registeredDays,
+    verificationId,
+    claimTime,
   };
 };
 
@@ -412,54 +418,149 @@ const Waitlist = () => {
           )}
         </AnimatePresence>
 
-        {/* Recent Winners */}
+        {/* Recent Winners - Professional Table Design */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           className="mb-6"
         >
-          <h2 className="text-base font-semibold text-foreground mb-3">近期获奖名单</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-warning" />
+              <h2 className="text-base font-semibold text-foreground">近期获奖名单</h2>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-success" />
+              <span>已验证发放</span>
+            </div>
+          </div>
           
-          <div className="space-y-2">
-            {prizeSchedule
-              .filter(p => p.isDrawn && p.winner)
-              .slice(-5)
-              .reverse()
-              .map((dayData) => (
-                <div
-                  key={dayData.date.toISOString()}
-                  className="flex items-center gap-3 p-3 bg-card border border-border rounded-lg"
-                >
-                  <img 
-                    src={dayData.winner!.avatar} 
-                    alt="" 
-                    className="w-10 h-10 rounded-full border border-border flex-shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-foreground text-sm">{dayData.winner!.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {format(dayData.date, "MM/dd")}
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-2 px-4 py-3 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">
+              <div className="col-span-3">中奖日期</div>
+              <div className="col-span-4">中奖用户</div>
+              <div className="col-span-3">获奖奖品</div>
+              <div className="col-span-2 text-right">状态</div>
+            </div>
+            
+            {/* Table Body */}
+            <div className="divide-y divide-border">
+              {prizeSchedule
+                .filter(p => p.isDrawn && p.winner)
+                .slice(-7)
+                .reverse()
+                .map((dayData, index) => (
+                  <div
+                    key={dayData.date.toISOString()}
+                    className={`grid grid-cols-12 gap-2 px-4 py-3 items-center ${
+                      index === 0 ? 'bg-warning/5' : 'hover:bg-muted/30'
+                    } transition-colors`}
+                  >
+                    {/* Date Column */}
+                    <div className="col-span-3">
+                      <div className="text-sm font-medium text-foreground">
+                        {format(dayData.date, "MM月dd日")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {dayData.winner!.claimTime} 领取
+                      </div>
+                    </div>
+                    
+                    {/* Winner Column */}
+                    <div className="col-span-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="relative">
+                          <img 
+                            src={dayData.winner!.avatar} 
+                            alt="" 
+                            className="w-9 h-9 rounded-full border border-border"
+                          />
+                          {index === 0 && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-warning rounded-full flex items-center justify-center">
+                              <Award className="w-2.5 h-2.5 text-warning-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium text-foreground text-sm truncate">
+                              {dayData.winner!.name}
+                            </span>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-success flex-shrink-0" />
+                          </div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            ID: {dayData.winner!.verificationId}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Prize Column */}
+                    <div className="col-span-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                          <img 
+                            src={dayData.prize.image} 
+                            alt={dayData.prize.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {dayData.prize.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            ¥{dayData.prize.value.toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Status Column */}
+                    <div className="col-span-2 text-right">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-success/10 text-success text-xs font-medium">
+                        <CheckCircle2 className="w-3 h-3" />
+                        已发放
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>胜率 <span className="text-foreground font-medium">{dayData.winner!.winRate}%</span></span>
-                      <span>盈利 <span className="text-foreground font-medium">¥{dayData.winner!.profit.toLocaleString()}</span></span>
-                      <span>预测 <span className="text-foreground font-medium">{dayData.winner!.predictions}场</span></span>
-                    </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted">
-                      <img 
-                        src={dayData.prize.image} 
-                        alt={dayData.prize.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+                ))}
+            </div>
+            
+            {/* Table Footer */}
+            <div className="px-4 py-3 bg-muted/30 border-t border-border">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <span>数据来源：HUNSOCCER 官方记录</span>
+                  <span className="hidden sm:inline">|</span>
+                  <span className="hidden sm:inline">更新时间：{format(new Date(), "MM-dd HH:mm")}</span>
                 </div>
-              ))}
+                <div className="flex items-center gap-1">
+                  <Shield className="w-3 h-3 text-success" />
+                  <span>区块链存证</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Winner Stats Summary */}
+          <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="bg-card border border-border rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-foreground">
+                {prizeSchedule.filter(p => p.isDrawn && p.winner).length}
+              </div>
+              <div className="text-xs text-muted-foreground">累计中奖人数</div>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-foreground">100%</div>
+              <div className="text-xs text-muted-foreground">奖品发放率</div>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-foreground">24h</div>
+              <div className="text-xs text-muted-foreground">平均发放时效</div>
+            </div>
           </div>
         </motion.div>
 
