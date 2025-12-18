@@ -226,28 +226,28 @@ const Index = () => {
         {/* Official Promotional Video Section */}
         <section className="mb-10 sm:mb-12 lg:mb-14">
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
-            HUNSOCCER独家AI分析
+            {t('ai_analysis_title')}
           </h2>
           <div className="flex items-center justify-center gap-3 sm:gap-4 lg:gap-6">
             {/* Left Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">实时监测</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">场上球员监测</h4>
+                <span className="text-xs text-muted-foreground">{t('realtime_monitoring')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_monitoring')}</h4>
                 <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.activePlayers}</div>
-                <p className="text-xs text-muted-foreground">活跃球员</p>
+                <p className="text-xs text-muted-foreground">{t('active_players')}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">AI识别</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">当前阵型监测</h4>
+                <span className="text-xs text-muted-foreground">{t('ai_recognition')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('formation_monitoring')}</h4>
                 <div className="text-lg font-bold text-primary">{liveStats.formation}</div>
                 <p className="text-xs text-muted-foreground">vs {liveStats.opponentFormation}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">距离追踪</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">传球距离监测</h4>
+                <span className="text-xs text-muted-foreground">{t('distance_tracking')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('pass_distance_monitoring')}</h4>
                 <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.passDistance}</div>
-                <p className="text-xs text-muted-foreground">米/平均传球</p>
+                <p className="text-xs text-muted-foreground">{t('meters_per_pass')}</p>
               </div>
             </div>
 
@@ -261,29 +261,29 @@ const Index = () => {
                 loop
                 muted
               >
-                您的浏览器不支持视频播放
+                Your browser does not support video playback
               </video>
             </div>
 
             {/* Right Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">速度追踪</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">球员时速监测</h4>
+                <span className="text-xs text-muted-foreground">{t('speed_tracking')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_speed_monitoring')}</h4>
                 <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.playerSpeed}</div>
-                <p className="text-xs text-muted-foreground">km/h 最高速度</p>
+                <p className="text-xs text-muted-foreground">{t('kmh_max_speed')}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">数据分析</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">进攻欲望分析</h4>
+                <span className="text-xs text-muted-foreground">{t('data_analysis')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('attack_intent_analysis')}</h4>
                 <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.attackIntent}%</div>
-                <p className="text-xs text-muted-foreground">高进攻意图</p>
+                <p className="text-xs text-muted-foreground">{t('high_attack_intent')}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">AI预测</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">传导路线预测</h4>
-                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}条</div>
-                <p className="text-xs text-muted-foreground">最优路线</p>
+                <span className="text-xs text-muted-foreground">{t('ai_prediction_label')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('passing_route_prediction')}</h4>
+                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}</div>
+                <p className="text-xs text-muted-foreground">{t('optimal_routes')}</p>
               </div>
             </div>
           </div>
@@ -291,34 +291,34 @@ const Index = () => {
           {/* Mobile Stats Panel - Below Video */}
           <div className="grid grid-cols-3 gap-2 mt-4 md:hidden">
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">球员监测</span>
+              <span className="text-[10px] text-muted-foreground block">{t('player_monitoring')}</span>
               <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.activePlayers}</div>
-              <p className="text-[10px] text-muted-foreground">活跃</p>
+              <p className="text-[10px] text-muted-foreground">{t('active_players')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">阵型识别</span>
+              <span className="text-[10px] text-muted-foreground block">{t('formation_monitoring')}</span>
               <div className="text-sm font-bold text-primary">{liveStats.formation}</div>
               <p className="text-[10px] text-muted-foreground">vs {liveStats.opponentFormation}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">传球距离</span>
+              <span className="text-[10px] text-muted-foreground block">{t('pass_distance_monitoring')}</span>
               <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.passDistance}</div>
-              <p className="text-[10px] text-muted-foreground">米</p>
+              <p className="text-[10px] text-muted-foreground">{t('meters_per_pass')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">时速监测</span>
+              <span className="text-[10px] text-muted-foreground block">{t('player_speed_monitoring')}</span>
               <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.playerSpeed}</div>
-              <p className="text-[10px] text-muted-foreground">km/h</p>
+              <p className="text-[10px] text-muted-foreground">{t('kmh_max_speed')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">进攻欲望</span>
+              <span className="text-[10px] text-muted-foreground block">{t('attack_intent_analysis')}</span>
               <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.attackIntent}%</div>
-              <p className="text-[10px] text-muted-foreground">高意图</p>
+              <p className="text-[10px] text-muted-foreground">{t('high_attack_intent')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">路线预测</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}条</div>
-              <p className="text-[10px] text-muted-foreground">最优</p>
+              <span className="text-[10px] text-muted-foreground block">{t('passing_route_prediction')}</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}</div>
+              <p className="text-[10px] text-muted-foreground">{t('optimal_routes')}</p>
             </div>
           </div>
         </section>
