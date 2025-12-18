@@ -201,12 +201,16 @@ export const PlayerLeaderboardCard = ({
               <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
               {/* Estimated Prize Badge */}
               {prize > 0 ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-warning/20 text-warning text-xs font-bold">
-                  <span>$</span>
-                  <AnimatedPrize value={prize} className="text-xs font-bold text-warning" duration={600} />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-sm font-bold shadow-sm">
+                  <span className="text-warning/80 font-medium">{t('estimated_prize')}:</span>
+                  <span className="text-warning font-bold">$</span>
+                  <AnimatedPrize value={prize} className="text-sm font-bold text-warning" duration={600} />
                 </span>
               ) : (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground text-xs">{t('not_qualified')}</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-muted/40 border border-border/50 text-muted-foreground text-sm">
+                  <span className="font-medium">{t('estimated_prize')}:</span>
+                  <span>{t('not_qualified')}</span>
+                </span>
               )}
             </div>
             <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
