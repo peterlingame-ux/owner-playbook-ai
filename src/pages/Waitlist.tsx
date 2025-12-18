@@ -545,23 +545,6 @@ const Waitlist = () => {
             </div>
           </div>
           
-          {/* Winner Stats Summary */}
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            <div className="bg-card border border-border rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-foreground">
-                {prizeSchedule.filter(p => p.isDrawn && p.winner).length}
-              </div>
-              <div className="text-xs text-muted-foreground">累计中奖人数</div>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-foreground">100%</div>
-              <div className="text-xs text-muted-foreground">奖品发放率</div>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-foreground">24h</div>
-              <div className="text-xs text-muted-foreground">平均发放时效</div>
-            </div>
-          </div>
         </motion.div>
 
         {/* Stats */}
