@@ -15,10 +15,12 @@ import appleAirpodsImg from "@/assets/prizes/apple-airpods.png";
 import appleMacbookImg from "@/assets/prizes/apple-macbook.png";
 import appleIpadImg from "@/assets/prizes/apple-ipad.png";
 import appleVisionImg from "@/assets/prizes/apple-vision.png";
+import appleIphoneImg from "@/assets/prizes/apple-iphone.png";
 import dogeBannerImg from "@/assets/doge-banner.png";
 
-// Prize data with names - 5 Apple products rotating
+// Prize data with names - 6 Apple products rotating
 const prizeData = [
+  { name: "iPhone 17", image: appleIphoneImg },
   { name: "Apple Watch Ultra", image: appleWatchImg },
   { name: "AirPods Pro", image: appleAirpodsImg },
   { name: "MacBook Pro", image: appleMacbookImg },
