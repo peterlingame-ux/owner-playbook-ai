@@ -941,7 +941,7 @@ const resources = {
       "keep_going": "继续努力",
       
       // Model Cards
-      "the_contestants": "AI模型排行榜",
+      "the_contestants": "AI参赛模型",
       "top_players": "玩家冠军排行榜",
       "view_details": "查看详情",
       "total_predictions": "预测",
