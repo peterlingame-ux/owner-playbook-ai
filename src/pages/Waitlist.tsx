@@ -2,13 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { 
-  ChevronRight, ChevronLeft, Clock, Calendar, Users, CheckCircle2, Shield, Trophy, Award
-} from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, addMonths, subMonths, getDay } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { ChevronRight } from "lucide-react";
 
 // Import product images
 import iphoneImg from "@/assets/prizes/iphone.jpg";
@@ -21,83 +17,128 @@ import tvImg from "@/assets/prizes/tv.jpg";
 import speakerImg from "@/assets/prizes/speaker.jpg";
 import ipadImg from "@/assets/prizes/ipad.jpg";
 
-// Prize types with images
-const prizeTypes = {
-  iphone: { name: "iPhone 16 Pro", image: iphoneImg, value: 8999 },
-  watch: { name: "Apple Watch Ultra", image: watchImg, value: 6499 },
-  macbook: { name: "MacBook Pro 14\"", image: macbookImg, value: 14999 },
-  airpods: { name: "AirPods Pro 2", image: airpodsImg, value: 1899 },
-  ps5: { name: "PlayStation 5", image: ps5Img, value: 4299 },
-  camera: { name: "Sony A7C II", image: cameraImg, value: 12999 },
-  tv: { name: "三星 65\" OLED TV", image: tvImg, value: 15999 },
-  speaker: { name: "HomePod 2", image: speakerImg, value: 2299 },
-  ipad: { name: "iPad Pro 12.9\"", image: ipadImg, value: 9999 },
+// Prize images array
+const prizeImages = [
+  iphoneImg, watchImg, macbookImg, airpodsImg, ps5Img, 
+  cameraImg, tvImg, speakerImg, ipadImg
+];
+
+// Letter pixel maps for HUNSOCCER (5x7 grid each)
+const letterMaps: Record<string, number[][]> = {
+  H: [
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,1,1,1,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+  ],
+  U: [
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [0,1,1,1,0],
+  ],
+  N: [
+    [1,0,0,0,1],
+    [1,1,0,0,1],
+    [1,0,1,0,1],
+    [1,0,0,1,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+  ],
+  S: [
+    [0,1,1,1,1],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [0,1,1,1,0],
+    [0,0,0,0,1],
+    [0,0,0,0,1],
+    [1,1,1,1,0],
+  ],
+  O: [
+    [0,1,1,1,0],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [0,1,1,1,0],
+  ],
+  C: [
+    [0,1,1,1,1],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [0,1,1,1,1],
+  ],
+  E: [
+    [1,1,1,1,1],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,1,1,1,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,1,1,1,1],
+  ],
+  R: [
+    [1,1,1,1,0],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,1,1,1,0],
+    [1,0,1,0,0],
+    [1,0,0,1,0],
+    [1,0,0,0,1],
+  ],
 };
 
-// Generate prize schedule for the month
-const generatePrizeSchedule = (year: number, month: number) => {
-  const prizeKeys = Object.keys(prizeTypes) as Array<keyof typeof prizeTypes>;
-  const start = startOfMonth(new Date(year, month));
-  const end = endOfMonth(new Date(year, month));
-  const days = eachDayOfInterval({ start, end });
-  
-  return days.map((date, index) => {
-    const dayOfWeek = getDay(date);
-    let prizeKey: keyof typeof prizeTypes;
-    
-    if (dayOfWeek === 0) {
-      prizeKey = ['macbook', 'tv', 'camera'][index % 3] as keyof typeof prizeTypes;
-    } else if (dayOfWeek === 6) {
-      prizeKey = ['iphone', 'ipad', 'ps5'][index % 3] as keyof typeof prizeTypes;
-    } else {
-      prizeKey = prizeKeys[index % prizeKeys.length];
-    }
-    
-    return {
-      date,
-      prize: prizeTypes[prizeKey],
-      prizeKey,
-      isDrawn: isBefore(date, new Date()) && !isToday(date),
-      winner: isBefore(date, new Date()) && !isToday(date) ? generateMockWinner() : null,
-    };
-  });
-};
+// Component for rendering a single letter made of images
+const MosaicLetter = ({ letter, index }: { letter: string; index: number }) => {
+  const map = letterMaps[letter];
+  if (!map) return null;
 
-// Generate mock winner
-const generateMockWinner = () => {
-  const names = ["玩***8", "预***王", "足***3", "猜***手", "神***人", "冠***7", "赢***星", "胜***9"];
-  const predictions = Math.floor(Math.random() * 50) + 30;
-  const winRate = Math.floor(Math.random() * 30) + 55; // 55-85%
-  const profit = Math.floor(Math.random() * 8000) + 2000; // 2000-10000
-  const registeredDays = Math.floor(Math.random() * 180) + 30; // 30-210 days
-  const verificationId = `HUN${Math.floor(Math.random() * 900000 + 100000)}`;
-  const claimTime = `${Math.floor(Math.random() * 12) + 10}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`;
-  return {
-    name: names[Math.floor(Math.random() * names.length)],
-    avatar: `/avatars/avatar-${Math.floor(Math.random() * 9) + 1}.png`,
-    predictions,
-    winRate,
-    profit,
-    registeredDays,
-    verificationId,
-    claimTime,
-  };
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 * index }}
+      className="flex flex-col gap-0.5"
+    >
+      {map.map((row, rowIdx) => (
+        <div key={rowIdx} className="flex gap-0.5">
+          {row.map((cell, cellIdx) => (
+            <div
+              key={cellIdx}
+              className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-[2px] overflow-hidden"
+            >
+              {cell === 1 ? (
+                <img 
+                  src={prizeImages[(rowIdx * 5 + cellIdx + index * 3) % prizeImages.length]}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-transparent" />
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+    </motion.div>
+  );
 };
 
 const Waitlist = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [prizeSchedule, setPrizeSchedule] = useState<ReturnType<typeof generatePrizeSchedule>>([]);
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
-  
-  const participantCount = useMemo(() => Math.floor(Math.random() * 5000) + 8000, []);
-  
-  useEffect(() => {
-    const schedule = generatePrizeSchedule(currentMonth.getFullYear(), currentMonth.getMonth());
-    setPrizeSchedule(schedule);
-  }, [currentMonth]);
   
   useEffect(() => {
     const updateCountdown = () => {
@@ -122,335 +163,125 @@ const Waitlist = () => {
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, []);
-  
-  const todayPrize = prizeSchedule.find(p => isToday(p.date));
-  const selectedDayPrize = selectedDay ? prizeSchedule.find(p => isSameDay(p.date, selectedDay)) : null;
-  
-  const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
-  const firstDayOfMonth = startOfMonth(currentMonth);
-  const startOffset = getDay(firstDayOfMonth);
-  
-  const totalPrizeValue = prizeSchedule.filter(p => p.isDrawn).reduce((sum, p) => sum + p.prize.value, 0);
-  const drawnCount = prizeSchedule.filter(p => p.isDrawn).length;
+
+  const letters = "HUNSOCCER".split("");
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-12"
         >
-          <div className="inline-block px-4 py-1.5 rounded-full bg-muted border border-border mb-4">
-            <span className="text-sm font-medium text-foreground">每日竞猜奖品</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            参与预测，赢取奖品
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            每日竞猜赢取大奖
           </h1>
-          <p className="text-muted-foreground">
-            完成每日预测任务，即可参与当日奖品抽取
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            完成每日预测任务，即可参与当日奖品抽取，iPhone、MacBook、PS5 等你来拿
           </p>
         </motion.div>
 
-        {/* Today's Prize */}
-        {todayPrize && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-card border border-border rounded-xl p-5 sm:p-6 mb-6"
-          >
-            <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-              <span className="font-medium">今日奖品</span>
-              <span>{format(new Date(), "MM月dd日 EEEE", { locale: zhCN })}</span>
-            </div>
-            
-            <div className="flex items-center gap-5">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                <img 
-                  src={todayPrize.prize.image} 
-                  alt={todayPrize.prize.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">
-                  {todayPrize.prize.name}
-                </h2>
-                <p className="text-muted-foreground mb-4">
-                  价值 <span className="text-foreground font-semibold">¥{todayPrize.prize.value.toLocaleString()}</span>
-                </p>
-                
-                {/* Countdown */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">距离开奖</span>
-                  <div className="flex items-center gap-1 font-mono">
-                    <span className="bg-muted px-2 py-1 rounded text-foreground font-semibold text-sm">
-                      {String(countdown.hours).padStart(2, '0')}
-                    </span>
-                    <span className="text-muted-foreground">:</span>
-                    <span className="bg-muted px-2 py-1 rounded text-foreground font-semibold text-sm">
-                      {String(countdown.minutes).padStart(2, '0')}
-                    </span>
-                    <span className="text-muted-foreground">:</span>
-                    <span className="bg-muted px-2 py-1 rounded text-foreground font-semibold text-sm">
-                      {String(countdown.seconds).padStart(2, '0')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <Button 
-              onClick={() => navigate(user ? '/' : '/auth')}
-              className="w-full mt-5"
-            >
-              {user ? '立即参与预测' : '免费注册参与'}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </motion.div>
-        )}
-
-        {/* How to Participate */}
+        {/* Steps Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-3 gap-3 mb-6"
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
         >
           {[
-            { step: 1, title: "完成预测", desc: "每日完成5场比赛预测" },
-            { step: 2, title: "获取资格", desc: "预测准确率≥50%即可" },
-            { step: 3, title: "等待开奖", desc: "每晚21:00自动开奖" },
-          ].map((item) => (
-            <div 
-              key={item.step}
-              className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center"
-            >
-              <div className="w-7 h-7 rounded-full bg-muted text-foreground font-semibold text-sm flex items-center justify-center mx-auto mb-2">
-                {item.step}
+            { step: "01", title: "完成每日预测", desc: "每日完成5场比赛预测，即可获得抽奖资格。预测越准确，中奖概率越高。" },
+            { step: "02", title: "达成胜率要求", desc: "当日预测准确率需达到50%及以上，方可参与当晚21:00的奖品抽取。" },
+            { step: "03", title: "领取专属奖品", desc: "中奖后系统将自动通知您，请在7日内完成奖品领取，逾期作废。" },
+          ].map((item, idx) => (
+            <div key={item.step} className="text-left">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="inline-flex items-center justify-center w-10 h-7 rounded bg-warning/90 text-warning-foreground font-bold text-sm">
+                  {item.step}
+                </span>
+                <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
               </div>
-              <h3 className="font-medium text-foreground text-sm mb-0.5">{item.title}</h3>
-              <p className="text-xs text-muted-foreground">{item.desc}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                {item.desc}
+              </p>
+              <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-muted">
+                了解更多
+              </Button>
             </div>
           ))}
         </motion.div>
 
-        {/* HUNSOCCER Prize Letters */}
+        {/* HUNSOCCER Mosaic Letters */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-6"
+          className="flex flex-wrap justify-center items-end gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-16"
         >
-          <div className="text-center mb-4">
-            <h2 className="text-base font-semibold text-foreground mb-1">奖品日历</h2>
-            <p className="text-xs text-muted-foreground">点击字母查看奖品详情</p>
-          </div>
-          
-          {/* HUNSOCCER Letters Grid */}
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-            {(() => {
-              const letters = "HUNSOCCER".split("");
-              const prizeKeys = Object.keys(prizeTypes) as Array<keyof typeof prizeTypes>;
-              
-              return letters.map((letter, index) => {
-                const prizeKey = prizeKeys[index];
-                const prize = prizeTypes[prizeKey];
-                const isSelected = selectedDay && selectedDay.getDate() === index + 1;
-                
-                return (
-                  <button
-                    key={`${letter}-${index}`}
-                    onClick={() => {
-                      const date = new Date();
-                      date.setDate(index + 1);
-                      setSelectedDay(date);
-                    }}
-                    className={`relative w-12 h-16 sm:w-16 sm:h-20 rounded-lg overflow-hidden transition-all hover:scale-105 ${
-                      isSelected 
-                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105' 
-                        : 'hover:ring-1 hover:ring-border'
-                    }`}
-                  >
-                    {/* Prize image background */}
-                    <div className="absolute inset-0">
-                      <img 
-                        src={prize.image} 
-                        alt={prize.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
-                    </div>
-                    
-                    {/* Letter */}
-                    <div className="relative z-10 h-full flex items-center justify-center">
-                      <span className="text-2xl sm:text-3xl font-black text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-                        {letter}
-                      </span>
-                    </div>
-                  </button>
-                );
-              });
-            })()}
-          </div>
+          {letters.map((letter, index) => (
+            <MosaicLetter key={`${letter}-${index}`} letter={letter} index={index} />
+          ))}
         </motion.div>
 
-        {/* Selected Letter Prize Details */}
-        <AnimatePresence mode="wait">
-          {selectedDay && (() => {
-            const letters = "HUNSOCCER".split("");
-            const prizeKeys = Object.keys(prizeTypes) as Array<keyof typeof prizeTypes>;
-            const letterIndex = selectedDay.getDate() - 1;
-            if (letterIndex < 0 || letterIndex >= 9) return null;
-            
-            const letter = letters[letterIndex];
-            const prizeKey = prizeKeys[letterIndex];
-            const prize = prizeTypes[prizeKey];
-            const mockWinner = generateMockWinner();
-            
-            return (
-              <motion.div
-                key={letterIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-card border border-border rounded-xl p-4 sm:p-5 mb-6"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0 relative">
-                    <img 
-                      src={prize.image} 
-                      alt={prize.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <span className="text-2xl font-black text-white drop-shadow-lg">{letter}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                      <span className="px-2 py-0.5 rounded bg-muted text-foreground text-xs font-bold">
-                        字母 {letter}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-foreground">{prize.name}</h3>
-                    <p className="text-muted-foreground text-sm">
-                      价值 <span className="text-foreground font-medium">¥{prize.value.toLocaleString()}</span>
-                    </p>
-                    
-                    <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={mockWinner.avatar} 
-                          alt="" 
-                          className="w-10 h-10 rounded-full border border-border"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-foreground" />
-                            <span className="font-medium text-foreground text-sm">{mockWinner.name}</span>
-                            <span className="text-xs text-muted-foreground">上期获奖</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span>胜率 <span className="text-foreground font-medium">{mockWinner.winRate}%</span></span>
-                            <span>盈利 <span className="text-foreground font-medium">¥{mockWinner.profit.toLocaleString()}</span></span>
-                            <span>预测 <span className="text-foreground font-medium">{mockWinner.predictions}场</span></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })()}
-        </AnimatePresence>
-
-        {/* Recent Winners - Simplified Professional Design */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold text-foreground">近期获奖</h2>
-            <span className="text-xs text-muted-foreground">{drawnCount} 件已发放</span>
-          </div>
-          
-          <div className="space-y-2">
-            {prizeSchedule
-              .filter(p => p.isDrawn && p.winner)
-              .slice(-5)
-              .reverse()
-              .map((dayData, index) => (
-                <div
-                  key={dayData.date.toISOString()}
-                  className={`flex items-center gap-3 p-3 rounded-lg border border-border ${
-                    index === 0 ? 'bg-card' : 'bg-card/50'
-                  }`}
-                >
-                  {/* Prize Image */}
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                    <img 
-                      src={dayData.prize.image} 
-                      alt={dayData.prize.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  {/* Prize & Winner Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <span className="font-medium text-foreground text-sm truncate">
-                        {dayData.prize.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground flex-shrink-0">
-                        {format(dayData.date, "MM/dd")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <img 
-                        src={dayData.winner!.avatar} 
-                        alt="" 
-                        className="w-4 h-4 rounded-full"
-                      />
-                      <span>{dayData.winner!.name}</span>
-                      <span className="text-foreground/60">|</span>
-                      <span>胜率 {dayData.winner!.winRate}%</span>
-                      <CheckCircle2 className="w-3 h-3 text-success ml-auto flex-shrink-0" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </motion.div>
-
-        {/* CTA */}
+        {/* Countdown Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-center pb-6"
+          className="text-center mb-12"
+        >
+          <p className="text-muted-foreground mb-4">距离今日开奖</p>
+          <div className="flex items-center justify-center gap-2 font-mono text-4xl sm:text-5xl font-bold text-foreground">
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.hours).padStart(2, '0')}
+            </span>
+            <span className="text-muted-foreground">:</span>
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.minutes).padStart(2, '0')}
+            </span>
+            <span className="text-muted-foreground">:</span>
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.seconds).padStart(2, '0')}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">每晚 21:00 准时开奖</p>
+        </motion.div>
+
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="text-center"
         >
           <Button 
-            size="lg" 
             onClick={() => navigate(user ? '/' : '/auth')}
-            className="w-full max-w-sm"
+            size="lg"
+            className="px-8"
           >
-            {user ? '立即参与今日预测' : '免费注册参与'}
+            {user ? '立即参与预测' : '免费注册参与'}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
-          <p className="text-xs text-muted-foreground mt-3">
-            活动最终解释权归 HUNSOCCER 所有
-          </p>
+        </motion.div>
+
+        {/* Prize List */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="mt-16 pt-12 border-t border-border"
+        >
+          <h2 className="text-xl font-semibold text-foreground text-center mb-8">奖品展示</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3">
+            {prizeImages.map((img, idx) => (
+              <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-card border border-border">
+                <img src={img} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+              </div>
+            ))}
+          </div>
         </motion.div>
       </main>
     </div>
