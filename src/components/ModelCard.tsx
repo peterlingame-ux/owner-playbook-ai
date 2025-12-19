@@ -1,12 +1,14 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { PlayCircle, Lock, UserPlus } from "lucide-react";
+import { PlayCircle, Lock, UserPlus, UserMinus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 // AI Model Icons - Updated
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import openaiIcon from "@/assets/openai-icon.png";
@@ -32,12 +34,69 @@ const ModelCard = ({ model }: ModelCardProps) => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const isPositive = model.changePercent > 0;
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   
   // 动画效果：从较低的值开始动画到实际值
   const animatedWinRate = useCountAnimation(model.winRate, { 
     duration: 1500,
     startValue: Math.max(0, model.winRate - 15) // 从当前值减15%开始
   });
+  
+  // 检查用户是否已关注该模型
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('model_follows')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('model_id', model.id)
+        .maybeSingle();
+      setIsFollowing(!!data);
+    };
+    checkFollowStatus();
+  }, [user, model.id]);
+  
+  // 关注/取消关注
+  const handleFollowToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!authLoading && !user) {
+      toast.warning(t("login_required"), {
+        description: t("login_prompt"),
+      });
+      navigate("/auth");
+      return;
+    }
+    
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        // 取消关注
+        const { error } = await supabase
+          .from('model_follows')
+          .delete()
+          .eq('user_id', user!.id)
+          .eq('model_id', model.id);
+        if (error) throw error;
+        setIsFollowing(false);
+        toast.success(t('unfollow_success') || '已取消关注');
+      } else {
+        // 关注
+        const { error } = await supabase
+          .from('model_follows')
+          .insert({ user_id: user!.id, model_id: model.id });
+        if (error) throw error;
+        setIsFollowing(true);
+        toast.success(t('follow_success') || '关注成功');
+      }
+    } catch (error) {
+      console.error('Follow toggle error:', error);
+      toast.error(t('operation_failed') || '操作失败');
+    } finally {
+      setFollowLoading(false);
+    }
+  };
   
   const getModelIcon = (modelId: string) => {
     switch(modelId) {
@@ -209,23 +268,27 @@ const ModelCard = ({ model }: ModelCardProps) => {
           
           {/* Follow Model Button */}
           <Button
-            variant="outline"
+            variant={isFollowing ? "default" : "outline"}
             size="sm"
-            className="w-full mt-3 sm:mt-4 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!authLoading && !user) {
-                toast.warning(t("login_required"), {
-                  description: t("login_prompt"),
-                });
-                navigate("/auth");
-                return;
-              }
-              toast.success(t('follow_success') || '关注成功');
-            }}
+            className={`w-full mt-3 sm:mt-4 transition-colors ${
+              isFollowing 
+                ? 'bg-primary text-primary-foreground hover:bg-primary/80' 
+                : 'border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground'
+            }`}
+            onClick={handleFollowToggle}
+            disabled={followLoading}
           >
-            <UserPlus className="h-4 w-4 mr-2" />
-            {t('follow_model') || '关注模型'}
+            {isFollowing ? (
+              <>
+                <UserMinus className="h-4 w-4 mr-2" />
+                {t('following') || '已关注'}
+              </>
+            ) : (
+              <>
+                <UserPlus className="h-4 w-4 mr-2" />
+                {t('follow_model') || '关注模型'}
+              </>
+            )}
           </Button>
         </div>
       </div>
