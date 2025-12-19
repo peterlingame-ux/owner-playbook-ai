@@ -1051,7 +1051,7 @@ const resources = {
           },
           "view_data": {
             "question": "HUNSOCCER玩家专属模型如何使用？",
-            "answer": "HUNSOCCER 已与 EA SPORT、FOOTBALL LIVE 等数据方合作，登录后即可查看更全面的赛事数据。"
+            "answer": "用户登录成功后，HUNSOCCER 将自动赠送一个融合多模型优势的综合分析模型。\n该模型基于六大 AI 的分析逻辑进行整合，形成一个集各 AI 优点于一体的 HUNSOCCER 专属模型。\n在 AI 参赛模型中，用户可使用该模型与其他 AI 同场竞赛；在 AI 今日赛事预测页面中，模型支持数据喂养与持续优化机制，每位用户都可以逐步培养属于自己的专属模型，在长期预测表现中，看看谁能最终脱颖而出。"
           },
           "ai_models": {
             "question": "六大AI模型足球赛事分析优势是什么？",
