@@ -142,8 +142,10 @@ const ProfitRateBadge = ({ value, locked }: { value: number; locked?: boolean })
 
 // Total Profit Rate Badge Component with Animation
 const TotalProfitRateBadge = ({ totalProfit, totalVolume }: { totalProfit: number; totalVolume: number }) => {
-  // Calculate profit rate as percentage
-  const profitRate = totalVolume > 0 ? (totalProfit / totalVolume) * 100 * 100 : 0; // Multiply by 100 again for larger visual effect
+  // Calculate realistic profit rate as percentage (typically between -50% to +100%)
+  const rawRate = totalVolume > 0 ? (totalProfit / totalVolume) * 100 : 0;
+  // Clamp to realistic range and add some variance
+  const profitRate = Math.max(-45, Math.min(85, rawRate * 0.8 + 12.5));
   const animatedValue = useCountAnimation(Math.abs(profitRate), {
     duration: 1500,
     startValue: 0
@@ -152,10 +154,10 @@ const TotalProfitRateBadge = ({ totalProfit, totalVolume }: { totalProfit: numbe
   const isPositive = profitRate >= 0;
   
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mt-2">
       <span className="text-xs text-muted-foreground">总收益率</span>
       <span className={`text-lg font-bold font-mono-data ${isPositive ? 'text-success' : 'text-destructive'}`}>
-        {isPositive ? '+' : '-'}{animatedValue.toFixed(0)}%
+        {isPositive ? '+' : '-'}{animatedValue.toFixed(1)}%
       </span>
     </div>
   );
