@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { PlayCircle, Lock } from "lucide-react";
+import { PlayCircle, Lock, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -205,6 +206,27 @@ const ModelCard = ({ model }: ModelCardProps) => {
               </p>
             </div>
           </div>
+          
+          {/* Follow Model Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full mt-3 sm:mt-4 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!authLoading && !user) {
+                toast.warning(t("login_required"), {
+                  description: t("login_prompt"),
+                });
+                navigate("/auth");
+                return;
+              }
+              toast.success(t('follow_success') || '关注成功');
+            }}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            {t('follow_model') || '关注模型'}
+          </Button>
         </div>
       </div>
     </Card>
