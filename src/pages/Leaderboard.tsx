@@ -30,11 +30,13 @@ const Leaderboard = () => {
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
         <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-6">
-            <TabsTrigger value="ai" className="text-xs sm:text-sm">{t('ai_leaderboard')}</TabsTrigger>
-            <TabsTrigger value="players" className="text-xs sm:text-sm">{t('player_leaderboard')}</TabsTrigger>
-            <TabsTrigger value="copy" className="text-xs sm:text-sm">{t('copy_trading_board')}</TabsTrigger>
-          </TabsList>
+          <div className="flex justify-center mb-6">
+            <TabsList className="grid grid-cols-3 w-full max-w-md sm:max-w-lg">
+              <TabsTrigger value="ai" className="text-xs sm:text-sm px-2 sm:px-4">{t('ai_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="players" className="text-xs sm:text-sm px-2 sm:px-4">{t('player_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="copy" className="text-xs sm:text-sm px-2 sm:px-4">{t('copy_trading_board')}</TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value="ai">
             <LeaderboardTable />
