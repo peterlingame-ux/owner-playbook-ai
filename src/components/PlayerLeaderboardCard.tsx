@@ -303,7 +303,7 @@ export const PlayerLeaderboardCard = ({
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
           <AnimatedWinRate 
             value={player.winRate}
-            className="text-sm sm:text-base font-bold font-mono-data text-foreground"
+            className="text-sm sm:text-base font-bold font-mono-data text-success"
           />
         </div>
       </div>

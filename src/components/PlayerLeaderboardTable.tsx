@@ -1157,7 +1157,7 @@ const PlayerLeaderboardTable = () => {
               </div>
               <div className="flex items-center gap-6 text-center">
                 <div>
-                  <p className="text-2xl font-bold font-mono-data text-primary">{currentUserRank.winRate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold font-mono-data text-success">{currentUserRank.winRate.toFixed(1)}%</p>
                   <p className="text-xs text-muted-foreground">{t('win_rate')}</p>
                 </div>
                 <div>
