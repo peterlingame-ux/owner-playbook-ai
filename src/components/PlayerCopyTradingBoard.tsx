@@ -1766,71 +1766,70 @@ const PlayerCopyTradingBoard = () => {
                   </span>
                 </motion.div>
 
-                {/* 解锁的比赛信息 */}
+                {/* 综合跟单信息卡片 */}
                 {copySuccess.prediction && (
                   <motion.div
                     initial={{ y: 20, opacity: 0, scale: 0.95 }}
                     animate={{ y: 0, opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4, type: "spring" }}
-                    className="p-3 rounded-lg bg-muted/20 border border-border/30"
+                    className="w-full rounded-xl bg-gradient-to-b from-muted/30 to-muted/10 border border-border/50 overflow-hidden"
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <motion.div
-                        initial={{ rotate: -180, scale: 0 }}
-                        animate={{ rotate: 0, scale: 1 }}
-                        transition={{ delay: 0.6, type: "spring" }}
-                      >
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                      </motion.div>
-                      <span className="text-xs font-medium text-success">比赛详情已解锁</span>
-                    </div>
-                    
-                    <div className="text-sm font-medium text-center mb-2">
-                      {copySuccess.prediction.home_team || '主队'} 
-                      <span className="text-muted-foreground mx-2">vs</span> 
-                      {copySuccess.prediction.away_team || '客队'}
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div className="text-center p-2 rounded bg-muted/30">
-                        <div className="text-muted-foreground mb-0.5">类型</div>
-                        <div className="font-medium">{copySuccess.predictionType}</div>
+                    {/* 比赛信息头部 */}
+                    <div className="px-4 py-3 border-b border-border/30">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <motion.div
+                          initial={{ rotate: -180, scale: 0 }}
+                          animate={{ rotate: 0, scale: 1 }}
+                          transition={{ delay: 0.6, type: "spring" }}
+                        >
+                          <CheckCircle2 className="h-4 w-4 text-success" />
+                        </motion.div>
+                        <span className="text-xs font-medium text-success">比赛详情已解锁</span>
                       </div>
-                      <div className="text-center p-2 rounded bg-muted/30">
-                        <div className="text-muted-foreground mb-0.5">预测</div>
-                        <div className="font-medium text-foreground">{copySuccess.prediction.prediction}</div>
-                      </div>
-                      <div className="text-center p-2 rounded bg-muted/30">
-                        <div className="text-muted-foreground mb-0.5">赔率</div>
-                        <div className="font-medium">{copySuccess.odds}</div>
+                      <div className="text-base font-bold text-center">
+                        <span className="text-primary">{copySuccess.prediction.home_team || '主队'}</span>
+                        <span className="text-muted-foreground mx-3 text-sm">vs</span>
+                        <span className="text-primary">{copySuccess.prediction.away_team || '客队'}</span>
                       </div>
                     </div>
                     
-                    <div className="text-center text-xs text-muted-foreground mt-2">
-                      玩家下注: <span className="text-foreground font-medium">¥{copySuccess.prediction.bet_amount}</span>
+                    {/* 投注详情 */}
+                    <div className="px-4 py-3 border-b border-border/30">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="text-center p-2.5 rounded-lg bg-background/50 border border-border/30">
+                          <div className="text-[10px] text-muted-foreground mb-1">类型</div>
+                          <div className="text-sm font-semibold">{copySuccess.predictionType}</div>
+                        </div>
+                        <div className="text-center p-2.5 rounded-lg bg-primary/10 border border-primary/30">
+                          <div className="text-[10px] text-muted-foreground mb-1">预测</div>
+                          <div className="text-sm font-semibold text-primary">{copySuccess.prediction.prediction}</div>
+                        </div>
+                        <div className="text-center p-2.5 rounded-lg bg-background/50 border border-border/30">
+                          <div className="text-[10px] text-muted-foreground mb-1">赔率</div>
+                          <div className="text-sm font-semibold text-warning">{copySuccess.odds}</div>
+                        </div>
+                      </div>
+                      <div className="text-center text-xs text-muted-foreground mt-3">
+                        玩家下注: <span className="text-foreground font-semibold">¥{copySuccess.prediction.bet_amount}</span>
+                      </div>
+                    </div>
+                    
+                    {/* 跟单金额 */}
+                    <div className="px-4 py-4 bg-gradient-to-b from-transparent to-primary/5">
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground mb-1">您的跟单金额</p>
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.8, type: "spring" }}
+                          className="text-3xl font-bold font-mono text-primary"
+                        >
+                          ¥{copySuccess.betAmount.toLocaleString()}
+                        </motion.div>
+                      </div>
                     </div>
                   </motion.div>
                 )}
-
-                {/* 跟单金额显示 */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="p-4 rounded-lg bg-muted/20 border border-border/30"
-                >
-                  <p className="text-xs text-muted-foreground mb-2">您的跟单金额</p>
-                  <div className="flex items-center justify-center">
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.8, type: "spring" }}
-                      className="text-2xl font-bold font-mono text-foreground"
-                    >
-                      ¥{copySuccess.betAmount.toLocaleString()}
-                    </motion.div>
-                  </div>
-                </motion.div>
 
                 {/* 预期收益提示 */}
                 <motion.div
