@@ -21,6 +21,7 @@ import { AnimatedPrize } from "@/components/AnimatedPrize";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import winningStreakBg from "@/assets/winning-streak-bg.png";
 import losingStreakBg from "@/assets/losing-streak-bg.png";
+import copyTradingSuccessBg from "@/assets/copy-trading-success-bg.png";
 
 // 奖金池配置
 const PRIZE_POOL = 1000000;
@@ -1693,7 +1694,7 @@ const PlayerCopyTradingBoard = () => {
               <div 
                 className="absolute inset-0 z-0 opacity-30"
                 style={{
-                  backgroundImage: `url(/src/assets/copy-trading-success-bg.png)`,
+                  backgroundImage: `url(${copyTradingSuccessBg})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}

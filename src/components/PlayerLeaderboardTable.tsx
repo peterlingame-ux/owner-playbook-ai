@@ -20,6 +20,7 @@ import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
 import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
+import copyTradingSuccessBg from "@/assets/copy-trading-success-bg.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1796,7 +1797,7 @@ const PlayerLeaderboardTable = () => {
               <div 
                 className="absolute inset-0 z-0 opacity-30"
                 style={{
-                  backgroundImage: `url(/src/assets/copy-trading-success-bg.png)`,
+                  backgroundImage: `url(${copyTradingSuccessBg})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}
