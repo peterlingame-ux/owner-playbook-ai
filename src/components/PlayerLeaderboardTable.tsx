@@ -105,6 +105,7 @@ import { format, differenceInSeconds } from "date-fns";
 
 // 倒计时显示组件
 const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
+  const { t } = useTranslation();
   const [countdown, setCountdown] = useState('');
   const [isStarting, setIsStarting] = useState(false);
   
@@ -115,7 +116,7 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
       const diffInSeconds = differenceInSeconds(target, now);
       
       if (diffInSeconds <= 0) {
-        setCountdown('即将开赛');
+        setCountdown(t('match_starting_soon') || '即将开赛');
         setIsStarting(true);
         return;
       }
@@ -125,12 +126,16 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
       const hours = Math.floor((diffInSeconds % 86400) / 3600);
       const minutes = Math.floor((diffInSeconds % 3600) / 60);
       
+      const d = t('days_short') || '天';
+      const h = t('hours_short') || '时';
+      const m = t('minutes_short') || '分';
+      
       if (days > 0) {
-        setCountdown(`${days}天${hours}时${minutes}分`);
+        setCountdown(`${days}${d}${hours}${h}${minutes}${m}`);
       } else if (hours > 0) {
-        setCountdown(`${hours}时${minutes}分`);
+        setCountdown(`${hours}${h}${minutes}${m}`);
       } else {
-        setCountdown(`${minutes}分钟`);
+        setCountdown(`${minutes}${m}`);
       }
     };
     
@@ -138,7 +143,7 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
     const interval = setInterval(updateCountdown, 60000); // 每分钟更新
     
     return () => clearInterval(interval);
-  }, [matchDate]);
+  }, [matchDate, t]);
   
   return <span className={`font-medium ${isStarting ? 'text-foreground' : 'text-amber-500'}`}>{countdown}</span>;
 };
