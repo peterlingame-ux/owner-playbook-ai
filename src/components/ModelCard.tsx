@@ -267,29 +267,31 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
           
           {/* Follow Model Button */}
-          <Button
-            variant={isFollowing ? "default" : "outline"}
-            size="sm"
-            className={`w-full mt-3 sm:mt-4 transition-colors ${
-              isFollowing 
-                ? 'bg-primary text-primary-foreground hover:bg-primary/80' 
-                : 'border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground'
-            }`}
-            onClick={handleFollowToggle}
-            disabled={followLoading}
-          >
-            {isFollowing ? (
-              <>
-                <UserMinus className="h-4 w-4 mr-2" />
-                {t('following') || '已关注'}
-              </>
-            ) : (
-              <>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {t('follow_model') || '关注模型'}
-              </>
-            )}
-          </Button>
+          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
+            <Button
+              variant={isFollowing ? "default" : "outline"}
+              size="sm"
+              className={`w-full h-9 sm:h-10 transition-colors ${
+                isFollowing 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/80' 
+                  : 'border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground'
+              }`}
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+            >
+              {isFollowing ? (
+                <>
+                  <UserMinus className="h-4 w-4 mr-2" />
+                  {t('following') || '已关注'}
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  {t('follow_model') || '关注模型'}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
