@@ -45,6 +45,11 @@ const FAQ_ITEMS: FaqItem[] = [
     answerKey: "floating_ai_chat.faq.ai_models.answer",
   },
   {
+    id: "faq-prize-claim",
+    questionKey: "floating_ai_chat.faq.prize_claim.question",
+    answerKey: "floating_ai_chat.faq.prize_claim.answer",
+  },
+  {
     id: "faq-contact",
     questionKey: "floating_ai_chat.faq.contact.question",
     answerKey: "floating_ai_chat.faq.contact.answer",
