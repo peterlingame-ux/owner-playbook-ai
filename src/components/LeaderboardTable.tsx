@@ -829,7 +829,7 @@ const LeaderboardTable = () => {
                     : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
-                1天
+                日
               </button>
               <button
                 onClick={() => setTimeRange(7)}
@@ -839,7 +839,7 @@ const LeaderboardTable = () => {
                     : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
-                7天
+                周
               </button>
               <button
                 onClick={() => setTimeRange(30)}
@@ -849,7 +849,7 @@ const LeaderboardTable = () => {
                     : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
-                30天
+                月
               </button>
             </div>
           </div>
