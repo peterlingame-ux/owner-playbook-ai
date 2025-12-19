@@ -101,7 +101,44 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, differenceInSeconds } from "date-fns";
+
+// 倒计时显示组件
+const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
+  const [countdown, setCountdown] = useState('');
+  
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const target = new Date(matchDate);
+      const diffInSeconds = differenceInSeconds(target, now);
+      
+      if (diffInSeconds <= 0) {
+        setCountdown('即将开赛');
+        return;
+      }
+      
+      const days = Math.floor(diffInSeconds / 86400);
+      const hours = Math.floor((diffInSeconds % 86400) / 3600);
+      const minutes = Math.floor((diffInSeconds % 3600) / 60);
+      
+      if (days > 0) {
+        setCountdown(`${days}天${hours}时${minutes}分`);
+      } else if (hours > 0) {
+        setCountdown(`${hours}时${minutes}分`);
+      } else {
+        setCountdown(`${minutes}分钟`);
+      }
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000); // 每分钟更新
+    
+    return () => clearInterval(interval);
+  }, [matchDate]);
+  
+  return <span className="text-amber-500 font-medium">{countdown}</span>;
+};
 
 interface PlayerData {
   id: string;
@@ -1548,14 +1585,20 @@ const PlayerLeaderboardTable = () => {
                                         />
                                       </div>
                                     </div>
-                                    {/* 开赛时间和状态 */}
-                                    <div className="flex items-center justify-center gap-3 text-[10px]">
+                                    {/* 开赛时间和倒计时 */}
+                                    <div className="flex items-center justify-center gap-2 text-[10px]">
+                                      <Clock className="h-3 w-3 text-muted-foreground" />
                                       <span className="text-muted-foreground">
                                         {pred.match_date ? format(new Date(pred.match_date), 'MM/dd HH:mm') : '待定'}
                                       </span>
-                                      <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium">
-                                        未开赛
-                                      </span>
+                                      {pred.match_date && (
+                                        <>
+                                          <span className="text-muted-foreground/50">|</span>
+                                          <span className="px-2 py-0.5 rounded-full bg-amber-500/10">
+                                            <MatchCountdown matchDate={pred.match_date} />
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                   
