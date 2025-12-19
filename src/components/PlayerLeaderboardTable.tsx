@@ -1912,23 +1912,26 @@ const PlayerLeaderboardTable = () => {
                           <div className="text-sm font-semibold text-warning">{copySuccess.odds}</div>
                         </div>
                       </div>
-                      <div className="text-center text-xs text-muted-foreground mt-3">
-                        玩家下注: <span className="text-foreground font-semibold">¥{copySuccess.prediction.bet_amount}</span>
-                      </div>
                     </div>
                     
-                    {/* 跟单金额 */}
-                    <div className="px-4 py-4 bg-gradient-to-b from-transparent to-primary/5">
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground mb-1">您的跟单金额</p>
-                        <motion.div
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.8, type: "spring" }}
-                          className="text-3xl font-bold font-mono text-primary"
-                        >
-                          ¥{copySuccess.betAmount.toLocaleString()}
-                        </motion.div>
+                    {/* 金额显示 - 一行两列 */}
+                    <div className="px-4 py-3 bg-gradient-to-b from-transparent to-primary/5">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <p className="text-[10px] text-muted-foreground mb-1">玩家下注</p>
+                          <div className="text-lg font-bold font-mono">¥{copySuccess.prediction.bet_amount}</div>
+                        </div>
+                        <div className="text-center border-l border-border/30">
+                          <p className="text-[10px] text-muted-foreground mb-1">您的跟单金额</p>
+                          <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.8, type: "spring" }}
+                            className="text-lg font-bold font-mono text-primary"
+                          >
+                            ¥{copySuccess.betAmount.toLocaleString()}
+                          </motion.div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
