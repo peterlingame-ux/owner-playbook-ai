@@ -628,6 +628,28 @@ const upsertSportsApiMatches = async (
   // 如果需要获取赔率信息，并行获取（限制并发数避免过载）
   console.log(`[upsertSportsApiMatches] fetchOdds=${fetchOdds}, ybtyToken=${ybtyToken ? 'exists' : 'missing'}, matches=${uniqueMatches.length}`);
   
+  // 在刷新模式下（fetchOdds=false），先查询已有的记录以保留 odds_info
+  const existingOddsInfoMap = new Map<string, unknown>();
+  if (!fetchOdds && uniqueMatches.length > 0) {
+    const mids = uniqueMatches.map(m => m.mid).filter(Boolean) as string[];
+    if (mids.length > 0) {
+      const { data: existingRecords } = await supabase
+        .from("daily_matches")
+        .select("mid, odds_info")
+        .eq("date", date)
+        .in("mid", mids);
+      
+      if (existingRecords) {
+        for (const record of existingRecords) {
+          if (record.mid && record.odds_info !== null && record.odds_info !== undefined) {
+            existingOddsInfoMap.set(record.mid, record.odds_info);
+          }
+        }
+        console.log(`[upsertSportsApiMatches] 从数据库读取到 ${existingOddsInfoMap.size} 条已有赔率信息，将在刷新模式下保留`);
+      }
+    }
+  }
+  
   // 限制并发数，避免 API 限流
   const BATCH_SIZE = 5; // 每批处理5个
   const records: Record<string, unknown>[] = [];
@@ -667,7 +689,13 @@ const upsertSportsApiMatches = async (
           }
         } else {
           if (!fetchOdds) {
-            console.log(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (fetchOdds=false)`);
+            // 刷新模式下，使用已有的 odds_info（如果存在）
+            if (match.mid && existingOddsInfoMap.has(match.mid)) {
+              oddsInfo = existingOddsInfoMap.get(match.mid)!;
+              console.log(`[upsertSportsApiMatches] 刷新模式：保留比赛 ${match.mid} 的已有赔率信息`);
+            } else {
+              console.log(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (fetchOdds=false)`);
+            }
           } else if (!ybtyToken) {
             console.warn(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (ybtyToken缺失)`);
           } else if (!match.mid) {
@@ -680,7 +708,14 @@ const upsertSportsApiMatches = async (
           await new Promise(resolve => setTimeout(resolve, 200)); // 200ms 延迟
         }
         
-        return convertSportsApiMatchToRecord(match, date, oddsInfo);
+        const record = convertSportsApiMatchToRecord(match, date, oddsInfo);
+        
+        // 在刷新模式下，如果 oddsInfo 为 null（即没有新的赔率且没有已有的赔率），则删除 odds_info 字段，避免覆盖
+        if (!fetchOdds && oddsInfo === null) {
+          delete record.odds_info;
+        }
+        
+        return record;
       })
     );
     
