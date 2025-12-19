@@ -1974,7 +1974,8 @@ const PlayerLeaderboardTable = () => {
             />
           </div>
           <ScrollArea 
-            className="flex-1 -mx-6 px-6"
+            className="flex-1 -mx-6 px-6 min-h-0"
+            style={{ maxHeight: 'calc(80vh - 140px)' }}
             onScrollCapture={(e) => {
               const target = e.target as HTMLElement;
               if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreHot) {
@@ -2108,7 +2109,8 @@ const PlayerLeaderboardTable = () => {
             />
           </div>
           <ScrollArea 
-            className="flex-1 -mx-6 px-6"
+            className="flex-1 -mx-6 px-6 min-h-0"
+            style={{ maxHeight: 'calc(80vh - 140px)' }}
             onScrollCapture={(e) => {
               const target = e.target as HTMLElement;
               if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreCold) {
