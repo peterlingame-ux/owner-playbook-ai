@@ -1056,16 +1056,9 @@ const PlayerLeaderboardTable = () => {
     const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
     if (!player) return;
     
-    // 检查是否需要付费解锁
-    const unlockPrice = player.unlockPrice ?? 0;
-    if (unlockPrice > 0) {
-      // 需要付费，显示解锁弹窗
-      setUnlockDialog({ player, prediction: pred });
-    } else {
-      // 免费，直接进入跟单流程
-      setCopyTradeDialog({ player, prediction: pred });
-      setCopyBetAmount(100);
-    }
+    // 直接进入跟单流程（所有玩家信息公开）
+    setCopyTradeDialog({ player, prediction: pred });
+    setCopyBetAmount(100);
   };
   
   // 获取用户USDT余额
@@ -1501,22 +1494,14 @@ const PlayerLeaderboardTable = () => {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     {(() => {
                       const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
-                      const unlockPrice = player?.unlockPrice ?? 0;
                       return (
                         <>
                           <span className="text-muted-foreground truncate max-w-[200px]">
                             {player?.signature || '这个人很懒，什么都没写~'}
                           </span>
-                          {unlockPrice > 0 ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
-                              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
-                              <span className="text-[10px] font-semibold text-foreground">{unlockPrice}</span>
-                            </span>
-                          ) : (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
-                              {t('free')}
-                            </span>
-                          )}
+                          <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
+                            {t('free')}
+                          </span>
                         </>
                       );
                     })()}
@@ -1568,92 +1553,80 @@ const PlayerLeaderboardTable = () => {
                           
                           return (
                             <div key={pred.id} className="px-4 py-3">
-                              {copiedPredictions.has(pred.id) ? (
-                                // 已跟单 - 显示完整比赛信息
-                                <div className="rounded-lg bg-muted/20 border border-border/30 overflow-hidden">
-                                  {/* 比赛信息头部 */}
-                                  <div className="px-3 py-3 border-b border-border/20">
-                                    {/* 球队对阵 - 居中显示带队标 */}
-                                    <div className="flex items-center justify-center gap-4 mb-2">
-                                      <div className="flex items-center gap-2">
-                                        <img 
-                                          src={`/src/assets/team-${(pred.home_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
-                                          alt=""
-                                          className="w-6 h-6 object-contain"
-                                          onError={(e) => { e.currentTarget.style.display = 'none' }}
-                                        />
-                                        <span className="text-sm font-semibold text-foreground">{pred.home_team || '主队'}</span>
-                                      </div>
-                                      <span className="text-muted-foreground/50 text-xs font-normal">vs</span>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm font-semibold text-foreground">{pred.away_team || '客队'}</span>
-                                        <img 
-                                          src={`/src/assets/team-${(pred.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
-                                          alt=""
-                                          className="w-6 h-6 object-contain"
-                                          onError={(e) => { e.currentTarget.style.display = 'none' }}
-                                        />
-                                      </div>
+                              {/* 显示完整比赛信息（所有玩家信息公开） */}
+                              <div className="rounded-lg bg-muted/20 border border-border/30 overflow-hidden">
+                                {/* 比赛信息头部 */}
+                                <div className="px-3 py-3 border-b border-border/20">
+                                  {/* 球队对阵 - 居中显示带队标 */}
+                                  <div className="flex items-center justify-center gap-4 mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <img 
+                                        src={`/src/assets/team-${(pred.home_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                                        alt=""
+                                        className="w-6 h-6 object-contain"
+                                        onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                      />
+                                      <span className="text-sm font-semibold text-foreground">{pred.home_team || '主队'}</span>
                                     </div>
-                                    {/* 开赛时间和倒计时 */}
-                                    <div className="flex items-center justify-center gap-2 text-[10px]">
-                                      <Clock className="h-3 w-3 text-muted-foreground" />
-                                      <span className="text-muted-foreground">
-                                        {pred.match_date ? format(new Date(pred.match_date), 'MM/dd HH:mm') : '待定'}
-                                      </span>
-                                      {pred.match_date && (
-                                        <>
-                                          <span className="text-muted-foreground/50">|</span>
-                                          <span className="px-2 py-0.5 rounded-full bg-amber-500/10">
-                                            <MatchCountdown matchDate={pred.match_date} />
-                                          </span>
-                                        </>
-                                      )}
+                                    <span className="text-muted-foreground/50 text-xs font-normal">vs</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-semibold text-foreground">{pred.away_team || '客队'}</span>
+                                      <img 
+                                        src={`/src/assets/team-${(pred.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                                        alt=""
+                                        className="w-6 h-6 object-contain"
+                                        onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                      />
                                     </div>
                                   </div>
-                                  
-                                  {/* 投注信息 - 四列等宽布局 */}
-                                  <div className="grid grid-cols-4 divide-x divide-border/20">
-                                    <div className="flex flex-col items-center justify-center py-2.5 px-2">
-                                      <span className="text-[10px] text-muted-foreground mb-1">类型</span>
-                                      <span className="text-xs font-semibold text-foreground">{recommended.type}</span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-2.5 px-2">
-                                      <span className="text-[10px] text-muted-foreground mb-1">推荐</span>
-                                      <span className="text-xs font-bold text-primary">{recommended.label}</span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-2.5 px-2">
-                                      <span className="text-[10px] text-muted-foreground mb-1">下注</span>
-                                      <span className="text-xs font-semibold text-foreground">¥{pred.bet_amount}</span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-2.5 px-2">
-                                      <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
-                                      <span className="text-xs font-semibold text-warning">{odds}</span>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* 已跟单状态 */}
-                                  <div className="flex items-center justify-center gap-1.5 py-2 bg-success/5 border-t border-border/20">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                                    <span className="text-xs font-medium text-success">已跟单</span>
+                                  {/* 开赛时间和倒计时 */}
+                                  <div className="flex items-center justify-center gap-2 text-[10px]">
+                                    <Clock className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-muted-foreground">
+                                      {pred.match_date ? format(new Date(pred.match_date), 'MM/dd HH:mm') : '待定'}
+                                    </span>
+                                    {pred.match_date && (
+                                      <>
+                                        <span className="text-muted-foreground/50">|</span>
+                                        <span className="px-2 py-0.5 rounded-full bg-amber-500/10">
+                                          <MatchCountdown matchDate={pred.match_date} />
+                                        </span>
+                                      </>
+                                    )}
                                   </div>
                                 </div>
-                              ) : (
-                                // 未跟单 - 隐藏比赛信息，只显示跟单按钮
-                                <div className="flex items-center justify-between py-1">
-                                  <div className="flex items-center gap-2">
-                                    <Lock className="h-4 w-4 text-amber-500" />
-                                    <span className="text-sm text-muted-foreground">跟单后查看比赛详情</span>
+                                
+                                {/* 投注信息 - 四列等宽布局 */}
+                                <div className="grid grid-cols-4 divide-x divide-border/20">
+                                  <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                    <span className="text-[10px] text-muted-foreground mb-1">类型</span>
+                                    <span className="text-xs font-semibold text-foreground">{recommended.type}</span>
                                   </div>
+                                  <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                    <span className="text-[10px] text-muted-foreground mb-1">推荐</span>
+                                    <span className="text-xs font-bold text-primary">{recommended.label}</span>
+                                  </div>
+                                  <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                    <span className="text-[10px] text-muted-foreground mb-1">下注</span>
+                                    <span className="text-xs font-semibold text-foreground">¥{pred.bet_amount}</span>
+                                  </div>
+                                  <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                    <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
+                                    <span className="text-xs font-semibold text-warning">{odds}</span>
+                                  </div>
+                                </div>
+                                
+                                {/* 跟单按钮 */}
+                                <div className="flex items-center justify-center py-2 bg-muted/10 border-t border-border/20">
                                   <Button
                                     size="sm"
-                                    className="h-7 px-3 text-xs"
+                                    className="h-7 px-4 text-xs"
                                     onClick={() => handleCopyTradeFromHistory(pred)}
                                   >
-                                    跟单
+                                    一键跟单
                                   </Button>
                                 </div>
-                              )}
+                              </div>
                             </div>
                           );
                         })}
