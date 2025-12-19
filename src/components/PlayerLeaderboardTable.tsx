@@ -1520,39 +1520,47 @@ const PlayerLeaderboardTable = () => {
                             <div key={pred.id} className="px-4 py-3">
                               {copiedPredictions.has(pred.id) ? (
                                 // 已跟单 - 显示完整比赛信息
-                                <>
-                                  <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2 text-sm font-medium">
-                                      <span>{pred.home_team || '主队'}</span>
-                                      <span className="text-muted-foreground text-xs">vs</span>
-                                      <span>{pred.away_team || '客队'}</span>
+                                <div className="space-y-3">
+                                  {/* 比赛信息头部 */}
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 text-sm font-semibold">
+                                      <span className="text-foreground">{pred.home_team || '主队'}</span>
+                                      <span className="text-muted-foreground/60 text-xs font-normal">vs</span>
+                                      <span className="text-foreground">{pred.away_team || '客队'}</span>
                                     </div>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 font-medium">
+                                    <span className="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-500 font-medium border border-amber-500/20">
                                       未开赛
                                     </span>
                                   </div>
                                   
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                  {/* 投注信息区域 */}
+                                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/30">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-[10px] px-2 py-1 rounded bg-primary/10 text-primary font-medium border border-primary/20">
                                         {recommended.type}
                                       </span>
                                       <span className="text-sm font-bold text-primary">
                                         {recommended.label}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-1 text-xs text-success">
+                                    <div className="flex items-center gap-1.5 text-xs text-success font-medium">
                                       <CheckCircle2 className="h-3.5 w-3.5" />
-                                      已跟单
+                                      <span>已跟单</span>
                                     </div>
                                   </div>
                                   
-                                  {/* 跟单详情 */}
-                                  <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-                                    <span>玩家下注: <span className="text-foreground font-medium">¥{pred.bet_amount}</span></span>
-                                    <span>赔率: <span className="text-foreground font-medium">{odds}</span></span>
+                                  {/* 跟单详情 - 两列布局 */}
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="flex flex-col items-center p-2 rounded-lg bg-background/50 border border-border/20">
+                                      <span className="text-[10px] text-muted-foreground mb-0.5">玩家下注</span>
+                                      <span className="text-sm font-bold text-foreground">¥{pred.bet_amount}</span>
+                                    </div>
+                                    <div className="flex flex-col items-center p-2 rounded-lg bg-background/50 border border-border/20">
+                                      <span className="text-[10px] text-muted-foreground mb-0.5">赔率</span>
+                                      <span className="text-sm font-bold text-warning">{odds}</span>
+                                    </div>
                                   </div>
-                                </>
+                                </div>
                               ) : (
                                 // 未跟单 - 隐藏比赛信息，只显示跟单按钮
                                 <div className="flex items-center justify-between py-1">
