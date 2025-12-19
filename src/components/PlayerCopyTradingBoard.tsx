@@ -915,14 +915,6 @@ const PlayerCopyTradingBoard = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
-                {/* Profit Rate Badge */}
-                <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium ${
-                  profitRate >= 0 
-                    ? 'bg-success/20 text-success' 
-                    : 'bg-destructive/20 text-destructive'
-                }`}>
-                  {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
-                </span>
               </div>
               <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
                 {streakType === 'worst' ? (
