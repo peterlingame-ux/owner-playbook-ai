@@ -255,7 +255,7 @@ const Waitlist = () => {
                         const isPast = prize.day < today;
                         const winner = prizeWinners[prize.day];
                         
-                        return (
+                          return (
                           <div
                             key={colIdx}
                             onClick={() => setSelectedDay(prize.day)}
@@ -263,8 +263,11 @@ const Waitlist = () => {
                               w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
                               rounded-lg overflow-hidden relative group cursor-pointer
                               border-2 transition-all duration-300
-                              ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
-                              ${isPast ? 'opacity-60' : ''}
+                              hover:scale-105 hover:z-10
+                              ${isToday 
+                                ? 'border-warning shadow-lg shadow-warning/40 ring-2 ring-warning/30 ring-offset-2 ring-offset-background animate-pulse hover:shadow-warning/60 hover:shadow-xl' 
+                                : 'border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20'}
+                              ${isPast ? 'opacity-60 hover:opacity-80' : ''}
                             `}
                             title={`${currentMonth}月${prize.day}日 - ${prize.name}`}
                           >
