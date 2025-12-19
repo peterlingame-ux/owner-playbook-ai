@@ -1251,7 +1251,7 @@ const PlayerLeaderboardTable = () => {
                 onClick={() => setShowAllHotPlayers(true)}
                 className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
-                {t('view_all') || '查看全部'}
+                {t('all_players') || '全部玩家'}
               </button>
             </div>
           </CardHeader>
@@ -1330,7 +1330,7 @@ const PlayerLeaderboardTable = () => {
                 onClick={() => setShowAllColdPlayers(true)}
                 className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
-                {t('view_all') || '查看全部'}
+                {t('all_players') || '全部玩家'}
               </button>
             </div>
           </CardHeader>

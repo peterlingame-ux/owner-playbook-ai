@@ -1108,7 +1108,7 @@ const PlayerCopyTradingBoard = () => {
                   onClick={() => setShowAllHotPlayers(true)}
                   className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                 >
-                  {t('view_all') || '查看全部'}
+                  {t('all_players') || '全部玩家'}
                 </button>
                 {/* Time Range Filter */}
                 <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
@@ -1176,7 +1176,7 @@ const PlayerCopyTradingBoard = () => {
                   onClick={() => setShowAllColdPlayers(true)}
                   className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                 >
-                  {t('view_all') || '查看全部'}
+                  {t('all_players') || '全部玩家'}
                 </button>
                 {/* Time Range Filter */}
                 <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
