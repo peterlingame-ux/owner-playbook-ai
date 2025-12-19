@@ -26,30 +26,50 @@ const Index = () => {
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   
-  // Real-time stats for video section
+  // Real-time stats for video section - AI monitoring data
   const [liveStats, setLiveStats] = useState({
-    activePlayers: 22,
-    formation: '4-3-3',
-    opponentFormation: '4-4-2',
-    passDistance: 18.5,
-    playerSpeed: 32.4,
-    attackIntent: 87,
-    optimalRoutes: 3
+    // 球员追踪
+    trackedPlayers: 22,
+    homeFormation: '4-3-3',
+    awayFormation: '3-5-2',
+    // 跑动数据
+    totalDistance: 8.7,
+    sprintSpeed: 34.2,
+    // 控球分析
+    possession: 58,
+    passAccuracy: 89,
+    // AI预测
+    goalProbability: 67,
+    dangerZone: 4,
+    // 战术分析
+    pressureIndex: 73,
+    counterAttack: 2
   });
 
-  // Simulate real-time data updates
+  // Simulate real-time AI data updates matching video analysis
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveStats(prev => ({
-        activePlayers: Math.random() > 0.9 ? (prev.activePlayers === 22 ? 21 : 22) : prev.activePlayers,
-        formation: prev.formation,
-        opponentFormation: prev.opponentFormation,
-        passDistance: Math.round((15 + Math.random() * 10) * 10) / 10,
-        playerSpeed: Math.round((28 + Math.random() * 8) * 10) / 10,
-        attackIntent: Math.round(70 + Math.random() * 25),
-        optimalRoutes: Math.floor(2 + Math.random() * 3)
-      }));
-    }, 2000);
+      setLiveStats(prev => {
+        // 随机切换阵型 (偶尔变化)
+        const formations = ['4-3-3', '4-4-2', '3-5-2', '4-2-3-1', '5-3-2'];
+        const newHomeFormation = Math.random() > 0.95 ? formations[Math.floor(Math.random() * formations.length)] : prev.homeFormation;
+        const newAwayFormation = Math.random() > 0.95 ? formations[Math.floor(Math.random() * formations.length)] : prev.awayFormation;
+        
+        return {
+          trackedPlayers: Math.random() > 0.92 ? (prev.trackedPlayers === 22 ? 21 : 22) : prev.trackedPlayers,
+          homeFormation: newHomeFormation,
+          awayFormation: newAwayFormation,
+          totalDistance: Math.round((prev.totalDistance + 0.1 + Math.random() * 0.2) * 10) / 10,
+          sprintSpeed: Math.round((30 + Math.random() * 6) * 10) / 10,
+          possession: Math.min(70, Math.max(30, prev.possession + Math.floor(Math.random() * 5) - 2)),
+          passAccuracy: Math.min(95, Math.max(75, prev.passAccuracy + Math.floor(Math.random() * 3) - 1)),
+          goalProbability: Math.min(85, Math.max(35, prev.goalProbability + Math.floor(Math.random() * 8) - 4)),
+          dangerZone: Math.floor(1 + Math.random() * 5),
+          pressureIndex: Math.min(90, Math.max(40, prev.pressureIndex + Math.floor(Math.random() * 6) - 3)),
+          counterAttack: Math.floor(1 + Math.random() * 4)
+        };
+      });
+    }, 1500);
     return () => clearInterval(interval);
   }, []);
 
@@ -233,21 +253,21 @@ const Index = () => {
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('realtime_monitoring')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_monitoring')}</h4>
-                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.activePlayers}</div>
-                <p className="text-xs text-muted-foreground">{t('active_players')}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_tracking')}</h4>
+                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
+                <p className="text-xs text-muted-foreground">{t('tracked_players')}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('ai_recognition')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('formation_monitoring')}</h4>
-                <div className="text-lg font-bold text-primary">{liveStats.formation}</div>
-                <p className="text-xs text-muted-foreground">vs {liveStats.opponentFormation}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('formation_analysis')}</h4>
+                <div className="text-lg font-bold text-primary">{liveStats.homeFormation}</div>
+                <p className="text-xs text-muted-foreground">vs {liveStats.awayFormation}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('distance_tracking')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('pass_distance_monitoring')}</h4>
-                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.passDistance}</div>
-                <p className="text-xs text-muted-foreground">{t('meters_per_pass')}</p>
+                <span className="text-xs text-muted-foreground">{t('running_stats')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('total_distance')}</h4>
+                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.totalDistance}</div>
+                <p className="text-xs text-muted-foreground">{t('km_distance')}</p>
               </div>
             </div>
 
@@ -268,22 +288,22 @@ const Index = () => {
             {/* Right Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('speed_tracking')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_speed_monitoring')}</h4>
-                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.playerSpeed}</div>
-                <p className="text-xs text-muted-foreground">{t('kmh_max_speed')}</p>
-              </div>
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('data_analysis')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('attack_intent_analysis')}</h4>
-                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.attackIntent}%</div>
-                <p className="text-xs text-muted-foreground">{t('high_attack_intent')}</p>
+                <span className="text-xs text-muted-foreground">{t('possession_analysis')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('ball_possession')}</h4>
+                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
+                <p className="text-xs text-muted-foreground">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('ai_prediction_label')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('passing_route_prediction')}</h4>
-                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}</div>
-                <p className="text-xs text-muted-foreground">{t('optimal_routes')}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('goal_probability')}</h4>
+                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
+                <p className="text-xs text-muted-foreground">{t('danger_zone')}: {liveStats.dangerZone}</p>
+              </div>
+              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
+                <span className="text-xs text-muted-foreground">{t('pressure_analysis')}</span>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('pressure_index')}</h4>
+                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}%</div>
+                <p className="text-xs text-muted-foreground">{t('counter_attack')}: {liveStats.counterAttack}</p>
               </div>
             </div>
           </div>
@@ -291,34 +311,34 @@ const Index = () => {
           {/* Mobile Stats Panel - Below Video */}
           <div className="grid grid-cols-3 gap-2 mt-4 md:hidden">
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('player_monitoring')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.activePlayers}</div>
-              <p className="text-[10px] text-muted-foreground">{t('active_players')}</p>
+              <span className="text-[10px] text-muted-foreground block">{t('player_tracking')}</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
+              <p className="text-[10px] text-muted-foreground">{t('tracked_players')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('formation_monitoring')}</span>
-              <div className="text-sm font-bold text-primary">{liveStats.formation}</div>
-              <p className="text-[10px] text-muted-foreground">vs {liveStats.opponentFormation}</p>
+              <span className="text-[10px] text-muted-foreground block">{t('formation_analysis')}</span>
+              <div className="text-sm font-bold text-primary">{liveStats.homeFormation}</div>
+              <p className="text-[10px] text-muted-foreground">vs {liveStats.awayFormation}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('pass_distance_monitoring')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.passDistance}</div>
-              <p className="text-[10px] text-muted-foreground">{t('meters_per_pass')}</p>
+              <span className="text-[10px] text-muted-foreground block">{t('ball_possession')}</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
+              <p className="text-[10px] text-muted-foreground">{t('accuracy_rate')}: {liveStats.passAccuracy}%</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('player_speed_monitoring')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.playerSpeed}</div>
-              <p className="text-[10px] text-muted-foreground">{t('kmh_max_speed')}</p>
+              <span className="text-[10px] text-muted-foreground block">{t('goal_probability')}</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
+              <p className="text-[10px] text-muted-foreground">{t('scoring_chance')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('attack_intent_analysis')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.attackIntent}%</div>
-              <p className="text-[10px] text-muted-foreground">{t('high_attack_intent')}</p>
+              <span className="text-[10px] text-muted-foreground block">{t('pressure_index')}</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}%</div>
+              <p className="text-[10px] text-muted-foreground">{t('high_press')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('passing_route_prediction')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.optimalRoutes}</div>
-              <p className="text-[10px] text-muted-foreground">{t('optimal_routes')}</p>
+              <span className="text-[10px] text-muted-foreground block">{t('counter_attack')}</span>
+              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.counterAttack}</div>
+              <p className="text-[10px] text-muted-foreground">{t('counter_chances')}</p>
             </div>
           </div>
         </section>
