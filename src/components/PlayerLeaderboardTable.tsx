@@ -106,6 +106,7 @@ import { format, differenceInSeconds } from "date-fns";
 // 倒计时显示组件
 const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
   const [countdown, setCountdown] = useState('');
+  const [isStarting, setIsStarting] = useState(false);
   
   useEffect(() => {
     const updateCountdown = () => {
@@ -115,9 +116,11 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
       
       if (diffInSeconds <= 0) {
         setCountdown('即将开赛');
+        setIsStarting(true);
         return;
       }
       
+      setIsStarting(false);
       const days = Math.floor(diffInSeconds / 86400);
       const hours = Math.floor((diffInSeconds % 86400) / 3600);
       const minutes = Math.floor((diffInSeconds % 3600) / 60);
@@ -137,7 +140,7 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
     return () => clearInterval(interval);
   }, [matchDate]);
   
-  return <span className="text-amber-500 font-medium">{countdown}</span>;
+  return <span className={`font-medium ${isStarting ? 'text-foreground' : 'text-amber-500'}`}>{countdown}</span>;
 };
 
 interface PlayerData {
