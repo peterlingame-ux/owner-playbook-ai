@@ -217,7 +217,7 @@ const PlayerDetail = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground mb-4">{t('loading') || '加载中...'}</p>
+          <p className="text-muted-foreground mb-4">{t('loading')}</p>
         </div>
       </div>
     );
@@ -284,17 +284,17 @@ const PlayerDetail = () => {
   const getBetTypeLabel = (betType: string, prediction: PlayerPrediction, match?: PlayerPrediction['match']) => {
     switch(betType) {
       case "moneyline": 
-        return t('bet_type_moneyline') || 'Moneyline';
+        return t('bet_type_moneyline');
       case "handicap": 
         // 显示让球线和让球方
         if (prediction.handicapLine !== undefined) {
           const lineStr = `${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
           const predStr = prediction.prediction as string;
           if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
-            const teamName = match ? getTeamName(match, 'home') : t('home') || 'Home';
+            const teamName = match ? getTeamName(match, 'home') : t('home');
             return `${teamName} ${lineStr}`;
           } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
-            const teamName = match ? getTeamName(match, 'away') : t('away') || 'Away';
+            const teamName = match ? getTeamName(match, 'away') : t('away');
             return `${teamName} ${lineStr}`;
           } else {
             if (prediction.handicapLine < 0 && match) {
@@ -305,14 +305,14 @@ const PlayerDetail = () => {
             return lineStr;
           }
         }
-        return t('bet_type_handicap') || 'Handicap';
+        return t('bet_type_handicap');
       case "over_under": 
         // 显示大小球具体投注
         if (prediction.overUnderLine !== undefined && prediction.overUnderPick) {
-          const overUnder = prediction.overUnderPick === 'over' ? t('over') || 'Over' : t('under') || 'Under';
+          const overUnder = prediction.overUnderPick === 'over' ? t('over') : t('under');
           return `${prediction.overUnderLine} ${overUnder}`;
         }
-        return t('bet_type_over_under') || 'Over/Under';
+        return t('bet_type_over_under');
       default: return betType;
     }
   };
@@ -320,13 +320,13 @@ const PlayerDetail = () => {
   const getPredictionLabel = (prediction: PlayerPrediction, match: PlayerPrediction['match']) => {
     // AI预测列显示投注类型：让分或大小球
     if (prediction.betType === 'over_under') {
-      return t('bet_type_over_under') || '大小球';
+      return t('bet_type_over_under');
     } else if (prediction.betType === 'handicap') {
-      return t('bet_type_handicap') || '让分';
+      return t('bet_type_handicap');
     } else if (prediction.betType === 'moneyline') {
-      return t('bet_type_moneyline') || '独赢';
+      return t('bet_type_moneyline');
     }
-    return prediction.betType || t('bet_type_moneyline') || '独赢';
+    return prediction.betType || t('bet_type_moneyline');
   };
 
   const getRankColor = () => {
@@ -349,7 +349,7 @@ const PlayerDetail = () => {
           className="mb-4 sm:mb-6 text-xs sm:text-sm h-8 sm:h-10"
         >
           <ArrowLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-          {t('back_to_models') || '返回'}
+          {t('back_to_models')}
         </Button>
 
         {/* 玩家信息头部 - 带背景 */}
@@ -412,7 +412,7 @@ const PlayerDetail = () => {
           </Card>
           
           <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('roi') || '盈利率'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('roi')}</p>
             <p className="text-xl sm:text-3xl font-bold" style={{ color: rankColor }}>
               {Number(roi) >= 0 ? '+' : ''}{roi}%
             </p>
@@ -437,11 +437,11 @@ const PlayerDetail = () => {
             <div className="flex gap-2 sm:gap-4 flex-1 flex-wrap">
               <Select value={filterDate} onValueChange={setFilterDate}>
                 <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-10 text-xs sm:text-sm">
-                  <SelectValue placeholder={t('date_filter') || '日期'} />
+                  <SelectValue placeholder={t('date_filter')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('all') || '全部'}</SelectItem>
-                  <SelectItem value="today">{t('today_prediction') || '今日推荐'}</SelectItem>
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="today">{t('today_prediction')}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -482,7 +482,7 @@ const PlayerDetail = () => {
                 <TableRow>
                   <TableHead className="w-[70px] sm:w-[100px] text-[10px] sm:text-xs px-2">{t('date')}</TableHead>
                   <TableHead className="text-[10px] sm:text-xs px-2">{t('match')}</TableHead>
-                  <TableHead className="hidden md:table-cell text-[10px] sm:text-xs px-2">{t('ai_prediction') || 'AI预测'}</TableHead>
+                  <TableHead className="hidden md:table-cell text-[10px] sm:text-xs px-2">{t('ai_prediction')}</TableHead>
                   <TableHead className="hidden sm:table-cell text-[10px] sm:text-xs px-2">{t('bet_type')}</TableHead>
                   <TableHead className="text-right text-[10px] sm:text-xs px-2">{t('odds')}</TableHead>
                   <TableHead className="hidden lg:table-cell text-right text-[10px] sm:text-xs px-2">{t('bet_amount')}</TableHead>
@@ -494,7 +494,7 @@ const PlayerDetail = () => {
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
-                      {t('loading') || '加载中...'}
+                      {t('loading')}
                     </TableCell>
                   </TableRow>
                 ) : filteredPredictions.length === 0 ? (

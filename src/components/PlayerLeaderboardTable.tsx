@@ -116,7 +116,7 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
       const diffInSeconds = differenceInSeconds(target, now);
       
       if (diffInSeconds <= 0) {
-        setCountdown(t('match_starting_soon') || '即将开赛');
+        setCountdown(t('match_starting_soon'));
         setIsStarting(true);
         return;
       }
@@ -126,9 +126,9 @@ const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
       const hours = Math.floor((diffInSeconds % 86400) / 3600);
       const minutes = Math.floor((diffInSeconds % 3600) / 60);
       
-      const d = t('days_short') || '天';
-      const h = t('hours_short') || '时';
-      const m = t('minutes_short') || '分';
+      const d = t('days_short');
+      const h = t('hours_short');
+      const m = t('minutes_short');
       
       if (days > 0) {
         setCountdown(`${days}${d}${hours}${h}${minutes}${m}`);
@@ -1217,7 +1217,7 @@ const PlayerLeaderboardTable = () => {
                 {currentUserRankChange === 0 && todayWinRates.get(currentUserRank.id)?.total === 0 && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted/30 text-muted-foreground">
                     <Minus className="h-3 w-3" />
-                    <span>{t('no_change') || '无变化'}</span>
+                    <span>{t('no_change')}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-3">
@@ -1228,10 +1228,10 @@ const PlayerLeaderboardTable = () => {
                   <div>
                     <p className="font-bold text-lg">{currentUserRank.displayName}</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-muted-foreground">{t('your_current_rank') || '您当前的排名'}</p>
+                      <p className="text-sm text-muted-foreground">{t('your_current_rank')}</p>
                       {currentUserRankChange !== 0 && (
                         <span className={`text-xs ${currentUserRankChange > 0 ? 'text-success' : 'text-destructive'}`}>
-                          ({currentUserRankChange > 0 ? t('rank_up') || '排名上升' : t('rank_down') || '排名下降'})
+                          ({currentUserRankChange > 0 ? t('rank_up') : t('rank_down')})
                         </span>
                       )}
                     </div>
@@ -1251,7 +1251,7 @@ const PlayerLeaderboardTable = () => {
                   <p className={`text-2xl font-bold font-mono-data ${currentUserRank.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {currentUserRank.changePercent >= 0 ? '+' : ''}{currentUserRank.changePercent.toFixed(1)}%
                   </p>
-                  <p className="text-xs text-muted-foreground">{t('roi') || 'ROI'}</p>
+                  <p className="text-xs text-muted-foreground">{t('roi')}</p>
                 </div>
                 {/* Today's Performance */}
                 {todayWinRates.get(currentUserRank.id) && todayWinRates.get(currentUserRank.id)!.total > 0 && (
@@ -1261,7 +1261,7 @@ const PlayerLeaderboardTable = () => {
                     }`}>
                       {todayWinRates.get(currentUserRank.id)!.correct}/{todayWinRates.get(currentUserRank.id)!.total}
                     </p>
-                    <p className="text-xs text-muted-foreground">{t('today') || '今日'}</p>
+                    <p className="text-xs text-muted-foreground">{t('today')}</p>
                   </div>
                 )}
               </div>
@@ -1282,7 +1282,7 @@ const PlayerLeaderboardTable = () => {
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
             }`}
           >
-            {t('time_filter_1d') || '日'}
+            {t('time_filter_1d')}
           </button>
           <button
             onClick={() => setTimeRange(7)}
@@ -1292,7 +1292,7 @@ const PlayerLeaderboardTable = () => {
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
             }`}
           >
-            {t('time_filter_7d') || '周'}
+            {t('time_filter_7d')}
           </button>
           <button
             onClick={() => setTimeRange(30)}
@@ -1302,7 +1302,7 @@ const PlayerLeaderboardTable = () => {
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
             }`}
           >
-            {t('time_filter_30d') || '月'}
+            {t('time_filter_30d')}
           </button>
         </div>
       </div>
@@ -1317,16 +1317,16 @@ const PlayerLeaderboardTable = () => {
                 <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
                 <div>
                   <CardTitle className="text-lg font-bold text-foreground">
-                    {t('hot_streak_board') || '高胜率榜'}
+                    {t('hot_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players') || '胜率最高玩家'} · <span className="text-amber-500 font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-amber-500 font-medium">前10名</span></p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAllHotPlayers(true)}
                 className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
-                {t('all_players') || '全部玩家'}
+                {t('all_players')}
               </button>
             </div>
           </CardHeader>
@@ -1402,16 +1402,16 @@ const PlayerLeaderboardTable = () => {
                 <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                 <div>
                   <CardTitle className="text-lg font-bold text-foreground">
-                    {t('cold_streak_board') || '低胜率榜'}
+                    {t('cold_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · <span className="text-red-500 font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-red-500 font-medium">前10名</span></p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAllColdPlayers(true)}
                 className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
-                {t('all_players') || '全部玩家'}
+                {t('all_players')}
               </button>
             </div>
           </CardHeader>
@@ -1512,7 +1512,7 @@ const PlayerLeaderboardTable = () => {
                             </span>
                           ) : (
                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
-                              {t('free') || 'Free'}
+                              {t('free')}
                             </span>
                           )}
                         </>
@@ -2083,14 +2083,14 @@ const PlayerLeaderboardTable = () => {
           <DialogHeader className="pb-2">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
-              {t('hot_streak_board') || '高胜率榜'} - {t('all_players') || '全部玩家'}
+              {t('hot_streak_board')} - {t('all_players')}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
           <div className="relative mb-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={t('search_player') || '搜索玩家名称...'}
+              placeholder={t('search_player')}
               value={hotSearchQuery}
               onChange={(e) => {
                 setHotSearchQuery(e.target.value);
@@ -2188,10 +2188,10 @@ const PlayerLeaderboardTable = () => {
                             {isLoadingMoreHot ? (
                               <>
                                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                                <span>{t('loading') || '加载中...'}</span>
+                                <span>{t('loading')}</span>
                               </>
                             ) : (
-                              <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                              <span>{t('scroll_for_more')} ({displayed.length}/{filtered.length})</span>
                             )}
                           </div>
                         )}
@@ -2264,15 +2264,15 @@ const PlayerLeaderboardTable = () => {
                         <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                           <UserX className="w-8 h-8 text-muted-foreground" />
                         </div>
-                        <p className="text-sm font-medium text-foreground mb-1">{t('no_search_results') || '未找到玩家'}</p>
-                        <p className="text-xs text-muted-foreground mb-3">{t('no_search_results_hint') || '请尝试其他关键词'}</p>
+                        <p className="text-sm font-medium text-foreground mb-1">{t('no_search_results')}</p>
+                        <p className="text-xs text-muted-foreground mb-3">{t('no_search_results_hint')}</p>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setColdSearchQuery('')}
                           className="text-xs"
                         >
-                          {t('clear_search') || '清空搜索'}
+                          {t('clear_search')}
                         </Button>
                       </div>
                     ) : (

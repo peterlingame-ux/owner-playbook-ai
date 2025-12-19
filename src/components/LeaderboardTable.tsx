@@ -764,7 +764,7 @@ const LeaderboardTable = () => {
 
   const getModelDisplayName = (model: AIModel) => {
     if (model.id === 'hunsoccermax') {
-      return user && userProfile?.display_name ? userProfile.display_name : (t('demo_player') || '体验玩家');
+      return user && userProfile?.display_name ? userProfile.display_name : t('demo_player');
     }
     // 只显示第一个单词（基础名字），不显示版本号，与 ModelCard 和首页一致
     return model.displayName.split(' ')[0];
@@ -1310,7 +1310,7 @@ const LeaderboardTable = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
-              {selectedModelHistory?.modelName} - {t('today_history') || '今日记录'}
+              {selectedModelHistory?.modelName} - {t('today_history')}
             </DialogTitle>
           </DialogHeader>
           
@@ -1321,7 +1321,7 @@ const LeaderboardTable = () => {
               </div>
             ) : selectedModelHistory?.positions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                {t('no_history_today') || '今日暂无记录'}
+                {t('no_history_today')}
               </div>
             ) : (
               <div className="space-y-3">
@@ -1348,33 +1348,33 @@ const LeaderboardTable = () => {
                           : 'bg-muted text-muted-foreground'
                       }`}>
                         {pos.status === 'settled' 
-                          ? pos.result === 'win' ? t('win') || '胜' : t('loss') || '负'
-                          : t('pending') || '进行中'}
+                          ? pos.result === 'win' ? t('win') : t('loss')
+                          : t('pending')}
                       </span>
                     </div>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                       <div>
-                        <span className="text-muted-foreground">{t('bet_type') || '类型'}:</span>
+                        <span className="text-muted-foreground">{t('bet_type')}:</span>
                         <span className="ml-1 font-medium">{pos.bet_type}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t('prediction') || '预测'}:</span>
+                        <span className="text-muted-foreground">{t('prediction')}:</span>
                         <span className="ml-1 font-medium">{pos.prediction}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t('bet_amount') || '金额'}:</span>
+                        <span className="text-muted-foreground">{t('bet_amount')}:</span>
                         <span className="ml-1 font-medium">${pos.amount}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t('odds') || '赔率'}:</span>
+                        <span className="text-muted-foreground">{t('odds')}:</span>
                         <span className="ml-1 font-medium">{pos.odds?.toFixed(2)}</span>
                       </div>
                     </div>
                     
                     {pos.status === 'settled' && pos.pnl !== undefined && (
                       <div className="mt-2 pt-2 border-t border-border/30">
-                        <span className="text-xs text-muted-foreground">{t('profit_loss') || '盈亏'}:</span>
+                        <span className="text-xs text-muted-foreground">{t('profit_loss')}:</span>
                         <span className={`ml-1 font-bold ${pos.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
                           {pos.pnl >= 0 ? '+' : ''}${pos.pnl.toFixed(2)}
                         </span>
@@ -1576,7 +1576,7 @@ const LeaderboardTable = () => {
       {/* Disclaimer */}
       <div className="mt-6 p-4 rounded-lg bg-muted/30 border border-border/50">
         <p className="text-xs text-muted-foreground text-center leading-relaxed">
-          {t('leaderboard_disclaimer') || '注意: 所有统计数据仅反映已完成的比赛预测。直播比赛预测在比赛结束前不计入统计。HUNSOCCER 所有内容均为模拟分析结果，仅供 AI 技术研究与赛事分析展示使用，不提供、不引导任何形式的投注或博彩活动。'}
+          {t('leaderboard_disclaimer')}
         </p>
       </div>
     </div>
