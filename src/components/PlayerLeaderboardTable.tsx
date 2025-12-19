@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search, Loader2 } from "lucide-react";
 import { PlayerLeaderboardCard } from "./PlayerLeaderboardCard";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
@@ -171,6 +171,8 @@ const PlayerLeaderboardTable = () => {
   const [coldSearchQuery, setColdSearchQuery] = useState('');
   const [hotDisplayCount, setHotDisplayCount] = useState(20);
   const [coldDisplayCount, setColdDisplayCount] = useState(20);
+  const [isLoadingMoreHot, setIsLoadingMoreHot] = useState(false);
+  const [isLoadingMoreCold, setIsLoadingMoreCold] = useState(false);
   const INITIAL_DISPLAY_COUNT = 20;
   const LOAD_MORE_COUNT = 20;
   
@@ -1975,10 +1977,14 @@ const PlayerLeaderboardTable = () => {
             className="flex-1 -mx-6 px-6"
             onScrollCapture={(e) => {
               const target = e.target as HTMLElement;
-              if (target.scrollHeight - target.scrollTop - target.clientHeight < 100) {
+              if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreHot) {
                 const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase())).length;
                 if (hotDisplayCount < filteredCount) {
-                  setHotDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredCount));
+                  setIsLoadingMoreHot(true);
+                  setTimeout(() => {
+                    setHotDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredCount));
+                    setIsLoadingMoreHot(false);
+                  }, 500);
                 }
               }
             }}
@@ -2025,8 +2031,15 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     ))}
                     {hotDisplayCount < filtered.length && (
-                      <div className="text-center py-3 text-xs text-muted-foreground">
-                        {t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})
+                      <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
+                        {isLoadingMoreHot ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            <span>{t('loading') || '加载中...'}</span>
+                          </>
+                        ) : (
+                          <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                        )}
                       </div>
                     )}
                   </>
@@ -2070,10 +2083,14 @@ const PlayerLeaderboardTable = () => {
             className="flex-1 -mx-6 px-6"
             onScrollCapture={(e) => {
               const target = e.target as HTMLElement;
-              if (target.scrollHeight - target.scrollTop - target.clientHeight < 100) {
+              if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreCold) {
                 const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase())).length;
                 if (coldDisplayCount < filteredCount) {
-                  setColdDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredCount));
+                  setIsLoadingMoreCold(true);
+                  setTimeout(() => {
+                    setColdDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredCount));
+                    setIsLoadingMoreCold(false);
+                  }, 500);
                 }
               }
             }}
@@ -2120,8 +2137,15 @@ const PlayerLeaderboardTable = () => {
                       </div>
                     ))}
                     {coldDisplayCount < filtered.length && (
-                      <div className="text-center py-3 text-xs text-muted-foreground">
-                        {t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})
+                      <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
+                        {isLoadingMoreCold ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            <span>{t('loading') || '加载中...'}</span>
+                          </>
+                        ) : (
+                          <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                        )}
                       </div>
                     )}
                   </>
