@@ -22,21 +22,39 @@ export const AnimatedWinRate = ({ value, className, style, trend, showTrend = fa
     if (trend > 2) {
       return (
         <motion.span
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 5, scale: 0.8 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            opacity: { duration: 0.3 },
+            y: { duration: 0.3 },
+            scale: { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+          }}
           className="inline-flex items-center ml-1"
         >
-          <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
+          <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
         </motion.span>
       );
     } else if (trend < -2) {
       return (
         <motion.span
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: -5, scale: 0.8 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            opacity: { duration: 0.3 },
+            y: { duration: 0.3 },
+            scale: { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+          }}
           className="inline-flex items-center ml-1"
         >
-          <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
+          <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
         </motion.span>
       );
     } else {

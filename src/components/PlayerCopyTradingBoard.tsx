@@ -989,9 +989,25 @@ const PlayerCopyTradingBoard = () => {
                 if (todayData && todayData.total > 0) {
                   const trendValue = todayData.winRate - player.winRate;
                   if (trendValue > 2) {
-                    return <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 ml-1 text-success" />;
+                    return (
+                      <motion.span
+                        animate={{ scale: [1, 1.15, 1] }}
+                        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                        className="inline-flex ml-1"
+                      >
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
+                      </motion.span>
+                    );
                   } else if (trendValue < -2) {
-                    return <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 ml-1 text-destructive" />;
+                    return (
+                      <motion.span
+                        animate={{ scale: [1, 1.15, 1] }}
+                        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                        className="inline-flex ml-1"
+                      >
+                        <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
+                      </motion.span>
+                    );
                   }
                 }
                 return null;
@@ -1223,9 +1239,25 @@ const PlayerCopyTradingBoard = () => {
                           if (todayData && todayData.total > 0) {
                             const trendValue = todayData.winRate - selectedPlayer.player.winRate;
                             if (trendValue > 2) {
-                              return <TrendingUp className="h-3 w-3 ml-0.5 text-success" />;
+                              return (
+                                <motion.span
+                                  animate={{ scale: [1, 1.15, 1] }}
+                                  transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                                  className="inline-flex ml-0.5"
+                                >
+                                  <TrendingUp className="h-3 w-3 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
+                                </motion.span>
+                              );
                             } else if (trendValue < -2) {
-                              return <TrendingDown className="h-3 w-3 ml-0.5 text-destructive" />;
+                              return (
+                                <motion.span
+                                  animate={{ scale: [1, 1.15, 1] }}
+                                  transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                                  className="inline-flex ml-0.5"
+                                >
+                                  <TrendingDown className="h-3 w-3 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
+                                </motion.span>
+                              );
                             }
                           }
                           return null;
@@ -1374,9 +1406,25 @@ const PlayerCopyTradingBoard = () => {
                         if (todayData && todayData.total > 0) {
                           const trendValue = todayData.winRate - unlockDialog.player.winRate;
                           if (trendValue > 2) {
-                            return <TrendingUp className="h-3 w-3 ml-0.5 text-success" />;
+                            return (
+                              <motion.span
+                                animate={{ scale: [1, 1.15, 1] }}
+                                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                                className="inline-flex ml-0.5"
+                              >
+                                <TrendingUp className="h-3 w-3 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
+                              </motion.span>
+                            );
                           } else if (trendValue < -2) {
-                            return <TrendingDown className="h-3 w-3 ml-0.5 text-destructive" />;
+                            return (
+                              <motion.span
+                                animate={{ scale: [1, 1.15, 1] }}
+                                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                                className="inline-flex ml-0.5"
+                              >
+                                <TrendingDown className="h-3 w-3 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
+                              </motion.span>
+                            );
                           }
                         }
                         return null;
@@ -1459,9 +1507,25 @@ const PlayerCopyTradingBoard = () => {
                         if (todayData && todayData.total > 0) {
                           const trendValue = todayData.winRate - copyTradeDialog.player.winRate;
                           if (trendValue > 2) {
-                            return <TrendingUp className="h-3 w-3 ml-0.5 text-success" />;
+                            return (
+                              <motion.span
+                                animate={{ scale: [1, 1.15, 1] }}
+                                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                                className="inline-flex ml-0.5"
+                              >
+                                <TrendingUp className="h-3 w-3 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
+                              </motion.span>
+                            );
                           } else if (trendValue < -2) {
-                            return <TrendingDown className="h-3 w-3 ml-0.5 text-destructive" />;
+                            return (
+                              <motion.span
+                                animate={{ scale: [1, 1.15, 1] }}
+                                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                                className="inline-flex ml-0.5"
+                              >
+                                <TrendingDown className="h-3 w-3 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
+                              </motion.span>
+                            );
                           }
                         }
                         return null;
