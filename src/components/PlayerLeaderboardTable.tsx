@@ -1525,15 +1525,38 @@ const PlayerLeaderboardTable = () => {
                                 // 已跟单 - 显示完整比赛信息
                                 <div className="rounded-lg bg-muted/20 border border-border/30 overflow-hidden">
                                   {/* 比赛信息头部 */}
-                                  <div className="flex items-center justify-between px-3 py-2.5 border-b border-border/20">
-                                    <div className="flex items-center gap-2 text-sm font-semibold">
-                                      <span className="text-foreground">{pred.home_team || '主队'}</span>
+                                  <div className="px-3 py-3 border-b border-border/20">
+                                    {/* 球队对阵 - 居中显示带队标 */}
+                                    <div className="flex items-center justify-center gap-4 mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <img 
+                                          src={`/src/assets/team-${(pred.home_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                                          alt=""
+                                          className="w-6 h-6 object-contain"
+                                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                        />
+                                        <span className="text-sm font-semibold text-foreground">{pred.home_team || '主队'}</span>
+                                      </div>
                                       <span className="text-muted-foreground/50 text-xs font-normal">vs</span>
-                                      <span className="text-foreground">{pred.away_team || '客队'}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-semibold text-foreground">{pred.away_team || '客队'}</span>
+                                        <img 
+                                          src={`/src/assets/team-${(pred.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                                          alt=""
+                                          className="w-6 h-6 object-contain"
+                                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                        />
+                                      </div>
                                     </div>
-                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium">
-                                      未开赛
-                                    </span>
+                                    {/* 开赛时间和状态 */}
+                                    <div className="flex items-center justify-center gap-3 text-[10px]">
+                                      <span className="text-muted-foreground">
+                                        {pred.match_date ? format(new Date(pred.match_date), 'MM/dd HH:mm') : '待定'}
+                                      </span>
+                                      <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium">
+                                        未开赛
+                                      </span>
+                                    </div>
                                   </div>
                                   
                                   {/* 投注信息 - 四列等宽布局 */}
