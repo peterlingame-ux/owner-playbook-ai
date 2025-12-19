@@ -140,6 +140,27 @@ const ProfitRateBadge = ({ value, locked }: { value: number; locked?: boolean })
   );
 };
 
+// Total Profit Rate Badge Component with Animation
+const TotalProfitRateBadge = ({ totalProfit, totalVolume }: { totalProfit: number; totalVolume: number }) => {
+  // Calculate profit rate as percentage
+  const profitRate = totalVolume > 0 ? (totalProfit / totalVolume) * 100 * 100 : 0; // Multiply by 100 again for larger visual effect
+  const animatedValue = useCountAnimation(Math.abs(profitRate), {
+    duration: 1500,
+    startValue: 0
+  });
+  
+  const isPositive = profitRate >= 0;
+  
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-muted-foreground">总收益率</span>
+      <span className={`text-lg font-bold font-mono-data ${isPositive ? 'text-success' : 'text-destructive'}`}>
+        {isPositive ? '+' : '-'}{animatedValue.toFixed(0)}%
+      </span>
+    </div>
+  );
+};
+
 const LeaderboardTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -1447,7 +1468,7 @@ const LeaderboardTable = () => {
           {/* Header */}
           <div className="px-5 pt-5 pb-3">
             <DialogHeader>
-              <div className="flex items-start justify-between">
+              <div className="flex items-center justify-between">
                 <div>
                   <DialogTitle className="text-lg font-bold text-foreground">
                     {selectedModelFollowers?.modelName} - 跟单用户
@@ -1456,17 +1477,10 @@ const LeaderboardTable = () => {
                     更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">总收益</p>
-                  <p className={`text-lg font-bold ${
-                    (selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 
-                      ? 'text-success' 
-                      : 'text-destructive'
-                  }`}>
-                    {(selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 ? '+' : ''}
-                    {(selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0).toFixed(2)}
-                  </p>
-                </div>
+                <TotalProfitRateBadge 
+                  totalProfit={selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0}
+                  totalVolume={selectedModelFollowers?.followers.reduce((sum, f) => sum + f.totalVolume, 0) || 1}
+                />
               </div>
             </DialogHeader>
           </div>
