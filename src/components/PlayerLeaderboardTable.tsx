@@ -166,6 +166,7 @@ const PlayerLeaderboardTable = () => {
   // 查看全部玩家弹窗状态
   const [showAllHotPlayers, setShowAllHotPlayers] = useState(false);
   const [showAllColdPlayers, setShowAllColdPlayers] = useState(false);
+  const [selectedAllPlayer, setSelectedAllPlayer] = useState<{ player: PlayerData; boardType: 'hot' | 'cold' } | null>(null);
   
   // 奖金池配置
   const PRIZE_POOL = 1000000; // $1,000,000
@@ -1935,9 +1936,12 @@ const PlayerLeaderboardTable = () => {
         )}
       </AnimatePresence>
 
-      {/* 查看全部高胜率玩家弹窗 */}
-      <Dialog open={showAllHotPlayers} onOpenChange={setShowAllHotPlayers}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+      {/* 查看全部高胜率玩家弹窗 - 简化版 */}
+      <Dialog open={showAllHotPlayers} onOpenChange={(open) => {
+        setShowAllHotPlayers(open);
+        if (!open) setSelectedAllPlayer(null);
+      }}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
@@ -1945,47 +1949,53 @@ const PlayerLeaderboardTable = () => {
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="flex-1 -mx-6 px-6">
-            <div className="space-y-2 pb-4">
+            <div className="space-y-1.5 pb-4">
               {[...allPlayers]
                 .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
-                .map((player, index) => {
-                  const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-                  return (
-                    <PlayerLeaderboardCard
-                      key={player.id}
-                      player={player}
-                      index={index}
-                      isCurrentUser={!!(user && player.id === user.id)}
-                      isLiked={likedPlayers.has(player.id)}
-                      likeCount={likeCounts.get(player.id) || 0}
-                      isLiking={isLiking.has(player.id)}
-                      onLike={(e) => handleLike(player.id, e)}
-                      onClick={() => {
-                        setShowAllHotPlayers(false);
-                        navigate(`/player/${player.id}`);
-                      }}
-                      onViewHistory={(e) => {
-                        e.stopPropagation();
-                        setShowAllHotPlayers(false);
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                      }}
-                      maskPlayerName={maskPlayerName}
-                      calculateEstimatedPrize={calculateEstimatedPrize}
-                      totalEligiblePlayers={eligiblePlayers}
-                      aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
-                      boardType="hot"
-                      todayWinRate={todayWinRates.get(player.id)?.winRate}
-                    />
-                  );
-                })}
+                .map((player, index) => (
+                  <div
+                    key={player.id}
+                    onClick={() => setSelectedAllPlayer({ player, boardType: 'hot' })}
+                    className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
+                  >
+                    {/* Rank */}
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      index < 3 
+                        ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' 
+                        : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {index + 1}
+                    </div>
+                    {/* Avatar */}
+                    <Avatar className="w-9 h-9 border border-border/50">
+                      <AvatarImage src={player.avatarUrl} />
+                      <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    {/* Name & Streak */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
+                      </p>
+                    </div>
+                    {/* Win Rate */}
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
+                      <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                    </div>
+                  </div>
+                ))}
             </div>
           </ScrollArea>
         </DialogContent>
       </Dialog>
 
-      {/* 查看全部低胜率玩家弹窗 */}
-      <Dialog open={showAllColdPlayers} onOpenChange={setShowAllColdPlayers}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+      {/* 查看全部低胜率玩家弹窗 - 简化版 */}
+      <Dialog open={showAllColdPlayers} onOpenChange={(open) => {
+        setShowAllColdPlayers(open);
+        if (!open) setSelectedAllPlayer(null);
+      }}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
@@ -1993,41 +2003,95 @@ const PlayerLeaderboardTable = () => {
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="flex-1 -mx-6 px-6">
-            <div className="space-y-2 pb-4">
+            <div className="space-y-1.5 pb-4">
               {[...allPlayers]
                 .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
-                .map((player, index) => {
-                  const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-                  return (
-                    <PlayerLeaderboardCard
-                      key={player.id}
-                      player={player}
-                      index={index}
-                      isCurrentUser={!!(user && player.id === user.id)}
-                      isLiked={likedPlayers.has(player.id)}
-                      likeCount={likeCounts.get(player.id) || 0}
-                      isLiking={isLiking.has(player.id)}
-                      onLike={(e) => handleLike(player.id, e)}
-                      onClick={() => {
-                        setShowAllColdPlayers(false);
-                        navigate(`/player/${player.id}`);
-                      }}
-                      onViewHistory={(e) => {
-                        e.stopPropagation();
-                        setShowAllColdPlayers(false);
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                      }}
-                      maskPlayerName={maskPlayerName}
-                      calculateEstimatedPrize={calculateEstimatedPrize}
-                      totalEligiblePlayers={eligiblePlayers}
-                      aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
-                      boardType="cold"
-                      todayWinRate={todayWinRates.get(player.id)?.winRate}
-                    />
-                  );
-                })}
+                .map((player, index) => (
+                  <div
+                    key={player.id}
+                    onClick={() => setSelectedAllPlayer({ player, boardType: 'cold' })}
+                    className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
+                  >
+                    {/* Rank */}
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      index < 3 
+                        ? 'bg-gradient-to-br from-red-400 to-red-600 text-white' 
+                        : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {index + 1}
+                    </div>
+                    {/* Avatar */}
+                    <Avatar className="w-9 h-9 border border-border/50">
+                      <AvatarImage src={player.avatarUrl} />
+                      <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    {/* Name & Streak */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        连败 <span className="text-red-500 font-bold">{player.worstStreak || 0}</span>
+                      </p>
+                    </div>
+                    {/* Win Rate */}
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
+                      <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                    </div>
+                  </div>
+                ))}
             </div>
           </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* 玩家详情弹窗 */}
+      <Dialog open={!!selectedAllPlayer} onOpenChange={(open) => !open && setSelectedAllPlayer(null)}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+          {selectedAllPlayer && (
+            <>
+              <DialogHeader className="pb-2">
+                <DialogTitle className="flex items-center gap-2">
+                  <Avatar className="w-8 h-8 border border-border/50">
+                    <AvatarImage src={selectedAllPlayer.player.avatarUrl} />
+                    <AvatarFallback>{selectedAllPlayer.player.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  {maskPlayerName(selectedAllPlayer.player.displayName)} - {t('player_detail') || '玩家详情'}
+                </DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="flex-1 -mx-6 px-6">
+                <div className="pb-4">
+                  <PlayerLeaderboardCard
+                    player={selectedAllPlayer.player}
+                    index={allPlayers.findIndex(p => p.id === selectedAllPlayer.player.id)}
+                    isCurrentUser={!!(user && selectedAllPlayer.player.id === user.id)}
+                    isLiked={likedPlayers.has(selectedAllPlayer.player.id)}
+                    likeCount={likeCounts.get(selectedAllPlayer.player.id) || 0}
+                    isLiking={isLiking.has(selectedAllPlayer.player.id)}
+                    onLike={(e) => handleLike(selectedAllPlayer.player.id, e)}
+                    onClick={() => {
+                      setSelectedAllPlayer(null);
+                      setShowAllHotPlayers(false);
+                      setShowAllColdPlayers(false);
+                      navigate(`/player/${selectedAllPlayer.player.id}`);
+                    }}
+                    onViewHistory={(e) => {
+                      e.stopPropagation();
+                      setSelectedAllPlayer(null);
+                      setShowAllHotPlayers(false);
+                      setShowAllColdPlayers(false);
+                      fetchTodayHistory(selectedAllPlayer.player.id, selectedAllPlayer.player.displayName, selectedAllPlayer.player.isVirtual || false);
+                    }}
+                    maskPlayerName={maskPlayerName}
+                    calculateEstimatedPrize={calculateEstimatedPrize}
+                    totalEligiblePlayers={allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}
+                    aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                    boardType={selectedAllPlayer.boardType}
+                    todayWinRate={todayWinRates.get(selectedAllPlayer.player.id)?.winRate}
+                  />
+                </div>
+              </ScrollArea>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 
