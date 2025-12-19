@@ -122,6 +122,7 @@ interface PlayerData {
   isVirtual?: boolean;
   isRecommender?: boolean;
   unlockPrice?: number; // USDT解锁价格，0或undefined表示免费
+  signature?: string; // 用户个性签名
 }
 
 interface TodayPrediction {
@@ -302,7 +303,7 @@ const PlayerLeaderboardTable = () => {
         // 获取所有用户的基本信息
         const { data: usersData, error: usersError } = await supabase
           .from('users')
-          .select('id, display_name, avatar_url');
+          .select('id, display_name, avatar_url, signature');
         
         if (usersError) throw usersError;
         
@@ -387,6 +388,7 @@ const PlayerLeaderboardTable = () => {
             id: user.id,
             displayName: user.display_name,
             avatarUrl: user.avatar_url,
+            signature: user.signature || undefined,
             totalPredictions,
             correctPredictions,
             winRate,
@@ -1455,8 +1457,9 @@ const PlayerLeaderboardTable = () => {
                       const unlockPrice = player?.unlockPrice ?? 0;
                       return (
                         <>
-                          <span>{t('win_rate')} <span className="text-foreground font-semibold">{player?.winRate.toFixed(0)}%</span></span>
-                          <span>{t('win_streak')} <span className="text-foreground font-semibold">{player?.currentStreak || 0}</span></span>
+                          <span className="text-muted-foreground truncate max-w-[200px]">
+                            {player?.signature || '这个人很懒，什么都没写~'}
+                          </span>
                           {unlockPrice > 0 ? (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
                               <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
