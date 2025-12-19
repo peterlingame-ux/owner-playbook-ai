@@ -723,6 +723,12 @@ const resources = {
       "unfollow_success": "Unfollowed",
       "operation_failed": "Operation Failed",
       
+      // Countdown
+      "match_starting_soon": "Starting Soon",
+      "days_short": "d",
+      "hours_short": "h",
+      "minutes_short": "m",
+      
       // Deposit & Spending Records
       "deposit_records": "Deposit Records",
       "deposit_records_desc": "View your USDT deposit history",
@@ -1564,6 +1570,12 @@ const resources = {
       "unfollow_success": "已取消关注",
       "operation_failed": "操作失败",
       
+      // 倒计时
+      "match_starting_soon": "即将开赛",
+      "days_short": "天",
+      "hours_short": "时",
+      "minutes_short": "分",
+      
       // 充值与消费记录
       "deposit_records": "充值记录",
       "deposit_records_desc": "查看您的USDT充值历史",
@@ -2393,6 +2405,19 @@ const resources = {
       "go_to_leaderboard": "순위표로 이동",
       "view_leaderboard": "순위표 보기",
       "no_prediction_records": "아직 예측 기록이 없습니다",
+      
+      // 모델 팔로우
+      "follow_model": "모델 팔로우",
+      "following": "팔로우 중",
+      "follow_success": "팔로우 성공",
+      "unfollow_success": "팔로우 취소됨",
+      "operation_failed": "작업 실패",
+      
+      // 카운트다운
+      "match_starting_soon": "곧 시작",
+      "days_short": "일",
+      "hours_short": "시",
+      "minutes_short": "분",
       
       // 입금 및 지출 기록
       "deposit_records": "입금 기록",
