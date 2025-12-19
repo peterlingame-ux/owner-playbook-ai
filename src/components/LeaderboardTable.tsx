@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
+import { GoalIcon } from "@/components/FootballIcons";
 import { aiModels } from "@/data/mockData";
 import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1173,14 +1174,17 @@ const LeaderboardTable = () => {
                   <div>
                     <p className="text-xs sm:text-sm text-white/70 mb-2 sm:mb-3">{t('active_matches').toUpperCase()}</p>
                     <div className="flex gap-1.5 sm:gap-2 flex-wrap">
-                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white">
-                        ⚽ Premier League
+                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white flex items-center gap-1">
+                        <GoalIcon size={14} className="flex-shrink-0" />
+                        <span>Premier League</span>
                       </div>
-                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white">
-                        ⚽ La Liga
+                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white flex items-center gap-1">
+                        <GoalIcon size={14} className="flex-shrink-0" />
+                        <span>La Liga</span>
                       </div>
-                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white hidden sm:inline-flex">
-                        ⚽ Bundesliga
+                      <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs text-white hidden sm:inline-flex items-center gap-1">
+                        <GoalIcon size={14} className="flex-shrink-0" />
+                        <span>Bundesliga</span>
                       </div>
                     </div>
                   </div>

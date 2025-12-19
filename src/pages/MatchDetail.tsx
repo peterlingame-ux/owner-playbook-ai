@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
 import LiveFootballAnimation from "@/components/LiveFootballAnimation";
+import { GoalIcon, YellowCardIcon, WhistleIcon, RedCardIcon, CornerIcon, InfoIcon } from "@/components/FootballIcons";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -10,6 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { fetchMatchDetail, fetchMatchLiveById } from "@/lib/sportnanoapi";
+import type { MatchLiveData } from "@/types/footballApi";
+import ftbLiveBg from "@/assets/ftbLive.7d6ed6f.png";
+import type { DiaryMatch, DiaryTeam, Competition } from "@/types/footballApi";
 
 // 球员数据
 interface Player {
@@ -64,6 +69,7 @@ interface MatchDetailInfo {
     shortName: string;
     fifaRank: number;
     flag: string;
+    logo?: string;
     score: number;
     halfTimeScore: number;
     extraTimeScore?: number;
@@ -76,6 +82,7 @@ interface MatchDetailInfo {
     shortName: string;
     fifaRank: number;
     flag: string;
+    logo?: string;
     score: number;
     halfTimeScore: number;
     extraTimeScore?: number;
@@ -749,6 +756,333 @@ const FormationComparisonPanel = ({
   );
 };
 
+// 将 API 数据转换为 MatchDetailInfo 格式
+const convertApiMatchToDetailInfo = (
+  apiMatch: DiaryMatch,
+  teams: DiaryTeam[],
+  competitions: Competition[]
+): MatchDetailInfo => {
+  const matchTime = apiMatch.match_time * 1000; // 转换为毫秒
+  const matchDate = new Date(matchTime);
+  
+  // 格式化日期和时间
+  const date = matchDate.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/');
+  const time = matchDate.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  
+  // 判断比赛状态
+  let status: 'live' | 'finished' | 'upcoming' = 'upcoming';
+  let minute: string | undefined;
+  
+  const now = Math.floor(Date.now() / 1000);
+  const statusId = apiMatch.status_id;
+  
+  switch (statusId) {
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 10:
+      status = 'live';
+      if (statusId === 3) {
+        minute = 'HT';
+      } else if (apiMatch.match_time > 0) {
+        const elapsedSeconds = now - apiMatch.match_time;
+        const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+        if (elapsedMinutes > 0 && elapsedMinutes <= 150) {
+          minute = `${elapsedMinutes}'`;
+        }
+      }
+      break;
+    case 8:
+    case 11:
+    case 12:
+      status = 'finished';
+      break;
+    default:
+      if (apiMatch.ended && apiMatch.ended > 0) {
+        status = 'finished';
+      } else if (apiMatch.match_time > 0 && apiMatch.match_time <= now) {
+        status = 'live';
+      } else {
+        status = 'upcoming';
+      }
+      break;
+  }
+  
+  // 获取球队信息
+  const homeTeam = teams.find(t => t.id === apiMatch.home_team_id);
+  const awayTeam = teams.find(t => t.id === apiMatch.away_team_id);
+  const competition = competitions.find(c => c.id === apiMatch.competition_id);
+  
+  // 获取比分
+  const homeScores = apiMatch.home_scores || [];
+  const awayScores = apiMatch.away_scores || [];
+  const homeScore = homeScores.length > 0 && homeScores[0] !== undefined ? homeScores[0] : undefined;
+  const awayScore = awayScores.length > 0 && awayScores[0] !== undefined ? awayScores[0] : undefined;
+  const halfTimeHomeScore = homeScores.length > 1 && homeScores[1] !== undefined ? homeScores[1] : undefined;
+  const halfTimeAwayScore = awayScores.length > 1 && awayScores[1] !== undefined ? awayScores[1] : undefined;
+  
+  // 获取红牌和黄牌
+  const homeYellowCards = homeScores.length > 3 && homeScores[3] !== undefined && homeScores[3] >= 0 ? homeScores[3] : undefined;
+  const awayYellowCards = awayScores.length > 3 && awayScores[3] !== undefined && awayScores[3] >= 0 ? awayScores[3] : undefined;
+  const homeRedCards = homeScores.length > 2 && homeScores[2] !== undefined && homeScores[2] >= 0 ? homeScores[2] : undefined;
+  const awayRedCards = awayScores.length > 2 && awayScores[2] !== undefined && awayScores[2] >= 0 ? awayScores[2] : undefined;
+  
+  // 获取角球
+  const homeCorners = homeScores.length > 4 && homeScores[4] !== undefined && homeScores[4] >= 0 ? homeScores[4] : undefined;
+  const awayCorners = awayScores.length > 4 && awayScores[4] !== undefined && awayScores[4] >= 0 ? awayScores[4] : undefined;
+  
+  // 获取环境信息
+  const environment = apiMatch.environment;
+  
+  return {
+    id: apiMatch.id.toString(),
+    league: competition?.name || '未知联赛',
+    leagueStage: '', // API 中没有阶段信息，留空
+    date,
+    time,
+    status,
+    minute,
+    venue: environment ? {
+      name: '', // API 中没有场地名称，需要从 venue_id 获取
+      weather: environment.weather === 1 ? '晴天' : environment.weather === 2 ? '多云' : environment.weather === 3 ? '雨天' : '未知',
+      temperature: parseInt(environment.temperature) || 0,
+      humidity: parseInt(environment.humidity) || 0,
+      referee: '' // API 中没有裁判信息
+    } : undefined,
+    homeTeam: {
+      name: homeTeam?.name || '未知主队',
+      shortName: homeTeam?.name || '',
+      fifaRank: apiMatch.home_position ? parseInt(apiMatch.home_position) : undefined,
+      flag: '',
+      logo: homeTeam?.logo,
+      score: homeScore ?? 0,
+      halfTimeScore: halfTimeHomeScore ?? 0,
+      extraTimeScore: homeScores.length > 5 && homeScores[5] !== undefined ? homeScores[5] : undefined,
+      yellowCards: homeYellowCards ?? 0,
+      redCards: homeRedCards ?? 0,
+      lineup: {
+        formation: '',
+        totalValue: '',
+        averageAge: 0,
+        coach: '',
+        startingXI: [],
+        substitutes: []
+      }
+    },
+    awayTeam: {
+      name: awayTeam?.name || '未知客队',
+      shortName: awayTeam?.name || '',
+      fifaRank: apiMatch.away_position ? parseInt(apiMatch.away_position) : undefined,
+      flag: '',
+      logo: awayTeam?.logo,
+      score: awayScore ?? 0,
+      halfTimeScore: halfTimeAwayScore ?? 0,
+      extraTimeScore: awayScores.length > 5 && awayScores[5] !== undefined ? awayScores[5] : undefined,
+      yellowCards: awayYellowCards ?? 0,
+      redCards: awayRedCards ?? 0,
+      lineup: {
+        formation: '',
+        totalValue: '',
+        averageAge: 0,
+        coach: '',
+        startingXI: [],
+        substitutes: []
+      }
+    },
+    events: [], // 需要从其他 API 获取
+    stats: {
+      homeAttacks: 0,
+      awayAttacks: 0,
+      homeDangerousAttacks: 0,
+      awayDangerousAttacks: 0,
+      homePossession: 50,
+      awayPossession: 50,
+      homeShotsOnTarget: 0,
+      awayShotsOnTarget: 0,
+      homeShotsOffTarget: 0,
+      awayShotsOffTarget: 0,
+      homeCorners: homeCorners ?? 0,
+      awayCorners: awayCorners ?? 0
+    },
+    supportRate: {
+      home: 50,
+      away: 50
+    },
+    timeline: [], // 需要从其他 API 获取
+    odds: undefined // 需要从其他 API 获取
+  };
+};
+
+// 解析统计数据并更新到 match 对象
+const updateStatsFromLiveData = (live: MatchLiveData, match: MatchDetailInfo): MatchDetailInfo => {
+  if (!live.stats || live.stats.length === 0) {
+    return match;
+  }
+
+  const updatedMatch = { ...match };
+  
+  live.stats.forEach(stat => {
+    // 根据统计类型状态码更新对应的统计数据
+    switch (stat.type) {
+      case STAT_TYPE.CORNER: // 角球
+        updatedMatch.stats.homeCorners = stat.home;
+        updatedMatch.stats.awayCorners = stat.away;
+        break;
+      case STAT_TYPE.YELLOW_CARD: // 黄牌
+        updatedMatch.homeTeam.yellowCards = stat.home;
+        updatedMatch.awayTeam.yellowCards = stat.away;
+        break;
+      case STAT_TYPE.RED_CARD: // 红牌
+        updatedMatch.homeTeam.redCards = stat.home;
+        updatedMatch.awayTeam.redCards = stat.away;
+        break;
+      case STAT_TYPE.SHOT_ON_TARGET: // 射正
+        updatedMatch.stats.homeShotsOnTarget = stat.home;
+        updatedMatch.stats.awayShotsOnTarget = stat.away;
+        break;
+      case STAT_TYPE.SHOT_OFF_TARGET: // 射偏
+        updatedMatch.stats.homeShotsOffTarget = stat.home;
+        updatedMatch.stats.awayShotsOffTarget = stat.away;
+        break;
+      case STAT_TYPE.ATTACK: // 进攻
+        updatedMatch.stats.homeAttacks = stat.home;
+        updatedMatch.stats.awayAttacks = stat.away;
+        break;
+      case STAT_TYPE.DANGEROUS_ATTACK: // 危险进攻
+        updatedMatch.stats.homeDangerousAttacks = stat.home;
+        updatedMatch.stats.awayDangerousAttacks = stat.away;
+        break;
+      case STAT_TYPE.POSSESSION: // 控球率
+        updatedMatch.stats.homePossession = stat.home;
+        updatedMatch.stats.awayPossession = stat.away;
+        break;
+      case STAT_TYPE.SHOT_BLOCKED: // 射门被阻挡
+        // 可以添加到 stats 中，如果需要的话
+        break;
+      default:
+        // 其他统计类型暂时不处理
+        break;
+    }
+  });
+  
+  return updatedMatch;
+};
+
+// 技术统计状态码映射
+const STAT_TYPE = {
+  GOAL: 1,           // 进球
+  CORNER: 2,         // 角球
+  YELLOW_CARD: 3,    // 黄牌
+  RED_CARD: 4,       // 红牌
+  OFFSIDE: 5,        // 越位
+  FREE_KICK: 6,      // 任意球
+  GOAL_KICK: 7,      // 球门球
+  PENALTY: 8,        // 点球
+  SUBSTITUTION: 9,   // 换人
+  MATCH_START: 10,   // 比赛开始
+  HALF_TIME: 11,     // 中场
+  MATCH_END: 12,     // 结束
+  HALF_SCORE: 13,    // 半场比分
+  SECOND_YELLOW: 15, // 两黄变红
+  PENALTY_MISSED: 16,// 点球未进
+  OWN_GOAL: 17,      // 乌龙球
+  ASSIST: 18,        // 助攻
+  INJURY_TIME: 19,   // 伤停补时
+  SHOT_ON_TARGET: 21,// 射正
+  SHOT_OFF_TARGET: 22,// 射偏
+  ATTACK: 23,        // 进攻
+  DANGEROUS_ATTACK: 24,// 危险进攻
+  POSSESSION: 25,    // 控球率
+  EXTRA_TIME_END: 26,// 加时赛结束
+  PENALTY_SHOOTOUT_END: 27,// 点球大战结束
+  VAR: 28,           // VAR(视频助理裁判)
+  PENALTY_SHOOTOUT: 29,// 点球(点球大战)
+  PENALTY_SHOOTOUT_MISSED: 30,// 点球未进(点球大战)
+  SHOT_BLOCKED: 37,  // 射门被阻挡
+} as const;
+
+// 解析比赛事件
+const parseIncidentsToEvents = (incidents: MatchLiveData['incidents']): MatchEvent[] => {
+  if (!incidents || incidents.length === 0) {
+    return [];
+  }
+
+  return incidents.map(incident => {
+    const team = incident.position === 1 ? 'home' : incident.position === 2 ? 'away' : 'home';
+    let eventType: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' = 'whistle';
+    let description = '';
+    
+    // 根据事件类型状态码设置类型和描述
+    switch (incident.type) {
+      case STAT_TYPE.GOAL:
+        eventType = 'goal';
+        description = incident.player_name ? `${incident.player_name} 进球` : '进球';
+        if (incident.home_score !== undefined && incident.away_score !== undefined) {
+          description += ` (${incident.home_score}-${incident.away_score})`;
+        }
+        break;
+      case STAT_TYPE.YELLOW_CARD:
+        eventType = 'yellow_card';
+        description = incident.player_name ? `${incident.player_name} 黄牌` : '黄牌';
+        break;
+      case STAT_TYPE.RED_CARD:
+      case STAT_TYPE.SECOND_YELLOW:
+        eventType = 'red_card';
+        description = incident.player_name 
+          ? `${incident.player_name} ${incident.type === STAT_TYPE.SECOND_YELLOW ? '两黄变红' : '红牌'}`
+          : incident.type === STAT_TYPE.SECOND_YELLOW ? '两黄变红' : '红牌';
+        break;
+      case STAT_TYPE.SUBSTITUTION:
+        eventType = 'substitution';
+        description = incident.player_name ? `${incident.player_name} 换人` : '换人';
+        break;
+      case STAT_TYPE.PENALTY:
+        eventType = 'goal';
+        description = incident.player_name ? `${incident.player_name} 点球` : '点球';
+        break;
+      case STAT_TYPE.PENALTY_MISSED:
+        description = incident.player_name ? `${incident.player_name} 点球未进` : '点球未进';
+        break;
+      case STAT_TYPE.OWN_GOAL:
+        eventType = 'goal';
+        description = incident.player_name ? `${incident.player_name} 乌龙球` : '乌龙球';
+        break;
+      case STAT_TYPE.CORNER:
+        description = '角球';
+        break;
+      case STAT_TYPE.VAR:
+        description = 'VAR';
+        break;
+      case STAT_TYPE.HALF_TIME:
+        description = '中场';
+        break;
+      case STAT_TYPE.MATCH_END:
+        description = '比赛结束';
+        break;
+      case STAT_TYPE.EXTRA_TIME_END:
+        description = '加时赛结束';
+        break;
+      case STAT_TYPE.PENALTY_SHOOTOUT_END:
+        description = '点球大战结束';
+        break;
+      default:
+        description = incident.player_name || '事件';
+        break;
+    }
+    
+    return {
+      minute: `${incident.time}'`,
+      type: eventType,
+      team,
+      description,
+      player: incident.player_name
+    };
+  });
+};
+
 export default function MatchDetail() {
   const { matchId } = useParams();
   const navigate = useNavigate();
@@ -756,13 +1090,327 @@ export default function MatchDetail() {
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
   const [activeTab, setActiveTab] = useState<TabType>('live');
   const [match, setMatch] = useState<MatchDetailInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [liveData, setLiveData] = useState<MatchLiveData | null>(null);
+  const [textLiveData, setTextLiveData] = useState<MatchLiveData['tlive']>([]);
+  const [textLiveTab, setTextLiveTab] = useState<'text' | 'events'>('text'); // 文字直播/重要事件切换
+  const [onlyGoals, setOnlyGoals] = useState(false); // 只看进球开关
+
+  // 调试：监听 textLiveData 变化
+  useEffect(() => {
+    console.log('textLiveData updated:', textLiveData);
+  }, [textLiveData]);
+
+  // 计算比赛进行分钟数
+  const calculateMatchMinute = (live: MatchLiveData | null, matchStatus: 'live' | 'finished' | 'upcoming'): string | undefined => {
+    if (!live || matchStatus !== 'live') {
+      return undefined;
+    }
+
+    const status = live.score.status;
+    const kickoffTime = live.score.kickoffTime;
+    const now = Math.floor(Date.now() / 1000);
+
+    // 根据状态码判断是上半场还是下半场
+    // 2: 上半场, 3: 中场, 4: 下半场, 5: 加时赛, 7: 点球大战
+    if (status === 2) {
+      // 上半场：比赛进行分钟数=(当前时间戳-上半场开球时间戳) / 60 + 1
+      const elapsedMinutes = Math.floor((now - kickoffTime) / 60) + 1;
+      return `${elapsedMinutes}'`;
+    } else if (status === 4 || status === 5) {
+      // 下半场：比赛进行分钟数=(当前时间戳-下半场开球时间戳) / 60 + 45 + 1
+      // 注意：这里假设 kickoffTime 是下半场开球时间
+      const elapsedMinutes = Math.floor((now - kickoffTime) / 60) + 45 + 1;
+      return `${elapsedMinutes}'`;
+    } else if (status === 3) {
+      return 'HT';
+    } else if (status === 5) {
+      return 'ET';
+    } else if (status === 7) {
+      return 'PEN';
+    } else if (status === 8) {
+      return 'FT';
+    } else if (status === 10) {
+      return '中断';
+    } else if (status === 11 || status === 12) {
+      return '取消';
+    }
+
+    return undefined;
+  };
 
   useEffect(() => {
-    if (matchId) {
-      const matchData = virtualMatchDetails[matchId] || generateDefaultMatch(matchId);
-      setMatch(matchData);
-    }
+    const loadMatchData = async () => {
+      if (!matchId) {
+        setError('比赛ID不存在');
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // 从 API 获取比赛数据
+        const { match: apiMatch, teams, competitions } = await fetchMatchDetail(matchId);
+        
+        if (apiMatch) {
+          // 转换为详情页需要的格式
+          const matchData = convertApiMatchToDetailInfo(apiMatch, teams, competitions);
+          setMatch(matchData);
+        } else {
+          // 如果 API 中没有找到，使用虚拟数据作为后备
+          const matchData = virtualMatchDetails[matchId] || generateDefaultMatch(matchId);
+          setMatch(matchData);
+        }
+      } catch (err) {
+        console.error('Failed to load match data:', err);
+        setError(err instanceof Error ? err.message : '加载比赛数据失败');
+        // 使用虚拟数据作为后备
+        if (matchId) {
+          const matchData = virtualMatchDetails[matchId] || generateDefaultMatch(matchId);
+          setMatch(matchData);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMatchData();
   }, [matchId]);
+
+  // 每2秒更新一次实时数据
+  useEffect(() => {
+    if (!matchId || !match || match.status !== 'live') {
+      return;
+    }
+
+    const updateLiveData = async () => {
+      try {
+        const live = await fetchMatchLiveById(matchId);
+        if (live) {
+          setLiveData(live);
+          
+          // 更新比赛数据
+          setMatch(prevMatch => {
+            if (!prevMatch) return prevMatch;
+            
+            const updatedMatch = { ...prevMatch };
+            
+            // 更新比分
+            if (live.score.homeScores.length > 0) {
+              updatedMatch.homeTeam.score = live.score.homeScores[0];
+            }
+            if (live.score.awayScores.length > 0) {
+              updatedMatch.awayTeam.score = live.score.awayScores[0];
+            }
+            
+            // 更新半场比分
+            if (live.score.homeScores.length > 1) {
+              updatedMatch.homeTeam.halfTimeScore = live.score.homeScores[1];
+            }
+            if (live.score.awayScores.length > 1) {
+              updatedMatch.awayTeam.halfTimeScore = live.score.awayScores[1];
+            }
+            
+            // 更新红牌和黄牌
+            if (live.score.homeScores.length > 2) {
+              updatedMatch.homeTeam.redCards = live.score.homeScores[2] >= 0 ? live.score.homeScores[2] : 0;
+            }
+            if (live.score.awayScores.length > 2) {
+              updatedMatch.awayTeam.redCards = live.score.awayScores[2] >= 0 ? live.score.awayScores[2] : 0;
+            }
+            if (live.score.homeScores.length > 3) {
+              updatedMatch.homeTeam.yellowCards = live.score.homeScores[3] >= 0 ? live.score.homeScores[3] : 0;
+            }
+            if (live.score.awayScores.length > 3) {
+              updatedMatch.awayTeam.yellowCards = live.score.awayScores[3] >= 0 ? live.score.awayScores[3] : 0;
+            }
+            
+            // 更新角球
+            if (live.score.homeScores.length > 4 && live.score.homeScores[4] >= 0) {
+              updatedMatch.stats.homeCorners = live.score.homeScores[4];
+            }
+            if (live.score.awayScores.length > 4 && live.score.awayScores[4] >= 0) {
+              updatedMatch.stats.awayCorners = live.score.awayScores[4];
+            }
+            
+            // 更新比赛状态
+            const statusId = live.score.status;
+            if (statusId === 8 || statusId === 11 || statusId === 12) {
+              updatedMatch.status = 'finished';
+            } else if (statusId === 1 || statusId === 9 || statusId === 13) {
+              updatedMatch.status = 'upcoming';
+            } else {
+              updatedMatch.status = 'live';
+            }
+            
+            // 计算并更新比赛分钟数
+            updatedMatch.minute = calculateMatchMinute(live, updatedMatch.status);
+            
+            // 更新统计数据（如果存在）
+            const statsUpdatedMatch = updateStatsFromLiveData(live, updatedMatch);
+            // 合并统计数据
+            updatedMatch.stats = statsUpdatedMatch.stats;
+            
+            // 更新比赛事件（如果存在）
+            if (live.incidents && live.incidents.length > 0) {
+              updatedMatch.events = parseIncidentsToEvents(live.incidents);
+            }
+            
+            // 更新文字直播（如果存在）
+            // 文字直播包含：黄牌、红牌、进球、换人、角球、越位、助攻、比赛开始、中场、结束等
+            if (live.tlive && Array.isArray(live.tlive) && live.tlive.length > 0) {
+              // 存储所有文字直播数据
+              console.log('Updating text live data:', live.tlive);
+              setTextLiveData(live.tlive);
+              
+              // 将重要的文字直播事件（main === 1）合并到事件列表中
+              const importantTextEvents: MatchEvent[] = live.tlive
+                .filter(text => text.main === 1)
+                .map(text => {
+                  // 根据文字直播类型判断事件类型
+                  let eventType: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' = 'whistle';
+                  
+                  // 根据 type 判断事件类型
+                  switch (text.type) {
+                    case STAT_TYPE.GOAL:
+                    case STAT_TYPE.PENALTY:
+                    case STAT_TYPE.OWN_GOAL:
+                      eventType = 'goal';
+                      break;
+                    case STAT_TYPE.YELLOW_CARD:
+                      eventType = 'yellow_card';
+                      break;
+                    case STAT_TYPE.RED_CARD:
+                    case STAT_TYPE.SECOND_YELLOW:
+                      eventType = 'red_card';
+                      break;
+                    case STAT_TYPE.SUBSTITUTION:
+                      eventType = 'substitution';
+                      break;
+                    default:
+                      eventType = 'whistle';
+                      break;
+                  }
+                  
+                  return {
+                    minute: text.time,
+                    type: eventType,
+                    team: (text.position === 1 ? 'home' : text.position === 2 ? 'away' : 'home') as 'home' | 'away',
+                    description: text.data,
+                  };
+                });
+              
+              // 将重要的文字直播事件合并到事件列表中
+              updatedMatch.events = [...updatedMatch.events, ...importantTextEvents];
+            } else {
+              // 如果没有新的文字直播数据，保持原有数据
+              // setTextLiveData([]); // 或者不清空，保持之前的数据
+            }
+            
+            // 生成时间线数据（用于图表显示）
+            // 根据比赛事件和统计数据生成时间线
+            if (live.incidents && live.incidents.length > 0) {
+              // 创建时间线数据点（每15分钟一个点）
+              const timelinePoints = [];
+              const timePoints = [0, 15, 30, 45, 60, 75, 90];
+              
+              timePoints.forEach(minute => {
+                // 计算该时间段内的事件强度
+                const incidentsInPeriod = live.incidents.filter(inc => {
+                  const incMinute = inc.time;
+                  return incMinute >= minute - 7.5 && incMinute < minute + 7.5;
+                });
+                
+                const homeIntensity = incidentsInPeriod.filter(inc => inc.position === 1).length * 20;
+                const awayIntensity = incidentsInPeriod.filter(inc => inc.position === 2).length * 20;
+                
+                // 添加事件标记
+                const eventsInPeriod = incidentsInPeriod.map(inc => {
+                  let eventType: 'goal' | 'yellow' | 'red' | undefined;
+                  let team: 'home' | 'away' | undefined;
+                  
+                  // 根据事件类型状态码判断
+                  switch (inc.type) {
+                    case STAT_TYPE.GOAL:
+                    case STAT_TYPE.PENALTY:
+                    case STAT_TYPE.OWN_GOAL:
+                      eventType = 'goal';
+                      break;
+                    case STAT_TYPE.YELLOW_CARD:
+                      eventType = 'yellow';
+                      break;
+                    case STAT_TYPE.RED_CARD:
+                    case STAT_TYPE.SECOND_YELLOW:
+                      eventType = 'red';
+                      break;
+                    default:
+                      eventType = undefined;
+                      break;
+                  }
+                  
+                  team = inc.position === 1 ? 'home' : inc.position === 2 ? 'away' : undefined;
+                  
+                  return { event: eventType, team };
+                }).filter(e => e.event);
+                
+                timelinePoints.push({
+                  minute,
+                  homeIntensity: Math.min(homeIntensity, 100),
+                  awayIntensity: Math.min(awayIntensity, 100),
+                  event: eventsInPeriod[0]?.event,
+                  team: eventsInPeriod[0]?.team
+                });
+              });
+              
+              updatedMatch.timeline = timelinePoints;
+            } else if (updatedMatch.events && updatedMatch.events.length > 0) {
+              // 如果没有 incidents，使用 events 生成时间线
+              const timelinePoints = [];
+              const timePoints = [0, 15, 30, 45, 60, 75, 90];
+              
+              timePoints.forEach(minute => {
+                const eventsInPeriod = updatedMatch.events.filter(ev => {
+                  const evMinute = parseInt(ev.minute.replace("'", "")) || 0;
+                  return evMinute >= minute - 7.5 && evMinute < minute + 7.5;
+                });
+                
+                const homeIntensity = eventsInPeriod.filter(ev => ev.team === 'home').length * 25;
+                const awayIntensity = eventsInPeriod.filter(ev => ev.team === 'away').length * 25;
+                
+                const eventInPeriod = eventsInPeriod[0];
+                
+                timelinePoints.push({
+                  minute,
+                  homeIntensity: Math.min(homeIntensity, 100),
+                  awayIntensity: Math.min(awayIntensity, 100),
+                  event: eventInPeriod?.type === 'goal' ? 'goal' : eventInPeriod?.type === 'yellow_card' ? 'yellow' : eventInPeriod?.type === 'red_card' ? 'red' : undefined,
+                  team: eventInPeriod?.team
+                });
+              });
+              
+              updatedMatch.timeline = timelinePoints;
+            }
+            
+            return updatedMatch;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to update live data:', err);
+        // 不显示错误，静默失败，继续轮询
+      }
+    };
+
+    // 立即执行一次
+    updateLiveData();
+
+    // 每2秒更新一次
+    const interval = setInterval(updateLiveData, 2000);
+
+    return () => clearInterval(interval);
+  }, [matchId, match?.status]);
 
   if (!match) {
     return (
@@ -867,7 +1515,9 @@ export default function MatchDetail() {
           )}
           {/* 进球标记 */}
           {player.hasGoal && (
-            <div className="absolute -bottom-1 -left-1 text-sm">⚽</div>
+            <div className="absolute -bottom-1 -left-1">
+              <GoalIcon size={16} />
+            </div>
           )}
         </div>
         {/* 球员名字 */}
@@ -1237,11 +1887,14 @@ export default function MatchDetail() {
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       
       {/* 顶部区域 - 足球场背景 */}
-      <div className="relative bg-gradient-to-b from-green-900/90 to-green-800/80 overflow-hidden">
-        {/* 背景纹理 */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center" />
-        </div>
+      <div className="relative overflow-hidden">
+        {/* 背景图片 */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${ftbLiveBg})` }}
+        />
+        {/* 背景遮罩，确保文字可读性 */}
+        <div className="absolute inset-0 bg-black/40" />
 
         {/* 头部导航 */}
         <div className="relative z-10 flex items-center justify-between px-4 py-3 safe-area-padding-top">
@@ -1249,7 +1902,7 @@ export default function MatchDetail() {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="text-center">
-            <div className="text-white font-medium">{match.league} {match.leagueStage}</div>
+            <div className="text-white font-medium">{match.league}{match.leagueStage ? ` ${match.leagueStage}` : ''}</div>
             <div className="text-white/70 text-sm">{match.date} {match.time}</div>
           </div>
           <div className="w-6" />
@@ -1269,9 +1922,20 @@ export default function MatchDetail() {
           <div className="flex items-center justify-center gap-4">
             {/* 主队 */}
             <div className="flex flex-col items-center flex-1">
-              <div className="text-5xl mb-2">{match.homeTeam.flag}</div>
+              {/* Logo 在上方 */}
+              {match.homeTeam.logo ? (
+                <img 
+                  src={match.homeTeam.logo} 
+                  alt={match.homeTeam.name}
+                  className="w-16 h-16 mb-2 object-contain"
+                />
+              ) : (
+                <div className="text-5xl mb-2">{match.homeTeam.flag}</div>
+              )}
               <div className="text-white font-medium text-center">{match.homeTeam.name}</div>
-              <div className="text-white/60 text-sm">[FIFA {match.homeTeam.fifaRank}]</div>
+              {match.homeTeam.fifaRank && (
+                <div className="text-white/60 text-sm">[FIFA {match.homeTeam.fifaRank}]</div>
+              )}
             </div>
 
             {/* 比分 */}
@@ -1289,9 +1953,20 @@ export default function MatchDetail() {
 
             {/* 客队 */}
             <div className="flex flex-col items-center flex-1">
-              <div className="text-5xl mb-2">{match.awayTeam.flag}</div>
+              {/* Logo 在上方 */}
+              {match.awayTeam.logo ? (
+                <img 
+                  src={match.awayTeam.logo} 
+                  alt={match.awayTeam.name}
+                  className="w-16 h-16 mb-2 object-contain"
+                />
+              ) : (
+                <div className="text-5xl mb-2">{match.awayTeam.flag}</div>
+              )}
               <div className="text-white font-medium text-center">{match.awayTeam.name}</div>
-              <div className="text-white/60 text-sm">[FIFA {match.awayTeam.fifaRank}]</div>
+              {match.awayTeam.fifaRank && (
+                <div className="text-white/60 text-sm">[FIFA {match.awayTeam.fifaRank}]</div>
+              )}
             </div>
           </div>
 
@@ -1361,42 +2036,139 @@ export default function MatchDetail() {
       <div className="bg-card">
         {activeTab === 'live' && (
           <div className="p-4 space-y-6">
-            {/* 时间轴 */}
+            {/* 时间轴图表 */}
             <Card className="p-4 bg-muted/20 border-border/50">
-              <div className="flex items-center justify-between mb-3 text-[10px] text-muted-foreground">
-                <span>15'</span>
-                <span>30'</span>
-                <span>HT</span>
-                <span>60'</span>
-                <span>75'</span>
-                <span>90'</span>
-              </div>
-              <div className="relative h-16">
-                {/* 主队时间轴 */}
-                <div className="absolute top-0 left-0 right-0 h-6 flex items-end gap-0.5 px-1">
-                  {match.timeline.map((point, i) => (
-                    <div 
-                      key={i}
-                      className="flex-1 bg-warning/60 rounded-t"
-                      style={{ height: `${point.homeIntensity}%` }}
-                    />
-                  ))}
+              <div className="relative">
+                {/* 球队Logo */}
+                <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between py-2 z-10">
+                  {match.homeTeam.logo ? (
+                    <img src={match.homeTeam.logo} alt={match.homeTeam.name} className="w-10 h-10 rounded-full object-contain bg-white/10 p-1" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg">{match.homeTeam.flag}</div>
+                  )}
+                  {match.awayTeam.logo ? (
+                    <img src={match.awayTeam.logo} alt={match.awayTeam.name} className="w-10 h-10 rounded-full object-contain bg-white/10 p-1" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg">{match.awayTeam.flag}</div>
+                  )}
                 </div>
-                {/* 中线 */}
-                <div className="absolute top-1/2 left-0 right-0 h-px bg-border" />
-                {/* 客队时间轴 */}
-                <div className="absolute bottom-0 left-0 right-0 h-6 flex items-start gap-0.5 px-1">
-                  {match.timeline.map((point, i) => (
-                    <div 
-                      key={i}
-                      className="flex-1 bg-muted-foreground/40 rounded-b"
-                      style={{ height: `${point.awayIntensity}%` }}
-                    />
-                  ))}
+
+                {/* 时间轴容器 */}
+                <div className="ml-14 relative">
+                  {/* 时间刻度 */}
+                  <div className="flex items-center justify-between mb-2 text-[10px] text-muted-foreground px-1">
+                    <span>0'</span>
+                    <span>15'</span>
+                    <span>30'</span>
+                    <span className="text-destructive font-medium">HT</span>
+                    <span>60'</span>
+                    <span>75'</span>
+                    <span>90'</span>
+                  </div>
+
+                  {/* 图表区域 */}
+                  <div className="relative h-20">
+                    {/* 主队强度柱状图（向上） */}
+                    <div className="absolute top-0 left-0 right-0 h-10 flex items-end gap-0.5 px-1">
+                      {match.timeline.length > 0 ? (
+                        match.timeline.map((point, i) => {
+                          const maxIntensity = Math.max(...match.timeline.map(p => Math.max(p.homeIntensity, p.awayIntensity)));
+                          const height = maxIntensity > 0 ? (point.homeIntensity / maxIntensity) * 100 : 0;
+                          return (
+                            <div 
+                              key={i}
+                              className="flex-1 bg-warning rounded-t transition-all"
+                              style={{ height: `${Math.max(height, 5)}%`, minHeight: '4px' }}
+                            />
+                          );
+                        })
+                      ) : (
+                        // 如果没有时间线数据，生成默认数据
+                        Array.from({ length: 7 }).map((_, i) => (
+                          <div key={i} className="flex-1 bg-warning/30 rounded-t" style={{ height: `${20 + Math.random() * 30}%` }} />
+                        ))
+                      )}
+                    </div>
+
+                    {/* 中线 */}
+                    <div className="absolute top-1/2 left-0 right-0 h-px bg-border/50" />
+
+                    {/* 客队强度柱状图（向下） */}
+                    <div className="absolute bottom-0 left-0 right-0 h-10 flex items-start gap-0.5 px-1">
+                      {match.timeline.length > 0 ? (
+                        match.timeline.map((point, i) => {
+                          const maxIntensity = Math.max(...match.timeline.map(p => Math.max(p.homeIntensity, p.awayIntensity)));
+                          const height = maxIntensity > 0 ? (point.awayIntensity / maxIntensity) * 100 : 0;
+                          return (
+                            <div 
+                              key={i}
+                              className="flex-1 bg-muted-foreground/60 rounded-b transition-all"
+                              style={{ height: `${Math.max(height, 5)}%`, minHeight: '4px' }}
+                            />
+                          );
+                        })
+                      ) : (
+                        // 如果没有时间线数据，生成默认数据
+                        Array.from({ length: 7 }).map((_, i) => (
+                          <div key={i} className="flex-1 bg-muted-foreground/30 rounded-b" style={{ height: `${20 + Math.random() * 30}%` }} />
+                        ))
+                      )}
+                    </div>
+
+                    {/* 事件标记 */}
+                    {match.events.map((event, index) => {
+                      // 计算事件在时间轴上的位置（0-90分钟）
+                      const minute = parseInt(event.minute.replace("'", "")) || 0;
+                      const position = (minute / 90) * 100; // 假设比赛最多90分钟
+                      
+                      // 根据事件类型显示不同的图标
+                      let eventIcon = null;
+                      let eventPosition = 'top'; // 'top' 或 'bottom'
+                      
+                      if (event.type === 'goal') {
+                        eventIcon = <GoalIcon size={18} />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      } else if (event.type === 'yellow_card') {
+                        eventIcon = <YellowCardIcon size={16} />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      } else if (event.type === 'red_card') {
+                        eventIcon = <RedCardIcon size={16} />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      } else if (event.type === 'substitution') {
+                        eventIcon = <div className="w-3 h-3 bg-blue-500 rounded-sm" />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      } else if (event.type === 'whistle') {
+                        eventIcon = <WhistleIcon size={16} />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      }
+                      
+                      // 角球事件
+                      if (!eventIcon && (event.description?.includes('角球') || event.description?.includes('corner'))) {
+                        eventIcon = <CornerIcon size={16} />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      }
+
+                      if (!eventIcon) return null;
+
+                      return (
+                        <div
+                          key={index}
+                          className="absolute z-20"
+                          style={{
+                            left: `${position}%`,
+                            [eventPosition === 'top' ? 'top' : 'bottom']: eventPosition === 'top' ? '-8px' : '-8px',
+                            transform: 'translateX(-50%)'
+                          }}
+                        >
+                          {eventIcon}
+                        </div>
+                      );
+                    })}
+
+                    {/* HT标记线 */}
+                    <div className="absolute top-0 bottom-0 left-[50%] w-px bg-destructive/50 z-10" />
+                  </div>
                 </div>
-                {/* 队伍标识 */}
-                <div className="absolute top-1 left-2 text-lg">{match.homeTeam.flag}</div>
-                <div className="absolute bottom-1 left-2 text-lg">{match.awayTeam.flag}</div>
               </div>
             </Card>
 
@@ -1451,28 +2223,34 @@ export default function MatchDetail() {
                 />
               </div>
 
-              {/* 红黄牌统计 */}
+              {/* 红黄牌和角球统计 */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-4 bg-destructive rounded-sm" />
+                    <CornerIcon size={16} />
+                    <span className="text-xs">{match.stats.homeCorners}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <RedCardIcon size={16} />
                     <span className="text-xs">{match.homeTeam.redCards}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-4 bg-yellow-500 rounded-sm" />
+                    <YellowCardIcon size={16} />
                     <span className="text-xs">{match.homeTeam.yellowCards}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{match.stats.homeCorners}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{match.stats.awayCorners}</span>
                   <div className="flex items-center gap-1">
                     <span className="text-xs">{match.awayTeam.yellowCards}</span>
-                    <div className="w-3 h-4 bg-yellow-500 rounded-sm" />
+                    <YellowCardIcon size={16} />
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-xs">{match.awayTeam.redCards}</span>
-                    <div className="w-3 h-4 bg-destructive rounded-sm" />
+                    <RedCardIcon size={16} />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{match.stats.awayCorners}</span>
+                    <CornerIcon size={16} />
                   </div>
                 </div>
               </div>
@@ -1481,42 +2259,371 @@ export default function MatchDetail() {
             {/* 文字直播 / 重要事件 */}
             <Card className="bg-muted/20 border-border/50 overflow-hidden">
               <div className="flex border-b border-border/50">
-                <button className="flex-1 py-3 text-sm font-medium text-primary border-b-2 border-primary">
+                <button 
+                  onClick={() => setTextLiveTab('text')}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    textLiveTab === 'text' 
+                      ? 'text-primary border-b-2 border-primary' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
                   文字直播
                 </button>
-                <button className="flex-1 py-3 text-sm font-medium text-muted-foreground">
+                <button 
+                  onClick={() => setTextLiveTab('events')}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    textLiveTab === 'events' 
+                      ? 'text-primary border-b-2 border-primary' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
                   重要事件
                 </button>
+                {textLiveTab === 'events' && (
+                  <div className="flex items-center gap-2 px-4">
+                    <span className="text-xs text-muted-foreground">只看进球</span>
+                    <button
+                      onClick={() => setOnlyGoals(!onlyGoals)}
+                      className={`relative w-10 h-5 rounded-full transition-colors ${
+                        onlyGoals ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    >
+                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                        onlyGoals ? 'translate-x-5' : 'translate-x-0'
+                      }`} />
+                    </button>
+                  </div>
+                )}
               </div>
               <ScrollArea className="h-64">
-                <div className="p-4 space-y-4">
-                  {match.events.map((event, index) => (
-                    <div key={index} className="flex gap-3">
-                      <div className="flex-shrink-0 w-12">
-                        {event.type === 'yellow_card' ? (
-                          <div className="w-4 h-5 bg-yellow-500 rounded-sm" />
-                        ) : event.type === 'goal' ? (
-                          <div className="text-lg">⚽</div>
-                        ) : event.type === 'whistle' ? (
-                          <div className="text-lg">🎺</div>
-                        ) : (
-                          <div className="w-4 h-4 rounded-full bg-muted" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-foreground">
-                          {event.minute} - {event.description}
-                        </div>
-                        {event.player && (
-                          <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
-                            <span>{event.player}</span>
-                            <span className="text-lg">{event.team === 'home' ? match.homeTeam.flag : match.awayTeam.flag}</span>
+                {textLiveTab === 'text' ? (
+                  // 文字直播内容
+                  <div className="p-4 space-y-4">
+                    {textLiveData && Array.isArray(textLiveData) && textLiveData.length > 0 ? (
+                    // 显示所有文字直播数据，按数组倒序排列（最新的在最上面）
+                    [...textLiveData]
+                      .filter((text) => {
+                        // 确保有数据内容
+                        return text && text.data && text.data.trim() !== '';
+                      })
+                      .reverse() // 直接倒序，最新的在最上面
+                      .map((text, index) => {
+                        // 根据文字直播类型判断图标
+                        let icon = null;
+                        
+                        switch (text.type) {
+                          case STAT_TYPE.GOAL:
+                          case STAT_TYPE.PENALTY:
+                          case STAT_TYPE.OWN_GOAL:
+                            icon = <GoalIcon size={18} />;
+                            break;
+                          case STAT_TYPE.YELLOW_CARD:
+                            // 黄色矩形，倾斜
+                            icon = <YellowCardIcon size={20} className="transform rotate-12" />;
+                            break;
+                          case STAT_TYPE.RED_CARD:
+                          case STAT_TYPE.SECOND_YELLOW:
+                            // 红牌图标，倾斜
+                            icon = <RedCardIcon size={20} className="transform rotate-12" />;
+                            break;
+                          case STAT_TYPE.SUBSTITUTION:
+                            icon = <div className="w-4 h-4 bg-blue-500 rounded-sm" />;
+                            break;
+                          case STAT_TYPE.CORNER:
+                            // 角球图标
+                            icon = <CornerIcon size={18} />;
+                            break;
+                          case STAT_TYPE.HALF_TIME:
+                          case STAT_TYPE.MATCH_END:
+                          case STAT_TYPE.MATCH_START:
+                            // 哨子图标
+                            icon = <WhistleIcon size={18} />;
+                            break;
+                          default:
+                            icon = text.main === 1 ? (
+                              <WhistleIcon size={18} />
+                            ) : (
+                              <InfoIcon size={18} />
+                            );
+                            break;
+                        }
+                        
+                        // 判断是否有球队信息
+                        const hasTeam = text.position !== 0;
+                        const teamLogo = hasTeam 
+                          ? (text.position === 1 ? match.homeTeam.logo || match.homeTeam.flag : match.awayTeam.logo || match.awayTeam.flag)
+                          : null;
+                        const isLogo = hasTeam && (text.position === 1 ? match.homeTeam.logo : match.awayTeam.logo);
+                        
+                        // 处理描述文本：如果 data 中已经包含了时间（格式如 "1' - 描述"），则提取时间
+                        let displayTime = text.time && text.time.trim() !== '' ? text.time : '';
+                        let displayData = text.data || '';
+                        
+                        // 如果 time 为空但 data 中包含时间格式（如 "1' - "），提取时间
+                        if (!displayTime && displayData) {
+                          const timeMatch = displayData.match(/^(\d+['']?)\s*[-–—]\s*/);
+                          if (timeMatch) {
+                            displayTime = timeMatch[1];
+                            // 移除 data 中的时间部分
+                            displayData = displayData.replace(/^\d+['']?\s*[-–—]\s*/, '');
+                          }
+                        }
+                        
+                        return (
+                          <div key={index} className="flex gap-3 items-start">
+                            {/* 时间戳和图标 */}
+                            <div className="flex-shrink-0 flex items-center gap-2 w-16">
+                              {displayTime ? (
+                                <span className="text-sm font-medium text-foreground">{displayTime}</span>
+                              ) : (
+                                <span className="text-sm font-medium text-muted-foreground w-4"></span>
+                              )}
+                              <div className="flex items-center justify-center">
+                                {icon}
+                              </div>
+                            </div>
+                            
+                            {/* 描述文本 */}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                                {displayData}
+                              </div>
+                            </div>
+                            
+                            {/* 球队 Logo（如果有） */}
+                            {hasTeam && teamLogo && (
+                              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                {isLogo ? (
+                                  <img 
+                                    src={teamLogo as string} 
+                                    alt={text.position === 1 ? match.homeTeam.name : match.awayTeam.name}
+                                    className="w-8 h-8 rounded-full object-contain"
+                                  />
+                                ) : (
+                                  <span className="text-lg">{teamLogo}</span>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        );
+                      })
+                  ) : match.events && match.events.length > 0 ? (
+                    // 如果没有文字直播数据，显示事件列表作为后备
+                    match.events.map((event, index) => (
+                      <div key={index} className="flex gap-3">
+                        <div className="flex-shrink-0 w-12">
+                          {event.type === 'yellow_card' ? (
+                            <YellowCardIcon size={20} />
+                          ) : event.type === 'goal' ? (
+                            <GoalIcon size={18} />
+                          ) : event.type === 'whistle' ? (
+                            <WhistleIcon size={18} />
+                          ) : (
+                            <InfoIcon size={18} />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-foreground">
+                            {event.minute} - {event.description}
+                          </div>
+                          {event.player && (
+                            <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
+                              <span>{event.player}</span>
+                              <span className="text-lg">{event.team === 'home' ? match.homeTeam.flag : match.awayTeam.flag}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      暂无文字直播数据
                     </div>
-                  ))}
+                  )}
                 </div>
+                ) : (
+                  // 重要事件内容 - 时间线样式
+                  <div className="p-4">
+                    {(() => {
+                      // 获取重要事件：从 incidents 和 tlive 中筛选
+                      const importantEvents: Array<{
+                        minute: string;
+                        type: 'goal' | 'half_time' | 'match_start' | 'match_end';
+                        score?: string;
+                        description: string;
+                        team?: 'home' | 'away';
+                      }> = [];
+                      
+                      // 从 incidents 中获取进球事件
+                      if (liveData?.incidents) {
+                        liveData.incidents.forEach(incident => {
+                          if (incident.type === STAT_TYPE.GOAL) {
+                            const minute = `${incident.time}'`;
+                            const score = incident.home_score !== undefined && incident.away_score !== undefined
+                              ? `${incident.home_score} - ${incident.away_score}`
+                              : undefined;
+                            importantEvents.push({
+                              minute,
+                              type: 'goal',
+                              score,
+                              description: '进球',
+                              team: incident.position === 1 ? 'home' : incident.position === 2 ? 'away' : undefined
+                            });
+                          }
+                        });
+                      }
+                      
+                      // 从 tlive 中获取重要事件（main === 1 或特定类型）
+                      if (textLiveData && textLiveData.length > 0) {
+                        textLiveData.forEach(text => {
+                          if (text.main === 1 || text.type === STAT_TYPE.GOAL || text.type === STAT_TYPE.HALF_TIME || text.type === STAT_TYPE.MATCH_START || text.type === STAT_TYPE.MATCH_END) {
+                            // 提取时间
+                            let minute = text.time && text.time.trim() !== '' ? text.time : '';
+                            if (!minute && text.data) {
+                              const timeMatch = text.data.match(/^(\d+['']?)\s*[-–—]\s*/);
+                              if (timeMatch) {
+                                minute = timeMatch[1];
+                              }
+                            }
+                            
+                            if (text.type === STAT_TYPE.GOAL || text.type === STAT_TYPE.PENALTY || text.type === STAT_TYPE.OWN_GOAL) {
+                              // 提取比分
+                              const scoreMatch = text.data.match(/(\d+)\s*[-–—]\s*(\d+)/);
+                              const score = scoreMatch ? `${scoreMatch[1]} - ${scoreMatch[2]}` : undefined;
+                              
+                              importantEvents.push({
+                                minute: minute || '0\'',
+                                type: 'goal',
+                                score,
+                                description: '进球',
+                                team: text.position === 1 ? 'home' : text.position === 2 ? 'away' : undefined
+                              });
+                            } else if (text.type === STAT_TYPE.HALF_TIME) {
+                              // 提取半场比分
+                              const scoreMatch = text.data.match(/(\d+)\s*[-–—]\s*(\d+)/);
+                              const score = scoreMatch ? `${scoreMatch[1]} - ${scoreMatch[2]}` : undefined;
+                              
+                              importantEvents.push({
+                                minute: minute || 'HT',
+                                type: 'half_time',
+                                score,
+                                description: '半场结束',
+                                team: undefined
+                              });
+                            } else if (text.type === STAT_TYPE.MATCH_START) {
+                              importantEvents.push({
+                                minute: minute || '0\'',
+                                type: 'match_start',
+                                description: '比赛开始',
+                                team: undefined
+                              });
+                            } else if (text.type === STAT_TYPE.MATCH_END) {
+                              const scoreMatch = text.data.match(/(\d+)\s*[-–—]\s*(\d+)/);
+                              const score = scoreMatch ? `${scoreMatch[1]} - ${scoreMatch[2]}` : undefined;
+                              
+                              importantEvents.push({
+                                minute: minute || 'FT',
+                                type: 'match_end',
+                                score,
+                                description: '比赛结束',
+                                team: undefined
+                              });
+                            }
+                          }
+                        });
+                      }
+                      
+                      // 如果 onlyGoals 为 true，只显示进球
+                      const filteredEvents = onlyGoals 
+                        ? importantEvents.filter(e => e.type === 'goal')
+                        : importantEvents;
+                      
+                      // 按时间排序（正序，从早到晚）
+                      filteredEvents.sort((a, b) => {
+                        const timeA = parseInt(a.minute.replace("'", "").replace("HT", "45").replace("FT", "90")) || 0;
+                        const timeB = parseInt(b.minute.replace("'", "").replace("HT", "45").replace("FT", "90")) || 0;
+                        return timeA - timeB;
+                      });
+                      
+                      if (filteredEvents.length === 0) {
+                        return (
+                          <div className="text-center text-muted-foreground py-8">
+                            暂无重要事件
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div className="relative">
+                          {/* 时间线 */}
+                          <div className="absolute left-8 top-0 bottom-0 w-0.5 border-l-2 border-dashed border-border/50" />
+                          
+                          {/* 事件列表 */}
+                          <div className="space-y-6">
+                            {/* 开始标记 */}
+                            <div className="relative flex items-center">
+                              <div className="absolute left-6 w-4 h-4 rounded-full bg-destructive border-2 border-background z-10" />
+                              <div className="ml-16"></div>
+                            </div>
+                            
+                            {filteredEvents.map((event, index) => (
+                              <div key={index} className="relative flex items-start">
+                                {/* 时间线节点 */}
+                                <div className="absolute left-6 w-4 h-4 rounded-full bg-destructive border-2 border-background z-10" />
+                                
+                                {/* 时间（左侧） */}
+                                <div className="w-16 flex-shrink-0 text-right pr-4">
+                                  <span className="text-sm font-medium text-foreground">{event.minute}</span>
+                                </div>
+                                
+                                {/* 事件卡片（右侧） */}
+                                <div className="flex-1 ml-4">
+                                  {event.type === 'goal' ? (
+                                    <div className="bg-muted/50 rounded-lg p-3 inline-block">
+                                      <div className="flex items-center gap-2">
+                                        {event.score && (
+                                          <span className="text-base font-medium text-foreground">{event.score}</span>
+                                        )}
+                                        <GoalIcon size={18} />
+                                        <span className="text-sm text-foreground">进球</span>
+                                      </div>
+                                    </div>
+                                  ) : event.type === 'half_time' ? (
+                                    <div className="text-center">
+                                      <div className="text-sm text-foreground font-medium">
+                                        半场结束 {event.score || ''}
+                                      </div>
+                                    </div>
+                                  ) : event.type === 'match_start' ? (
+                                    <div className="text-center">
+                                      <div className="text-sm text-foreground font-medium">
+                                        {event.description}
+                                      </div>
+                                    </div>
+                                  ) : event.type === 'match_end' ? (
+                                    <div className="text-center">
+                                      <div className="text-sm text-foreground font-medium">
+                                        比赛结束 {event.score || ''}
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              </div>
+                            ))}
+                            
+                            {/* 结束标记（如果是半场结束） */}
+                            {filteredEvents.some(e => e.type === 'half_time') && (
+                              <div className="relative flex items-center">
+                                <div className="absolute left-6 w-4 h-4 rounded-full bg-destructive border-2 border-background z-10" />
+                                <div className="ml-16"></div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </ScrollArea>
             </Card>
           </div>
