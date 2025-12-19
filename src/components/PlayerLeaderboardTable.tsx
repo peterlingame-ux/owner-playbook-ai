@@ -2042,10 +2042,16 @@ const PlayerLeaderboardTable = () => {
                               </p>
                             </div>
                             {/* Win Rate & Profit */}
-                            <div className="text-right">
-                              <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
-                              <p className={`text-[10px] ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                                {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            <div className="text-right space-y-0.5">
+                              <p className="text-xs">
+                                <span className="text-muted-foreground">胜率 </span>
+                                <span className="font-bold text-success">{player.winRate.toFixed(1)}%</span>
+                              </p>
+                              <p className="text-xs">
+                                <span className="text-muted-foreground">盈利 </span>
+                                <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
                               </p>
                             </div>
                           </div>
@@ -2170,10 +2176,16 @@ const PlayerLeaderboardTable = () => {
                               </p>
                             </div>
                             {/* Win Rate & Profit */}
-                            <div className="text-right">
-                              <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
-                              <p className={`text-[10px] ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                                {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            <div className="text-right space-y-0.5">
+                              <p className="text-xs">
+                                <span className="text-muted-foreground">胜率 </span>
+                                <span className="font-bold text-destructive">{player.winRate.toFixed(1)}%</span>
+                              </p>
+                              <p className="text-xs">
+                                <span className="text-muted-foreground">盈利 </span>
+                                <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
                               </p>
                             </div>
                           </div>
