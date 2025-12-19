@@ -20,7 +20,6 @@ import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
 import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
-import copyTradingSuccessBg from "@/assets/copy-trading-success-bg.png";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1792,22 +1791,13 @@ const PlayerLeaderboardTable = () => {
       <AnimatePresence>
         {copySuccess?.show && (
           <Dialog open={true} onOpenChange={() => setCopySuccess(null)}>
-            <DialogContent className="max-w-sm overflow-hidden relative">
-              {/* 背景图 */}
-              <div 
-                className="absolute inset-0 z-0 opacity-30"
-                style={{
-                  backgroundImage: `url(${copyTradingSuccessBg})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
+            <DialogContent className="max-w-sm overflow-hidden">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ type: "spring", duration: 0.5 }}
-                className="text-center space-y-4 relative z-10"
+                className="text-center space-y-4"
               >
                 {/* 跟随玩家头像 */}
                 <motion.div 
