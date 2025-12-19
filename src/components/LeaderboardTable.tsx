@@ -1459,7 +1459,7 @@ const LeaderboardTable = () => {
           {/* Table Header */}
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
             <span>排名</span>
-            <span>收益 (USDT) | 跟单总额 (USDT)</span>
+            <span>玩家收益 | 带单规模</span>
           </div>
           
           {/* Followers List */}
