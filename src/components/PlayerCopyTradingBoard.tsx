@@ -1816,7 +1816,7 @@ const PlayerCopyTradingBoard = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center">
                           <p className="text-[10px] text-muted-foreground mb-1">玩家下注</p>
-                          <div className="text-lg font-bold font-mono">¥{copySuccess.prediction.bet_amount}</div>
+                          <div className="text-lg font-bold font-mono">{copySuccess.prediction.bet_amount}</div>
                         </div>
                         <div className="text-center border-l border-border/30">
                           <p className="text-[10px] text-muted-foreground mb-1">您的跟单金额</p>
@@ -1826,7 +1826,7 @@ const PlayerCopyTradingBoard = () => {
                             transition={{ delay: 0.8, type: "spring" }}
                             className="text-lg font-bold font-mono text-primary"
                           >
-                            ¥{copySuccess.betAmount.toLocaleString()}
+                            {copySuccess.betAmount.toLocaleString()}
                           </motion.div>
                         </div>
                       </div>
@@ -1837,7 +1837,7 @@ const PlayerCopyTradingBoard = () => {
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex flex-col">
                           <span className="text-muted-foreground">预期收益</span>
-                          <span className="text-[10px] text-muted-foreground/70">¥{copySuccess.betAmount} × {copySuccess.odds}</span>
+                          <span className="text-[10px] text-muted-foreground/70">{copySuccess.betAmount} × {copySuccess.odds}</span>
                         </div>
                         <motion.span
                           initial={{ scale: 1 }}
@@ -1845,7 +1845,7 @@ const PlayerCopyTradingBoard = () => {
                           transition={{ delay: 1.5, duration: 0.5 }}
                           className="font-bold text-success"
                         >
-                          +¥{(copySuccess.betAmount * parseFloat(copySuccess.odds)).toFixed(0)}
+                          +{(copySuccess.betAmount * parseFloat(copySuccess.odds)).toFixed(0)}
                         </motion.span>
                       </div>
                     </div>
