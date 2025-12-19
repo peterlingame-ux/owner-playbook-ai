@@ -38,6 +38,7 @@ interface PlayerLeaderboardCardProps {
   onLike: (e: React.MouseEvent) => void;
   onClick: () => void;
   onViewHistory: (e: React.MouseEvent) => void;
+  onShowFollowers?: (e: React.MouseEvent, player: PlayerData, followerCount: number) => void;
   maskPlayerName: (name: string) => string;
   calculateEstimatedPrize: (winRate: number, rank: number, totalEligiblePlayers: number) => number;
   totalEligiblePlayers: number;
@@ -70,6 +71,7 @@ export const PlayerLeaderboardCard = ({
   onLike,
   onClick,
   onViewHistory,
+  onShowFollowers,
   maskPlayerName,
   calculateEstimatedPrize,
   totalEligiblePlayers,
@@ -343,7 +345,15 @@ export const PlayerLeaderboardCard = ({
           className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
-            onViewHistory(e);
+            const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
+            const variance = (seed % 50) - 25;
+            const followerCount = Math.max(0, baseCount + variance);
+            if (onShowFollowers) {
+              onShowFollowers(e, player, followerCount);
+            } else {
+              onViewHistory(e);
+            }
           }}
         >
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>

@@ -67,6 +67,31 @@ const getTeamLogo = (teamName: string): string | null => {
 const maskPlayerName = (name: string): string => {
   return name || '';
 };
+
+// Mock follower data for each player
+const generatePlayerMockFollowers = (playerId: string, playerName: string, count: number) => {
+  const names = ['田雨', '慢慢扛', '小明', '阿杰', '球迷王', '预测达人', '足彩老手', '胜率之王', '稳赚不赔', '神预测'];
+  const avatars = ['/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png', '/avatars/avatar-5.png', '/avatars/avatar-6.png'];
+  
+  return Array.from({ length: Math.min(count, 20) }, (_, i) => {
+    const isTop3 = i < 3;
+    const baseCopyAmount = isTop3 ? 800 + Math.random() * 600 : 200 + Math.random() * 500;
+    const profit = (Math.random() - 0.3) * baseCopyAmount * 0.3;
+    
+    return {
+      id: `${playerId}-follower-${i}`,
+      rank: i + 1,
+      name: Math.random() > 0.5 
+        ? names[Math.floor(Math.random() * names.length)] 
+        : `${Math.floor(100 + Math.random() * 900)}***${Math.floor(1000 + Math.random() * 9000)}`,
+      avatar: avatars[Math.floor(Math.random() * avatars.length)],
+      days: Math.floor(1 + Math.random() * 30),
+      profit: profit,
+      copyAmount: baseCopyAmount,
+      totalVolume: baseCopyAmount * (1 + Math.random()),
+    };
+  });
+};
 import {
   Dialog,
   DialogContent,
@@ -168,6 +193,10 @@ const PlayerLeaderboardTable = () => {
   const [isLoadingMoreCold, setIsLoadingMoreCold] = useState(false);
   const INITIAL_DISPLAY_COUNT = 20;
   const LOAD_MORE_COUNT = 20;
+  
+  // 玩家跟单用户弹窗状态
+  const [isPlayerFollowersDialogOpen, setIsPlayerFollowersDialogOpen] = useState(false);
+  const [selectedPlayerFollowers, setSelectedPlayerFollowers] = useState<{ playerId: string; playerName: string; followers: any[] } | null>(null);
   
   // 奖金池配置
   const PRIZE_POOL = 1000000; // $1,000,000
@@ -1296,6 +1325,12 @@ const PlayerLeaderboardTable = () => {
                               e.stopPropagation();
                               fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                             }}
+                            onShowFollowers={(e, p, count) => {
+                              e.stopPropagation();
+                              const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                              setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                              setIsPlayerFollowersDialogOpen(true);
+                            }}
                             maskPlayerName={maskPlayerName}
                             calculateEstimatedPrize={calculateEstimatedPrize}
                             totalEligiblePlayers={eligiblePlayers}
@@ -1374,6 +1409,12 @@ const PlayerLeaderboardTable = () => {
                             onViewHistory={(e) => {
                               e.stopPropagation();
                               fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                            }}
+                            onShowFollowers={(e, p, count) => {
+                              e.stopPropagation();
+                              const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                              setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                              setIsPlayerFollowersDialogOpen(true);
                             }}
                             maskPlayerName={maskPlayerName}
                             calculateEstimatedPrize={calculateEstimatedPrize}
@@ -2264,6 +2305,105 @@ const PlayerLeaderboardTable = () => {
           {t('leaderboard_disclaimer') || '注意: 所有统计数据仅反映已完成的比赛预测。直播比赛预测在比赛结束前不计入统计。HUNSOCCER 所有内容均为模拟分析结果，仅供 AI 技术研究与赛事分析展示使用，不提供、不引导任何形式的投注或博彩活动。'}
         </p>
       </div>
+
+      {/* Player Followers Dialog */}
+      <Dialog open={isPlayerFollowersDialogOpen} onOpenChange={setIsPlayerFollowersDialogOpen}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col p-0">
+          {/* Header */}
+          <div className="px-5 pt-5 pb-3">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle className="text-lg font-bold text-foreground">
+                    {selectedPlayerFollowers?.playerName} - 跟单用户
+                  </DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-muted-foreground">总收益率</span>
+                  <span className={`text-lg font-bold font-mono-data ${
+                    (selectedPlayerFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 
+                      ? 'text-success' 
+                      : 'text-destructive'
+                  }`}>
+                    +{Math.abs(15 + Math.random() * 30).toFixed(1)}%
+                  </span>
+                  <TrendingUp className="h-4 w-4 text-success" />
+                </div>
+              </div>
+            </DialogHeader>
+          </div>
+          
+          {/* Table Header */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
+            <span>排名</span>
+            <span>玩家收益 | 带单规模</span>
+          </div>
+          
+          {/* Followers List */}
+          <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1">
+            {selectedPlayerFollowers?.followers.map((follower, index) => (
+              <div 
+                key={follower.id} 
+                className="flex items-center justify-between py-3 border-b border-border/30 last:border-b-0"
+              >
+                {/* Left: Rank + Avatar + Info */}
+                <div className="flex items-center gap-3">
+                  {/* Rank Badge */}
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    {index === 0 ? (
+                      <span className="text-xl">🥇</span>
+                    ) : index === 1 ? (
+                      <span className="text-xl">🥈</span>
+                    ) : index === 2 ? (
+                      <span className="text-xl">🥉</span>
+                    ) : (
+                      <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
+                    )}
+                  </div>
+                  
+                  {/* Avatar */}
+                  <Avatar className="w-10 h-10 border border-border/50">
+                    <AvatarImage src={follower.avatar} />
+                    <AvatarFallback className="text-xs">{follower.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Info */}
+                  <div>
+                    <p className="font-bold text-sm text-foreground">{follower.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      已跟单{follower.days}次
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Right: Profit & Copy Amount */}
+                <div className="text-right">
+                  <p className={`text-sm font-bold tabular-nums ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
+                  </p>
+                  <p className="text-xs text-warning flex items-center justify-end mt-0.5">
+                    <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Footer */}
+          <div className="px-5 py-4 border-t border-border/50 bg-muted/20">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setIsPlayerFollowersDialogOpen(false)}
+            >
+              关闭
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
