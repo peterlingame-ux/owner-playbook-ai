@@ -634,80 +634,80 @@ const MatchCenter = () => {
 
   const MatchCard = ({ match }: { match: VirtualMatch }) => (
     <div 
-      className="border-b border-border/30 py-3 px-3 hover:bg-muted/20 cursor-pointer transition-colors"
+      className="border-b border-border/30 py-2 sm:py-3 px-2 sm:px-3 hover:bg-muted/20 cursor-pointer transition-colors"
       onClick={() => navigate(`/match/${match.id}`)}
     >
       {/* 顶部行：联赛 + 时间 + 状态 + 热度 */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-medium ${match.leagueColor}`}>{match.league}</span>
-          <span className="text-xs text-muted-foreground">{match.time}</span>
+      <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+          <span className={`text-[10px] sm:text-xs font-medium ${match.leagueColor} truncate max-w-[120px] sm:max-w-none`}>{match.league}</span>
+          <span className="text-[10px] sm:text-xs text-muted-foreground flex-shrink-0">{match.time}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           {match.minute && (
-            <span className="text-xs text-destructive font-medium">{match.minute}</span>
+            <span className="text-[10px] sm:text-xs text-destructive font-medium">{match.minute}</span>
           )}
           {!match.minute && match.status === 'live' && (
-            <span className="text-xs text-destructive font-medium">中</span>
+            <span className="text-[10px] sm:text-xs text-destructive font-medium">中</span>
           )}
-          <div className="flex items-center gap-1">
-            <Flame className="w-3 h-3 text-destructive" />
-            <span className="text-xs text-destructive font-medium">{match.heat}万</span>
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-destructive" />
+            <span className="text-[10px] sm:text-xs text-destructive font-medium">{match.heat}万</span>
           </div>
         </div>
       </div>
 
       {/* 比赛主体行 */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         {/* 收藏按钮 */}
         <button 
           onClick={(e) => toggleFavorite(match.id, e)}
           className="flex-shrink-0"
         >
-          <Star className={`w-4 h-4 ${favorites.has(match.id) ? 'text-warning fill-warning' : 'text-muted-foreground'}`} />
+          <Star className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${favorites.has(match.id) ? 'text-warning fill-warning' : 'text-muted-foreground'}`} />
         </button>
 
         {/* 主队信息 */}
-        <div className="flex-1 flex items-center justify-end gap-1.5">
+        <div className="flex-1 flex items-center justify-end gap-0.5 sm:gap-1.5 min-w-0">
           {match.homeYellowCards !== undefined && match.homeYellowCards > 0 && (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-yellow-500 text-black rounded">
+            <span className="inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[9px] sm:text-xs font-bold bg-yellow-500 text-black rounded flex-shrink-0">
               {match.homeYellowCards}
             </span>
           )}
           {match.homeRedCards !== undefined && match.homeRedCards > 0 && (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-600 text-white rounded">
+            <span className="inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[9px] sm:text-xs font-bold bg-red-600 text-white rounded flex-shrink-0">
               {match.homeRedCards}
             </span>
           )}
           {match.homeRank && (
-            <span className="text-[10px] text-muted-foreground">[{match.homeRank}]</span>
+            <span className="text-[8px] sm:text-[10px] text-muted-foreground flex-shrink-0">[{match.homeRank}]</span>
           )}
-          <span className="text-sm font-medium text-foreground">{match.homeTeam}</span>
+          <span className="text-[11px] sm:text-sm font-medium text-foreground truncate">{match.homeTeam}</span>
         </div>
 
         {/* 比分 */}
-        <div className="flex-shrink-0 min-w-[60px] flex flex-col items-center">
+        <div className="flex-shrink-0 min-w-[50px] sm:min-w-[60px] flex flex-col items-center">
           {match.status === 'upcoming' || (match.homeScore === undefined && match.awayScore === undefined) ? (
             <>
               {/* 赛程界面：在VS上方显示"未"字 */}
               {activeTab === 'upcoming' && (
-                <span className="text-[10px] text-muted-foreground mb-0.5">未</span>
+                <span className="text-[8px] sm:text-[10px] text-muted-foreground mb-0.5">未</span>
               )}
-              <span className="text-sm text-muted-foreground">VS</span>
+              <span className="text-[11px] sm:text-sm text-muted-foreground">VS</span>
             </>
           ) : (
             <>
               {/* 赛果界面：在比分上方显示"完"字 */}
               {activeTab === 'finished' && (
-                <span className="text-[10px] text-muted-foreground mb-0.5">完</span>
+                <span className="text-[8px] sm:text-[10px] text-muted-foreground mb-0.5">完</span>
               )}
-              <span className="text-base font-bold text-destructive">
+              <span className="text-sm sm:text-base font-bold text-destructive">
                 {(match.homeScore !== undefined ? match.homeScore : 0)}-{(match.awayScore !== undefined ? match.awayScore : 0)}
               </span>
               {/* 半场/角球信息，显示在比分下方 */}
               {/* 半场比分：有分则显示，没分（0-0）隐藏 */}
               {((match.halfTimeScore && match.halfTimeScore !== '0-0') || match.corners) && (
-                <span className="text-[10px] text-muted-foreground mt-0.5">
+                <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">
                   {match.halfTimeScore && match.halfTimeScore !== '0-0' && `半:${match.halfTimeScore}`}
                   {match.halfTimeScore && match.halfTimeScore !== '0-0' && match.corners && ' '}
                   {match.corners && `角:${match.corners}`}
@@ -718,18 +718,18 @@ const MatchCenter = () => {
         </div>
 
         {/* 客队信息 */}
-        <div className="flex-1 flex items-center gap-1.5">
-          <span className="text-sm font-medium text-foreground">{match.awayTeam}</span>
+        <div className="flex-1 flex items-center gap-0.5 sm:gap-1.5 min-w-0">
+          <span className="text-[11px] sm:text-sm font-medium text-foreground truncate">{match.awayTeam}</span>
           {match.awayRank && (
-            <span className="text-[10px] text-muted-foreground">[{match.awayRank}]</span>
+            <span className="text-[8px] sm:text-[10px] text-muted-foreground flex-shrink-0">[{match.awayRank}]</span>
           )}
           {match.awayYellowCards !== undefined && match.awayYellowCards > 0 && (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-yellow-500 text-black rounded">
+            <span className="inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[9px] sm:text-xs font-bold bg-yellow-500 text-black rounded flex-shrink-0">
               {match.awayYellowCards}
             </span>
           )}
           {match.awayRedCards !== undefined && match.awayRedCards > 0 && (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-600 text-white rounded">
+            <span className="inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[9px] sm:text-xs font-bold bg-red-600 text-white rounded flex-shrink-0">
               {match.awayRedCards}
             </span>
           )}
@@ -742,82 +742,82 @@ const MatchCenter = () => {
               e.stopPropagation();
               // 处理视频播放
             }}
-            className="flex-shrink-0 w-7 h-7 rounded bg-destructive/20 flex items-center justify-center hover:bg-destructive/30 transition-colors"
+            className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded bg-destructive/20 flex items-center justify-center hover:bg-destructive/30 transition-colors"
           >
-            <Play className="w-3.5 h-3.5 text-destructive fill-destructive" />
+            <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-destructive fill-destructive" />
           </button>
         )}
       </div>
 
       {/* 底部行：比赛编号 */}
-      <div className="flex items-center justify-start mt-2">
-        <span className="text-[10px] text-muted-foreground">PR {match.id.slice(-4)}</span>
+      <div className="flex items-center justify-start mt-1.5 sm:mt-2">
+        <span className="text-[8px] sm:text-[10px] text-muted-foreground">PR {match.id.slice(-4)}</span>
       </div>
     </div>
   );
 
   return (
-    <Card className="h-[600px] sm:h-[700px] flex flex-col border-border/60 bg-card/95 backdrop-blur">
+    <Card className="h-[550px] sm:h-[700px] flex flex-col border-border/60 bg-card/95 backdrop-blur">
       {/* 标签导航 */}
-      <div className="flex items-center border-b border-border/50 px-2 overflow-x-auto">
+      <div className="flex items-center border-b border-border/50 px-1 sm:px-2 overflow-x-auto">
         <button
           onClick={handleAllTabClick}
-          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`relative px-2.5 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
             activeTab === 'all' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           全部
           {activeTab === 'all' && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 sm:w-6 h-0.5 bg-destructive rounded-full" />
           )}
         </button>
         <button
           onClick={() => setActiveTab('live')}
-          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`relative px-2.5 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
             activeTab === 'live' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           进行中
           {activeTab === 'live' && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 sm:w-6 h-0.5 bg-destructive rounded-full" />
           )}
         </button>
         <button
           onClick={() => setActiveTab('upcoming')}
-          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`relative px-2.5 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
             activeTab === 'upcoming' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           赛程
           {activeTab === 'upcoming' && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 sm:w-6 h-0.5 bg-destructive rounded-full" />
           )}
         </button>
         <button
           onClick={() => setActiveTab('finished')}
-          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`relative px-2.5 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
             activeTab === 'finished' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           赛果
           {activeTab === 'finished' && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 sm:w-6 h-0.5 bg-destructive rounded-full" />
           )}
         </button>
         <button
           onClick={() => setActiveTab('favorites')}
-          className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+          className={`relative px-2.5 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-0.5 sm:gap-1 ${
             activeTab === 'favorites' ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           关注
           {favoritesCount > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-destructive text-white rounded-full">
+            <span className="inline-flex items-center justify-center min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] px-0.5 sm:px-1 text-[8px] sm:text-[10px] font-bold bg-destructive text-white rounded-full">
               {favoritesCount}
             </span>
           )}
           {activeTab === 'favorites' && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 sm:w-6 h-0.5 bg-destructive rounded-full" />
           )}
         </button>
       </div>
