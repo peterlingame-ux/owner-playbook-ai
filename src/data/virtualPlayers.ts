@@ -88,18 +88,18 @@ const generateRealisticPlayer = (
 
 export const virtualPlayers: VirtualPlayer[] = [
   // ============ 顶级玩家 (胜率 75%+) ============
-  generateRealisticPlayer('vp-001', '球王小李', 1, 286, 82.5, { currentStreak: 9, joinedDaysAgo: 156, unlockPrice: 8, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-002', 'PredictorMax', 4, 342, 79.8, { currentStreak: 6, joinedDaysAgo: 203, unlockPrice: 6, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-003', '足彩老司机', 7, 198, 78.3, { currentStreak: 4, joinedDaysAgo: 89, unlockPrice: 5, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-004', 'GoalHunter99', 2, 267, 77.1, { currentStreak: 7, joinedDaysAgo: 134, unlockPrice: 4, allowCopyTrade: true }),
-  generateRealisticPlayer('vp-005', '大数据预测王', 9, 412, 76.2, { currentStreak: 3, joinedDaysAgo: 278, unlockPrice: 5, isRecommender: true }),
+  generateRealisticPlayer('vp-001', '番茄体育哥', 1, 286, 82.5, { currentStreak: 9, joinedDaysAgo: 156, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-002', 'PredictorMax', 4, 342, 79.8, { currentStreak: 6, joinedDaysAgo: 203, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-003', '足彩老司机', 7, 198, 78.3, { currentStreak: 4, joinedDaysAgo: 89, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-004', 'GoalHunter99', 2, 267, 77.1, { currentStreak: 7, joinedDaysAgo: 134, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-005', '大数据预测王', 9, 412, 76.2, { currentStreak: 3, joinedDaysAgo: 278, isRecommender: true }),
   
   // ============ 高手玩家 (胜率 68-75%) ============
-  generateRealisticPlayer('vp-006', 'WinStreak2024', 3, 156, 74.4, { currentStreak: 5, joinedDaysAgo: 67, unlockPrice: 3 }),
+  generateRealisticPlayer('vp-006', 'WinStreak2024', 3, 156, 74.4, { currentStreak: 5, joinedDaysAgo: 67 }),
   generateRealisticPlayer('vp-007', '欧洲杯达人', 6, 223, 73.5, { currentStreak: 2, joinedDaysAgo: 112, allowCopyTrade: true }),
   generateRealisticPlayer('vp-008', 'BetMaster_CN', 8, 189, 72.8, { currentStreak: -1, joinedDaysAgo: 95, isRecommender: true }),
   generateRealisticPlayer('vp-009', '阿森纳铁粉', 1, 178, 71.9, { currentStreak: 4, joinedDaysAgo: 145, allowCopyTrade: true }),
-  generateRealisticPlayer('vp-010', 'ScorePro', 5, 256, 71.1, { currentStreak: 1, joinedDaysAgo: 167, unlockPrice: 2 }),
+  generateRealisticPlayer('vp-010', 'ScorePro', 5, 256, 71.1, { currentStreak: 1, joinedDaysAgo: 167 }),
   generateRealisticPlayer('vp-011', '五大联赛专家', 2, 312, 70.5, { currentStreak: -2, joinedDaysAgo: 234, isRecommender: true }),
   generateRealisticPlayer('vp-012', 'ChampionBet', 9, 145, 69.7, { currentStreak: 3, joinedDaysAgo: 56 }),
   generateRealisticPlayer('vp-013', '临门一脚王', 4, 234, 69.2, { currentStreak: 2, joinedDaysAgo: 178, allowCopyTrade: true }),
@@ -184,14 +184,14 @@ export const virtualPlayers: VirtualPlayer[] = [
   generateRealisticPlayer('vp-074', '冷门专家', 5, 156, 48.7, { currentStreak: -4, joinedDaysAgo: 89 }),
   generateRealisticPlayer('vp-075', 'RiskTaker', 9, 234, 45.3, { currentStreak: -5, joinedDaysAgo: 167 }),
   generateRealisticPlayer('vp-076', '稳中求胜', 4, 267, 64.4, { currentStreak: 2, joinedDaysAgo: 189, isRecommender: true }),
-  generateRealisticPlayer('vp-077', 'ValueBet_Pro', 7, 198, 68.7, { currentStreak: 5, joinedDaysAgo: 134, unlockPrice: 3 }),
+  generateRealisticPlayer('vp-077', 'ValueBet_Pro', 7, 198, 68.7, { currentStreak: 5, joinedDaysAgo: 134 }),
   generateRealisticPlayer('vp-078', '大心脏玩家', 3, 145, 55.9, { currentStreak: -2, joinedDaysAgo: 78, allowCopyTrade: true }),
   generateRealisticPlayer('vp-079', 'StatsMaster', 6, 312, 62.5, { currentStreak: 1, joinedDaysAgo: 223 }),
   generateRealisticPlayer('vp-080', '欧冠情报员', 1, 189, 66.1, { currentStreak: 3, joinedDaysAgo: 145, isRecommender: true }),
   
   // ============ 极端案例玩家 ============
-  generateRealisticPlayer('vp-081', '神准小哥', 8, 156, 85.3, { currentStreak: 11, joinedDaysAgo: 112, unlockPrice: 10, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-082', '连胜传奇', 2, 123, 83.7, { currentStreak: 8, joinedDaysAgo: 78, unlockPrice: 8, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-081', '神准小哥', 8, 156, 85.3, { currentStreak: 11, joinedDaysAgo: 112, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-082', '连胜传奇', 2, 123, 83.7, { currentStreak: 8, joinedDaysAgo: 78, allowCopyTrade: true }),
   generateRealisticPlayer('vp-083', '超级黑洞', 5, 198, 12.6, { currentStreak: -17, joinedDaysAgo: 156, worstStreak: 21 }),
   generateRealisticPlayer('vp-084', 'InverseGod', 9, 234, 8.5, { currentStreak: -14, joinedDaysAgo: 189, worstStreak: 19 }),
   
@@ -226,7 +226,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   generateRealisticPlayer('vp-106', 'MumbaiMaster', 8, 223, 58.3, { currentStreak: -3, joinedDaysAgo: 156 }),
   generateRealisticPlayer('vp-107', '曼谷高手', 2, 145, 67.1, { currentStreak: 5, joinedDaysAgo: 78, isRecommender: true }),
   generateRealisticPlayer('vp-108', 'DubaiDreamer', 5, 312, 55.6, { currentStreak: -1, joinedDaysAgo: 212 }),
-  generateRealisticPlayer('vp-109', '澳门赌神', 9, 178, 71.3, { currentStreak: 6, joinedDaysAgo: 98, unlockPrice: 4, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-109', '澳门赌神', 9, 178, 71.3, { currentStreak: 6, joinedDaysAgo: 98, allowCopyTrade: true }),
   generateRealisticPlayer('vp-110', 'LondonLucky', 4, 256, 62.8, { currentStreak: 2, joinedDaysAgo: 167 }),
   
   // ============ 职业风格玩家 ============
@@ -237,7 +237,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   generateRealisticPlayer('vp-115', '期望值猎人', 8, 189, 66.5, { currentStreak: 2, joinedDaysAgo: 134, isRecommender: true }),
   generateRealisticPlayer('vp-116', 'ValueSeeker', 2, 312, 61.7, { currentStreak: -1, joinedDaysAgo: 201 }),
   generateRealisticPlayer('vp-117', '凯利公式爱好者', 5, 145, 57.3, { currentStreak: -4, joinedDaysAgo: 89, allowCopyTrade: true }),
-  generateRealisticPlayer('vp-118', 'SharpBettor', 9, 267, 69.2, { currentStreak: 5, joinedDaysAgo: 178, unlockPrice: 3 }),
+  generateRealisticPlayer('vp-118', 'SharpBettor', 9, 267, 69.2, { currentStreak: 5, joinedDaysAgo: 178 }),
   
   // ============ 特殊风格玩家 ============
   generateRealisticPlayer('vp-119', '主场专家', 4, 198, 64.4, { currentStreak: 2, joinedDaysAgo: 123 }),

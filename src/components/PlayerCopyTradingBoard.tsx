@@ -711,16 +711,9 @@ const PlayerCopyTradingBoard = () => {
       match_status: 'NS'
     };
     
-    // 检查是否需要付费解锁
-    const unlockPrice = player.unlockPrice ?? 0;
-    if (unlockPrice > 0) {
-      // 需要付费，显示解锁弹窗
-      setUnlockDialog({ player, prediction });
-    } else {
-      // 免费，直接进入跟单流程
-      setCopyTradeDialog({ player, prediction, betAmount: 100 });
-      setCopyBetAmount(100);
-    }
+    // 直接进入跟单流程（所有玩家信息公开）
+    setCopyTradeDialog({ player, prediction, betAmount: 100 });
+    setCopyBetAmount(100);
   };
 
   const confirmCopyTrade = async () => {
