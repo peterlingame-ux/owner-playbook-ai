@@ -70,6 +70,7 @@ interface PlayerData {
   todayWinRate?: number;
   allowCopyTrade?: boolean;
   unlockPrice?: number; // USDT解锁价格，0或undefined表示免费
+  signature?: string; // 用户个性签名
 }
 
 interface TodayPrediction {
@@ -1308,7 +1309,7 @@ const PlayerCopyTradingBoard = () => {
                       return (
                         <>
                           <span className="text-muted-foreground truncate max-w-[200px]">
-                            胜率 <span className="text-success font-medium">{selectedPlayer?.player.winRate.toFixed(1)}%</span>
+                            {selectedPlayer?.player.signature || "这个人很懒，什么都没写~"}
                           </span>
                           {unlockPrice > 0 ? (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
