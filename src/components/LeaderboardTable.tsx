@@ -1073,6 +1073,8 @@ const LeaderboardTable = () => {
                       <AnimatedWinRate 
                         value={model.winRate}
                         className="text-sm sm:text-lg font-bold font-mono-data text-success"
+                        trend={todayWinRates.get(model.id) ? todayWinRates.get(model.id)!.winRate - model.winRate : undefined}
+                        showTrend={todayWinRates.has(model.id)}
                       />
                     </div>
                   </div>
