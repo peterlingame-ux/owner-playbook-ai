@@ -1762,7 +1762,7 @@ const PlayerCopyTradingBoard = () => {
                 >
                   <Users className="h-4 w-4 text-muted-foreground" fill="currentColor" />
                   <span className="text-sm text-muted-foreground">
-                    已有 <span className="text-foreground font-bold">{Math.floor(Math.random() * 200) + 50}</span> 人跟单该玩家
+                    已有 <span className="text-foreground font-bold">{50 + (copySuccess.playerName.charCodeAt(0) % 150)}</span> 人跟单该玩家
                   </span>
                 </motion.div>
 
