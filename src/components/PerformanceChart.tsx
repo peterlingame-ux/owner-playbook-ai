@@ -284,7 +284,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
 
     const getName = (dataKey: string, originalName: string) => {
       if (dataKey === 'hunsoccermax') {
-        return user && userProfile?.display_name ? userProfile.display_name : (t('demo_player') || '体验玩家');
+        return user && userProfile?.display_name ? userProfile.display_name : t('demo_player');
       }
       return originalName;
     };
@@ -381,11 +381,11 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       
       {isLoading ? (
         <div className="h-[300px] sm:h-[400px] flex items-center justify-center">
-          <div className="text-muted-foreground">{t('loading') || 'Loading...'}</div>
+          <div className="text-muted-foreground">{t('loading')}</div>
         </div>
       ) : data.length === 0 ? (
         <div className="h-[300px] sm:h-[400px] flex items-center justify-center">
-          <div className="text-muted-foreground">{t('no_data') || '暂无数据'}</div>
+          <div className="text-muted-foreground">{t('no_data')}</div>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={300} className="sm:!h-[400px]">

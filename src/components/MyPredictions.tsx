@@ -1169,13 +1169,13 @@ const MyPredictions = () => {
   // 点击开通VIP按钮 - 显示确认弹窗
   const handleVipButtonClick = () => {
     if (!user) {
-      toast.error(t('vip_login_required') || '请先登录');
+      toast.error(t('vip_login_required'));
       navigate('/auth');
       return;
     }
 
     if (usdtBalance < VIP_COST) {
-      toast.error(t('vip_insufficient_balance') || '猎人币余额不足，请先充值');
+      toast.error(t('vip_insufficient_balance'));
       return;
     }
 
@@ -1207,13 +1207,13 @@ const MyPredictions = () => {
         if (result.new_balance !== undefined) {
           setUsdtBalance(result.new_balance);
         }
-        toast.success(t('vip_activated') || 'VIP开通成功！现在可以免费查看所有跟单预测');
+        toast.success(t('vip_activated'));
       } else {
-        toast.error(result.error || t('purchase_failed') || '开通失败');
+        toast.error(result.error || t('purchase_failed'));
       }
     } catch (error) {
       console.error('Error purchasing VIP:', error);
-      toast.error(t('purchase_failed') || '开通失败，请重试');
+      toast.error(t('purchase_failed'));
     } finally {
       setIsPurchasingVip(false);
     }
@@ -1383,12 +1383,12 @@ const MyPredictions = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="signature" className="text-sm">{t('signature') || '个性签名'}</Label>
+                          <Label htmlFor="signature" className="text-sm">{t('signature')}</Label>
                           <Input
                             id="signature"
                             value={editSignature}
                             onChange={(e) => setEditSignature(e.target.value)}
-                            placeholder={t('enter_signature') || '输入您的个性签名'}
+                            placeholder={t('enter_signature')}
                             maxLength={30}
                             className="h-9"
                           />
@@ -1462,7 +1462,7 @@ const MyPredictions = () => {
                       onClick={() => setIsWalletDialogOpen(true)}
                       className="h-6 px-2.5 text-xs border-ai-cyan/50 text-ai-cyan hover:bg-ai-cyan/10 rounded-md"
                     >
-                      {t('recharge') || '充值'}
+                      {t('recharge')}
                     </Button>
                     {!vipStatus?.is_active && (
                       <Button
@@ -1472,7 +1472,7 @@ const MyPredictions = () => {
                         disabled={isPurchasingVip}
                         className="h-6 px-2.5 text-xs border-amber-400/50 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-md"
                       >
-                        {isPurchasingVip ? t('purchasing') : t('activate_vip') || '开通VIP'}
+                        {isPurchasingVip ? t('purchasing') : t('activate_vip')}
                       </Button>
                     )}
                   </div>
@@ -1887,7 +1887,7 @@ const MyPredictions = () => {
                 <Users className="h-5 w-5 text-ai-cyan" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">{t('my_invitation_code') || '我的邀请码'}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t('my_invitation_code')}</p>
                 <p className="text-lg font-bold font-mono text-foreground tracking-[0.3em]">
                   {userProfile?.invitation_code || '--------'}
                 </p>
@@ -1898,7 +1898,7 @@ const MyPredictions = () => {
                 className={`text-right ${(userProfile?.invited_count || 0) > 0 ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
                 onClick={handleOpenInvitedUsers}
               >
-                <p className="text-xs text-muted-foreground">{t('invited_count') || '已邀请'}</p>
+                <p className="text-xs text-muted-foreground">{t('invited_count')}</p>
                 <p className="text-xl font-bold text-ai-cyan font-mono">{userProfile?.invited_count || 0}</p>
               </div>
               {userProfile?.invitation_code && (
@@ -1908,16 +1908,16 @@ const MyPredictions = () => {
                   className="h-9 px-4 text-xs border-ai-cyan/30 hover:bg-ai-cyan/10 text-ai-cyan"
                   onClick={() => {
                     navigator.clipboard.writeText(userProfile.invitation_code || '');
-                    toast.success(t('invitation_code_copied') || '邀请码已复制');
+                    toast.success(t('invitation_code_copied'));
                   }}
                 >
-                  {t('copy') || '复制'}
+                  {t('copy')}
                 </Button>
               )}
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/50">
-            {t('invitation_bonus_hint') || '好友通过您的邀请码注册可获得100 猎人币奖励'}
+            {t('invitation_bonus_hint')}
           </p>
         </div>
       </div>

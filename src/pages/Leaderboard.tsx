@@ -33,7 +33,7 @@ const Leaderboard = () => {
           <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-6">
             <TabsTrigger value="ai" className="text-xs sm:text-sm">{t('ai_leaderboard')}</TabsTrigger>
             <TabsTrigger value="players" className="text-xs sm:text-sm">{t('player_leaderboard')}</TabsTrigger>
-            <TabsTrigger value="copy" className="text-xs sm:text-sm">{t('copy_trading_board') || '玩家跟单排行榜'}</TabsTrigger>
+            <TabsTrigger value="copy" className="text-xs sm:text-sm">{t('copy_trading_board')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="ai">
@@ -45,7 +45,7 @@ const Leaderboard = () => {
           </TabsContent>
           
           <TabsContent value="copy">
-            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('copy_trading_board') || '玩家跟单排行榜'}</h2>
+            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('copy_trading_board')}</h2>
             <PlayerCopyTradingBoard />
           </TabsContent>
         </Tabs>

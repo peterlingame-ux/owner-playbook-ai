@@ -80,7 +80,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
           .eq('model_id', model.id);
         if (error) throw error;
         setIsFollowing(false);
-        toast.success(t('unfollow_success') || '已取消关注');
+        toast.success(t('unfollow_success'));
       } else {
         // 关注
         const { error } = await supabase
@@ -88,11 +88,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
           .insert({ user_id: user!.id, model_id: model.id });
         if (error) throw error;
         setIsFollowing(true);
-        toast.success(t('follow_success') || '关注成功');
+        toast.success(t('follow_success'));
       }
     } catch (error) {
       console.error('Follow toggle error:', error);
-      toast.error(t('operation_failed') || '操作失败');
+      toast.error(t('operation_failed'));
     } finally {
       setFollowLoading(false);
     }
@@ -172,7 +172,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
           <Lock className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: `hsl(var(--${model.color}))` }} />
           <span className="text-xs sm:text-sm font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
-            {t('locked_model') || 'LOCKED'}
+            {t('locked_model')}
           </span>
         </div>
       )}
@@ -282,12 +282,12 @@ const ModelCard = ({ model }: ModelCardProps) => {
               {isFollowing ? (
                 <>
                   <UserMinus className="h-4 w-4 mr-2" />
-                  {t('following') || '已关注'}
+                  {t('following')}
                 </>
               ) : (
                 <>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  {t('follow_model') || '关注模型'}
+                  {t('follow_model')}
                 </>
               )}
             </Button>
