@@ -164,37 +164,37 @@ const ChallengeAIBanner = () => {
           filter: 'brightness(0.85)'
         }}
       />
-      <CardContent className="p-5 sm:p-6 relative">
-        <div className="flex flex-col gap-5">
+      <CardContent className="p-3 sm:p-6 relative">
+        <div className="flex flex-col gap-3 sm:gap-5">
           {/* 主标题 */}
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-              <span className="text-lg sm:text-xl font-bold text-foreground">{t('challenge_ai')}</span>
-              <span className="text-2xl sm:text-4xl font-black text-foreground">$1,000,000</span>
-              <span className="text-lg sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
+            <div className="flex items-center justify-center gap-1 sm:gap-3 mb-1 sm:mb-2 flex-wrap">
+              <span className="text-sm sm:text-xl font-bold text-foreground">{t('challenge_ai')}</span>
+              <span className="text-xl sm:text-4xl font-black text-foreground">$1,000,000</span>
+              <span className="text-sm sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </div>
-            <p className="text-sm text-white max-w-lg mx-auto">
+            <p className="text-xs sm:text-sm text-white max-w-lg mx-auto leading-tight">
               {t('challenge_description')}
             </p>
           </div>
           
           {/* AI vs 玩家数据对比 */}
-          <div className="w-full max-w-3xl mx-auto space-y-2">
+          <div className="w-full max-w-3xl mx-auto space-y-1.5 sm:space-y-2">
             {/* AI数据 */}
-            <div className="bg-muted/30 rounded-lg px-4 py-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Avatar className="w-10 h-10 border-2 border-warning/50">
+            <div className="bg-muted/30 rounded-lg px-2 sm:px-4 py-2 sm:py-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-warning/50">
                     <AvatarImage src={hunsoccerAiIcon} />
-                    <AvatarFallback>AI</AvatarFallback>
+                    <AvatarFallback className="text-xs">AI</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-bold text-sm">HUNSOCCER MAX</p>
-                    <p className="text-xs text-muted-foreground">{t('ai_benchmark')}</p>
+                    <p className="font-bold text-xs sm:text-sm">HUNSOCCER MAX</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t('ai_benchmark')}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 sm:gap-6 text-sm">
-                  <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">247{t('matches_suffix')}</span></span>
+                <div className="flex items-center gap-2 sm:gap-6 text-[10px] sm:text-sm flex-wrap">
+                  <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">247</span></span>
                   <span className="text-muted-foreground">{t('banner_win_rate')} <span className="font-bold text-foreground">78.95%</span></span>
                   <span className="text-muted-foreground">{t('banner_profit')} <span className="font-bold text-foreground">$24,789</span></span>
                 </div>
@@ -203,33 +203,33 @@ const ChallengeAIBanner = () => {
             
             {/* 玩家专属模型数据 */}
             {user ? (
-              <div className={`rounded-lg px-4 py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-3">
+              <div className={`rounded-lg px-2 sm:px-4 py-2 sm:py-3 ${meetsRequirements ? 'bg-success/10' : 'bg-muted/30'}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <div className="relative">
-                      <Avatar className="w-10 h-10 border-2 border-primary/50">
+                      <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-primary/50">
                         <AvatarImage src={currentPlayer?.avatarUrl || '/avatars/avatar-1.png'} />
-                        <AvatarFallback>{currentPlayer?.displayName?.charAt(0) || 'P'}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{currentPlayer?.displayName?.charAt(0) || 'P'}</AvatarFallback>
                       </Avatar>
                       {currentPlayer && currentPlayer.rank > 0 && (
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary flex items-center justify-center text-[8px] sm:text-[10px] font-bold text-primary-foreground">
                           #{currentPlayer.rank}
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-sm">{currentPlayer?.displayName || t('banner_my_model')}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-bold text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{currentPlayer?.displayName || t('banner_my_model')}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">
                         {meetsRequirements ? <span className="text-success">✓ {t('qualified_status')}</span> : t('keep_going')}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 sm:gap-6 text-sm">
+                  <div className="flex items-center gap-2 sm:gap-6 text-[10px] sm:text-sm flex-wrap">
                     <span className="text-muted-foreground">
-                      {t('banner_predictions')} <span className={`font-bold ${playerPredictions >= AI_BENCHMARK_PREDICTIONS ? 'text-success' : 'text-foreground'}`}>{playerPredictions}{t('matches_suffix')}</span>
+                      {t('banner_predictions')} <span className={`font-bold ${playerPredictions >= AI_BENCHMARK_PREDICTIONS ? 'text-success' : 'text-foreground'}`}>{playerPredictions}</span>
                     </span>
                     <span className="text-muted-foreground">
-                      {t('banner_win_rate')} <span className={`font-bold ${playerWinRate >= AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(2)}%</span>
+                      {t('banner_win_rate')} <span className={`font-bold ${playerWinRate >= AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(1)}%</span>
                     </span>
                     <span className="text-muted-foreground">
                       {t('banner_profit')} <span className={`font-bold ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
@@ -238,21 +238,21 @@ const ChallengeAIBanner = () => {
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg px-4 py-3 bg-muted/30">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 border-2 border-muted/40">
+              <div className="rounded-lg px-2 sm:px-4 py-2 sm:py-3 bg-muted/30">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-muted/40">
                       <AvatarImage src="/avatars/avatar-1.png" />
-                      <AvatarFallback>P</AvatarFallback>
+                      <AvatarFallback className="text-xs">P</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-bold text-sm">{t('banner_my_model')}</p>
-                      <p className="text-xs text-muted-foreground">{t('login_to_view')}</p>
+                      <p className="font-bold text-xs sm:text-sm">{t('banner_my_model')}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{t('login_to_view')}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => navigate('/auth')}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-primary-foreground rounded-lg text-[10px] sm:text-sm font-medium hover:bg-primary/90 transition-colors"
                   >
                     {t('login')}
                   </button>
@@ -262,14 +262,14 @@ const ChallengeAIBanner = () => {
           </div>
           
           {/* 倒计时和统计 */}
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-sm">
             <span className="font-mono text-foreground">
               {countdown.days}{t('days_unit')} {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
             </span>
-            <div className="h-4 w-px bg-border" />
+            <div className="h-3 sm:h-4 w-px bg-border" />
             <span><span className="font-bold text-foreground">{qualifiedCount}</span> {t('people_qualified')}</span>
-            <div className="h-4 w-px bg-border" />
-            <span>{t('per_capita_prize')} <span className="font-bold text-warning text-base">${prizePerPerson.toLocaleString()}</span></span>
+            <div className="h-3 sm:h-4 w-px bg-border" />
+            <span>{t('per_capita_prize')} <span className="font-bold text-warning text-xs sm:text-base">${prizePerPerson.toLocaleString()}</span></span>
           </div>
         </div>
       </CardContent>

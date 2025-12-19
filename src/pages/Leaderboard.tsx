@@ -26,7 +26,7 @@ const Leaderboard = () => {
       
       {/* Challenge AI Banner */}
       <motion.div 
-        className="container mx-auto px-3 sm:px-4 pt-4"
+        className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
@@ -35,22 +35,22 @@ const Leaderboard = () => {
       </motion.div>
       
       <motion.div 
-        className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding"
+        className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 lg:py-8 safe-area-padding"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
         <Tabs defaultValue={defaultTab} className="w-full">
           <motion.div 
-            className="flex justify-center mb-6"
+            className="flex justify-center mb-4 sm:mb-6"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
           >
-            <TabsList className="grid grid-cols-3 w-full max-w-md sm:max-w-lg">
-              <TabsTrigger value="ai" className="text-xs sm:text-sm px-2 sm:px-4">{t('ai_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="players" className="text-xs sm:text-sm px-2 sm:px-4">{t('player_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="copy" className="text-xs sm:text-sm px-2 sm:px-4">{t('copy_trading_board')}</TabsTrigger>
+            <TabsList className="grid grid-cols-3 w-full max-w-md sm:max-w-lg h-8 sm:h-10">
+              <TabsTrigger value="ai" className="text-[10px] sm:text-sm px-1 sm:px-4 h-7 sm:h-9">{t('ai_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="players" className="text-[10px] sm:text-sm px-1 sm:px-4 h-7 sm:h-9">{t('player_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="copy" className="text-[10px] sm:text-sm px-1 sm:px-4 h-7 sm:h-9">{t('copy_trading_board')}</TabsTrigger>
             </TabsList>
           </motion.div>
           
@@ -68,7 +68,7 @@ const Leaderboard = () => {
             </TabsContent>
             
             <TabsContent value="copy">
-              <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('copy_trading_board')}</h2>
+              <h2 className="text-base sm:text-2xl font-bold mb-3 sm:mb-4 px-1 sm:px-2 leading-tight">{t('copy_trading_board')}</h2>
               <PlayerCopyTradingBoard />
             </TabsContent>
           </motion.div>
