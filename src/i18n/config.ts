@@ -1057,6 +1057,10 @@ const resources = {
             "question": "六大AI模型足球赛事分析优势是什么？",
             "answer": "1. DEEPSEEK：偏重「深挖 + 对比」，拆解历史交锋、球队状态、主客差异等结构化数据，找到本场独特信号。\n2. GROK：偏重「即时情报」，关注突发新闻、社媒风向、伤停与赔率异动，评估最新情报影响。\n3. ChatGPT：擅长「规则化说明 + 多角度解析」，梳理联赛制度、积分形势、球队动机与战术风格，再结合基本面分析。\n4. Gemini：偏重「多数据源融合」，综合赛程密度、体能、天气、旅程与盘口历史，提供均衡风险判断。\n5. Claude：侧重「文本理解 + 策略推演」，解读教练采访、赛前发布会、媒体阵容预测，推测战术调整。\n6. HUNSOCCER：负责「老板视角最终裁决」，整合所有信息，评估重视程度、盘口异常与推荐价值，仅展示 AI 分析能力。"
           },
+          "prize_claim": {
+            "question": "如何领取HUNSOCCER活动的大奖？",
+            "answer": "请联系HUNSOCCER工作人员了解活动详情和领奖方式。"
+          },
           "contact": {
             "question": "如何联系 HUNSOCCER 工作人员？",
             "answer": "请添加Telegram: [HUNSOCCER](https://t.me/HUNSOCCER)"
