@@ -190,7 +190,7 @@ export const virtualPlayers: VirtualPlayer[] = [
   generateRealisticPlayer('vp-080', '欧冠情报员', 1, 189, 66.1, { currentStreak: 3, joinedDaysAgo: 145, isRecommender: true }),
   
   // ============ 极端案例玩家 ============
-  generateRealisticPlayer('vp-081', '神准小哥', 8, 156, 85.3, { currentStreak: 11, joinedDaysAgo: 112, unlockPrice: 10, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-081', '番茄体育哥', 8, 156, 85.3, { currentStreak: 11, joinedDaysAgo: 112, unlockPrice: 10, allowCopyTrade: true, isRecommender: true }),
   generateRealisticPlayer('vp-082', '连胜传奇', 2, 123, 83.7, { currentStreak: 8, joinedDaysAgo: 78, unlockPrice: 8, allowCopyTrade: true }),
   generateRealisticPlayer('vp-083', '超级黑洞', 5, 198, 12.6, { currentStreak: -17, joinedDaysAgo: 156, worstStreak: 21 }),
   generateRealisticPlayer('vp-084', 'InverseGod', 9, 234, 8.5, { currentStreak: -14, joinedDaysAgo: 189, worstStreak: 19 }),
