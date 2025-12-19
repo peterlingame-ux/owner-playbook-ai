@@ -1879,15 +1879,12 @@ const PlayerLeaderboardTable = () => {
                   >
                     {/* 比赛信息头部 */}
                     <div className="px-4 py-3 border-b border-border/30">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <motion.div
-                          initial={{ rotate: -180, scale: 0 }}
-                          animate={{ rotate: 0, scale: 1 }}
-                          transition={{ delay: 0.6, type: "spring" }}
-                        >
-                          <CheckCircle2 className="h-4 w-4 text-success" />
-                        </motion.div>
-                        <span className="text-xs font-medium text-success">比赛详情已解锁</span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-muted-foreground">英超联赛</span>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3 text-success" />
+                          <span className="text-[10px] text-success">比赛已解锁</span>
+                        </div>
                       </div>
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex items-center gap-2">
