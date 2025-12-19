@@ -1447,12 +1447,27 @@ const LeaderboardTable = () => {
           {/* Header */}
           <div className="px-5 pt-5 pb-3">
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold text-foreground">
-                {selectedModelFollowers?.modelName} - 跟单用户
-              </DialogTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
-              </p>
+              <div className="flex items-start justify-between">
+                <div>
+                  <DialogTitle className="text-lg font-bold text-foreground">
+                    {selectedModelFollowers?.modelName} - 跟单用户
+                  </DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">总收益</p>
+                  <p className={`text-lg font-bold ${
+                    (selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 
+                      ? 'text-success' 
+                      : 'text-destructive'
+                  }`}>
+                    {(selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 ? '+' : ''}
+                    {(selectedModelFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
             </DialogHeader>
           </div>
           
