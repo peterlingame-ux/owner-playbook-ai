@@ -1127,56 +1127,57 @@ const PlayerCopyTradingBoard = () => {
             style={{ backgroundImage: `url(${winningStreakBg})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-bold text-lg text-foreground">玩家连红榜</h3>
-                <p className="text-xs text-muted-foreground">
-                  胜率最高玩家
-                  <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                </p>
-              </div>
+          <div className="pb-3 pt-4 px-4 relative z-10">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {/* View All Button */}
-                <button
-                  onClick={() => setShowAllHotPlayers(true)}
-                  className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
-                >
-                  {t('all_players') || '全部玩家'}
-                </button>
-                {/* Time Range Filter */}
-                <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                  <button
-                    onClick={() => setTimeRange(1)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                      timeRange === 1
-                        ? 'bg-foreground text-background shadow-sm scale-105' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {t('time_filter_1d') || '日'}
-                  </button>
-                  <button
-                    onClick={() => setTimeRange(7)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                      timeRange === 7
-                        ? 'bg-foreground text-background shadow-sm scale-105' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {t('time_filter_7d') || '周'}
-                  </button>
-                  <button
-                    onClick={() => setTimeRange(30)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                      timeRange === 30
-                        ? 'bg-foreground text-background shadow-sm scale-105' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {t('time_filter_30d') || '月'}
-                  </button>
+                <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">玩家连红榜</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">胜率最高玩家 · <span className="text-amber-500 font-medium">前10名</span></p>
                 </div>
+              </div>
+              <button
+                onClick={() => setShowAllHotPlayers(true)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+              >
+                {t('all_players')}
+              </button>
+            </div>
+          </div>
+          <CardContent className="px-4 pb-4 pt-0 relative z-10">
+            {/* Time Range Filter */}
+            <div className="flex items-center justify-end mb-4">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {t('time_filter_1d')}
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {t('time_filter_7d')}
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {t('time_filter_30d')}
+                </button>
               </div>
             </div>
             <div className="space-y-2">
@@ -1195,56 +1196,57 @@ const PlayerCopyTradingBoard = () => {
             style={{ backgroundImage: `url(${losingStreakBg})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <CardContent className="p-4 sm:p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-bold text-lg text-foreground">玩家连黑榜</h3>
-                <p className="text-xs text-muted-foreground">
-                  胜率最低玩家
-                  <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
-                </p>
-              </div>
+          <div className="pb-3 pt-4 px-4 relative z-10">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {/* View All Button */}
-                <button
-                  onClick={() => setShowAllColdPlayers(true)}
-                  className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
-                >
-                  {t('all_players') || '全部玩家'}
-                </button>
-                {/* Time Range Filter */}
-                <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                  <button
-                    onClick={() => setTimeRange(1)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                      timeRange === 1
-                        ? 'bg-foreground text-background shadow-sm scale-105' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {t('time_filter_1d') || '日'}
-                  </button>
-                  <button
-                    onClick={() => setTimeRange(7)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                      timeRange === 7
-                        ? 'bg-foreground text-background shadow-sm scale-105' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {t('time_filter_7d') || '周'}
-                  </button>
-                  <button
-                    onClick={() => setTimeRange(30)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                      timeRange === 30
-                        ? 'bg-foreground text-background shadow-sm scale-105' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {t('time_filter_30d') || '月'}
-                  </button>
+                <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">玩家连黑榜</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">胜率最低玩家 · <span className="text-red-500 font-medium">前10名</span></p>
                 </div>
+              </div>
+              <button
+                onClick={() => setShowAllColdPlayers(true)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+              >
+                {t('all_players')}
+              </button>
+            </div>
+          </div>
+          <CardContent className="px-4 pb-4 pt-0 relative z-10">
+            {/* Time Range Filter */}
+            <div className="flex items-center justify-end mb-4">
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {t('time_filter_1d')}
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {t('time_filter_7d')}
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {t('time_filter_30d')}
+                </button>
               </div>
             </div>
             <div className="space-y-2">
