@@ -1135,7 +1135,7 @@ const LeaderboardTable = () => {
                     <div className="text-center">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}¥${profitAmount.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : '-'}¥${Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                       </p>
                     </div>
                     

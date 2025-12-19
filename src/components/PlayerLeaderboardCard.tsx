@@ -328,7 +328,7 @@ export const PlayerLeaderboardCard = ({
         <div className="text-center">
           <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
           <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-            {profitAmount >= 0 ? '+' : ''}¥{(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {profitAmount >= 0 ? '+' : '-'}¥{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
         </div>
         
