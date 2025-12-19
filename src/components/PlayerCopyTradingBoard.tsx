@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -167,6 +168,9 @@ const PlayerCopyTradingBoard = () => {
   const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
   const [isUnlocking, setIsUnlocking] = useState(false);
   
+  // 查看全部玩家弹窗状态
+  const [showAllHotPlayers, setShowAllHotPlayers] = useState(false);
+  const [showAllColdPlayers, setShowAllColdPlayers] = useState(false);
   // 获取用户USDT余额
   const [usdtBalance, setUsdtBalance] = useState(0);
 
@@ -1094,38 +1098,47 @@ const PlayerCopyTradingBoard = () => {
                   <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
                 </p>
               </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+              <div className="flex items-center gap-2">
+                {/* View All Button */}
                 <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
+                  onClick={() => setShowAllHotPlayers(true)}
+                  className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                 >
-                  {t('time_filter_1d') || '日'}
+                  {t('view_all') || '查看全部'}
                 </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
+                {/* Time Range Filter */}
+                <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setTimeRange(1)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+                      timeRange === 1
+                        ? 'bg-foreground text-background shadow-sm scale-105' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {t('time_filter_1d') || '日'}
+                  </button>
+                  <button
+                    onClick={() => setTimeRange(7)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+                      timeRange === 7
+                        ? 'bg-foreground text-background shadow-sm scale-105' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {t('time_filter_7d') || '周'}
+                  </button>
+                  <button
+                    onClick={() => setTimeRange(30)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+                      timeRange === 30
+                        ? 'bg-foreground text-background shadow-sm scale-105' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {t('time_filter_30d') || '月'}
+                  </button>
+                </div>
               </div>
             </div>
             <div className="space-y-2">
@@ -1153,38 +1166,47 @@ const PlayerCopyTradingBoard = () => {
                   <span className="ml-1.5 text-[10px] text-muted-foreground/70">· 仅显示前10名</span>
                 </p>
               </div>
-              {/* Time Range Filter */}
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+              <div className="flex items-center gap-2">
+                {/* View All Button */}
                 <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
+                  onClick={() => setShowAllColdPlayers(true)}
+                  className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                 >
-                  {t('time_filter_1d') || '日'}
+                  {t('view_all') || '查看全部'}
                 </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d') || '周'}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm scale-105' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d') || '月'}
-                </button>
+                {/* Time Range Filter */}
+                <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setTimeRange(1)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+                      timeRange === 1
+                        ? 'bg-foreground text-background shadow-sm scale-105' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {t('time_filter_1d') || '日'}
+                  </button>
+                  <button
+                    onClick={() => setTimeRange(7)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+                      timeRange === 7
+                        ? 'bg-foreground text-background shadow-sm scale-105' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {t('time_filter_7d') || '周'}
+                  </button>
+                  <button
+                    onClick={() => setTimeRange(30)}
+                    className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+                      timeRange === 30
+                        ? 'bg-foreground text-background shadow-sm scale-105' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {t('time_filter_30d') || '月'}
+                  </button>
+                </div>
               </div>
             </div>
             <div className="space-y-2">
@@ -1806,6 +1828,60 @@ const PlayerCopyTradingBoard = () => {
           </Dialog>
         )}
       </AnimatePresence>
+
+      {/* 查看全部连红玩家弹窗 */}
+      <Dialog open={showAllHotPlayers} onOpenChange={setShowAllHotPlayers}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+              玩家连红榜 - {t('all_players') || '全部玩家'}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-2 pb-4">
+              {[...allPlayers]
+                .sort((a, b) => b.bestStreak - a.bestStreak)
+                .map((player, index) => (
+                  <PlayerCard 
+                    key={player.id} 
+                    player={player} 
+                    showStreak 
+                    streakType="best" 
+                    rank={index + 1} 
+                  />
+                ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* 查看全部连黑玩家弹窗 */}
+      <Dialog open={showAllColdPlayers} onOpenChange={setShowAllColdPlayers}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+              玩家连黑榜 - {t('all_players') || '全部玩家'}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-2 pb-4">
+              {[...allPlayers]
+                .sort((a, b) => b.worstStreak - a.worstStreak)
+                .map((player, index) => (
+                  <PlayerCard 
+                    key={player.id} 
+                    player={player} 
+                    showStreak 
+                    streakType="worst" 
+                    rank={index + 1} 
+                  />
+                ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
 
       {/* Disclaimer */}
       <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border/50">
