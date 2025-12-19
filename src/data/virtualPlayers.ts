@@ -213,6 +213,70 @@ export const virtualPlayers: VirtualPlayer[] = [
   generateRealisticPlayer('vp-098', 'QuietGenius', 1, 67, 71.6, { currentStreak: 4, joinedDaysAgo: 34, todayPredictions: 0 }),
   generateRealisticPlayer('vp-099', '爆发中新星', 8, 45, 77.8, { currentStreak: 7, joinedDaysAgo: 18, allowCopyTrade: true }),
   generateRealisticPlayer('vp-100', 'RisingStar', 2, 56, 73.2, { currentStreak: 5, joinedDaysAgo: 23, isRecommender: true }),
+  
+  // ============ 更多国际化玩家 ============
+  generateRealisticPlayer('vp-101', '东京预测家', 4, 234, 66.8, { currentStreak: 3, joinedDaysAgo: 145, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-102', 'SeoulBetKing', 7, 189, 63.5, { currentStreak: -2, joinedDaysAgo: 112 }),
+  generateRealisticPlayer('vp-103', '香港马王', 3, 267, 69.4, { currentStreak: 4, joinedDaysAgo: 178, isRecommender: true }),
+  generateRealisticPlayer('vp-104', 'SingaporePro', 6, 156, 61.2, { currentStreak: 1, joinedDaysAgo: 89 }),
+  generateRealisticPlayer('vp-105', '台北神算', 1, 198, 64.7, { currentStreak: 2, joinedDaysAgo: 134, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-106', 'MumbaiMaster', 8, 223, 58.3, { currentStreak: -3, joinedDaysAgo: 156 }),
+  generateRealisticPlayer('vp-107', '曼谷高手', 2, 145, 67.1, { currentStreak: 5, joinedDaysAgo: 78, isRecommender: true }),
+  generateRealisticPlayer('vp-108', 'DubaiDreamer', 5, 312, 55.6, { currentStreak: -1, joinedDaysAgo: 212 }),
+  generateRealisticPlayer('vp-109', '澳门赌神', 9, 178, 71.3, { currentStreak: 6, joinedDaysAgo: 98, unlockPrice: 4, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-110', 'LondonLucky', 4, 256, 62.8, { currentStreak: 2, joinedDaysAgo: 167 }),
+  
+  // ============ 职业风格玩家 ============
+  generateRealisticPlayer('vp-111', '数据分析师小王', 7, 345, 65.2, { currentStreak: 1, joinedDaysAgo: 234, isRecommender: true }),
+  generateRealisticPlayer('vp-112', 'StatGuru2024', 3, 278, 68.9, { currentStreak: 4, joinedDaysAgo: 189, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-113', '概率论玩家', 6, 167, 59.8, { currentStreak: -2, joinedDaysAgo: 112 }),
+  generateRealisticPlayer('vp-114', 'OddsCalculator', 1, 234, 63.1, { currentStreak: 3, joinedDaysAgo: 156 }),
+  generateRealisticPlayer('vp-115', '期望值猎人', 8, 189, 66.5, { currentStreak: 2, joinedDaysAgo: 134, isRecommender: true }),
+  generateRealisticPlayer('vp-116', 'ValueSeeker', 2, 312, 61.7, { currentStreak: -1, joinedDaysAgo: 201 }),
+  generateRealisticPlayer('vp-117', '凯利公式爱好者', 5, 145, 57.3, { currentStreak: -4, joinedDaysAgo: 89, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-118', 'SharpBettor', 9, 267, 69.2, { currentStreak: 5, joinedDaysAgo: 178, unlockPrice: 3 }),
+  
+  // ============ 特殊风格玩家 ============
+  generateRealisticPlayer('vp-119', '主场专家', 4, 198, 64.4, { currentStreak: 2, joinedDaysAgo: 123 }),
+  generateRealisticPlayer('vp-120', 'UnderdogHunter', 7, 234, 52.3, { currentStreak: -3, joinedDaysAgo: 167 }),
+  generateRealisticPlayer('vp-121', '大小球玩家', 3, 156, 67.8, { currentStreak: 4, joinedDaysAgo: 89, isRecommender: true }),
+  generateRealisticPlayer('vp-122', 'DrawSpecialist', 6, 189, 55.6, { currentStreak: 1, joinedDaysAgo: 112, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-123', '让球专家', 1, 278, 63.9, { currentStreak: 3, joinedDaysAgo: 178 }),
+  generateRealisticPlayer('vp-124', 'LiveBetKing', 8, 145, 58.9, { currentStreak: -2, joinedDaysAgo: 78 }),
+  generateRealisticPlayer('vp-125', '角球分析师', 2, 212, 61.3, { currentStreak: 2, joinedDaysAgo: 145, isRecommender: true }),
+  generateRealisticPlayer('vp-126', 'CardCounter', 5, 167, 54.7, { currentStreak: -1, joinedDaysAgo: 98 }),
+  
+  // ============ 新一批活跃玩家 ============
+  generateRealisticPlayer('vp-127', '周末战神', 9, 89, 72.5, { currentStreak: 6, joinedDaysAgo: 45, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-128', 'MidweekMaster', 4, 123, 65.8, { currentStreak: 3, joinedDaysAgo: 67 }),
+  generateRealisticPlayer('vp-129', '午夜预测人', 7, 156, 59.2, { currentStreak: -2, joinedDaysAgo: 89 }),
+  generateRealisticPlayer('vp-130', 'EarlyBird', 3, 178, 63.4, { currentStreak: 4, joinedDaysAgo: 112, isRecommender: true }),
+  generateRealisticPlayer('vp-131', '欧洲联赛通', 6, 234, 67.3, { currentStreak: 2, joinedDaysAgo: 156, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-132', 'AsianHandicap', 1, 189, 61.8, { currentStreak: 1, joinedDaysAgo: 134 }),
+  generateRealisticPlayer('vp-133', '南美专家', 8, 145, 58.5, { currentStreak: -3, joinedDaysAgo: 89 }),
+  generateRealisticPlayer('vp-134', 'MLSWatcher', 2, 167, 55.1, { currentStreak: -1, joinedDaysAgo: 98 }),
+  
+  // ============ 更多胜率极端玩家 ============
+  generateRealisticPlayer('vp-135', '常胜将军', 5, 134, 81.2, { currentStreak: 8, joinedDaysAgo: 78, unlockPrice: 7, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-136', 'PerfectPicks', 9, 98, 79.6, { currentStreak: 7, joinedDaysAgo: 56, unlockPrice: 6 }),
+  generateRealisticPlayer('vp-137', '连胜狂魔', 4, 156, 76.9, { currentStreak: 9, joinedDaysAgo: 89, unlockPrice: 5, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-138', 'GoldTouch', 7, 112, 74.1, { currentStreak: 5, joinedDaysAgo: 67 }),
+  generateRealisticPlayer('vp-139', '永不止损', 3, 234, 33.7, { currentStreak: -8, joinedDaysAgo: 178, worstStreak: 13 }),
+  generateRealisticPlayer('vp-140', 'AlwaysLosing', 6, 189, 27.5, { currentStreak: -10, joinedDaysAgo: 145, worstStreak: 15 }),
+  
+  // ============ 社区活跃玩家 ============
+  generateRealisticPlayer('vp-141', '论坛大神', 1, 312, 64.5, { currentStreak: 3, joinedDaysAgo: 234, isRecommender: true }),
+  generateRealisticPlayer('vp-142', 'DiscordPro', 8, 267, 62.1, { currentStreak: 2, joinedDaysAgo: 189, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-143', '群主推荐', 2, 198, 66.7, { currentStreak: 4, joinedDaysAgo: 156, isRecommender: true }),
+  generateRealisticPlayer('vp-144', 'TelegramTips', 5, 145, 59.3, { currentStreak: -1, joinedDaysAgo: 112 }),
+  generateRealisticPlayer('vp-145', '直播间常客', 9, 178, 57.8, { currentStreak: 1, joinedDaysAgo: 134 }),
+  generateRealisticPlayer('vp-146', 'YouTubeBet', 4, 223, 61.5, { currentStreak: -2, joinedDaysAgo: 167, allowCopyTrade: true }),
+  
+  // ============ 联赛专项玩家补充 ============
+  generateRealisticPlayer('vp-147', '中超观察', 7, 167, 58.2, { currentStreak: 2, joinedDaysAgo: 98 }),
+  generateRealisticPlayer('vp-148', 'J联赛通', 3, 189, 63.8, { currentStreak: 3, joinedDaysAgo: 123, isRecommender: true }),
+  generateRealisticPlayer('vp-149', 'K联赛专家', 6, 145, 60.4, { currentStreak: -1, joinedDaysAgo: 89 }),
+  generateRealisticPlayer('vp-150', '荷甲分析师', 1, 212, 65.9, { currentStreak: 4, joinedDaysAgo: 145, allowCopyTrade: true }),
 ];
 
 // 导出一些有用的统计函数
