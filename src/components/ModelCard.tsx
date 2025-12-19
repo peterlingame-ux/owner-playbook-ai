@@ -164,14 +164,14 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <Card 
-      className="relative p-4 sm:p-5 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
+      className="relative p-3 sm:p-4 lg:p-6 bg-card border-border/30 hover:border-border/50 transition-all cursor-pointer group overflow-hidden"
       onClick={handleCardClick}
     >
       {/* Locked Badge Overlay - Center */}
       {model.locked && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
-          <Lock className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: `hsl(var(--${model.color}))` }} />
-          <span className="text-xs sm:text-sm font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-2 rounded-lg px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-3 flex items-center gap-1.5 sm:gap-2 shadow-lg" style={{ borderColor: `hsl(var(--${model.color}))` }}>
+          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5" style={{ color: `hsl(var(--${model.color}))` }} />
+          <span className="text-[10px] sm:text-xs lg:text-sm font-bold" style={{ color: `hsl(var(--${model.color}))` }}>
             {t('locked_model')}
           </span>
         </div>
@@ -191,10 +191,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
       
       {/* Content */}
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+        <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4 gap-1.5 sm:gap-2">
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-2 lg:gap-3 flex-1 min-w-0">
             <div 
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center p-1.5 sm:p-2 bg-card shrink-0"
+              className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center p-1 sm:p-1.5 lg:p-2 bg-card shrink-0"
               style={{
                 border: `2px solid hsl(var(--${model.color}))`
               }}
@@ -207,16 +207,16 @@ const ModelCard = ({ model }: ModelCardProps) => {
               />
             </div>
             <div className="min-w-0 flex-1 text-center sm:text-left">
-              <h3 className="font-semibold text-sm sm:text-base leading-tight text-foreground truncate tracking-tight">
+              <h3 className="font-semibold text-xs sm:text-sm lg:text-base leading-tight text-foreground truncate tracking-tight">
                 {model.displayName.split(' ')[0]}
               </h3>
             </div>
           </div>
           
           {/* Money Change Badge */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0">
-            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
-            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-mono-data font-medium text-sm sm:text-base tabular-nums ${
+          <div className="flex flex-col items-center gap-0.5 sm:gap-1 lg:gap-1.5 shrink-0">
+            <span className="text-[8px] sm:text-[10px] lg:text-xs font-medium text-muted-foreground uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
+            <div className={`px-1.5 sm:px-2.5 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-mono-data font-medium text-[10px] sm:text-xs lg:text-base tabular-nums ${
               model.change.startsWith('+') ? 'bg-success/20 text-success border border-success/20' : 'bg-destructive/20 text-destructive border border-destructive/20'
             }`}>
               {model.change}
@@ -224,17 +224,17 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
         </div>
         
-        <div className="space-y-2.5 sm:space-y-3">
+        <div className="space-y-2 sm:space-y-2.5 lg:space-y-3">
           <div>
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t('win_rate')}</span>
-              <span className="text-xl sm:text-2xl font-semibold font-mono-data transition-all text-foreground tabular-nums">
+            <div className="flex items-center justify-between mb-1 sm:mb-1.5 lg:mb-2">
+              <span className="text-[8px] sm:text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wide">{t('win_rate')}</span>
+              <span className="text-lg sm:text-xl lg:text-2xl font-semibold font-mono-data transition-all text-foreground tabular-nums">
                 {animatedWinRate.toFixed(1)}%
               </span>
             </div>
             
             {/* Win Rate Progress Bar */}
-            <div className="relative h-2 sm:h-2.5 bg-secondary rounded-full overflow-hidden">
+            <div className="relative h-1.5 sm:h-2 lg:h-2.5 bg-secondary rounded-full overflow-hidden">
               <div 
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
                 style={{
@@ -245,33 +245,33 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
+          <div className="flex items-center justify-between pt-1.5 sm:pt-2 lg:pt-2.5 border-t border-border/30 gap-1.5 sm:gap-2">
             <div>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">{t('correct')}</p>
-              <p className="text-base sm:text-lg font-medium font-mono-data text-success tabular-nums">
+              <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-muted-foreground mb-0.5 sm:mb-1 uppercase tracking-wide">{t('correct')}</p>
+              <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-success tabular-nums">
                 {model.correctPredictions}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
-              <p className="text-base sm:text-lg font-medium font-mono-data text-foreground tabular-nums">
+              <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-muted-foreground mb-0.5 sm:mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
+              <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-foreground tabular-nums">
                 {model.totalPredictions}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">{t('wrong')}</p>
-              <p className="text-base sm:text-lg font-medium font-mono-data text-destructive tabular-nums">
+              <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-muted-foreground mb-0.5 sm:mb-1 uppercase tracking-wide">{t('wrong')}</p>
+              <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-destructive tabular-nums">
                 {model.totalPredictions - model.correctPredictions}
               </p>
             </div>
           </div>
           
           {/* Follow Model Button */}
-          <div className="pt-2 sm:pt-2.5 border-t border-border/30">
+          <div className="pt-1.5 sm:pt-2 lg:pt-2.5 border-t border-border/30">
             <Button
               variant={isFollowing ? "default" : "outline"}
               size="sm"
-              className={`w-full h-9 sm:h-10 transition-colors ${
+              className={`w-full h-7 sm:h-8 lg:h-10 text-[10px] sm:text-xs lg:text-sm transition-colors ${
                 isFollowing 
                   ? 'bg-primary text-primary-foreground hover:bg-primary/80' 
                   : 'border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground'
@@ -281,12 +281,12 @@ const ModelCard = ({ model }: ModelCardProps) => {
             >
               {isFollowing ? (
                 <>
-                  <UserMinus className="h-4 w-4 mr-2" />
+                  <UserMinus className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 mr-1 sm:mr-1.5 lg:mr-2" />
                   {t('following')}
                 </>
               ) : (
                 <>
-                  <UserPlus className="h-4 w-4 mr-2" />
+                  <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 mr-1 sm:mr-1.5 lg:mr-2" />
                   {t('follow_model')}
                 </>
               )}
