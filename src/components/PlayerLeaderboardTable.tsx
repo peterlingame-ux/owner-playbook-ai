@@ -1566,7 +1566,7 @@ const PlayerLeaderboardTable = () => {
                                 // 未跟单 - 隐藏比赛信息，只显示跟单按钮
                                 <div className="flex items-center justify-between py-1">
                                   <div className="flex items-center gap-2">
-                                    <Lock className="h-4 w-4 text-muted-foreground" />
+                                    <Lock className="h-4 w-4 text-amber-500" />
                                     <span className="text-sm text-muted-foreground">跟单后查看比赛详情</span>
                                   </div>
                                   <Button
