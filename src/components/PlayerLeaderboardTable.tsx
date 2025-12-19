@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -161,6 +162,10 @@ const PlayerLeaderboardTable = () => {
   // USDT解锁弹窗状态
   const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  
+  // 查看全部玩家弹窗状态
+  const [showAllHotPlayers, setShowAllHotPlayers] = useState(false);
+  const [showAllColdPlayers, setShowAllColdPlayers] = useState(false);
   
   // 奖金池配置
   const PRIZE_POOL = 1000000; // $1,000,000
@@ -1229,14 +1234,22 @@ const PlayerLeaderboardTable = () => {
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
-              <div>
-                <CardTitle className="text-lg font-bold text-foreground">
-                  {t('hot_streak_board') || '高胜率榜'}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players') || '胜率最高玩家'} · <span className="text-amber-500 font-medium">前10名</span></p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+                <div>
+                  <CardTitle className="text-lg font-bold text-foreground">
+                    {t('hot_streak_board') || '高胜率榜'}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players') || '胜率最高玩家'} · <span className="text-amber-500 font-medium">前10名</span></p>
+                </div>
               </div>
+              <button
+                onClick={() => setShowAllHotPlayers(true)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+              >
+                {t('view_all') || '查看全部'}
+              </button>
             </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
@@ -1300,14 +1313,22 @@ const PlayerLeaderboardTable = () => {
         {/* Column 3: 低胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
-              <div>
-                <CardTitle className="text-lg font-bold text-foreground">
-                  {t('cold_streak_board') || '低胜率榜'}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · <span className="text-red-500 font-medium">前10名</span></p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+                <div>
+                  <CardTitle className="text-lg font-bold text-foreground">
+                    {t('cold_streak_board') || '低胜率榜'}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak') || '最差连黑玩家'} · <span className="text-red-500 font-medium">前10名</span></p>
+                </div>
               </div>
+              <button
+                onClick={() => setShowAllColdPlayers(true)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+              >
+                {t('view_all') || '查看全部'}
+              </button>
             </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
@@ -1913,6 +1934,102 @@ const PlayerLeaderboardTable = () => {
           </Dialog>
         )}
       </AnimatePresence>
+
+      {/* 查看全部高胜率玩家弹窗 */}
+      <Dialog open={showAllHotPlayers} onOpenChange={setShowAllHotPlayers}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+              {t('hot_streak_board') || '高胜率榜'} - {t('all_players') || '全部玩家'}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-2 pb-4">
+              {[...allPlayers]
+                .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
+                .map((player, index) => {
+                  const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                  return (
+                    <PlayerLeaderboardCard
+                      key={player.id}
+                      player={player}
+                      index={index}
+                      isCurrentUser={!!(user && player.id === user.id)}
+                      isLiked={likedPlayers.has(player.id)}
+                      likeCount={likeCounts.get(player.id) || 0}
+                      isLiking={isLiking.has(player.id)}
+                      onLike={(e) => handleLike(player.id, e)}
+                      onClick={() => {
+                        setShowAllHotPlayers(false);
+                        navigate(`/player/${player.id}`);
+                      }}
+                      onViewHistory={(e) => {
+                        e.stopPropagation();
+                        setShowAllHotPlayers(false);
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
+                      maskPlayerName={maskPlayerName}
+                      calculateEstimatedPrize={calculateEstimatedPrize}
+                      totalEligiblePlayers={eligiblePlayers}
+                      aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                      boardType="hot"
+                      todayWinRate={todayWinRates.get(player.id)?.winRate}
+                    />
+                  );
+                })}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* 查看全部低胜率玩家弹窗 */}
+      <Dialog open={showAllColdPlayers} onOpenChange={setShowAllColdPlayers}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+              {t('cold_streak_board') || '低胜率榜'} - {t('all_players') || '全部玩家'}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-2 pb-4">
+              {[...allPlayers]
+                .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
+                .map((player, index) => {
+                  const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                  return (
+                    <PlayerLeaderboardCard
+                      key={player.id}
+                      player={player}
+                      index={index}
+                      isCurrentUser={!!(user && player.id === user.id)}
+                      isLiked={likedPlayers.has(player.id)}
+                      likeCount={likeCounts.get(player.id) || 0}
+                      isLiking={isLiking.has(player.id)}
+                      onLike={(e) => handleLike(player.id, e)}
+                      onClick={() => {
+                        setShowAllColdPlayers(false);
+                        navigate(`/player/${player.id}`);
+                      }}
+                      onViewHistory={(e) => {
+                        e.stopPropagation();
+                        setShowAllColdPlayers(false);
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
+                      maskPlayerName={maskPlayerName}
+                      calculateEstimatedPrize={calculateEstimatedPrize}
+                      totalEligiblePlayers={eligiblePlayers}
+                      aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                      boardType="cold"
+                      todayWinRate={todayWinRates.get(player.id)?.winRate}
+                    />
+                  );
+                })}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
 
       {/* Disclaimer */}
       <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border/50">
