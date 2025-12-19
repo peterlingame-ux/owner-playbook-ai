@@ -413,8 +413,8 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
         </div>
       </div>
 
-      {/* 历史记录表格 */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
+      {/* 历史记录表格 - 桌面端 */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden hidden sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -513,6 +513,195 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
             </tbody>
           </table>
         </div>
+        
+        {/* 分页控件 - 桌面端 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-2 py-2 border-t border-border bg-muted/30">
+            <span className="text-[10px] text-muted-foreground">
+              {t('page_info', { current: currentPage, total: totalPages, count: filteredPredictions.length })}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-3 w-3" />
+              </Button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "ghost"}
+                    size="icon"
+                    className="h-6 w-6 text-[10px]"
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 历史记录卡片列表 - 移动端 */}
+      <div className="sm:hidden space-y-2">
+        {paginatedPredictions.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-6 text-center text-muted-foreground text-xs">
+            {t('no_records')}
+          </div>
+        ) : (
+          paginatedPredictions.map((pred) => {
+            const profit = pred.actual_payout - pred.bet_amount;
+            
+            return (
+              <div key={pred.id} className="bg-card border border-border rounded-lg p-2.5 space-y-2">
+                {/* 顶部：类型和日期 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-medium text-foreground px-1.5 py-0.5 rounded bg-muted">
+                      {pred.type === 'prediction' ? t('prediction_label') : t('copy_trade_type')}
+                    </span>
+                    {pred.type === 'copy-trade' && pred.followed_player_name && (
+                      <span className="text-[9px] text-muted-foreground truncate max-w-[60px]">
+                        {pred.followed_player_name}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] text-muted-foreground">
+                    {format(new Date(pred.created_at), 'MM-dd HH:mm')}
+                  </span>
+                </div>
+
+                {/* 比赛信息 */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 flex-1 min-w-0">
+                    {pred.match?.home_logo && (
+                      <img src={pred.match.home_logo} alt="" className="w-4 h-4 object-contain flex-shrink-0" />
+                    )}
+                    <span className="text-[10px] text-foreground truncate">
+                      {pred.match?.home_team_name || t('home_team')}
+                    </span>
+                  </div>
+                  <div className="flex-shrink-0 text-center px-1">
+                    {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined ? (
+                      <span className="text-[10px] font-bold font-mono text-foreground">
+                        {pred.match.goals_home} - {pred.match.goals_away}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground">VS</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+                    <span className="text-[10px] text-foreground truncate">
+                      {pred.match?.away_team_name || t('away_team')}
+                    </span>
+                    {pred.match?.away_logo && (
+                      <img src={pred.match.away_logo} alt="" className="w-4 h-4 object-contain flex-shrink-0" />
+                    )}
+                  </div>
+                </div>
+
+                {/* 盘口信息 */}
+                <div className="grid grid-cols-4 gap-1.5 p-1.5 rounded bg-muted/30 border border-border/50">
+                  <div className="text-center">
+                    <p className="text-[8px] text-muted-foreground">玩法</p>
+                    <p className="text-[10px] font-medium text-foreground">
+                      {pred.prediction_type === 'handicap' ? '让球' : pred.prediction_type === 'over_under' ? '大小' : '-'}
+                    </p>
+                  </div>
+                  <div className="text-center border-l border-border/50">
+                    <p className="text-[8px] text-muted-foreground">预测</p>
+                    <p className="text-[10px] font-bold text-primary font-mono truncate">{pred.prediction}</p>
+                  </div>
+                  <div className="text-center border-l border-border/50">
+                    <p className="text-[8px] text-muted-foreground">投注</p>
+                    <p className="text-[10px] font-medium text-foreground font-mono">${pred.bet_amount}</p>
+                  </div>
+                  <div className="text-center border-l border-border/50">
+                    <p className="text-[8px] text-muted-foreground">盈亏</p>
+                    <p className={`text-[10px] font-bold font-mono ${profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                      {profit >= 0 ? '+' : ''}{profit.toFixed(0)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 结果标签 */}
+                <div className="flex justify-end">
+                  {pred.result === 'win' ? (
+                    <span className="flex items-center gap-1 text-[9px] font-medium text-primary px-1.5 py-0.5 rounded bg-primary/10">
+                      <CheckCircle2 className="h-2.5 w-2.5" />
+                      赢
+                    </span>
+                  ) : pred.result === 'loss' ? (
+                    <span className="flex items-center gap-1 text-[9px] font-medium text-destructive px-1.5 py-0.5 rounded bg-destructive/10">
+                      <XCircle className="h-2.5 w-2.5" />
+                      输
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-medium text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
+                      {t('in_progress')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+        
+        {/* 分页控件 - 移动端 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-2 py-2 bg-card border border-border rounded-lg">
+            <span className="text-[9px] text-muted-foreground">
+              {currentPage}/{totalPages}页
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-3 w-3" />
+              </Button>
+              <span className="text-[10px] font-mono text-foreground px-2">{currentPage}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
         
         {/* 分页控件 */}
         {totalPages > 1 && (
@@ -1288,9 +1477,9 @@ const MyPredictions = () => {
         variant="ghost" 
         size="sm"
         onClick={() => navigate(-1)}
-        className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground -ml-2 h-7 text-xs"
+        className="flex items-center gap-1 text-muted-foreground hover:text-foreground -ml-2 h-6 sm:h-7 text-[11px] sm:text-xs"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
+        <ArrowLeft className="h-3 sm:h-3.5 w-3 sm:w-3.5" />
         <span>{t('back')}</span>
       </Button>
 
@@ -1320,18 +1509,18 @@ const MyPredictions = () => {
 
         <div className="relative z-10">
           {/* 顶部用户信息区 */}
-          <div className="p-4 pb-3">
+          <div className="p-3 sm:p-4 pb-2 sm:pb-3">
             <div className="flex items-start justify-between">
               {/* 左侧头像和信息 */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2.5 sm:gap-4">
                 <div className="relative group">
                   {/* 头像光环 - VIP时为金色 */}
-                  <div className={`absolute -inset-1 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition-opacity ${
+                  <div className={`absolute -inset-0.5 sm:-inset-1 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition-opacity ${
                     vipStatus?.is_active 
                       ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400' 
                       : 'bg-gradient-to-r from-ai-cyan/50 via-ai-purple/30 to-ai-cyan/50'
                   }`} />
-                  <Avatar className={`relative h-14 w-14 border-2 shadow-lg ${
+                  <Avatar className={`relative h-11 w-11 sm:h-14 sm:w-14 border-2 shadow-lg ${
                     vipStatus?.is_active 
                       ? 'border-amber-400/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]' 
                       : 'border-ai-cyan/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]'
@@ -1344,11 +1533,11 @@ const MyPredictions = () => {
                   
                   {/* VIP徽章 - 显示在头像上 */}
                   {vipStatus?.is_active && (
-                    <div className="absolute -top-1 -right-1 z-10">
+                    <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 z-10">
                       <div className="relative">
                         <div className="absolute inset-0 bg-amber-400 rounded-full blur-sm animate-pulse" />
-                        <div className="relative flex items-center justify-center h-5 w-5 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full border border-amber-300 shadow-lg">
-                          <Crown className="h-3 w-3 text-white" />
+                        <div className="relative flex items-center justify-center h-4 w-4 sm:h-5 sm:w-5 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full border border-amber-300 shadow-lg">
+                          <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                         </div>
                       </div>
                     </div>
@@ -1360,9 +1549,9 @@ const MyPredictions = () => {
                       <Button 
                         size="icon" 
                         variant="outline"
-                        className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-background/90 backdrop-blur border-ai-cyan/30 hover:border-ai-cyan shadow-sm"
+                        className="absolute -bottom-0.5 sm:-bottom-1 -right-0.5 sm:-right-1 h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-background/90 backdrop-blur border-ai-cyan/30 hover:border-ai-cyan shadow-sm"
                       >
-                        <Edit2 className="h-3 w-3 text-ai-cyan" />
+                        <Edit2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-ai-cyan" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
@@ -1443,9 +1632,9 @@ const MyPredictions = () => {
                   </Dialog>
                 </div>
                 
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg font-bold text-foreground">
+                <div className="space-y-1 sm:space-y-1.5">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h2 className="text-sm sm:text-lg font-bold text-foreground truncate max-w-[100px] sm:max-w-none">
                       {userProfile?.display_name || t('player')}
                     </h2>
                     {/* 等级显示 */}
@@ -1574,13 +1763,13 @@ const MyPredictions = () => {
               {/* 右侧胜率显示 - AI风格 */}
               <div className="text-right">
                 <div className="relative">
-                  <div className="absolute -inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
-                  <div className="relative px-3 py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
-                    <div className="text-2xl font-bold text-ai-cyan font-mono tracking-tight">
+                  <div className="absolute -inset-1.5 sm:-inset-2 bg-ai-cyan/10 rounded-lg blur-md" />
+                  <div className="relative px-2 sm:px-3 py-1 sm:py-1.5 bg-background/50 backdrop-blur-sm rounded-lg border border-ai-cyan/20">
+                    <div className="text-lg sm:text-2xl font-bold text-ai-cyan font-mono tracking-tight">
                       <AnimatedWinRate value={stats?.winRate || 0} />
-                      <span className="text-lg">%</span>
+                      <span className="text-sm sm:text-lg">%</span>
                     </div>
-                    <p className="text-[10px] text-primary mt-0.5">
+                    <p className="text-[8px] sm:text-[10px] text-primary mt-0.5">
                       已超越 {Math.min(99, Math.round((stats?.winRate || 0) * 1.2))}% 的用户
                     </p>
                   </div>
@@ -1590,8 +1779,8 @@ const MyPredictions = () => {
           </div>
 
           {/* 统计数据网格 */}
-          <div className="px-4 pb-4">
-            <div className="grid grid-cols-4 gap-2 mb-2">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
               {[
                 { value: stats?.totalPredictions || 0, label: t('total_predictions_stat') },
                 { value: stats?.correctPredictions || 0, label: t('correct_result') },
@@ -1600,16 +1789,16 @@ const MyPredictions = () => {
               ].map((item, index) => (
                 <div 
                   key={index} 
-                  className="p-3 rounded-lg bg-muted/30 border border-border/50"
+                  className="p-1.5 sm:p-3 rounded-lg bg-muted/30 border border-border/50"
                 >
-                  <p className="text-xl font-bold font-mono text-foreground">{item.value}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                  <p className="text-sm sm:text-xl font-bold font-mono text-foreground">{item.value}</p>
+                  <p className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5 truncate">{item.label}</p>
                 </div>
               ))}
             </div>
             
             {/* 新增统计：盈利率、预期奖金、虚拟投注金额 */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               {(() => {
                 const totalWagered = stats?.recentPredictions?.reduce((sum, p) => sum + p.bet_amount, 0) || 0;
                 const profitRate = totalWagered > 0 ? ((stats?.profit || 0) / totalWagered * 100) : 0;
@@ -1630,42 +1819,42 @@ const MyPredictions = () => {
                   },
                   { 
                     value: `$${totalWagered.toLocaleString()}`, 
-                    label: '虚拟投注金额',
+                    label: '投注金额',
                     highlight: false
                   }
                 ];
               })().map((item, index) => (
                 <div 
                   key={index} 
-                  className="p-3 rounded-lg bg-muted/30 border border-border/50"
+                  className="p-1.5 sm:p-3 rounded-lg bg-muted/30 border border-border/50"
                 >
-                  <p className={`text-lg font-bold font-mono ${item.highlight ? 'text-primary' : 'text-foreground'}`}>
+                  <p className={`text-xs sm:text-lg font-bold font-mono ${item.highlight ? 'text-primary' : 'text-foreground'}`}>
                     {item.value}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                  <p className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5 truncate">{item.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* 钱包区域 - 统一卡片设计 */}
-          <div className="px-4 pb-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="grid grid-cols-2 divide-x divide-border">
                 {/* 虚拟钱包 - 可点击查看预测历史 */}
                 <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
                   <DialogTrigger asChild>
-                    <button className="p-4 text-left hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center">
-                          <Wallet className="h-4 w-4 text-muted-foreground" />
+                    <button className="p-2.5 sm:p-4 text-left hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="w-5 h-5 sm:w-7 sm:h-7 rounded-md bg-muted flex items-center justify-center">
+                          <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                         </div>
-                        <span className="text-xs text-muted-foreground">{t('virtual_wallet_balance')}</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{t('virtual_wallet_balance')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-foreground font-mono tracking-tight">
+                      <p className="text-lg sm:text-2xl font-bold text-foreground font-mono tracking-tight">
                         ${stats?.balance?.toLocaleString() || '10,000'}
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-1">点击查看预测记录</p>
+                      <p className="text-[8px] sm:text-[10px] text-muted-foreground mt-1">点击查看预测记录</p>
                     </button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -1790,17 +1979,17 @@ const MyPredictions = () => {
                 <div className="relative">
                   <Dialog open={isSpendingRecordsOpen} onOpenChange={setIsSpendingRecordsOpen}>
                     <DialogTrigger asChild>
-                      <button className="w-full p-4 text-left hover:bg-muted/30 transition-colors">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                      <button className="w-full p-2.5 sm:p-4 text-left hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                          <div className="w-5 h-5 sm:w-7 sm:h-7 rounded-md bg-amber-500/10 flex items-center justify-center">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" />
                           </div>
-                          <span className="text-xs text-muted-foreground">{t('hunter_coin_balance')}</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{t('hunter_coin_balance')}</span>
                         </div>
-                        <p className="text-2xl font-bold text-amber-500 font-mono tracking-tight">
+                        <p className="text-lg sm:text-2xl font-bold text-amber-500 font-mono tracking-tight">
                           {usdtBalance.toFixed(2)}
                         </p>
-                        <p className="text-[10px] text-muted-foreground mt-1">点击查看消费记录</p>
+                        <p className="text-[8px] sm:text-[10px] text-muted-foreground mt-1">点击查看消费记录</p>
                       </button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
@@ -1880,32 +2069,32 @@ const MyPredictions = () => {
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-0 left-1/4 w-20 h-20 bg-ai-cyan/20 rounded-full blur-2xl" />
         </div>
-        <div className="relative z-10 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-ai-cyan/10 border border-ai-cyan/20 flex items-center justify-center">
-                <Users className="h-5 w-5 text-ai-cyan" />
+        <div className="relative z-10 p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-ai-cyan/10 border border-ai-cyan/20 flex items-center justify-center flex-shrink-0">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-ai-cyan" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-0.5">{t('my_invitation_code')}</p>
-                <p className="text-lg font-bold font-mono text-foreground tracking-[0.3em]">
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">{t('my_invitation_code')}</p>
+                <p className="text-sm sm:text-lg font-bold font-mono text-foreground tracking-[0.2em] sm:tracking-[0.3em] truncate">
                   {userProfile?.invitation_code || '--------'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <div 
                 className={`text-right ${(userProfile?.invited_count || 0) > 0 ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
                 onClick={handleOpenInvitedUsers}
               >
-                <p className="text-xs text-muted-foreground">{t('invited_count')}</p>
-                <p className="text-xl font-bold text-ai-cyan font-mono">{userProfile?.invited_count || 0}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{t('invited_count')}</p>
+                <p className="text-base sm:text-xl font-bold text-ai-cyan font-mono">{userProfile?.invited_count || 0}</p>
               </div>
               {userProfile?.invitation_code && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-4 text-xs border-ai-cyan/30 hover:bg-ai-cyan/10 text-ai-cyan"
+                  className="h-7 sm:h-9 px-2.5 sm:px-4 text-[10px] sm:text-xs border-ai-cyan/30 hover:bg-ai-cyan/10 text-ai-cyan"
                   onClick={() => {
                     navigator.clipboard.writeText(userProfile.invitation_code || '');
                     toast.success(t('invitation_code_copied'));
@@ -1916,7 +2105,7 @@ const MyPredictions = () => {
               )}
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/50">
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border/50">
             {t('invitation_bonus_hint')}
           </p>
         </div>
@@ -1924,7 +2113,7 @@ const MyPredictions = () => {
 
       {/* 开始预测按钮 - AI风格 */}
       <Button 
-        className="w-full h-11 text-sm font-bold bg-gradient-to-r from-ai-cyan via-ai-blue to-ai-purple hover:opacity-90 text-background shadow-lg shadow-ai-cyan/20 transition-all"
+        className="w-full h-10 sm:h-11 text-xs sm:text-sm font-bold bg-gradient-to-r from-ai-cyan via-ai-blue to-ai-purple hover:opacity-90 text-background shadow-lg shadow-ai-cyan/20 transition-all"
         onClick={() => setIsBetDialogOpen(true)}
       >
         挑战AI，开始预测
