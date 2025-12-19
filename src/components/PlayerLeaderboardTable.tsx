@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search, Loader2 } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search, Loader2, UserX } from "lucide-react";
 import { PlayerLeaderboardCard } from "./PlayerLeaderboardCard";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
@@ -1997,50 +1997,70 @@ const PlayerLeaderboardTable = () => {
                 const displayed = filtered.slice(0, hotDisplayCount);
                 return (
                   <>
-                    {displayed.map((player, index) => (
-                      <div
-                        key={player.id}
-                        onClick={() => setSelectedAllPlayer({ player, boardType: 'hot' })}
-                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
-                      >
-                        {/* Rank */}
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          index < 3 
-                            ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' 
-                            : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {index + 1}
+                    {filtered.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                          <UserX className="w-8 h-8 text-muted-foreground" />
                         </div>
-                        {/* Avatar */}
-                        <Avatar className="w-9 h-9 border border-border/50">
-                          <AvatarImage src={player.avatarUrl} />
-                          <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        {/* Name & Streak */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
-                          <p className="text-xs text-muted-foreground">
-                            连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
-                          </p>
-                        </div>
-                        {/* Win Rate */}
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
-                          <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
-                        </div>
+                        <p className="text-sm font-medium text-foreground mb-1">{t('no_search_results') || '未找到玩家'}</p>
+                        <p className="text-xs text-muted-foreground mb-3">{t('no_search_results_hint') || '请尝试其他关键词'}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setHotSearchQuery('')}
+                          className="text-xs"
+                        >
+                          {t('clear_search') || '清空搜索'}
+                        </Button>
                       </div>
-                    ))}
-                    {hotDisplayCount < filtered.length && (
-                      <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
-                        {isLoadingMoreHot ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                            <span>{t('loading') || '加载中...'}</span>
-                          </>
-                        ) : (
-                          <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                    ) : (
+                      <>
+                        {displayed.map((player, index) => (
+                          <div
+                            key={player.id}
+                            onClick={() => setSelectedAllPlayer({ player, boardType: 'hot' })}
+                            className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
+                          >
+                            {/* Rank */}
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                              index < 3 
+                                ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' 
+                                : 'bg-muted text-muted-foreground'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            {/* Avatar */}
+                            <Avatar className="w-9 h-9 border border-border/50">
+                              <AvatarImage src={player.avatarUrl} />
+                              <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            {/* Name & Streak */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
+                              <p className="text-xs text-muted-foreground">
+                                连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
+                              </p>
+                            </div>
+                            {/* Win Rate */}
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
+                              <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                            </div>
+                          </div>
+                        ))}
+                        {hotDisplayCount < filtered.length && (
+                          <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
+                            {isLoadingMoreHot ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                                <span>{t('loading') || '加载中...'}</span>
+                              </>
+                            ) : (
+                              <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                            )}
+                          </div>
                         )}
-                      </div>
+                      </>
                     )}
                   </>
                 );
@@ -2103,50 +2123,70 @@ const PlayerLeaderboardTable = () => {
                 const displayed = filtered.slice(0, coldDisplayCount);
                 return (
                   <>
-                    {displayed.map((player, index) => (
-                      <div
-                        key={player.id}
-                        onClick={() => setSelectedAllPlayer({ player, boardType: 'cold' })}
-                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
-                      >
-                        {/* Rank */}
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          index < 3 
-                            ? 'bg-gradient-to-br from-red-400 to-red-600 text-white' 
-                            : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {index + 1}
+                    {filtered.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                          <UserX className="w-8 h-8 text-muted-foreground" />
                         </div>
-                        {/* Avatar */}
-                        <Avatar className="w-9 h-9 border border-border/50">
-                          <AvatarImage src={player.avatarUrl} />
-                          <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        {/* Name & Streak */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
-                          <p className="text-xs text-muted-foreground">
-                            连败 <span className="text-red-500 font-bold">{player.worstStreak || 0}</span>
-                          </p>
-                        </div>
-                        {/* Win Rate */}
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
-                          <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
-                        </div>
+                        <p className="text-sm font-medium text-foreground mb-1">{t('no_search_results') || '未找到玩家'}</p>
+                        <p className="text-xs text-muted-foreground mb-3">{t('no_search_results_hint') || '请尝试其他关键词'}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setColdSearchQuery('')}
+                          className="text-xs"
+                        >
+                          {t('clear_search') || '清空搜索'}
+                        </Button>
                       </div>
-                    ))}
-                    {coldDisplayCount < filtered.length && (
-                      <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
-                        {isLoadingMoreCold ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                            <span>{t('loading') || '加载中...'}</span>
-                          </>
-                        ) : (
-                          <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                    ) : (
+                      <>
+                        {displayed.map((player, index) => (
+                          <div
+                            key={player.id}
+                            onClick={() => setSelectedAllPlayer({ player, boardType: 'cold' })}
+                            className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
+                          >
+                            {/* Rank */}
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                              index < 3 
+                                ? 'bg-gradient-to-br from-red-400 to-red-600 text-white' 
+                                : 'bg-muted text-muted-foreground'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            {/* Avatar */}
+                            <Avatar className="w-9 h-9 border border-border/50">
+                              <AvatarImage src={player.avatarUrl} />
+                              <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            {/* Name & Streak */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
+                              <p className="text-xs text-muted-foreground">
+                                连败 <span className="text-red-500 font-bold">{player.worstStreak || 0}</span>
+                              </p>
+                            </div>
+                            {/* Win Rate */}
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
+                              <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                            </div>
+                          </div>
+                        ))}
+                        {coldDisplayCount < filtered.length && (
+                          <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
+                            {isLoadingMoreCold ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                                <span>{t('loading') || '加载中...'}</span>
+                              </>
+                            ) : (
+                              <span>{t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})</span>
+                            )}
+                          </div>
                         )}
-                      </div>
+                      </>
                     )}
                   </>
                 );
