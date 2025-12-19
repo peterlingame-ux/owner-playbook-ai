@@ -1554,9 +1554,8 @@ const LeaderboardTable = () => {
                   <p className={`font-bold text-lg tabular-nums ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
                   </p>
-                  <p className="text-xs text-muted-foreground flex items-center justify-end gap-1 mt-0.5">
-                    <span className="opacity-60">⊙</span>
-                    <span className="tabular-nums">{follower.copyAmount.toFixed(2)}</span>
+                  <p className="text-xs text-warning flex items-center justify-end mt-0.5">
+                    <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)}</span>
                   </p>
                 </div>
               </div>
