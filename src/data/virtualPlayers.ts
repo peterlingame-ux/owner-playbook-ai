@@ -23,7 +23,7 @@ export interface VirtualPlayer {
 const generateRealisticPlayer = (
   id: string,
   displayName: string,
-  avatarNum: number,
+  avatarNum: number | string, // 支持数字(1-9)或自定义路径
   totalPredictions: number,
   winRate: number,
   options: {
@@ -61,10 +61,15 @@ const generateRealisticPlayer = (
     : Math.floor(Math.random() * 4));
   const todayCorrect = Math.round(todayPredictions * (winRate / 100) * (0.7 + Math.random() * 0.6));
   
+  // 支持自定义头像URL或使用默认头像
+  const avatarPath = typeof avatarNum === 'string' 
+    ? avatarNum 
+    : `/avatars/avatar-${avatarNum}.png`;
+  
   return {
     id,
     displayName,
-    avatarUrl: `/avatars/avatar-${avatarNum}.png`,
+    avatarUrl: avatarPath,
     totalPredictions,
     correctPredictions,
     winRate,
@@ -84,15 +89,15 @@ const generateRealisticPlayer = (
 };
 
 export const virtualPlayers: VirtualPlayer[] = [
-  // ============ 顶级玩家 (胜率 75%+) ============
-  generateRealisticPlayer('vp-001', '球王小李', 1, 286, 82.5, { currentStreak: 9, joinedDaysAgo: 156, unlockPrice: 8, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-002', 'PredictorMax', 4, 342, 79.8, { currentStreak: 6, joinedDaysAgo: 203, unlockPrice: 6, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-003', '足彩老司机', 7, 198, 78.3, { currentStreak: 4, joinedDaysAgo: 89, unlockPrice: 5, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-004', 'GoalHunter99', 2, 267, 77.1, { currentStreak: 7, joinedDaysAgo: 134, unlockPrice: 4, allowCopyTrade: true }),
-  generateRealisticPlayer('vp-005', '大数据预测王', 9, 412, 76.2, { currentStreak: 3, joinedDaysAgo: 278, unlockPrice: 5, isRecommender: true }),
+  // ============ 顶级玩家 (胜率 75%+) 使用新系统头像 ============
+  generateRealisticPlayer('vp-001', '球王小李', '/avatars/system-avatar-1.png', 286, 82.5, { currentStreak: 9, joinedDaysAgo: 156, unlockPrice: 8, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-002', 'PredictorMax', '/avatars/system-avatar-2.png', 342, 79.8, { currentStreak: 6, joinedDaysAgo: 203, unlockPrice: 6, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-003', '足彩老司机', '/avatars/system-avatar-3.png', 198, 78.3, { currentStreak: 4, joinedDaysAgo: 89, unlockPrice: 5, allowCopyTrade: true, isRecommender: true }),
+  generateRealisticPlayer('vp-004', 'GoalHunter99', '/avatars/system-avatar-4.png', 267, 77.1, { currentStreak: 7, joinedDaysAgo: 134, unlockPrice: 4, allowCopyTrade: true }),
+  generateRealisticPlayer('vp-005', '大数据预测王', '/avatars/system-avatar-5.png', 412, 76.2, { currentStreak: 3, joinedDaysAgo: 278, unlockPrice: 5, isRecommender: true }),
+  generateRealisticPlayer('vp-006', 'WinStreak2024', '/avatars/system-avatar-6.png', 156, 74.4, { currentStreak: 5, joinedDaysAgo: 67, unlockPrice: 3 }),
   
   // ============ 高手玩家 (胜率 68-75%) ============
-  generateRealisticPlayer('vp-006', 'WinStreak2024', 3, 156, 74.4, { currentStreak: 5, joinedDaysAgo: 67, unlockPrice: 3 }),
   generateRealisticPlayer('vp-007', '欧洲杯达人', 6, 223, 73.5, { currentStreak: 2, joinedDaysAgo: 112, allowCopyTrade: true }),
   generateRealisticPlayer('vp-008', 'BetMaster_CN', 8, 189, 72.8, { currentStreak: -1, joinedDaysAgo: 95, isRecommender: true }),
   generateRealisticPlayer('vp-009', '阿森纳铁粉', 1, 178, 71.9, { currentStreak: 4, joinedDaysAgo: 145, allowCopyTrade: true }),
