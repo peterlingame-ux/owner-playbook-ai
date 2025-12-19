@@ -60,16 +60,16 @@ const Header = () => {
           </Link>
           
           {/* Center: Navigation */}
-          <nav className="hidden md:flex items-center gap-0.5 bg-[#1a1a1a]/80 rounded-full px-1.5 py-1.5">
+          <nav className="hidden md:flex items-center gap-1 bg-muted/60 backdrop-blur-md rounded-full px-2 py-1.5 border border-border/30">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+                  `px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-out
                   ${isActive 
-                    ? 'bg-[#2a2a2a] text-white shadow-lg' 
-                    : 'text-[#888888] hover:text-[#cccccc]'
+                    ? 'bg-foreground/10 text-foreground shadow-sm ring-1 ring-foreground/10 scale-[1.02]' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'
                   }`
                 }
               >
