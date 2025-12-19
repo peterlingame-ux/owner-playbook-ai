@@ -716,6 +716,13 @@ const resources = {
       "view_leaderboard": "View Leaderboard",
       "no_prediction_records": "You have no prediction records yet",
       
+      // Model Follow
+      "follow_model": "Follow Model",
+      "following": "Following",
+      "follow_success": "Follow Success",
+      "unfollow_success": "Unfollowed",
+      "operation_failed": "Operation Failed",
+      
       // Deposit & Spending Records
       "deposit_records": "Deposit Records",
       "deposit_records_desc": "View your USDT deposit history",
@@ -1549,6 +1556,13 @@ const resources = {
       "go_to_leaderboard": "前往排行榜跟单其他玩家",
       "view_leaderboard": "查看排行榜",
       "no_prediction_records": "您还没有任何预测记录",
+      
+      // 模型关注
+      "follow_model": "关注模型",
+      "following": "已关注",
+      "follow_success": "关注成功",
+      "unfollow_success": "已取消关注",
+      "operation_failed": "操作失败",
       
       // 充值与消费记录
       "deposit_records": "充值记录",
