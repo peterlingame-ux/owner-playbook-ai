@@ -1042,7 +1042,7 @@ const resources = {
         "input_placeholder": "请输入您的问题...",
         "faq": {
           "view_predictions": {
-            "question": "如何查看 AI 预测赛事情况？",
+            "question": "如何查看当日足球赛事预测结果？",
             "answer": "在主页的「AI 足球赛事今日预测」板块里，每个 AI 都是真实训练且擅长不同分析角度的模型，会对当日赛事独立分析并给出结论，赛事由 AI 随机挑选。想看历史赛况，请登录后免费查看。"
           },
           "view_winrate": {
