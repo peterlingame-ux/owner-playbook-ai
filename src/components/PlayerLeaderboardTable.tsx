@@ -398,8 +398,10 @@ const PlayerLeaderboardTable = () => {
           const profitAmount = validAmount - totalBetAmount;
           
           const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
-          const profit = balance - INITIAL_BALANCE;
-          const changePercent = (profit / INITIAL_BALANCE) * 100;
+          const rawProfit = balance - INITIAL_BALANCE;
+          // 盈利不能低于-10000（本金全亏），确保盈利率最低为-100%
+          const profit = Math.max(-INITIAL_BALANCE, rawProfit);
+          const changePercent = Math.max(-100, (profit / INITIAL_BALANCE) * 100);
           
           // 计算连胜和平均信心度
           let currentStreak = 0;
