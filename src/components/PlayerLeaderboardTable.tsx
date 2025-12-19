@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search } from "lucide-react";
 import { PlayerLeaderboardCard } from "./PlayerLeaderboardCard";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
@@ -167,6 +167,8 @@ const PlayerLeaderboardTable = () => {
   const [showAllHotPlayers, setShowAllHotPlayers] = useState(false);
   const [showAllColdPlayers, setShowAllColdPlayers] = useState(false);
   const [selectedAllPlayer, setSelectedAllPlayer] = useState<{ player: PlayerData; boardType: 'hot' | 'cold' } | null>(null);
+  const [hotSearchQuery, setHotSearchQuery] = useState('');
+  const [coldSearchQuery, setColdSearchQuery] = useState('');
   
   // 奖金池配置
   const PRIZE_POOL = 1000000; // $1,000,000
@@ -1939,7 +1941,10 @@ const PlayerLeaderboardTable = () => {
       {/* 查看全部高胜率玩家弹窗 - 简化版 */}
       <Dialog open={showAllHotPlayers} onOpenChange={(open) => {
         setShowAllHotPlayers(open);
-        if (!open) setSelectedAllPlayer(null);
+        if (!open) {
+          setSelectedAllPlayer(null);
+          setHotSearchQuery('');
+        }
       }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
@@ -1948,9 +1953,20 @@ const PlayerLeaderboardTable = () => {
               {t('hot_streak_board') || '高胜率榜'} - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
+          {/* 搜索框 */}
+          <div className="relative mb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('search_player') || '搜索玩家名称...'}
+              value={hotSearchQuery}
+              onChange={(e) => setHotSearchQuery(e.target.value)}
+              className="pl-9 h-9 text-sm"
+            />
+          </div>
           <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-1.5 pb-4">
               {[...allPlayers]
+                .filter(player => player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()))
                 .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
                 .map((player, index) => (
                   <div
@@ -1993,7 +2009,10 @@ const PlayerLeaderboardTable = () => {
       {/* 查看全部低胜率玩家弹窗 - 简化版 */}
       <Dialog open={showAllColdPlayers} onOpenChange={(open) => {
         setShowAllColdPlayers(open);
-        if (!open) setSelectedAllPlayer(null);
+        if (!open) {
+          setSelectedAllPlayer(null);
+          setColdSearchQuery('');
+        }
       }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
@@ -2002,9 +2021,20 @@ const PlayerLeaderboardTable = () => {
               {t('cold_streak_board') || '低胜率榜'} - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
+          {/* 搜索框 */}
+          <div className="relative mb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('search_player') || '搜索玩家名称...'}
+              value={coldSearchQuery}
+              onChange={(e) => setColdSearchQuery(e.target.value)}
+              className="pl-9 h-9 text-sm"
+            />
+          </div>
           <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-1.5 pb-4">
               {[...allPlayers]
+                .filter(player => player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()))
                 .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
                 .map((player, index) => (
                   <div

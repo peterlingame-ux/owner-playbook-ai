@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +10,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { virtualPlayers } from "@/data/virtualPlayers";
-import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp } from "lucide-react";
+import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
@@ -172,6 +173,8 @@ const PlayerCopyTradingBoard = () => {
   const [showAllHotPlayers, setShowAllHotPlayers] = useState(false);
   const [showAllColdPlayers, setShowAllColdPlayers] = useState(false);
   const [selectedAllPlayer, setSelectedAllPlayer] = useState<{ player: PlayerData; boardType: 'hot' | 'cold' } | null>(null);
+  const [hotSearchQuery, setHotSearchQuery] = useState('');
+  const [coldSearchQuery, setColdSearchQuery] = useState('');
   // 获取用户USDT余额
   const [usdtBalance, setUsdtBalance] = useState(0);
 
@@ -1833,7 +1836,10 @@ const PlayerCopyTradingBoard = () => {
       {/* 查看全部连红玩家弹窗 - 简化版 */}
       <Dialog open={showAllHotPlayers} onOpenChange={(open) => {
         setShowAllHotPlayers(open);
-        if (!open) setSelectedAllPlayer(null);
+        if (!open) {
+          setSelectedAllPlayer(null);
+          setHotSearchQuery('');
+        }
       }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
@@ -1842,9 +1848,20 @@ const PlayerCopyTradingBoard = () => {
               玩家连红榜 - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
+          {/* 搜索框 */}
+          <div className="relative mb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('search_player') || '搜索玩家名称...'}
+              value={hotSearchQuery}
+              onChange={(e) => setHotSearchQuery(e.target.value)}
+              className="pl-9 h-9 text-sm"
+            />
+          </div>
           <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-1.5 pb-4">
               {[...allPlayers]
+                .filter(player => player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()))
                 .sort((a, b) => b.bestStreak - a.bestStreak)
                 .map((player, index) => (
                   <div
@@ -1887,7 +1904,10 @@ const PlayerCopyTradingBoard = () => {
       {/* 查看全部连黑玩家弹窗 - 简化版 */}
       <Dialog open={showAllColdPlayers} onOpenChange={(open) => {
         setShowAllColdPlayers(open);
-        if (!open) setSelectedAllPlayer(null);
+        if (!open) {
+          setSelectedAllPlayer(null);
+          setColdSearchQuery('');
+        }
       }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
@@ -1896,9 +1916,20 @@ const PlayerCopyTradingBoard = () => {
               玩家连黑榜 - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
+          {/* 搜索框 */}
+          <div className="relative mb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('search_player') || '搜索玩家名称...'}
+              value={coldSearchQuery}
+              onChange={(e) => setColdSearchQuery(e.target.value)}
+              className="pl-9 h-9 text-sm"
+            />
+          </div>
           <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-1.5 pb-4">
               {[...allPlayers]
+                .filter(player => player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()))
                 .sort((a, b) => b.worstStreak - a.worstStreak)
                 .map((player, index) => (
                   <div
