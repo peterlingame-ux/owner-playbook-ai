@@ -982,8 +982,20 @@ const PlayerCopyTradingBoard = () => {
           {/* Win Rate */}
           <div className="text-right">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-success inline-flex items-center">
               {player.winRate.toFixed(0)}%
+              {(() => {
+                const todayData = todayStats.get(player.id);
+                if (todayData && todayData.total > 0) {
+                  const trendValue = todayData.winRate - player.winRate;
+                  if (trendValue > 2) {
+                    return <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 ml-1 text-success" />;
+                  } else if (trendValue < -2) {
+                    return <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 ml-1 text-destructive" />;
+                  }
+                }
+                return null;
+              })()}
             </p>
           </div>
         </div>
@@ -1204,7 +1216,21 @@ const PlayerCopyTradingBoard = () => {
                     </div>
                     <div className="py-1.5 px-2 rounded bg-background/50 border border-border/30">
                       <div className="text-[10px] text-muted-foreground mb-0.5">胜率</div>
-                      <div className="text-sm font-bold font-mono text-success">{winRate.toFixed(0)}%</div>
+                      <div className="text-sm font-bold font-mono text-success inline-flex items-center justify-center">
+                        {winRate.toFixed(0)}%
+                        {(() => {
+                          const todayData = todayStats.get(selectedPlayer.player.id);
+                          if (todayData && todayData.total > 0) {
+                            const trendValue = todayData.winRate - selectedPlayer.player.winRate;
+                            if (trendValue > 2) {
+                              return <TrendingUp className="h-3 w-3 ml-0.5 text-success" />;
+                            } else if (trendValue < -2) {
+                              return <TrendingDown className="h-3 w-3 ml-0.5 text-destructive" />;
+                            }
+                          }
+                          return null;
+                        })()}
+                      </div>
                     </div>
                     <div className="py-1.5 px-2 rounded bg-background/50 border border-border/30">
                       <div className="text-[10px] text-muted-foreground mb-0.5">总投注</div>
@@ -1342,7 +1368,20 @@ const PlayerCopyTradingBoard = () => {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">{maskPlayerName(unlockDialog.player.displayName)}</p>
-                    <p className="text-xs text-muted-foreground">胜率 <span className="text-success font-medium">{unlockDialog.player.winRate.toFixed(1)}%</span></p>
+                    <p className="text-xs text-muted-foreground inline-flex items-center">胜率 <span className="text-success font-medium ml-1">{unlockDialog.player.winRate.toFixed(1)}%</span>
+                      {(() => {
+                        const todayData = todayStats.get(unlockDialog.player.id);
+                        if (todayData && todayData.total > 0) {
+                          const trendValue = todayData.winRate - unlockDialog.player.winRate;
+                          if (trendValue > 2) {
+                            return <TrendingUp className="h-3 w-3 ml-0.5 text-success" />;
+                          } else if (trendValue < -2) {
+                            return <TrendingDown className="h-3 w-3 ml-0.5 text-destructive" />;
+                          }
+                        }
+                        return null;
+                      })()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1413,8 +1452,21 @@ const PlayerCopyTradingBoard = () => {
                 </Avatar>
                 <div>
                   <p className="font-medium text-foreground">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t('win_rate')}: <span className="text-success font-medium">{copyTradeDialog.player.winRate.toFixed(1)}%</span>
+                  <p className="text-xs text-muted-foreground inline-flex items-center flex-wrap">
+                    {t('win_rate')}: <span className="text-success font-medium ml-1 inline-flex items-center">{copyTradeDialog.player.winRate.toFixed(1)}%
+                      {(() => {
+                        const todayData = todayStats.get(copyTradeDialog.player.id);
+                        if (todayData && todayData.total > 0) {
+                          const trendValue = todayData.winRate - copyTradeDialog.player.winRate;
+                          if (trendValue > 2) {
+                            return <TrendingUp className="h-3 w-3 ml-0.5 text-success" />;
+                          } else if (trendValue < -2) {
+                            return <TrendingDown className="h-3 w-3 ml-0.5 text-destructive" />;
+                          }
+                        }
+                        return null;
+                      })()}
+                    </span>
                     <span className="mx-2 text-border">|</span>
                     {t('best_streak')}: <span className="text-foreground font-medium">{copyTradeDialog.player.bestStreak}{t('matches_unit')}</span>
                   </p>

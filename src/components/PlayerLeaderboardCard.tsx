@@ -43,6 +43,7 @@ interface PlayerLeaderboardCardProps {
   totalEligiblePlayers: number;
   aiBenchmarkWinRate: number;
   boardType?: 'hot' | 'profit' | 'cold'; // 区分排行榜类型
+  todayWinRate?: number; // Today's win rate for trend calculation
 }
 
 // Profit Rate Badge Component
@@ -74,6 +75,7 @@ export const PlayerLeaderboardCard = ({
   totalEligiblePlayers,
   aiBenchmarkWinRate,
   boardType = 'hot',
+  todayWinRate,
 }: PlayerLeaderboardCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -304,6 +306,8 @@ export const PlayerLeaderboardCard = ({
           <AnimatedWinRate 
             value={player.winRate}
             className="text-sm sm:text-base font-bold font-mono-data text-success"
+            trend={todayWinRate !== undefined ? todayWinRate - player.winRate : undefined}
+            showTrend={todayWinRate !== undefined}
           />
         </div>
       </div>
