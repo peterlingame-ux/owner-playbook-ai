@@ -21,6 +21,7 @@ import { AnimatedPrize } from "@/components/AnimatedPrize";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import winningStreakBg from "@/assets/winning-streak-bg.png";
 import losingStreakBg from "@/assets/losing-streak-bg.png";
+import copySuccessBg from "@/assets/copy-success-bg.png";
 
 // 奖金池配置
 const PRIZE_POOL = 1000000;
@@ -1688,11 +1689,12 @@ const PlayerCopyTradingBoard = () => {
       <AnimatePresence>
         {copySuccess?.show && (
           <Dialog open={true} onOpenChange={() => setCopySuccess(null)}>
-            <DialogContent className="max-w-sm overflow-hidden relative">
+            <DialogContent className="max-w-sm overflow-hidden relative" aria-describedby={undefined}>
+              <DialogTitle className="sr-only">跟单成功</DialogTitle>
               {/* 背景图 */}
               <div 
                 className="absolute inset-0 bg-cover bg-center opacity-15 pointer-events-none"
-                style={{ backgroundImage: `url('/src/assets/copy-success-bg.png')` }}
+                style={{ backgroundImage: `url(${copySuccessBg})` }}
               />
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
