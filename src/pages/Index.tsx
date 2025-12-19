@@ -155,10 +155,10 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
         {/* Official Promotional Video Section */}
-        <section className="mb-10 sm:mb-12 lg:mb-14">
-          <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
+        <section className="mb-6 sm:mb-10 lg:mb-14">
+          <h2 className="text-sm sm:text-base lg:text-xl font-semibold mb-3 sm:mb-4 lg:mb-5 text-foreground tracking-wide text-center">
             {t('ai_analysis_title')}
           </h2>
           <div className="flex items-center justify-center gap-3 sm:gap-4 lg:gap-6">
@@ -222,51 +222,51 @@ const Index = () => {
           </div>
           
           {/* Mobile Stats Panel - Below Video */}
-          <div className="grid grid-cols-3 gap-2 mt-4 md:hidden">
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('player_tracking')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
-              <p className="text-[10px] text-muted-foreground">{t('tracked_players')}</p>
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-3 sm:mt-4 md:hidden">
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('player_tracking')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('tracked_players')}</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('formation_analysis')}</span>
-              <div className="text-sm font-bold text-primary">{liveStats.homeFormation}</div>
-              <p className="text-[10px] text-muted-foreground">vs {liveStats.awayFormation}</p>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('formation_analysis')}</span>
+              <div className="text-xs sm:text-sm font-bold text-primary">{liveStats.homeFormation}</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">vs {liveStats.awayFormation}</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('ball_possession')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
-              <p className="text-[10px] text-muted-foreground">{t('accuracy_rate')}: {liveStats.passAccuracy}%</p>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('ball_possession')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('accuracy_rate')}: {liveStats.passAccuracy}%</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('goal_probability')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
-              <p className="text-[10px] text-muted-foreground">{t('scoring_chance')}</p>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('goal_probability')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('scoring_chance')}</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('pressure_index')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}%</div>
-              <p className="text-[10px] text-muted-foreground">{t('high_press')}</p>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('pressure_index')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}%</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('high_press')}</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2 text-center">
-              <span className="text-[10px] text-muted-foreground block">{t('counter_attack')}</span>
-              <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.counterAttack}</div>
-              <p className="text-[10px] text-muted-foreground">{t('counter_chances')}</p>
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('counter_attack')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.counterAttack}</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('counter_chances')}</p>
             </div>
           </div>
         </section>
 
         {/* AI Betting Cards - Match Predictions Today */}
-        <section id="match-predictions" className="mb-10 sm:mb-12 lg:mb-14 scroll-mt-20">
+        <section id="match-predictions" className="mb-6 sm:mb-10 lg:mb-14 scroll-mt-20">
           <ActiveAIBets />
         </section>
 
         {/* Models Section */}
-        <section className="mb-10 sm:mb-12 lg:mb-14">
-          <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-4 sm:mb-5 text-foreground tracking-wide text-center">
+        <section className="mb-6 sm:mb-10 lg:mb-14">
+          <h2 className="text-sm sm:text-base lg:text-xl font-semibold mb-3 sm:mb-4 lg:mb-5 text-foreground tracking-wide text-center">
             {t('the_contestants')}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-5">
             {sortedModels.filter(model => model.id !== 'hunsoccermax').map((model) => (
               <ModelCard 
                 key={model.id} 
@@ -279,7 +279,7 @@ const Index = () => {
         </section>
 
         {/* Performance Chart */}
-        <section className="mb-10 sm:mb-12 lg:mb-14">
+        <section className="mb-6 sm:mb-10 lg:mb-14">
           <PerformanceChart 
             onChartClick={() => {
               const element = document.getElementById('match-predictions');

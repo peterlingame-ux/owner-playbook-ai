@@ -85,7 +85,7 @@ const UserModelCard = () => {
         transition={{ duration: 0.4 }}
       >
         <Card 
-          className="relative p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
+          className="relative p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
           onClick={handleActivate}
         >
           {/* Animated glow effect */}
@@ -122,79 +122,79 @@ const UserModelCard = () => {
           <div className="relative z-10">
             {/* Exclusive Badge */}
 
-            <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+            <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4 gap-1.5 sm:gap-2">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-2 lg:gap-3 flex-1 min-w-0">
                 <motion.div 
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-amber-500/20 to-yellow-600/20 shrink-0 border-2 border-dashed border-amber-400/50"
+                  className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-amber-500/20 to-yellow-600/20 shrink-0 border-2 border-dashed border-amber-400/50"
                   animate={{ 
                     borderColor: ['rgba(251,191,36,0.5)', 'rgba(251,191,36,0.8)', 'rgba(251,191,36,0.5)'],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <User className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-amber-400" />
                 </motion.div>
                 <div className="min-w-0 flex-1 text-center sm:text-left">
-                <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
+                <h3 className="font-semibold text-xs sm:text-sm lg:text-base leading-tight text-amber-300 truncate tracking-tight">
                     {t('demo_player')}
                   </h3>
                 </div>
               </div>
               
               {/* Placeholder Badge */}
-              <div className="flex flex-col items-center gap-1.5 shrink-0">
-                <span className="text-[10px] sm:text-xs font-medium text-amber-200/70 uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
-                <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-mono-data font-medium text-sm sm:text-base tabular-nums bg-amber-500/10 text-amber-400/50 border border-amber-500/30">
+              <div className="flex flex-col items-center gap-0.5 sm:gap-1 lg:gap-1.5 shrink-0">
+                <span className="text-[8px] sm:text-[10px] lg:text-xs font-medium text-amber-200/70 uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
+                <div className="px-1.5 sm:px-2.5 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-mono-data font-medium text-[10px] sm:text-xs lg:text-base tabular-nums bg-amber-500/10 text-amber-400/50 border border-amber-500/30">
                   --
                 </div>
               </div>
             </div>
             
-            <div className="space-y-2.5 sm:space-y-3">
+            <div className="space-y-2 sm:space-y-2.5 lg:space-y-3">
               <div>
-                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                  <span className="text-[10px] sm:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
-                  <span className="text-xl sm:text-2xl font-semibold font-mono-data transition-all text-amber-400/50 tabular-nums">
+                <div className="flex items-center justify-between mb-1 sm:mb-1.5 lg:mb-2">
+                  <span className="text-[8px] sm:text-[10px] lg:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
+                  <span className="text-lg sm:text-xl lg:text-2xl font-semibold font-mono-data transition-all text-amber-400/50 tabular-nums">
                     --%
                   </span>
                 </div>
                 
                 {/* Win Rate Progress Bar */}
-                <div className="relative h-2 sm:h-2.5 bg-amber-900/30 rounded-full overflow-hidden">
+                <div className="relative h-1.5 sm:h-2 lg:h-2.5 bg-amber-900/30 rounded-full overflow-hidden">
                   <div 
                     className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 w-0 bg-gradient-to-r from-amber-500 to-yellow-400"
                   />
                 </div>
               </div>
               
-              <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-amber-500/20 gap-2">
+              <div className="flex items-center justify-between pt-1.5 sm:pt-2 lg:pt-2.5 border-t border-amber-500/20 gap-1.5 sm:gap-2">
                 <div>
-                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('correct')}</p>
-                  <p className="text-base sm:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
+                  <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-amber-200/50 mb-0.5 sm:mb-1 uppercase tracking-wide">{t('correct')}</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
                     --
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
-                  <p className="text-base sm:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
+                  <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-amber-200/50 mb-0.5 sm:mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
                     --
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('wrong')}</p>
-                  <p className="text-base sm:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
+                  <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-amber-200/50 mb-0.5 sm:mb-1 uppercase tracking-wide">{t('wrong')}</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-amber-400/50 tabular-nums">
                     --
                   </p>
                 </div>
               </div>
               
               {/* Activate Button */}
-              <div className="pt-2 sm:pt-2.5 border-t border-amber-500/20">
+              <div className="pt-1.5 sm:pt-2 lg:pt-2.5 border-t border-amber-500/20">
                 <Button 
                   onClick={(e) => {
                     e.stopPropagation();
                     handleActivate();
                   }}
-                  className="w-full h-9 sm:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-white font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
+                  className="w-full h-7 sm:h-8 lg:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-white font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
                 >
                   <span>{t('login_to_create_model')}</span>
                 </Button>
@@ -214,7 +214,7 @@ const UserModelCard = () => {
       transition={{ duration: 0.4 }}
     >
       <Card 
-        className="relative p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
+        className="relative p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-amber-950/40 via-card to-amber-900/20 border-2 border-amber-500/50 hover:border-amber-400/70 transition-all cursor-pointer group overflow-hidden shadow-[0_0_30px_-5px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.5)]"
         onClick={handleCardClick}
       >
         {/* Animated glow effect */}
@@ -251,10 +251,10 @@ const UserModelCard = () => {
         <div className="relative z-10">
           {/* Exclusive Badge */}
 
-          <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4 gap-1.5 sm:gap-2">
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-2 lg:gap-3 flex-1 min-w-0">
               <motion.div 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 p-0.5"
+                className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden shrink-0 p-0.5"
                 style={{ 
                   background: 'linear-gradient(135deg, #f59e0b, #eab308, #f59e0b)',
                   boxShadow: '0 0 15px rgba(245,158,11,0.5)'
@@ -266,13 +266,13 @@ const UserModelCard = () => {
               >
                 <Avatar className="w-full h-full">
                   <AvatarImage src={userProfile?.avatar_url || '/avatars/avatar-1.png'} />
-                  <AvatarFallback className="bg-amber-900 text-amber-200">
+                  <AvatarFallback className="bg-amber-900 text-amber-200 text-xs sm:text-sm">
                     {userProfile?.display_name?.[0] || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </motion.div>
               <div className="min-w-0 flex-1 text-center sm:text-left">
-                <h3 className="font-semibold text-sm sm:text-base leading-tight text-amber-300 truncate tracking-tight">
+                <h3 className="font-semibold text-xs sm:text-sm lg:text-base leading-tight text-amber-300 truncate tracking-tight">
                   {user && userProfile?.display_name 
                     ? `${userProfile.display_name}的模型` 
                     : t('my_exclusive_model')}
@@ -281,9 +281,9 @@ const UserModelCard = () => {
             </div>
             
             {/* Profit Badge */}
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
-              <span className="text-[10px] sm:text-xs font-medium text-amber-200/70 uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
-              <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-mono-data font-medium text-sm sm:text-base tabular-nums ${
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1 lg:gap-1.5 shrink-0">
+              <span className="text-[8px] sm:text-[10px] lg:text-xs font-medium text-amber-200/70 uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
+              <div className={`px-1.5 sm:px-2.5 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-mono-data font-medium text-[10px] sm:text-xs lg:text-base tabular-nums ${
                 stats.profit >= 0 ? 'bg-success/20 text-success border border-success/20' : 'bg-destructive/20 text-destructive border border-destructive/20'
               }`}>
                 {stats.profit >= 0 ? '+' : ''}${Math.abs(stats.profit).toFixed(2)}
@@ -291,17 +291,17 @@ const UserModelCard = () => {
             </div>
           </div>
           
-          <div className="space-y-2.5 sm:space-y-3">
+          <div className="space-y-2 sm:space-y-2.5 lg:space-y-3">
             <div>
-              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                <span className="text-[10px] sm:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
-                <span className="text-xl sm:text-2xl font-semibold font-mono-data transition-all text-amber-300 tabular-nums">
+              <div className="flex items-center justify-between mb-1 sm:mb-1.5 lg:mb-2">
+                <span className="text-[8px] sm:text-[10px] lg:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
+                <span className="text-lg sm:text-xl lg:text-2xl font-semibold font-mono-data transition-all text-amber-300 tabular-nums">
                   {animatedWinRate.toFixed(1)}%
                 </span>
               </div>
               
               {/* Win Rate Progress Bar */}
-              <div className="relative h-2 sm:h-2.5 bg-amber-900/30 rounded-full overflow-hidden">
+              <div className="relative h-1.5 sm:h-2 lg:h-2.5 bg-amber-900/30 rounded-full overflow-hidden">
                 <motion.div 
                   className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400"
                   initial={{ width: 0 }}
@@ -311,38 +311,38 @@ const UserModelCard = () => {
               </div>
             </div>
             
-            <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-amber-500/20 gap-2">
+            <div className="flex items-center justify-between pt-1.5 sm:pt-2 lg:pt-2.5 border-t border-amber-500/20 gap-1.5 sm:gap-2">
               <div>
-                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('correct')}</p>
-                <p className="text-base sm:text-lg font-medium font-mono-data text-success tabular-nums">
+                <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-amber-200/50 mb-0.5 sm:mb-1 uppercase tracking-wide">{t('correct')}</p>
+                <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-success tabular-nums">
                   {stats.correctPredictions}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
-                <p className="text-base sm:text-lg font-medium font-mono-data text-amber-300 tabular-nums">
+                <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-amber-200/50 mb-0.5 sm:mb-1 uppercase tracking-wide">{t('total_predictions')}</p>
+                <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-amber-300 tabular-nums">
                   {stats.totalPredictions}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[9px] sm:text-[10px] text-amber-200/50 mb-1 uppercase tracking-wide">{t('wrong')}</p>
-                <p className="text-base sm:text-lg font-medium font-mono-data text-destructive tabular-nums">
+                <p className="text-[7px] sm:text-[9px] lg:text-[10px] text-amber-200/50 mb-0.5 sm:mb-1 uppercase tracking-wide">{t('wrong')}</p>
+                <p className="text-sm sm:text-base lg:text-lg font-medium font-mono-data text-destructive tabular-nums">
                   {stats.totalPredictions - stats.correctPredictions}
                 </p>
               </div>
             </div>
             
             {/* View Predictions Button */}
-            <div className="pt-2 sm:pt-2.5 border-t border-amber-500/20">
+            <div className="pt-1.5 sm:pt-2 lg:pt-2.5 border-t border-amber-500/20">
               <Button 
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate('/my-predictions');
                 }}
-                className="w-full h-9 sm:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
+                className="w-full h-7 sm:h-8 lg:h-10 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-[10px] sm:text-xs transition-all shadow-lg shadow-amber-500/25"
               >
-                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                  <PlayCircle size={13} className="sm:w-[14px] sm:h-[14px]" />
+                <div className="flex items-center justify-center gap-1 sm:gap-1.5 lg:gap-2">
+                  <PlayCircle size={12} className="sm:w-[13px] sm:h-[13px] lg:w-[14px] lg:h-[14px]" />
                   <span>查看预测记录</span>
                 </div>
               </Button>
