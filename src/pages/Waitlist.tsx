@@ -204,89 +204,148 @@ const Waitlist = () => {
           className="mb-16"
         >
           {/* Section Title */}
-          <div className="text-center mb-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">每日奖品</h2>
-            <p className="text-muted-foreground text-sm">每天21:00准时开奖，完成预测即可参与</p>
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-warning/10 rounded-full mb-4">
+              <Trophy className="w-5 h-5 text-warning" />
+              <span className="text-warning font-semibold text-sm">12月活动进行中</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">每日奖品日历</h2>
+            <p className="text-muted-foreground text-sm">点击查看详情 · 每天21:00准时开奖</p>
           </div>
           
-          <div className="relative">
+          <div className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-border/50">
+            {/* Legend */}
+            <div className="flex items-center justify-center gap-4 sm:gap-6 mb-6 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-warning animate-pulse" />
+                <span className="text-muted-foreground">今日</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="text-muted-foreground">已开奖</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-muted" />
+                <span className="text-muted-foreground">待开奖</span>
+              </div>
+            </div>
+            
             {/* Horizontal scrollable container */}
-            <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-background">
-              <div className="inline-flex gap-2 min-w-max px-4">
+            <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+              <div className="inline-flex gap-3 min-w-max px-2">
                 {/* 3 rows x 10 columns = 30 days */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {[0, 1, 2].map((rowIdx) => (
-                    <div key={rowIdx} className="flex gap-2">
+                    <motion.div 
+                      key={rowIdx} 
+                      className="flex gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + rowIdx * 0.1 }}
+                    >
                       {Array.from({ length: 10 }, (_, colIdx) => {
                         const dayIndex = rowIdx * 10 + colIdx;
                         const prize = dayPrizes[dayIndex];
                         const now = new Date();
                         const today = now.getDate();
                         const currentMonth = now.getMonth() + 1;
-                        const currentYear = now.getFullYear();
                         const isToday = prize.day === today;
                         const isPast = prize.day < today;
+                        const isFuture = prize.day > today;
                         const winner = prizeWinners[prize.day];
                         
                         return (
-                          <div
+                          <motion.div
                             key={colIdx}
                             onClick={() => setSelectedDay(prize.day)}
+                            whileHover={{ scale: 1.08, y: -4 }}
+                            whileTap={{ scale: 0.95 }}
                             className={`
-                              w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
-                              rounded-lg overflow-hidden relative group cursor-pointer
-                              border-2 transition-all duration-300
-                              ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
-                              ${isPast ? 'opacity-60' : ''}
+                              w-20 h-24 sm:w-24 sm:h-28 md:w-28 md:h-32
+                              rounded-xl overflow-hidden relative group cursor-pointer
+                              transition-all duration-300 shadow-md
+                              ${isToday 
+                                ? 'ring-2 ring-warning ring-offset-2 ring-offset-background shadow-lg shadow-warning/40' 
+                                : isPast 
+                                  ? 'ring-1 ring-green-500/30' 
+                                  : 'ring-1 ring-border/30 hover:ring-primary/50'
+                              }
                             `}
-                            title={`${currentMonth}月${prize.day}日 - ${prize.name}`}
                           >
+                            {/* Background gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70 z-10" />
+                            
                             <img 
                               src={prize.image}
                               alt={prize.name}
-                              className="w-full h-full object-cover"
+                              className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${isPast ? 'grayscale-[30%]' : ''}`}
                             />
-                            {/* Date overlay - top left with clear format */}
+                            
+                            {/* Date badge - top */}
                             <div className={`
-                              absolute top-1 left-1 px-1.5 py-0.5 rounded
-                              text-[9px] sm:text-[11px] font-bold
-                              ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/80 text-white'}
+                              absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded-full z-20
+                              text-[10px] sm:text-xs font-bold backdrop-blur-sm
+                              ${isToday 
+                                ? 'bg-warning text-warning-foreground shadow-lg' 
+                                : isPast 
+                                  ? 'bg-green-500/90 text-white' 
+                                  : 'bg-black/60 text-white/90'
+                              }
                             `}>
-                              {currentMonth}月{prize.day}日
+                              {prize.day}日
                             </div>
-                            {/* Winner indicator with avatar and name - show mock winner for past days */}
-                            {isPast && (winner?.winner || prize.mockWinner) && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 sm:p-1.5">
-                                <div className="flex items-center gap-1">
+                            
+                            {/* Today indicator */}
+                            {isToday && (
+                              <div className="absolute top-2 right-2 z-20">
+                                <span className="flex h-3 w-3">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-warning" />
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Prize name - bottom */}
+                            <div className="absolute bottom-0 left-0 right-0 p-2 z-20">
+                              <p className="text-[10px] sm:text-xs font-semibold text-white text-center truncate">
+                                {prize.name}
+                              </p>
+                              
+                              {/* Winner info for past days */}
+                              {isPast && (winner?.winner || prize.mockWinner) && (
+                                <div className="flex items-center justify-center gap-1 mt-1">
                                   <img 
                                     src={winner?.winner?.avatar_url || prize.mockWinner?.avatar_url}
                                     alt=""
-                                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-warning"
+                                    className="w-4 h-4 rounded-full border border-green-400"
                                   />
-                                  <span className="text-[8px] sm:text-[10px] font-medium text-white truncate">
+                                  <span className="text-[8px] text-green-300 truncate max-w-[60px]">
                                     {(() => {
                                       const name = winner?.winner?.display_name || prize.mockWinner?.display_name || '';
-                                      return name.slice(0, 1) + '**' + name.slice(-1);
+                                      return name.slice(0, 1) + '**';
                                     })()}
                                   </span>
                                 </div>
-                              </div>
-                            )}
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="text-xs sm:text-sm font-bold text-white text-center px-1">{prize.name}</span>
+                              )}
                             </div>
-                          </div>
+                            
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+                          </motion.div>
                         );
                       })}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
             </div>
-            {/* Scroll indicators */}
-            <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+            
+            {/* Scroll hint */}
+            <div className="flex items-center justify-center mt-4 gap-2 text-xs text-muted-foreground">
+              <span>←</span>
+              <span>左右滑动查看更多</span>
+              <span>→</span>
+            </div>
           </div>
         </motion.div>
 
