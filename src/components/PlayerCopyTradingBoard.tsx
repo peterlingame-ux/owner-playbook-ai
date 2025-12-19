@@ -129,16 +129,9 @@ const getTeamLogo = (teamName: string): string | null => {
   return teamLogoMap[teamName] || null;
 };
 
-// 隐藏玩家名字中间部分
+// 显示完整玩家名字（不隐藏）
 const maskPlayerName = (name: string): string => {
-  if (!name || name.length <= 2) return name;
-  if (name.length <= 4) {
-    return name.charAt(0) + '*'.repeat(name.length - 1);
-  }
-  const firstChar = name.charAt(0);
-  const lastTwoChars = name.slice(-2);
-  const middleLength = Math.min(name.length - 3, 4);
-  return firstChar + '*'.repeat(middleLength) + lastTwoChars;
+  return name || '';
 };
 
 // Mock follower data for each player
