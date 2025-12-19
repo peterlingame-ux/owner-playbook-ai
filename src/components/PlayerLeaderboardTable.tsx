@@ -2041,10 +2041,12 @@ const PlayerLeaderboardTable = () => {
                                 连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
                               </p>
                             </div>
-                            {/* Win Rate */}
+                            {/* Win Rate & Profit */}
                             <div className="text-right">
                               <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
-                              <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                              <p className={`text-[10px] ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -2167,10 +2169,12 @@ const PlayerLeaderboardTable = () => {
                                 连败 <span className="text-red-500 font-bold">{player.worstStreak || 0}</span>
                               </p>
                             </div>
-                            {/* Win Rate */}
+                            {/* Win Rate & Profit */}
                             <div className="text-right">
                               <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
-                              <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                              <p className={`text-[10px] ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </p>
                             </div>
                           </div>
                         ))}
