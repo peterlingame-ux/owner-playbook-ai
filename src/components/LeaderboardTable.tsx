@@ -1542,9 +1542,8 @@ const LeaderboardTable = () => {
                   {/* Name & Count */}
                   <div>
                     <p className="font-bold text-sm text-foreground">{follower.name}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <span className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-[10px]">🕐</span>
-                      <span>{follower.days} 次</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      已跟单{follower.days}次
                     </p>
                   </div>
                 </div>
