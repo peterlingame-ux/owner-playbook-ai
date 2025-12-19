@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import LeaderboardTable from "@/components/LeaderboardTable";
@@ -24,34 +25,55 @@ const Leaderboard = () => {
       <Header />
       
       {/* Challenge AI Banner */}
-      <div className="container mx-auto px-3 sm:px-4 pt-4">
+      <motion.div 
+        className="container mx-auto px-3 sm:px-4 pt-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
         <ChallengeAIBanner />
-      </div>
+      </motion.div>
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding">
+      <motion.div 
+        className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 safe-area-padding"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
         <Tabs defaultValue={defaultTab} className="w-full">
-          <div className="flex justify-center mb-6">
+          <motion.div 
+            className="flex justify-center mb-6"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+          >
             <TabsList className="grid grid-cols-3 w-full max-w-md sm:max-w-lg">
               <TabsTrigger value="ai" className="text-xs sm:text-sm px-2 sm:px-4">{t('ai_leaderboard')}</TabsTrigger>
               <TabsTrigger value="players" className="text-xs sm:text-sm px-2 sm:px-4">{t('player_leaderboard')}</TabsTrigger>
               <TabsTrigger value="copy" className="text-xs sm:text-sm px-2 sm:px-4">{t('copy_trading_board')}</TabsTrigger>
             </TabsList>
-          </div>
+          </motion.div>
           
-          <TabsContent value="ai">
-            <LeaderboardTable />
-          </TabsContent>
-          
-          <TabsContent value="players">
-            <PlayerLeaderboardTable />
-          </TabsContent>
-          
-          <TabsContent value="copy">
-            <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('copy_trading_board')}</h2>
-            <PlayerCopyTradingBoard />
-          </TabsContent>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+          >
+            <TabsContent value="ai">
+              <LeaderboardTable />
+            </TabsContent>
+            
+            <TabsContent value="players">
+              <PlayerLeaderboardTable />
+            </TabsContent>
+            
+            <TabsContent value="copy">
+              <h2 className="text-lg sm:text-2xl font-bold mb-4 px-2 leading-tight">{t('copy_trading_board')}</h2>
+              <PlayerCopyTradingBoard />
+            </TabsContent>
+          </motion.div>
         </Tabs>
-      </div>
+      </motion.div>
     </div>
   );
 };
