@@ -982,7 +982,7 @@ const PlayerCopyTradingBoard = () => {
           {/* Win Rate */}
           <div className="text-right">
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
+            <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
               {player.winRate.toFixed(0)}%
             </p>
           </div>
@@ -1204,7 +1204,7 @@ const PlayerCopyTradingBoard = () => {
                     </div>
                     <div className="py-1.5 px-2 rounded bg-background/50 border border-border/30">
                       <div className="text-[10px] text-muted-foreground mb-0.5">胜率</div>
-                      <div className="text-sm font-bold font-mono text-foreground">{winRate.toFixed(0)}%</div>
+                      <div className="text-sm font-bold font-mono text-success">{winRate.toFixed(0)}%</div>
                     </div>
                     <div className="py-1.5 px-2 rounded bg-background/50 border border-border/30">
                       <div className="text-[10px] text-muted-foreground mb-0.5">总投注</div>
@@ -1342,7 +1342,7 @@ const PlayerCopyTradingBoard = () => {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">{maskPlayerName(unlockDialog.player.displayName)}</p>
-                    <p className="text-xs text-muted-foreground">胜率 {unlockDialog.player.winRate.toFixed(1)}%</p>
+                    <p className="text-xs text-muted-foreground">胜率 <span className="text-success font-medium">{unlockDialog.player.winRate.toFixed(1)}%</span></p>
                   </div>
                 </div>
               </div>
@@ -1414,7 +1414,7 @@ const PlayerCopyTradingBoard = () => {
                 <div>
                   <p className="font-medium text-foreground">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('win_rate')}: <span className="text-foreground font-medium">{copyTradeDialog.player.winRate.toFixed(1)}%</span>
+                    {t('win_rate')}: <span className="text-success font-medium">{copyTradeDialog.player.winRate.toFixed(1)}%</span>
                     <span className="mx-2 text-border">|</span>
                     {t('best_streak')}: <span className="text-foreground font-medium">{copyTradeDialog.player.bestStreak}{t('matches_unit')}</span>
                   </p>
