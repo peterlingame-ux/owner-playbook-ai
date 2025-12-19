@@ -1889,10 +1889,26 @@ const PlayerLeaderboardTable = () => {
                         </motion.div>
                         <span className="text-xs font-medium text-success">比赛详情已解锁</span>
                       </div>
-                      <div className="text-base font-bold text-center">
-                        <span className="text-primary">{copySuccess.prediction.home_team || '主队'}</span>
-                        <span className="text-muted-foreground mx-3 text-sm">vs</span>
-                        <span className="text-primary">{copySuccess.prediction.away_team || '客队'}</span>
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={`/src/assets/team-${(copySuccess.prediction.home_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                            alt=""
+                            className="w-6 h-6 object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                          />
+                          <span className="text-primary font-bold">{copySuccess.prediction.home_team || '主队'}</span>
+                        </div>
+                        <span className="text-muted-foreground text-sm">vs</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary font-bold">{copySuccess.prediction.away_team || '客队'}</span>
+                          <img 
+                            src={`/src/assets/team-${(copySuccess.prediction.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                            alt=""
+                            className="w-6 h-6 object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                          />
+                        </div>
                       </div>
                     </div>
                     
