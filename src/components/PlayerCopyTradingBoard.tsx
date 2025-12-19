@@ -1776,9 +1776,9 @@ const PlayerCopyTradingBoard = () => {
                   >
                     {/* 比赛信息头部 */}
                     <div className="px-4 py-3 border-b border-border/30">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-center relative mb-2">
                         <span className="text-xs font-medium text-muted-foreground">英超联赛</span>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 absolute right-0">
                           <CheckCircle2 className="h-3 w-3 text-success" />
                           <span className="text-[10px] text-success">比赛已解锁</span>
                         </div>
