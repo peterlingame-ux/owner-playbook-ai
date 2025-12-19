@@ -1457,7 +1457,7 @@ const PlayerCopyTradingBoard = () => {
                     
                     {upcomingPredictions.length === 0 && (
                       <div className="px-4 py-8 text-center text-muted-foreground text-sm">
-                        {t('no_predictions_today')}
+                        今日暂无跟单记录
                       </div>
                     )}
                     
