@@ -341,20 +341,20 @@ const PlayerDetail = () => {
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-8 safe-area-padding">
         {/* 返回按钮 */}
         <Button 
           variant="ghost" 
           onClick={() => navigate("/")}
-          className="mb-4 sm:mb-6 text-xs sm:text-sm h-8 sm:h-10"
+          className="mb-3 sm:mb-6 text-[10px] sm:text-sm h-7 sm:h-10 px-2 sm:px-4"
         >
-          <ArrowLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+          <ArrowLeft className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           {t('back_to_models')}
         </Button>
 
         {/* 玩家信息头部 - 带背景 */}
         <div 
-          className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-8"
+          className="relative rounded-lg sm:rounded-2xl overflow-hidden mb-3 sm:mb-8"
           style={{
             backgroundImage: `url(${iconGreencourt})`,
             backgroundSize: 'cover',
@@ -362,22 +362,22 @@ const PlayerDetail = () => {
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/90 to-background/70" />
-          <div className="relative flex items-center gap-3 sm:gap-6 p-4 sm:p-8">
+          <div className="relative flex items-center gap-2 sm:gap-6 p-3 sm:p-8">
             <Avatar 
-              className="w-14 h-14 sm:w-20 sm:h-20 border-2 flex-shrink-0"
+              className="w-10 h-10 sm:w-20 sm:h-20 border-2 flex-shrink-0"
               style={{ borderColor: rankColor }}
             >
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-              <AvatarFallback className="text-xl sm:text-2xl">{player.displayName.charAt(0)}</AvatarFallback>
+              <AvatarFallback className="text-base sm:text-2xl">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <h1 
-                className="text-xl sm:text-4xl font-bold mb-0.5 sm:mb-1 truncate"
+                className="text-base sm:text-4xl font-bold mb-0 sm:mb-1 truncate"
                 style={{ color: rankColor }}
               >
                 {player.displayName}
               </h1>
-              <p className="text-muted-foreground text-xs sm:text-lg">
+              <p className="text-muted-foreground text-[10px] sm:text-lg">
                 {totalPredictions} {t('predictions')}
               </p>
             </div>
@@ -385,121 +385,125 @@ const PlayerDetail = () => {
         </div>
 
         {/* 统计卡片 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-8">
-          <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('win_rate')}</p>
-            <p className="text-xl sm:text-3xl font-bold" style={{ color: rankColor }}>
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-4 mb-3 sm:mb-8">
+          <Card className="p-2 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-2 truncate">{t('win_rate')}</p>
+            <p className="text-sm sm:text-3xl font-bold" style={{ color: rankColor }}>
               <AnimatedWinRate 
                 value={parseFloat(winRate)}
-                className="text-xl sm:text-3xl font-bold"
+                className="text-sm sm:text-3xl font-bold"
                 style={{ color: rankColor }}
               />
             </p>
           </Card>
           
-          <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('correct')}</p>
-            <p className="text-xl sm:text-3xl font-bold" style={{ color: rankColor }}>
+          <Card className="p-2 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-2 truncate">{t('correct')}</p>
+            <p className="text-sm sm:text-3xl font-bold" style={{ color: rankColor }}>
               {correctPredictions}
             </p>
           </Card>
           
-          <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('wrong')}</p>
-            <p className="text-xl sm:text-3xl font-bold" style={{ color: rankColor }}>
+          <Card className="p-2 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
+            <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-2 truncate">{t('wrong')}</p>
+            <p className="text-sm sm:text-3xl font-bold" style={{ color: rankColor }}>
               {totalPredictions - correctPredictions}
             </p>
           </Card>
           
-          <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('roi')}</p>
-            <p className="text-xl sm:text-3xl font-bold" style={{ color: rankColor }}>
+          <Card className="p-2 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm col-span-2 sm:col-span-1">
+            <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-2 truncate">{t('roi')}</p>
+            <p className="text-sm sm:text-3xl font-bold" style={{ color: rankColor }}>
               {Number(roi) >= 0 ? '+' : ''}{roi}%
             </p>
           </Card>
           
-          <Card className="p-3 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm col-span-2 sm:col-span-1">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{t('current_balance')}</p>
-            <p className="text-xl sm:text-3xl font-bold" style={{ color: rankColor }}>
-              ${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <Card className="p-2 sm:p-5 border-border/50 bg-card/50 backdrop-blur-sm sm:col-span-1">
+            <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-2 truncate">{t('current_balance')}</p>
+            <p className="text-sm sm:text-3xl font-bold truncate" style={{ color: rankColor }}>
+              ${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </Card>
         </div>
 
         {/* 筛选器 */}
-        <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-              <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
+        <Card className="p-2 sm:p-4 mb-3 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5">
+              <Filter className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+              <span className="text-[10px] sm:text-sm font-medium">{t('filters')}:</span>
+              <span className="text-[10px] sm:text-sm text-muted-foreground ml-auto sm:hidden">
+                {filteredPredictions.length} {t('records')}
+              </span>
             </div>
             
-            <div className="flex gap-2 sm:gap-4 flex-1 flex-wrap">
+            <div className="flex gap-1.5 sm:gap-4 flex-1">
               <Select value={filterDate} onValueChange={setFilterDate}>
-                <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectTrigger className="flex-1 sm:w-[140px] h-7 sm:h-10 text-[10px] sm:text-sm px-2 sm:px-3">
                   <SelectValue placeholder={t('date_filter')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="today">{t('today_prediction')}</SelectItem>
+                  <SelectItem value="all" className="text-xs sm:text-sm">{t('all')}</SelectItem>
+                  <SelectItem value="today" className="text-xs sm:text-sm">{t('today_prediction')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={filterResult} onValueChange={setFilterResult}>
-                <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectTrigger className="flex-1 sm:w-[140px] h-7 sm:h-10 text-[10px] sm:text-sm px-2 sm:px-3">
                   <SelectValue placeholder={t('result')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('all_results')}</SelectItem>
-                  <SelectItem value="correct">{t('correct')}</SelectItem>
-                  <SelectItem value="wrong">{t('wrong')}</SelectItem>
+                  <SelectItem value="all" className="text-xs sm:text-sm">{t('all_results')}</SelectItem>
+                  <SelectItem value="correct" className="text-xs sm:text-sm">{t('correct')}</SelectItem>
+                  <SelectItem value="wrong" className="text-xs sm:text-sm">{t('wrong')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={filterBetType} onValueChange={setFilterBetType}>
-                <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectTrigger className="flex-1 sm:w-[140px] h-7 sm:h-10 text-[10px] sm:text-sm px-2 sm:px-3">
                   <SelectValue placeholder={t('bet_type')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('all_types')}</SelectItem>
-                  <SelectItem value="handicap">{t('bet_type_handicap')}</SelectItem>
-                  <SelectItem value="over_under">{t('bet_type_over_under')}</SelectItem>
+                  <SelectItem value="all" className="text-xs sm:text-sm">{t('all_types')}</SelectItem>
+                  <SelectItem value="handicap" className="text-xs sm:text-sm">{t('bet_type_handicap')}</SelectItem>
+                  <SelectItem value="over_under" className="text-xs sm:text-sm">{t('bet_type_over_under')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="text-xs sm:text-sm text-muted-foreground sm:ml-auto">
+            <div className="hidden sm:block text-xs sm:text-sm text-muted-foreground sm:ml-auto">
               {filteredPredictions.length} {t('records')}
             </div>
           </div>
         </Card>
 
-        {/* 预测历史表格 */}
+        {/* 预测历史表格 - 移动端使用卡片列表 */}
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+          {/* 桌面端表格 */}
+          <div className="hidden sm:block overflow-x-auto">
+            <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[70px] sm:w-[100px] text-[10px] sm:text-xs px-2">{t('date')}</TableHead>
-                  <TableHead className="text-[10px] sm:text-xs px-2">{t('match')}</TableHead>
-                  <TableHead className="hidden md:table-cell text-[10px] sm:text-xs px-2">{t('ai_prediction')}</TableHead>
-                  <TableHead className="hidden sm:table-cell text-[10px] sm:text-xs px-2">{t('bet_type')}</TableHead>
-                  <TableHead className="text-right text-[10px] sm:text-xs px-2">{t('odds')}</TableHead>
-                  <TableHead className="hidden lg:table-cell text-right text-[10px] sm:text-xs px-2">{t('bet_amount')}</TableHead>
-                  <TableHead className="text-right text-[10px] sm:text-xs px-2">{t('profit')}</TableHead>
-                  <TableHead className="text-center text-[10px] sm:text-xs px-2">{t('result')}</TableHead>
+                  <TableHead className="w-[100px] text-xs px-2">{t('date')}</TableHead>
+                  <TableHead className="text-xs px-2">{t('match')}</TableHead>
+                  <TableHead className="hidden md:table-cell text-xs px-2">{t('ai_prediction')}</TableHead>
+                  <TableHead className="text-xs px-2">{t('bet_type')}</TableHead>
+                  <TableHead className="text-right text-xs px-2">{t('odds')}</TableHead>
+                  <TableHead className="hidden lg:table-cell text-right text-xs px-2">{t('bet_amount')}</TableHead>
+                  <TableHead className="text-right text-xs px-2">{t('profit')}</TableHead>
+                  <TableHead className="text-center text-xs px-2">{t('result')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-sm text-muted-foreground">
                       {t('loading')}
                     </TableCell>
                   </TableRow>
                 ) : filteredPredictions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-sm text-muted-foreground">
                       {t('no_predictions')}
                     </TableCell>
                   </TableRow>
@@ -516,35 +520,33 @@ const PlayerDetail = () => {
                         className="hover:bg-muted/50 cursor-pointer"
                         onClick={() => navigate(`/match/${match.id}`)}
                       >
-                        <TableCell className="font-medium text-[10px] sm:text-xs px-2 py-2">
-                          <div className="truncate max-w-[60px] sm:max-w-none">
-                            {prediction.date}
-                          </div>
+                        <TableCell className="font-medium text-xs px-2 py-2">
+                          {prediction.date}
                         </TableCell>
                         <TableCell className="px-2 py-2">
-                          <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="flex items-center gap-2">
                             {match.homeLogo && (
                               <img 
                                 src={match.homeLogo} 
                                 alt={getTeamName(match, 'home')}
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                className="w-5 h-5 object-contain shrink-0"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
                                 }}
                               />
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="text-[11px] sm:text-sm font-medium truncate">
+                              <div className="text-sm font-medium truncate">
                                 {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
                               </div>
-                              <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                              <div className="flex items-center gap-2 mt-0.5">
                                 {match.homeScore !== undefined && match.awayScore !== undefined && (
-                                  <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                  <span className="text-xs text-muted-foreground">
                                     {match.homeScore} - {match.awayScore}
                                   </span>
                                 )}
                                 {match.league && (
-                                  <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                                  <span className="text-xs text-muted-foreground truncate">
                                     • {match.league}
                                   </span>
                                 )}
@@ -554,7 +556,7 @@ const PlayerDetail = () => {
                               <img 
                                 src={match.awayLogo} 
                                 alt={getTeamName(match, 'away')}
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                className="w-5 h-5 object-contain shrink-0"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
                                 }}
@@ -562,39 +564,37 @@ const PlayerDetail = () => {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-[11px] sm:text-sm font-medium px-2 py-2">
+                        <TableCell className="hidden md:table-cell text-sm font-medium px-2 py-2">
                           <div className="truncate max-w-[100px]">
                             {getPredictionLabel(prediction, match)}
                           </div>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-[11px] sm:text-sm px-2 py-2">
+                        <TableCell className="text-sm px-2 py-2">
                           <div className="truncate max-w-[120px]">
                             {getBetTypeLabel(prediction.betType, prediction, match)}
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-mono text-[11px] sm:text-sm px-2 py-2">
+                        <TableCell className="text-right font-mono text-sm px-2 py-2">
                           {prediction.odds.toFixed(2)}
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell text-right font-mono text-[11px] sm:text-sm px-2 py-2">
+                        <TableCell className="hidden lg:table-cell text-right font-mono text-sm px-2 py-2">
                           ${prediction.betAmount.toFixed(2)}
                         </TableCell>
-                        <TableCell className={`text-right font-mono text-[11px] sm:text-sm font-bold px-2 py-2 ${
+                        <TableCell className={`text-right font-mono text-sm font-bold px-2 py-2 ${
                           profit >= 0 ? 'text-success' : 'text-destructive'
                         }`}>
                           {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-center px-2 py-2">
                           {prediction.correct ? (
-                            <Badge className="gap-0.5 sm:gap-1 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-1.5 sm:px-2">
-                              <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                              <span className="hidden xs:inline">{t('correct')}</span>
-                              <span className="xs:hidden">✓</span>
+                            <Badge className="gap-1 bg-success/20 text-success border-success/30 text-xs px-2">
+                              <CheckCircle2 className="h-3 w-3" />
+                              {t('correct')}
                             </Badge>
                           ) : (
-                            <Badge variant="destructive" className="gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2">
-                              <XCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                              <span className="hidden xs:inline">{t('wrong')}</span>
-                              <span className="xs:hidden">✗</span>
+                            <Badge variant="destructive" className="gap-1 text-xs px-2">
+                              <XCircle className="h-3 w-3" />
+                              {t('wrong')}
                             </Badge>
                           )}
                         </TableCell>
@@ -604,6 +604,97 @@ const PlayerDetail = () => {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* 移动端卡片列表 */}
+          <div className="sm:hidden">
+            {isLoading ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                {t('loading')}
+              </div>
+            ) : filteredPredictions.length === 0 ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                {t('no_predictions')}
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {filteredPredictions.map((prediction) => {
+                  const match = prediction.match;
+                  if (!match) return null;
+                  
+                  const profit = calculateProfit(prediction);
+                  
+                  return (
+                    <div 
+                      key={prediction.id}
+                      className="p-2.5 active:bg-muted/50"
+                      onClick={() => navigate(`/match/${match.id}`)}
+                    >
+                      {/* 第一行：日期和结果 */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] text-muted-foreground">{prediction.date}</span>
+                        {prediction.correct ? (
+                          <Badge className="gap-0.5 bg-success/20 text-success border-success/30 text-[9px] px-1.5 py-0 h-4">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            ✓
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="gap-0.5 text-[9px] px-1.5 py-0 h-4">
+                            <XCircle className="h-2.5 w-2.5" />
+                            ✗
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* 第二行：比赛信息 */}
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        {match.homeLogo && (
+                          <img 
+                            src={match.homeLogo} 
+                            alt={getTeamName(match, 'home')}
+                            className="w-4 h-4 object-contain shrink-0"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        <span className="text-[11px] font-medium truncate flex-1">
+                          {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
+                        </span>
+                        {match.awayLogo && (
+                          <img 
+                            src={match.awayLogo} 
+                            alt={getTeamName(match, 'away')}
+                            className="w-4 h-4 object-contain shrink-0"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        {match.homeScore !== undefined && match.awayScore !== undefined && (
+                          <span className="text-[10px] text-muted-foreground ml-1">
+                            {match.homeScore}-{match.awayScore}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* 第三行：投注类型、赔率、盈亏 */}
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-muted-foreground truncate max-w-[45%]">
+                          {getBetTypeLabel(prediction.betType, prediction, match)}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">@{prediction.odds.toFixed(2)}</span>
+                          <span className={`font-mono font-bold ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </Card>
       </div>
