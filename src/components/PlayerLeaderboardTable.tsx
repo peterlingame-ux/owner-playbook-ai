@@ -235,8 +235,6 @@ const PlayerLeaderboardTable = () => {
   const [coldSearchQuery, setColdSearchQuery] = useState('');
   const [hotDisplayCount, setHotDisplayCount] = useState(20);
   const [coldDisplayCount, setColdDisplayCount] = useState(20);
-  const [hotDialogTimeRange, setHotDialogTimeRange] = useState<1 | 7 | 30>(7);
-  const [coldDialogTimeRange, setColdDialogTimeRange] = useState<1 | 7 | 30>(7);
   const [isLoadingMoreHot, setIsLoadingMoreHot] = useState(false);
   const [isLoadingMoreCold, setIsLoadingMoreCold] = useState(false);
   const INITIAL_DISPLAY_COUNT = 20;
@@ -2075,9 +2073,7 @@ const PlayerLeaderboardTable = () => {
       {/* 查看全部高胜率玩家弹窗 - 简化版 */}
       <Dialog open={showAllHotPlayers} onOpenChange={(open) => {
         setShowAllHotPlayers(open);
-        if (open) {
-          setHotDialogTimeRange(timeRange);
-        } else {
+        if (!open) {
           setSelectedAllPlayer(null);
           setHotSearchQuery('');
           setHotDisplayCount(INITIAL_DISPLAY_COUNT);
@@ -2090,39 +2086,6 @@ const PlayerLeaderboardTable = () => {
               {t('hot_streak_board')} - {t('all_players')}
             </DialogTitle>
           </DialogHeader>
-          {/* 时间范围筛选 */}
-          <div className="flex items-center justify-center gap-1 bg-muted/30 rounded-lg p-0.5 mb-2">
-            <button
-              onClick={() => { setHotDialogTimeRange(1); setTimeRange(1); setHotDisplayCount(INITIAL_DISPLAY_COUNT); }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                hotDialogTimeRange === 1
-                  ? 'bg-foreground text-background shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {t('time_filter_1d')}
-            </button>
-            <button
-              onClick={() => { setHotDialogTimeRange(7); setTimeRange(7); setHotDisplayCount(INITIAL_DISPLAY_COUNT); }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                hotDialogTimeRange === 7
-                  ? 'bg-foreground text-background shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {t('time_filter_7d')}
-            </button>
-            <button
-              onClick={() => { setHotDialogTimeRange(30); setTimeRange(30); setHotDisplayCount(INITIAL_DISPLAY_COUNT); }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                hotDialogTimeRange === 30
-                  ? 'bg-foreground text-background shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {t('time_filter_30d')}
-            </button>
-          </div>
           {/* 搜索框 */}
           <div className="relative mb-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -2245,9 +2208,7 @@ const PlayerLeaderboardTable = () => {
       {/* 查看全部低胜率玩家弹窗 - 简化版 */}
       <Dialog open={showAllColdPlayers} onOpenChange={(open) => {
         setShowAllColdPlayers(open);
-        if (open) {
-          setColdDialogTimeRange(timeRange);
-        } else {
+        if (!open) {
           setSelectedAllPlayer(null);
           setColdSearchQuery('');
           setColdDisplayCount(INITIAL_DISPLAY_COUNT);
@@ -2257,47 +2218,14 @@ const PlayerLeaderboardTable = () => {
           <DialogHeader className="pb-2">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
-              {t('cold_streak_board')} - {t('all_players')}
+              {t('cold_streak_board') || '低胜率榜'} - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
-          {/* 时间范围筛选 */}
-          <div className="flex items-center justify-center gap-1 bg-muted/30 rounded-lg p-0.5 mb-2">
-            <button
-              onClick={() => { setColdDialogTimeRange(1); setTimeRange(1); setColdDisplayCount(INITIAL_DISPLAY_COUNT); }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                coldDialogTimeRange === 1
-                  ? 'bg-foreground text-background shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {t('time_filter_1d')}
-            </button>
-            <button
-              onClick={() => { setColdDialogTimeRange(7); setTimeRange(7); setColdDisplayCount(INITIAL_DISPLAY_COUNT); }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                coldDialogTimeRange === 7
-                  ? 'bg-foreground text-background shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {t('time_filter_7d')}
-            </button>
-            <button
-              onClick={() => { setColdDialogTimeRange(30); setTimeRange(30); setColdDisplayCount(INITIAL_DISPLAY_COUNT); }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                coldDialogTimeRange === 30
-                  ? 'bg-foreground text-background shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {t('time_filter_30d')}
-            </button>
-          </div>
           {/* 搜索框 */}
           <div className="relative mb-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={t('search_player')}
+              placeholder={t('search_player') || '搜索玩家名称...'}
               value={coldSearchQuery}
               onChange={(e) => {
                 setColdSearchQuery(e.target.value);
