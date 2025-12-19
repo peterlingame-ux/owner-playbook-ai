@@ -255,7 +255,7 @@ const Waitlist = () => {
                         const isPast = prize.day < today;
                         const winner = prizeWinners[prize.day];
                         
-                          return (
+                        return (
                           <div
                             key={colIdx}
                             onClick={() => setSelectedDay(prize.day)}
@@ -263,11 +263,8 @@ const Waitlist = () => {
                               w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
                               rounded-lg overflow-hidden relative group cursor-pointer
                               border-2 transition-all duration-300
-                              hover:scale-105 hover:z-10
-                              ${isToday 
-                                ? 'border-warning shadow-lg shadow-warning/40 ring-2 ring-warning/30 ring-offset-2 ring-offset-background animate-pulse hover:shadow-warning/60 hover:shadow-xl' 
-                                : 'border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20'}
-                              ${isPast ? 'opacity-60 hover:opacity-80' : ''}
+                              ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
+                              ${isPast ? 'opacity-60' : ''}
                             `}
                             title={`${currentMonth}月${prize.day}日 - ${prize.name}`}
                           >
@@ -325,72 +322,23 @@ const Waitlist = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-center mb-12 relative"
+          className="text-center mb-12"
         >
-          {/* Gradient background with glow */}
-          <div className="absolute inset-0 -mx-4 -my-8 rounded-2xl bg-gradient-to-r from-warning/5 via-amber-500/10 to-warning/5 blur-xl" />
-          <div className="absolute inset-0 -mx-4 -my-8 rounded-2xl bg-gradient-to-b from-transparent via-warning/5 to-transparent" />
-          
-          <div className="relative z-10 py-8">
-            <p className="text-muted-foreground mb-6 flex items-center justify-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse" />
-              距离今日开奖
-              <span className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse" />
-            </p>
-            <div className="flex items-center justify-center gap-3 sm:gap-4 font-mono text-4xl sm:text-5xl lg:text-6xl font-bold">
-              {/* Hours */}
-              <motion.div
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-warning/20 to-amber-600/20 rounded-xl blur-md group-hover:blur-lg transition-all" />
-                <span className="relative bg-gradient-to-br from-card to-card/80 border border-warning/30 px-4 sm:px-6 py-3 sm:py-4 rounded-xl min-w-[70px] sm:min-w-[90px] inline-block text-foreground shadow-lg shadow-warning/10">
-                  {String(countdown.hours).padStart(2, '0')}
-                </span>
-                <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground font-normal">时</span>
-              </motion.div>
-              
-              <motion.span 
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="text-warning text-3xl sm:text-4xl"
-              >:</motion.span>
-              
-              {/* Minutes */}
-              <motion.div
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-                className="relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-warning/20 to-amber-600/20 rounded-xl blur-md group-hover:blur-lg transition-all" />
-                <span className="relative bg-gradient-to-br from-card to-card/80 border border-warning/30 px-4 sm:px-6 py-3 sm:py-4 rounded-xl min-w-[70px] sm:min-w-[90px] inline-block text-foreground shadow-lg shadow-warning/10">
-                  {String(countdown.minutes).padStart(2, '0')}
-                </span>
-                <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground font-normal">分</span>
-              </motion.div>
-              
-              <motion.span 
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="text-warning text-3xl sm:text-4xl"
-              >:</motion.span>
-              
-              {/* Seconds */}
-              <motion.div
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-                className="relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-warning/20 to-amber-600/20 rounded-xl blur-md group-hover:blur-lg transition-all" />
-                <span className="relative bg-gradient-to-br from-card to-card/80 border border-warning/30 px-4 sm:px-6 py-3 sm:py-4 rounded-xl min-w-[70px] sm:min-w-[90px] inline-block text-foreground shadow-lg shadow-warning/10">
-                  {String(countdown.seconds).padStart(2, '0')}
-                </span>
-                <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground font-normal">秒</span>
-              </motion.div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-8">每晚 21:00 准时开奖</p>
+          <p className="text-muted-foreground mb-4">距离今日开奖</p>
+          <div className="flex items-center justify-center gap-2 font-mono text-4xl sm:text-5xl font-bold text-foreground">
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.hours).padStart(2, '0')}
+            </span>
+            <span className="text-muted-foreground">:</span>
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.minutes).padStart(2, '0')}
+            </span>
+            <span className="text-muted-foreground">:</span>
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.seconds).padStart(2, '0')}
+            </span>
           </div>
+          <p className="text-xs text-muted-foreground mt-2">每晚 21:00 准时开奖</p>
         </motion.div>
 
         {/* CTA Section */}
