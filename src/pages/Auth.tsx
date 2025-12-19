@@ -613,37 +613,37 @@ const Auth = () => {
       </header>
 
       {/* 主内容区域 */}
-      <div className="flex-1 flex items-start justify-center px-4 pb-10 pt-16">
+      <div className="flex-1 flex items-start justify-center px-3 sm:px-4 pb-6 sm:pb-10 pt-8 sm:pt-16">
         {/* 主卡片 - 透明玻璃效果 */}
         <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20">
-        <CardHeader className="text-center space-y-6 pb-6 pt-12">
+        <CardHeader className="text-center space-y-4 sm:space-y-6 pb-4 sm:pb-6 pt-6 sm:pt-12">
           {/* Logo */}
-          <div className="flex justify-center h-32 overflow-visible">
+          <div className="flex justify-center h-20 sm:h-32 overflow-visible">
             <img
               src={logo}
               alt="Logo"
-              className="h-full w-auto object-contain scale-[2] origin-center"
+              className="h-full w-auto object-contain scale-[1.5] sm:scale-[2] origin-center"
             />
           </div>
           
-          <div className="space-y-2">
-            <CardTitle className="text-3xl font-bold text-white">
+          <div className="space-y-1 sm:space-y-2">
+            <CardTitle className="text-xl sm:text-3xl font-bold text-white">
               {getStepTitle()}
             </CardTitle>
-            <p className="text-sm text-white/70">
+            <p className="text-xs sm:text-sm text-white/70 px-2">
               {getStepDescription()}
             </p>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6 px-8 pb-10">
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-8 pb-6 sm:pb-10">
           {step === "phone" && (
-            <form onSubmit={loginMethod === "password" ? handlePasswordLogin : handleSendCode} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-white/90 text-sm font-medium">
+            <form onSubmit={loginMethod === "password" ? handlePasswordLogin : handleSendCode} className="space-y-4 sm:space-y-6">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="phone" className="text-white/90 text-xs sm:text-sm font-medium">
                   {t("auth.phone_number")}
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                   <CountryCodeSelect
                     value={countryCode}
                     onChange={setCountryCode}
@@ -656,15 +656,15 @@ const Auth = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={15}
-                    className="flex-1 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="flex-1 h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
 
               {/* 密码输入框 - 仅在密码登录模式显示 */}
               {loginMethod === "password" && (
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-white/90 text-sm font-medium">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="password" className="text-white/90 text-xs sm:text-sm font-medium">
                     {t("auth.login_password")}
                   </Label>
                   <div className="relative">
@@ -675,14 +675,14 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-12"
+                      className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
+                      className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                     </button>
                   </div>
                 </div>
@@ -691,8 +691,8 @@ const Auth = () => {
               {/* 注册时显示密码设置 */}
               {isSignUp && loginMethod === "sms" && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="text-white/90 text-sm font-medium">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="signup-password" className="text-white/90 text-xs sm:text-sm font-medium">
                       {t("auth.set_password")}
                     </Label>
                     <div className="relative">
@@ -704,20 +704,20 @@ const Auth = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-12"
+                        className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
+                        className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password" className="text-white/90 text-sm font-medium">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="signup-confirm-password" className="text-white/90 text-xs sm:text-sm font-medium">
                       {t("auth.confirm_password")}
                     </Label>
                     <Input
@@ -728,13 +728,13 @@ const Auth = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                      className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="invitationCode" className="text-white/90 text-sm font-medium">
-                      {t("auth.invitation_code")} <span className="text-white/50 text-xs">{t("auth.invitation_code_hint")}</span>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="invitationCode" className="text-white/90 text-xs sm:text-sm font-medium">
+                      {t("auth.invitation_code")} <span className="text-white/50 text-[10px] sm:text-xs">{t("auth.invitation_code_hint")}</span>
                     </Label>
                     <Input
                       id="invitationCode"
@@ -743,7 +743,7 @@ const Auth = () => {
                       value={invitationCode}
                       onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
                       maxLength={10}
-                      className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
+                      className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
                     />
                   </div>
                 </>
@@ -751,14 +751,14 @@ const Auth = () => {
 
               <Button
                 type="submit" 
-                className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading}
               >
                 {loading ? t("auth.processing") : (loginMethod === "password" ? t("auth.login") : (isSignUp ? t("auth.register") : t("auth.get_code")))}
               </Button>
 
               {/* 切换登录方式和忘记密码 */}
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
                 <button
                   type="button"
                   onClick={() => {
@@ -766,16 +766,16 @@ const Auth = () => {
                     setPassword("");
                     setConfirmPassword("");
                   }}
-                  className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-teal-400 hover:text-teal-300 font-medium"
                 >
                   {loginMethod === "sms" ? (
                     <>
-                      <Lock className="h-4 w-4" />
+                      <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       {t("auth.password_login_switch")}
                     </>
                   ) : (
                     <>
-                      <Phone className="h-4 w-4" />
+                      <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       {t("auth.sms_login")}
                     </>
                   )}
@@ -792,16 +792,16 @@ const Auth = () => {
                       setStep("forgot-password");
                       setPassword("");
                     }}
-                    className="text-sm text-white/60 hover:text-white/80"
+                    className="text-xs sm:text-sm text-white/60 hover:text-white/80"
                   >
                     {t("auth.forgot_password_link")}
                   </button>
                 )}
               </div>
 
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-1.5 sm:space-y-2">
                 {loginMethod === "sms" && (
-                  <p className="text-sm text-white/70">
+                  <p className="text-xs sm:text-sm text-white/70">
                     {isSignUp ? t("auth.have_account") : t("auth.no_account")}{" "}
                     <button
                       type="button"
@@ -814,19 +814,19 @@ const Auth = () => {
                 )}
                 
                 {/* AI 模型图标 */}
-                <div className="pt-4 mt-4 border-t border-white/10">
-                  <p className="text-xs text-white/50 text-center mb-3">{t("auth.ai_models")}</p>
-                  <div className="flex items-center justify-center gap-4 flex-wrap">
-                    <img src={aiBluewhale} alt="Bluewhale AI" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
-                    <img src={aiGemini} alt="Gemini" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-white/10">
+                  <p className="text-[10px] sm:text-xs text-white/50 text-center mb-2 sm:mb-3">{t("auth.ai_models")}</p>
+                  <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+                    <img src={aiBluewhale} alt="Bluewhale AI" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiGemini} alt="Gemini" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                     <img
                       src={aiChatgpt}
                       alt="ChatGPT"
-                      className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer bg-emerald-500/60 rounded-full p-1"
+                      className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer bg-emerald-500/60 rounded-full p-0.5 sm:p-1"
                     />
-                    <img src={aiClaude} alt="Claude" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
-                    <img src={aiGrok} alt="Grok" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
-                    <img src={aiHunsoccer} alt="HunSoccer" className="h-10 w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiClaude} alt="Claude" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiGrok} alt="Grok" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiHunsoccer} alt="HunSoccer" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                   </div>
                 </div>
               </div>
@@ -834,9 +834,9 @@ const Auth = () => {
           )}
 
           {step === "otp" && (
-            <form onSubmit={handleVerifyOtp} className="space-y-6">
-              <div className="space-y-4">
-                <Label htmlFor="otp" className="text-white/90 text-sm font-medium block text-center">
+            <form onSubmit={handleVerifyOtp} className="space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-4">
+                <Label htmlFor="otp" className="text-white/90 text-xs sm:text-sm font-medium block text-center">
                   {t("auth.valid_otp")}
                 </Label>
                 <div className="flex justify-center">
@@ -845,13 +845,13 @@ const Auth = () => {
                     value={otp}
                     onChange={setOtp}
                   >
-                    <InputOTPGroup className="gap-2">
-                      <InputOTPSlot index={0} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={1} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={2} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={3} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={4} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
-                      <InputOTPSlot index={5} className="w-12 h-14 bg-white/10 border-white/20 text-white text-xl font-semibold rounded-lg" />
+                    <InputOTPGroup className="gap-1 sm:gap-2">
+                      <InputOTPSlot index={0} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={1} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={2} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={3} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={4} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={5} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
@@ -859,7 +859,7 @@ const Auth = () => {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading || otp.length !== 6}
               >
                 {loading ? t("auth.verifying") : t("auth.confirm_login")}
@@ -871,7 +871,7 @@ const Auth = () => {
                   variant="ghost"
                   onClick={handleSendCode}
                   disabled={countdown > 0}
-                  className="text-sm text-white/70 hover:text-white hover:bg-white/10"
+                  className="text-xs sm:text-sm text-white/70 hover:text-white hover:bg-white/10"
                 >
                   {countdown > 0 ? t("auth.resend_in", { seconds: countdown }) : t("auth.resend_code")}
                 </Button>
@@ -880,10 +880,10 @@ const Auth = () => {
           )}
 
           {step === "set-password" && (
-            <form onSubmit={handleSetPassword} className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="new-password" className="text-white/90 text-sm font-medium">
+            <form onSubmit={handleSetPassword} className="space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="new-password" className="text-white/90 text-xs sm:text-sm font-medium">
                     {t("auth.set_password")}
                   </Label>
                   <div className="relative">
@@ -895,20 +895,20 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-12"
+                      className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
+                      className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className="text-white/90 text-sm font-medium">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="confirm-password" className="text-white/90 text-xs sm:text-sm font-medium">
                     {t("auth.confirm_password")}
                   </Label>
                   <Input
@@ -919,14 +919,14 @@ const Auth = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading || password.length < 6 || password !== confirmPassword}
               >
                 {loading ? t("auth.setting") : t("auth.confirm_set")}
@@ -936,7 +936,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={handleSkipSetPassword}
-                  className="text-sm text-white/60 hover:text-white/80"
+                  className="text-xs sm:text-sm text-white/60 hover:text-white/80"
                 >
                   {t("auth.skip_set_later")}
                 </button>
@@ -946,12 +946,12 @@ const Auth = () => {
 
           {/* 忘记密码页面 */}
           {step === "forgot-password" && (
-            <form onSubmit={handleForgotPasswordSendCode} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="forgot-phone" className="text-white/90 text-sm font-medium">
+            <form onSubmit={handleForgotPasswordSendCode} className="space-y-4 sm:space-y-6">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="forgot-phone" className="text-white/90 text-xs sm:text-sm font-medium">
                   {t("auth.phone_number")}
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                   <CountryCodeSelect
                     value={countryCode}
                     onChange={setCountryCode}
@@ -964,14 +964,14 @@ const Auth = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={15}
-                    className="flex-1 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="flex-1 h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
 
               <Button
                 type="submit" 
-                className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
                 disabled={loading}
               >
                 {loading ? t("auth.sending") : t("auth.send_code")}
@@ -985,7 +985,7 @@ const Auth = () => {
                     setLoginMethod("password");
                     setForgotPasswordPhone("");
                   }}
-                  className="text-sm text-teal-400 hover:text-teal-300"
+                  className="text-xs sm:text-sm text-teal-400 hover:text-teal-300"
                 >
                   {t("auth.back_to_login")}
                 </button>

@@ -49,13 +49,13 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex items-center gap-1.5 h-12 px-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/15 transition-colors min-w-[110px]"
+          className="flex items-center gap-1 sm:gap-1.5 h-10 sm:h-12 px-2 sm:px-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/15 transition-colors min-w-[80px] sm:min-w-[110px]"
         >
-          <span className="text-sm font-medium">
+          <span className="text-xs sm:text-sm font-medium">
             {currentCountry.code === "+86" ? "CN" : currentCountry.flag}
           </span>
-          <span className="text-sm font-medium">{currentCountry.code}</span>
-          <ChevronDown className="h-4 w-4 text-white/60 ml-auto" />
+          <span className="text-xs sm:text-sm font-medium">{currentCountry.code}</span>
+          <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white/60 ml-auto" />
         </button>
       </PopoverTrigger>
       <PopoverContent 
