@@ -702,59 +702,6 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
           </div>
         )}
       </div>
-        
-        {/* 分页控件 */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-2 py-2 border-t border-border bg-muted/30">
-            <span className="text-[10px] text-muted-foreground">
-              {t('page_info', { current: currentPage, total: totalPages, count: filteredPredictions.length })}
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-3 w-3" />
-              </Button>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum: number;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={currentPage === pageNum ? "default" : "ghost"}
-                    size="icon"
-                    className="h-6 w-6 text-[10px]"
-                    onClick={() => setCurrentPage(pageNum)}
-                  >
-                    {pageNum}
-                  </Button>
-                );
-              })}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
