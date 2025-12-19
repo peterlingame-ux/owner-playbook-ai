@@ -1915,7 +1915,7 @@ const PlayerLeaderboardTable = () => {
                     </div>
                     
                     {/* 金额显示 - 一行两列 */}
-                    <div className="px-4 py-3 bg-gradient-to-b from-transparent to-primary/5">
+                    <div className="px-4 py-3 border-b border-border/30">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center">
                           <p className="text-[10px] text-muted-foreground mb-1">玩家下注</p>
@@ -1934,28 +1934,23 @@ const PlayerLeaderboardTable = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* 预期收益 */}
+                    <div className="px-4 py-3 bg-success/5">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">预期收益</span>
+                        <motion.span
+                          initial={{ scale: 1 }}
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ delay: 1.5, duration: 0.5 }}
+                          className="font-bold text-success"
+                        >
+                          +¥{(copySuccess.betAmount * 1.8).toFixed(0)}
+                        </motion.span>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
-
-                {/* 预期收益提示 */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="p-3 rounded-lg bg-success/10 border border-success/20"
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">预期收益</span>
-                    <motion.span
-                      initial={{ scale: 1 }}
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ delay: 1.5, duration: 0.5 }}
-                      className="font-bold text-success"
-                    >
-                      +¥{(copySuccess.betAmount * 1.8).toFixed(0)}
-                    </motion.span>
-                  </div>
-                </motion.div>
 
                 {/* 操作按钮 */}
                 <motion.div
