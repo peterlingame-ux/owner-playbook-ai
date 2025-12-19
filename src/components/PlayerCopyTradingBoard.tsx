@@ -1056,7 +1056,7 @@ const PlayerCopyTradingBoard = () => {
         <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
           {/* Bet Amount */}
           <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">投注金额</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟投注</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
               ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
