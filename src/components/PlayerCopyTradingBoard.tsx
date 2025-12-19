@@ -1835,14 +1835,17 @@ const PlayerCopyTradingBoard = () => {
                     {/* 预期收益 */}
                     <div className="px-4 py-3 bg-success/5">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">预期收益</span>
+                        <div className="flex flex-col">
+                          <span className="text-muted-foreground">预期收益</span>
+                          <span className="text-[10px] text-muted-foreground/70">¥{copySuccess.betAmount} × {copySuccess.odds}</span>
+                        </div>
                         <motion.span
                           initial={{ scale: 1 }}
                           animate={{ scale: [1, 1.1, 1] }}
                           transition={{ delay: 1.5, duration: 0.5 }}
                           className="font-bold text-success"
                         >
-                          +¥{(copySuccess.betAmount * 1.8).toFixed(0)}
+                          +¥{(copySuccess.betAmount * parseFloat(copySuccess.odds)).toFixed(0)}
                         </motion.span>
                       </div>
                     </div>
