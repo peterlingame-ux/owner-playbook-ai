@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useTranslation } from "react-i18next";
 import { GoalIcon } from "@/components/FootballIcons";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart, Users } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart, Users, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
@@ -151,14 +151,33 @@ const TotalProfitRateBadge = ({ totalProfit, totalVolume }: { totalProfit: numbe
     startValue: 0
   });
   
+  // Simulate trend based on profit rate (positive rate = likely uptrend)
+  const trendValue = profitRate > 5 ? 'up' : profitRate < -5 ? 'down' : 'neutral';
   const isPositive = profitRate >= 0;
   
   return (
     <div className="flex items-center gap-2 mt-2">
       <span className="text-xs text-muted-foreground">总收益率</span>
-      <span className={`text-lg font-bold font-mono-data ${isPositive ? 'text-success' : 'text-destructive'}`}>
-        {isPositive ? '+' : '-'}{animatedValue.toFixed(1)}%
-      </span>
+      <div className="flex items-center gap-1">
+        <span className={`text-lg font-bold font-mono-data ${isPositive ? 'text-success' : 'text-destructive'}`}>
+          {isPositive ? '+' : '-'}{animatedValue.toFixed(1)}%
+        </span>
+        <motion.span
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.2, duration: 0.3 }}
+        >
+          {trendValue === 'up' && (
+            <TrendingUp className="h-4 w-4 text-success" />
+          )}
+          {trendValue === 'down' && (
+            <TrendingDown className="h-4 w-4 text-destructive" />
+          )}
+          {trendValue === 'neutral' && (
+            <Minus className="h-4 w-4 text-muted-foreground" />
+          )}
+        </motion.span>
+      </div>
     </div>
   );
 };
