@@ -169,6 +169,10 @@ const PlayerLeaderboardTable = () => {
   const [selectedAllPlayer, setSelectedAllPlayer] = useState<{ player: PlayerData; boardType: 'hot' | 'cold' } | null>(null);
   const [hotSearchQuery, setHotSearchQuery] = useState('');
   const [coldSearchQuery, setColdSearchQuery] = useState('');
+  const [hotDisplayCount, setHotDisplayCount] = useState(20);
+  const [coldDisplayCount, setColdDisplayCount] = useState(20);
+  const INITIAL_DISPLAY_COUNT = 20;
+  const LOAD_MORE_COUNT = 20;
   
   // 奖金池配置
   const PRIZE_POOL = 1000000; // $1,000,000
@@ -1944,6 +1948,7 @@ const PlayerLeaderboardTable = () => {
         if (!open) {
           setSelectedAllPlayer(null);
           setHotSearchQuery('');
+          setHotDisplayCount(INITIAL_DISPLAY_COUNT);
         }
       }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
@@ -1959,48 +1964,74 @@ const PlayerLeaderboardTable = () => {
             <Input
               placeholder={t('search_player') || '搜索玩家名称...'}
               value={hotSearchQuery}
-              onChange={(e) => setHotSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setHotSearchQuery(e.target.value);
+                setHotDisplayCount(INITIAL_DISPLAY_COUNT);
+              }}
               className="pl-9 h-9 text-sm"
             />
           </div>
-          <ScrollArea className="flex-1 -mx-6 px-6">
+          <ScrollArea 
+            className="flex-1 -mx-6 px-6"
+            onScrollCapture={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.scrollHeight - target.scrollTop - target.clientHeight < 100) {
+                const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase())).length;
+                if (hotDisplayCount < filteredCount) {
+                  setHotDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredCount));
+                }
+              }
+            }}
+          >
             <div className="space-y-1.5 pb-4">
-              {[...allPlayers]
-                .filter(player => player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()))
-                .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
-                .map((player, index) => (
-                  <div
-                    key={player.id}
-                    onClick={() => setSelectedAllPlayer({ player, boardType: 'hot' })}
-                    className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
-                  >
-                    {/* Rank */}
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      index < 3 
-                        ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' 
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {index + 1}
-                    </div>
-                    {/* Avatar */}
-                    <Avatar className="w-9 h-9 border border-border/50">
-                      <AvatarImage src={player.avatarUrl} />
-                      <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    {/* Name & Streak */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
-                      </p>
-                    </div>
-                    {/* Win Rate */}
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
-                      <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
-                    </div>
-                  </div>
-                ))}
+              {(() => {
+                const filtered = [...allPlayers]
+                  .filter(player => player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()))
+                  .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0));
+                const displayed = filtered.slice(0, hotDisplayCount);
+                return (
+                  <>
+                    {displayed.map((player, index) => (
+                      <div
+                        key={player.id}
+                        onClick={() => setSelectedAllPlayer({ player, boardType: 'hot' })}
+                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
+                      >
+                        {/* Rank */}
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          index < 3 
+                            ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' 
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        {/* Avatar */}
+                        <Avatar className="w-9 h-9 border border-border/50">
+                          <AvatarImage src={player.avatarUrl} />
+                          <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {/* Name & Streak */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
+                          </p>
+                        </div>
+                        {/* Win Rate */}
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-success">{player.winRate.toFixed(1)}%</p>
+                          <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                        </div>
+                      </div>
+                    ))}
+                    {hotDisplayCount < filtered.length && (
+                      <div className="text-center py-3 text-xs text-muted-foreground">
+                        {t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </ScrollArea>
         </DialogContent>
@@ -2012,6 +2043,7 @@ const PlayerLeaderboardTable = () => {
         if (!open) {
           setSelectedAllPlayer(null);
           setColdSearchQuery('');
+          setColdDisplayCount(INITIAL_DISPLAY_COUNT);
         }
       }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
@@ -2027,48 +2059,74 @@ const PlayerLeaderboardTable = () => {
             <Input
               placeholder={t('search_player') || '搜索玩家名称...'}
               value={coldSearchQuery}
-              onChange={(e) => setColdSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setColdSearchQuery(e.target.value);
+                setColdDisplayCount(INITIAL_DISPLAY_COUNT);
+              }}
               className="pl-9 h-9 text-sm"
             />
           </div>
-          <ScrollArea className="flex-1 -mx-6 px-6">
+          <ScrollArea 
+            className="flex-1 -mx-6 px-6"
+            onScrollCapture={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.scrollHeight - target.scrollTop - target.clientHeight < 100) {
+                const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase())).length;
+                if (coldDisplayCount < filteredCount) {
+                  setColdDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredCount));
+                }
+              }
+            }}
+          >
             <div className="space-y-1.5 pb-4">
-              {[...allPlayers]
-                .filter(player => player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()))
-                .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
-                .map((player, index) => (
-                  <div
-                    key={player.id}
-                    onClick={() => setSelectedAllPlayer({ player, boardType: 'cold' })}
-                    className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
-                  >
-                    {/* Rank */}
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      index < 3 
-                        ? 'bg-gradient-to-br from-red-400 to-red-600 text-white' 
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {index + 1}
-                    </div>
-                    {/* Avatar */}
-                    <Avatar className="w-9 h-9 border border-border/50">
-                      <AvatarImage src={player.avatarUrl} />
-                      <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    {/* Name & Streak */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        连败 <span className="text-red-500 font-bold">{player.worstStreak || 0}</span>
-                      </p>
-                    </div>
-                    {/* Win Rate */}
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
-                      <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
-                    </div>
-                  </div>
-                ))}
+              {(() => {
+                const filtered = [...allPlayers]
+                  .filter(player => player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()))
+                  .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0));
+                const displayed = filtered.slice(0, coldDisplayCount);
+                return (
+                  <>
+                    {displayed.map((player, index) => (
+                      <div
+                        key={player.id}
+                        onClick={() => setSelectedAllPlayer({ player, boardType: 'cold' })}
+                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/60 cursor-pointer transition-colors border border-transparent hover:border-border/50"
+                      >
+                        {/* Rank */}
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          index < 3 
+                            ? 'bg-gradient-to-br from-red-400 to-red-600 text-white' 
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        {/* Avatar */}
+                        <Avatar className="w-9 h-9 border border-border/50">
+                          <AvatarImage src={player.avatarUrl} />
+                          <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {/* Name & Streak */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            连败 <span className="text-red-500 font-bold">{player.worstStreak || 0}</span>
+                          </p>
+                        </div>
+                        {/* Win Rate */}
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-destructive">{player.winRate.toFixed(1)}%</p>
+                          <p className="text-[10px] text-muted-foreground">{player.totalPredictions}场</p>
+                        </div>
+                      </div>
+                    ))}
+                    {coldDisplayCount < filtered.length && (
+                      <div className="text-center py-3 text-xs text-muted-foreground">
+                        {t('scroll_for_more') || '下拉加载更多...'} ({displayed.length}/{filtered.length})
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </ScrollArea>
         </DialogContent>
