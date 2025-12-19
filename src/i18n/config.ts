@@ -1050,7 +1050,7 @@ const resources = {
             "answer": "进入主页的「AI 赛事胜率对比」板块，可清晰看到各 AI 的预测次数、命中次数、失误次数、当日模拟收益以及预测胜率。卡片左上角的「AI 分析」可以查看该 AI 的分析理由，登录后免费解锁详情。"
           },
           "view_data": {
-            "question": "如何查看足球数据信息？",
+            "question": "HUNSOCCER玩家专属模型如何使用？",
             "answer": "HUNSOCCER 已与 EA SPORT、FOOTBALL LIVE 等数据方合作，登录后即可查看更全面的赛事数据。"
           },
           "ai_models": {
