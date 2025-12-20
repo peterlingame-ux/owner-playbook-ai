@@ -1139,6 +1139,43 @@ const PlayerCopyTradingBoard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Time Range Filter - Unified for all boards */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '玩家跟单排行榜'}</h2>
+        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+          <button
+            onClick={() => setTimeRange(1)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              timeRange === 1
+                ? 'bg-foreground text-background shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {t('time_filter_1d')}
+          </button>
+          <button
+            onClick={() => setTimeRange(7)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              timeRange === 7
+                ? 'bg-foreground text-background shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {t('time_filter_7d')}
+          </button>
+          <button
+            onClick={() => setTimeRange(30)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              timeRange === 30
+                ? 'bg-foreground text-background shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {t('time_filter_30d')}
+          </button>
+        </div>
+      </div>
+
       {/* Leaderboard Table - Split into Hot Streak and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 连红榜 - Winning Streak */}
@@ -1167,41 +1204,6 @@ const PlayerCopyTradingBoard = () => {
             </div>
           </div>
           <CardContent className="px-4 pb-4 pt-0 relative z-10">
-            {/* Time Range Filter */}
-            <div className="flex items-center justify-end mb-4">
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d')}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d')}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d')}
-                </button>
-              </div>
-            </div>
             <div className="space-y-2">
               {topStreakPlayers.map((player, index) => (
                 <PlayerCard key={player.id} player={player} showStreak streakType="best" rank={index + 1} />
@@ -1236,41 +1238,6 @@ const PlayerCopyTradingBoard = () => {
             </div>
           </div>
           <CardContent className="px-4 pb-4 pt-0 relative z-10">
-            {/* Time Range Filter */}
-            <div className="flex items-center justify-end mb-4">
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
-                      ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_1d')}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
-                      ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_7d')}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
-                      ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {t('time_filter_30d')}
-                </button>
-              </div>
-            </div>
             <div className="space-y-2">
               {worstStreakPlayers.map((player, index) => (
                 <PlayerCard key={player.id} player={player} showStreak streakType="worst" rank={index + 1} />
@@ -1902,16 +1869,16 @@ const PlayerCopyTradingBoard = () => {
           setHotDisplayCount(INITIAL_DISPLAY_COUNT);
         }
       }}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader className="pb-2">
+        <DialogContent className="max-w-md max-h-[80vh] flex flex-col p-0">
+          <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
               玩家连红榜 - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative mb-2 px-6 flex-shrink-0">
+            <Search className="absolute left-9 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('search_player') || '搜索玩家名称...'}
               value={hotSearchQuery}
@@ -1922,12 +1889,18 @@ const PlayerCopyTradingBoard = () => {
               className="pl-9 h-9 text-sm"
             />
           </div>
-          <ScrollArea 
-            className="flex-1 -mx-6 px-6"
-            onScrollCapture={(e) => {
+          <div 
+            className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+            }}
+            onScroll={(e) => {
               const target = e.target as HTMLElement;
               if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreHot) {
-                const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase())).length;
+                const filteredCount = allPlayers.filter(p => 
+                  p.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()) &&
+                  (p.bestStreak || 0) > 0
+                ).length;
                 if (hotDisplayCount < filteredCount) {
                   setIsLoadingMoreHot(true);
                   setTimeout(() => {
@@ -1938,11 +1911,14 @@ const PlayerCopyTradingBoard = () => {
               }
             }}
           >
-            <div className="space-y-1.5 pb-4">
+            <div className="space-y-1.5 pb-4 px-6">
               {(() => {
                 const filtered = [...allPlayers]
-                  .filter(player => player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()))
-                  .sort((a, b) => b.bestStreak - a.bestStreak);
+                  .filter(player => 
+                    player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()) &&
+                    (player.bestStreak || 0) > 0
+                  )
+                  .sort((a, b) => (b.bestStreak || 0) - (a.bestStreak || 0));
                 const displayed = filtered.slice(0, hotDisplayCount);
                 return (
                   <>
@@ -2015,7 +1991,7 @@ const PlayerCopyTradingBoard = () => {
                 );
               })()}
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -2028,16 +2004,16 @@ const PlayerCopyTradingBoard = () => {
           setColdDisplayCount(INITIAL_DISPLAY_COUNT);
         }
       }}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader className="pb-2">
+        <DialogContent className="max-w-md max-h-[80vh] flex flex-col p-0">
+          <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
               玩家连黑榜 - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative mb-2 px-6 flex-shrink-0">
+            <Search className="absolute left-9 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('search_player') || '搜索玩家名称...'}
               value={coldSearchQuery}
@@ -2048,12 +2024,18 @@ const PlayerCopyTradingBoard = () => {
               className="pl-9 h-9 text-sm"
             />
           </div>
-          <ScrollArea 
-            className="flex-1 -mx-6 px-6"
-            onScrollCapture={(e) => {
+          <div 
+            className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+            }}
+            onScroll={(e) => {
               const target = e.target as HTMLElement;
               if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreCold) {
-                const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase())).length;
+                const filteredCount = allPlayers.filter(p => 
+                  p.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()) &&
+                  (p.worstStreak || 0) > 0
+                ).length;
                 if (coldDisplayCount < filteredCount) {
                   setIsLoadingMoreCold(true);
                   setTimeout(() => {
@@ -2064,11 +2046,14 @@ const PlayerCopyTradingBoard = () => {
               }
             }}
           >
-            <div className="space-y-1.5 pb-4">
+            <div className="space-y-1.5 pb-4 px-6">
               {(() => {
                 const filtered = [...allPlayers]
-                  .filter(player => player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()))
-                  .sort((a, b) => b.worstStreak - a.worstStreak);
+                  .filter(player => 
+                    player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()) &&
+                    (player.worstStreak || 0) > 0
+                  )
+                  .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0));
                 const displayed = filtered.slice(0, coldDisplayCount);
                 return (
                   <>
@@ -2141,7 +2126,7 @@ const PlayerCopyTradingBoard = () => {
                 );
               })()}
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 

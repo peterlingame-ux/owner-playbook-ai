@@ -630,9 +630,22 @@ const PlayerLeaderboardTable = () => {
         }
 
         const todayWinRatesMap = new Map<string, { winRate: number; total: number; correct: number }>();
-        todayStats.forEach((stats, odayStr) => {
+        todayStats.forEach((stats, userId) => {
           const winRate = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
-          todayWinRatesMap.set(odayStr, { winRate, total: stats.total, correct: stats.correct });
+          todayWinRatesMap.set(userId, { winRate, total: stats.total, correct: stats.correct });
+        });
+
+        // 为虚拟玩家生成模拟今日数据（参考跟单排行榜的逻辑）
+        virtualPlayers.forEach(player => {
+          const total = Math.floor(Math.random() * 8) + 3;
+          const correct = Math.floor(total * (player.winRate / 100) + (Math.random() - 0.5) * 2);
+          const actualCorrect = Math.max(0, Math.min(total, correct));
+          const winRate = total > 0 ? (actualCorrect / total) * 100 : 0;
+          todayWinRatesMap.set(player.id, {
+            total,
+            correct: actualCorrect,
+            winRate,
+          });
         });
 
         setTodayWinRates(todayWinRatesMap);
@@ -1987,16 +2000,16 @@ const PlayerLeaderboardTable = () => {
           setHotDisplayCount(INITIAL_DISPLAY_COUNT);
         }
       }}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader className="pb-2">
+        <DialogContent className="max-w-md max-h-[80vh] flex flex-col p-0">
+          <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
               {t('hot_streak_board')} - {t('all_players')}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative mb-2 px-6 flex-shrink-0">
+            <Search className="absolute left-9 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('search_player')}
               value={hotSearchQuery}
@@ -2007,10 +2020,12 @@ const PlayerLeaderboardTable = () => {
               className="pl-9 h-9 text-sm"
             />
           </div>
-          <ScrollArea 
-            className="flex-1 -mx-6 px-6 min-h-0"
-            style={{ maxHeight: 'calc(80vh - 140px)' }}
-            onScrollCapture={(e) => {
+          <div 
+            className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+            }}
+            onScroll={(e) => {
               const target = e.target as HTMLElement;
               if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreHot) {
                 const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase())).length;
@@ -2024,7 +2039,7 @@ const PlayerLeaderboardTable = () => {
               }
             }}
           >
-            <div className="space-y-1.5 pb-4">
+            <div className="space-y-1.5 pb-4 px-6">
               {(() => {
                 const filtered = [...allPlayers]
                   .filter(player => player.displayName.toLowerCase().includes(hotSearchQuery.toLowerCase()))
@@ -2109,7 +2124,7 @@ const PlayerLeaderboardTable = () => {
                 );
               })()}
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -2122,16 +2137,16 @@ const PlayerLeaderboardTable = () => {
           setColdDisplayCount(INITIAL_DISPLAY_COUNT);
         }
       }}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader className="pb-2">
+        <DialogContent className="max-w-md max-h-[80vh] flex flex-col p-0">
+          <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
               {t('cold_streak_board') || '低胜率榜'} - {t('all_players') || '全部玩家'}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative mb-2 px-6 flex-shrink-0">
+            <Search className="absolute left-9 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('search_player') || '搜索玩家名称...'}
               value={coldSearchQuery}
@@ -2142,10 +2157,12 @@ const PlayerLeaderboardTable = () => {
               className="pl-9 h-9 text-sm"
             />
           </div>
-          <ScrollArea 
-            className="flex-1 -mx-6 px-6 min-h-0"
-            style={{ maxHeight: 'calc(80vh - 140px)' }}
-            onScrollCapture={(e) => {
+          <div 
+            className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+            }}
+            onScroll={(e) => {
               const target = e.target as HTMLElement;
               if (target.scrollHeight - target.scrollTop - target.clientHeight < 100 && !isLoadingMoreCold) {
                 const filteredCount = allPlayers.filter(p => p.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase())).length;
@@ -2159,7 +2176,7 @@ const PlayerLeaderboardTable = () => {
               }
             }}
           >
-            <div className="space-y-1.5 pb-4">
+            <div className="space-y-1.5 pb-4 px-6">
               {(() => {
                 const filtered = [...allPlayers]
                   .filter(player => player.displayName.toLowerCase().includes(coldSearchQuery.toLowerCase()))
@@ -2244,7 +2261,7 @@ const PlayerLeaderboardTable = () => {
                 );
               })()}
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 

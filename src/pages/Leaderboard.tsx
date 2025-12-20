@@ -68,7 +68,6 @@ const Leaderboard = () => {
             </TabsContent>
             
             <TabsContent value="copy">
-              <h2 className="text-base sm:text-2xl font-bold mb-3 sm:mb-4 px-1 sm:px-2 leading-tight">{t('copy_trading_board')}</h2>
               <PlayerCopyTradingBoard />
             </TabsContent>
           </motion.div>

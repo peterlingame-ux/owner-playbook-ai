@@ -220,13 +220,18 @@ export const PlayerLeaderboardCard = ({
                 </>
               ) : (
                 <>
-                  <span className="whitespace-nowrap">{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || 0}</span></span>
+                  <span className="whitespace-nowrap">{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
                   <span className="flex items-center gap-0.5 ml-0.5">
-                    {Array.from({ length: Math.min(player.currentStreak || 0, 3) }).map((_, i) => (
+                    {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
                       <span key={i} className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[6px] sm:text-[9px] text-destructive font-bold">
                         {t('win_badge')}
                       </span>
                     ))}
+                    {(player.currentStreak || player.bestStreak || 0) > 5 && (
+                      <span className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[6px] sm:text-[9px] text-destructive/70 font-medium">
+                        …
+                      </span>
+                    )}
                   </span>
                 </>
               )}
