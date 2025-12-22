@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
 import LiveFootballAnimation from "@/components/LiveFootballAnimation";
-import { GoalIcon, YellowCardIcon, WhistleIcon, RedCardIcon, CornerIcon, InfoIcon } from "@/components/FootballIcons";
+import { GoalIcon, YellowCardIcon, WhistleIcon, RedCardIcon, CornerIcon, InfoIcon, OffTargetIcon, OnTargetIcon, OffsideIcon } from "@/components/FootballIcons";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchMatchDetail, fetchMatchLiveById } from "@/lib/sportnanoapi";
+import { fetchMatchDetail, fetchMatchLiveById, fetchOddsLive, ODDS_COMPANY_NAMES } from "@/lib/sportnanoapi";
 import type { MatchLiveData } from "@/types/footballApi";
 import ftbLiveBg from "@/assets/ftbLive.7d6ed6f.png";
 import type { DiaryMatch, DiaryTeam, Competition } from "@/types/footballApi";
@@ -43,7 +43,7 @@ interface LineupData {
 // 虚拟比赛详情数据
 interface MatchEvent {
   minute: string;
-  type: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle';
+  type: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' | 'corner';
   team: 'home' | 'away';
   description: string;
   player?: string;
@@ -1004,6 +1004,202 @@ const STAT_TYPE = {
   SHOT_BLOCKED: 37,  // 射门被阻挡
 } as const;
 
+// 解析指数数据
+const parseOddsData = (
+  oddsResponse: Awaited<ReturnType<typeof fetchOddsLive>>, 
+  matchId: string | number,
+  companyIds: number[] = [7, 3, 2, 11, 10]
+): MatchDetailInfo['odds'] | undefined => {
+  console.log('Parsing odds data:', { oddsResponse, matchId, companyIds });
+  console.log('Results type:', typeof oddsResponse.results, 'Is array:', Array.isArray(oddsResponse.results));
+  console.log('Results keys:', oddsResponse.results ? Object.keys(oddsResponse.results) : 'null/undefined');
+  
+  if (!oddsResponse.results || typeof oddsResponse.results !== 'object' || Array.isArray(oddsResponse.results) || Object.keys(oddsResponse.results).length === 0) {
+    console.warn('No results in odds response or invalid format:', {
+      hasResults: !!oddsResponse.results,
+      type: typeof oddsResponse.results,
+      isArray: Array.isArray(oddsResponse.results),
+      keysLength: oddsResponse.results ? Object.keys(oddsResponse.results).length : 0
+    });
+    return undefined;
+  }
+
+  const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
+  console.log('Looking for match ID:', matchIdNum, 'in results');
+  
+  const handicap: OddsData[] = [];
+  const euroOdds: EuroOddsData[] = [];
+  const overUnder: OverUnderData[] = [];
+  const corners: CornersData[] = [];
+
+  // results 是一个对象，key 为公司ID（字符串），value 为该公司的数据数组
+  // 遍历每个公司的数据
+  console.log('Available companies in results:', Object.keys(oddsResponse.results));
+  console.log('Requested company IDs:', companyIds);
+  
+  Object.entries(oddsResponse.results).forEach(([companyIdStr, companyData]) => {
+    const companyId = parseInt(companyIdStr);
+    
+    console.log(`Processing company ${companyId} (${companyIdStr}), has ${companyData.length} items`);
+    
+    // 只处理请求的公司ID
+    if (!companyIds.includes(companyId)) {
+      console.log(`Skipping company ${companyId} (not in requested list)`);
+      return;
+    }
+    
+    const companyName = ODDS_COMPANY_NAMES[companyId] || `公司${companyId}`;
+    
+    // 筛选出当前比赛的数据
+    // 先查看前几个项目的比赛ID，用于调试
+    if (companyData.length > 0) {
+      const sampleMatchIds = companyData.slice(0, Math.min(5, companyData.length)).map(item => item[0]);
+      console.log(`Company ${companyId} sample match IDs (first ${Math.min(5, companyData.length)}):`, sampleMatchIds);
+    }
+    
+    const matchOdds = companyData.filter((item) => {
+      const itemMatchId = item[0];
+      // 尝试多种匹配方式
+      const matches = itemMatchId === matchIdNum 
+        || itemMatchId === matchId 
+        || String(itemMatchId) === String(matchId)
+        || Number(itemMatchId) === matchIdNum
+        || Number(itemMatchId) === Number(matchId);
+      return matches;
+    });
+    
+    console.log(`Company ${companyId} (${companyName}): found ${matchOdds.length} matching items for match ${matchIdNum} (total: ${companyData.length} items)`);
+    
+    // 如果没有找到匹配的，列出所有唯一的比赛ID（用于调试）
+    if (matchOdds.length === 0 && companyData.length > 0) {
+      const uniqueMatchIds = [...new Set(companyData.map(item => item[0]))].slice(0, 10);
+      console.log(`Company ${companyId} unique match IDs (first 10):`, uniqueMatchIds);
+    }
+    
+    if (matchOdds.length === 0) {
+      return;
+    }
+    
+    console.log(`Processing company ${companyId} (${companyName}), found ${matchOdds.length} odds items for match ${matchIdNum}`);
+    
+    // 处理该公司的所有指数数据
+    // 对于每种类型，取最新的数据（通常是数组中的第一个，因为按时间倒序排列）
+    const typeMap = new Map<string, typeof matchOdds[0]>();
+    
+    matchOdds.forEach((item) => {
+      const oddsType = item[1]; // 获取指数类型
+      // 如果该类型还没有数据，或者当前数据的时间更新，则更新
+      if (!typeMap.has(oddsType)) {
+        typeMap.set(oddsType, item);
+      }
+    });
+    
+    // 处理每种类型的指数数据
+    typeMap.forEach((item, oddsType) => {
+      const [matchIdFromApi, _, oddsInfo, score] = item;
+      const [changeTime, matchTime, oddsString, status] = oddsInfo;
+      
+      console.log('Processing odds item:', { companyId, companyName, matchIdFromApi, oddsType, oddsInfo, score });
+      
+      // 解析赔率字符串：主胜/大球/大,和局/盘口,客胜/小球/小,是否封盘
+      const oddsParts = oddsString.split(',');
+      if (oddsParts.length < 4) {
+        console.warn('Invalid odds string format:', oddsString);
+        return;
+      }
+      
+      const isClosed = oddsParts[3] === '1';
+      
+      // 根据指数类型分类处理
+      switch (oddsType) {
+      case 'asia': {
+        // 亚盘：主胜,盘口,客胜
+        const home = parseFloat(oddsParts[0]) || 0;
+        const handicapValue = parseFloat(oddsParts[1]) || 0;
+        const away = parseFloat(oddsParts[2]) || 0;
+        
+        handicap.push({
+          bookmaker: companyName,
+          initialHome: home,
+          initialHandicap: handicapValue,
+          initialAway: away,
+          liveHome: isClosed ? null : home,
+          liveHandicap: isClosed ? null : handicapValue,
+          liveAway: isClosed ? null : away,
+          isClosed,
+        });
+        break;
+      }
+      case 'eu': {
+        // 欧赔：主胜,和局,客胜
+        const home = parseFloat(oddsParts[0]) || 0;
+        const draw = parseFloat(oddsParts[1]) || 0;
+        const away = parseFloat(oddsParts[2]) || 0;
+        
+        euroOdds.push({
+          bookmaker: companyName,
+          initialHome: home,
+          initialDraw: draw,
+          initialAway: away,
+          liveHome: isClosed ? null : home,
+          liveDraw: isClosed ? null : draw,
+          liveAway: isClosed ? null : away,
+          isClosed,
+        });
+        break;
+      }
+      case 'bs': {
+        // 大小球：大球,盘口,小球
+        const over = parseFloat(oddsParts[0]) || 0;
+        const line = parseFloat(oddsParts[1]) || 0;
+        const under = parseFloat(oddsParts[2]) || 0;
+        
+        overUnder.push({
+          bookmaker: companyName,
+          initialOver: over,
+          initialLine: line,
+          initialUnder: under,
+          liveOver: isClosed ? null : over,
+          liveLine: isClosed ? null : line,
+          liveUnder: isClosed ? null : under,
+          isClosed,
+        });
+        break;
+      }
+      case 'cr': {
+        // 角球：大球,盘口,小球
+        const over = parseFloat(oddsParts[0]) || 0;
+        const line = parseFloat(oddsParts[1]) || 0;
+        const under = parseFloat(oddsParts[2]) || 0;
+        
+        corners.push({
+          bookmaker: companyName,
+          initialOver: over,
+          initialLine: line,
+          initialUnder: under,
+          liveOver: isClosed ? null : over,
+          liveLine: isClosed ? null : line,
+          liveUnder: isClosed ? null : under,
+          isClosed,
+        });
+        break;
+      }
+      }
+    }); // 结束 typeMap.forEach
+  }); // 结束 Object.entries(oddsResponse.results).forEach
+
+  if (handicap.length === 0 && euroOdds.length === 0 && overUnder.length === 0 && corners.length === 0) {
+    return undefined;
+  }
+
+  return {
+    handicap: handicap.length > 0 ? handicap : undefined,
+    euroOdds: euroOdds.length > 0 ? euroOdds : undefined,
+    overUnder: overUnder.length > 0 ? overUnder : undefined,
+    corners: corners.length > 0 ? corners : undefined,
+  };
+};
+
 // 解析比赛事件
 const parseIncidentsToEvents = (incidents: MatchLiveData['incidents']): MatchEvent[] => {
   if (!incidents || incidents.length === 0) {
@@ -1012,7 +1208,7 @@ const parseIncidentsToEvents = (incidents: MatchLiveData['incidents']): MatchEve
 
   return incidents.map(incident => {
     const team = incident.position === 1 ? 'home' : incident.position === 2 ? 'away' : 'home';
-    let eventType: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' = 'whistle';
+    let eventType: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' | 'corner' = 'whistle';
     let description = '';
     
     // 根据事件类型状态码设置类型和描述
@@ -1051,6 +1247,7 @@ const parseIncidentsToEvents = (incidents: MatchLiveData['incidents']): MatchEve
         description = incident.player_name ? `${incident.player_name} 乌龙球` : '乌龙球';
         break;
       case STAT_TYPE.CORNER:
+        eventType = 'corner';
         description = '角球';
         break;
       case STAT_TYPE.VAR:
@@ -1155,15 +1352,33 @@ export default function MatchDetail() {
         // 从 API 获取比赛数据
         const { match: apiMatch, teams, competitions } = await fetchMatchDetail(matchId);
         
+        let matchData: MatchDetailInfo;
         if (apiMatch) {
           // 转换为详情页需要的格式
-          const matchData = convertApiMatchToDetailInfo(apiMatch, teams, competitions);
-          setMatch(matchData);
+          matchData = convertApiMatchToDetailInfo(apiMatch, teams, competitions);
         } else {
           // 如果 API 中没有找到，使用虚拟数据作为后备
-          const matchData = virtualMatchDetails[matchId] || generateDefaultMatch(matchId);
-          setMatch(matchData);
+          matchData = virtualMatchDetails[matchId] || generateDefaultMatch(matchId);
         }
+        
+        // 获取指数数据（使用常用公司：澳彩、皇冠、BET365、韦德、易胜博）
+        try {
+          const companyIds = [7, 3, 2, 11, 10]; // 澳彩、皇冠、BET365、韦德、易胜博
+          const oddsResponse = await fetchOddsLive(matchId, companyIds);
+          console.log('Odds response:', oddsResponse);
+          const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
+          console.log('Parsed odds:', parsedOdds);
+          if (parsedOdds) {
+            matchData.odds = parsedOdds;
+          } else {
+            console.warn('No odds data parsed from response');
+          }
+        } catch (oddsError) {
+          console.error('Failed to load odds data:', oddsError);
+          // 指数数据加载失败不影响主流程
+        }
+        
+        setMatch(matchData);
       } catch (err) {
         console.error('Failed to load match data:', err);
         setError(err instanceof Error ? err.message : '加载比赛数据失败');
@@ -1271,7 +1486,7 @@ export default function MatchDetail() {
                 .filter(text => text.main === 1)
                 .map(text => {
                   // 根据文字直播类型判断事件类型
-                  let eventType: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' = 'whistle';
+                  let eventType: 'goal' | 'yellow_card' | 'red_card' | 'substitution' | 'whistle' | 'corner' = 'whistle';
                   
                   // 根据 type 判断事件类型
                   switch (text.type) {
@@ -1289,6 +1504,9 @@ export default function MatchDetail() {
                       break;
                     case STAT_TYPE.SUBSTITUTION:
                       eventType = 'substitution';
+                      break;
+                    case STAT_TYPE.CORNER:
+                      eventType = 'corner';
                       break;
                     default:
                       eventType = 'whistle';
@@ -1410,6 +1628,47 @@ export default function MatchDetail() {
     const interval = setInterval(updateLiveData, 2000);
 
     return () => clearInterval(interval);
+  }, [matchId, match?.status]);
+
+  // 每3秒更新一次指数数据（适用于所有比赛状态，包括已结束的比赛）
+  useEffect(() => {
+    if (!matchId || !match) {
+      return;
+    }
+
+    const updateOddsData = async () => {
+      try {
+        const companyIds = [7, 3, 2, 11, 10]; // 澳彩、皇冠、BET365、韦德、易胜博
+        const oddsResponse = await fetchOddsLive(matchId, companyIds);
+        console.log('Odds update response:', oddsResponse);
+        const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
+        console.log('Parsed odds update:', parsedOdds);
+        
+        if (parsedOdds) {
+          setMatch(prevMatch => {
+            if (!prevMatch) return prevMatch;
+            return {
+              ...prevMatch,
+              odds: parsedOdds,
+            };
+          });
+        } else {
+          console.warn('No odds data parsed from update response');
+        }
+      } catch (err) {
+        console.error('Failed to update odds data:', err);
+        // 指数数据更新失败不影响其他功能，静默失败
+      }
+    };
+
+    // 立即执行一次
+    updateOddsData();
+
+    // 每3秒更新一次（只在比赛进行中或即将开始时）
+    if (match.status === 'live' || match.status === 'upcoming') {
+      const interval = setInterval(updateOddsData, 3000);
+      return () => clearInterval(interval);
+    }
   }, [matchId, match?.status]);
 
   if (!match) {
@@ -1537,12 +1796,28 @@ export default function MatchDetail() {
     const [oddsType, setOddsType] = useState<'handicap' | 'euroOdds' | 'overUnder' | 'corners'>('handicap');
     const [timeType, setTimeType] = useState<'half' | 'full'>('full');
 
-    const oddsTypes = [
-      { id: 'handicap' as const, label: '让球' },
-      { id: 'euroOdds' as const, label: '胜平负' },
-      { id: 'overUnder' as const, label: '总进球' },
-      { id: 'corners' as const, label: '角球' },
-    ];
+    // 根据可用数据动态生成类型列表
+    const availableOddsTypes = [
+      match.odds?.handicap && match.odds.handicap.length > 0 && { id: 'handicap' as const, label: '让球' },
+      match.odds?.euroOdds && match.odds.euroOdds.length > 0 && { id: 'euroOdds' as const, label: '胜平负' },
+      match.odds?.overUnder && match.odds.overUnder.length > 0 && { id: 'overUnder' as const, label: '总进球' },
+      match.odds?.corners && match.odds.corners.length > 0 && { id: 'corners' as const, label: '角球' },
+    ].filter(Boolean) as Array<{ id: 'handicap' | 'euroOdds' | 'overUnder' | 'corners'; label: string }>;
+
+    // 当数据更新时，如果当前选中的类型没有数据，则切换到第一个可用的类型
+    useEffect(() => {
+      if (match.odds) {
+        const currentTypeHasData = 
+          (oddsType === 'handicap' && match.odds.handicap && match.odds.handicap.length > 0) ||
+          (oddsType === 'euroOdds' && match.odds.euroOdds && match.odds.euroOdds.length > 0) ||
+          (oddsType === 'overUnder' && match.odds.overUnder && match.odds.overUnder.length > 0) ||
+          (oddsType === 'corners' && match.odds.corners && match.odds.corners.length > 0);
+        
+        if (!currentTypeHasData && availableOddsTypes.length > 0) {
+          setOddsType(availableOddsTypes[0].id);
+        }
+      }
+    }, [match.odds, oddsType, availableOddsTypes]);
 
     if (!match.odds) {
       return (
@@ -1559,7 +1834,7 @@ export default function MatchDetail() {
       <div className="space-y-0">
         {/* 赔率类型切换 */}
         <div className="flex items-center border-b border-border/50 overflow-x-auto">
-          {oddsTypes.map(type => (
+          {availableOddsTypes.map(type => (
             <button
               key={type.id}
               onClick={() => setOddsType(type.id)}
@@ -1585,7 +1860,7 @@ export default function MatchDetail() {
         </div>
 
         {/* 让球盘口 */}
-        {oddsType === 'handicap' && (
+        {oddsType === 'handicap' && match.odds.handicap && match.odds.handicap.length > 0 && (
           <ScrollArea className="h-[400px]">
             <div className="divide-y divide-border/20">
               {match.odds.handicap.map((odds, index) => (
@@ -1613,7 +1888,7 @@ export default function MatchDetail() {
         )}
 
         {/* 欧赔 */}
-        {oddsType === 'euroOdds' && (
+        {oddsType === 'euroOdds' && match.odds.euroOdds && match.odds.euroOdds.length > 0 && (
           <ScrollArea className="h-[400px]">
             <div className="divide-y divide-border/20">
               {match.odds.euroOdds.map((odds, index) => (
@@ -1641,7 +1916,7 @@ export default function MatchDetail() {
         )}
 
         {/* 大小球 */}
-        {oddsType === 'overUnder' && (
+        {oddsType === 'overUnder' && match.odds.overUnder && match.odds.overUnder.length > 0 && (
           <ScrollArea className="h-[400px]">
             <div className="divide-y divide-border/20">
               {match.odds.overUnder.map((odds, index) => (
@@ -1669,7 +1944,7 @@ export default function MatchDetail() {
         )}
 
         {/* 角球 */}
-        {oddsType === 'corners' && (
+        {oddsType === 'corners' && match.odds.corners && match.odds.corners.length > 0 && (
           <ScrollArea className="h-[400px]">
             <div className="divide-y divide-border/20">
               {match.odds.corners.map((odds, index) => (
@@ -2137,14 +2412,11 @@ export default function MatchDetail() {
                       } else if (event.type === 'substitution') {
                         eventIcon = <div className="w-3 h-3 bg-blue-500 rounded-sm" />;
                         eventPosition = event.team === 'home' ? 'top' : 'bottom';
+                      } else if (event.type === 'corner') {
+                        eventIcon = <CornerIcon size={16} />;
+                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
                       } else if (event.type === 'whistle') {
                         eventIcon = <WhistleIcon size={16} />;
-                        eventPosition = event.team === 'home' ? 'top' : 'bottom';
-                      }
-                      
-                      // 角球事件
-                      if (!eventIcon && (event.description?.includes('角球') || event.description?.includes('corner'))) {
-                        eventIcon = <CornerIcon size={16} />;
                         eventPosition = event.team === 'home' ? 'top' : 'bottom';
                       }
 
@@ -2333,6 +2605,18 @@ export default function MatchDetail() {
                             // 角球图标
                             icon = <CornerIcon size={18} />;
                             break;
+                          case STAT_TYPE.SHOT_OFF_TARGET:
+                            // 偏球图标
+                            icon = <OffTargetIcon size={18} />;
+                            break;
+                          case STAT_TYPE.SHOT_ON_TARGET:
+                            // 射正图标
+                            icon = <OnTargetIcon size={18} />;
+                            break;
+                          case STAT_TYPE.OFFSIDE:
+                            // 越位图标
+                            icon = <OffsideIcon size={18} />;
+                            break;
                           case STAT_TYPE.HALF_TIME:
                           case STAT_TYPE.MATCH_END:
                           case STAT_TYPE.MATCH_START:
@@ -2371,16 +2655,9 @@ export default function MatchDetail() {
                         
                         return (
                           <div key={index} className="flex gap-3 items-start">
-                            {/* 时间戳和图标 */}
-                            <div className="flex-shrink-0 flex items-center gap-2 w-16">
-                              {displayTime ? (
-                                <span className="text-sm font-medium text-foreground">{displayTime}</span>
-                              ) : (
-                                <span className="text-sm font-medium text-muted-foreground w-4"></span>
-                              )}
-                              <div className="flex items-center justify-center">
-                                {icon}
-                              </div>
+                            {/* 图标 */}
+                            <div className="flex-shrink-0 flex items-center justify-center">
+                              {icon}
                             </div>
                             
                             {/* 描述文本 */}

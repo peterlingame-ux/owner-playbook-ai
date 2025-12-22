@@ -602,3 +602,124 @@ export const fetchMatchLiveById = async (matchId: string | number): Promise<Matc
   return null;
 };
 
+/**
+ * 指数数据项类型
+ */
+export type OddsLiveResultItem = [
+  number, // 比赛id
+  string, // 指数类型：asia-亚盘、eu-欧赔、bs-大小球、cr-角球
+  [
+    number, // 变化时间
+    string, // 比赛进行时间，未开始为空
+    string, // 主胜/大球/大,和局/盘口,客胜/小球/小,是否封盘：1-封盘,0-未封盘
+    number  // 比赛状态
+  ],
+  string   // 进球比分/角球比(cr)，主队-客队
+];
+
+/**
+ * 指数数据响应类型
+ * results 是一个对象，key 为公司ID（字符串），value 为该公司的数据数组
+ */
+export interface OddsLiveResponse {
+  code: number;
+  results: Record<string, OddsLiveResultItem[]>;
+}
+
+/**
+ * 指数公司ID映射
+ */
+export const ODDS_COMPANY_NAMES: Record<number, string> = {
+  2: 'BET365',
+  3: '皇冠',
+  4: '10BET',
+  5: '立博',
+  6: '明陞',
+  7: '澳彩',
+  8: 'SNAI',
+  9: '威廉希尔',
+  10: '易胜博',
+  11: '韦德',
+  12: 'EuroBet',
+  13: 'Inter wetten',
+  14: '12bet',
+  15: '利记',
+  16: '盈禾',
+  17: '18Bet',
+  18: 'Fun88',
+  19: '竞彩官方',
+  20: 'onex',
+  21: '188',
+  22: '平博',
+  136: '马会',
+};
+
+/**
+ * 获取实时指数数据
+ * @param matchId 比赛ID
+ * @param companyIds 指数公司ID数组，如果不提供则获取常用公司数据（默认：澳彩、皇冠、BET365、韦德、易胜博）
+ * @returns 指数数据响应
+ */
+export const fetchOddsLive = async (
+  matchId: string | number,
+  companyIds: number[] = [7, 3, 2, 11, 10] // 默认：澳彩、皇冠、BET365、韦德、易胜博
+): Promise<OddsLiveResponse> => {
+  const baseUrl = import.meta.env.DEV
+    ? "/api/sportnanoapi/api/v5"
+    : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
+
+  const searchParams = new URLSearchParams({
+    user: SPORTNANOAPI_USER,
+    secret: SPORTNANOAPI_SECRET,
+  });
+
+  // 根据API文档，公司ID是数组参数
+  // 尝试使用数组格式：company[]=7&company[]=3（PHP风格的数组参数）
+  if (companyIds.length > 0) {
+    companyIds.forEach(id => {
+      searchParams.append('company[]', id.toString());
+    });
+  }
+
+  // 构建 URL
+  const isEdgeFunction = baseUrl.includes("/functions/v1/");
+  const url = isEdgeFunction
+    ? `${baseUrl}?endpoint=odds/live&${searchParams.toString()}`
+    : `${baseUrl}/football/odds/live?${searchParams.toString()}`;
+  
+  console.log('Fetching odds live data:', { matchId, companyIds, url });
+
+  const response = await fetch(url, {
+    method: "GET",
+    ...(isEdgeFunction && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+      ? {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      : {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch odds live data: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log('Odds API raw response:', data);
+
+  // 检查 API 返回的错误
+  if (data.code !== undefined && data.code !== 0) {
+    const errorMsg = data.msg || data.message || 'Unknown error';
+    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
+  }
+
+  // 确保返回的数据格式正确
+  if (!data.results || typeof data.results !== 'object' || Array.isArray(data.results)) {
+    console.warn('Invalid odds response format:', data);
+    return { code: data.code || 0, results: {} };
+  }
+
+  return data as OddsLiveResponse;
+};
+
