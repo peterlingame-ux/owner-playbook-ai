@@ -1192,41 +1192,41 @@ const PlayerLeaderboardTable = () => {
       )}
 
       {/* Time Range Filter - Unified for all boards */}
-      <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-foreground">{t('player_recommendation_board')}</h2>
-        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-          <button
-            onClick={() => setTimeRange(1)}
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+                <button
+                  onClick={() => setTimeRange(1)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-              timeRange === 1
+                    timeRange === 1
                 ? 'bg-foreground text-background shadow-sm' 
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
             {t('time_filter_1d')}
-          </button>
-          <button
-            onClick={() => setTimeRange(7)}
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-              timeRange === 7
+                    timeRange === 7
                 ? 'bg-foreground text-background shadow-sm' 
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
             {t('time_filter_7d')}
-          </button>
-          <button
-            onClick={() => setTimeRange(30)}
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-              timeRange === 30
+                    timeRange === 30
                 ? 'bg-foreground text-background shadow-sm' 
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
             {t('time_filter_30d')}
-          </button>
-        </div>
-      </div>
+                </button>
+              </div>
+            </div>
 
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
@@ -1243,13 +1243,13 @@ const PlayerLeaderboardTable = () => {
                   <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-amber-500 font-medium">前10名</span></p>
                 </div>
               </div>
-              <button
+                <button
                 onClick={() => setShowAllHotPlayers(true)}
                 className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
                 {t('all_players')}
-              </button>
-            </div>
+                </button>
+              </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
@@ -1280,7 +1280,7 @@ const PlayerLeaderboardTable = () => {
                         const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                         return (
                           <PlayerLeaderboardCard
-                            key={player.id}
+                        key={player.id}
                             player={player}
                             index={index}
                             isCurrentUser={!!(user && player.id === user.id)}
@@ -1288,11 +1288,11 @@ const PlayerLeaderboardTable = () => {
                             likeCount={likeCounts.get(player.id) || 0}
                             isLiking={isLiking.has(player.id)}
                             onLike={(e) => handleLike(player.id, e)}
-                            onClick={() => navigate(`/player/${player.id}`)}
+                        onClick={() => navigate(`/player/${player.id}`)}
                             onViewHistory={(e) => {
-                              e.stopPropagation();
-                              fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                            }}
+                        e.stopPropagation();
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
                             onShowFollowers={(e, p, count) => {
                               e.stopPropagation();
                               const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
@@ -1328,13 +1328,13 @@ const PlayerLeaderboardTable = () => {
                   <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-red-500 font-medium">前10名</span></p>
                 </div>
               </div>
-              <button
+                <button
                 onClick={() => setShowAllColdPlayers(true)}
                 className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
                 {t('all_players')}
-              </button>
-            </div>
+                </button>
+              </div>
           </CardHeader>
           <CardContent className="px-4 pb-4 pt-0">
             <div className="space-y-2">
@@ -1365,7 +1365,7 @@ const PlayerLeaderboardTable = () => {
                         const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                         return (
                           <PlayerLeaderboardCard
-                            key={player.id}
+                        key={player.id}
                             player={player}
                             index={index}
                             isCurrentUser={!!(user && player.id === user.id)}
@@ -1373,11 +1373,11 @@ const PlayerLeaderboardTable = () => {
                             likeCount={likeCounts.get(player.id) || 0}
                             isLiking={isLiking.has(player.id)}
                             onLike={(e) => handleLike(player.id, e)}
-                            onClick={() => navigate(`/player/${player.id}`)}
+                        onClick={() => navigate(`/player/${player.id}`)}
                             onViewHistory={(e) => {
-                              e.stopPropagation();
-                              fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                            }}
+                        e.stopPropagation();
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
                             onShowFollowers={(e, p, count) => {
                               e.stopPropagation();
                               const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
@@ -1502,9 +1502,9 @@ const PlayerLeaderboardTable = () => {
                                           onError={(e) => { e.currentTarget.style.display = 'none' }}
                                         />
                                         <span className="text-sm font-semibold text-foreground">{pred.home_team || '主队'}</span>
-                                      </div>
+                                    </div>
                                       <span className="text-muted-foreground/50 text-xs font-normal">vs</span>
-                                      <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2">
                                         <span className="text-sm font-semibold text-foreground">{pred.away_team || '客队'}</span>
                                         <img 
                                           src={`/src/assets/team-${(pred.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
@@ -1525,7 +1525,7 @@ const PlayerLeaderboardTable = () => {
                                           <span className="text-muted-foreground/50">|</span>
                                           <span className="px-2 py-0.5 rounded-full bg-amber-500/10">
                                             <MatchCountdown matchDate={pred.match_date} />
-                                          </span>
+                                      </span>
                                         </>
                                       )}
                                     </div>
@@ -1885,7 +1885,7 @@ const PlayerLeaderboardTable = () => {
                     <div className="px-4 py-3 border-b border-border/30">
                       <div className="flex items-center justify-center mb-2">
                         <span className="text-xs font-medium text-muted-foreground">英超联赛</span>
-                      </div>
+                    </div>
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex items-center gap-2">
                           <img 
@@ -1915,16 +1915,16 @@ const PlayerLeaderboardTable = () => {
                         <div className="text-center p-2.5 rounded-lg bg-background/50 border border-border/30">
                           <div className="text-[10px] text-muted-foreground mb-1">类型</div>
                           <div className="text-sm font-semibold">{copySuccess.predictionType}</div>
-                        </div>
+                      </div>
                         <div className="text-center p-2.5 rounded-lg bg-primary/10 border border-primary/30">
                           <div className="text-[10px] text-muted-foreground mb-1">预测</div>
                           <div className="text-sm font-semibold text-primary">{copySuccess.prediction.prediction}</div>
-                        </div>
+                      </div>
                         <div className="text-center p-2.5 rounded-lg bg-background/50 border border-border/30">
                           <div className="text-[10px] text-muted-foreground mb-1">赔率</div>
                           <div className="text-sm font-semibold text-warning">{copySuccess.odds}</div>
-                        </div>
                       </div>
+                    </div>
                     </div>
                     
                     {/* 金额显示 - 一行两列 */}
@@ -1936,36 +1936,36 @@ const PlayerLeaderboardTable = () => {
                         </div>
                         <div className="text-center border-l border-border/30">
                           <p className="text-[10px] text-muted-foreground mb-1">您的跟单金额</p>
-                          <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.8, type: "spring" }}
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.8, type: "spring" }}
                             className="text-lg font-bold font-mono text-primary"
-                          >
+                    >
                             {copySuccess.betAmount.toLocaleString()}
-                          </motion.div>
-                        </div>
+                    </motion.div>
+                  </div>
                       </div>
                     </div>
                     
                     {/* 预期收益 */}
                     <div className="px-4 py-3 bg-success/5">
-                      <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm">
                         <div className="flex flex-col">
-                          <span className="text-muted-foreground">预期收益</span>
+                    <span className="text-muted-foreground">预期收益</span>
                           <span className="text-[10px] text-muted-foreground/70">{copySuccess.betAmount} × {copySuccess.odds}</span>
                         </div>
-                        <motion.span
-                          initial={{ scale: 1 }}
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ delay: 1.5, duration: 0.5 }}
-                          className="font-bold text-success"
-                        >
+                    <motion.span
+                      initial={{ scale: 1 }}
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ delay: 1.5, duration: 0.5 }}
+                      className="font-bold text-success"
+                    >
                           +{(copySuccess.betAmount * parseFloat(copySuccess.odds)).toFixed(0)}
-                        </motion.span>
+                    </motion.span>
                       </div>
-                    </div>
-                  </motion.div>
+                  </div>
+                </motion.div>
                 )}
 
                 {/* 操作按钮 */}
@@ -2019,7 +2019,7 @@ const PlayerLeaderboardTable = () => {
               }}
               className="pl-9 h-9 text-sm"
             />
-          </div>
+        </div>
           <div 
             className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
             style={{ 
@@ -2051,7 +2051,7 @@ const PlayerLeaderboardTable = () => {
                       <div className="flex flex-col items-center justify-center py-12 text-center">
                         <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                           <UserX className="w-8 h-8 text-muted-foreground" />
-                        </div>
+        </div>
                         <p className="text-sm font-medium text-foreground mb-1">{t('no_search_results') || '未找到玩家'}</p>
                         <p className="text-xs text-muted-foreground mb-3">{t('no_search_results_hint') || '请尝试其他关键词'}</p>
                         <Button
@@ -2062,7 +2062,7 @@ const PlayerLeaderboardTable = () => {
                         >
                           {t('clear_search') || '清空搜索'}
                         </Button>
-                      </div>
+      </div>
                     ) : (
                       <>
                         {displayed.map((player, index) => (
@@ -2337,7 +2337,7 @@ const PlayerLeaderboardTable = () => {
                   <p className="text-xs text-muted-foreground mt-1">
                     更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </p>
-                </div>
+    </div>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs text-muted-foreground">总收益率</span>
                   <span className={`text-lg font-bold font-mono-data ${

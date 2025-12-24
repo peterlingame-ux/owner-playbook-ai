@@ -11,9 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchMatchDetail, fetchMatchLiveById, fetchOddsLive, ODDS_COMPANY_NAMES } from "@/lib/sportnanoapi";
+import { fetchMatchDetail, fetchMatchLiveById, fetchOddsLive, fetchMatchTrend, fetchMatchTrendDetail, fetchMatchLineup, ODDS_COMPANY_NAMES } from "@/lib/sportnanoapi";
 import type { MatchLiveData } from "@/types/footballApi";
 import ftbLiveBg from "@/assets/ftbLive.7d6ed6f.png";
+import footballFieldBg from "@/assets/ef73592f-4d7c-45bd-990d-9a1e454ec8d5.png";
 import type { DiaryMatch, DiaryTeam, Competition } from "@/types/footballApi";
 
 // 球员数据
@@ -28,6 +29,24 @@ interface Player {
   substitutedMinute?: number;
   hasGoal?: boolean;
   avatar?: string;
+  x?: number; // 阵容x坐标
+  y?: number; // 阵容y坐标
+  incidents?: Array<{
+    type: number;
+    time: string;
+    belong: number;
+    home_score: number;
+    away_score: number;
+    player?: {
+      id: number;
+      name: string;
+      reason_type?: number;
+    };
+    assist1?: { id: number; name: string };
+    assist2?: { id: number; name: string };
+    in_player?: { id: number; name: string };
+    out_player?: { id: number; name: string };
+  }>;
 }
 
 // 阵容数据
@@ -1004,16 +1023,196 @@ const STAT_TYPE = {
   SHOT_BLOCKED: 37,  // 射门被阻挡
 } as const;
 
+// 检查趋势数据是否完整
+// 如果数据为空、缺失或数据点太少，则认为不完整
+const isTrendDataComplete = (
+  trendData: Awaited<ReturnType<typeof fetchMatchTrend>>['results'][0] | undefined
+): boolean => {
+  if (!trendData || !trendData.trend || !trendData.trend.data) {
+    return false;
+  }
+  
+  const { data } = trendData.trend;
+  const firstHalfData = data[0] || [];
+  const secondHalfData = data[1] || [];
+  
+  // 如果两个半场都没有数据，或者数据点太少（少于10个点），认为不完整
+  if (firstHalfData.length === 0 && secondHalfData.length === 0) {
+    return false;
+  }
+  
+  // 如果数据点总数少于10个，认为可能不完整
+  if (firstHalfData.length + secondHalfData.length < 10) {
+    return false;
+  }
+  
+  return true;
+};
+
+// 解析趋势数据
+// 根据文档：返回的趋势列表中，每一位表示每分钟的趋势数值
+// 趋势值：正数表示主队优势，负数表示客队优势
+const parseTrendData = (
+  trendData: Awaited<ReturnType<typeof fetchMatchTrend>>['results'][0]
+): MatchDetailInfo['timeline'] => {
+  if (!trendData.trend || !trendData.trend.data || trendData.trend.data.length === 0) {
+    return [];
+  }
+
+  const timeline: MatchDetailInfo['timeline'] = [];
+  const { data, per } = trendData.trend; // per 是半场时长（通常是45分钟）
+  
+  // 实际数据结构：data 是一个包含两个数组的数组
+  // data[0] 是上半场的趋势值数组，每个值代表每分钟的趋势（索引0=第0分钟，索引44=第44分钟）
+  // data[1] 是下半场的趋势值数组，每个值代表每分钟的趋势（索引0=第45分钟，索引44=第89分钟）
+  const firstHalfData = data[0] || [];
+  const secondHalfData = data[1] || [];
+  
+  // 处理上半场数据
+  // 数组索引直接对应分钟数（索引0=第0分钟）
+  firstHalfData.forEach((trendValue, index) => {
+    // 趋势值可能为0，但0也表示一个数据点（表示该分钟双方平衡）
+    const minute = index; // 第0分钟到第44分钟
+    
+    // 趋势值：正数表示主队趋势，负数表示客队趋势
+    // 直接使用趋势值，不需要转换
+    // 正数：主队趋势值，客队为0
+    // 负数：客队趋势值（取绝对值），主队为0
+    // 0：双方都为0
+    
+    let homeIntensity: number;
+    let awayIntensity: number;
+    
+    if (trendValue > 0) {
+      // 正数：主队趋势
+      homeIntensity = Math.min(100, Math.max(0, trendValue));
+      awayIntensity = 0;
+    } else if (trendValue < 0) {
+      // 负数：客队趋势（取绝对值）
+      awayIntensity = Math.min(100, Math.max(0, Math.abs(trendValue)));
+      homeIntensity = 0;
+    } else {
+      // 0：双方都为0
+      homeIntensity = 0;
+      awayIntensity = 0;
+    }
+    
+    timeline.push({
+      minute: Math.min(minute, per), // 确保不超过半场时长
+      homeIntensity,
+      awayIntensity,
+    });
+  });
+  
+  // 处理下半场数据
+  // 数组索引 + per = 分钟数（下半场从第45分钟开始）
+  secondHalfData.forEach((trendValue, index) => {
+    const minute = per + index; // 第45分钟到第89分钟（或更多，如果有补时）
+    
+    // 趋势值：正数表示主队趋势，负数表示客队趋势
+    // 直接使用趋势值，不需要转换
+    let homeIntensity: number;
+    let awayIntensity: number;
+    
+    if (trendValue > 0) {
+      // 正数：主队趋势
+      homeIntensity = Math.min(100, Math.max(0, trendValue));
+      awayIntensity = 0;
+    } else if (trendValue < 0) {
+      // 负数：客队趋势（取绝对值）
+      awayIntensity = Math.min(100, Math.max(0, Math.abs(trendValue)));
+      homeIntensity = 0;
+    } else {
+      // 0：双方都为0
+      homeIntensity = 0;
+      awayIntensity = 0;
+    }
+    
+    timeline.push({
+      minute,
+      homeIntensity,
+      awayIntensity,
+    });
+  });
+  
+  // 如果没有生成任何数据点，返回空数组（不应该发生，但作为保护）
+  if (timeline.length === 0) {
+    return [];
+  }
+  
+  // 按分钟数排序（虽然应该已经是按顺序的，但确保一下）
+  timeline.sort((a, b) => a.minute - b.minute);
+  
+  return timeline;
+};
+
+// 解析趋势事件数据
+const parseTrendIncidents = (
+  incidents: Awaited<ReturnType<typeof fetchMatchTrend>>['results'][0]['incidents']
+): MatchEvent[] => {
+  if (!incidents || incidents.length === 0) {
+    return [];
+  }
+
+  return incidents.map(incident => {
+    const team = incident.position === 1 ? 'home' : 'away';
+    
+    // 解析时间字符串（可能包含 "+" 符号，如 "45+3"）
+    let minuteStr = incident.time || '0';
+    // 处理 "45+3" 这种格式，取主要分钟数
+    const minuteMatch = minuteStr.match(/^(\d+)/);
+    const minute = minuteMatch ? parseInt(minuteMatch[1]) : 0;
+    minuteStr = `${minute}'`;
+    
+    // 根据事件类型设置事件类型和描述
+    let eventType: MatchEvent['type'] = 'whistle';
+    let description = '';
+    
+    switch (incident.type) {
+      case STAT_TYPE.GOAL:
+      case STAT_TYPE.PENALTY:
+      case STAT_TYPE.OWN_GOAL:
+        eventType = 'goal';
+        description = '进球';
+        break;
+      case STAT_TYPE.YELLOW_CARD:
+        eventType = 'yellow_card';
+        description = '黄牌';
+        break;
+      case STAT_TYPE.RED_CARD:
+      case STAT_TYPE.SECOND_YELLOW:
+        eventType = 'red_card';
+        description = '红牌';
+        break;
+      case STAT_TYPE.SUBSTITUTION:
+        eventType = 'substitution';
+        description = '换人';
+        break;
+      case STAT_TYPE.CORNER:
+        eventType = 'corner';
+        description = '角球';
+        break;
+      default:
+        eventType = 'whistle';
+        description = '事件';
+        break;
+    }
+    
+    return {
+      minute: minuteStr,
+      type: eventType,
+      team,
+      description,
+    };
+  });
+};
+
 // 解析指数数据
 const parseOddsData = (
   oddsResponse: Awaited<ReturnType<typeof fetchOddsLive>>, 
   matchId: string | number,
   companyIds: number[] = [7, 3, 2, 11, 10]
 ): MatchDetailInfo['odds'] | undefined => {
-  console.log('Parsing odds data:', { oddsResponse, matchId, companyIds });
-  console.log('Results type:', typeof oddsResponse.results, 'Is array:', Array.isArray(oddsResponse.results));
-  console.log('Results keys:', oddsResponse.results ? Object.keys(oddsResponse.results) : 'null/undefined');
-  
   if (!oddsResponse.results || typeof oddsResponse.results !== 'object' || Array.isArray(oddsResponse.results) || Object.keys(oddsResponse.results).length === 0) {
     console.warn('No results in odds response or invalid format:', {
       hasResults: !!oddsResponse.results,
@@ -1025,7 +1224,6 @@ const parseOddsData = (
   }
 
   const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
-  console.log('Looking for match ID:', matchIdNum, 'in results');
   
   const handicap: OddsData[] = [];
   const euroOdds: EuroOddsData[] = [];
@@ -1034,29 +1232,17 @@ const parseOddsData = (
 
   // results 是一个对象，key 为公司ID（字符串），value 为该公司的数据数组
   // 遍历每个公司的数据
-  console.log('Available companies in results:', Object.keys(oddsResponse.results));
-  console.log('Requested company IDs:', companyIds);
-  
   Object.entries(oddsResponse.results).forEach(([companyIdStr, companyData]) => {
     const companyId = parseInt(companyIdStr);
     
-    console.log(`Processing company ${companyId} (${companyIdStr}), has ${companyData.length} items`);
-    
     // 只处理请求的公司ID
     if (!companyIds.includes(companyId)) {
-      console.log(`Skipping company ${companyId} (not in requested list)`);
       return;
     }
     
     const companyName = ODDS_COMPANY_NAMES[companyId] || `公司${companyId}`;
     
     // 筛选出当前比赛的数据
-    // 先查看前几个项目的比赛ID，用于调试
-    if (companyData.length > 0) {
-      const sampleMatchIds = companyData.slice(0, Math.min(5, companyData.length)).map(item => item[0]);
-      console.log(`Company ${companyId} sample match IDs (first ${Math.min(5, companyData.length)}):`, sampleMatchIds);
-    }
-    
     const matchOdds = companyData.filter((item) => {
       const itemMatchId = item[0];
       // 尝试多种匹配方式
@@ -1068,19 +1254,9 @@ const parseOddsData = (
       return matches;
     });
     
-    console.log(`Company ${companyId} (${companyName}): found ${matchOdds.length} matching items for match ${matchIdNum} (total: ${companyData.length} items)`);
-    
-    // 如果没有找到匹配的，列出所有唯一的比赛ID（用于调试）
-    if (matchOdds.length === 0 && companyData.length > 0) {
-      const uniqueMatchIds = [...new Set(companyData.map(item => item[0]))].slice(0, 10);
-      console.log(`Company ${companyId} unique match IDs (first 10):`, uniqueMatchIds);
-    }
-    
     if (matchOdds.length === 0) {
       return;
     }
-    
-    console.log(`Processing company ${companyId} (${companyName}), found ${matchOdds.length} odds items for match ${matchIdNum}`);
     
     // 处理该公司的所有指数数据
     // 对于每种类型，取最新的数据（通常是数组中的第一个，因为按时间倒序排列）
@@ -1098,8 +1274,6 @@ const parseOddsData = (
     typeMap.forEach((item, oddsType) => {
       const [matchIdFromApi, _, oddsInfo, score] = item;
       const [changeTime, matchTime, oddsString, status] = oddsInfo;
-      
-      console.log('Processing odds item:', { companyId, companyName, matchIdFromApi, oddsType, oddsInfo, score });
       
       // 解析赔率字符串：主胜/大球/大,和局/盘口,客胜/小球/小,是否封盘
       const oddsParts = oddsString.split(',');
@@ -1294,10 +1468,6 @@ export default function MatchDetail() {
   const [textLiveTab, setTextLiveTab] = useState<'text' | 'events'>('text'); // 文字直播/重要事件切换
   const [onlyGoals, setOnlyGoals] = useState(false); // 只看进球开关
 
-  // 调试：监听 textLiveData 变化
-  useEffect(() => {
-    console.log('textLiveData updated:', textLiveData);
-  }, [textLiveData]);
 
   // 计算比赛进行分钟数
   const calculateMatchMinute = (live: MatchLiveData | null, matchStatus: 'live' | 'finished' | 'upcoming'): string | undefined => {
@@ -1365,9 +1535,7 @@ export default function MatchDetail() {
         try {
           const companyIds = [7, 3, 2, 11, 10]; // 澳彩、皇冠、BET365、韦德、易胜博
           const oddsResponse = await fetchOddsLive(matchId, companyIds);
-          console.log('Odds response:', oddsResponse);
           const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
-          console.log('Parsed odds:', parsedOdds);
           if (parsedOdds) {
             matchData.odds = parsedOdds;
           } else {
@@ -1376,6 +1544,159 @@ export default function MatchDetail() {
         } catch (oddsError) {
           console.error('Failed to load odds data:', oddsError);
           // 指数数据加载失败不影响主流程
+        }
+        
+        // 获取趋势数据
+        try {
+          // 优先从实时趋势接口获取（如果比赛还在进行中）
+          let trendResponse: Awaited<ReturnType<typeof fetchMatchTrend>> | null = null;
+          let trendData: Awaited<ReturnType<typeof fetchMatchTrend>>['results'][0] | undefined = undefined;
+          
+          // 判断比赛状态（如果 matchData.status 已设置，使用它；否则假设是 live）
+          const matchStatus = matchData.status || 'live';
+          
+          if (matchStatus === 'live') {
+            try {
+              trendResponse = await fetchMatchTrend(matchId);
+              trendData = trendResponse.results?.find(r => r.match_id === parseInt(matchId));
+            } catch (error) {
+              // 实时接口失败，继续尝试详情接口
+            }
+          }
+          
+          // 如果实时趋势数据缺失或不完整，或比赛已结束，使用详情接口进行查缺补漏
+          // 详情接口支持前30天的比赛，所以即使比赛结束也可以获取
+          if (matchStatus !== 'live' || !isTrendDataComplete(trendData)) {
+            try {
+              const detailResponse = await fetchMatchTrendDetail(matchId);
+              const detailData = detailResponse.results?.find(r => r.match_id === parseInt(matchId));
+              
+              // 如果详情接口有数据，使用详情接口的数据
+              // 即使 isTrendDataComplete 返回 false，也尝试使用详情接口的数据（可能数据点较少但仍有价值）
+              if (detailData && detailData.trend && detailData.trend.data) {
+                trendData = detailData;
+              } else if (trendData && detailData) {
+                // 如果两个接口都有部分数据，尝试合并（优先使用详情接口的数据）
+                trendData = detailData;
+              }
+            } catch (detailError) {
+              // 详情接口失败不影响主流程，继续使用实时接口的数据（如果有）
+            }
+          }
+          
+          if (trendData && trendData.trend && trendData.trend.data) {
+            // 解析趋势数据并更新时间线
+            const timelineData = parseTrendData(trendData);
+            // 无论数据点多少，只要有数据就更新
+            if (timelineData.length > 0) {
+              matchData.timeline = timelineData;
+            }
+            
+            // 解析事件数据
+            if (trendData.incidents && trendData.incidents.length > 0) {
+              const events = parseTrendIncidents(trendData.incidents);
+              if (events.length > 0) {
+                matchData.events = events;
+              }
+            }
+          }
+        } catch (trendError) {
+          console.error('Failed to load trend data:', trendError);
+          // 趋势数据加载失败不影响主流程
+        }
+        
+        // 获取阵容数据（根据 coverage.lineup 字段判断是否有阵容）
+        // 如果 coverage.lineup === 1 表示有阵容数据，或者直接尝试获取（因为接口可能支持前30天的比赛）
+        const hasLineup = apiMatch?.coverage?.lineup === 1;
+        // 如果有明确的 lineup 标识，或者直接尝试获取（接口支持前30天的比赛）
+        if (hasLineup || matchId) {
+          try {
+            const lineupResponse = await fetchMatchLineup(matchId);
+            if (lineupResponse.results) {
+              const lineupData = lineupResponse.results;
+              
+              // 转换主队阵容数据
+              if (lineupData.home && Array.isArray(lineupData.home)) {
+                const homeStartingXI = lineupData.home
+                  .filter(p => p.first === 1)
+                  .map(p => ({
+                    id: p.id.toString(),
+                    number: p.shirt_number,
+                    name: p.name,
+                    rating: parseFloat(p.rating) || 0,
+                    position: p.position,
+                    isCaptain: p.captain === 1,
+                    avatar: p.logo || p.national_logo,
+                    x: p.x,
+                    y: p.y,
+                    incidents: p.incidents || []
+                  }));
+                
+                const homeSubstitutes = lineupData.home
+                  .filter(p => p.first === 0)
+                  .map(p => ({
+                    id: p.id.toString(),
+                    number: p.shirt_number,
+                    name: p.name,
+                    rating: parseFloat(p.rating) || 0,
+                    position: p.position,
+                    isCaptain: p.captain === 1,
+                    avatar: p.logo || p.national_logo
+                  }));
+                
+                matchData.homeTeam.lineup = {
+                  formation: lineupData.home_formation || '',
+                  totalValue: '', // API 中没有身价信息
+                  averageAge: 0, // API 中没有年龄信息
+                  coach: '', // 需要从 coach_id 获取，暂时留空
+                  startingXI: homeStartingXI,
+                  substitutes: homeSubstitutes
+                };
+              }
+              
+              // 转换客队阵容数据
+              if (lineupData.away && Array.isArray(lineupData.away)) {
+                const awayStartingXI = lineupData.away
+                  .filter(p => p.first === 1)
+                  .map(p => ({
+                    id: p.id.toString(),
+                    number: p.shirt_number,
+                    name: p.name,
+                    rating: parseFloat(p.rating) || 0,
+                    position: p.position,
+                    isCaptain: p.captain === 1,
+                    avatar: p.logo || p.national_logo,
+                    x: p.x,
+                    y: p.y,
+                    incidents: p.incidents || []
+                  }));
+                
+                const awaySubstitutes = lineupData.away
+                  .filter(p => p.first === 0)
+                  .map(p => ({
+                    id: p.id.toString(),
+                    number: p.shirt_number,
+                    name: p.name,
+                    rating: parseFloat(p.rating) || 0,
+                    position: p.position,
+                    isCaptain: p.captain === 1,
+                    avatar: p.logo || p.national_logo
+                  }));
+                
+                matchData.awayTeam.lineup = {
+                  formation: lineupData.away_formation || '',
+                  totalValue: '', // API 中没有身价信息
+                  averageAge: 0, // API 中没有年龄信息
+                  coach: '', // 需要从 coach_id 获取，暂时留空
+                  startingXI: awayStartingXI,
+                  substitutes: awaySubstitutes
+                };
+              }
+            }
+          } catch (lineupError) {
+            console.error('Failed to load lineup data:', lineupError);
+            // 阵容数据加载失败不影响主流程
+          }
         }
         
         setMatch(matchData);
@@ -1395,7 +1716,7 @@ export default function MatchDetail() {
     loadMatchData();
   }, [matchId]);
 
-  // 每2秒更新一次实时数据
+  // 每2秒更新一次实时数据（只在比赛进行中）
   useEffect(() => {
     if (!matchId || !match || match.status !== 'live') {
       return;
@@ -1478,7 +1799,6 @@ export default function MatchDetail() {
             // 文字直播包含：黄牌、红牌、进球、换人、角球、越位、助攻、比赛开始、中场、结束等
             if (live.tlive && Array.isArray(live.tlive) && live.tlive.length > 0) {
               // 存储所有文字直播数据
-              console.log('Updating text live data:', live.tlive);
               setTextLiveData(live.tlive);
               
               // 将重要的文字直播事件（main === 1）合并到事件列表中
@@ -1528,8 +1848,9 @@ export default function MatchDetail() {
               // setTextLiveData([]); // 或者不清空，保持之前的数据
             }
             
-            // 生成时间线数据（用于图表显示）
-            // 根据比赛事件和统计数据生成时间线
+            // 根据比赛事件和统计数据生成时间线（如果没有趋势数据）
+            // 注意：趋势数据现在由独立的 useEffect 处理，即使比赛结束也会尝试获取
+            if (!updatedMatch.timeline || updatedMatch.timeline.length === 0) {
             if (live.incidents && live.incidents.length > 0) {
               // 创建时间线数据点（每15分钟一个点）
               const timelinePoints = [];
@@ -1610,6 +1931,7 @@ export default function MatchDetail() {
               });
               
               updatedMatch.timeline = timelinePoints;
+              }
             }
             
             return updatedMatch;
@@ -1630,6 +1952,131 @@ export default function MatchDetail() {
     return () => clearInterval(interval);
   }, [matchId, match?.status]);
 
+  // 独立获取趋势数据（即使比赛结束也尝试获取，详情接口支持前30天的比赛）
+  useEffect(() => {
+    if (!matchId || !match) {
+      return;
+    }
+
+    const fetchTrendData = async () => {
+      try {
+        // 优先从实时趋势接口获取（如果比赛还在进行中）
+        let trendResponse: Awaited<ReturnType<typeof fetchMatchTrend>> | null = null;
+        let trendData: Awaited<ReturnType<typeof fetchMatchTrend>>['results'][0] | undefined = undefined;
+        
+        if (match.status === 'live') {
+          try {
+            trendResponse = await fetchMatchTrend(matchId);
+            trendData = trendResponse.results?.find(r => r.match_id === parseInt(matchId));
+          } catch (error) {
+            // 实时接口失败，继续尝试详情接口
+          }
+        }
+        
+        // 如果实时趋势数据缺失或不完整，使用详情接口进行查缺补漏
+        // 详情接口支持前30天的比赛，所以即使比赛结束也可以获取
+        // 如果比赛已结束，直接使用详情接口
+        if (match.status !== 'live' || !isTrendDataComplete(trendData)) {
+          try {
+            const detailResponse = await fetchMatchTrendDetail(matchId);
+            const detailData = detailResponse.results?.find(r => r.match_id === parseInt(matchId));
+            
+            // 如果详情接口有数据，使用详情接口的数据
+            // 即使 isTrendDataComplete 返回 false，也尝试使用详情接口的数据（可能数据点较少但仍有价值）
+            if (detailData && detailData.trend && detailData.trend.data) {
+              trendData = detailData;
+            } else if (trendData && detailData) {
+              // 如果两个接口都有部分数据，尝试合并（优先使用详情接口的数据）
+              trendData = detailData;
+            }
+          } catch (detailError) {
+            // 详情接口失败不影响主流程
+          }
+        }
+        
+        // 调试：检查数据是否存在
+        if (!trendData || !trendData.trend || !trendData.trend.data) {
+          // 没有趋势数据，不更新
+          return;
+        }
+        
+        // 如果有趋势数据，解析并更新（即使数据不完整也尝试显示）
+        if (trendData && trendData.trend && trendData.trend.data) {
+          // 解析趋势数据并更新时间线
+          const timelineData = parseTrendData(trendData);
+          
+          // 无论数据点多少，只要有数据就更新
+          if (timelineData.length > 0) {
+            setMatch(prevMatch => {
+              if (!prevMatch) return prevMatch;
+              // 确保更新 timeline
+              return {
+                ...prevMatch,
+                timeline: timelineData,
+              };
+            });
+          } else {
+            // 如果解析后没有数据，可能是数据格式问题
+            // 尝试直接使用原始数据
+            const { data, per } = trendData.trend;
+            if (data && Array.isArray(data) && data.length > 0) {
+              // 至少有一个半场的数据
+              const hasData = data.some(half => Array.isArray(half) && half.length > 0);
+              if (hasData) {
+                // 数据存在但解析失败，可能是格式问题，尝试重新解析
+                const retryTimelineData = parseTrendData(trendData);
+                if (retryTimelineData.length > 0) {
+                  setMatch(prevMatch => {
+                    if (!prevMatch) return prevMatch;
+                    return {
+                      ...prevMatch,
+                      timeline: retryTimelineData,
+                    };
+                  });
+                }
+              }
+            }
+          }
+          
+          // 解析事件数据（如果趋势API的事件数据更完整，则使用它）
+          if (trendData.incidents && trendData.incidents.length > 0) {
+            const events = parseTrendIncidents(trendData.incidents);
+            if (events.length > 0) {
+              setMatch(prevMatch => {
+                if (!prevMatch) return prevMatch;
+                return {
+                  ...prevMatch,
+                  events: events,
+                };
+              });
+            }
+          }
+        } else {
+          // 如果没有趋势数据，尝试清空时间线（避免显示旧数据）
+          setMatch(prevMatch => {
+            if (!prevMatch || !prevMatch.timeline || prevMatch.timeline.length === 0) {
+              return prevMatch;
+            }
+            // 如果之前有时间线数据但现在没有，保持原样（可能是临时网络问题）
+            return prevMatch;
+          });
+        }
+      } catch (error) {
+        // 趋势数据获取失败不影响主流程
+      }
+    };
+
+    // 立即执行一次
+    fetchTrendData();
+
+    // 如果比赛还在进行中，每30秒更新一次趋势数据
+    // 如果比赛已结束，只执行一次（因为详情接口数据不会变化）
+    if (match.status === 'live') {
+      const interval = setInterval(fetchTrendData, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [matchId, match?.status]);
+
   // 每3秒更新一次指数数据（适用于所有比赛状态，包括已结束的比赛）
   useEffect(() => {
     if (!matchId || !match) {
@@ -1640,9 +2087,7 @@ export default function MatchDetail() {
       try {
         const companyIds = [7, 3, 2, 11, 10]; // 澳彩、皇冠、BET365、韦德、易胜博
         const oddsResponse = await fetchOddsLive(matchId, companyIds);
-        console.log('Odds update response:', oddsResponse);
         const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
-        console.log('Parsed odds update:', parsedOdds);
         
         if (parsedOdds) {
           setMatch(prevMatch => {
@@ -1738,55 +2183,162 @@ export default function MatchDetail() {
     );
   };
 
-  // 球员节点组件
-  const PlayerNode = ({ player, isAway = false }: { player: Player; isAway?: boolean }) => {
-    const getRatingColor = (rating: number) => {
-      if (rating >= 7.5) return 'bg-green-500';
-      if (rating >= 6.5) return 'bg-primary';
-      if (rating >= 5.5) return 'bg-yellow-500';
-      return 'bg-muted';
-    };
+  // 简写球员名字（参考图片，尽量完整显示，只对过长名字做适度截断）
+  const getShortName = (name: string): string => {
+    if (!name) return '';
+    
+    // 如果包含空格，取最后一个部分（通常是姓氏）
+    // 但保留分隔符如"·"、"•"等，因为这些是名字的一部分
+    if (name.includes(' ') && !name.includes('·') && !name.includes('•')) {
+      const parts = name.split(/\s+/);
+      if (parts.length > 1) {
+        return parts[parts.length - 1];
+      }
+    }
+    
+    // 中文名字：超过5个字才截断，保留前5个字
+    if (/[\u4e00-\u9fa5]/.test(name)) {
+      return name.length > 5 ? name.substring(0, 5) : name;
+    }
+    
+    // 英文名字：超过10个字符才截断
+    return name.length > 10 ? name.substring(0, 10) : name;
+  };
 
+  // 球员节点组件（根据坐标绝对定位）
+  const PlayerNode = ({ player, isAway = false, fieldWidth = 100, fieldHeight = 100 }: { 
+    player: Player; 
+    isAway?: boolean;
+    fieldWidth?: number;
+    fieldHeight?: number;
+  }) => {
+    // 处理坐标系统
+    // 主队坐标原点：左上（x轴向右，y轴向下），坐标范围0-100
+    // 客队坐标原点：右下（x轴向左，y轴向上），坐标范围0-100
+    // 需要将客队坐标转换为以左上角为原点的坐标系
+    let xPercent = 0;
+    let yPercent = 0;
+    
+    if (player.x !== undefined && player.y !== undefined) {
+      if (isAway) {
+        // 客队：坐标原点在右下，x轴向左，y轴向上
+        // API返回的x=50, y=12表示从右下角向左50个单位，向上12个单位
+        // 转换为左上角为原点的百分比：
+        // - x: 从右下角向左50，相当于从左向右50，所以 x = 100 - x = 50
+        // - y: 从右下角向上12，相当于从顶部向下88，所以 y = 100 - y = 88
+        xPercent = 100 - player.x;
+        // 客队应该显示在下半场（y: 50-100%）
+        // 客队的y坐标（0-100，从右下角向上）映射到下半场（50-100%）
+        // 如果y=0（右下角），映射到100%；如果y=100（右上角），映射到50%
+        yPercent = 50 + (100 - player.y) * 0.5;
+      } else {
+        // 主队：坐标原点在左上，x轴向右，y轴向下
+        // API返回的x=50, y=12表示从左上角向右50个单位，向下12个单位
+        // 主队应该显示在上半场（y: 0-50%），所以需要将y坐标映射到上半场
+        xPercent = player.x;
+        // 主队的y坐标（0-100，从左上角向下）映射到上半场（0-50%）
+        // 如果y=0（左上角），映射到0%；如果y=100（左下角），映射到50%
+        yPercent = player.y * 0.5;
+      }
+    }
+    
+    // 解析球员事件
+    const incidents = player.incidents || [];
+    const yellowCards = incidents.filter(i => i.type === STAT_TYPE.YELLOW_CARD);
+    const redCards = incidents.filter(i => i.type === STAT_TYPE.RED_CARD || i.type === STAT_TYPE.SECOND_YELLOW);
+    const substitutions = incidents.filter(i => i.type === STAT_TYPE.SUBSTITUTION);
+    const goals = incidents.filter(i => i.type === STAT_TYPE.GOAL || i.type === STAT_TYPE.PENALTY);
+    
+    // 获取换人时间（如果有被换下的事件）
+    const substitutionOut = substitutions.find(s => s.out_player?.id === parseInt(player.id));
+    const substitutionTime = substitutionOut?.time || '';
+    
+    // 优先使用 incidents 中 player.name，如果没有则使用 player.name
+    const playerName = (() => {
+      // 从 incidents 中查找第一个有 player.name 的事件
+      const incidentWithPlayer = incidents.find(i => i.player?.name);
+      if (incidentWithPlayer?.player?.name) {
+        return incidentWithPlayer.player.name;
+      }
+      // 如果没有找到，使用原始的 player.name
+      return player.name;
+    })();
+    
+    // 确保坐标在有效范围内，避免边缘重叠
+    // x限制在5%-95%范围内，y根据主客队分别限制
+    xPercent = Math.max(5, Math.min(95, xPercent));
+    if (isAway) {
+      // 客队：y限制在下半场（50-95%）
+      yPercent = Math.max(50, Math.min(95, yPercent));
+    } else {
+      // 主队：y限制在上半场（5-50%）
+      yPercent = Math.max(5, Math.min(50, yPercent));
+    }
+    
     return (
-      <div className="flex flex-col items-center w-16">
+      <div 
+        className="absolute flex flex-col items-center z-30"
+        style={{
+          left: `${xPercent}%`,
+          top: `${yPercent}%`,
+          transform: 'translate(-50%, -50%)',
+        }}
+      >
         <div className="relative">
           {/* 球员号码 */}
-          <div className="absolute -top-1 -left-1 w-4 h-4 bg-black/60 rounded-full flex items-center justify-center text-[9px] text-white font-bold z-10">
+          <div className={`absolute -top-0.5 -left-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] text-white font-bold z-10 border border-white/30 ${
+            isAway ? 'bg-green-600' : 'bg-red-600'
+          }`}>
             {player.number}
           </div>
           {/* 头像 */}
-          <Avatar className="w-10 h-10 border-2 border-white/30">
+          <Avatar className={`w-9 h-9 border-2 shadow-lg ${
+            isAway ? 'border-green-500' : 'border-red-500'
+          }`}>
             <AvatarImage src={player.avatar} />
-            <AvatarFallback className="text-xs bg-muted">{player.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback className={`text-[9px] text-white ${
+              isAway ? 'bg-green-600' : 'bg-red-600'
+            }`}>{player.number}</AvatarFallback>
           </Avatar>
           {/* 队长标记 */}
           {player.isCaptain && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-warning rounded-full flex items-center justify-center text-[8px] text-black font-bold">
+            <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center text-[8px] text-black font-bold border border-white/50">
               C
             </div>
           )}
-          {/* 被换下标记 */}
-          {player.isSubstituted && (
-            <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 bg-destructive/80 rounded px-1 text-[8px] text-white">
+          {/* 黄牌标记 */}
+          {yellowCards.length > 0 && (
+            <div className="absolute -bottom-0.5 -left-0.5">
+              <YellowCardIcon size={12} />
+            </div>
+          )}
+          {/* 红牌标记 */}
+          {redCards.length > 0 && (
+            <div className="absolute -bottom-0.5 -left-0.5">
+              <RedCardIcon size={12} />
+            </div>
+          )}
+          {/* 换人标记 */}
+          {substitutionOut && (
+            <div className="absolute -bottom-0.5 -right-0.5 flex items-center gap-0.5 bg-red-600/90 rounded px-0.5 py-0 text-[8px] text-white font-medium border border-white/30">
               <ArrowLeft className="w-2 h-2" />
-              {player.substitutedMinute}'
+              <span>{substitutionTime}</span>
             </div>
           )}
           {/* 进球标记 */}
-          {player.hasGoal && (
-            <div className="absolute -bottom-1 -left-1">
-              <GoalIcon size={16} />
+          {goals.length > 0 && (
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-full">
+              <GoalIcon size={12} />
             </div>
           )}
         </div>
-        {/* 球员名字 */}
-        <span className="text-[10px] text-white mt-1 text-center truncate w-full">{player.name}</span>
-        {/* 评分 */}
-        {player.rating > 0 && (
-          <span className={`text-[10px] px-1.5 py-0.5 rounded text-white font-medium ${getRatingColor(player.rating)}`}>
-            {player.rating.toFixed(1)}
-          </span>
-        )}
+        {/* 球员名字（简写） */}
+        <span className="text-[9px] text-white mt-0.5 text-center truncate max-w-[50px] drop-shadow-lg font-medium leading-tight">
+          {(() => {
+            console.log(`球员完整名字 (player.name): ${player.name}, 从incidents获取: ${playerName}, 简写: ${getShortName(playerName)}`);
+            return getShortName(playerName);
+          })()}
+        </span>
       </div>
     );
   };
@@ -2341,54 +2893,278 @@ export default function MatchDetail() {
                     <span>90'</span>
                   </div>
 
-                  {/* 图表区域 */}
+                  {/* 图表区域 - 使用 SVG 路径连接数据点 */}
                   <div className="relative h-20">
-                    {/* 主队强度柱状图（向上） */}
-                    <div className="absolute top-0 left-0 right-0 h-10 flex items-end gap-0.5 px-1">
-                      {match.timeline.length > 0 ? (
-                        match.timeline.map((point, i) => {
-                          const maxIntensity = Math.max(...match.timeline.map(p => Math.max(p.homeIntensity, p.awayIntensity)));
-                          const height = maxIntensity > 0 ? (point.homeIntensity / maxIntensity) * 100 : 0;
+                    {(() => {
+                      
+                      if (!match.timeline || match.timeline.length === 0) {
                           return (
-                            <div 
-                              key={i}
-                              className="flex-1 bg-warning rounded-t transition-all"
-                              style={{ height: `${Math.max(height, 5)}%`, minHeight: '4px' }}
-                            />
-                          );
-                        })
-                      ) : (
-                        // 如果没有时间线数据，生成默认数据
-                        Array.from({ length: 7 }).map((_, i) => (
-                          <div key={i} className="flex-1 bg-warning/30 rounded-t" style={{ height: `${20 + Math.random() * 30}%` }} />
-                        ))
-                      )}
+                          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">
+                            暂无趋势数据
                     </div>
+                        );
+                      }
 
-                    {/* 中线 */}
-                    <div className="absolute top-1/2 left-0 right-0 h-px bg-border/50" />
+                      // 计算图表尺寸和范围
+                      const chartHeight = 80;
+                      const chartWidth = 100;
+                      // 减小可用区域高度，让填充区域显示更低
+                      const heightScale = 0.6; // 缩放系数，0.6表示只使用60%的高度
+                      const topAreaHeight = (chartHeight / 2) * heightScale;
+                      const bottomAreaHeight = (chartHeight / 2) * heightScale;
+                      const centerY = chartHeight / 2;
+                      
+                      // 获取最大分钟数（用于计算 x 轴比例）
+                      const maxMinute = Math.max(...match.timeline.map(p => p.minute), 90);
+                      
+                      // 获取最大强度值（用于计算 y 轴比例）
+                      const maxIntensity = Math.max(
+                        ...match.timeline.map(p => Math.max(p.homeIntensity, p.awayIntensity)),
+                        100
+                      );
+                      
+                      // 计算每个数据点的坐标
+                      // 注意：同一时间点不会同时有主队和客队的趋势值
+                      // 按时间顺序连接所有点，形成一条连续折线
+                      const points = match.timeline.map((point) => {
+                        const x = (point.minute / maxMinute) * 100;
+                        
+                        // 根据趋势值确定Y坐标
+                        // 正数：主队趋势，向上（Y < centerY）
+                        // 负数：客队趋势，向下（Y > centerY）
+                        // 0：在中心线上
+                        let y: number;
+                        let isHome: boolean;
+                        
+                        if (point.homeIntensity > 0) {
+                          // 主队趋势：向上
+                          const homeRatio = point.homeIntensity / maxIntensity;
+                          y = centerY - (homeRatio * topAreaHeight);
+                          isHome = true;
+                        } else if (point.awayIntensity > 0) {
+                          // 客队趋势：向下
+                          const awayRatio = point.awayIntensity / maxIntensity;
+                          y = centerY + (awayRatio * bottomAreaHeight);
+                          isHome = false;
+                        } else {
+                          // 都为0：在中心线上
+                          y = centerY;
+                          isHome = true; // 默认值，不影响显示
+                        }
+                        
+                        const pointData = {
+                          x,
+                          y: Math.max(0, Math.min(chartHeight, y)),
+                          minute: point.minute,
+                          homeIntensity: point.homeIntensity,
+                          awayIntensity: point.awayIntensity,
+                          isHome, // 用于确定填充颜色
+                        };
+                        
+                        return pointData;
+                      });
+                      
 
-                    {/* 客队强度柱状图（向下） */}
-                    <div className="absolute bottom-0 left-0 right-0 h-10 flex items-start gap-0.5 px-1">
-                      {match.timeline.length > 0 ? (
-                        match.timeline.map((point, i) => {
-                          const maxIntensity = Math.max(...match.timeline.map(p => Math.max(p.homeIntensity, p.awayIntensity)));
-                          const height = maxIntensity > 0 ? (point.awayIntensity / maxIntensity) * 100 : 0;
+                      // 生成按时间顺序连接的折线路径
+                      // 根据每个点的趋势值（正数向上，负数向下）形成一条连续折线
+                      // 填充区域需要分别处理上半部分和下半部分
+                      
+                      // 生成完整的折线路径（按时间顺序连接所有点）
+                      const trendLinePath = points.length > 0 ? (() => {
+                        if (points.length === 0) return '';
+                        if (points.length === 1) {
+                          return `M ${points[0].x} ${points[0].y}`;
+                        }
+                        
+                        // 按时间顺序连接所有点
+                        let path = `M ${points[0].x} ${points[0].y}`;
+                        for (let i = 1; i < points.length; i++) {
+                          path += ` L ${points[i].x} ${points[i].y}`;
+                        }
+                        return path;
+                      })() : '';
+                      
+                      // 生成填充路径：按时间顺序遍历所有点，分别处理上半部分和下半部分
+                      // 上半部分（橙色）：从中心线开始，连接所有Y < centerY的点，回到中心线
+                      // 下半部分（灰色）：从中心线开始，连接所有Y > centerY的点，回到中心线
+                      
+                      // 计算两点之间与中心线的交点
+                      const getIntersection = (p1: typeof points[0], p2: typeof points[0]): { x: number; y: number } | null => {
+                        // 如果两点在中心线的同一侧，没有交点
+                        if ((p1.y < centerY && p2.y < centerY) || (p1.y > centerY && p2.y > centerY) || (p1.y === centerY && p2.y === centerY)) {
+                          return null;
+                        }
+                        // 如果其中一点在中心线上，返回该点
+                        if (p1.y === centerY) return { x: p1.x, y: centerY };
+                        if (p2.y === centerY) return { x: p2.x, y: centerY };
+                        // 计算交点
+                        const t = (centerY - p1.y) / (p2.y - p1.y);
+                        return {
+                          x: p1.x + (p2.x - p1.x) * t,
+                          y: centerY,
+                        };
+                      };
+                      
+                      // 生成上半部分填充路径（橙色）
+                      const homePath = points.length > 0 ? (() => {
+                        if (points.length === 0) return '';
+                        
+                        // 收集所有在中心线上方的点和与中心线的交点
+                        const homePathPoints: Array<{ x: number; y: number }> = [];
+                        
+                        for (let i = 0; i < points.length; i++) {
+                          const current = points[i];
+                          const prev = i > 0 ? points[i - 1] : null;
+                          
+                          // 如果当前点在中心线上方
+                          if (current.y < centerY) {
+                            // 如果前一个点在中心线下方或中心线上，添加交点
+                            if (prev && prev.y >= centerY) {
+                              const intersection = getIntersection(prev, current);
+                              if (intersection) {
+                                homePathPoints.push(intersection);
+                              }
+                            }
+                            // 添加当前点
+                            homePathPoints.push({ x: current.x, y: current.y });
+                          } else if (current.y === centerY && prev && prev.y < centerY) {
+                            // 如果当前点在中心线上，且前一个点在中心线上方，添加当前点
+                            homePathPoints.push({ x: current.x, y: centerY });
+                          } else if (current.y > centerY && prev && prev.y < centerY) {
+                            // 如果当前点在中心线下方，但前一个点在中心线上方，添加交点
+                            const intersection = getIntersection(prev, current);
+                            if (intersection) {
+                              homePathPoints.push(intersection);
+                            }
+                          }
+                        }
+                        
+                        if (homePathPoints.length === 0) return '';
+                        
+                        // 构建路径：从时间轴起点（x=0）开始，连接所有点，回到时间轴终点
+                        const firstX = homePathPoints[0].x;
+                        const lastX = homePathPoints[homePathPoints.length - 1].x;
+                        const startX = firstX > 0 ? 0 : firstX; // 如果第一个点不在起点，从起点开始
+                        const endX = lastX < 100 ? 100 : lastX; // 如果最后一个点不在终点，到终点结束
+                        
+                        let path = `M ${startX} ${centerY}`;
+                        // 如果起点不在第一个点，先连接到第一个点
+                        if (startX < firstX) {
+                          path += ` L ${firstX} ${centerY}`;
+                        }
+                        // 连接所有点
+                        homePathPoints.forEach((p) => {
+                          path += ` L ${p.x} ${p.y}`;
+                        });
+                        // 如果终点不在最后一个点，从最后一个点连接到终点
+                        if (endX > lastX) {
+                          path += ` L ${lastX} ${centerY} L ${endX} ${centerY}`;
+                        } else {
+                          path += ` L ${lastX} ${centerY}`;
+                        }
+                        path += ' Z';
+                        
+                        return path;
+                      })() : '';
+                      
+                      // 生成下半部分填充路径（灰色）
+                      const awayPath = points.length > 0 ? (() => {
+                        if (points.length === 0) return '';
+                        
+                        // 收集所有在中心线下方的点和与中心线的交点
+                        const awayPathPoints: Array<{ x: number; y: number }> = [];
+                        
+                        for (let i = 0; i < points.length; i++) {
+                          const current = points[i];
+                          const prev = i > 0 ? points[i - 1] : null;
+                          
+                          // 如果当前点在中心线下方
+                          if (current.y > centerY) {
+                            // 如果前一个点在中心线上方或中心线上，添加交点
+                            if (prev && prev.y <= centerY) {
+                              const intersection = getIntersection(prev, current);
+                              if (intersection) {
+                                awayPathPoints.push(intersection);
+                              }
+                            }
+                            // 添加当前点
+                            awayPathPoints.push({ x: current.x, y: current.y });
+                          } else if (current.y === centerY && prev && prev.y > centerY) {
+                            // 如果当前点在中心线上，且前一个点在中心线下方，添加当前点
+                            awayPathPoints.push({ x: current.x, y: centerY });
+                          } else if (current.y < centerY && prev && prev.y > centerY) {
+                            // 如果当前点在中心线上方，但前一个点在中心线下方，添加交点
+                            const intersection = getIntersection(prev, current);
+                            if (intersection) {
+                              awayPathPoints.push(intersection);
+                            }
+                          }
+                        }
+                        
+                        if (awayPathPoints.length === 0) return '';
+                        
+                        // 构建路径：从时间轴起点（x=0）开始，连接所有点，回到时间轴终点
+                        const firstX = awayPathPoints[0].x;
+                        const lastX = awayPathPoints[awayPathPoints.length - 1].x;
+                        const startX = firstX > 0 ? 0 : firstX; // 如果第一个点不在起点，从起点开始
+                        const endX = lastX < 100 ? 100 : lastX; // 如果最后一个点不在终点，到终点结束
+                        
+                        let path = `M ${startX} ${centerY}`;
+                        // 如果起点不在第一个点，先连接到第一个点
+                        if (startX < firstX) {
+                          path += ` L ${firstX} ${centerY}`;
+                        }
+                        // 连接所有点
+                        awayPathPoints.forEach((p) => {
+                          path += ` L ${p.x} ${p.y}`;
+                        });
+                        // 如果终点不在最后一个点，从最后一个点连接到终点
+                        if (endX > lastX) {
+                          path += ` L ${lastX} ${centerY} L ${endX} ${centerY}`;
+                        } else {
+                          path += ` L ${lastX} ${centerY}`;
+                        }
+                        path += ' Z';
+                        
+                        return path;
+                      })() : '';
+
                           return (
-                            <div 
-                              key={i}
-                              className="flex-1 bg-muted-foreground/60 rounded-b transition-all"
-                              style={{ height: `${Math.max(height, 5)}%`, minHeight: '4px' }}
+                        <svg 
+                          className="absolute inset-0 w-full h-full" 
+                          viewBox="0 0 100 80"
+                          preserveAspectRatio="none"
+                        >
+                          {/* 主队趋势填充区域（橙色，上半部分） */}
+                          {homePath && (
+                            <path
+                              d={homePath}
+                              fill="rgb(251 146 60)" // orange-400
+                              fillOpacity="0.6"
                             />
-                          );
-                        })
-                      ) : (
-                        // 如果没有时间线数据，生成默认数据
-                        Array.from({ length: 7 }).map((_, i) => (
-                          <div key={i} className="flex-1 bg-muted-foreground/30 rounded-b" style={{ height: `${20 + Math.random() * 30}%` }} />
-                        ))
-                      )}
-                    </div>
+                          )}
+                          
+                          {/* 客队趋势填充区域（灰色，下半部分） */}
+                          {awayPath && (
+                            <path
+                              d={awayPath}
+                              fill="rgb(115 115 115)" // neutral-500
+                              fillOpacity="0.5"
+                            />
+                          )}
+                          
+                          {/* 中心线 */}
+                          <line
+                            x1="0"
+                            y1={centerY}
+                            x2="100"
+                            y2={centerY}
+                            stroke="rgba(255, 255, 255, 0.2)"
+                            strokeWidth="0.5"
+                          />
+                        </svg>
+                      );
+                    })()}
 
                     {/* 事件标记 */}
                     {match.events.map((event, index) => {
@@ -2657,7 +3433,7 @@ export default function MatchDetail() {
                           <div key={index} className="flex gap-3 items-start">
                             {/* 图标 */}
                             <div className="flex-shrink-0 flex items-center justify-center">
-                              {icon}
+                                {icon}
                             </div>
                             
                             {/* 描述文本 */}
@@ -2947,107 +3723,107 @@ export default function MatchDetail() {
             )}
 
             {/* 球场阵容图 */}
-            <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-xl overflow-hidden">
-              {/* 球场纹理 */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-0 left-0 right-0 h-1/2 border-b-2 border-white/30" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-2 border-white/30 rounded-full" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-16 border-2 border-t-0 border-white/30" />
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-16 border-2 border-b-0 border-white/30" />
+            <div className="relative rounded-xl overflow-hidden">
+              {/* 足球场背景图 */}
+              <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${footballFieldBg})` }} />
+
+              {/* 球场容器（使用相对定位，球员绝对定位） */}
+              {/* 坐标系统：主队原点在左上，客队原点在右下，坐标范围0-100 */}
+              {/* 坐标直接映射到容器的百分比位置，不考虑padding */}
+              <div className="relative w-full" style={{ minHeight: '500px', aspectRatio: '3/2', padding: '40px 20px' }}>
+                {/* 主队阵容 - 根据坐标绝对定位 */}
+                {match.homeTeam.lineup && match.homeTeam.lineup.startingXI.length > 0 && (
+                  <>
+                    {/* 主队标识和阵型 */}
+                    <div className="absolute top-2 left-4 flex items-center gap-2 z-20">
+                      {match.homeTeam.logo ? (
+                        <img src={match.homeTeam.logo} alt={match.homeTeam.name} className="w-8 h-8 rounded object-contain bg-white/10 p-1" />
+                      ) : (
+                        <span className="text-xl">{match.homeTeam.flag}</span>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{match.homeTeam.shortName}</span>
+                        <div className="flex items-center gap-2 text-white/80 text-xs">
+                          <span>阵型: {match.homeTeam.lineup.formation}</span>
+                          {match.homeTeam.lineup.totalValue && (
+                            <span>首发身价: {match.homeTeam.lineup.totalValue}</span>
+                          )}
+                          {match.homeTeam.lineup.averageAge > 0 && (
+                            <span>平均: {match.homeTeam.lineup.averageAge}岁</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 主队教练 */}
+                    {match.homeTeam.lineup.coach && (
+                      <div className="absolute top-2 right-4 flex items-center gap-1 text-white/70 text-xs z-20">
+                        <Clock className="w-3 h-3" />
+                        <span>{match.homeTeam.lineup.coach}</span>
+                      </div>
+                    )}
+                    
+                    {/* 主队球员（根据坐标绝对定位） */}
+                    {match.homeTeam.lineup.startingXI.map(player => (
+                      <PlayerNode 
+                        key={player.id} 
+                        player={player} 
+                        isAway={false}
+                        fieldWidth={100}
+                        fieldHeight={100}
+                      />
+                    ))}
+                  </>
+                )}
+
+                {/* 分隔线 */}
+                <div className="absolute top-1/2 left-0 right-0 h-px bg-white/30 z-10" />
+
+                {/* 客队阵容 - 根据坐标绝对定位 */}
+                {match.awayTeam.lineup && match.awayTeam.lineup.startingXI.length > 0 && (
+                  <>
+                    {/* 客队标识和阵型 */}
+                    <div className="absolute bottom-2 left-4 flex items-center gap-2 z-20">
+                      {match.awayTeam.logo ? (
+                        <img src={match.awayTeam.logo} alt={match.awayTeam.name} className="w-8 h-8 rounded object-contain bg-white/10 p-1" />
+                      ) : (
+                        <span className="text-xl">{match.awayTeam.flag}</span>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{match.awayTeam.shortName}</span>
+                        <div className="flex items-center gap-2 text-white/80 text-xs">
+                          <span>阵型: {match.awayTeam.lineup.formation}</span>
+                          {match.awayTeam.lineup.totalValue && (
+                            <span>首发身价: {match.awayTeam.lineup.totalValue}</span>
+                          )}
+                          {match.awayTeam.lineup.averageAge > 0 && (
+                            <span>平均: {match.awayTeam.lineup.averageAge}岁</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 客队教练 */}
+                    {match.awayTeam.lineup.coach && (
+                      <div className="absolute bottom-2 right-4 flex items-center gap-1 text-white/70 text-xs z-20">
+                        <Clock className="w-3 h-3" />
+                        <span>{match.awayTeam.lineup.coach}</span>
+                      </div>
+                    )}
+                    
+                    {/* 客队球员（根据坐标绝对定位） */}
+                    {match.awayTeam.lineup.startingXI.map(player => (
+                      <PlayerNode 
+                        key={player.id} 
+                        player={player} 
+                        isAway={true}
+                        fieldWidth={100}
+                        fieldHeight={100}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
-
-              {/* 主队阵容 */}
-              {match.homeTeam.lineup && (
-                <div className="relative p-4 pb-2">
-                  {/* 队伍标识 */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{match.homeTeam.flag}</span>
-                      <span className="text-white font-medium text-sm">{match.homeTeam.shortName}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-white/70 text-xs">
-                      <Clock className="w-3 h-3" />
-                      <span>{match.homeTeam.lineup.coach}</span>
-                    </div>
-                  </div>
-
-                  {/* 门将 */}
-                  <div className="flex justify-center mb-4">
-                    {match.homeTeam.lineup.startingXI.filter(p => p.position === 'GK').map(player => (
-                      <PlayerNode key={player.id} player={player} />
-                    ))}
-                  </div>
-
-                  {/* 后卫线 */}
-                  <div className="flex justify-around mb-4">
-                    {match.homeTeam.lineup.startingXI.filter(p => ['LB', 'CB', 'RB'].includes(p.position)).map(player => (
-                      <PlayerNode key={player.id} player={player} />
-                    ))}
-                  </div>
-
-                  {/* 中场线 */}
-                  <div className="flex justify-around mb-4">
-                    {match.homeTeam.lineup.startingXI.filter(p => ['LM', 'CM', 'RM', 'LW', 'RW'].includes(p.position)).map(player => (
-                      <PlayerNode key={player.id} player={player} />
-                    ))}
-                  </div>
-
-                  {/* 前锋线 */}
-                  <div className="flex justify-around mb-2">
-                    {match.homeTeam.lineup.startingXI.filter(p => ['CF', 'ST', 'FW'].includes(p.position)).map(player => (
-                      <PlayerNode key={player.id} player={player} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 分隔线 */}
-              <div className="h-px bg-white/30 mx-4" />
-
-              {/* 客队阵容 */}
-              {match.awayTeam.lineup && (
-                <div className="relative p-4 pt-2">
-                  {/* 前锋线 */}
-                  <div className="flex justify-around mb-4 mt-2">
-                    {match.awayTeam.lineup.startingXI.filter(p => ['CF', 'ST', 'FW'].includes(p.position)).map(player => (
-                      <PlayerNode key={player.id} player={player} isAway />
-                    ))}
-                  </div>
-
-                  {/* 中场线 */}
-                  <div className="flex justify-around mb-4">
-                    {match.awayTeam.lineup.startingXI.filter(p => ['LM', 'CM', 'RM', 'LW', 'RW'].includes(p.position)).map(player => (
-                      <PlayerNode key={player.id} player={player} isAway />
-                    ))}
-                  </div>
-
-                  {/* 后卫线 */}
-                  <div className="flex justify-around mb-4">
-                    {match.awayTeam.lineup.startingXI.filter(p => ['LB', 'CB', 'RB'].includes(p.position)).map(player => (
-                      <PlayerNode key={player.id} player={player} isAway />
-                    ))}
-                  </div>
-
-                  {/* 门将 */}
-                  <div className="flex justify-center mb-3">
-                    {match.awayTeam.lineup.startingXI.filter(p => p.position === 'GK').map(player => (
-                      <PlayerNode key={player.id} player={player} isAway />
-                    ))}
-                  </div>
-
-                  {/* 队伍标识 */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{match.awayTeam.flag}</span>
-                      <span className="text-white font-medium text-sm">{match.awayTeam.shortName}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-white/70 text-xs">
-                      <Clock className="w-3 h-3" />
-                      <span>{match.awayTeam.lineup.coach}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* 阵型对比分析 */}
@@ -3078,44 +3854,78 @@ export default function MatchDetail() {
                 {match.homeTeam.lineup && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                      <span>{match.homeTeam.flag}</span>
+                      {match.homeTeam.logo ? (
+                        <img src={match.homeTeam.logo} alt={match.homeTeam.name} className="w-4 h-4 rounded object-contain" />
+                      ) : (
+                        <span>{match.homeTeam.flag}</span>
+                      )}
                       <span>{match.homeTeam.shortName}</span>
                     </div>
-                    {match.homeTeam.lineup.substitutes.map(player => (
-                      <div key={player.id} className="flex items-center gap-2 text-xs">
-                        <Avatar className="w-6 h-6">
-                          <AvatarImage src={player.avatar} />
-                          <AvatarFallback className="text-[8px] bg-muted">{player.number}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-muted-foreground">{player.number}</span>
-                        <span className="flex-1 truncate">{player.name}</span>
-                        {player.rating > 0 && (
-                          <span className="text-xs text-muted-foreground">{player.rating}</span>
-                        )}
-                      </div>
-                    ))}
+                    {match.homeTeam.lineup.substitutes.map(player => {
+                      const incidents = player.incidents || [];
+                      const substitutionIn = incidents.find(i => i.type === STAT_TYPE.SUBSTITUTION && i.in_player?.id === parseInt(player.id));
+                      const substitutionTime = substitutionIn?.time || '';
+                      
+                      return (
+                        <div key={player.id} className="flex items-center gap-2 text-xs">
+                          <div className="relative">
+                            <Avatar className="w-6 h-6">
+                              <AvatarImage src={player.avatar} />
+                              <AvatarFallback className="text-[8px] bg-muted">{player.number}</AvatarFallback>
+                            </Avatar>
+                            {substitutionIn && (
+                              <div className="absolute -top-1 -right-1 flex items-center gap-0.5 bg-green-600/90 rounded px-0.5 py-0 text-[8px] text-white">
+                                <span>{substitutionTime}</span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-muted-foreground w-6">{player.number}</span>
+                          <span className="flex-1 truncate">{player.name}</span>
+                          {player.rating > 0 && (
+                            <span className="text-xs text-muted-foreground">{player.rating.toFixed(1)}</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 {/* 客队替补 */}
                 {match.awayTeam.lineup && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                      <span>{match.awayTeam.flag}</span>
+                      {match.awayTeam.logo ? (
+                        <img src={match.awayTeam.logo} alt={match.awayTeam.name} className="w-4 h-4 rounded object-contain" />
+                      ) : (
+                        <span>{match.awayTeam.flag}</span>
+                      )}
                       <span>{match.awayTeam.shortName}</span>
                     </div>
-                    {match.awayTeam.lineup.substitutes.map(player => (
-                      <div key={player.id} className="flex items-center gap-2 text-xs">
-                        <Avatar className="w-6 h-6">
-                          <AvatarImage src={player.avatar} />
-                          <AvatarFallback className="text-[8px] bg-muted">{player.number}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-muted-foreground">{player.number}</span>
-                        <span className="flex-1 truncate">{player.name}</span>
-                        {player.rating > 0 && (
-                          <span className="text-xs text-muted-foreground">{player.rating}</span>
-                        )}
-                      </div>
-                    ))}
+                    {match.awayTeam.lineup.substitutes.map(player => {
+                      const incidents = player.incidents || [];
+                      const substitutionIn = incidents.find(i => i.type === STAT_TYPE.SUBSTITUTION && i.in_player?.id === parseInt(player.id));
+                      const substitutionTime = substitutionIn?.time || '';
+                      
+                      return (
+                        <div key={player.id} className="flex items-center gap-2 text-xs">
+                          <div className="relative">
+                            <Avatar className="w-6 h-6">
+                              <AvatarImage src={player.avatar} />
+                              <AvatarFallback className="text-[8px] bg-muted">{player.number}</AvatarFallback>
+                            </Avatar>
+                            {substitutionIn && (
+                              <div className="absolute -top-1 -right-1 flex items-center gap-0.5 bg-green-600/90 rounded px-0.5 py-0 text-[8px] text-white">
+                                <span>{substitutionTime}</span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-muted-foreground w-6">{player.number}</span>
+                          <span className="flex-1 truncate">{player.name}</span>
+                          {player.rating > 0 && (
+                            <span className="text-xs text-muted-foreground">{player.rating.toFixed(1)}</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

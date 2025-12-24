@@ -1,11 +1,62 @@
 import type { CompetitionListResponse, Competition, FixtureResponse, FixturesListResponse, DiaryMatch, DiaryTeam, MatchLiveResponse, MatchLiveData } from "@/types/footballApi";
 
-// 开发环境使用 Vite 代理，生产环境使用 Supabase Edge Function 避免 CORS 问题
-const SPORTNANOAPI_BASE_URL = import.meta.env.DEV
+// 统一使用 Supabase Edge Function 作为缓存代理（本地和生产环境都使用）
+const SPORTNANOAPI_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sportnanoapi-proxy`;
+const SPORTNANOAPI_LEGACY_URL = import.meta.env.DEV
   ? "/api/sportnanoapi/api/v5"
   : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
 const SPORTNANOAPI_USER = "nacctsaw";
 const SPORTNANOAPI_SECRET = "f0b904438d488e4c3d686b36f69339a6";
+
+/**
+ * 通过缓存代理调用 sportnanoapi
+ * @param endpoint API 端点（如 "match/live", "odds/live"）
+ * @param params 查询参数
+ * @returns API 响应
+ */
+async function callSportnanoapiWithCache(
+  endpoint: string,
+  params: Record<string, string | number> = {}
+): Promise<any> {
+  // 构建 URL：统一使用 Edge Function
+  const searchParams = new URLSearchParams(
+    Object.fromEntries(
+      Object.entries(params).map(([k, v]) => [k, String(v)])
+    )
+  );
+  const url = `${SPORTNANOAPI_BASE_URL}/${endpoint}?${searchParams.toString()}`;
+
+  const headers: HeadersInit = {
+    "Accept": "application/json",
+  };
+
+  // 添加 Supabase 认证头（必需，即使 verify_jwt = false）
+  if (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
+    headers["apikey"] = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    // 也添加 Authorization 头，某些情况下可能需要
+    headers["Authorization"] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
+  }
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = await response.json();
+
+  // 检查 API 返回的错误
+  if (data.code !== undefined && data.code !== 0) {
+    const errorMsg = data.msg || data.message || 'Unknown error';
+    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
+  }
+
+  return data;
+}
 
 // 本地存储键名
 const STORAGE_KEY_LAST_UPDATE_TIME = "competitions_last_update_time";
@@ -592,14 +643,59 @@ export const fetchMatchLive = async (matchId?: string | number): Promise<MatchLi
  * @returns 实时比赛数据，如果未找到则返回 null
  */
 export const fetchMatchLiveById = async (matchId: string | number): Promise<MatchLiveData | null> => {
-  const response = await fetchMatchLive(matchId);
+  // 使用缓存代理
+  const data = await callSportnanoapiWithCache("match/live", { id: matchId });
   
-  if (response.results && response.results.length > 0) {
-    const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
-    return response.results.find(m => m.id === matchIdNum) || null;
-  }
-  
-  return null;
+  // 转换返回数据格式（与 fetchMatchLive 相同的逻辑）
+  const transformedResults: MatchLiveData[] = (data.results || []).map((item: any) => {
+    let id: number;
+    let scoreData: any;
+    let stats: any;
+    let incidents: any;
+    let tlive: any;
+    
+    if (Array.isArray(item)) {
+      if (item.length < 2) {
+        console.warn('Invalid match live data format (array):', item);
+        return null;
+      }
+      [id, scoreData, stats, incidents, tlive] = item;
+    } else if (typeof item === 'object' && item !== null) {
+      id = item.id;
+      scoreData = item.score;
+      stats = item.stats;
+      incidents = item.incidents;
+      tlive = item.tlive;
+    } else {
+      console.warn('Invalid match live data format:', item);
+      return null;
+    }
+    
+    if (!Array.isArray(scoreData) || scoreData.length < 6) {
+      console.warn('Invalid score data format:', scoreData);
+      return null;
+    }
+    
+    const [matchIdNum, status, homeScores, awayScores, kickoffTime, note] = scoreData;
+    
+    return {
+      id: id || matchIdNum,
+      score: {
+        id: matchIdNum,
+        status: status || 0,
+        homeScores: Array.isArray(homeScores) ? homeScores : [],
+        awayScores: Array.isArray(awayScores) ? awayScores : [],
+        kickoffTime: kickoffTime || 0,
+        note: note || '',
+      },
+      stats: Array.isArray(stats) && stats.length > 0 ? stats : undefined,
+      incidents: Array.isArray(incidents) && incidents.length > 0 ? incidents : undefined,
+      tlive: Array.isArray(tlive) && tlive.length > 0 ? tlive : undefined,
+    };
+  }).filter((item): item is MatchLiveData => item !== null);
+
+  const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
+  return transformedResults.find(m => m.id === matchIdNum) || null;
 };
 
 /**
@@ -664,62 +760,229 @@ export const fetchOddsLive = async (
   matchId: string | number,
   companyIds: number[] = [7, 3, 2, 11, 10] // 默认：澳彩、皇冠、BET365、韦德、易胜博
 ): Promise<OddsLiveResponse> => {
-  const baseUrl = import.meta.env.DEV
-    ? "/api/sportnanoapi/api/v5"
-    : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
-
-  const searchParams = new URLSearchParams({
-    user: SPORTNANOAPI_USER,
-    secret: SPORTNANOAPI_SECRET,
-  });
-
+  // 构建参数对象
+  const params: Record<string, string> = {};
+  
   // 根据API文档，公司ID是数组参数
-  // 尝试使用数组格式：company[]=7&company[]=3（PHP风格的数组参数）
+  // 使用数组格式：company[]=7&company[]=3（PHP风格的数组参数）
   if (companyIds.length > 0) {
     companyIds.forEach(id => {
-      searchParams.append('company[]', id.toString());
+      params[`company[]`] = id.toString();
     });
   }
 
-  // 构建 URL
-  const isEdgeFunction = baseUrl.includes("/functions/v1/");
-  const url = isEdgeFunction
-    ? `${baseUrl}?endpoint=odds/live&${searchParams.toString()}`
-    : `${baseUrl}/football/odds/live?${searchParams.toString()}`;
-  
-  console.log('Fetching odds live data:', { matchId, companyIds, url });
-
-  const response = await fetch(url, {
-    method: "GET",
-    ...(isEdgeFunction && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-      ? {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        }
-      : {}),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to fetch odds live data: ${response.status} ${response.statusText} - ${errorText}`);
-  }
-
-  const data = await response.json();
-  console.log('Odds API raw response:', data);
-
-  // 检查 API 返回的错误
-  if (data.code !== undefined && data.code !== 0) {
-    const errorMsg = data.msg || data.message || 'Unknown error';
-    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
-  }
+  // 使用缓存代理
+  const data = await callSportnanoapiWithCache("odds/live", params);
 
   // 确保返回的数据格式正确
   if (!data.results || typeof data.results !== 'object' || Array.isArray(data.results)) {
-    console.warn('Invalid odds response format:', data);
     return { code: data.code || 0, results: {} };
   }
 
   return data as OddsLiveResponse;
+};
+
+/**
+ * 比赛趋势数据响应类型
+ */
+export interface MatchTrendResponse {
+  code: number;
+  results: Array<{
+    match_id: number;
+    trend: {
+      count: number; // 半场数
+      per: number;   // 半场时长
+      data: Array<number[]>; // [上半场趋势数组, 下半场趋势数组]
+    };
+    incidents: Array<{
+      type: number;      // 类型，详见状态码->技术统计
+      time: string;     // 时间(分钟)，可能包含 "+" 符号，如 "45+3"
+      position: number; // 事件发生方 1-主队、2-客队
+    }>;
+  }>;
+}
+
+/**
+ * 获取比赛趋势数据
+ * @param matchId 比赛ID
+ * @returns 趋势数据响应
+ */
+export const fetchMatchTrend = async (
+  matchId: string | number
+): Promise<MatchTrendResponse> => {
+  // 使用缓存代理
+  const data = await callSportnanoapiWithCache("match/trend/live", {});
+
+  // 确保返回的数据格式正确
+  if (!data.results || !Array.isArray(data.results)) {
+    return { code: data.code || 0, results: [] };
+  }
+
+  return data as MatchTrendResponse;
+};
+
+/**
+ * 获取比赛趋势详情数据（用于查缺补漏）
+ * 当实时趋势数据有缺失或未获取到时，使用此接口进行补充
+ * @param matchId 比赛ID
+ * @returns 趋势数据响应（格式与实时接口相同）
+ */
+export const fetchMatchTrendDetail = async (
+  matchId: string | number
+): Promise<MatchTrendResponse> => {
+  // 使用缓存代理
+  const data = await callSportnanoapiWithCache("match/trend/detail", { id: matchId });
+
+  // 详情接口的返回格式与实时接口不同
+  // 详情接口：{ code: 0, results: { count, per, data, incidents } }
+  // 实时接口：{ code: 0, results: [{ match_id, trend: { count, per, data }, incidents }] }
+  // 需要转换为统一格式
+  if (data.results && typeof data.results === 'object' && !Array.isArray(data.results)) {
+    // 详情接口格式：results 是对象，包含 trend 数据
+    const detailResults = data.results;
+    if (detailResults.data && Array.isArray(detailResults.data)) {
+      // 转换为实时接口格式
+      const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
+      return {
+        code: data.code || 0,
+        results: [{
+          match_id: matchIdNum,
+          trend: {
+            count: detailResults.count || 2,
+            per: detailResults.per || 45,
+            data: detailResults.data,
+          },
+          incidents: detailResults.incidents || [],
+        }],
+      } as MatchTrendResponse;
+    }
+  }
+
+  // 如果已经是数组格式（实时接口格式），直接返回
+  if (data.results && Array.isArray(data.results)) {
+    return data as MatchTrendResponse;
+  }
+
+  // 格式不正确，返回空结果
+  return { code: data.code || 0, results: [] };
+};
+
+/**
+ * 阵容数据响应类型
+ */
+export interface MatchLineupResponse {
+  code: number;
+  results: {
+    confirmed: number; // 正式阵容 1-是、0-不是
+    home_formation: string; // 主队阵型
+    away_formation: string; // 客队阵型
+    home_coach_id: number; // 主队带队教练
+    away_coach_id: number; // 客队带队教练
+    home_color: string; // 主队球衣颜色
+    away_color: string; // 客队球衣颜色
+    home: Array<{
+      id: number; // 球员id
+      team_id: number; // 球队id
+      first: number; // 是否首发，1-是、0-否
+      captain: number; // 是否队长，1-是、0-否
+      name: string; // 球员名称
+      logo: string; // 球员logo
+      national_logo: string; // 球员logo(国家队)
+      shirt_number: number; // 球衣号
+      position: string; // 球员位置，F前锋、M中场、D后卫、G守门员、其他为未知
+      x: number; // 阵容x坐标，总共100
+      y: number; // 阵容y坐标，总共100
+      rating: string; // 评分，10为满分
+      incidents?: Array<{
+        type: number; // 事件类型
+        time: string; // 事件发生时间（含加时时间，'A+B':A-比赛时间,B-加时时间）
+        belong: number; // 发生方，0-中立、1-主队、2-客队
+        home_score: number; // 主队比分
+        away_score: number; // 客队比分
+        player?: {
+          id: number; // 球员id
+          name: string; // 中文名称
+          reason_type?: number; // 红黄牌、换人事件原因
+        };
+        assist1?: {
+          id: number;
+          name: string;
+        };
+        assist2?: {
+          id: number;
+          name: string;
+        };
+        in_player?: {
+          id: number;
+          name: string;
+        };
+        out_player?: {
+          id: number;
+          name: string;
+        };
+      }>;
+    }>;
+    away: Array<{
+      id: number;
+      team_id: number;
+      first: number;
+      captain: number;
+      name: string;
+      logo: string;
+      national_logo: string;
+      shirt_number: number;
+      position: string;
+      x: number;
+      y: number;
+      rating: string;
+      incidents?: Array<{
+        type: number;
+        time: string;
+        belong: number;
+        home_score: number;
+        away_score: number;
+        player?: {
+          id: number;
+          name: string;
+          reason_type?: number;
+        };
+        assist1?: {
+          id: number;
+          name: string;
+        };
+        assist2?: {
+          id: number;
+          name: string;
+        };
+        in_player?: {
+          id: number;
+          name: string;
+        };
+        out_player?: {
+          id: number;
+          name: string;
+        };
+      }>;
+    }>;
+  };
+}
+
+/**
+ * 获取比赛阵容数据
+ * @param matchId 比赛ID
+ * @returns 阵容数据响应
+ */
+export const fetchMatchLineup = async (
+  matchId: string | number
+): Promise<MatchLineupResponse> => {
+  // 使用缓存代理
+  const data = await callSportnanoapiWithCache("match/lineup/detail", { id: matchId });
+
+  // 确保返回的数据格式正确
+  if (!data.results || typeof data.results !== 'object') {
+    throw new Error('Invalid lineup response format');
+  }
+
+  return data as MatchLineupResponse;
 };
 

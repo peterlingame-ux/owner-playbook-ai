@@ -258,24 +258,24 @@ const LeaderboardTable = () => {
         const totalBetAmount = totalPredictions * avgBetAmount;
         const avgOdds = 1.8 + (seed % 5) * 0.1;
         const validAmount = correctPredictions * avgBetAmount * avgOdds;
-        const profitAmount = validAmount - totalBetAmount;
-        const profitRate = totalBetAmount > 0 ? (profitAmount / totalBetAmount) * 100 : 0;
-        
+          const profitAmount = validAmount - totalBetAmount;
+          const profitRate = totalBetAmount > 0 ? (profitAmount / totalBetAmount) * 100 : 0;
+          
         return {
           ...model,
           winRate: Math.round(winRate * 10) / 10,
           totalPredictions,
           correctPredictions,
-          totalBetAmount,
-          validAmount,
-          profitAmount,
+            totalBetAmount,
+            validAmount,
+            profitAmount,
           profitRate: Math.round(profitRate * 10) / 10,
           accuracy: Math.round(winRate * 10) / 10,
-        };
-      });
+          };
+        });
 
-      setModelsWithRealData(updatedModels);
-      setIsLoading(false);
+        setModelsWithRealData(updatedModels);
+        setIsLoading(false);
     };
 
     generateAIStats();
@@ -292,9 +292,9 @@ const LeaderboardTable = () => {
         const correct = Math.round(total * (0.5 + (seed % 30) / 100));
         const winRate = total > 0 ? (correct / total) * 100 : 0;
         todayWinRatesMap.set(model.id, { winRate, total, correct });
-      });
+        });
 
-      setTodayWinRates(todayWinRatesMap);
+        setTodayWinRates(todayWinRatesMap);
     };
 
     generateTodayWinRates();
@@ -315,33 +315,33 @@ const LeaderboardTable = () => {
       { home: '切尔西', away: '阿森纳', homeScore: 2, awayScore: 2 },
     ];
 
-    const todayData = todayWinRates.get(modelId);
-    const total = todayData?.total || Math.floor(Math.random() * 5) + 3;
-    const correct = todayData?.correct || Math.floor(total * 0.6);
+        const todayData = todayWinRates.get(modelId);
+        const total = todayData?.total || Math.floor(Math.random() * 5) + 3;
+        const correct = todayData?.correct || Math.floor(total * 0.6);
+        
+        const mockPositions: TodayPosition[] = [];
+        for (let i = 0; i < total; i++) {
+          const match = mockMatches[i % mockMatches.length];
+          const isWin = i < correct;
+          const amount = Math.floor(Math.random() * 400) + 100;
+          const odds = (Math.random() * 0.8 + 1.5).toFixed(2);
+          mockPositions.push({
+            id: `mock-${modelId}-${i}`,
+            match_id: `${1000 + i}`,
+            home_team: match.home,
+            away_team: match.away,
+            bet_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
+            prediction: Math.random() > 0.5 ? 'Over 2.5' : 'Under 2.5',
+            amount,
+            odds: parseFloat(odds),
+            status: 'settled',
+            result: isWin ? 'win' : 'loss',
+            pnl: isWin ? amount * (parseFloat(odds) - 1) : -amount,
+            created_at: new Date(Date.now() - i * 3600000).toISOString(),
+          });
+        }
     
-    const mockPositions: TodayPosition[] = [];
-    for (let i = 0; i < total; i++) {
-      const match = mockMatches[i % mockMatches.length];
-      const isWin = i < correct;
-      const amount = Math.floor(Math.random() * 400) + 100;
-      const odds = (Math.random() * 0.8 + 1.5).toFixed(2);
-      mockPositions.push({
-        id: `mock-${modelId}-${i}`,
-        match_id: `${1000 + i}`,
-        home_team: match.home,
-        away_team: match.away,
-        bet_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
-        prediction: Math.random() > 0.5 ? 'Over 2.5' : 'Under 2.5',
-        amount,
-        odds: parseFloat(odds),
-        status: 'settled',
-        result: isWin ? 'win' : 'loss',
-        pnl: isWin ? amount * (parseFloat(odds) - 1) : -amount,
-        created_at: new Date(Date.now() - i * 3600000).toISOString(),
-      });
-    }
-    
-    setSelectedModelHistory({ modelId, modelName, positions: mockPositions });
+        setSelectedModelHistory({ modelId, modelName, positions: mockPositions });
     setIsLoadingHistory(false);
   };
 
@@ -644,7 +644,7 @@ const LeaderboardTable = () => {
               
               return (
                 <div 
-                  key={model.id}
+                      key={model.id}
                   className="bg-muted/20 rounded-lg border border-border/30 p-3 sm:p-4 hover:bg-muted/30 transition-colors"
                 >
                   {/* Top Row: Avatar, Name, Buttons */}
@@ -653,18 +653,18 @@ const LeaderboardTable = () => {
                       {/* Rank Badge */}
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
                         <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
-                      </div>
+                        </div>
                       {/* Avatar */}
                       <div className="relative flex-shrink-0">
                         <div className={`w-10 h-10 sm:w-12 sm:h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 overflow-hidden`}>
-                          <img 
-                            src={getModelIcon(model.id)} 
-                            alt={model.name} 
-                            className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                            style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                          />
+                            <img 
+                              src={getModelIcon(model.id)} 
+                              alt={model.name} 
+                              className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                              style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                            />
+                          </div>
                         </div>
-                      </div>
                       {/* Name & Stats */}
                       <div>
                         <div className="flex items-center gap-2">
@@ -780,8 +780,8 @@ const LeaderboardTable = () => {
                     {/* Win Rate */}
                     <div className="text-right">
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-                      <AnimatedWinRate 
-                        value={model.winRate}
+                        <AnimatedWinRate 
+                          value={model.winRate}
                         className="text-sm sm:text-lg font-bold font-mono-data text-success"
                         trend={todayWinRates.get(model.id) ? todayWinRates.get(model.id)!.winRate - model.winRate : undefined}
                         showTrend={todayWinRates.has(model.id)}
@@ -795,9 +795,9 @@ const LeaderboardTable = () => {
                     <div>
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟投注</p>
                       <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
-                        {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                       </p>
-                    </div>
+            </div>
                     
                     {/* Profit Amount */}
                     <div className="text-center">

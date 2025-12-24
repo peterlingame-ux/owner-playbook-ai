@@ -89,7 +89,7 @@ const Index = () => {
   // 使用模拟数据生成AI模型统计（相关表不存在）
   useEffect(() => {
     const generateAIStats = () => {
-      setIsLoadingModels(true);
+        setIsLoadingModels(true);
       const INITIAL_BALANCE = 10000;
       
       const updatedModels = aiModels.map(model => {
@@ -106,21 +106,21 @@ const Index = () => {
         const profitRate = (winRate - 50) / 50;
         const profit = Math.round(INITIAL_BALANCE * profitRate * (0.3 + Math.random() * 0.2));
         const currentValue = INITIAL_BALANCE + profit;
-        const changePercent = (profit / INITIAL_BALANCE) * 100;
-        
-        return {
-          ...model,
+            const changePercent = (profit / INITIAL_BALANCE) * 100;
+          
+          return {
+            ...model,
           winRate: Math.round(winRate * 10) / 10,
           totalPredictions,
           correctPredictions,
-          currentValue: `$${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-          change: profit >= 0 ? `+$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-          changePercent: Math.round(changePercent * 100) / 100,
-        };
-      });
-      
-      setModelsWithRealData(updatedModels);
-      setIsLoadingModels(false);
+            currentValue: `$${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            change: profit >= 0 ? `+$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            changePercent: Math.round(changePercent * 100) / 100,
+          };
+        });
+        
+        setModelsWithRealData(updatedModels);
+        setIsLoadingModels(false);
     };
 
     generateAIStats();
@@ -132,8 +132,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-full">
       <div className="w-full max-w-full overflow-x-hidden">
-        <Header />
-        <CryptoTicker />
+      <Header />
+      <CryptoTicker />
       </div>
 
       {/* Welcome Dialog */}
