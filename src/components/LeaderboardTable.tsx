@@ -720,7 +720,7 @@ const LeaderboardTable = () => {
                           </div>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                          {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业AI足球分析')}
+                          {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业赛事综合分析大模型，预测者可自行培养')}
                         </p>
                       </div>
                     </div>
