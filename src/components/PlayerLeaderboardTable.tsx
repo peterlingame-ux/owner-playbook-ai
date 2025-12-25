@@ -889,7 +889,7 @@ const PlayerLeaderboardTable = () => {
     }
 
     if (copyBetAmount < 10) {
-      toast.error('最低跟单金额为 ¥10');
+      toast.error('最低跟单金额为 10 PTS');
       return;
     }
 
@@ -1543,7 +1543,7 @@ const PlayerLeaderboardTable = () => {
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">下注</span>
-                                      <span className="text-xs font-semibold text-foreground">¥{pred.bet_amount}</span>
+                                      <span className="text-xs font-semibold text-foreground">{pred.bet_amount} PTS</span>
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
@@ -1704,7 +1704,7 @@ const PlayerLeaderboardTable = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">跟单金额</span>
                   <span className="text-xs text-muted-foreground">
-                    可用余额: <span className="text-foreground font-medium">¥{realBalance.toLocaleString()}</span>
+                    可用余额: <span className="text-foreground font-medium">{realBalance.toLocaleString()} PTS</span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1716,7 +1716,7 @@ const PlayerLeaderboardTable = () => {
                       className="flex-1"
                       onClick={() => setCopyBetAmount(amount)}
                     >
-                      ¥{amount}
+                      {amount} PTS
                     </Button>
                   ))}
                 </div>
@@ -1747,13 +1747,13 @@ const PlayerLeaderboardTable = () => {
                 {copyBetAmount > realBalance && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span>余额不足，当前可用余额为 ¥{realBalance.toLocaleString()}</span>
+                    <span>余额不足，当前可用余额为 {realBalance.toLocaleString()} PTS</span>
                   </div>
                 )}
                 {copyBetAmount > 0 && copyBetAmount < 10 && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span>最低跟单金额为 ¥10</span>
+                    <span>最低跟单金额为 10 PTS</span>
                   </div>
                 )}
               </div>
@@ -1763,7 +1763,7 @@ const PlayerLeaderboardTable = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">预期收益</span>
                   <span className="font-bold text-success">
-                    +¥{(copyBetAmount * 1.8).toFixed(0)}
+                    +{(copyBetAmount * 1.8).toFixed(0)} PTS
                   </span>
                 </div>
               </div>
@@ -1782,7 +1782,7 @@ const PlayerLeaderboardTable = () => {
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    {user ? `确认跟单 ¥${copyBetAmount}` : `演示跟单 ¥${copyBetAmount}`}
+                    {user ? `确认跟单 ${copyBetAmount} PTS` : `演示跟单 ${copyBetAmount} PTS`}
                   </>
                 )}
               </Button>
@@ -2100,7 +2100,7 @@ const PlayerLeaderboardTable = () => {
                               <p className="text-xs">
                                 <span className="text-muted-foreground">盈利 </span>
                                 <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
                                 </span>
                               </p>
                             </div>
@@ -2237,7 +2237,7 @@ const PlayerLeaderboardTable = () => {
                               <p className="text-xs">
                                 <span className="text-muted-foreground">盈利 </span>
                                 <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}¥{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
                                 </span>
                               </p>
                             </div>
