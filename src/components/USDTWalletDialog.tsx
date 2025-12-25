@@ -391,7 +391,7 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                         <p className="text-[10px] text-muted-foreground">猎人币</p>
                       </div>
                       <p className={`text-xs mt-1 ${amount === String(quickAmount) ? 'text-destructive' : 'text-muted-foreground'}`}>
-                        ¥{quickAmount}
+                        {quickAmount} PTS
                       </p>
                     </button>
                   ))}

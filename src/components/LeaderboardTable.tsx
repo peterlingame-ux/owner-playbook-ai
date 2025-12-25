@@ -379,7 +379,7 @@ const LeaderboardTable = () => {
       if (balanceData.balance < copyTradeAmount) {
         toast({
           title: "余额不足",
-          description: `当前余额: ¥${balanceData.balance.toFixed(2)}，需要: ¥${copyTradeAmount}`,
+          description: `当前余额: ${balanceData.balance.toFixed(2)} PTS，需要: ${copyTradeAmount} PTS`,
           variant: "destructive",
         });
         return;
@@ -400,7 +400,7 @@ const LeaderboardTable = () => {
 
       toast({
         title: "跟单成功！",
-        description: `已跟单 ${copyTradeModel.name}，投入 ¥${copyTradeAmount}`,
+        description: `已跟单 ${copyTradeModel.name}，投入 ${copyTradeAmount} PTS`,
       });
 
       setIsCopyTradeDialogOpen(false);
@@ -793,23 +793,23 @@ const LeaderboardTable = () => {
                   <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
                     {/* Bet Amount */}
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟投注</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">模拟投入</p>
                       <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
-                          {model.locked ? '???' : `¥${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          {model.locked ? '???' : `${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS`}
                       </p>
             </div>
                     
                     {/* Profit Amount */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">模拟积分</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : '-'}¥${Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : '-'}${Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS`}
                       </p>
                     </div>
                     
                     {/* Profit Rate */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">积分变化率</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
                       </p>
@@ -1100,7 +1100,7 @@ const LeaderboardTable = () => {
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
-                    ¥{amount}
+                    {amount} PTS
                   </button>
                 ))}
               </div>

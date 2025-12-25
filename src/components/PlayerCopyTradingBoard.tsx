@@ -1380,7 +1380,7 @@ const PlayerCopyTradingBoard = () => {
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">下注</span>
-                                      <span className="text-xs font-semibold text-foreground">¥{pred.bet_amount}</span>
+                                      <span className="text-xs font-semibold text-foreground">{pred.bet_amount} PTS</span>
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
@@ -1599,7 +1599,7 @@ const PlayerCopyTradingBoard = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{t('copy_amount')}</span>
                   <span className="text-xs text-muted-foreground">
-                    {t('available_balance_label')}: <span className="text-foreground font-medium">¥{userBalance.toLocaleString()}</span>
+                    {t('available_balance_label')}: <span className="text-foreground font-medium">{userBalance.toLocaleString()} PTS</span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1611,7 +1611,7 @@ const PlayerCopyTradingBoard = () => {
                       className="flex-1"
                       onClick={() => setCopyBetAmount(amount)}
                     >
-                      ¥{amount}
+                      {amount} PTS
                     </Button>
                   ))}
                 </div>
@@ -1621,7 +1621,7 @@ const PlayerCopyTradingBoard = () => {
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
                 <span className="text-sm text-muted-foreground">{t('expected_profit')}</span>
                 <span className="font-bold text-foreground font-mono">
-                  +¥{(copyBetAmount * 0.8).toFixed(0)} ~ +¥{(copyBetAmount * 1.2).toFixed(0)}
+                  +{(copyBetAmount * 0.8).toFixed(0)} ~ +{(copyBetAmount * 1.2).toFixed(0)} PTS
                 </span>
               </div>
 
