@@ -229,9 +229,9 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
                 e.stopPropagation();
                 navigate(`/leaderboard?tab=players`);
               }}
-              title={t('click_to_view_today_picks') || '点击查看今日观点'}
+              title={t('click_to_view_today_picks') || '点击查看今日推荐'}
             >
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('today_prediction') || '今日观点'}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('today_prediction') || '今日推荐'}</p>
               <p className="text-xs sm:text-sm font-bold font-mono-data text-sky-500 hover:underline">
                 {player.todayCorrect ?? Math.floor(Math.random() * 5) + 2}/{player.todayTotal ?? Math.floor(Math.random() * 3) + 5}
               </p>

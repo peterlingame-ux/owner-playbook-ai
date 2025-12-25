@@ -137,7 +137,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-4 flex-wrap">
-            <span>{t("AI今日观点比赛")}</span>
+            <span>{t("AI今日推荐比赛")}</span>
             {userBalance && (
               <Badge className="text-base px-4 py-1" variant="default">
                 <Coins className="h-4 w-4 mr-2" />
