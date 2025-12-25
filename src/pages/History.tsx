@@ -800,7 +800,7 @@ const History = () => {
                         </TableCell>
                         
                         <TableCell className="text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4">
-                          {Math.max(0, prediction.odds - 1).toFixed(2)}
+                          @{Math.max(0, prediction.odds - 1).toFixed(2)}
                         </TableCell>
                         
                         <TableCell className={`text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4 ${

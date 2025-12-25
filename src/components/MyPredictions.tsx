@@ -489,7 +489,7 @@ const PlayerHistoryTable = ({ predictions, copyTradeRecords }: {
                         {pred.prediction}
                       </td>
                       <td className="py-1.5 px-2 text-center text-[10px] font-mono text-foreground">
-                        {pred.odds ? pred.odds.toFixed(2) : '-'}
+                        {pred.odds ? `@${pred.odds.toFixed(2)}` : '-'}
                       </td>
                       <td className="py-1.5 px-2 text-right text-[10px] font-mono text-foreground">
                         ${pred.bet_amount}
