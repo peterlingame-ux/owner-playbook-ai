@@ -884,12 +884,12 @@ const PlayerLeaderboardTable = () => {
     const oldBalance = realBalance;
     
     if (copyBetAmount > realBalance) {
-      toast.error('余额不足，无法跟单');
+      toast.error('余额不足，无法订阅');
       return;
     }
 
     if (copyBetAmount < 10) {
-      toast.error('最低跟单金额为 10 PTS');
+      toast.error('最低订阅金额为 10 PTS');
       return;
     }
 
@@ -913,7 +913,7 @@ const PlayerLeaderboardTable = () => {
           p_user_id: user.id,
           p_match_id: copyTradeDialog.prediction.match_id,
           p_prediction_type: copyTradeDialog.prediction.prediction_type,
-          p_prediction: `跟单-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
+          p_prediction: `订阅-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
           p_bet_amount: copyBetAmount,
           p_potential_payout: potentialPayout,
           p_match_date: matchDate,
@@ -921,14 +921,14 @@ const PlayerLeaderboardTable = () => {
 
         if (error) {
           console.error('Copy trade error:', error);
-          toast.error('跟单失败：' + error.message);
+          toast.error('订阅失败：' + error.message);
           return;
         }
 
         const result = data as { success: boolean; error?: string; new_balance?: number };
         
         if (!result.success) {
-          toast.error(result.error || '跟单失败');
+          toast.error(result.error || '订阅失败');
           return;
         }
 
@@ -938,7 +938,7 @@ const PlayerLeaderboardTable = () => {
       } else {
         // 演示模式：模拟延迟
         await new Promise(resolve => setTimeout(resolve, 500));
-        toast.success('演示模式：跟单成功');
+        toast.success('演示模式：订阅成功');
       }
       
       // 将该预测添加到已跟单列表，解锁显示
@@ -964,7 +964,7 @@ const PlayerLeaderboardTable = () => {
       
     } catch (error) {
       console.error('Copy trade error:', error);
-      toast.error('跟单失败，请稍后重试');
+      toast.error('订阅失败，请稍后重试');
     } finally {
       setIsCopying(false);
     }
@@ -1554,7 +1554,7 @@ const PlayerLeaderboardTable = () => {
                                   {/* 已跟单状态 */}
                                   <div className="flex items-center justify-center gap-1.5 py-2 bg-success/5 border-t border-border/20">
                                     <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                                    <span className="text-xs font-medium text-success">已跟单</span>
+                                    <span className="text-xs font-medium text-success">已订阅</span>
                                   </div>
                                 </div>
                               ) : (
@@ -1562,14 +1562,14 @@ const PlayerLeaderboardTable = () => {
                                 <div className="flex items-center justify-between py-1">
                                   <div className="flex items-center gap-2">
                                     <Lock className="h-4 w-4 text-amber-500" />
-                                    <span className="text-sm text-muted-foreground">跟单后查看比赛详情</span>
+                                    <span className="text-sm text-muted-foreground">订阅后查看比赛详情</span>
                                   </div>
                                   <Button
                                     size="sm"
                                     className="h-7 px-3 text-xs"
                                     onClick={() => handleCopyTradeFromHistory(pred)}
                                   >
-                                    跟单
+                                    订阅
                                   </Button>
                                 </div>
                               )}
@@ -1694,7 +1694,7 @@ const PlayerLeaderboardTable = () => {
                   <Lock className="h-8 w-8 text-muted-foreground" />
                   <div className="text-center">
                     <p className="text-sm font-medium text-muted-foreground">比赛详情已锁定</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">确认跟单后解锁查看完整信息</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">确认订阅后解锁查看完整信息</p>
                   </div>
                 </div>
               </div>
@@ -1702,7 +1702,7 @@ const PlayerLeaderboardTable = () => {
               {/* 跟单金额设置 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">跟单金额</span>
+                  <span className="text-muted-foreground">订阅金额</span>
                   <span className="text-xs text-muted-foreground">
                     可用余额: <span className="text-foreground font-medium">{realBalance.toLocaleString()} PTS</span>
                   </span>
@@ -1753,7 +1753,7 @@ const PlayerLeaderboardTable = () => {
                 {copyBetAmount > 0 && copyBetAmount < 10 && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span>最低跟单金额为 10 PTS</span>
+                    <span>最低订阅金额为 10 PTS</span>
                   </div>
                 )}
               </div>
@@ -1777,12 +1777,12 @@ const PlayerLeaderboardTable = () => {
                 {isCopying ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    跟单中...
+                    订阅中...
                   </div>
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    {user ? `确认跟单 ${copyBetAmount} PTS` : `演示跟单 ${copyBetAmount} PTS`}
+                    {user ? `确认订阅 ${copyBetAmount} PTS` : `演示订阅 ${copyBetAmount} PTS`}
                   </>
                 )}
               </Button>

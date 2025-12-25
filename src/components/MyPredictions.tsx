@@ -1951,7 +1951,7 @@ const MyPredictions = () => {
                         <div className="grid grid-cols-3 gap-2 mb-4">
                           <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
                             <p className="text-lg font-bold font-mono text-foreground">{copyTradeRecords.length}</p>
-                            <p className="text-[10px] text-muted-foreground">跟单次数</p>
+                            <p className="text-[10px] text-muted-foreground">订阅次数</p>
                           </div>
                           <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
                             <p className="text-lg font-bold font-mono text-foreground">
@@ -1963,7 +1963,7 @@ const MyPredictions = () => {
                             <p className="text-lg font-bold font-mono text-foreground">
                               {copyTradeRecords.filter(r => r.bet_amount > 0).length}
                             </p>
-                            <p className="text-[10px] text-muted-foreground">付费跟单</p>
+                            <p className="text-[10px] text-muted-foreground">付费订阅</p>
                           </div>
                         </div>
 
@@ -2090,8 +2090,8 @@ const MyPredictions = () => {
                   <Sparkles className="h-4 w-4 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_1_title') || '免费查看所有跟单预测'}</p>
-                  <p className="text-xs text-muted-foreground">{t('vip_privilege_1_desc') || '无需支付猎人币即可查看任意玩家的预测详情'}</p>
+                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_1_title') || '免费查看所有订阅预测'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_1_desc') || '无需支付猎人币即可查看任意预测者的预测详情'}</p>
                 </div>
               </div>
               

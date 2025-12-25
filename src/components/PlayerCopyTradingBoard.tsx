@@ -1006,7 +1006,7 @@ const PlayerCopyTradingBoard = () => {
               }}
               className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 hover:shadow-lg hover:shadow-warning/40 hover:scale-105 active:scale-95"
             >
-              今日跟单
+              今日订阅
             </button>
           </div>
         </div>
@@ -1141,7 +1141,7 @@ const PlayerCopyTradingBoard = () => {
     <div className="space-y-6">
       {/* Time Range Filter - Unified for all boards */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者跟单排行榜'}</h2>
+        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者订阅排行榜'}</h2>
         <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
           <button
             onClick={() => setTimeRange(1)}
@@ -1391,7 +1391,7 @@ const PlayerCopyTradingBoard = () => {
                                   {/* 已跟单状态 */}
                                   <div className="flex items-center justify-center gap-1.5 py-2 bg-success/5 border-t border-border/20">
                                     <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                                    <span className="text-xs font-medium text-success">已跟单</span>
+                                    <span className="text-xs font-medium text-success">已订阅</span>
                                   </div>
                                 </div>
                               ) : (
@@ -1399,14 +1399,14 @@ const PlayerCopyTradingBoard = () => {
                                 <div className="flex items-center justify-between py-1">
                                   <div className="flex items-center gap-2">
                                     <Lock className="h-4 w-4 text-amber-500" />
-                                    <span className="text-sm text-muted-foreground">跟单后查看比赛详情</span>
+                                    <span className="text-sm text-muted-foreground">订阅后查看比赛详情</span>
                                   </div>
                                   <Button
                                     size="sm"
                                     className="h-7 px-3 text-xs"
                                     onClick={() => handleCopyTradeFromPrediction(pred)}
                                   >
-                                    跟单
+                                    订阅
                                   </Button>
                                 </div>
                               )}
@@ -1418,7 +1418,7 @@ const PlayerCopyTradingBoard = () => {
                     
                     {upcomingPredictions.length === 0 && (
                       <div className="px-4 py-8 text-center text-muted-foreground text-sm">
-                        今日暂无跟单记录
+                        今日暂无订阅记录
                       </div>
                     )}
                     
@@ -1646,7 +1646,7 @@ const PlayerCopyTradingBoard = () => {
                   ) : (
                     <>
                       <Lock className="h-4 w-4 mr-1" />
-                      确认跟单解锁
+                      确认订阅解锁
                     </>
                   )}
                 </Button>
