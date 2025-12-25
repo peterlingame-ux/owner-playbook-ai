@@ -972,7 +972,7 @@ const resources = {
       "player_recommendation_board": "预测者推荐排行榜",
       "profit_amount_label": "模拟积分",
       "bet_amount_label": "模拟投入",
-      "followers_count": "订阅人数",
+      "followers_count": "追踪人数",
       "correct_matches": "正确场次",
       "incorrect_matches": "错误场次",
       "estimated_prize": "预期奖金",

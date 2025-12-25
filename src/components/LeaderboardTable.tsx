@@ -107,7 +107,7 @@ const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit
         isFull ? 'text-destructive hover:text-destructive/80' : 'text-primary hover:text-primary/80'
       }`}
     >
-      <span>👥 订阅人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
+      <span>👥 追踪人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
     </button>
   );
 };
@@ -824,7 +824,7 @@ const LeaderboardTable = () => {
                         setIsFollowersDialogOpen(true);
                       }}
                     >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />订阅人数</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />追踪人数</p>
                       <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
                         {((model as any).followerCount || 0).toLocaleString()}人
                       </p>
