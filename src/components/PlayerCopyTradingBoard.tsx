@@ -2164,7 +2164,7 @@ const PlayerCopyTradingBoard = () => {
                   <Avatar className="w-10 h-10 border border-border/50"><AvatarImage src={follower.avatar} /><AvatarFallback>{follower.name.charAt(0)}</AvatarFallback></Avatar>
                   <div>
                     <p className="font-bold text-sm">{follower.name}</p>
-                    <p className="text-xs text-muted-foreground">追踪{follower.days}次</p>
+                    <p className="text-xs text-muted-foreground">已追踪{follower.days}次</p>
                   </div>
                 </div>
                 <div className="text-right">
