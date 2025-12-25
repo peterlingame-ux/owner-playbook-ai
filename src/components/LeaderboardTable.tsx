@@ -722,6 +722,9 @@ const LeaderboardTable = () => {
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业赛事综合分析大模型，预测者可自行培养')}
                         </p>
+                        <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
+                          现有积分：{(10000 + Math.floor(Math.random() * 5000)).toLocaleString()}PTS（初始积分10,000PTS）
+                        </p>
                       </div>
                     </div>
                     {/* Action Buttons */}
