@@ -918,7 +918,7 @@ const resources = {
       
       // Performance Chart
       "performance_over_time": "模型胜率走势图",
-      "win_rate": "胜率 (%)",
+      "win_rate": "预测准确率 (%)",
       
       // Live Matches
       "upcoming_matches": "即将开始的比赛",
