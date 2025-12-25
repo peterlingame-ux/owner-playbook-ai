@@ -1236,7 +1236,7 @@ const PlayerLeaderboardTable = () => {
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
           {/* 球星背景图 - 胜利庆祝 */}
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center opacity-[0.04] pointer-events-none"
             style={{ backgroundImage: `url(${hotStreakBg})` }}
           />
           <CardHeader className="pb-3 pt-4 px-4 relative z-10">
@@ -1326,7 +1326,7 @@ const PlayerLeaderboardTable = () => {
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
           {/* 球星背景图 - 失落沉思 */}
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center opacity-[0.04] pointer-events-none"
             style={{ backgroundImage: `url(${coldStreakBg})` }}
           />
           <CardHeader className="pb-3 pt-4 px-4 relative z-10">
