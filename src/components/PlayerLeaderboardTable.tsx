@@ -1563,7 +1563,10 @@ const PlayerLeaderboardTable = () => {
                                   <div className="flex items-center gap-2">
                                     <Lock className="h-4 w-4 text-amber-500" />
                                     <span className="text-sm text-muted-foreground">订阅后查看比赛详情</span>
-                                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-warning/20 border border-warning/30">
+                                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5" />
+                                      <span className="text-xs font-bold text-warning">10</span>
+                                    </span>
                                   </div>
                                   <Button
                                     size="sm"
