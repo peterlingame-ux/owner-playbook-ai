@@ -269,7 +269,7 @@ const ChallengeAIBanner = () => {
             <div className="h-3 sm:h-4 w-px bg-border" />
             <span><span className="font-bold text-foreground">{qualifiedCount}</span> {t('people_qualified')}</span>
             <div className="h-3 sm:h-4 w-px bg-border" />
-            <span>{t('per_capita_prize')} <span className="font-bold text-warning text-xs sm:text-base">${prizePerPerson.toLocaleString()}</span></span>
+            <span>{t('activity_prize_pool')} <span className="font-bold text-warning text-xs sm:text-base">1,000,000</span> <span className="text-muted-foreground">({t('total_prize_value')})</span></span>
           </div>
         </div>
       </CardContent>
