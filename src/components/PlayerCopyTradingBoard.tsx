@@ -2174,7 +2174,12 @@ const PlayerCopyTradingBoard = () => {
               </div>
             ))}
           </div>
-          <div className="px-5 py-4 border-t border-border/50"><Button variant="outline" className="w-full" onClick={() => setIsPlayerFollowersDialogOpen(false)}>关闭</Button></div>
+          <div className="px-5 py-4 border-t border-border/50 space-y-3">
+            <p className="text-xs text-muted-foreground text-center">
+              💡 PTS 为虚拟积分，仅供模拟分析使用，不代表任何真实货币或价值
+            </p>
+            <Button variant="outline" className="w-full" onClick={() => setIsPlayerFollowersDialogOpen(false)}>关闭</Button>
+          </div>
         </DialogContent>
       </Dialog>
 
