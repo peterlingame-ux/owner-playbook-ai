@@ -1611,7 +1611,7 @@ const PlayerLeaderboardTable = () => {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">{maskPlayerName(unlockDialog.player.displayName)}</p>
-                    <p className="text-xs text-muted-foreground">胜率 {unlockDialog.player.winRate.toFixed(1)}%</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[180px]">{unlockDialog.player.signature || '这个人很懒，什么都没写~'}</p>
                   </div>
                 </div>
               </div>
