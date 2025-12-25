@@ -148,8 +148,6 @@ const resources = {
       "per_capita_prize": "Per Capita Prize:",
       "activity_prize_pool": "Prize Pool:",
       "total_prize_value": "Total Prize Value",
-      "expected_ai_reward": "Expected AI Challenge Reward:",
-      "reward_calculation_tooltip": "Calculated as: Total Prize Pool ($1,000,000) ÷ Number of Qualified Participants. The fewer people who beat the AI, the higher your reward!",
       "qualified_status": "Qualified",
       "keep_going": "Keep Going",
       // Model Cards
@@ -998,8 +996,6 @@ const resources = {
       "per_capita_prize": "人均奖金：",
       "activity_prize_pool": "活动奖池：",
       "total_prize_value": "奖品总价值",
-      "expected_ai_reward": "挑战AI预期奖励：",
-      "reward_calculation_tooltip": "计算方式：总奖池（$1,000,000）÷ 达标人数。达标人数越少，您获得的奖励越高！",
       "qualified_status": "已达标",
       "keep_going": "继续努力",
       
@@ -1854,8 +1850,6 @@ const resources = {
       "per_capita_prize": "1인당 상금:",
       "activity_prize_pool": "상금 풀:",
       "total_prize_value": "총 상금 가치",
-      "expected_ai_reward": "AI 챌린지 예상 보상:",
-      "reward_calculation_tooltip": "계산 방식: 총 상금 풀($1,000,000) ÷ 달성자 수. 달성자가 적을수록 보상이 높아집니다!",
       "qualified_status": "달성",
       "keep_going": "계속 노력",
       

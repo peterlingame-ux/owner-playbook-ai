@@ -1,12 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Info } from "lucide-react";
 import prizeBannerGreen from "@/assets/prize-banner-green.png";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
 import { virtualPlayers } from "@/data/virtualPlayers";
@@ -271,19 +269,7 @@ const ChallengeAIBanner = () => {
             <div className="h-3 sm:h-4 w-px bg-border" />
             <span><span className="font-bold text-foreground">{qualifiedCount}</span> {t('people_qualified')}</span>
             <div className="h-3 sm:h-4 w-px bg-border" />
-            <span className="flex items-center gap-1">
-              {t('expected_ai_reward')} <span className="font-bold text-warning text-xs sm:text-base">${prizePerPerson.toLocaleString()}</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-xs">{t('reward_calculation_tooltip')}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </span>
+            <span>{t('activity_prize_pool')} <span className="font-bold text-warning text-xs sm:text-base">1,000,000</span> <span className="text-muted-foreground">({t('total_prize_value')})</span></span>
           </div>
         </div>
       </CardContent>
