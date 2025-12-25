@@ -170,7 +170,7 @@ const ChallengeAIBanner = () => {
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 sm:gap-3 mb-1 sm:mb-2 flex-wrap">
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('challenge_ai')}</span>
-              <span className="text-xl sm:text-4xl font-black text-foreground">$1,000,000</span>
+              <span className="text-xl sm:text-4xl font-black text-foreground">{t('challenge_ai_reward')} 16,393 PTS</span>
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </div>
             <p className="text-xs sm:text-sm text-white max-w-lg mx-auto leading-tight">
