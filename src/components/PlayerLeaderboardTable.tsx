@@ -20,8 +20,8 @@ import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
 import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
-import starMessi from "@/assets/star-messi.jpg";
-import starRonaldo from "@/assets/star-ronaldo.jpg";
+import hotStreakBg from "@/assets/hot-streak-bg.jpg";
+import coldStreakBg from "@/assets/cold-streak-bg.jpg";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1234,10 +1234,10 @@ const PlayerLeaderboardTable = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 球星背景图 - 梅西 */}
+          {/* 球星背景图 - 胜利庆祝 */}
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-[0.06] pointer-events-none"
-            style={{ backgroundImage: `url(${starMessi})` }}
+            className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+            style={{ backgroundImage: `url(${hotStreakBg})` }}
           />
           <CardHeader className="pb-3 pt-4 px-4 relative z-10">
             <div className="flex items-center justify-between">
@@ -1324,10 +1324,10 @@ const PlayerLeaderboardTable = () => {
 
         {/* Column 3: 低胜率榜 */}
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
-          {/* 球星背景图 - C罗 */}
+          {/* 球星背景图 - 失落沉思 */}
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-[0.06] pointer-events-none"
-            style={{ backgroundImage: `url(${starRonaldo})` }}
+            className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+            style={{ backgroundImage: `url(${coldStreakBg})` }}
           />
           <CardHeader className="pb-3 pt-4 px-4 relative z-10">
             <div className="flex items-center justify-between">
