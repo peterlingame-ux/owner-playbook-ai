@@ -762,13 +762,9 @@ const LeaderboardTable = () => {
                               ))}
                             </AnimatePresence>
                           </div>
-                          {/* Points Balance */}
-                          <span className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium ml-2">
-                            积分余额：<AnimatedPointsBalance modelId={model.id} />（初始积分10,000PTS）
-                          </span>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                          {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业赛事综合分析大模型，预测者可自行培养')}
+                        <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                          积分余额：<AnimatedPointsBalance modelId={model.id} />（初始积分10,000PTS）
                         </p>
                       </div>
                     </div>
