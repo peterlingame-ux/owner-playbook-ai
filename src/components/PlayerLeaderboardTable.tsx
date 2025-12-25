@@ -2395,7 +2395,7 @@ const PlayerLeaderboardTable = () => {
                   <div>
                     <p className="font-bold text-sm text-foreground">{follower.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      追踪{follower.days}次
+                      已追踪{follower.days}次
                     </p>
                   </div>
                 </div>
