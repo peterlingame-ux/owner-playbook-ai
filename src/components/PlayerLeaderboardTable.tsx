@@ -20,6 +20,8 @@ import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
 import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
+import starMessi from "@/assets/star-messi.jpg";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
 // 球队Logo导入
 import teamRealMadrid from "@/assets/team-real-madrid.png";
 import teamBarcelona from "@/assets/team-barcelona.png";
@@ -1231,8 +1233,13 @@ const PlayerLeaderboardTable = () => {
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {/* Column 1: 高胜率榜 */}
-        <Card className="border-border/50 bg-card/50">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
+          {/* 球星背景图 - 梅西 */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-[0.06] pointer-events-none"
+            style={{ backgroundImage: `url(${starMessi})` }}
+          />
+          <CardHeader className="pb-3 pt-4 px-4 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
@@ -1251,7 +1258,7 @@ const PlayerLeaderboardTable = () => {
                 </button>
               </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 pt-0">
+          <CardContent className="px-4 pb-4 pt-0 relative z-10">
             <div className="space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
@@ -1316,8 +1323,13 @@ const PlayerLeaderboardTable = () => {
         </Card>
 
         {/* Column 3: 低胜率榜 */}
-        <Card className="border-border/50 bg-card/50">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border-border/50 bg-card/50 relative overflow-hidden">
+          {/* 球星背景图 - C罗 */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-[0.06] pointer-events-none"
+            style={{ backgroundImage: `url(${starRonaldo})` }}
+          />
+          <CardHeader className="pb-3 pt-4 px-4 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
@@ -1336,7 +1348,7 @@ const PlayerLeaderboardTable = () => {
                 </button>
               </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 pt-0">
+          <CardContent className="px-4 pb-4 pt-0 relative z-10">
             <div className="space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
