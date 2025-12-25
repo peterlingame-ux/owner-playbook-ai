@@ -720,7 +720,7 @@ const LeaderboardTable = () => {
                         onClick={() => navigate('/history')}
                         className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                       >
-                        历史记录
+                        历史预测
                       </button>
                       {(() => {
                         const isFull = ((model as any).followerCount || 0) >= ((model as any).followerLimit || 1000);
