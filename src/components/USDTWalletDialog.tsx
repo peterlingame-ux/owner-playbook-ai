@@ -448,7 +448,7 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
                         <FileText className="h-6 w-6 text-destructive" />
                       </div>
-                      <span className="text-[10px] text-muted-foreground text-center">跟单预测</span>
+                      <span className="text-[10px] text-muted-foreground text-center">订阅预测</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">

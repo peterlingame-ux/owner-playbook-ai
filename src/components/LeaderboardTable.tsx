@@ -107,7 +107,7 @@ const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit
         isFull ? 'text-destructive hover:text-destructive/80' : 'text-primary hover:text-primary/80'
       }`}
     >
-      <span>👥 跟单人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
+      <span>👥 订阅人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
     </button>
   );
 };
@@ -350,7 +350,7 @@ const LeaderboardTable = () => {
     if (!user) {
       toast({
         title: "请先登录",
-        description: "登录后即可跟单AI模型",
+        description: "登录后即可订阅AI模型",
         variant: "default",
       });
       return;
@@ -399,8 +399,8 @@ const LeaderboardTable = () => {
       }
 
       toast({
-        title: "跟单成功！",
-        description: `已跟单 ${copyTradeModel.name}，投入 ${copyTradeAmount} PTS`,
+        title: "订阅成功！",
+        description: `已订阅 ${copyTradeModel.name}，投入 ${copyTradeAmount} PTS`,
       });
 
       setIsCopyTradeDialogOpen(false);
@@ -409,7 +409,7 @@ const LeaderboardTable = () => {
     } catch (error) {
       console.error('Copy trade error:', error);
       toast({
-        title: "跟单失败",
+        title: "订阅失败",
         description: "请稍后重试",
         variant: "destructive",
       });
@@ -422,7 +422,7 @@ const LeaderboardTable = () => {
     if (!user) {
       toast({
         title: "请先登录",
-        description: "登录后即可跟单AI模型",
+        description: "登录后即可订阅AI模型",
         variant: "default",
       });
       navigate('/auth');
@@ -729,8 +729,8 @@ const LeaderboardTable = () => {
                             onClick={() => {
                               if (isFull) {
                                 toast({
-                                  title: "跟单名额已满",
-                                  description: `${getModelDisplayName(model)} 的跟单名额已满，请稍后再试或选择其他AI模型`,
+                                  title: "订阅名额已满",
+                                  description: `${getModelDisplayName(model)} 的订阅名额已满，请稍后再试或选择其他AI模型`,
                                   variant: "destructive",
                                 });
                                 return;
@@ -744,7 +744,7 @@ const LeaderboardTable = () => {
                                 : 'bg-warning text-warning-foreground hover:bg-warning/90'
                             }`}
                           >
-                            {isFull ? '名额已满' : '自动跟单'}
+                            {isFull ? '名额已满' : '自动订阅'}
                           </button>
                         );
                       })()}
@@ -824,7 +824,7 @@ const LeaderboardTable = () => {
                         setIsFollowersDialogOpen(true);
                       }}
                     >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />订阅人数</p>
                       <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
                         {((model as any).followerCount || 0).toLocaleString()}人
                       </p>
@@ -1066,7 +1066,7 @@ const LeaderboardTable = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Copy className="w-5 h-5 text-warning" />
-              跟单 {copyTradeModel?.name}
+              订阅 {copyTradeModel?.name}
             </DialogTitle>
           </DialogHeader>
           
@@ -1088,7 +1088,7 @@ const LeaderboardTable = () => {
             
             {/* Amount Input */}
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">跟单金额 (猎人币)</label>
+              <label className="text-sm font-medium text-foreground mb-2 block">订阅金额 (猎人币)</label>
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {[50, 100, 200, 500].map((amount) => (
                   <button
@@ -1117,7 +1117,7 @@ const LeaderboardTable = () => {
             {/* Info Note */}
             <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg">
               <p className="text-xs text-warning">
-                跟单后，系统将在该AI模型下一次预测时，自动为您投注相同的选项
+                订阅后，系统将在该AI模型下一次预测时，自动为您投注相同的选项
               </p>
             </div>
           </div>
@@ -1143,7 +1143,7 @@ const LeaderboardTable = () => {
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  确认跟单
+                  确认订阅
                 </>
               )}
             </button>
@@ -1160,7 +1160,7 @@ const LeaderboardTable = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <DialogTitle className="text-lg font-bold text-foreground">
-                    {selectedModelFollowers?.modelName} - 跟单用户
+                    {selectedModelFollowers?.modelName} - 订阅用户
                   </DialogTitle>
                   <p className="text-xs text-muted-foreground mt-1">
                     更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
@@ -1211,7 +1211,7 @@ const LeaderboardTable = () => {
                   <div>
                     <p className="font-bold text-sm text-foreground">{follower.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      已跟单{follower.days}次
+                      已订阅{follower.days}次
                     </p>
                   </div>
                 </div>
