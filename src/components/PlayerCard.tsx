@@ -212,7 +212,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
           {/* Additional Stats Row */}
           <div className="flex items-center justify-between pt-2 sm:pt-2.5 border-t border-border/30 gap-2">
             <div>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('best_streak') || '连胜'}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{t('best_streak') || '连续正确'}</p>
               <p className="text-xs sm:text-sm font-bold font-mono-data text-success">
                 {player.bestStreak || Math.floor(Math.random() * 8) + 3}
               </p>

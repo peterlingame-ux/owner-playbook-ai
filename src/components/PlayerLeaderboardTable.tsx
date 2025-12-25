@@ -1683,7 +1683,7 @@ const PlayerLeaderboardTable = () => {
                       {copyTradeDialog.player.winRate.toFixed(1)}%
                     </span>
                     <span className="mx-2">|</span>
-                    连胜: <span className="text-success">{copyTradeDialog.player.bestStreak || 0}场</span>
+                    连续正确: <span className="text-success">{copyTradeDialog.player.bestStreak || 0}场</span>
                   </p>
                 </div>
               </div>
@@ -2088,7 +2088,7 @@ const PlayerLeaderboardTable = () => {
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
                               <p className="text-xs text-muted-foreground">
-                                连胜 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
+                                连续正确 <span className="text-amber-500 font-bold">{player.currentStreak || 0}</span>
                               </p>
                             </div>
                             {/* Win Rate & Profit */}

@@ -957,7 +957,7 @@ const PlayerCopyTradingBoard = () => {
                   </>
                 ) : (
                   <>
-                    连胜 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
+                    连续正确 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
                     <span className="flex items-center gap-0.5 ml-1">
                       {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
                         <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
@@ -1963,7 +1963,7 @@ const PlayerCopyTradingBoard = () => {
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-foreground truncate">{maskPlayerName(player.displayName)}</p>
                               <p className="text-xs text-muted-foreground">
-                                连胜 <span className="text-amber-500 font-bold">{player.bestStreak || 0}</span>
+                                连续正确 <span className="text-amber-500 font-bold">{player.bestStreak || 0}</span>
                               </p>
                             </div>
                             {/* Win Rate */}

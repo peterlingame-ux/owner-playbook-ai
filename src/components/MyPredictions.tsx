@@ -2111,7 +2111,7 @@ const MyPredictions = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{t('vip_privilege_3_title') || '高胜率预测者推荐'}</p>
-                  <p className="text-xs text-muted-foreground">{t('vip_privilege_3_desc') || '优先推送连胜预测者的最新预测动态'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_3_desc') || '优先推送连续正确预测者的最新预测动态'}</p>
                 </div>
               </div>
               
