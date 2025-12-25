@@ -182,6 +182,16 @@ const TotalProfitRateBadge = ({ totalProfit, totalVolume }: { totalProfit: numbe
   );
 };
 
+// AI模型分析优点映射
+const aiModelAdvantages: Record<string, string> = {
+  'deepseek': '擅长深度数据挖掘与趋势分析',
+  'gpt5': '多维度综合分析，逻辑推理强',
+  'claude': '稳健策略分析，风险控制出色',
+  'gemini': '实时数据整合，反应速度快',
+  'grok': '另类视角分析，发现冷门机会',
+  'hunsoccer-max': '专精足球领域，本土化数据优势',
+};
+
 const LeaderboardTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -710,7 +720,7 @@ const LeaderboardTable = () => {
                           </div>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                          {model.locked ? 'AI预测模型' : `${model.totalPredictions || 0}场预测`}
+                          {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业AI足球分析')}
                         </p>
                       </div>
                     </div>
