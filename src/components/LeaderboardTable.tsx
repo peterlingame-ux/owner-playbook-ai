@@ -754,7 +754,7 @@ const LeaderboardTable = () => {
                                 : 'bg-warning text-warning-foreground hover:bg-warning/90'
                             }`}
                           >
-                            {isFull ? '名额已满' : '自动订阅'}
+                            {isFull ? '名额已满' : '自动追踪'}
                           </button>
                         );
                       })()}
