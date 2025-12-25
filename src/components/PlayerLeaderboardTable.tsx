@@ -1860,7 +1860,7 @@ const PlayerLeaderboardTable = () => {
                   </p>
                 </motion.div>
 
-                {/* 跟单人数信息 */}
+                {/* 订阅人数信息 */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -1869,7 +1869,7 @@ const PlayerLeaderboardTable = () => {
                 >
                   <Users className="h-4 w-4 text-primary" fill="currentColor" />
                   <span className="text-sm text-muted-foreground">
-                    已有 <span className="text-foreground font-bold">{50 + (copySuccess.playerName.charCodeAt(0) % 150)}</span> 人跟单该玩家
+                    已有 <span className="text-foreground font-bold">{50 + (copySuccess.playerName.charCodeAt(0) % 150)}</span> 人订阅该玩家
                   </span>
                 </motion.div>
 

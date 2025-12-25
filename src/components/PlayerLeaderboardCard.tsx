@@ -315,7 +315,7 @@ export const PlayerLeaderboardCard = ({
         <div>
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('bet_amount_label')}</p>
           <p className="text-xs sm:text-base font-bold font-mono-data text-foreground truncate">
-            ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
           </p>
         </div>
         
@@ -323,7 +323,7 @@ export const PlayerLeaderboardCard = ({
         <div className="text-center">
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('profit_amount_label')}</p>
           <p className={`text-xs sm:text-base font-bold font-mono-data truncate ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-            {profitAmount >= 0 ? '+' : '-'}¥{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
           </p>
         </div>
         
