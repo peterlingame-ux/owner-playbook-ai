@@ -1446,36 +1446,7 @@ const PlayerCopyTradingBoard = () => {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">{maskPlayerName(unlockDialog.player.displayName)}</p>
-                    <p className="text-xs text-muted-foreground inline-flex items-center">胜率 <span className="text-success font-medium ml-1">{unlockDialog.player.winRate.toFixed(1)}%</span>
-                      {(() => {
-                        const todayData = todayStats.get(unlockDialog.player.id);
-                        if (todayData && todayData.total > 0) {
-                          const trendValue = todayData.winRate - unlockDialog.player.winRate;
-                          if (trendValue > 2) {
-                            return (
-                              <motion.span
-                                animate={{ scale: [1, 1.15, 1] }}
-                                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                                className="inline-flex ml-0.5"
-                              >
-                                <TrendingUp className="h-3 w-3 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
-                              </motion.span>
-                            );
-                          } else if (trendValue < -2) {
-                            return (
-                              <motion.span
-                                animate={{ scale: [1, 1.15, 1] }}
-                                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                                className="inline-flex ml-0.5"
-                              >
-                                <TrendingDown className="h-3 w-3 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
-                              </motion.span>
-                            );
-                          }
-                        }
-                        return null;
-                      })()}
-                    </p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[180px]">{unlockDialog.player.signature || '这个人很懒，什么都没写~'}</p>
                   </div>
                 </div>
               </div>
