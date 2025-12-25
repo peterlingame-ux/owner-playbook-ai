@@ -2110,8 +2110,8 @@ const MyPredictions = () => {
                   <TrendingUp className="h-4 w-4 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_3_title') || '高胜率玩家推荐'}</p>
-                  <p className="text-xs text-muted-foreground">{t('vip_privilege_3_desc') || '优先推送连胜玩家的最新预测动态'}</p>
+                  <p className="text-sm font-medium text-foreground">{t('vip_privilege_3_title') || '高胜率预测者推荐'}</p>
+                  <p className="text-xs text-muted-foreground">{t('vip_privilege_3_desc') || '优先推送连胜预测者的最新预测动态'}</p>
                 </div>
               </div>
               
