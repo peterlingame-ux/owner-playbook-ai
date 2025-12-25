@@ -1547,7 +1547,7 @@ const PlayerLeaderboardTable = () => {
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
-                                      <span className="text-xs font-semibold text-warning">{odds}</span>
+                                      <span className="text-xs font-semibold text-warning">@{odds}</span>
                                     </div>
                                   </div>
                                   

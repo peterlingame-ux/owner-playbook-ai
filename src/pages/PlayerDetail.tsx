@@ -575,7 +575,7 @@ const PlayerDetail = () => {
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono text-sm px-2 py-2">
-                          {prediction.odds.toFixed(2)}
+                          @{prediction.odds.toFixed(2)}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell text-right font-mono text-sm px-2 py-2">
                           ${prediction.betAmount.toFixed(2)}

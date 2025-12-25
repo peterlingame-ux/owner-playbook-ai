@@ -814,7 +814,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         <span className={`text-sm font-mono font-bold ${
                           isSelected ? 'text-foreground' : 'text-muted-foreground'
                         }`}>
-                          {option.odds.toFixed(2)}
+                          @{option.odds.toFixed(2)}
                         </span>
                       </div>
                     );
