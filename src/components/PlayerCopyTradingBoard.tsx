@@ -1112,7 +1112,7 @@ const PlayerCopyTradingBoard = () => {
               setIsPlayerFollowersDialogOpen(true);
             }}
           >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />订阅人数</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />追踪人数</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);

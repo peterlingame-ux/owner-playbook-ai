@@ -1864,7 +1864,7 @@ const PlayerLeaderboardTable = () => {
                   </p>
                 </motion.div>
 
-                {/* 订阅人数信息 */}
+                {/* 追踪人数信息 */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
