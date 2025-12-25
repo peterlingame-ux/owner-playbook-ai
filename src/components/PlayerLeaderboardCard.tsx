@@ -243,8 +243,7 @@ export const PlayerLeaderboardCard = ({
           {/* Estimated Prize Badge */}
           {prize > 0 ? (
             <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-[8px] sm:text-xs font-bold shadow-sm whitespace-nowrap">
-              <span className="text-warning font-bold">$</span>
-              <AnimatedPrize value={prize} className="text-[8px] sm:text-xs font-bold text-warning" duration={600} />
+              <AnimatedPrize value={prize} className="text-[8px] sm:text-xs font-bold text-warning" duration={600} showLabel={true} />
             </span>
           ) : (
             <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-[8px] sm:text-xs whitespace-nowrap">
