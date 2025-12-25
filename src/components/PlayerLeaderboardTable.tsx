@@ -2414,10 +2414,7 @@ const PlayerLeaderboardTable = () => {
           </div>
           
           {/* Footer */}
-          <div className="px-5 py-4 border-t border-border/50 bg-muted/20 space-y-3">
-            <p className="text-xs text-muted-foreground text-center">
-              💡 PTS 为虚拟积分，仅供模拟分析使用，不代表任何真实货币或价值
-            </p>
+          <div className="px-5 py-4 border-t border-border/50 bg-muted/20">
             <Button
               variant="outline"
               className="w-full"
