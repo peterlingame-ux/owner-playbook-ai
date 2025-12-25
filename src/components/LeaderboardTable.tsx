@@ -718,11 +718,6 @@ const LeaderboardTable = () => {
                               ))}
                             </AnimatePresence>
                           </div>
-                          {/* Initial Points */}
-                          <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20">
-                            <Wallet className="h-3 w-3 text-amber-500" />
-                            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">初始模拟积分：10,000PTS</span>
-                          </div>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业赛事综合分析大模型，预测者可自行培养')}
