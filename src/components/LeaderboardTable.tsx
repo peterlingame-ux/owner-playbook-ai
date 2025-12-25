@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useTranslation } from "react-i18next";
 import { GoalIcon } from "@/components/FootballIcons";
 import { aiModels } from "@/data/mockData";
-import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart, Users, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ArrowUp, ArrowDown, History, X, ExternalLink, ThumbsUp, Copy, Heart, Users, TrendingUp, TrendingDown, Minus, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
@@ -717,6 +717,11 @@ const LeaderboardTable = () => {
                                 </motion.div>
                               ))}
                             </AnimatePresence>
+                          </div>
+                          {/* Initial Points */}
+                          <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20">
+                            <Wallet className="h-3 w-3 text-amber-500" />
+                            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">初始模拟积分：10,000PTS</span>
                           </div>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
