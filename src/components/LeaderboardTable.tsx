@@ -789,7 +789,7 @@ const LeaderboardTable = () => {
                     
                     {/* Win Rate */}
                     <div className="text-right">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测准确率</p>
                         <AnimatedWinRate 
                           value={model.winRate}
                         className="text-sm sm:text-lg font-bold font-mono-data text-success"
