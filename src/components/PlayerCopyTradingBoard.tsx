@@ -1398,6 +1398,7 @@ const PlayerCopyTradingBoard = () => {
                                   <div className="flex items-center gap-2">
                                     <Lock className="h-4 w-4 text-amber-500" />
                                     <span className="text-sm text-muted-foreground">订阅后查看比赛详情</span>
+                                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                                   </div>
                                   <Button
                                     size="sm"
