@@ -89,31 +89,18 @@ const modelPointsData: Record<string, number> = {
 // Animated Points Balance Component
 const AnimatedPointsBalance = ({ modelId }: { modelId: string }) => {
   const basePoints = modelPointsData[modelId] || 10000;
-  const [displayValue, setDisplayValue] = useState(basePoints);
   
-  useEffect(() => {
-    // Simulate real-time fluctuation
-    const interval = setInterval(() => {
-      setDisplayValue(prev => {
-        const change = Math.floor((Math.random() - 0.4) * 50);
-        return Math.max(8000, prev + change);
-      });
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
-  
-  const animatedValue = useCountAnimation(displayValue, {
-    duration: 600,
-    startValue: Math.max(0, displayValue - 100)
+  const animatedValue = useCountAnimation(basePoints, {
+    duration: 1500,
+    startValue: 0
   });
   
   return (
     <motion.span
-      key={Math.floor(animatedValue)}
-      initial={{ scale: 1.1, color: '#f59e0b' }}
-      animate={{ scale: 1, color: 'inherit' }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="font-mono"
     >
       {Math.round(animatedValue).toLocaleString()}PTS
     </motion.span>
