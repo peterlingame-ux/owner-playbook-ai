@@ -762,17 +762,10 @@ const LeaderboardTable = () => {
                               ))}
                             </AnimatePresence>
                           </div>
-                          {/* Wallet Balance */}
-                          <div className="flex items-center gap-1.5 ml-2 px-2 py-0.5 bg-gradient-to-r from-amber-500/15 to-yellow-500/10 rounded-lg border border-amber-500/30 shadow-sm">
-                            <Wallet className="h-3.5 w-3.5 text-amber-500" />
-                            <div className="flex flex-col">
-                              <span className="text-[8px] text-amber-600/70 dark:text-amber-400/70 leading-none">余额</span>
-                              <span className="text-[11px] sm:text-xs text-amber-600 dark:text-amber-400 font-bold leading-tight">
-                                <AnimatedPointsBalance modelId={model.id} />
-                              </span>
-                            </div>
-                            <span className="text-[8px] text-muted-foreground ml-0.5">初始:10K</span>
-                          </div>
+                          {/* Points Balance */}
+                          <span className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium ml-2">
+                            积分余额：<AnimatedPointsBalance modelId={model.id} />（初始积分10,000PTS）
+                          </span>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业赛事综合分析大模型，预测者可自行培养')}
