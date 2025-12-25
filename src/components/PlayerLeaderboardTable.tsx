@@ -2336,7 +2336,7 @@ const PlayerLeaderboardTable = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <DialogTitle className="text-lg font-bold text-foreground">
-                    {selectedPlayerFollowers?.playerName} - 跟单用户
+                    {selectedPlayerFollowers?.playerName} - 追踪用户
                   </DialogTitle>
                   <p className="text-xs text-muted-foreground mt-1">
                     更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
@@ -2360,7 +2360,7 @@ const PlayerLeaderboardTable = () => {
           {/* Table Header */}
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
             <span>排名</span>
-            <span>玩家收益 | 带单规模</span>
+            <span>模拟积分 | 参与规模</span>
           </div>
           
           {/* Followers List */}
@@ -2395,7 +2395,7 @@ const PlayerLeaderboardTable = () => {
                   <div>
                     <p className="font-bold text-sm text-foreground">{follower.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      已跟单{follower.days}次
+                      追踪{follower.days}次
                     </p>
                   </div>
                 </div>

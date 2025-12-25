@@ -2139,7 +2139,7 @@ const PlayerCopyTradingBoard = () => {
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <DialogTitle className="text-lg font-bold">{selectedPlayerFollowers?.playerName} - 跟单用户</DialogTitle>
+                  <DialogTitle className="text-lg font-bold">{selectedPlayerFollowers?.playerName} - 追踪用户</DialogTitle>
                   <p className="text-xs text-muted-foreground mt-1">更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
@@ -2152,7 +2152,7 @@ const PlayerCopyTradingBoard = () => {
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
             <span>排名</span>
-            <span>玩家收益 | 带单规模</span>
+            <span>模拟积分 | 参与规模</span>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1">
             {selectedPlayerFollowers?.followers.map((follower, index) => (
@@ -2164,7 +2164,7 @@ const PlayerCopyTradingBoard = () => {
                   <Avatar className="w-10 h-10 border border-border/50"><AvatarImage src={follower.avatar} /><AvatarFallback>{follower.name.charAt(0)}</AvatarFallback></Avatar>
                   <div>
                     <p className="font-bold text-sm">{follower.name}</p>
-                    <p className="text-xs text-muted-foreground">已跟单{follower.days}次</p>
+                    <p className="text-xs text-muted-foreground">追踪{follower.days}次</p>
                   </div>
                 </div>
                 <div className="text-right">
