@@ -216,10 +216,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
           {/* Money Change Badge */}
           <div className="flex flex-col items-center gap-0.5 sm:gap-1 lg:gap-1.5 shrink-0">
             <span className="text-[8px] sm:text-[10px] lg:text-xs font-medium text-muted-foreground uppercase tracking-wide whitespace-nowrap">{t('simulated_profit')}</span>
-            <div className={`px-1.5 sm:px-2.5 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-mono-data font-medium text-[10px] sm:text-xs lg:text-base tabular-nums ${
+          <div className={`px-1.5 sm:px-2.5 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-mono-data font-medium text-[10px] sm:text-xs lg:text-base tabular-nums ${
               model.change.startsWith('+') ? 'bg-success/20 text-success border border-success/20' : 'bg-destructive/20 text-destructive border border-destructive/20'
             }`}>
-              {model.change}
+              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')} PTS
             </div>
           </div>
         </div>

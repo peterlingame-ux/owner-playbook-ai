@@ -1228,7 +1228,7 @@ const resources = {
       "bet_type_handicap": "让分",
       "bet_type_over_under": "大小球",
       "profit": "收益率",
-      "simulated_profit": "模拟收益",
+      "simulated_profit": "模拟积分",
       "loss": "亏损",
       "page_not_found": "哎呀！页面未找到",
       "return_to_home": "返回首页",
