@@ -196,7 +196,7 @@ const ChallengeAIBanner = () => {
                 <div className="flex items-center gap-2 sm:gap-6 text-[10px] sm:text-sm flex-wrap">
                   <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">247</span></span>
                   <span className="text-muted-foreground">{t('banner_win_rate')} <span className="font-bold text-foreground">78.95%</span></span>
-                  <span className="text-muted-foreground">{t('banner_profit')} <span className="font-bold text-foreground">$24,789</span></span>
+                  <span className="text-muted-foreground">{t('banner_profit')} <span className="font-bold text-foreground">24789 PTS</span></span>
                 </div>
               </div>
             </div>
@@ -232,7 +232,7 @@ const ChallengeAIBanner = () => {
                       {t('banner_win_rate')} <span className={`font-bold ${playerWinRate >= AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(1)}%</span>
                     </span>
                     <span className="text-muted-foreground">
-                      {t('banner_profit')} <span className={`font-bold ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>${(playerProfit / 100).toLocaleString()}</span>
+                      {t('banner_profit')} <span className={`font-bold ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>{(playerProfit / 100).toLocaleString()} PTS</span>
                     </span>
                   </div>
                 </div>
