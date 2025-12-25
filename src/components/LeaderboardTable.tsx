@@ -677,8 +677,9 @@ const LeaderboardTable = () => {
                         </div>
                       {/* Name & Stats */}
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-sm sm:text-base text-foreground">{getModelDisplayName(model)}</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">初始模拟积分：10,000PTS</span>
                           {/* Like Button */}
                           <div className="relative">
                             <button
