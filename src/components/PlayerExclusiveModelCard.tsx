@@ -557,7 +557,7 @@ const PlayerExclusiveModelCard = ({
               </Avatar>
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-amber-400">{displayName}</span>
-                <span className="text-[10px] font-mono-data text-muted-foreground">{balanceValue || '$10,000.00'}</span>
+                <span className="text-[10px] font-mono-data text-muted-foreground">{balanceValue || '10,000模拟积分'}</span>
               </div>
             </div>
             
