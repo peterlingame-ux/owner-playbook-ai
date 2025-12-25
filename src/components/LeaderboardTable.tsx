@@ -76,6 +76,50 @@ const generateMockFollowers = (modelId: string, count: number) => {
   });
 };
 
+// Model Points Data (stable values for each AI model)
+const modelPointsData: Record<string, number> = {
+  'deepseek': 14520,
+  'gpt5': 12830,
+  'gemini': 11650,
+  'claude': 13280,
+  'grok': 10950,
+  'hunsoccer-max': 15200,
+};
+
+// Animated Points Balance Component
+const AnimatedPointsBalance = ({ modelId }: { modelId: string }) => {
+  const basePoints = modelPointsData[modelId] || 10000;
+  const [displayValue, setDisplayValue] = useState(basePoints);
+  
+  useEffect(() => {
+    // Simulate real-time fluctuation
+    const interval = setInterval(() => {
+      setDisplayValue(prev => {
+        const change = Math.floor((Math.random() - 0.4) * 50);
+        return Math.max(8000, prev + change);
+      });
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  const animatedValue = useCountAnimation(displayValue, {
+    duration: 600,
+    startValue: Math.max(0, displayValue - 100)
+  });
+  
+  return (
+    <motion.span
+      key={Math.floor(animatedValue)}
+      initial={{ scale: 1.1, color: '#f59e0b' }}
+      animate={{ scale: 1, color: 'inherit' }}
+      transition={{ duration: 0.3 }}
+    >
+      {Math.round(animatedValue).toLocaleString()}PTS
+    </motion.span>
+  );
+};
+
 // Animated Follower Count Component
 const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit: number; onClick: () => void }) => {
   const [displayValue, setDisplayValue] = useState(value);
@@ -718,9 +762,9 @@ const LeaderboardTable = () => {
                               ))}
                             </AnimatePresence>
                           </div>
-                          {/* Current Points */}
+                          {/* Points Balance */}
                           <span className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium ml-2">
-                            现有积分：{(10000 + Math.floor(Math.random() * 5000)).toLocaleString()}PTS（初始积分10,000PTS）
+                            积分余额：<AnimatedPointsBalance modelId={model.id} />（初始积分10,000PTS）
                           </span>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
