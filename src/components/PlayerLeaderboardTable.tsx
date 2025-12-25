@@ -657,12 +657,12 @@ const PlayerLeaderboardTable = () => {
     fetchTodayWinRates();
   }, []);
 
-  // 获取指定玩家的今日推荐比赛
+  // 获取指定玩家的今日观点比赛
   const fetchTodayHistory = async (playerId: string, playerName: string, isVirtual: boolean) => {
     setIsLoadingHistory(true);
     setIsHistoryDialogOpen(true);
     
-    // 今日推荐的比赛（未开始的比赛）
+    // 今日观点的比赛（未开始的比赛）
     const upcomingMatches = [
       { home: '皇家马德里', away: '巴塞罗那', matchTime: '21:00' },
       { home: '曼城', away: '利物浦', matchTime: '22:30' },
@@ -970,7 +970,7 @@ const PlayerLeaderboardTable = () => {
     }
   };
 
-  // 从今日推荐跟单
+  // 从今日观点跟单
   const handleCopyTradeFromHistory = (pred: TodayPrediction) => {
     const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
     if (!player) return;

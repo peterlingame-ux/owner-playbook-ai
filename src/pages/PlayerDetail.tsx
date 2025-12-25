@@ -226,7 +226,7 @@ const PlayerDetail = () => {
   // 应用筛选
   let filteredPredictions = [...playerPredictions];
   
-  // 日期筛选 - 今日推荐
+  // 日期筛选 - 今日观点
   if (filterDate === "today") {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
