@@ -2141,7 +2141,7 @@ const PlayerLeaderboardTable = () => {
           <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
-              {t('cold_streak_board') || '低胜率榜'} - {t('all_players') || '全部预测者'}
+              {t('cold_streak_board') || '低准确率榜'} - {t('all_players') || '全部预测者'}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}

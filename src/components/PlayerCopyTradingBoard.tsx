@@ -1192,7 +1192,7 @@ const PlayerCopyTradingBoard = () => {
                 <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
                 <div>
                   <h3 className="text-lg font-bold text-foreground">玩家连红榜</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">胜率最高玩家 · <span className="text-amber-500 font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">准确率最高玩家 · <span className="text-amber-500 font-medium">前10名</span></p>
                 </div>
               </div>
               <button
@@ -1226,7 +1226,7 @@ const PlayerCopyTradingBoard = () => {
                 <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                 <div>
                   <h3 className="text-lg font-bold text-foreground">玩家连黑榜</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">胜率最低玩家 · <span className="text-red-500 font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">准确率最低玩家 · <span className="text-red-500 font-medium">前10名</span></p>
                 </div>
               </div>
               <button
