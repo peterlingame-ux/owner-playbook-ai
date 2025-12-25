@@ -1078,23 +1078,23 @@ const PlayerCopyTradingBoard = () => {
         <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
           {/* Bet Amount */}
           <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟投注</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">模拟投入</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
-              ¥{((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
             </p>
           </div>
           
           {/* Profit Amount */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利金额</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">模拟积分</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitAmount >= 0 ? '+' : '-'}¥{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
             </p>
           </div>
           
           {/* Profit Rate */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">积分变化率</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
             </p>
@@ -1114,7 +1114,7 @@ const PlayerCopyTradingBoard = () => {
               setIsPlayerFollowersDialogOpen(true);
             }}
           >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />跟单人数</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />订阅人数</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
