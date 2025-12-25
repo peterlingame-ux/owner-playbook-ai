@@ -750,7 +750,8 @@ const LeaderboardTable = () => {
                             </AnimatePresence>
                           </div>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                        <p className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5 flex items-center gap-1">
+                          <Wallet className="h-3 w-3" />
                           积分余额：<AnimatedPointsBalance modelId={model.id} />（初始积分10,000PTS）
                         </p>
                       </div>
