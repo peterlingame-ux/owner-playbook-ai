@@ -940,7 +940,7 @@ const resources = {
       "performance": "表现",
       "ai_leaderboard": "AI推荐排行榜",
       "player_leaderboard": "玩家推荐排行榜",
-      "all_players": "全部玩家",
+      "all_players": "全部预测者",
       "player_detail": "玩家详情",
       "view_all": "查看全部",
       "search_player": "搜索玩家名称...",
