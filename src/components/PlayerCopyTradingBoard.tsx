@@ -2143,7 +2143,7 @@ const PlayerCopyTradingBoard = () => {
                   <p className="text-xs text-muted-foreground mt-1">更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-muted-foreground">总收益率</span>
+                  <span className="text-xs text-muted-foreground">积分变化率</span>
                   <span className="text-lg font-bold text-success">+{(15 + Math.random() * 30).toFixed(1)}%</span>
                   <TrendingUp className="h-4 w-4 text-success" />
                 </div>
@@ -2168,8 +2168,8 @@ const PlayerCopyTradingBoard = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-bold ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>{follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}</p>
-                  <p className="text-xs text-warning font-medium">{follower.copyAmount.toFixed(2)}</p>
+                  <p className={`text-sm font-bold ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>{follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)} PTS</p>
+                  <p className="text-xs text-foreground font-medium">{follower.copyAmount.toFixed(2)} PTS</p>
                 </div>
               </div>
             ))}

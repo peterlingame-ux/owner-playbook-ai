@@ -2343,7 +2343,7 @@ const PlayerLeaderboardTable = () => {
                   </p>
     </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-muted-foreground">总收益率</span>
+                  <span className="text-xs text-muted-foreground">积分变化率</span>
                   <span className={`text-lg font-bold font-mono-data ${
                     (selectedPlayerFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 
                       ? 'text-success' 
@@ -2403,10 +2403,10 @@ const PlayerLeaderboardTable = () => {
                 {/* Right: Profit & Copy Amount */}
                 <div className="text-right">
                   <p className={`text-sm font-bold tabular-nums ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
+                    {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)} PTS
                   </p>
-                  <p className="text-xs text-warning flex items-center justify-end mt-0.5">
-                    <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)}</span>
+                  <p className="text-xs text-foreground flex items-center justify-end mt-0.5">
+                    <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)} PTS</span>
                   </p>
                 </div>
               </div>
