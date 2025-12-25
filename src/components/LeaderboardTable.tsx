@@ -718,6 +718,11 @@ const LeaderboardTable = () => {
                               ))}
                             </AnimatePresence>
                           </div>
+                          {/* Initial Points */}
+                          <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20">
+                            <Wallet className="h-3 w-3 text-amber-500" />
+                            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">初始模拟积分：10,000PTS</span>
+                          </div>
                         </div>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           {model.locked ? 'AI预测模型' : (aiModelAdvantages[model.id] || '专业赛事综合分析大模型，预测者可自行培养')}
@@ -761,24 +766,13 @@ const LeaderboardTable = () => {
                     </div>
                   </div>
                   
-                  {/* Stats Grid - Row 1: 预测, 初始积分, 正确场次, 错误场次, 胜率 */}
-                  <div className="grid grid-cols-5 gap-2 sm:gap-3">
+                  {/* Stats Grid - Row 1: 预测, 正确场次, 错误场次, 胜率 */}
+                  <div className="grid grid-cols-4 gap-3 sm:gap-4">
                     {/* Total Predictions */}
                     <div>
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测</p>
                       <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
                         {model.totalPredictions || 0}场
-                      </p>
-                    </div>
-                    
-                    {/* Initial Points */}
-                    <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-center gap-1">
-                        <Wallet className="h-3 w-3 text-amber-500" />
-                        初始积分
-                      </p>
-                      <p className="text-sm sm:text-lg font-bold font-mono-data text-amber-600 dark:text-amber-400">
-                        10,000
                       </p>
                     </div>
                     
@@ -800,9 +794,9 @@ const LeaderboardTable = () => {
                     
                     {/* Win Rate */}
                     <div className="text-right">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">准确率</p>
-                      <AnimatedWinRate 
-                        value={model.winRate}
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测准确率</p>
+                        <AnimatedWinRate 
+                          value={model.winRate}
                         className="text-sm sm:text-lg font-bold font-mono-data text-success"
                         trend={todayWinRates.get(model.id) ? todayWinRates.get(model.id)!.winRate - model.winRate : undefined}
                         showTrend={todayWinRates.has(model.id)}
