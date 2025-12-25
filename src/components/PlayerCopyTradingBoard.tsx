@@ -1141,7 +1141,7 @@ const PlayerCopyTradingBoard = () => {
     <div className="space-y-6">
       {/* Time Range Filter - Unified for all boards */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '玩家跟单排行榜'}</h2>
+        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者跟单排行榜'}</h2>
         <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
           <button
             onClick={() => setTimeRange(1)}
@@ -1191,8 +1191,8 @@ const PlayerCopyTradingBoard = () => {
               <div className="flex items-center gap-2">
                 <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">玩家连红榜</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">准确率最高玩家 · <span className="text-amber-500 font-medium">前10名</span></p>
+                  <h3 className="text-lg font-bold text-foreground">预测者连红榜</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">准确率最高预测者 · <span className="text-amber-500 font-medium">前10名</span></p>
                 </div>
               </div>
               <button
@@ -1225,8 +1225,8 @@ const PlayerCopyTradingBoard = () => {
               <div className="flex items-center gap-2">
                 <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">玩家连黑榜</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">准确率最低玩家 · <span className="text-red-500 font-medium">前10名</span></p>
+                  <h3 className="text-lg font-bold text-foreground">预测者连黑榜</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">准确率最低预测者 · <span className="text-red-500 font-medium">前10名</span></p>
                 </div>
               </div>
               <button
@@ -1873,7 +1873,7 @@ const PlayerCopyTradingBoard = () => {
           <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
-              玩家连红榜 - {t('all_players') || '全部预测者'}
+              预测者连红榜 - {t('all_players') || '全部预测者'}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
@@ -2008,7 +2008,7 @@ const PlayerCopyTradingBoard = () => {
           <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
-              玩家连黑榜 - {t('all_players') || '全部预测者'}
+              预测者连黑榜 - {t('all_players') || '全部预测者'}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
@@ -2141,7 +2141,7 @@ const PlayerCopyTradingBoard = () => {
                     <AvatarImage src={selectedAllPlayer.player.avatarUrl} />
                     <AvatarFallback>{selectedAllPlayer.player.displayName.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  {maskPlayerName(selectedAllPlayer.player.displayName)} - {t('player_detail') || '玩家详情'}
+                  {maskPlayerName(selectedAllPlayer.player.displayName)} - {t('player_detail') || '预测者详情'}
                 </DialogTitle>
               </DialogHeader>
               <ScrollArea className="flex-1 -mx-6 px-6">

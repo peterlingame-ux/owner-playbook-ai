@@ -2276,7 +2276,7 @@ const PlayerLeaderboardTable = () => {
                     <AvatarImage src={selectedAllPlayer.player.avatarUrl} />
                     <AvatarFallback>{selectedAllPlayer.player.displayName.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  {maskPlayerName(selectedAllPlayer.player.displayName)} - {t('player_detail') || '玩家详情'}
+                  {maskPlayerName(selectedAllPlayer.player.displayName)} - {t('player_detail') || '预测者详情'}
                 </DialogTitle>
               </DialogHeader>
               <ScrollArea className="flex-1 -mx-6 px-6">
