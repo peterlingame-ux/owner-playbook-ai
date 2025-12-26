@@ -16,6 +16,7 @@ import appleMacbookImg from "@/assets/prizes/apple-macbook.png";
 import appleIpadImg from "@/assets/prizes/apple-ipad.png";
 import appleVisionImg from "@/assets/prizes/apple-vision.png";
 import appleIphoneImg from "@/assets/prizes/apple-iphone.png";
+import dailyJackpotBg from "@/assets/daily-jackpot-bg.png";
 
 
 // Prize data with names - 6 Apple products rotating
@@ -153,31 +154,14 @@ const Waitlist = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Football Field Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Subtle grass texture gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/5 via-transparent to-emerald-950/5" />
-        
-        {/* Center circle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-96 sm:h-96 rounded-full border border-emerald-500/10" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-emerald-500/10" />
-        
-        {/* Center line */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-px bg-emerald-500/10" />
-        
-        {/* Top penalty area */}
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-48 sm:w-72 h-24 sm:h-32 border border-emerald-500/10 border-t-0" />
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 sm:w-36 h-12 sm:h-16 border border-emerald-500/10 border-t-0" />
-        
-        {/* Bottom penalty area */}
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 sm:w-72 h-24 sm:h-32 border border-emerald-500/10 border-b-0" />
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 sm:w-36 h-12 sm:h-16 border border-emerald-500/10 border-b-0" />
-        
-        {/* Corner arcs */}
-        <div className="absolute -top-6 -left-6 w-12 h-12 border-r border-b border-emerald-500/10 rounded-br-full" />
-        <div className="absolute -top-6 -right-6 w-12 h-12 border-l border-b border-emerald-500/10 rounded-bl-full" />
-        <div className="absolute -bottom-6 -left-6 w-12 h-12 border-r border-t border-emerald-500/10 rounded-tr-full" />
-        <div className="absolute -bottom-6 -right-6 w-12 h-12 border-l border-t border-emerald-500/10 rounded-tl-full" />
+      {/* Background Image */}
+      <div className="absolute inset-0 pointer-events-none">
+        <img 
+          src={dailyJackpotBg} 
+          alt="" 
+          className="w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
       </div>
       
       <Header />
