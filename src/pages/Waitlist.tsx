@@ -155,13 +155,13 @@ const Waitlist = () => {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
         <img 
           src={dailyJackpotBg} 
           alt="" 
-          className="w-full h-full object-cover opacity-30"
+          className="w-full h-auto max-h-full object-contain opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
       </div>
       
       <Header />
