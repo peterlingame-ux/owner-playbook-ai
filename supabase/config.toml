@@ -17,6 +17,3 @@ verify_jwt = false
 
 [functions.fetch-competitions]
 verify_jwt = false
-
-[functions.sportnanoapi-proxy]
-verify_jwt = false

@@ -1,62 +1,24 @@
 import type { CompetitionListResponse, Competition, FixtureResponse, FixturesListResponse, DiaryMatch, DiaryTeam, MatchLiveResponse, MatchLiveData } from "@/types/footballApi";
 
-// 统一使用 Supabase Edge Function 作为缓存代理（本地和生产环境都使用）
-const SPORTNANOAPI_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sportnanoapi-proxy`;
-const SPORTNANOAPI_LEGACY_URL = import.meta.env.DEV
-  ? "/api/sportnanoapi/api/v5"
-  : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
+// API 基础 URL 配置
+// 开发环境：使用 Vite 代理
+// 生产环境：可通过环境变量 VITE_SPORTNANOAPI_DIRECT=true 启用直接请求（需要 API 支持 CORS）
+// 否则使用 Supabase Edge Function 避免 CORS 问题
+const getBaseUrl = () => {
+  if (import.meta.env.DEV) {
+    return "/api/sportnanoapi/api/v5";
+  }
+  // 生产环境：检查是否启用直接请求
+  if (import.meta.env.VITE_SPORTNANOAPI_DIRECT === 'true') {
+    return "https://open.sportnanoapi.com/api/v5"; // 直接请求（需要 API 支持 CORS）
+  }
+  // 默认使用 Edge Function
+  return `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
+};
+
+const SPORTNANOAPI_BASE_URL = getBaseUrl();
 const SPORTNANOAPI_USER = "nacctsaw";
 const SPORTNANOAPI_SECRET = "f0b904438d488e4c3d686b36f69339a6";
-
-/**
- * 通过缓存代理调用 sportnanoapi
- * @param endpoint API 端点（如 "match/live", "odds/live"）
- * @param params 查询参数
- * @returns API 响应
- */
-async function callSportnanoapiWithCache(
-  endpoint: string,
-  params: Record<string, string | number> = {}
-): Promise<any> {
-  // 构建 URL：统一使用 Edge Function
-  const searchParams = new URLSearchParams(
-    Object.fromEntries(
-      Object.entries(params).map(([k, v]) => [k, String(v)])
-    )
-  );
-  const url = `${SPORTNANOAPI_BASE_URL}/${endpoint}?${searchParams.toString()}`;
-
-  const headers: HeadersInit = {
-    "Accept": "application/json",
-  };
-
-  // 添加 Supabase 认证头（必需，即使 verify_jwt = false）
-  if (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-    headers["apikey"] = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    // 也添加 Authorization 头，某些情况下可能需要
-    headers["Authorization"] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
-  }
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText} - ${errorText}`);
-  }
-
-  const data = await response.json();
-
-  // 检查 API 返回的错误
-  if (data.code !== undefined && data.code !== 0) {
-    const errorMsg = data.msg || data.message || 'Unknown error';
-    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
-  }
-
-  return data;
-}
 
 // 本地存储键名
 const STORAGE_KEY_LAST_UPDATE_TIME = "competitions_last_update_time";
@@ -109,7 +71,7 @@ export const fetchCompetitions = async (
     searchParams.append("limit", Math.min(params.limit, 1000).toString()); // 最大1000
   }
 
-  // 构建 URL：开发环境使用代理，生产环境使用 Edge Function
+  // 构建 URL：判断是 Edge Function 还是直接请求
   const isEdgeFunction = SPORTNANOAPI_BASE_URL.includes("/functions/v1/");
   const url = isEdgeFunction
     ? `${SPORTNANOAPI_BASE_URL}?${searchParams.toString()}`
@@ -359,10 +321,8 @@ export interface FetchFixturesParams {
 export const fetchFixtures = async (
   params: FetchFixturesParams = {}
 ): Promise<FixturesListResponse> => {
-  // 开发环境使用 Vite 代理，生产环境使用 Supabase Edge Function 避免 CORS 问题
-  const baseUrl = import.meta.env.DEV
-    ? "/api/sportnanoapi/api/v5"
-    : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
+  // 使用统一的 baseUrl 配置
+  const baseUrl = getBaseUrl();
   
   const searchParams = new URLSearchParams({
     user: SPORTNANOAPI_USER,
@@ -534,9 +494,7 @@ export const fetchMatchDetail = async (matchId: string | number): Promise<{
  * @returns 实时比赛数据响应
  */
 export const fetchMatchLive = async (matchId?: string | number): Promise<MatchLiveResponse> => {
-  const baseUrl = import.meta.env.DEV
-    ? "/api/sportnanoapi/api/v5"
-    : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-competitions`;
+  const baseUrl = getBaseUrl();
 
   const searchParams = new URLSearchParams({
     user: SPORTNANOAPI_USER,
@@ -643,59 +601,14 @@ export const fetchMatchLive = async (matchId?: string | number): Promise<MatchLi
  * @returns 实时比赛数据，如果未找到则返回 null
  */
 export const fetchMatchLiveById = async (matchId: string | number): Promise<MatchLiveData | null> => {
-  // 使用缓存代理
-  const data = await callSportnanoapiWithCache("match/live", { id: matchId });
+  const response = await fetchMatchLive(matchId);
   
-  // 转换返回数据格式（与 fetchMatchLive 相同的逻辑）
-  const transformedResults: MatchLiveData[] = (data.results || []).map((item: any) => {
-    let id: number;
-    let scoreData: any;
-    let stats: any;
-    let incidents: any;
-    let tlive: any;
-    
-    if (Array.isArray(item)) {
-      if (item.length < 2) {
-        console.warn('Invalid match live data format (array):', item);
-        return null;
-      }
-      [id, scoreData, stats, incidents, tlive] = item;
-    } else if (typeof item === 'object' && item !== null) {
-      id = item.id;
-      scoreData = item.score;
-      stats = item.stats;
-      incidents = item.incidents;
-      tlive = item.tlive;
-    } else {
-      console.warn('Invalid match live data format:', item);
-      return null;
-    }
-    
-    if (!Array.isArray(scoreData) || scoreData.length < 6) {
-      console.warn('Invalid score data format:', scoreData);
-      return null;
-    }
-    
-    const [matchIdNum, status, homeScores, awayScores, kickoffTime, note] = scoreData;
-    
-    return {
-      id: id || matchIdNum,
-      score: {
-        id: matchIdNum,
-        status: status || 0,
-        homeScores: Array.isArray(homeScores) ? homeScores : [],
-        awayScores: Array.isArray(awayScores) ? awayScores : [],
-        kickoffTime: kickoffTime || 0,
-        note: note || '',
-      },
-      stats: Array.isArray(stats) && stats.length > 0 ? stats : undefined,
-      incidents: Array.isArray(incidents) && incidents.length > 0 ? incidents : undefined,
-      tlive: Array.isArray(tlive) && tlive.length > 0 ? tlive : undefined,
-    };
-  }).filter((item): item is MatchLiveData => item !== null);
-
-  const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
-  return transformedResults.find(m => m.id === matchIdNum) || null;
+  if (response.results && response.results.length > 0) {
+    const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
+    return response.results.find(m => m.id === matchIdNum) || null;
+  }
+  
+  return null;
 };
 
 /**
@@ -760,19 +673,50 @@ export const fetchOddsLive = async (
   matchId: string | number,
   companyIds: number[] = [7, 3, 2, 11, 10] // 默认：澳彩、皇冠、BET365、韦德、易胜博
 ): Promise<OddsLiveResponse> => {
-  // 构建参数对象
-  const params: Record<string, string> = {};
-  
+  const baseUrl = getBaseUrl();
+
+  const searchParams = new URLSearchParams({
+    user: SPORTNANOAPI_USER,
+    secret: SPORTNANOAPI_SECRET,
+  });
+
   // 根据API文档，公司ID是数组参数
-  // 使用数组格式：company[]=7&company[]=3（PHP风格的数组参数）
+  // 尝试使用数组格式：company[]=7&company[]=3（PHP风格的数组参数）
   if (companyIds.length > 0) {
     companyIds.forEach(id => {
-      params[`company[]`] = id.toString();
+      searchParams.append('company[]', id.toString());
     });
   }
 
-  // 使用缓存代理
-  const data = await callSportnanoapiWithCache("odds/live", params);
+  // 构建 URL
+  const isEdgeFunction = baseUrl.includes("/functions/v1/");
+  const url = isEdgeFunction
+    ? `${baseUrl}?endpoint=odds/live&${searchParams.toString()}`
+    : `${baseUrl}/football/odds/live?${searchParams.toString()}`;
+  
+  const response = await fetch(url, {
+    method: "GET",
+    ...(isEdgeFunction && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+      ? {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      : {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch odds live data: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = await response.json();
+
+  // 检查 API 返回的错误
+  if (data.code !== undefined && data.code !== 0) {
+    const errorMsg = data.msg || data.message || 'Unknown error';
+    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
+  }
 
   // 确保返回的数据格式正确
   if (!data.results || typeof data.results !== 'object' || Array.isArray(data.results)) {
@@ -810,8 +754,42 @@ export interface MatchTrendResponse {
 export const fetchMatchTrend = async (
   matchId: string | number
 ): Promise<MatchTrendResponse> => {
-  // 使用缓存代理
-  const data = await callSportnanoapiWithCache("match/trend/live", {});
+  const baseUrl = getBaseUrl();
+
+  const searchParams = new URLSearchParams({
+    user: SPORTNANOAPI_USER,
+    secret: SPORTNANOAPI_SECRET,
+  });
+
+  // 构建 URL
+  const isEdgeFunction = baseUrl.includes("/functions/v1/");
+  const url = isEdgeFunction
+    ? `${baseUrl}?endpoint=match/trend/live&${searchParams.toString()}`
+    : `${baseUrl}/football/match/trend/live?${searchParams.toString()}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    ...(isEdgeFunction && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+      ? {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      : {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch match trend data: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = await response.json();
+
+  // 检查 API 返回的错误
+  if (data.code !== undefined && data.code !== 0) {
+    const errorMsg = data.msg || data.message || 'Unknown error';
+    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
+  }
 
   // 确保返回的数据格式正确
   if (!data.results || !Array.isArray(data.results)) {
@@ -830,8 +808,43 @@ export const fetchMatchTrend = async (
 export const fetchMatchTrendDetail = async (
   matchId: string | number
 ): Promise<MatchTrendResponse> => {
-  // 使用缓存代理
-  const data = await callSportnanoapiWithCache("match/trend/detail", { id: matchId });
+  const baseUrl = getBaseUrl();
+
+  const searchParams = new URLSearchParams({
+    user: SPORTNANOAPI_USER,
+    secret: SPORTNANOAPI_SECRET,
+    id: matchId.toString(),
+  });
+
+  // 构建 URL
+  const isEdgeFunction = baseUrl.includes("/functions/v1/");
+  const url = isEdgeFunction
+    ? `${baseUrl}?endpoint=match/trend/detail&${searchParams.toString()}`
+    : `${baseUrl}/football/match/trend/detail?${searchParams.toString()}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    ...(isEdgeFunction && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+      ? {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      : {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch match trend detail: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = await response.json();
+
+  // 检查 API 返回的错误
+  if (data.code !== undefined && data.code !== 0) {
+    const errorMsg = data.msg || data.message || 'Unknown error';
+    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
+  }
 
   // 详情接口的返回格式与实时接口不同
   // 详情接口：{ code: 0, results: { count, per, data, incidents } }
@@ -975,8 +988,43 @@ export interface MatchLineupResponse {
 export const fetchMatchLineup = async (
   matchId: string | number
 ): Promise<MatchLineupResponse> => {
-  // 使用缓存代理
-  const data = await callSportnanoapiWithCache("match/lineup/detail", { id: matchId });
+  const baseUrl = getBaseUrl();
+
+  const searchParams = new URLSearchParams({
+    user: SPORTNANOAPI_USER,
+    secret: SPORTNANOAPI_SECRET,
+    id: matchId.toString(),
+  });
+
+  // 构建 URL
+  const isEdgeFunction = baseUrl.includes("/functions/v1/");
+  const url = isEdgeFunction
+    ? `${baseUrl}?endpoint=match/lineup/detail&${searchParams.toString()}`
+    : `${baseUrl}/football/match/lineup/detail?${searchParams.toString()}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    ...(isEdgeFunction && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+      ? {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      : {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch match lineup: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = await response.json();
+
+  // 检查 API 返回的错误
+  if (data.code !== undefined && data.code !== 0) {
+    const errorMsg = data.msg || data.message || 'Unknown error';
+    throw new Error(`API returned error code: ${data.code} - ${errorMsg}`);
+  }
 
   // 确保返回的数据格式正确
   if (!data.results || typeof data.results !== 'object') {
