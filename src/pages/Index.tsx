@@ -199,58 +199,6 @@ const Index = () => {
               >
                 Your browser does not support video playback
               </video>
-              
-              {/* Top-left: Live indicator */}
-              <div className="absolute top-2 left-2 flex items-center gap-2">
-                <div className="bg-red-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                  LIVE
-                </div>
-                <div className="bg-black/60 backdrop-blur-sm text-white/90 text-[10px] px-2 py-0.5 rounded">
-                  FPS: 60 | Latency: 12ms
-                </div>
-              </div>
-
-              {/* Top-right: Real-time stats */}
-              <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm rounded-md px-2 py-1.5 text-[10px] space-y-1">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-white/60">xG (Home)</span>
-                  <span className="text-green-400 font-mono">0.{liveStats.goalProbability}</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-white/60">xG (Away)</span>
-                  <span className="text-red-400 font-mono">0.{Math.max(20, 100 - liveStats.goalProbability)}</span>
-                </div>
-              </div>
-
-              {/* Player speed indicators - simulated positions */}
-              <div className="absolute top-[25%] left-[15%] bg-black/70 backdrop-blur-sm rounded px-1.5 py-0.5 text-[9px] text-white border border-white/20">
-                <span className="text-green-400">#7</span> {liveStats.sprintSpeed} km/h
-              </div>
-              <div className="absolute top-[45%] right-[20%] bg-black/70 backdrop-blur-sm rounded px-1.5 py-0.5 text-[9px] text-white border border-white/20">
-                <span className="text-red-400">#10</span> {(liveStats.sprintSpeed - 2.5).toFixed(1)} km/h
-              </div>
-              <div className="absolute bottom-[35%] left-[35%] bg-black/70 backdrop-blur-sm rounded px-1.5 py-0.5 text-[9px] text-white border border-white/20">
-                <span className="text-green-400">#9</span> {(liveStats.sprintSpeed + 1.2).toFixed(1)} km/h
-              </div>
-
-              {/* Center field info */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/40 text-[10px] font-mono">
-                {liveStats.possession}% - {100 - liveStats.possession}%
-              </div>
-
-              {/* Bottom-right: Acceleration data */}
-              <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm rounded-md px-2 py-1.5 text-[10px] space-y-1">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-white/60">Max Accel</span>
-                  <span className="text-yellow-400 font-mono">{(3.5 + Math.random() * 1.5).toFixed(1)} m/s²</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-white/60">Avg Speed</span>
-                  <span className="text-blue-400 font-mono">{(8.2 + Math.random() * 2).toFixed(1)} km/h</span>
-                </div>
-              </div>
-
               {/* Legend overlay */}
               <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded-md px-2 py-1 flex items-center gap-3 text-[10px]">
                 <div className="flex items-center gap-1">
