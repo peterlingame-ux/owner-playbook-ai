@@ -158,29 +158,32 @@ const Index = () => {
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
         {/* Official Promotional Video Section */}
         <section className="mb-6 sm:mb-10 lg:mb-14">
-          <h2 className="text-sm sm:text-base lg:text-xl font-semibold mb-3 sm:mb-4 lg:mb-5 text-foreground tracking-wide text-center">
-            {t('ai_analysis_title')}
-          </h2>
+          <div className="text-center mb-3 sm:mb-4 lg:mb-5">
+            <h2 className="text-sm sm:text-base lg:text-xl font-semibold text-foreground tracking-wide">
+              {t('ai_analysis_title')}
+            </h2>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 max-w-2xl mx-auto">
+              {t('ai_analysis_disclaimer')}
+            </p>
+          </div>
           <div className="flex items-center justify-center gap-3 sm:gap-4 lg:gap-6">
             {/* Left Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('realtime_monitoring')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_tracking')}</h4>
-                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_tracking')}: {liveStats.trackedPlayers}</h4>
                 <p className="text-xs text-muted-foreground">{t('tracked_players')}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('ai_recognition')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('formation_analysis')}</h4>
-                <div className="text-lg font-bold text-primary">{liveStats.homeFormation}</div>
-                <p className="text-xs text-muted-foreground">vs {liveStats.awayFormation}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('formation_analysis')}: {liveStats.homeFormation}</h4>
+                <p className="text-xs text-muted-foreground">{t('opponent_formation')}: {liveStats.awayFormation}</p>
+                <p className="text-[10px] text-muted-foreground/70">{t('formation_confidence')}: 92%</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('running_stats')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('total_distance')}</h4>
-                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.totalDistance}</div>
-                <p className="text-xs text-muted-foreground">{t('km_distance')}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('total_distance')}: {liveStats.totalDistance} {t('km_distance')}</h4>
+                <p className="text-xs text-muted-foreground">{t('sprint_tracking')}: 8.2 km</p>
               </div>
             </div>
 
@@ -196,27 +199,39 @@ const Index = () => {
               >
                 Your browser does not support video playback
               </video>
+              {/* Legend overlay */}
+              <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded-md px-2 py-1 flex items-center gap-3 text-[10px]">
+                <div className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  <span className="text-white/80">{t('legend_home')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                  <span className="text-white/80">{t('legend_away')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-0.5 bg-yellow-400" />
+                  <span className="text-white/80">{t('legend_pass')}</span>
+                </div>
+              </div>
             </div>
 
             {/* Right Stats Panel */}
             <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('possession_analysis')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('ball_possession')}</h4>
-                <div className="text-xl font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('ball_possession')}: {liveStats.possession}%</h4>
                 <p className="text-xs text-muted-foreground">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('ai_prediction_label')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('goal_probability')}</h4>
-                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
-                <p className="text-xs text-muted-foreground">{t('danger_zone')}: {liveStats.dangerZone}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('goal_probability')}: {liveStats.goalProbability}%</h4>
+                <p className="text-xs text-muted-foreground">{t('danger_zone')}: {liveStats.dangerZone} {t('danger_entries')}</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
                 <span className="text-xs text-muted-foreground">{t('pressure_analysis')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('pressure_index')}</h4>
-                <div className="text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}%</div>
-                <p className="text-xs text-muted-foreground">{t('counter_attack')}: {liveStats.counterAttack}</p>
+                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('pressure_index')}: {liveStats.pressureIndex}</h4>
+                <p className="text-xs text-muted-foreground">{t('counter_attack')}: {liveStats.counterAttack} {t('counter_chances')}</p>
               </div>
             </div>
           </div>
@@ -224,34 +239,34 @@ const Index = () => {
           {/* Mobile Stats Panel - Below Video */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-3 sm:mt-4 md:hidden">
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('player_tracking')}</span>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('realtime_monitoring')}</span>
               <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
               <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('tracked_players')}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('formation_analysis')}</span>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('ai_recognition')}</span>
               <div className="text-xs sm:text-sm font-bold text-primary">{liveStats.homeFormation}</div>
               <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">vs {liveStats.awayFormation}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('ball_possession')}</span>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('possession_analysis')}</span>
               <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('accuracy_rate')}: {liveStats.passAccuracy}%</p>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('goal_probability')}</span>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('ai_prediction_label')}</span>
               <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('scoring_chance')}</p>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('danger_zone')}: {liveStats.dangerZone}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('pressure_index')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}%</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('high_press')}</p>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('pressure_analysis')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('counter_attack')}: {liveStats.counterAttack}</p>
             </div>
             <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('counter_attack')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.counterAttack}</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('counter_chances')}</p>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('running_stats')}</span>
+              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.totalDistance}</div>
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('km_distance')}</p>
             </div>
           </div>
         </section>
