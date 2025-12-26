@@ -22,7 +22,7 @@ export const AnimatedAmount = ({
 
   return (
     <span className={className}>
-      {prefix}{Math.round(animatedValue).toLocaleString()}虚拟资金{suffix}
+      {prefix}{Math.round(animatedValue).toLocaleString()} PTS{suffix}
     </span>
   );
 };
