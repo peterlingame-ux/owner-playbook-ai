@@ -255,7 +255,7 @@ const Waitlist = () => {
                             <img 
                               src={prize.image}
                               alt={prize.name}
-                              className="w-full h-full object-cover"
+                              className={`w-full h-full object-cover ${isPast ? 'grayscale' : ''}`}
                             />
                             {/* Date overlay - top left with clear format */}
                             <div className={`
