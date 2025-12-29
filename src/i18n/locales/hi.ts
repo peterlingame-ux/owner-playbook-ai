@@ -317,6 +317,16 @@ export const hi = {
     "disclaimer_text": "HUNSOCCER की सभी सामग्री सिम्युलेटेड विश्लेषण परिणाम हैं, केवल AI अनुसंधान के लिए।",
     "sponsor_disclaimer": "डेटा स्रोत सार्वजनिक हैं। यह प्लेटफॉर्म AI विश्लेषण प्रदर्शन के लिए है।",
     
+    // Common
+    "common": {
+      "live": "लाइव",
+      "online": "ऑनलाइन",
+      "get_it_on": "डाउनलोड करें",
+      "google_play": "Google Play",
+      "available_on": "उपलब्ध है",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

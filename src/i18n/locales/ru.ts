@@ -317,6 +317,16 @@ export const ru = {
     "disclaimer_text": "Весь контент HUNSOCCER - это симулированные результаты анализа, только для исследований ИИ.",
     "sponsor_disclaimer": "Источники данных публичные. Эта платформа для демонстрации анализа ИИ.",
     
+    // Common
+    "common": {
+      "live": "LIVE",
+      "online": "онлайн",
+      "get_it_on": "СКАЧАТЬ В",
+      "google_play": "Google Play",
+      "available_on": "Доступно в",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

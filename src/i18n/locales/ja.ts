@@ -360,6 +360,16 @@ export const ja = {
     "disclaimer_text": "HUNSOCCERのすべてのコンテンツはシミュレーション分析結果であり、AI研究専用です。",
     "sponsor_disclaimer": "データソースは公開されています。このプラットフォームはAI分析デモ用です。",
     
+    // Common
+    "common": {
+      "live": "ライブ",
+      "online": "オンライン",
+      "get_it_on": "今すぐ入手",
+      "google_play": "Google Play",
+      "available_on": "入手先",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

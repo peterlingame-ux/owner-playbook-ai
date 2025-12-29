@@ -317,6 +317,16 @@ export const ar = {
     "disclaimer_text": "جميع محتويات HUNSOCCER هي نتائج تحليل محاكاة، للبحث في الذكاء الاصطناعي فقط.",
     "sponsor_disclaimer": "مصادر البيانات عامة. هذه المنصة للعرض التوضيحي لتحليل الذكاء الاصطناعي.",
     
+    // Common
+    "common": {
+      "live": "مباشر",
+      "online": "متصل",
+      "get_it_on": "تحميل من",
+      "google_play": "Google Play",
+      "available_on": "متوفر على",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

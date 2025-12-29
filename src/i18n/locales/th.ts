@@ -317,6 +317,16 @@ export const th = {
     "disclaimer_text": "เนื้อหาทั้งหมดของ HUNSOCCER เป็นผลการวิเคราะห์จำลอง สำหรับการวิจัย AI เท่านั้น",
     "sponsor_disclaimer": "แหล่งข้อมูลเป็นสาธารณะ แพลตฟอร์มนี้สำหรับสาธิตการวิเคราะห์ AI",
     
+    // Common
+    "common": {
+      "live": "สด",
+      "online": "ออนไลน์",
+      "get_it_on": "ดาวน์โหลดจาก",
+      "google_play": "Google Play",
+      "available_on": "มีให้บริการบน",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }
