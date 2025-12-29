@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import TiltCard from "@/components/TiltCard";
 import starHunsoccer from "@/assets/star-hunsoccer.jpg";
-import hunterCoinIcon from "@/assets/hunter-coin.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
 interface UserStats {
   totalPredictions: number;

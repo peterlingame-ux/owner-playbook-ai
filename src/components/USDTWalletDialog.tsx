@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import usdtIcon from "@/assets/usdt-icon.png";
-import hunterCoinIcon from "@/assets/hunter-coin.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
 interface USDTWalletDialogProps {
   trigger?: React.ReactNode;
