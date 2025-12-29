@@ -166,23 +166,23 @@ const Index = () => {
           {/* Main Layout */}
           <div className="flex items-stretch justify-center gap-4 lg:gap-8">
             {/* Left Stats - Desktop */}
-            <div className="hidden md:flex flex-col justify-between py-4 w-44 lg:w-52">
-              <div className="space-y-1.5">
-                <p className="text-[10px] lg:text-[11px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium">{t('realtime_monitoring')}</p>
-                <p className="text-3xl lg:text-4xl font-extralight text-foreground tabular-nums leading-none">{liveStats.trackedPlayers}</p>
-                <p className="text-xs lg:text-sm text-muted-foreground">{t('tracked_players')}</p>
+            <div className="hidden md:flex flex-col justify-between py-2 w-36 lg:w-44">
+              <div className="space-y-1">
+                <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider">{t('realtime_monitoring')}</p>
+                <p className="text-xl lg:text-2xl font-light text-foreground tabular-nums">{liveStats.trackedPlayers}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">{t('tracked_players')}</p>
               </div>
               
-              <div className="space-y-1.5">
-                <p className="text-[10px] lg:text-[11px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium">{t('ai_recognition')}</p>
-                <p className="text-2xl lg:text-3xl font-extralight text-foreground leading-none">{liveStats.homeFormation}</p>
-                <p className="text-xs lg:text-sm text-muted-foreground">{t('opponent_formation')}: {liveStats.awayFormation}</p>
+              <div className="space-y-1">
+                <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider">{t('ai_recognition')}</p>
+                <p className="text-lg lg:text-xl font-light text-foreground">{liveStats.homeFormation}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">{t('opponent_formation')}: {liveStats.awayFormation}</p>
               </div>
               
-              <div className="space-y-1.5">
-                <p className="text-[10px] lg:text-[11px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium">{t('running_stats')}</p>
-                <p className="text-3xl lg:text-4xl font-extralight text-foreground tabular-nums leading-none">{liveStats.totalDistance}<span className="text-sm lg:text-base ml-1 font-normal text-muted-foreground">{t('km_distance')}</span></p>
-                <p className="text-xs lg:text-sm text-muted-foreground">{t('sprint_tracking')}: 8.2 km</p>
+              <div className="space-y-1">
+                <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider">{t('running_stats')}</p>
+                <p className="text-xl lg:text-2xl font-light text-foreground tabular-nums">{liveStats.totalDistance}<span className="text-xs ml-1">{t('km_distance')}</span></p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">{t('sprint_tracking')}: 8.2 km</p>
               </div>
             </div>
 
@@ -216,23 +216,23 @@ const Index = () => {
             </div>
 
             {/* Right Stats - Desktop */}
-            <div className="hidden md:flex flex-col justify-between py-4 w-44 lg:w-52 text-right">
-              <div className="space-y-1.5">
-                <p className="text-[10px] lg:text-[11px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium">{t('possession_analysis')}</p>
-                <p className="text-3xl lg:text-4xl font-extralight text-foreground tabular-nums leading-none">{liveStats.possession}<span className="text-sm lg:text-base ml-0.5 font-normal text-muted-foreground">%</span></p>
-                <p className="text-xs lg:text-sm text-muted-foreground">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
+            <div className="hidden md:flex flex-col justify-between py-2 w-36 lg:w-44 text-right">
+              <div className="space-y-1">
+                <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider">{t('possession_analysis')}</p>
+                <p className="text-xl lg:text-2xl font-light text-foreground tabular-nums">{liveStats.possession}<span className="text-xs">%</span></p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
               </div>
               
-              <div className="space-y-1.5">
-                <p className="text-[10px] lg:text-[11px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium">{t('ai_prediction_label')}</p>
-                <p className="text-3xl lg:text-4xl font-extralight text-foreground tabular-nums leading-none">{liveStats.goalProbability}<span className="text-sm lg:text-base ml-0.5 font-normal text-muted-foreground">%</span></p>
-                <p className="text-xs lg:text-sm text-muted-foreground">{t('danger_zone')}: {liveStats.dangerZone}</p>
+              <div className="space-y-1">
+                <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider">{t('ai_prediction_label')}</p>
+                <p className="text-xl lg:text-2xl font-light text-foreground tabular-nums">{liveStats.goalProbability}<span className="text-xs">%</span></p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">{t('danger_zone')}: {liveStats.dangerZone}</p>
               </div>
               
-              <div className="space-y-1.5">
-                <p className="text-[10px] lg:text-[11px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium">{t('pressure_analysis')}</p>
-                <p className="text-3xl lg:text-4xl font-extralight text-foreground tabular-nums leading-none">{liveStats.pressureIndex}</p>
-                <p className="text-xs lg:text-sm text-muted-foreground">{t('counter_attack')}: {liveStats.counterAttack}</p>
+              <div className="space-y-1">
+                <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider">{t('pressure_analysis')}</p>
+                <p className="text-xl lg:text-2xl font-light text-foreground tabular-nums">{liveStats.pressureIndex}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">{t('counter_attack')}: {liveStats.counterAttack}</p>
               </div>
             </div>
           </div>
