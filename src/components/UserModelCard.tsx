@@ -19,11 +19,11 @@ interface UserStats {
 }
 
 const USER_THEME = {
-  from: "from-slate-600/15",
-  to: "to-zinc-500/5",
-  accent: "text-slate-200",
-  border: "border-slate-500/30",
-  progress: "bg-gradient-to-r from-slate-400 to-zinc-300",
+  from: "from-amber-600/15",
+  to: "to-yellow-500/5",
+  accent: "text-amber-400",
+  border: "border-amber-500/40",
+  progress: "bg-gradient-to-r from-amber-500 to-yellow-400",
 };
 
 const UserModelCard = () => {
