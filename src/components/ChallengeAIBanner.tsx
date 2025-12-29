@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import prizeBannerGreen from "@/assets/prize-banner-green.png";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import { virtualPlayers } from "@/data/virtualPlayers";
 
 const PRIZE_POOL = 1000000; // $1,000,000
@@ -170,7 +171,7 @@ const ChallengeAIBanner = () => {
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 sm:gap-3 mb-1 sm:mb-2 flex-wrap">
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('challenge_ai')}</span>
-              <span className="text-xl sm:text-4xl font-black text-foreground">{t('challenge_ai_reward')} 16,393 PTS</span>
+              <span className="text-xl sm:text-4xl font-black text-foreground flex items-center gap-1">{t('challenge_ai_reward')} 16,393<img src={hunterCoinIcon} alt="猎人币" className="w-6 h-6 sm:w-10 sm:h-10" /></span>
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </div>
             <p className="text-xs sm:text-sm text-white max-w-lg mx-auto leading-tight">
@@ -196,7 +197,7 @@ const ChallengeAIBanner = () => {
                 <div className="flex items-center gap-2 sm:gap-6 text-[10px] sm:text-sm flex-wrap">
                   <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">247</span></span>
                   <span className="text-muted-foreground">{t('banner_win_rate')} <span className="font-bold text-foreground">78.95%</span></span>
-                  <span className="text-muted-foreground">{t('banner_profit')} <span className="font-bold text-foreground">24789 PTS</span></span>
+                  <span className="text-muted-foreground flex items-center gap-0.5">{t('banner_profit')} <span className="font-bold text-foreground flex items-center gap-0.5">24789<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" /></span></span>
                 </div>
               </div>
             </div>
@@ -231,8 +232,8 @@ const ChallengeAIBanner = () => {
                     <span className="text-muted-foreground">
                       {t('banner_win_rate')} <span className={`font-bold ${playerWinRate >= AI_BENCHMARK_WIN_RATE ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(1)}%</span>
                     </span>
-                    <span className="text-muted-foreground">
-                      {t('banner_profit')} <span className={`font-bold ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>{(playerProfit / 100).toLocaleString()} PTS</span>
+                    <span className="text-muted-foreground flex items-center gap-0.5">
+                      {t('banner_profit')} <span className={`font-bold flex items-center gap-0.5 ${playerProfit >= AI_BENCHMARK_PROFIT ? 'text-success' : 'text-foreground'}`}>{(playerProfit / 100).toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
                     </span>
                   </div>
                 </div>

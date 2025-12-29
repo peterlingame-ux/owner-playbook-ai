@@ -101,9 +101,10 @@ const AnimatedPointsBalance = ({ modelId }: { modelId: string }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="font-mono"
+      className="font-mono inline-flex items-center gap-1"
     >
-      {Math.round(animatedValue).toLocaleString()}PTS
+      {Math.round(animatedValue).toLocaleString()}
+      <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
     </motion.span>
   );
 };
@@ -421,7 +422,7 @@ const LeaderboardTable = () => {
       if (balanceData.balance < copyTradeAmount) {
         toast({
           title: "余额不足",
-          description: `当前余额: ${balanceData.balance.toFixed(2)} PTS，需要: ${copyTradeAmount} PTS`,
+          description: `当前余额: ${balanceData.balance.toFixed(2)} 猎人币，需要: ${copyTradeAmount} 猎人币`,
           variant: "destructive",
         });
         return;
@@ -442,7 +443,7 @@ const LeaderboardTable = () => {
 
       toast({
         title: "订阅成功！",
-        description: `已订阅 ${copyTradeModel.name}，投入 ${copyTradeAmount} PTS`,
+        description: `已订阅 ${copyTradeModel.name}，投入 ${copyTradeAmount} 猎人币`,
       });
 
       setIsCopyTradeDialogOpen(false);
@@ -1146,13 +1147,13 @@ const LeaderboardTable = () => {
                   <button
                     key={amount}
                     onClick={() => setCopyTradeAmount(amount)}
-                    className={`py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
                       copyTradeAmount === amount
                         ? 'bg-warning text-warning-foreground'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
-                    {amount} PTS
+                    {amount}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
                   </button>
                 ))}
               </div>
