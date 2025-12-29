@@ -713,6 +713,7 @@ const resources = {
       "signature": "Signature",
       "enter_signature": "Enter your personal signature",
       "select_avatar": "Select Avatar",
+      "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving...",
       "back": "Back",
@@ -736,6 +737,72 @@ const resources = {
       "go_to_leaderboard": "Go to Leaderboard",
       "view_leaderboard": "View Leaderboard",
       "no_prediction_records": "You have no prediction records yet",
+      
+      // Personal Center - Profile
+      "personal_center": "Personal Center",
+      "player_default_name": "Player",
+      "prediction_expert": "Prediction Expert",
+      "following_label": "Following",
+      "followers_label": "Followers",
+      "no_bio": "No bio",
+      "not_following_anyone": "Not following anyone yet",
+      "no_followers_yet": "No followers yet",
+      "to_next_level": "to next level",
+      "max_level": "MAX",
+      
+      // Personal Center - Wallets
+      "wallets": "Wallets",
+      "virtual_balance": "Virtual Balance",
+      "view_arrow": "View →",
+      "prediction_history_title": "Prediction History",
+      "no_predictions_yet": "No predictions yet",
+      "won_status": "Won",
+      "lost_status": "Lost",
+      "subscriptions": "Subscriptions",
+      
+      // Personal Center - Stats
+      "top_percent_players": "Top {{percent}}% of players",
+      "total_bets_label": "Total Bets",
+      "wins_label": "Wins",
+      "pnl_label": "P&L",
+      "roi_label": "ROI",
+      "betting_summary": "Betting Summary",
+      "win_statistics": "Win Statistics",
+      "wins_total_ratio": "Wins / Total",
+      "pnl_details": "Profit & Loss Details",
+      "starting_balance": "Starting Balance",
+      "current_balance_label": "Current Balance",
+      "total_pnl": "Total P&L",
+      "roi_details": "Return on Investment",
+      "initial_investment": "Initial Investment",
+      "profit_loss_label_detail": "Profit/Loss",
+      "roi_formula": "ROI = (Profit / Initial Investment) × 100",
+      
+      // Personal Center - Referral
+      "referral_code": "Referral Code",
+      "invited_label": "Invited",
+      "referral_bonus_text": "Invite friends and earn 50 Hunter Coins for each referral",
+      "start_predicting": "Start Predicting",
+      
+      // Personal Center - VIP Dialog
+      "upgrade_to_vip": "Upgrade to VIP",
+      "vip_feature_free_access": "Free Access to All Predictions",
+      "vip_feature_free_access_desc": "View any predictor's analysis without spending coins",
+      "vip_feature_ai_reports": "Exclusive AI Reports",
+      "vip_feature_ai_reports_desc": "Get detailed AI-powered match analysis",
+      "vip_feature_alerts": "Top Predictor Alerts",
+      "vip_feature_alerts_desc": "Priority notifications from high-accuracy predictors",
+      "vip_feature_badge": "VIP Badge",
+      "vip_feature_badge_desc": "Stand out with exclusive profile badge",
+      "thirty_day_vip": "30-Day VIP",
+      "coins_unit": "Coins",
+      "your_balance": "Your Balance",
+      "confirm_upgrade": "Confirm Upgrade",
+      
+      // Personal Center - Invited Users
+      "invited_users": "Invited Users",
+      "no_invited_users_yet": "No invited users yet",
+      "joined_date": "Joined",
       
       // Model Follow
       "follow_model": "Follow Model",
@@ -1599,6 +1666,72 @@ const resources = {
       "view_leaderboard": "查看排行榜",
       "no_prediction_records": "您还没有任何预测记录",
       
+      // 个人中心 - 个人资料
+      "personal_center": "个人中心",
+      "player_default_name": "玩家",
+      "prediction_expert": "预测专家",
+      "following_label": "关注",
+      "followers_label": "粉丝",
+      "no_bio": "暂无简介",
+      "not_following_anyone": "暂未关注任何人",
+      "no_followers_yet": "暂无粉丝",
+      "to_next_level": "升级还需",
+      "max_level": "满级",
+      
+      // 个人中心 - 钱包
+      "wallets": "钱包",
+      "virtual_balance": "虚拟余额",
+      "view_arrow": "查看 →",
+      "prediction_history_title": "预测历史",
+      "no_predictions_yet": "暂无预测记录",
+      "won_status": "获胜",
+      "lost_status": "失败",
+      "subscriptions": "订阅数",
+      
+      // 个人中心 - 统计
+      "top_percent_players": "超越{{percent}}%的玩家",
+      "total_bets_label": "总预测",
+      "wins_label": "获胜",
+      "pnl_label": "盈亏",
+      "roi_label": "投资回报率",
+      "betting_summary": "预测概览",
+      "win_statistics": "胜率统计",
+      "wins_total_ratio": "获胜 / 总数",
+      "pnl_details": "盈亏详情",
+      "starting_balance": "初始余额",
+      "current_balance_label": "当前余额",
+      "total_pnl": "总盈亏",
+      "roi_details": "投资回报率详情",
+      "initial_investment": "初始投资",
+      "profit_loss_label_detail": "盈亏",
+      "roi_formula": "ROI = (盈利 / 初始投资) × 100",
+      
+      // 个人中心 - 邀请
+      "referral_code": "邀请码",
+      "invited_label": "已邀请",
+      "referral_bonus_text": "邀请好友可获得50猎人币奖励",
+      "start_predicting": "开始预测",
+      
+      // 个人中心 - VIP对话框
+      "upgrade_to_vip": "升级VIP",
+      "vip_feature_free_access": "免费查看所有预测",
+      "vip_feature_free_access_desc": "无需花费猎人币即可查看任何预测者的分析",
+      "vip_feature_ai_reports": "专属AI分析报告",
+      "vip_feature_ai_reports_desc": "获取详细的AI赛事分析",
+      "vip_feature_alerts": "顶级预测者提醒",
+      "vip_feature_alerts_desc": "优先收到高准确率预测者的通知",
+      "vip_feature_badge": "VIP徽章",
+      "vip_feature_badge_desc": "展示专属VIP徽章",
+      "thirty_day_vip": "30天VIP",
+      "coins_unit": "猎人币",
+      "your_balance": "您的余额",
+      "confirm_upgrade": "确认升级",
+      
+      // 个人中心 - 已邀请用户
+      "invited_users": "已邀请用户",
+      "no_invited_users_yet": "暂无邀请记录",
+      "joined_date": "加入时间",
+      
       // 模型关注
       "follow_model": "关注模型",
       "following": "已关注",
@@ -2452,6 +2585,73 @@ const resources = {
       "go_to_leaderboard": "순위표로 이동",
       "view_leaderboard": "순위표 보기",
       "no_prediction_records": "아직 예측 기록이 없습니다",
+      
+      // 개인 센터 - 프로필
+      "personal_center": "개인 센터",
+      "player_default_name": "플레이어",
+      "prediction_expert": "예측 전문가",
+      "following_label": "팔로잉",
+      "followers_label": "팔로워",
+      "no_bio": "소개 없음",
+      "not_following_anyone": "아직 팔로우하는 사람이 없습니다",
+      "no_followers_yet": "아직 팔로워가 없습니다",
+      "to_next_level": "다음 레벨까지",
+      "max_level": "최대",
+      "cancel": "취소",
+      
+      // 개인 센터 - 지갑
+      "wallets": "지갑",
+      "virtual_balance": "가상 잔액",
+      "view_arrow": "보기 →",
+      "prediction_history_title": "예측 기록",
+      "no_predictions_yet": "아직 예측 없음",
+      "won_status": "승리",
+      "lost_status": "패배",
+      "subscriptions": "구독",
+      
+      // 개인 센터 - 통계
+      "top_percent_players": "상위 {{percent}}% 플레이어",
+      "total_bets_label": "총 베팅",
+      "wins_label": "승리",
+      "pnl_label": "손익",
+      "roi_label": "ROI",
+      "betting_summary": "베팅 요약",
+      "win_statistics": "승리 통계",
+      "wins_total_ratio": "승리 / 총합",
+      "pnl_details": "손익 상세",
+      "starting_balance": "시작 잔액",
+      "current_balance_label": "현재 잔액",
+      "total_pnl": "총 손익",
+      "roi_details": "투자 수익률",
+      "initial_investment": "초기 투자",
+      "profit_loss_label_detail": "손익",
+      "roi_formula": "ROI = (수익 / 초기 투자) × 100",
+      
+      // 개인 센터 - 추천
+      "referral_code": "추천 코드",
+      "invited_label": "초대함",
+      "referral_bonus_text": "친구를 초대하고 각 추천당 50 헌터 코인을 받으세요",
+      "start_predicting": "예측 시작",
+      
+      // 개인 센터 - VIP 다이얼로그
+      "upgrade_to_vip": "VIP 업그레이드",
+      "vip_feature_free_access": "모든 예측 무료 열람",
+      "vip_feature_free_access_desc": "코인 없이 모든 예측자의 분석을 볼 수 있습니다",
+      "vip_feature_ai_reports": "독점 AI 보고서",
+      "vip_feature_ai_reports_desc": "상세한 AI 기반 경기 분석을 받으세요",
+      "vip_feature_alerts": "최고 예측자 알림",
+      "vip_feature_alerts_desc": "고정확도 예측자의 우선 알림",
+      "vip_feature_badge": "VIP 배지",
+      "vip_feature_badge_desc": "독점 프로필 배지로 돋보이세요",
+      "thirty_day_vip": "30일 VIP",
+      "coins_unit": "코인",
+      "your_balance": "내 잔액",
+      "confirm_upgrade": "업그레이드 확인",
+      
+      // 개인 센터 - 초대한 사용자
+      "invited_users": "초대한 사용자",
+      "no_invited_users_yet": "아직 초대한 사용자가 없습니다",
+      "joined_date": "가입일",
       
       // 모델 팔로우
       "follow_model": "모델 팔로우",
