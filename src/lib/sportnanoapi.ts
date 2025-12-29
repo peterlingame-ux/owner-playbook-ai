@@ -9,25 +9,33 @@ const getApiBaseUrl = (): string => {
   const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
   
   if (!envUrl) {
-    // 开发环境使用相对路径通过代理，生产环境根据协议决定
+    // 开发环境使用相对路径通过代理
     if (import.meta.env.DEV) {
       return ""; // 使用相对路径，通过 Vite 代理
     }
-    return isHttps ? "https://localhost:3000" : "http://localhost:3000";
+    // 生产环境 HTTPS 页面也使用相对路径，通过后端代理
+    if (isHttps) {
+      return ""; // 使用相对路径，避免混合内容问题
+    }
+    return "http://localhost:3000";
   }
   
   // 如果环境变量已经包含协议
   if (envUrl.startsWith("http://") || envUrl.startsWith("https://")) {
-    // 如果页面是 HTTPS 但 API 是 HTTP，尝试转换为 HTTPS
+    // 如果页面是 HTTPS 但 API 是 HTTP，使用相对路径通过代理
     if (isHttps && envUrl.startsWith("http://")) {
-      return envUrl.replace("http://", "https://");
+      return ""; // 使用相对路径，通过 Vite 或后端代理
     }
     return envUrl;
   }
   
-  // 如果没有协议，根据页面协议决定
-  const protocol = isHttps ? "https://" : "http://";
-  return `${protocol}${envUrl}`;
+  // 如果没有协议
+  if (isHttps) {
+    // HTTPS 页面使用相对路径，避免混合内容问题
+    return "";
+  }
+  // HTTP 页面使用 HTTP 协议
+  return `http://${envUrl}`;
 };
 
 const API_BASE_URL = getApiBaseUrl();
