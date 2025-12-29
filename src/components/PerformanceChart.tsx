@@ -67,7 +67,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   const { user } = useAuth();
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'all' | '24h' | '72h'>('all');
+  const [timeRange, setTimeRange] = useState<'7d' | '24h' | '72h'>('7d');
   const [userProfile, setUserProfile] = useState<{ display_name: string; avatar_url: string } | null>(null);
 
   // Fetch user profile
@@ -101,10 +101,10 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         today.setHours(23, 59, 59, 999);
         
         // 计算从起始日期到今天的天数
-        const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const totalDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
         
         // 根据时间范围选择显示天数
-        const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? Math.min(3, days) : days;
+        const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? 3 : 7; // 7d 显示7天
         
         // 直接从数据库视图查询每日胜率数据
         const { data: dailyData, error: dailyError } = await supabase
@@ -120,11 +120,11 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           return;
         }
 
-        // 生成日期范围：从 11/21 开始
+        // 生成日期范围：从今天往前推 daysToShow 天
         const dateRange: string[] = [];
-        for (let i = 0; i < daysToShow; i++) {
-          const date = new Date(startDate);
-          date.setDate(date.getDate() + i);
+        for (let i = daysToShow - 1; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
           dateRange.push(date.toISOString().split('T')[0]);
         }
 
@@ -179,12 +179,8 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         setData(chartData);
       } catch (error) {
         console.error('Error fetching win rates:', error);
-        // 计算默认天数：从 11/21 到今天
-        const startDate = new Date('2025-11-21');
-        startDate.setHours(0, 0, 0, 0);
-        const today = new Date();
-        const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? Math.min(3, days) : days;
+        // 计算默认天数
+        const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? 3 : 7;
         const zeroData = generateMockChartData(daysToShow);
         setData(zeroData);
       } finally {
@@ -342,14 +338,14 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
           {/* Time Range Tabs - Pill style */}
           <div className="flex bg-muted/30 rounded-full p-1">
             <button
-              onClick={() => setTimeRange('all')}
+              onClick={() => setTimeRange('7d')}
               className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
-                timeRange === 'all'
+                timeRange === '7d'
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('all')}
+              7D
             </button>
             <button 
               onClick={() => setTimeRange('24h')}
