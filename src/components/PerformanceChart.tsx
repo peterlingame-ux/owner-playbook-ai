@@ -266,7 +266,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
     );
   };
 
-  // Custom Legend Component with icons
+  // Custom Legend Component with icons - minimalist style
   const CustomLegend = (props: any) => {
     const { payload } = props;
     
@@ -290,15 +290,17 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
     };
     
     return (
-      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 pt-4 sm:pt-6">
+      <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 pt-6 sm:pt-8">
         {payload.map((entry: any, index: number) => (
-          <div key={`item-${index}`} className="flex items-center gap-1.5 sm:gap-2">
-            <img 
-              src={getIcon(entry.dataKey)} 
-              alt={entry.value}
-              className={`w-4 h-4 sm:w-5 sm:h-5 object-contain ${entry.dataKey === 'hunsoccermax' && user ? 'rounded-full' : ''}`}
+          <div 
+            key={`item-${index}`} 
+            className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+          >
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
             />
-            <span className="text-xs sm:text-sm font-semibold tracking-wide" style={{ color: entry.color }}>
+            <span className="text-xs font-medium text-muted-foreground">
               {getName(entry.dataKey, entry.value)}
             </span>
           </div>
@@ -314,141 +316,113 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   };
 
   return (
-    <Card className="p-4 sm:p-5 bg-card border-border/30">
-      {/* Content */}
-      <div>
-      <div className="mb-4 sm:mb-5 flex flex-col items-center justify-center gap-2 sm:gap-3">
-        <h2 className="text-base sm:text-lg lg:text-xl font-semibold tracking-wide text-center text-foreground">
-          {t('performance_over_time')}
-        </h2>
-        <div className="flex gap-1.5">
-          <button
-            onClick={() => setTimeRange('all')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              timeRange === 'all'
-                ? 'bg-foreground text-background' 
-                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t('all')}
-          </button>
-          <button 
-            onClick={() => setTimeRange('24h')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              timeRange === '24h' 
-                ? 'bg-foreground text-background' 
-                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t('24h')}
-          </button>
-          <button 
-            onClick={() => setTimeRange('72h')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              timeRange === '72h' 
-                ? 'bg-foreground text-background' 
-                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t('72h')}
-          </button>
-        </div>
-      </div>
-
-      {/* Analysis Dimensions Banner */}
-      <div className="mb-4 sm:mb-5 py-2 px-3 sm:px-4 bg-secondary/20 rounded-md">
-        <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[hsl(var(--gpt))]" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">
-              {t('owners_analysis')}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[hsl(var(--gpt))]" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">
-              {t('tech_breakdown')}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[hsl(var(--gpt))]" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">
-              {t('odds_monitoring')}
-            </span>
+    <Card className="p-6 sm:p-8 bg-card/50 backdrop-blur-sm border-border/20">
+      {/* Header - Minimalist */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
+            {t('performance_over_time')}
+          </h2>
+          
+          {/* Time Range Tabs - Pill style */}
+          <div className="flex bg-muted/30 rounded-full p-1">
+            <button
+              onClick={() => setTimeRange('all')}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                timeRange === 'all'
+                  ? 'bg-foreground text-background shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t('all')}
+            </button>
+            <button 
+              onClick={() => setTimeRange('24h')}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                timeRange === '24h' 
+                  ? 'bg-foreground text-background shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              24H
+            </button>
+            <button 
+              onClick={() => setTimeRange('72h')}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                timeRange === '72h' 
+                  ? 'bg-foreground text-background shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              72H
+            </button>
           </div>
         </div>
       </div>
       
       {isLoading ? (
-        <div className="h-[300px] sm:h-[400px] flex items-center justify-center">
-          <div className="text-muted-foreground">{t('loading')}</div>
+        <div className="h-[280px] sm:h-[360px] flex items-center justify-center">
+          <div className="text-muted-foreground text-sm">{t('loading')}</div>
         </div>
       ) : data.length === 0 ? (
-        <div className="h-[300px] sm:h-[400px] flex items-center justify-center">
-          <div className="text-muted-foreground">{t('no_data')}</div>
+        <div className="h-[280px] sm:h-[360px] flex items-center justify-center">
+          <div className="text-muted-foreground text-sm">{t('no_data')}</div>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={300} className="sm:!h-[400px]">
+        <ResponsiveContainer width="100%" height={280} className="sm:!h-[360px]">
           <LineChart 
             data={data} 
-            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+            margin={{ top: 20, right: 20, left: 0, bottom: 10 }}
           >
           <CartesianGrid 
-            strokeDasharray="3 3" 
-            stroke="hsl(var(--border))" 
+            strokeDasharray="0" 
+            stroke="hsl(var(--border)/0.3)" 
             vertical={false}
-            className="animate-fade-in"
+            horizontal={true}
           />
           <XAxis 
             dataKey="date" 
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={12}
-            tickLine={false}
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
-            angle={0}
-            textAnchor="middle"
-            height={40}
-          />
-          <YAxis 
-            stroke="hsl(var(--muted-foreground))"
+            stroke="hsl(var(--muted-foreground)/0.5)"
             fontSize={11}
             tickLine={false}
+            axisLine={false}
+            dy={10}
+          />
+          <YAxis 
+            stroke="hsl(var(--muted-foreground)/0.5)"
+            fontSize={11}
+            tickLine={false}
+            axisLine={false}
             domain={['auto', 'auto']}
             tickFormatter={(value) => `${value}%`}
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}
-            width={40}
-            allowDataOverflow={false}
-            padding={{ top: 20, bottom: 20 }}
+            width={45}
+            dx={-5}
           />
           <Tooltip 
             contentStyle={{
-              backgroundColor: "hsl(var(--card))",
+              backgroundColor: "hsl(var(--popover))",
               border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-              fontFamily: 'JetBrains Mono, monospace',
-              fontWeight: 500,
-              fontSize: '12px',
-              padding: '10px 14px',
+              borderRadius: "12px",
+              boxShadow: "0 10px 40px -10px rgba(0,0,0,0.3)",
+              padding: '12px 16px',
             }}
             labelStyle={{
               color: "hsl(var(--foreground))",
               fontWeight: 600,
-              marginBottom: '6px',
-              fontSize: '11px'
+              marginBottom: '8px',
+              fontSize: '12px'
             }}
             formatter={(value: number, name: string) => [
               <span style={{ 
                 color: 'hsl(var(--foreground))', 
                 fontWeight: 600,
-                fontSize: '13px'
+                fontSize: '14px'
               }}>
                 {value.toFixed(1)}%
               </span>, 
-              <span style={{ color: 'hsl(var(--muted-foreground))' }}>{name}</span>
+              <span style={{ color: 'hsl(var(--muted-foreground))', fontSize: '12px' }}>{name}</span>
             ]}
-            animationDuration={200}
-            animationEasing="ease-out"
-            cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }}
+            cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
           />
           <Legend 
             content={<CustomLegend />}
@@ -458,119 +432,100 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             dataKey="deepseek" 
             stroke="hsl(var(--deepseek))" 
             strokeWidth={2}
-            dot={<CustomDot />}
+            dot={false}
             name="DeepSeek"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 6, 
+              r: 5, 
               fill: 'hsl(var(--deepseek))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 2,
             }}
-            animationDuration={1500}
-            animationEasing="ease-out"
-            animationBegin={0}
           />
           <Line 
             type="monotone" 
             dataKey="gpt5" 
             stroke="hsl(var(--gpt))" 
             strokeWidth={2}
-            dot={<CustomDot />}
+            dot={false}
             name="GPT 5"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 6, 
+              r: 5, 
               fill: 'hsl(var(--gpt))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 2,
             }}
-            animationDuration={1500}
-            animationEasing="ease-out"
-            animationBegin={100}
           />
           <Line 
             type="monotone" 
             dataKey="claude" 
             stroke="hsl(var(--claude))" 
             strokeWidth={2}
-            dot={<CustomDot />}
+            dot={false}
             name="Claude"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 6, 
+              r: 5, 
               fill: 'hsl(var(--claude))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 2,
             }}
-            animationDuration={1500}
-            animationEasing="ease-out"
-            animationBegin={200}
           />
           <Line 
             type="monotone" 
             dataKey="gemini" 
             stroke="hsl(var(--gemini))" 
             strokeWidth={2}
-            dot={<CustomDot />}
+            dot={false}
             name="Gemini"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 6, 
+              r: 5, 
               fill: 'hsl(var(--gemini))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 2,
             }}
-            animationDuration={1500}
-            animationEasing="ease-out"
-            animationBegin={300}
           />
           <Line 
             type="monotone" 
             dataKey="grok" 
             stroke="hsl(var(--grok))" 
             strokeWidth={2}
-            dot={<CustomDot />}
+            dot={false}
             name="Grok"
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 6, 
+              r: 5, 
               fill: 'hsl(var(--grok))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 2,
             }}
-            animationDuration={1500}
-            animationEasing="ease-out"
-            animationBegin={400}
           />
           <Line 
             type="monotone" 
             dataKey="hunsoccermax" 
             stroke="hsl(var(--mystery))" 
             strokeWidth={2}
-            dot={<CustomDot />}
-            name="HUNSOCCER MAX"
+            dot={false}
+            name={t('demo_player')}
             onClick={handleLineClick}
             style={{ cursor: 'pointer' }}
             activeDot={{ 
-              r: 6, 
+              r: 5, 
               fill: 'hsl(var(--mystery))',
               stroke: 'hsl(var(--background))',
               strokeWidth: 2,
             }}
-            animationDuration={1500}
-            animationEasing="ease-out"
-            animationBegin={500}
           />
         </LineChart>
       </ResponsiveContainer>
       )}
-      </div>
     </Card>
   );
 };
