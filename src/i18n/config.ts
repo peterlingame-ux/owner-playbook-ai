@@ -1049,7 +1049,7 @@ const resources = {
       "faq_a6": "Yes, you can request account deletion by contacting our support team. Please note that this action is irreversible.",
       
       // Footer Risk Warning
-      "footer_risk_warning": "This platform is for AI analysis and simulation only. No betting services, no investment advice. Results are for reference and do not guarantee outcomes.",
+      "footer_risk_warning": "This platform is for AI analysis and simulation only. No betting services, no investment advice. Results are for reference and do not guarantee outcomes. We do not provide or encourage any form of betting or gambling activities.",
       
       // Teams and Leagues translations (empty for English, use original names)
       "teams": {} as Record<string, string>,
@@ -2094,7 +2094,7 @@ const resources = {
       "faq_a6": "可以，您可以通过联系我们的支持团队请求删除账户。请注意，此操作不可撤销。",
       
       // Footer Risk Warning
-      "footer_risk_warning": "本平台仅用于AI分析和模拟。不提供投注服务，不构成投资建议。结果仅供参考，不保证结果准确性。",
+      "footer_risk_warning": "本平台仅用于AI分析和模拟。不提供投注服务，不构成投资建议。结果仅供参考，不保证结果准确性。不提供、不引导任何形式的投注或博彩活动。",
       
       // Teams and Leagues translations (generated from CSV)
       "teams": teamsZh,
@@ -3122,7 +3122,7 @@ const resources = {
       "faq_a6": "예, 지원팀에 연락하여 계정 삭제를 요청할 수 있습니다. 이 작업은 되돌릴 수 없음을 유의하세요.",
       
       // Footer Risk Warning
-      "footer_risk_warning": "이 플랫폼은 AI 분석 및 시뮬레이션 전용입니다. 베팅 서비스나 투자 조언을 제공하지 않습니다. 결과는 참고용이며 결과를 보장하지 않습니다.",
+      "footer_risk_warning": "이 플랫폼은 AI 분석 및 시뮬레이션 전용입니다. 베팅 서비스나 투자 조언을 제공하지 않습니다. 결과는 참고용이며 결과를 보장하지 않습니다. 어떠한 형태의 베팅이나 도박 활동도 제공하거나 유도하지 않습니다.",
       
       // Teams and Leagues translations
       "teams": {} as Record<string, string>,
