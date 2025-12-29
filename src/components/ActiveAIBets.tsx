@@ -20,7 +20,7 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
-import hunterCoinIcon from "@/assets/hunter-coin.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,

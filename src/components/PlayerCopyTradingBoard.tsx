@@ -13,7 +13,7 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp, Search, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import hunterCoinIcon from "@/assets/hunter-coin.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
