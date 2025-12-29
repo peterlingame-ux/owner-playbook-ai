@@ -965,8 +965,8 @@ const ActiveAIBets = () => {
           // Get AI balance
           const balance = aiBalances[aiModel.id];
           const balanceValue = balance 
-            ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟余额`
-            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟余额` : '10,000模拟余额';
+            ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟额度`
+            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟额度` : '10,000模拟额度';
 
           // Handler to switch to next match
           const nextMatch = (e: React.MouseEvent) => {
@@ -1363,8 +1363,8 @@ const ActiveAIBets = () => {
           // Get AI balance
           const balance = aiBalances['hunsoccermax'];
           const balanceValue = balance 
-            ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟余额`
-            : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟余额` : '10,000模拟余额';
+            ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟额度`
+            : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟额度` : '10,000模拟额度';
 
           return (
             <PlayerExclusiveModelCard
