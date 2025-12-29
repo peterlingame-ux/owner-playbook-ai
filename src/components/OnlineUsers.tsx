@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const OnlineUsers = () => {
+  const { t } = useTranslation();
   const [onlineCount, setOnlineCount] = useState(2500);
   const [prevCount, setPrevCount] = useState(2500);
 
@@ -51,7 +53,7 @@ const OnlineUsers = () => {
           />
         </div>
         <span className="text-[10px] sm:text-xs font-bold tracking-wider text-emerald-400 uppercase">
-          Live
+          {t('common.live', 'Live')}
         </span>
       </div>
 
@@ -70,7 +72,7 @@ const OnlineUsers = () => {
           {formatNumber(onlineCount)}
         </motion.span>
         <span className="text-[10px] sm:text-xs text-emerald-300/80 font-medium">
-          online
+          {t('common.online', 'online')}
         </span>
       </div>
 
