@@ -1085,7 +1085,7 @@ const PlayerCopyTradingBoard = () => {
           
           {/* Profit Amount */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">猎人币</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
               <span className="inline-flex items-center gap-1">
                 {profitAmount >= 0 ? '+' : '-'}
