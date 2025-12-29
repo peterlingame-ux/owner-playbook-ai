@@ -87,6 +87,46 @@ const modelPointsData: Record<string, number> = {
   'hunsoccer-max': 15200,
 };
 
+// Yesterday's ranking data (simulated)
+const yesterdayRankings: Record<string, number> = {
+  'hunsoccer-max': 2,
+  'deepseek': 1,
+  'claude': 4,
+  'gpt5': 3,
+  'gemini': 6,
+  'grok': 5,
+};
+
+// Ranking Change Indicator Component
+const RankingChangeIndicator = ({ currentRank, modelId }: { currentRank: number; modelId: string }) => {
+  const yesterdayRank = yesterdayRankings[modelId] || currentRank;
+  const change = yesterdayRank - currentRank;
+  
+  if (change === 0) {
+    return (
+      <span className="flex items-center text-muted-foreground">
+        <Minus className="h-3 w-3" />
+      </span>
+    );
+  }
+  
+  if (change > 0) {
+    return (
+      <span className="flex items-center text-emerald-500 font-medium text-[10px]">
+        <ArrowUp className="h-3 w-3" />
+        <span>{change}</span>
+      </span>
+    );
+  }
+  
+  return (
+    <span className="flex items-center text-red-500 font-medium text-[10px]">
+      <ArrowDown className="h-3 w-3" />
+      <span>{Math.abs(change)}</span>
+    </span>
+  );
+};
+
 // Animated Points Balance Component
 const AnimatedPointsBalance = ({ modelId }: { modelId: string }) => {
   const basePoints = modelPointsData[modelId] || 10000;
@@ -693,9 +733,12 @@ const LeaderboardTable = () => {
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
                       {/* Rank Badge */}
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                        <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
+                      <div className="flex-shrink-0 flex items-center gap-1">
+                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                          <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
                         </div>
+                        <RankingChangeIndicator currentRank={index + 1} modelId={model.id} />
+                      </div>
                       {/* Avatar */}
                       <div className="relative flex-shrink-0">
                         <div className={`w-10 h-10 sm:w-12 sm:h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 overflow-hidden`}>
