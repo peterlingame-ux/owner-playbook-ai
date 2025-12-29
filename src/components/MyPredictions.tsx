@@ -653,7 +653,7 @@ const MyPredictions = () => {
                   {userProfile?.display_name || 'Player'}
                 </h1>
                 <p className="text-sm text-muted-foreground font-light">
-                  {userProfile?.signature || 'Prediction Expert'}
+                  {userProfile?.signature || t('prediction_expert')}
                 </p>
                 
                 {/* Level Progress */}
@@ -668,7 +668,7 @@ const MyPredictions = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">Lv.{currentLevel}</span>
                         <span className="text-xs text-muted-foreground">
-                          {isMax ? 'MAX' : `Lv.${nextLevel}`}
+                          {isMax ? t('max_level') : `Lv.${nextLevel}`}
                         </span>
                       </div>
                       
@@ -695,7 +695,7 @@ const MyPredictions = () => {
                       </div>
                       
                       <p className="text-[10px] text-muted-foreground text-center">
-                        {progress.current}m / {progress.required}m to next level
+                        {progress.current}m / {progress.required}m {t('to_next_level')}
                       </p>
                     </div>
                   );
@@ -709,12 +709,12 @@ const MyPredictions = () => {
                 <DialogTrigger asChild>
                   <button className="text-center hover:opacity-70 transition-opacity">
                     <p className="text-lg font-light text-foreground">{followingList.length}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Following</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('following_label')}</p>
                   </button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle className="font-light">Following ({followingList.length})</DialogTitle>
+                    <DialogTitle className="font-light">{t('following_label')} ({followingList.length})</DialogTitle>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto divide-y divide-border">
                     {followingList.map((u) => (
@@ -725,12 +725,12 @@ const MyPredictions = () => {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{u.display_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{u.signature || 'No bio'}</p>
+                          <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
                         </div>
                       </div>
                     ))}
                     {followingList.length === 0 && (
-                      <p className="py-8 text-center text-muted-foreground">Not following anyone yet</p>
+                      <p className="py-8 text-center text-muted-foreground">{t('not_following_anyone')}</p>
                     )}
                   </div>
                 </DialogContent>
@@ -742,12 +742,12 @@ const MyPredictions = () => {
                 <DialogTrigger asChild>
                   <button className="text-center hover:opacity-70 transition-opacity">
                     <p className="text-lg font-light text-foreground">{followersList.length}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Followers</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('followers_label')}</p>
                   </button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle className="font-light">Followers ({followersList.length})</DialogTitle>
+                    <DialogTitle className="font-light">{t('followers_label')} ({followersList.length})</DialogTitle>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto divide-y divide-border">
                     {followersList.map((u) => (
@@ -758,12 +758,12 @@ const MyPredictions = () => {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{u.display_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{u.signature || 'No bio'}</p>
+                          <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
                         </div>
                       </div>
                     ))}
                     {followersList.length === 0 && (
-                      <p className="py-8 text-center text-muted-foreground">No followers yet</p>
+                      <p className="py-8 text-center text-muted-foreground">{t('no_followers_yet')}</p>
                     )}
                   </div>
                 </DialogContent>
@@ -779,7 +779,7 @@ const MyPredictions = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            <h2 className="text-xs uppercase tracking-widest text-muted-foreground px-1">Wallets</h2>
+            <h2 className="text-xs uppercase tracking-widest text-muted-foreground px-1">{t('wallets')}</h2>
             
             <div className="space-y-3">
               {/* Virtual Wallet */}
@@ -792,27 +792,27 @@ const MyPredictions = () => {
                           <Wallet className="h-5 w-5 text-muted-foreground" />
                         </div>
                         <div>
-                          <span className="text-xs text-muted-foreground uppercase tracking-wider">Virtual Balance</span>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
                           <p className="text-xl font-light text-foreground">
                             ${(stats?.balance || 10000).toLocaleString()}
                           </p>
                         </div>
                       </div>
                       <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                        View →
+                        {t('view_arrow')}
                       </span>
                     </div>
                   </button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
                   <DialogHeader>
-                    <DialogTitle className="font-light text-xl">Prediction History</DialogTitle>
+                    <DialogTitle className="font-light text-xl">{t('prediction_history_title')}</DialogTitle>
                   </DialogHeader>
                   <div className="flex-1 overflow-y-auto space-y-3 py-4">
                     {(stats?.recentPredictions || []).length === 0 ? (
                       <div className="text-center py-12 text-muted-foreground">
                         <History className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                        <p>No predictions yet</p>
+                        <p>{t('no_predictions_yet')}</p>
                       </div>
                     ) : (
                       stats?.recentPredictions.map((pred) => {
@@ -838,7 +838,7 @@ const MyPredictions = () => {
                                 isLoss ? 'bg-destructive/20 text-destructive' : 
                                 'bg-muted text-muted-foreground'
                               }`}>
-                                {isWin ? 'Won' : isLoss ? 'Lost' : 'Pending'}
+                                {isWin ? t('won_status') : isLoss ? t('lost_status') : t('pending')}
                               </span>
                             </div>
                             
@@ -873,35 +873,35 @@ const MyPredictions = () => {
                           <img src={hunterCoinIcon} alt="" className="h-5 w-5" />
                         </div>
                         <div>
-                          <span className="text-xs text-muted-foreground uppercase tracking-wider">Hunter Coins</span>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('hunter_coin_wallet')}</span>
                           <p className="text-xl font-light text-amber-500">
                             {usdtBalance.toFixed(2)}
                           </p>
                         </div>
                       </div>
                       <span className="text-xs text-muted-foreground group-hover:text-amber-500 transition-colors">
-                        View →
+                        {t('view_arrow')}
                       </span>
                     </div>
                   </button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
-                    <DialogTitle className="font-light text-xl">Spending Records</DialogTitle>
+                    <DialogTitle className="font-light text-xl">{t('spending_records')}</DialogTitle>
                   </DialogHeader>
                   <div className="py-4">
                     <div className="grid grid-cols-3 gap-3 mb-6">
                       <div className="text-center p-3 rounded-xl bg-muted/50">
                         <p className="text-xl font-light">{copyTradeRecords.length}</p>
-                        <p className="text-xs text-muted-foreground">Subscriptions</p>
+                        <p className="text-xs text-muted-foreground">{t('subscriptions')}</p>
                       </div>
                       <div className="text-center p-3 rounded-xl bg-muted/50">
                         <p className="text-xl font-light">${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0)}</p>
-                        <p className="text-xs text-muted-foreground">Total Spent</p>
+                        <p className="text-xs text-muted-foreground">{t('total_spent')}</p>
                       </div>
                       <div className="text-center p-3 rounded-xl bg-muted/50">
                         <p className="text-xl font-light">{copyTradeRecords.filter(r => r.result === 'win').length}</p>
-                        <p className="text-xs text-muted-foreground">Wins</p>
+                        <p className="text-xs text-muted-foreground">{t('wins_label')}</p>
                       </div>
                     </div>
                     
@@ -933,7 +933,7 @@ const MyPredictions = () => {
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         <Receipt className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                        <p>No spending records</p>
+                        <p>{t('no_spending_records')}</p>
                       </div>
                     )}
                   </div>
@@ -955,7 +955,7 @@ const MyPredictions = () => {
               onClick={() => setIsWalletDialogOpen(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
-              <span className="font-normal">Deposit</span>
+              <span className="font-normal">{t('usdt_deposit')}</span>
             </Button>
             
             {!vipStatus?.is_active ? (
@@ -965,13 +965,13 @@ const MyPredictions = () => {
                 onClick={handleVipButtonClick}
                 disabled={isPurchasingVip}
               >
-                <Crown className="h-4 w-4 mr-2" />
-                <span className="font-normal">{isPurchasingVip ? 'Processing...' : 'Upgrade VIP'}</span>
+              <Crown className="h-4 w-4 mr-2" />
+                <span className="font-normal">{isPurchasingVip ? t('processing') : t('upgrade_to_vip')}</span>
               </Button>
             ) : (
               <div className="h-12 rounded-xl border border-amber-500/30 bg-amber-500/5 flex items-center justify-center gap-2">
-                <Crown className="h-4 w-4 text-amber-500" />
-                <span className="text-sm text-amber-500">VIP Active</span>
+              <Crown className="h-4 w-4 text-amber-500" />
+                <span className="text-sm text-amber-500">{t('vip_active')}</span>
               </div>
             )}
           </motion.div>
@@ -989,13 +989,13 @@ const MyPredictions = () => {
             <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
             <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Win Rate</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('win_rate')}</p>
                 <p className="text-5xl lg:text-6xl font-extralight text-foreground tracking-tight">
                   {(stats?.winRate || 0).toFixed(1)}
                   <span className="text-2xl lg:text-3xl text-muted-foreground">%</span>
                 </p>
                 <p className="text-sm text-primary mt-3">
-                  Top {Math.min(99, Math.round(100 - (stats?.winRate || 0)))}% of players
+                  {t('top_percent_players', { percent: Math.min(99, Math.round(100 - (stats?.winRate || 0))) })}
                 </p>
               </div>
               <div className="w-full lg:w-48 h-24">
@@ -1019,7 +1019,7 @@ const MyPredictions = () => {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-2xl lg:text-3xl font-light text-foreground">{stats?.totalPredictions || 0}</p>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Total Bets</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{t('total_bets_label')}</p>
                       </div>
                       <Target className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                     </div>
@@ -1027,21 +1027,21 @@ const MyPredictions = () => {
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
                   <div className="space-y-3">
-                    <p className="font-medium text-foreground">Betting Summary</p>
+                    <p className="font-medium text-foreground">{t('betting_summary')}</p>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground">Won:</span>
+                        <span className="text-muted-foreground">{t('won_status')}:</span>
                         <span className="text-foreground font-medium">{stats?.correctPredictions || 0}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <XCircle className="h-4 w-4 text-destructive" />
-                        <span className="text-muted-foreground">Lost:</span>
+                        <span className="text-muted-foreground">{t('lost_status')}:</span>
                         <span className="text-foreground font-medium">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0) - (stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-amber-500" />
-                        <span className="text-muted-foreground">Pending:</span>
+                        <span className="text-muted-foreground">{t('pending')}:</span>
                         <span className="text-foreground font-medium">{stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0}</span>
                       </div>
                     </div>
@@ -1056,7 +1056,7 @@ const MyPredictions = () => {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-2xl lg:text-3xl font-light text-foreground">{stats?.correctPredictions || 0}</p>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Wins</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{t('wins_label')}</p>
                       </div>
                       <CheckCircle2 className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                     </div>
@@ -1064,14 +1064,14 @@ const MyPredictions = () => {
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
                   <div className="space-y-3">
-                    <p className="font-medium text-foreground">Win Statistics</p>
+                    <p className="font-medium text-foreground">{t('win_statistics')}</p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Win Rate:</span>
+                        <span className="text-muted-foreground">{t('win_rate')}:</span>
                         <span className="text-primary font-medium">{(stats?.winRate || 0).toFixed(1)}%</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Wins / Total:</span>
+                        <span className="text-muted-foreground">{t('wins_total_ratio')}:</span>
                         <span className="text-foreground font-medium">{stats?.correctPredictions || 0} / {stats?.totalPredictions || 0}</span>
                       </div>
                       <div className="w-full h-2 bg-muted rounded-full overflow-hidden mt-2">
@@ -1094,7 +1094,7 @@ const MyPredictions = () => {
                         <p className={`text-2xl lg:text-3xl font-light ${(stats?.profit || 0) >= 0 ? 'text-foreground' : 'text-destructive'}`}>
                           {(stats?.profit || 0) >= 0 ? '+' : ''}${Math.abs(stats?.profit || 0).toLocaleString()}
                         </p>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">P&L</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{t('pnl_label')}</p>
                       </div>
                       {(stats?.profit || 0) >= 0 ? (
                         <TrendingUp className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
@@ -1106,18 +1106,18 @@ const MyPredictions = () => {
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
                   <div className="space-y-3">
-                    <p className="font-medium text-foreground">Profit & Loss Details</p>
+                    <p className="font-medium text-foreground">{t('pnl_details')}</p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Starting Balance:</span>
+                        <span className="text-muted-foreground">{t('starting_balance')}:</span>
                         <span className="text-foreground">$10,000</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Current Balance:</span>
+                        <span className="text-muted-foreground">{t('current_balance_label')}:</span>
                         <span className="text-foreground font-medium">${(stats?.balance || 10000).toLocaleString()}</span>
                       </div>
                       <div className="pt-2 border-t border-border flex items-center justify-between">
-                        <span className="text-muted-foreground">Total P&L:</span>
+                        <span className="text-muted-foreground">{t('total_pnl')}:</span>
                         <span className={`font-medium ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
                           {(stats?.profit || 0) >= 0 ? '+' : ''}${(stats?.profit || 0).toLocaleString()}
                         </span>
@@ -1136,7 +1136,7 @@ const MyPredictions = () => {
                         <p className={`text-2xl lg:text-3xl font-light ${calculatedProfitRate >= 0 ? 'text-foreground' : 'text-destructive'}`}>
                           {calculatedProfitRate >= 0 ? '+' : ''}{calculatedProfitRate.toFixed(1)}%
                         </p>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">ROI</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{t('roi_label')}</p>
                       </div>
                       <BarChart3 className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                     </div>
@@ -1144,21 +1144,21 @@ const MyPredictions = () => {
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
                   <div className="space-y-3">
-                    <p className="font-medium text-foreground">Return on Investment</p>
+                    <p className="font-medium text-foreground">{t('roi_details')}</p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Initial Investment:</span>
+                        <span className="text-muted-foreground">{t('initial_investment')}:</span>
                         <span className="text-foreground">$10,000</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Profit/Loss:</span>
+                        <span className="text-muted-foreground">{t('profit_loss_label_detail')}:</span>
                         <span className={`font-medium ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
                           {(stats?.profit || 0) >= 0 ? '+' : ''}${(stats?.profit || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="pt-2 border-t border-border">
                         <p className="text-xs text-muted-foreground">
-                          ROI = (Profit / Initial Investment) × 100
+                          {t('roi_formula')}
                         </p>
                       </div>
                     </div>
@@ -1181,7 +1181,7 @@ const MyPredictions = () => {
                   <Users className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Referral Code</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('referral_code')}</p>
                   <p className="text-xl font-mono tracking-[0.25em] text-foreground mt-1">
                     {userProfile?.invitation_code || '--------'}
                   </p>
@@ -1199,7 +1199,7 @@ const MyPredictions = () => {
                   }}
                 >
                   <p className="text-2xl font-light text-primary">{userProfile?.invited_count || 0}</p>
-                  <p className="text-xs text-muted-foreground">Invited</p>
+                  <p className="text-xs text-muted-foreground">{t('invited_label')}</p>
                 </button>
                 
                 {userProfile?.invitation_code && (
@@ -1216,7 +1216,7 @@ const MyPredictions = () => {
             </div>
             
             <p className="text-sm text-muted-foreground pt-4 mt-4 border-t border-border">
-              Invite friends and earn 50 Hunter Coins for each referral
+              {t('referral_bonus_text')}
             </p>
           </motion.div>
 
@@ -1231,7 +1231,7 @@ const MyPredictions = () => {
               onClick={() => setIsBetDialogOpen(true)}
             >
               <Zap className="h-5 w-5 lg:h-6 lg:w-6 mr-2" />
-              Start Predicting
+              {t('start_predicting')}
             </Button>
           </motion.div>
         </div>
@@ -1247,17 +1247,17 @@ const MyPredictions = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-light text-xl">
               <Crown className="h-5 w-5 text-amber-500" />
-              Upgrade to VIP
+              {t('upgrade_to_vip')}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div className="space-y-3">
               {[
-                { icon: Sparkles, title: 'Free Access to All Predictions', desc: 'View any predictor\'s analysis without spending coins' },
-                { icon: Target, title: 'Exclusive AI Reports', desc: 'Get detailed AI-powered match analysis' },
-                { icon: TrendingUp, title: 'Top Predictor Alerts', desc: 'Priority notifications from high-accuracy predictors' },
-                { icon: Award, title: 'VIP Badge', desc: 'Stand out with exclusive profile badge' },
+                { icon: Sparkles, title: t('vip_feature_free_access'), desc: t('vip_feature_free_access_desc') },
+                { icon: Target, title: t('vip_feature_ai_reports'), desc: t('vip_feature_ai_reports_desc') },
+                { icon: TrendingUp, title: t('vip_feature_alerts'), desc: t('vip_feature_alerts_desc') },
+                { icon: Award, title: t('vip_feature_badge'), desc: t('vip_feature_badge_desc') },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
                   <div className="p-2 rounded-lg bg-amber-500/20">
@@ -1274,11 +1274,11 @@ const MyPredictions = () => {
             <div className="p-4 rounded-xl bg-muted/50 border border-border">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">30-Day VIP</p>
-                  <p className="text-2xl font-light text-foreground">{VIP_COST} Coins</p>
+                  <p className="text-sm text-muted-foreground">{t('thirty_day_vip')}</p>
+                  <p className="text-2xl font-light text-foreground">{VIP_COST} {t('coins_unit')}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Your Balance</p>
+                  <p className="text-xs text-muted-foreground">{t('your_balance')}</p>
                   <p className="text-lg font-light text-amber-500">{usdtBalance.toFixed(0)}</p>
                 </div>
               </div>
@@ -1287,14 +1287,14 @@ const MyPredictions = () => {
           
           <div className="flex gap-3">
             <Button variant="outline" className="flex-1 h-12" onClick={() => setShowVipConfirmDialog(false)}>
-              Cancel
+              {t('back')}
             </Button>
             <Button 
               className="flex-1 h-12 bg-amber-500 hover:bg-amber-600 text-background"
               onClick={handleConfirmPurchaseVip}
               disabled={usdtBalance < VIP_COST}
             >
-              Confirm Upgrade
+              {t('confirm_upgrade')}
             </Button>
           </div>
         </DialogContent>
