@@ -20,6 +20,7 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 
 const AI_ICONS: Record<string, string> = {
   deepseek: deepseekIcon,
@@ -964,9 +965,9 @@ const ActiveAIBets = () => {
 
           // Get AI balance
           const balance = aiBalances[aiModel.id];
-          const balanceValue = balance 
-            ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟额度`
-            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟额度` : '10,000模拟额度';
+          const balanceNumber = balance 
+            ? (balance.available_balance + balance.locked_balance).toLocaleString()
+            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
 
           // Handler to switch to next match
           const nextMatch = (e: React.MouseEvent) => {
@@ -1103,8 +1104,9 @@ const ActiveAIBets = () => {
                           <span className={`text-sm font-bold tracking-wide uppercase ${gradient.accent}`}>
                             {getModelDisplayName(aiModel)}
                           </span>
-                          <span className="text-xs text-muted-foreground/80 font-medium">
-                            {balanceValue}
+                          <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                            {balanceNumber} 猎人币
                           </span>
                         </div>
                       </div>
