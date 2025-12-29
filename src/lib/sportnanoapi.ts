@@ -3,18 +3,22 @@ import type { CompetitionListResponse, Competition, FixtureResponse, FixturesLis
 // API 配置
 const SPORTNANOAPI_BASE_URL = "https://open.sportnanoapi.com/api/v5";
 
-// 获取本地 API 基础 URL，确保包含协议
+// 获取本地 API 基础 URL
 const getApiBaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
-  if (!envUrl) {
-    return "http://localhost:3000";
+  
+  // 如果环境变量已设置，使用环境变量（支持完整 URL 或相对路径）
+  if (envUrl) {
+    // 如果环境变量已经包含协议，直接返回
+    if (envUrl.startsWith("http://") || envUrl.startsWith("https://")) {
+      return envUrl;
+    }
+    // 如果没有协议，默认使用 https://
+    return `https://${envUrl}`;
   }
-  // 如果环境变量已经包含协议，直接返回
-  if (envUrl.startsWith("http://") || envUrl.startsWith("https://")) {
-    return envUrl;
-  }
-  // 如果没有协议，默认使用 http://
-  return `http://${envUrl}`;
+  
+  // 默认使用 hunsoccer.net/api
+  return "https://hunsoccer.net/api";
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -125,7 +129,7 @@ export const fetchCompetitions = async (
   if (params.limit !== undefined) searchParams.append('limit', params.limit.toString());
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/competitions${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const url = `${API_BASE_URL}/competitions${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -394,7 +398,7 @@ export const fetchFixtures = async (
   // 注意：match/schedule/diary 不添加 limit 参数
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/fixtures${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const url = `${API_BASE_URL}/fixtures${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -510,7 +514,7 @@ export const fetchMatchLive = async (matchId?: string | number): Promise<MatchLi
   }
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/live${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const url = `${API_BASE_URL}/match/live${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -674,7 +678,7 @@ export const fetchOddsLive = async (
   });
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/odds/live?${searchParams.toString()}`;
+  const url = `${API_BASE_URL}/odds/live?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -737,7 +741,7 @@ export const fetchMatchTrend = async (
   searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/trend/live?${searchParams.toString()}`;
+  const url = `${API_BASE_URL}/match/trend/live?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -781,7 +785,7 @@ export const fetchMatchTrendDetail = async (
   searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/trend/detail?${searchParams.toString()}`;
+  const url = `${API_BASE_URL}/match/trend/detail?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -946,7 +950,7 @@ export const fetchMatchLineup = async (
   searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
 
   // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/lineup/detail?${searchParams.toString()}`;
+  const url = `${API_BASE_URL}/match/lineup/detail?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
