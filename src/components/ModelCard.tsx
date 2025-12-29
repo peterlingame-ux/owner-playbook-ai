@@ -209,7 +209,12 @@ const ModelCard = ({ model }: ModelCardProps) => {
               ? 'bg-success/20 border border-success/30' 
               : 'bg-destructive/20 border border-destructive/30'
           }`}>
-            <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4 shrink-0" loading="lazy" />
+            <img 
+              src={hunterCoinIcon} 
+              alt="猎人币" 
+              className="h-4 w-4 shrink-0 animate-coin-shine" 
+              loading="lazy" 
+            />
             <span className={`font-mono font-bold text-sm tabular-nums leading-none ${
               isPositive ? 'text-success' : 'text-destructive'
             }`}>
