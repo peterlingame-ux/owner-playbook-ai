@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import CryptoTicker from "@/components/CryptoTicker";
 import aiModelsShowcase from "@/assets/ai-models-showcase.png";
 import { Shield, Sparkles, TrendingUp, Users } from "lucide-react";
@@ -91,6 +92,7 @@ const Blog = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
