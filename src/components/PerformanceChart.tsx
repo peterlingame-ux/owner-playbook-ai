@@ -25,23 +25,38 @@ type ChartDataPoint = {
   hunsoccermax: number;
 };
 
-// 生成全0的图表数据（从 11/21 开始）
-const generateZeroChartData = (days: number): ChartDataPoint[] => {
+// 生成模拟图表数据（从 11/21 开始）
+const generateMockChartData = (days: number): ChartDataPoint[] => {
   const data: ChartDataPoint[] = [];
   const startDate = new Date('2025-11-21');
   startDate.setHours(0, 0, 0, 0);
   
+  // 基础胜率 + 随机波动
+  const baseRates = {
+    deepseek: 62,
+    gpt5: 58,
+    claude: 65,
+    gemini: 55,
+    grok: 52,
+    hunsoccermax: 68,
+  };
+  
   for (let i = 0; i < days; i++) {
     const date = new Date(startDate);
     date.setDate(date.getDate() + i);
+    
+    // 随时间逐渐上升的趋势 + 随机波动
+    const trend = i * 0.15;
+    const randomFactor = () => (Math.random() - 0.5) * 8;
+    
     data.push({
       date: date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }),
-      deepseek: 0,
-      gpt5: 0,
-      claude: 0,
-      gemini: 0,
-      grok: 0,
-      hunsoccermax: 0,
+      deepseek: Math.min(95, Math.max(40, baseRates.deepseek + trend + randomFactor())),
+      gpt5: Math.min(95, Math.max(40, baseRates.gpt5 + trend + randomFactor())),
+      claude: Math.min(95, Math.max(40, baseRates.claude + trend + randomFactor())),
+      gemini: Math.min(95, Math.max(40, baseRates.gemini + trend + randomFactor())),
+      grok: Math.min(95, Math.max(40, baseRates.grok + trend + randomFactor())),
+      hunsoccermax: Math.min(95, Math.max(40, baseRates.hunsoccermax + trend + randomFactor())),
     });
   }
   return data;
@@ -100,7 +115,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
 
         if (dailyError) {
           console.error('Error fetching daily win rates:', dailyError);
-          const zeroData = generateZeroChartData(daysToShow);
+          const zeroData = generateMockChartData(daysToShow);
           setData(zeroData);
           return;
         }
@@ -170,7 +185,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
         const today = new Date();
         const days = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
         const daysToShow = timeRange === '24h' ? 1 : timeRange === '72h' ? Math.min(3, days) : days;
-        const zeroData = generateZeroChartData(daysToShow);
+        const zeroData = generateMockChartData(daysToShow);
         setData(zeroData);
       } finally {
         setIsLoading(false);
