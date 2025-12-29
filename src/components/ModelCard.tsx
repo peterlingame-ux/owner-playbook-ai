@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { Lock, UserPlus, UserMinus, Target } from "lucide-react";
+import { Lock, UserPlus, UserMinus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -220,9 +220,8 @@ const ModelCard = ({ model }: ModelCardProps) => {
         {/* Win Rate Section */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium flex items-center gap-1.5">
-              <Target className="h-3.5 w-3.5" />
-              {t('win_rate')}
+            <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+              胜率
             </span>
             <span className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-foreground">
               {animatedWinRate.toFixed(1)}%
