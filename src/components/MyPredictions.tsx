@@ -223,7 +223,9 @@ const MyPredictions = () => {
         setUserProfile({
           display_name: "QuickTiger1234",
           avatar_url: "/avatars/avatar-1.png",
-          signature: "Prediction Expert"
+          signature: "Prediction Expert",
+          invitation_code: "TIGER88",
+          invited_count: 12
         });
         setEditDisplayName("QuickTiger1234");
         setSelectedAvatar("/avatars/avatar-1.png");
