@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, Moon, Sun } from "lucide-react";
+import { LogOut, Menu, Moon, Sun, Trophy, Home, Sparkles, Target, Gift } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -24,11 +24,11 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
 
   const navItems = [
-    { to: "/leaderboard", label: t('nav_rank') },
-    { to: "/", label: t('nav_live') },
-    { to: "/models", label: t('nav_models') },
-    { to: "/my-predictions", label: t('nav_personal_center') },
-    { to: "/waitlist", label: t('nav_prize') },
+    { to: "/leaderboard", label: t('nav_rank'), icon: Trophy },
+    { to: "/", label: t('nav_live'), icon: Home },
+    { to: "/models", label: t('nav_models'), icon: Sparkles },
+    { to: "/my-predictions", label: t('nav_personal_center'), icon: Target },
+    { to: "/waitlist", label: t('nav_prize'), icon: Gift },
   ];
 
   const handleSignOut = async () => {
@@ -91,6 +91,14 @@ const Header = () => {
                       />
                     )}
                     
+                    {/* Icon */}
+                    <item.icon 
+                      className={`relative z-10 h-4 w-4 transition-all duration-300 ${
+                        isActive ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : ''
+                      }`}
+                      strokeWidth={isActive ? 2.2 : 1.8}
+                    />
+                    
                     {/* Label */}
                     <span className={`relative z-10 whitespace-nowrap ${isActive ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' : ''}`}>
                       {item.label}
@@ -125,14 +133,22 @@ const Header = () => {
                         to={item.to}
                         onClick={() => setMobileMenuOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center px-4 py-3 rounded-full text-base font-medium transition-all duration-300
+                          `flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-300
                           ${isActive 
-                            ? 'bg-[#2a2a2a] text-white' 
-                            : 'text-[#888888] hover:text-foreground hover:bg-accent/30'
+                            ? 'bg-white/[0.1] text-white border border-white/[0.1]' 
+                            : 'text-white/50 hover:text-white hover:bg-white/[0.05]'
                           }`
                         }
                       >
-                        {item.label}
+                        {({ isActive }) => (
+                          <>
+                            <item.icon 
+                              className={`h-5 w-5 transition-all ${isActive ? 'text-white' : ''}`}
+                              strokeWidth={isActive ? 2.2 : 1.8}
+                            />
+                            <span>{item.label}</span>
+                          </>
+                        )}
                       </NavLink>
                     ))}
                   </div>
