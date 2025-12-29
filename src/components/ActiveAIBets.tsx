@@ -392,14 +392,14 @@ type AIBalance = {
 };
 
 
-// Model-specific gradient colors for international aesthetic
+// Unified color scheme for all AI models - professional dark blue-gray
 const MODEL_GRADIENTS: Record<string, { from: string; to: string; accent: string; glow: string }> = {
-  deepseek: { from: 'from-blue-600/20', to: 'to-cyan-500/10', accent: 'text-cyan-400', glow: 'shadow-cyan-500/20' },
-  gpt5: { from: 'from-emerald-600/20', to: 'to-teal-500/10', accent: 'text-emerald-400', glow: 'shadow-emerald-500/20' },
-  claude: { from: 'from-orange-600/20', to: 'to-amber-500/10', accent: 'text-orange-400', glow: 'shadow-orange-500/20' },
-  gemini: { from: 'from-purple-600/20', to: 'to-pink-500/10', accent: 'text-purple-400', glow: 'shadow-purple-500/20' },
-  grok: { from: 'from-slate-600/20', to: 'to-zinc-500/10', accent: 'text-slate-300', glow: 'shadow-slate-500/20' },
-  hunsoccermax: { from: 'from-amber-600/20', to: 'to-yellow-500/10', accent: 'text-amber-400', glow: 'shadow-amber-500/20' },
+  deepseek: { from: 'from-slate-800/60', to: 'to-slate-900/40', accent: 'text-slate-200', glow: 'shadow-slate-500/10' },
+  gpt5: { from: 'from-slate-800/60', to: 'to-slate-900/40', accent: 'text-slate-200', glow: 'shadow-slate-500/10' },
+  claude: { from: 'from-slate-800/60', to: 'to-slate-900/40', accent: 'text-slate-200', glow: 'shadow-slate-500/10' },
+  gemini: { from: 'from-slate-800/60', to: 'to-slate-900/40', accent: 'text-slate-200', glow: 'shadow-slate-500/10' },
+  grok: { from: 'from-slate-800/60', to: 'to-slate-900/40', accent: 'text-slate-200', glow: 'shadow-slate-500/10' },
+  hunsoccermax: { from: 'from-slate-800/60', to: 'to-slate-900/40', accent: 'text-slate-200', glow: 'shadow-slate-500/10' },
 };
 
 const ActiveAIBets = () => {
