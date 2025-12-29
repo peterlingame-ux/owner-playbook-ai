@@ -139,14 +139,16 @@ const CryptoTicker = () => {
             href="https://play.google.com/store/apps/hunsoccer" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-black rounded-md border border-white/20 hover:bg-zinc-900 transition-colors"
+            className="group flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-black rounded-md border border-white/20 transition-all duration-300 hover:bg-zinc-900 hover:border-green-500/50 hover:shadow-[0_0_15px_rgba(34,197,94,0.4),0_0_30px_rgba(34,197,94,0.2)]"
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
-              <path fill="#EA4335" d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z"/>
-              <path fill="#FBBC04" d="M16.247 15.055L13.792 12l2.455-3.055 2.78 1.6a1 1 0 0 1 0 1.71l-2.78 1.8z"/>
-              <path fill="#4285F4" d="M3.609 1.814L14.31 8.5 16.247 5.945l-9.866-5.69a1 1 0 0 0-2.772 1.559z"/>
-              <path fill="#34A853" d="M14.31 15.5L3.609 22.186a1 1 0 0 0 2.772 1.559l9.866-5.69-2.037-2.555z"/>
-            </svg>
+            <div className="transition-transform duration-300 group-hover:scale-110">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
+                <path fill="#EA4335" d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z"/>
+                <path fill="#FBBC04" d="M16.247 15.055L13.792 12l2.455-3.055 2.78 1.6a1 1 0 0 1 0 1.71l-2.78 1.8z"/>
+                <path fill="#4285F4" d="M3.609 1.814L14.31 8.5 16.247 5.945l-9.866-5.69a1 1 0 0 0-2.772 1.559z"/>
+                <path fill="#34A853" d="M14.31 15.5L3.609 22.186a1 1 0 0 0 2.772 1.559l9.866-5.69-2.037-2.555z"/>
+              </svg>
+            </div>
             <div className="hidden sm:flex flex-col">
               <span className="text-[7px] text-white/70 leading-tight uppercase tracking-wide">GET IT ON</span>
               <span className="text-[10px] font-medium text-white leading-tight">Google Play</span>
@@ -158,9 +160,9 @@ const CryptoTicker = () => {
             href="https://apps.apple.com/app/hunsoccer" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-black rounded-md border border-white/20 hover:bg-zinc-900 transition-colors"
+            className="group flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-black rounded-md border border-white/20 transition-all duration-300 hover:bg-zinc-900 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.4),0_0_30px_rgba(59,130,246,0.2)]"
           >
-            <Apple className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Apple className="w-4 h-4 sm:w-5 sm:h-5 text-white transition-transform duration-300 group-hover:scale-110" />
             <div className="hidden sm:flex flex-col">
               <span className="text-[7px] text-white/70 leading-tight">Available on the</span>
               <span className="text-[10px] font-medium text-white leading-tight">App Store</span>

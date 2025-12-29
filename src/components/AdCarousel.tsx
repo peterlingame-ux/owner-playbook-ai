@@ -20,9 +20,9 @@ const AdCarousel = () => {
           href="https://play.google.com/store/apps/hunsoccer" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 bg-black rounded-lg border border-white/20 hover:bg-zinc-900 transition-colors"
+          className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 bg-black rounded-lg border border-white/20 transition-all duration-300 hover:bg-zinc-900 hover:border-green-500/50 hover:shadow-[0_0_20px_rgba(34,197,94,0.4),0_0_40px_rgba(34,197,94,0.2)]"
         >
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
             <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-7 sm:h-7">
               <path fill="#EA4335" d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z"/>
               <path fill="#FBBC04" d="M16.247 15.055L13.792 12l2.455-3.055 2.78 1.6a1 1 0 0 1 0 1.71l-2.78 1.8z"/>
@@ -41,9 +41,9 @@ const AdCarousel = () => {
           href="https://apps.apple.com/app/hunsoccer" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 bg-black rounded-lg border border-white/20 hover:bg-zinc-900 transition-colors"
+          className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 bg-black rounded-lg border border-white/20 transition-all duration-300 hover:bg-zinc-900 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.4),0_0_40px_rgba(59,130,246,0.2)]"
         >
-          <Apple className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <Apple className="w-5 h-5 sm:w-7 sm:h-7 text-white transition-transform duration-300 group-hover:scale-110" />
           <div className="flex flex-col">
             <span className="text-[8px] sm:text-[10px] text-white/80 leading-tight">Available on the</span>
             <span className="text-xs sm:text-base font-medium text-white leading-tight">App Store</span>
