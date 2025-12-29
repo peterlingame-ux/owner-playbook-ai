@@ -209,13 +209,12 @@ const ModelCard = ({ model }: ModelCardProps) => {
               <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
               {t("hunter_coin", { defaultValue: "猎人币" })}
             </span>
-            <div className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums inline-flex items-center gap-1.5 ${
+            <div className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums ${
               isPositive 
                 ? 'bg-success/20 text-success border border-success/30' 
                 : 'bg-destructive/20 text-destructive border border-destructive/30'
             }`}>
-              <span>{model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}</span>
-              <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
+              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}
             </div>
           </div>
         </div>
