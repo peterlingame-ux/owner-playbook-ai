@@ -1,11 +1,7 @@
 import prizeBannerGreen from "@/assets/prize-banner-green.png";
-import { Apple, Smartphone } from "lucide-react";
+import { Apple, Play } from "lucide-react";
 
 const AdCarousel = () => {
-  // Simple placeholder QR codes using a free QR API
-  const iosQRUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://apps.apple.com/app/hunsoccer&bgcolor=1a1a1a&color=ffffff";
-  const androidQRUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://play.google.com/store/apps/hunsoccer&bgcolor=1a1a1a&color=ffffff";
-
   return (
     <div className="relative w-full overflow-hidden rounded-xl bg-card/50 border border-border/50">
       {/* Static Banner Image */}
@@ -17,46 +13,42 @@ const AdCarousel = () => {
         />
       </div>
 
-      {/* App Download QR Codes */}
-      <div className="flex items-center justify-center gap-6 sm:gap-10 py-4 px-4 bg-background/80 backdrop-blur-sm border-t border-border/30">
-        {/* iOS Download */}
-        <div className="flex items-center gap-3">
-          <div className="relative p-2 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg border border-border/50">
-            <img src={iosQRUrl} alt="iOS Download" className="w-16 h-16 sm:w-20 sm:h-20 rounded" />
+      {/* App Download Buttons */}
+      <div className="flex items-center justify-center gap-3 sm:gap-6 py-4 px-4 bg-background/80 backdrop-blur-sm border-t border-border/30">
+        {/* Google Play Button */}
+        <a 
+          href="https://play.google.com/store/apps/hunsoccer" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 bg-black rounded-lg border border-white/20 hover:bg-zinc-900 transition-colors"
+        >
+          <div className="flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-7 sm:h-7">
+              <path fill="#EA4335" d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z"/>
+              <path fill="#FBBC04" d="M16.247 15.055L13.792 12l2.455-3.055 2.78 1.6a1 1 0 0 1 0 1.71l-2.78 1.8z"/>
+              <path fill="#4285F4" d="M3.609 1.814L14.31 8.5 16.247 5.945l-9.866-5.69a1 1 0 0 0-2.772 1.559z"/>
+              <path fill="#34A853" d="M14.31 15.5L3.609 22.186a1 1 0 0 0 2.772 1.559l9.866-5.69-2.037-2.555z"/>
+            </svg>
           </div>
-          <div className="hidden sm:flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-foreground">
-              <Apple className="w-4 h-4" />
-              <span className="text-sm font-medium">iOS 下载</span>
-            </div>
-            <span className="text-xs text-muted-foreground">扫码下载 App Store</span>
+          <div className="flex flex-col">
+            <span className="text-[8px] sm:text-[10px] text-white/80 leading-tight uppercase tracking-wide">GET IT ON</span>
+            <span className="text-xs sm:text-base font-medium text-white leading-tight">Google Play</span>
           </div>
-          <div className="flex sm:hidden items-center gap-1 text-foreground">
-            <Apple className="w-3.5 h-3.5" />
-            <span className="text-xs">iOS</span>
-          </div>
-        </div>
+        </a>
 
-        {/* Divider */}
-        <div className="w-px h-12 bg-border/50" />
-
-        {/* Android Download */}
-        <div className="flex items-center gap-3">
-          <div className="relative p-2 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg border border-border/50">
-            <img src={androidQRUrl} alt="Android Download" className="w-16 h-16 sm:w-20 sm:h-20 rounded" />
+        {/* App Store Button */}
+        <a 
+          href="https://apps.apple.com/app/hunsoccer" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 bg-black rounded-lg border border-white/20 hover:bg-zinc-900 transition-colors"
+        >
+          <Apple className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <div className="flex flex-col">
+            <span className="text-[8px] sm:text-[10px] text-white/80 leading-tight">Available on the</span>
+            <span className="text-xs sm:text-base font-medium text-white leading-tight">App Store</span>
           </div>
-          <div className="hidden sm:flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-foreground">
-              <Smartphone className="w-4 h-4" />
-              <span className="text-sm font-medium">Android 下载</span>
-            </div>
-            <span className="text-xs text-muted-foreground">扫码下载 APK</span>
-          </div>
-          <div className="flex sm:hidden items-center gap-1 text-foreground">
-            <Smartphone className="w-3.5 h-3.5" />
-            <span className="text-xs">Android</span>
-          </div>
-        </div>
+        </a>
       </div>
     </div>
   );
