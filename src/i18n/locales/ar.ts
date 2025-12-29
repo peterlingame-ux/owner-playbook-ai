@@ -1,4 +1,4 @@
-// Arabic translations
+// Arabic translations - Complete
 export const ar = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const ar = {
     "start_prediction_btn": "ابدأ التوقع",
     "free_register_btn": "تسجيل مجاني",
     "no_deposit_free": "بدون إيداع · مشاركة مجانية",
+    "completed_rounds": "الجولات المكتملة",
+    "total_winners": "إجمالي الفائزين",
+    "total_distributed": "إجمالي الموزع",
+    "featured_winners": "الفائزون المميزون",
+    "featured": "مميز",
+    "player_win_rate": "نسبة فوز اللاعب",
+    "ai_win_rate_label": "نسبة فوز الذكاء الاصطناعي",
+    "predictions_count": "التوقعات",
+    "prize_won": "الجائزة المكتسبة",
+    "virtual_profit": "الربح الافتراضي",
+    "history_records_title": "السجلات التاريخية",
+    "round_column": "الجولة",
+    "ai_model_column": "نموذج الذكاء الاصطناعي",
+    "winners_column": "الفائزون",
+    "distributed_column": "الموزع",
+    "date_column_prize": "التاريخ",
+    "no_winners_round": "لا فائزين في هذه الجولة",
+    "prize_rules_title": "قواعد الجائزة",
+    "rule1": "كل جولة تستمر 30 يوماً، مع جائزة قدرها 1,000,000 دولار",
+    "rule2": "يجب على اللاعبين إكمال توقعات بقدر الذكاء الاصطناعي على الأقل",
+    "rule3": "فقط اللاعبون ذوو نسبة أعلى من الذكاء الاصطناعي يمكنهم الفوز",
+    "rule4": "إذا لم يتفوق أحد، تتراكم الجائزة",
+    "rule5": "التوزيع يعتمد على الفرق مع نسبة الذكاء الاصطناعي",
+    "prize_disclaimer": "HUNSOCCER هي منصة مسابقة توقعات وعرض للذكاء الاصطناعي، وليست موقع مراهنات.",
     
     // Stats
     "highest_win_rate": "أعلى نسبة فوز",
@@ -64,14 +88,147 @@ export const ar = {
     "ai_leaderboard": "ذكاء اصطناعي",
     "player_leaderboard": "اللاعبون",
     "all_players": "جميع اللاعبين",
+    "player_detail": "تفاصيل اللاعب",
     "view_all": "عرض الكل",
     "search_player": "البحث عن لاعب...",
+    "scroll_for_more": "مرر للمزيد...",
+    "no_search_results": "لم يتم العثور على لاعبين",
+    "no_search_results_hint": "جرب كلمات أخرى",
+    "clear_search": "مسح البحث",
     "no_data": "لا توجد بيانات",
+    "top_10": "أفضل 10",
+    "rank_11_20": "الترتيب 11-20",
+    "highest_win_rate_players": "اللاعبون ذوو أعلى نسبة",
+    "rising_players": "اللاعبون الصاعدون",
+    "no_more_players": "لا مزيد من اللاعبين",
+    "today_win_rate": "نسبة اليوم",
+    "today_prediction_win_rate": "نسبة توصية اليوم",
+    "today_prediction": "اختيارات اليوم",
+    "today_recommendations": "اختيارات اليوم",
+    "today_history": "تاريخ اليوم",
+    "no_history_today": "لا سجلات اليوم",
+    "no_data_today": "لا بيانات",
+    "click_to_view_history": "انقر لعرض السجل",
+    "view_history": "عرض السجل",
+    "pending": "معلق",
+    "leaderboard_disclaimer": "ملاحظة: جميع الإحصائيات تعكس التوقعات المكتملة فقط. HUNSOCCER للعرض التوضيحي للذكاء الاصطناعي فقط.",
+    "profit_loss": "ربح/خسارة",
+    "player_recommendation_board": "توصيات اللاعبين",
+    "profit_amount_label": "الربح",
+    "bet_amount_label": "رهان افتراضي",
+    "followers_count": "المتابعون",
+    "correct_matches": "صحيحة",
+    "incorrect_matches": "خاطئة",
+    "estimated_prize": "الجائزة المقدرة",
+    "not_qualified": "غير مؤهل",
+    "win_streak": "سلسلة فوز",
+    "lose_streak": "سلسلة خسارة",
+    "win_badge": "ف",
+    "loss_badge": "خ",
+    "people_suffix": "",
+    "matches_suffix": "",
+    "handicap": "الإعاقة",
+    "over_under": "أكثر/أقل",
+    "challenge_ai": "تحدي الذكاء الاصطناعي",
+    "challenge_ai_reward": "مكافأة تحدي الذكاء الاصطناعي",
+    "big_prize_waiting": "جائزة كبيرة في الانتظار",
+    "challenge_description": "تفوق على الذكاء الاصطناعي في التوقعات والدقة والنقاط للفوز بالجوائز",
+    "ai_benchmark": "معيار الذكاء الاصطناعي",
+    "banner_predictions": "التوقعات:",
+    "banner_win_rate": "الدقة:",
+    "banner_profit": "نقاط المحاكاة:",
+    "banner_my_model": "نموذجي الحصري",
+    "login_to_view": "سجل الدخول لعرض ترتيبك",
+    "days_unit": " يوم",
+    "people_qualified": "مؤهلون",
+    "per_capita_prize": "الجائزة للفرد:",
+    "activity_prize_pool": "مجموع الجوائز:",
+    "total_prize_value": "إجمالي قيمة الجائزة",
+    "qualified_status": "مؤهل",
+    "keep_going": "استمر",
     
     // Model Cards
     "the_contestants": "نماذج الذكاء الاصطناعي المتنافسة",
     "top_players": "أبطال اللاعبين",
     "view_details": "عرض التفاصيل",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "ذكاء المباريات في الوقت الحقيقي",
+    "ai_analysis_disclaimer": "بيانات من التعرف البصري والنماذج الإحصائية، قابلة للتأخير والخطأ.",
+    "total_predictions": "إجمالي التوقعات",
+    
+    // AI Chat
+    "ai_assistant": "روبوت HUNSOCCER",
+    "ai_assistant_subtitle": "5 ذكاء اصطناعي تحليل شامل",
+    "chat_welcome": "مرحباً! أنا روبوت رياضي محترف.",
+    "chat_placeholder": "اسألني أي شيء...",
+    "chat_ai_response": "يمكنني مساعدتك في تحليل البيانات ومقارنة توقعات الذكاء الاصطناعي.",
+    "floating_ai_chat": {
+      "welcome": "مرحباً! أنا مساعد HUNSOCCER للذكاء الاصطناعي.",
+      "demo_response": "شكراً على سؤالك! هذه المحادثة تعمل في وضع العرض.",
+      "open_chat_button": "افتح المحادثة",
+      "status_online": "الدعم متصل",
+      "input_placeholder": "اكتب سؤالك عن كرة القدم...",
+      "faq_title": "الأسئلة الشائعة",
+      "faq": {
+        "view_predictions": {
+          "question": "كيف أشاهد توقعات الذكاء الاصطناعي؟",
+          "answer": "في الصفحة الرئيسية، كل نموذج ذكاء اصطناعي يقدم تحليلاً احترافياً."
+        },
+        "view_winrate": {
+          "question": "كيف أشاهد نسب فوز الذكاء الاصطناعي؟",
+          "answer": "قم بزيارة قسم 'مقارنة النسب' لعرض الإحصائيات."
+        },
+        "view_data": {
+          "question": "كيف أشاهد بيانات كرة القدم؟",
+          "answer": "HUNSOCCER تتعاون مع مزودي البيانات. سجل الدخول للوصول."
+        },
+        "ai_models": {
+          "question": "ما تخصص نماذج الذكاء الاصطناعي؟",
+          "answer": "كل نموذج له تخصص مختلف."
+        },
+        "contact": {
+          "question": "كيف أتواصل مع الفريق؟",
+          "answer": "تواصل معنا عبر تيليجرام: HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "نظرة عامة على السوق",
+    "banner_title": "تنافس مع أفضل نماذج الذكاء الاصطناعي",
+    "banner_subtitle": "اعرض مهاراتك، تحدى الذكاء الاصطناعي، اربح الجوائز",
+    "max_prize": "الجائزة القصوى",
+    "join_competition": "انضم للمنافسة",
+    "free_to_join": "مجاني للانضمام",
+    "no_deposit": "بدون إيداع",
+    "fair_competition": "منافسة عادلة",
+    
+    // Match Detail
+    "match_not_found": "المباراة غير موجودة",
+    "go_back": "رجوع",
+    "owner": "المالك",
+    "health_status": "الحالة الصحية",
+    "financial_status": "الوضع المالي",
+    "family_members": "أفراد العائلة",
+    "social_status": "الوضع الاجتماعي",
+    "scandals_controversies": "الفضائح والجدل",
+    "recent_activities": "الأنشطة الأخيرة",
+    "exclusive_owner_analysis": "تحليل حصري للمالك",
+    "years_old": "سنة",
+    "years": "سنوات",
+    "back_to_matches": "العودة للمباريات",
+    "at": "في",
+    "vs": "ضد",
+    "draw": "تعادل",
+    "win": "فوز",
+    "confidence": "الثقة",
+    "in_progress": "قيد التنفيذ",
+    "days": "ي",
+    "hours": "س",
+    "minutes": "د",
+    "half_time": "الشوط الأول",
+    "venue": "الملعب",
     
     // Auth
     "auth": {
@@ -85,7 +242,10 @@ export const ar = {
       "verification_code": "رمز التحقق",
       "send_code": "إرسال الرمز",
       "login_success": "تم تسجيل الدخول بنجاح",
-      "welcome_back": "مرحباً بعودتك!"
+      "welcome_back": "مرحباً بعودتك!",
+      "login_failed": "فشل تسجيل الدخول",
+      "register_success": "تم التسجيل بنجاح",
+      "welcome": "أهلاً بك!"
     },
     
     // Common
@@ -101,16 +261,26 @@ export const ar = {
     "back": "رجوع",
     "loading_data": "جاري التحميل...",
     
-    // Match Detail
-    "match_not_found": "المباراة غير موجودة",
-    "go_back": "رجوع",
-    "confidence": "الثقة",
-    "draw": "تعادل",
-    "win": "فوز",
+    // My Predictions
+    "my_predictions": "توقعاتي",
+    "win_rate_trend": "اتجاه نسبة الفوز",
+    "filter": "تصفية",
+    "edit_profile": "تعديل الملف الشخصي",
+    "nickname": "الاسم المستعار",
+    "signature": "التوقيع",
+    "select_avatar": "اختر الصورة الرمزية",
+    "saving": "جاري الحفظ...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "محفظة Hunter Coin",
+    "usdt_deposit": "إيداع",
+    "deposit_amount": "مبلغ الإيداع",
+    "wallet_address": "عنوان المحفظة",
+    
     "platform_disclaimer": "إخلاء المسؤولية",
-    "disclaimer_text": "HUNSOCCER مخصص فقط لعرض تحليل الذكاء الاصطناعي. نحن لا نقدم خدمات المراهنات.",
+    "platform_disclaimer_content": "HUNSOCCER مخصص فقط لعرض تحليل الذكاء الاصطناعي ولا يقدم خدمات المراهنات.",
+    "disclaimer_text": "جميع محتويات HUNSOCCER هي نتائج تحليل محاكاة، للبحث في الذكاء الاصطناعي فقط.",
+    "sponsor_disclaimer": "مصادر البيانات عامة. هذه المنصة للعرض التوضيحي لتحليل الذكاء الاصطناعي.",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

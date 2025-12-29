@@ -1,4 +1,4 @@
-// Hindi translations
+// Hindi translations - Complete
 export const hi = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const hi = {
     "start_prediction_btn": "भविष्यवाणी शुरू करें",
     "free_register_btn": "मुफ्त पंजीकरण",
     "no_deposit_free": "जमा नहीं · मुफ्त भागीदारी",
+    "completed_rounds": "पूर्ण राउंड",
+    "total_winners": "कुल विजेता",
+    "total_distributed": "कुल वितरित",
+    "featured_winners": "विशेष विजेता",
+    "featured": "विशेष",
+    "player_win_rate": "खिलाड़ी जीत दर",
+    "ai_win_rate_label": "AI जीत दर",
+    "predictions_count": "भविष्यवाणियां",
+    "prize_won": "जीता पुरस्कार",
+    "virtual_profit": "वर्चुअल लाभ",
+    "history_records_title": "ऐतिहासिक रिकॉर्ड",
+    "round_column": "राउंड",
+    "ai_model_column": "AI मॉडल",
+    "winners_column": "विजेता",
+    "distributed_column": "वितरित",
+    "date_column_prize": "तारीख",
+    "no_winners_round": "इस राउंड में कोई विजेता नहीं",
+    "prize_rules_title": "पुरस्कार नियम",
+    "rule1": "प्रत्येक राउंड 30 दिन का होता है, $1,000,000 के पुरस्कार के साथ",
+    "rule2": "खिलाड़ियों को कम से कम AI जितनी भविष्यवाणी करनी होगी",
+    "rule3": "केवल AI से अधिक दर वाले खिलाड़ी जीत सकते हैं",
+    "rule4": "अगर कोई AI को नहीं हराता, पुरस्कार जमा होता है",
+    "rule5": "वितरण AI दर से अंतर पर आधारित है",
+    "prize_disclaimer": "HUNSOCCER एक भविष्यवाणी प्रतियोगिता और AI डेमो प्लेटफॉर्म है, सट्टेबाजी साइट नहीं।",
     
     // Stats
     "highest_win_rate": "सर्वाधिक जीत दर",
@@ -64,14 +88,147 @@ export const hi = {
     "ai_leaderboard": "AI",
     "player_leaderboard": "खिलाड़ी",
     "all_players": "सभी खिलाड़ी",
+    "player_detail": "खिलाड़ी विवरण",
     "view_all": "सभी देखें",
     "search_player": "खिलाड़ी खोजें...",
+    "scroll_for_more": "और देखने के लिए स्क्रॉल करें...",
+    "no_search_results": "कोई खिलाड़ी नहीं मिला",
+    "no_search_results_hint": "अन्य शब्द आज़माएं",
+    "clear_search": "खोज साफ़ करें",
     "no_data": "कोई डेटा उपलब्ध नहीं",
+    "top_10": "टॉप 10",
+    "rank_11_20": "रैंक 11-20",
+    "highest_win_rate_players": "सर्वाधिक जीत दर वाले खिलाड़ी",
+    "rising_players": "उभरते खिलाड़ी",
+    "no_more_players": "और खिलाड़ी नहीं",
+    "today_win_rate": "आज की जीत दर",
+    "today_prediction_win_rate": "आज की सिफारिश दर",
+    "today_prediction": "आज की पसंद",
+    "today_recommendations": "आज की पसंद",
+    "today_history": "आज का इतिहास",
+    "no_history_today": "आज कोई रिकॉर्ड नहीं",
+    "no_data_today": "कोई डेटा नहीं",
+    "click_to_view_history": "इतिहास देखने के लिए क्लिक करें",
+    "view_history": "इतिहास देखें",
+    "pending": "लंबित",
+    "leaderboard_disclaimer": "नोट: सभी आंकड़े केवल पूर्ण भविष्यवाणियों को दर्शाते हैं। HUNSOCCER केवल AI विश्लेषण प्रदर्शन के लिए है।",
+    "profit_loss": "लाभ/हानि",
+    "player_recommendation_board": "खिलाड़ी सिफारिशें",
+    "profit_amount_label": "लाभ",
+    "bet_amount_label": "वर्चुअल बेट",
+    "followers_count": "फॉलोअर्स",
+    "correct_matches": "सही",
+    "incorrect_matches": "गलत",
+    "estimated_prize": "अनुमानित पुरस्कार",
+    "not_qualified": "अयोग्य",
+    "win_streak": "जीत की लय",
+    "lose_streak": "हार की लय",
+    "win_badge": "ज",
+    "loss_badge": "ह",
+    "people_suffix": "",
+    "matches_suffix": "",
+    "handicap": "हैंडीकैप",
+    "over_under": "ओवर/अंडर",
+    "challenge_ai": "AI को चुनौती",
+    "challenge_ai_reward": "AI चुनौती पुरस्कार",
+    "big_prize_waiting": "बड़ा पुरस्कार इंतज़ार में",
+    "challenge_description": "भविष्यवाणी, सटीकता और अंकों में AI को हराकर पुरस्कार जीतें",
+    "ai_benchmark": "AI बेंचमार्क",
+    "banner_predictions": "भविष्यवाणियां:",
+    "banner_win_rate": "सटीकता:",
+    "banner_profit": "सिम पॉइंट्स:",
+    "banner_my_model": "मेरा विशेष मॉडल",
+    "login_to_view": "अपनी रैंकिंग देखने के लिए लॉगिन करें",
+    "days_unit": " दिन",
+    "people_qualified": "योग्य",
+    "per_capita_prize": "प्रति व्यक्ति पुरस्कार:",
+    "activity_prize_pool": "पुरस्कार पूल:",
+    "total_prize_value": "कुल पुरस्कार मूल्य",
+    "qualified_status": "योग्य",
+    "keep_going": "जारी रखें",
     
     // Model Cards
     "the_contestants": "प्रतिस्पर्धी AI मॉडल",
     "top_players": "खिलाड़ी चैंपियन",
     "view_details": "विवरण देखें",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "रियल-टाइम मैच इंटेलिजेंस",
+    "ai_analysis_disclaimer": "विज़ुअल रिकग्निशन और सांख्यिकीय मॉडल से डेटा, देरी और त्रुटि संभव।",
+    "total_predictions": "कुल भविष्यवाणियां",
+    
+    // AI Chat
+    "ai_assistant": "HUNSOCCER रोबोट",
+    "ai_assistant_subtitle": "5 AI व्यापक विश्लेषण",
+    "chat_welcome": "नमस्ते! मैं एक पेशेवर स्पोर्ट्स बॉट हूं।",
+    "chat_placeholder": "मुझसे कुछ भी पूछें...",
+    "chat_ai_response": "मैं डेटा विश्लेषण और AI भविष्यवाणी तुलना में मदद कर सकता हूं।",
+    "floating_ai_chat": {
+      "welcome": "नमस्ते! मैं HUNSOCCER AI सहायक हूं।",
+      "demo_response": "आपके प्रश्न के लिए धन्यवाद! यह डेमो मोड में चल रहा है।",
+      "open_chat_button": "चैट खोलें",
+      "status_online": "ऑनलाइन सपोर्ट",
+      "input_placeholder": "अपना फुटबॉल प्रश्न टाइप करें...",
+      "faq_title": "FAQ",
+      "faq": {
+        "view_predictions": {
+          "question": "AI भविष्यवाणी कैसे देखें?",
+          "answer": "होमपेज पर प्रत्येक AI मॉडल पेशेवर विश्लेषण प्रदान करता है।"
+        },
+        "view_winrate": {
+          "question": "AI जीत दर कैसे देखें?",
+          "answer": "आंकड़ों के लिए 'दर तुलना' अनुभाग देखें।"
+        },
+        "view_data": {
+          "question": "फुटबॉल डेटा कैसे देखें?",
+          "answer": "HUNSOCCER डेटा प्रदाताओं के साथ साझेदारी करता है। एक्सेस के लिए लॉगिन करें।"
+        },
+        "ai_models": {
+          "question": "AI मॉडल किसमें विशेषज्ञ हैं?",
+          "answer": "प्रत्येक मॉडल की अलग विशेषज्ञता है।"
+        },
+        "contact": {
+          "question": "टीम से कैसे संपर्क करें?",
+          "answer": "Telegram पर संपर्क करें: HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "मार्केट अवलोकन",
+    "banner_title": "शीर्ष AI मॉडल के साथ प्रतिस्पर्धा करें",
+    "banner_subtitle": "अपने कौशल दिखाएं, AI को चुनौती दें, पुरस्कार जीतें",
+    "max_prize": "अधिकतम पुरस्कार",
+    "join_competition": "प्रतियोगिता में शामिल हों",
+    "free_to_join": "मुफ्त में शामिल हों",
+    "no_deposit": "जमा नहीं",
+    "fair_competition": "निष्पक्ष प्रतियोगिता",
+    
+    // Match Detail
+    "match_not_found": "मैच नहीं मिला",
+    "go_back": "वापस जाएं",
+    "owner": "मालिक",
+    "health_status": "स्वास्थ्य स्थिति",
+    "financial_status": "वित्तीय स्थिति",
+    "family_members": "परिवार के सदस्य",
+    "social_status": "सामाजिक स्थिति",
+    "scandals_controversies": "घोटाले और विवाद",
+    "recent_activities": "हाल की गतिविधियां",
+    "exclusive_owner_analysis": "विशेष मालिक विश्लेषण",
+    "years_old": "वर्ष",
+    "years": "वर्ष",
+    "back_to_matches": "मैच पर वापस",
+    "at": "पर",
+    "vs": "बनाम",
+    "draw": "ड्रॉ",
+    "win": "जीत",
+    "confidence": "आत्मविश्वास",
+    "in_progress": "प्रगति में",
+    "days": "दि",
+    "hours": "घं",
+    "minutes": "मि",
+    "half_time": "हाफ टाइम",
+    "venue": "स्थल",
     
     // Auth
     "auth": {
@@ -85,7 +242,10 @@ export const hi = {
       "verification_code": "सत्यापन कोड",
       "send_code": "कोड भेजें",
       "login_success": "लॉगिन सफल",
-      "welcome_back": "वापस आने पर स्वागत है!"
+      "welcome_back": "वापस आने पर स्वागत है!",
+      "login_failed": "लॉगिन विफल",
+      "register_success": "पंजीकरण सफल",
+      "welcome": "स्वागत है!"
     },
     
     // Common
@@ -101,16 +261,26 @@ export const hi = {
     "back": "वापस",
     "loading_data": "लोड हो रहा है...",
     
-    // Match Detail
-    "match_not_found": "मैच नहीं मिला",
-    "go_back": "वापस जाएं",
-    "confidence": "आत्मविश्वास",
-    "draw": "ड्रॉ",
-    "win": "जीत",
+    // My Predictions
+    "my_predictions": "मेरी भविष्यवाणियां",
+    "win_rate_trend": "जीत दर रुझान",
+    "filter": "फ़िल्टर",
+    "edit_profile": "प्रोफ़ाइल संपादित करें",
+    "nickname": "उपनाम",
+    "signature": "हस्ताक्षर",
+    "select_avatar": "अवतार चुनें",
+    "saving": "सहेज रहा है...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "Hunter Coin वॉलेट",
+    "usdt_deposit": "जमा करें",
+    "deposit_amount": "जमा राशि",
+    "wallet_address": "वॉलेट पता",
+    
     "platform_disclaimer": "अस्वीकरण",
-    "disclaimer_text": "HUNSOCCER केवल AI विश्लेषण प्रदर्शन के लिए है। हम सट्टेबाजी सेवाएं प्रदान नहीं करते।",
+    "platform_disclaimer_content": "HUNSOCCER केवल AI विश्लेषण प्रदर्शन के लिए है और सट्टेबाजी सेवाएं प्रदान नहीं करता।",
+    "disclaimer_text": "HUNSOCCER की सभी सामग्री सिम्युलेटेड विश्लेषण परिणाम हैं, केवल AI अनुसंधान के लिए।",
+    "sponsor_disclaimer": "डेटा स्रोत सार्वजनिक हैं। यह प्लेटफॉर्म AI विश्लेषण प्रदर्शन के लिए है।",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

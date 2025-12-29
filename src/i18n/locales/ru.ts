@@ -1,4 +1,4 @@
-// Russian translations
+// Russian translations - Complete
 export const ru = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const ru = {
     "start_prediction_btn": "Начать Прогнозировать",
     "free_register_btn": "Бесплатная Регистрация",
     "no_deposit_free": "Без депозита · Бесплатное участие",
+    "completed_rounds": "Завершённые Раунды",
+    "total_winners": "Всего Победителей",
+    "total_distributed": "Всего Распределено",
+    "featured_winners": "Избранные Победители",
+    "featured": "Избранный",
+    "player_win_rate": "Процент Побед Игрока",
+    "ai_win_rate_label": "Процент Побед ИИ",
+    "predictions_count": "Прогнозы",
+    "prize_won": "Выигранный Приз",
+    "virtual_profit": "Виртуальная Прибыль",
+    "history_records_title": "Исторические Записи",
+    "round_column": "Раунд",
+    "ai_model_column": "Модель ИИ",
+    "winners_column": "Победители",
+    "distributed_column": "Распределено",
+    "date_column_prize": "Дата",
+    "no_winners_round": "Нет победителей в этом раунде",
+    "prize_rules_title": "Правила Приза",
+    "rule1": "Каждый раунд длится 30 дней, с призом $1,000,000",
+    "rule2": "Игроки должны сделать минимум столько же прогнозов, сколько ИИ",
+    "rule3": "Только игроки с процентом выше ИИ могут выиграть",
+    "rule4": "Если никто не превзошёл ИИ, приз накапливается",
+    "rule5": "Распределение основано на разнице с процентом ИИ",
+    "prize_disclaimer": "HUNSOCCER - платформа соревнований по прогнозам и демонстрации ИИ, не сайт ставок.",
     
     // Stats
     "highest_win_rate": "ЛУЧШИЙ ПРОЦЕНТ ПОБЕД",
@@ -64,14 +88,147 @@ export const ru = {
     "ai_leaderboard": "ИИ",
     "player_leaderboard": "Игроки",
     "all_players": "Все Игроки",
+    "player_detail": "Детали Игрока",
     "view_all": "Смотреть Все",
     "search_player": "Поиск игрока...",
+    "scroll_for_more": "Прокрутите для большего...",
+    "no_search_results": "Игроки не найдены",
+    "no_search_results_hint": "Попробуйте другие слова",
+    "clear_search": "Очистить поиск",
     "no_data": "Нет данных",
+    "top_10": "Топ 10",
+    "rank_11_20": "Ранг 11-20",
+    "highest_win_rate_players": "Игроки с Лучшим Процентом",
+    "rising_players": "Растущие Игроки",
+    "no_more_players": "Больше нет игроков",
+    "today_win_rate": "Процент Сегодня",
+    "today_prediction_win_rate": "Процент Рекомендаций Сегодня",
+    "today_prediction": "Выбор Сегодня",
+    "today_recommendations": "Выбор Сегодня",
+    "today_history": "История Сегодня",
+    "no_history_today": "Нет записей сегодня",
+    "no_data_today": "Нет данных",
+    "click_to_view_history": "Нажмите для просмотра истории",
+    "view_history": "Посмотреть Историю",
+    "pending": "Ожидание",
+    "leaderboard_disclaimer": "Примечание: Вся статистика отражает только завершённые прогнозы. HUNSOCCER только для демонстрации анализа ИИ.",
+    "profit_loss": "П/У",
+    "player_recommendation_board": "Рекомендации Игроков",
+    "profit_amount_label": "Прибыль",
+    "bet_amount_label": "Виртуальная Ставка",
+    "followers_count": "Подписчики",
+    "correct_matches": "Верные",
+    "incorrect_matches": "Неверные",
+    "estimated_prize": "Ожидаемый Приз",
+    "not_qualified": "Не Квалифицирован",
+    "win_streak": "Серия Побед",
+    "lose_streak": "Серия Поражений",
+    "win_badge": "В",
+    "loss_badge": "П",
+    "people_suffix": "",
+    "matches_suffix": "",
+    "handicap": "Гандикап",
+    "over_under": "Больше/Меньше",
+    "challenge_ai": "Бросить Вызов ИИ",
+    "challenge_ai_reward": "Награда за Вызов ИИ",
+    "big_prize_waiting": "Большой Приз Ждёт",
+    "challenge_description": "Превзойдите ИИ в прогнозах, точности и очках для выигрыша призов",
+    "ai_benchmark": "Бенчмарк ИИ",
+    "banner_predictions": "Прогнозы:",
+    "banner_win_rate": "Точность:",
+    "banner_profit": "Сим Очки:",
+    "banner_my_model": "Моя Эксклюзивная Модель",
+    "login_to_view": "Войдите чтобы увидеть ваш рейтинг",
+    "days_unit": " дней",
+    "people_qualified": "квалифицированы",
+    "per_capita_prize": "Приз на Человека:",
+    "activity_prize_pool": "Призовой Фонд:",
+    "total_prize_value": "Общая Стоимость Приза",
+    "qualified_status": "Квалифицирован",
+    "keep_going": "Продолжайте",
     
     // Model Cards
     "the_contestants": "Соревнующиеся ИИ Модели",
     "top_players": "Чемпионы Игроков",
     "view_details": "ПОДРОБНЕЕ",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "Интеллект Матчей в Реальном Времени",
+    "ai_analysis_disclaimer": "Данные из визуального распознавания и статистических моделей, возможны задержки и ошибки.",
+    "total_predictions": "Всего Прогнозов",
+    
+    // AI Chat
+    "ai_assistant": "РОБОТ HUNSOCCER",
+    "ai_assistant_subtitle": "5 ИИ Комплексный Анализ",
+    "chat_welcome": "Привет! Я профессиональный спортивный бот.",
+    "chat_placeholder": "Спросите меня о чём угодно...",
+    "chat_ai_response": "Я могу помочь с анализом данных и сравнением прогнозов ИИ.",
+    "floating_ai_chat": {
+      "welcome": "Привет! Я ИИ ассистент HUNSOCCER.",
+      "demo_response": "Спасибо за вопрос! Это демо режим.",
+      "open_chat_button": "Открыть чат",
+      "status_online": "Поддержка онлайн",
+      "input_placeholder": "Введите ваш футбольный вопрос...",
+      "faq_title": "ЧаВо",
+      "faq": {
+        "view_predictions": {
+          "question": "Как посмотреть прогнозы ИИ?",
+          "answer": "На главной странице каждая модель ИИ предоставляет профессиональный анализ."
+        },
+        "view_winrate": {
+          "question": "Как посмотреть проценты побед ИИ?",
+          "answer": "Посетите раздел 'Сравнение Процентов' для статистики."
+        },
+        "view_data": {
+          "question": "Как посмотреть футбольные данные?",
+          "answer": "HUNSOCCER сотрудничает с провайдерами данных. Войдите для доступа."
+        },
+        "ai_models": {
+          "question": "На чём специализируются модели ИИ?",
+          "answer": "Каждая модель имеет свою специализацию."
+        },
+        "contact": {
+          "question": "Как связаться с командой?",
+          "answer": "Свяжитесь с нами через Telegram: HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "ОБЗОР РЫНКА",
+    "banner_title": "Соревнуйтесь с Лучшими Моделями ИИ",
+    "banner_subtitle": "Покажите свои навыки, бросьте вызов ИИ, выиграйте призы",
+    "max_prize": "МАКСИМАЛЬНЫЙ ПРИЗ",
+    "join_competition": "Присоединиться к Соревнованию",
+    "free_to_join": "Бесплатное Участие",
+    "no_deposit": "Без Депозита",
+    "fair_competition": "Честное Соревнование",
+    
+    // Match Detail
+    "match_not_found": "Матч не найден",
+    "go_back": "Назад",
+    "owner": "Владелец",
+    "health_status": "Состояние Здоровья",
+    "financial_status": "Финансовый Статус",
+    "family_members": "Члены Семьи",
+    "social_status": "Социальный Статус",
+    "scandals_controversies": "Скандалы и Споры",
+    "recent_activities": "Последние Действия",
+    "exclusive_owner_analysis": "Эксклюзивный Анализ Владельца",
+    "years_old": "лет",
+    "years": "лет",
+    "back_to_matches": "Назад к Матчам",
+    "at": "в",
+    "vs": "vs",
+    "draw": "Ничья",
+    "win": "Победа",
+    "confidence": "Уверенность",
+    "in_progress": "В Процессе",
+    "days": "д",
+    "hours": "ч",
+    "minutes": "м",
+    "half_time": "Перерыв",
+    "venue": "Стадион",
     
     // Auth
     "auth": {
@@ -85,7 +242,10 @@ export const ru = {
       "verification_code": "Код Подтверждения",
       "send_code": "Отправить Код",
       "login_success": "Успешный Вход",
-      "welcome_back": "С возвращением!"
+      "welcome_back": "С возвращением!",
+      "login_failed": "Ошибка Входа",
+      "register_success": "Успешная Регистрация",
+      "welcome": "Добро пожаловать!"
     },
     
     // Common
@@ -101,16 +261,26 @@ export const ru = {
     "back": "Назад",
     "loading_data": "Загрузка...",
     
-    // Match Detail
-    "match_not_found": "Матч не найден",
-    "go_back": "Назад",
-    "confidence": "Уверенность",
-    "draw": "Ничья",
-    "win": "Победа",
+    // My Predictions
+    "my_predictions": "Мои Прогнозы",
+    "win_rate_trend": "Тренд Процента Побед",
+    "filter": "Фильтр",
+    "edit_profile": "Редактировать Профиль",
+    "nickname": "Никнейм",
+    "signature": "Подпись",
+    "select_avatar": "Выбрать Аватар",
+    "saving": "Сохранение...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "Кошелёк Hunter Coin",
+    "usdt_deposit": "Депозит",
+    "deposit_amount": "Сумма Депозита",
+    "wallet_address": "Адрес Кошелька",
+    
     "platform_disclaimer": "Отказ от Ответственности",
-    "disclaimer_text": "HUNSOCCER предназначен только для демонстрации анализа ИИ. Мы не предоставляем услуги ставок.",
+    "platform_disclaimer_content": "HUNSOCCER предназначен только для демонстрации анализа ИИ и не предоставляет услуги ставок.",
+    "disclaimer_text": "Весь контент HUNSOCCER - это симулированные результаты анализа, только для исследований ИИ.",
+    "sponsor_disclaimer": "Источники данных публичные. Эта платформа для демонстрации анализа ИИ.",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
