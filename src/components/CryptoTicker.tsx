@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
@@ -132,24 +132,40 @@ const CryptoTicker = () => {
           />
         </div>
 
-        {/* App Download QR Codes - Top Right */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 flex items-center gap-4 sm:gap-5">
-          <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
-            <img 
-              src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://apps.apple.com/app/hunsoccer&bgcolor=ffffff&color=000000" 
-              alt="iOS Download" 
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(59,130,246,0.5)]"
-            />
-            <span className="text-[10px] sm:text-xs font-mono-data font-medium tracking-wider text-muted-foreground uppercase">iOS</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
-            <img 
-              src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=https://play.google.com/store/apps/hunsoccer&bgcolor=ffffff&color=000000" 
-              alt="Android Download" 
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-white p-0.5 transition-all duration-300 group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8),0_0_40px_rgba(34,197,94,0.5)]"
-            />
-            <span className="text-[10px] sm:text-xs font-mono-data font-medium tracking-wider text-muted-foreground uppercase">Android</span>
-          </div>
+        {/* App Download Buttons - Top Right */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 flex items-center gap-2 sm:gap-3">
+          {/* Google Play Button */}
+          <a 
+            href="https://play.google.com/store/apps/hunsoccer" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-black rounded-md border border-white/20 hover:bg-zinc-900 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
+              <path fill="#EA4335" d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z"/>
+              <path fill="#FBBC04" d="M16.247 15.055L13.792 12l2.455-3.055 2.78 1.6a1 1 0 0 1 0 1.71l-2.78 1.8z"/>
+              <path fill="#4285F4" d="M3.609 1.814L14.31 8.5 16.247 5.945l-9.866-5.69a1 1 0 0 0-2.772 1.559z"/>
+              <path fill="#34A853" d="M14.31 15.5L3.609 22.186a1 1 0 0 0 2.772 1.559l9.866-5.69-2.037-2.555z"/>
+            </svg>
+            <div className="hidden sm:flex flex-col">
+              <span className="text-[7px] text-white/70 leading-tight uppercase tracking-wide">GET IT ON</span>
+              <span className="text-[10px] font-medium text-white leading-tight">Google Play</span>
+            </div>
+          </a>
+
+          {/* App Store Button */}
+          <a 
+            href="https://apps.apple.com/app/hunsoccer" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-black rounded-md border border-white/20 hover:bg-zinc-900 transition-colors"
+          >
+            <Apple className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <div className="hidden sm:flex flex-col">
+              <span className="text-[7px] text-white/70 leading-tight">Available on the</span>
+              <span className="text-[10px] font-medium text-white leading-tight">App Store</span>
+            </div>
+          </a>
         </div>
 
         {/* Content */}
