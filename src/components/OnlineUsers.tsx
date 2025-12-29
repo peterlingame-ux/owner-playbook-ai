@@ -1,37 +1,28 @@
 import { useEffect, useState } from "react";
-import { Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 const OnlineUsers = () => {
-  const { t } = useTranslation();
   const [onlineCount, setOnlineCount] = useState(2500);
+  const [prevCount, setPrevCount] = useState(2500);
 
   useEffect(() => {
-    // 更真实的数据波动模拟：基于当前值进行渐进式变化
     const baseMin = 2000;
     const baseMax = 4500;
-    let currentCount = 2500; // 初始值
+    let currentCount = 2500;
 
     const updateOnlineCount = () => {
-      // 每次变化幅度：-50 到 +50 之间
       const changeAmount = Math.floor(Math.random() * 101) - 50;
       const newCount = currentCount + changeAmount;
-      
-      // 确保在合理范围内，但不严格限制在边界
       const targetCount = Math.max(baseMin * 0.8, Math.min(baseMax * 1.1, newCount));
-      
-      // 平滑过渡：实际更新时使用目标值，但保持连续性
       currentCount = targetCount;
+      setPrevCount(onlineCount);
       setOnlineCount(Math.floor(targetCount));
     };
 
-    // Initial update
     updateOnlineCount();
 
-    // 每 3-7 秒随机更新一次，模拟真实用户上下线
     const scheduleNextUpdate = () => {
-      const delay = 3000 + Math.random() * 4000; // 3-7秒随机间隔
+      const delay = 3000 + Math.random() * 4000;
       setTimeout(() => {
         updateOnlineCount();
         scheduleNextUpdate();
@@ -40,27 +31,57 @@ const OnlineUsers = () => {
 
     scheduleNextUpdate();
 
-    // 清理函数（虽然这里使用的是setTimeout，但保留cleanup pattern）
-    return () => {
-      // setTimeout 会在组件卸载时自动清理
-    };
+    return () => {};
   }, []);
 
+  const formatNumber = (num: number) => {
+    return num.toLocaleString();
+  };
+
   return (
-    <Badge 
-      variant="outline" 
-      className="bg-success/10 text-success border-success/30 px-1.5 sm:px-3 py-1 sm:py-1.5 gap-1 sm:gap-2 flex items-center min-w-0 flex-shrink-0"
-    >
-      <div className="relative w-2 h-2 flex-shrink-0 mr-0.5">
-        <div className="absolute top-0 left-0 w-2 h-2 rounded-full bg-green-500 animate-pulse" style={{
-          boxShadow: '0 0 8px rgba(34, 197, 94, 0.8)'
-        }} />
-        <div className="absolute top-0 left-0 w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75" />
+    <div className="relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-950/80 to-emerald-900/60 border border-emerald-500/30 backdrop-blur-sm">
+      {/* Live Indicator */}
+      <div className="flex items-center gap-1.5">
+        <div className="relative">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-400 animate-ping opacity-50" />
+          <div 
+            className="absolute inset-[-2px] rounded-full bg-emerald-400/30 animate-pulse"
+            style={{ filter: 'blur(3px)' }}
+          />
+        </div>
+        <span className="text-[10px] sm:text-xs font-bold tracking-wider text-emerald-400 uppercase">
+          Live
+        </span>
       </div>
-      <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-      <span className="font-bold font-mono-data text-[10px] sm:text-sm">{onlineCount.toLocaleString()}</span>
-      <span className="text-[9px] sm:text-xs">{t('users_watching')}</span>
-    </Badge>
+
+      {/* Divider */}
+      <div className="w-px h-4 bg-emerald-500/30" />
+
+      {/* Count Display */}
+      <div className="flex items-center gap-1.5">
+        <motion.span 
+          key={onlineCount}
+          initial={{ opacity: 0, y: onlineCount > prevCount ? -8 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="font-mono font-bold text-sm sm:text-base text-white tracking-tight"
+        >
+          {formatNumber(onlineCount)}
+        </motion.span>
+        <span className="text-[10px] sm:text-xs text-emerald-300/80 font-medium">
+          online
+        </span>
+      </div>
+
+      {/* Glow Effect */}
+      <div 
+        className="absolute inset-0 rounded-full opacity-30 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+        }}
+      />
+    </div>
   );
 };
 
