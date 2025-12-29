@@ -272,23 +272,15 @@ const ModelCard = ({ model }: ModelCardProps) => {
         <Button
           variant={isFollowing ? "default" : "outline"}
           size="sm"
-          className={`w-full h-10 text-sm font-medium transition-all duration-300 rounded-xl ${
+          className={`w-full h-10 text-sm font-semibold transition-all duration-300 rounded-xl ${
             isFollowing 
-              ? 'bg-white/10 hover:bg-white/20 text-foreground border border-white/20' 
-              : 'bg-transparent border-white/20 text-foreground hover:bg-white/10 hover:border-white/30'
+              ? 'bg-gradient-to-r from-success/80 to-emerald-500/80 hover:from-success hover:to-emerald-500 text-white border-0 shadow-lg shadow-success/25' 
+              : `bg-gradient-to-r ${theme.progress} hover:opacity-90 text-white border-0 shadow-lg shadow-primary/20`
           }`}
           onClick={handleFollowToggle}
           disabled={followLoading}
         >
-          {isFollowing ? (
-            <>
-              {t('following')}
-            </>
-          ) : (
-            <>
-              {t('follow_model')}
-            </>
-          )}
+          {isFollowing ? t('following') : t('follow_model')}
         </Button>
       </div>
     </TiltCard>
