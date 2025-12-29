@@ -713,6 +713,21 @@ export const es = {
     "player_technical_breakdown": "Desglose Técnico del Jugador",
     "odds_anomaly_monitoring": "Monitoreo de Anomalías en Cuotas",
     
+    // Mensajes Directos
+    "send_message": "Mensaje",
+    "no_messages_yet": "Sin mensajes aún",
+    "start_conversation": "Envía el primer mensaje para iniciar una conversación",
+    "type_message": "Escribe un mensaje...",
+    "mutual_follow_required": "Se requiere seguimiento mutuo para enviar mensajes",
+    "mutual_follow_to_message": "Necesitan seguirse mutuamente para enviar mensajes",
+    "send_message_failed": "Error al enviar mensaje",
+    "mutual_follow": "Mutuo",
+    "following_label": "Siguiendo",
+    "followers_label": "Seguidores",
+    "no_bio": "Sin bio",
+    "not_following_anyone": "Aún no sigues a nadie",
+    "no_followers_yet": "Aún sin seguidores",
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

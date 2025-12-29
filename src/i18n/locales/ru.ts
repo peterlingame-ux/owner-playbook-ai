@@ -291,6 +291,21 @@ export const ru = {
     "select_avatar": "Выбрать Аватар",
     "saving": "Сохранение...",
     
+    // Личные сообщения
+    "send_message": "Сообщение",
+    "no_messages_yet": "Пока нет сообщений",
+    "start_conversation": "Отправьте первое сообщение, чтобы начать разговор",
+    "type_message": "Введите сообщение...",
+    "mutual_follow_required": "Для отправки сообщений требуется взаимная подписка",
+    "mutual_follow_to_message": "Вам нужно подписаться друг на друга, чтобы отправлять сообщения",
+    "send_message_failed": "Не удалось отправить сообщение",
+    "mutual_follow": "Взаимно",
+    "following_label": "Подписки",
+    "followers_label": "Подписчики",
+    "no_bio": "Нет описания",
+    "not_following_anyone": "Пока ни на кого не подписаны",
+    "no_followers_yet": "Пока нет подписчиков",
+    
     // Wallet
     "hunter_coin_wallet": "Кошелёк Hunter Coin",
     "usdt_deposit": "Депозит",

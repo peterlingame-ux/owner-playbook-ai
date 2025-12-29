@@ -291,6 +291,21 @@ export const ar = {
     "select_avatar": "اختر الصورة الرمزية",
     "saving": "جاري الحفظ...",
     
+    // الرسائل المباشرة
+    "send_message": "رسالة",
+    "no_messages_yet": "لا توجد رسائل بعد",
+    "start_conversation": "أرسل الرسالة الأولى لبدء محادثة",
+    "type_message": "اكتب رسالة...",
+    "mutual_follow_required": "يجب المتابعة المتبادلة لإرسال الرسائل",
+    "mutual_follow_to_message": "تحتاج إلى متابعة بعضكما البعض لإرسال الرسائل",
+    "send_message_failed": "فشل إرسال الرسالة",
+    "mutual_follow": "متابعة متبادلة",
+    "following_label": "المتابَعون",
+    "followers_label": "المتابِعون",
+    "no_bio": "لا توجد نبذة",
+    "not_following_anyone": "لا تتابع أحداً بعد",
+    "no_followers_yet": "لا يوجد متابعون بعد",
+    
     // Wallet
     "hunter_coin_wallet": "محفظة Hunter Coin",
     "usdt_deposit": "إيداع",

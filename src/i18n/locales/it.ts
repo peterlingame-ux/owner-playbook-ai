@@ -282,6 +282,16 @@ export const it = {
     "no_followers_yet": "Ancora nessun follower",
     "to_next_level": "al prossimo livello",
     "max_level": "MAX",
+    
+    // Messaggi Diretti
+    "send_message": "Messaggio",
+    "no_messages_yet": "Nessun messaggio ancora",
+    "start_conversation": "Invia il primo messaggio per iniziare una conversazione",
+    "type_message": "Scrivi un messaggio...",
+    "mutual_follow_required": "È necessario seguirsi a vicenda per inviare messaggi",
+    "mutual_follow_to_message": "Dovete seguirvi a vicenda per inviare messaggi",
+    "send_message_failed": "Invio messaggio fallito",
+    "mutual_follow": "Reciproco",
     "wallets": "Portafogli",
     "virtual_balance": "Saldo Virtuale",
     "view_arrow": "Visualizza →",

@@ -291,6 +291,21 @@ export const hi = {
     "select_avatar": "अवतार चुनें",
     "saving": "सहेज रहा है...",
     
+    // सीधे संदेश
+    "send_message": "संदेश",
+    "no_messages_yet": "अभी तक कोई संदेश नहीं",
+    "start_conversation": "बातचीत शुरू करने के लिए पहला संदेश भेजें",
+    "type_message": "संदेश लिखें...",
+    "mutual_follow_required": "संदेश भेजने के लिए एक-दूसरे को फॉलो करना आवश्यक है",
+    "mutual_follow_to_message": "संदेश भेजने के लिए आपको एक-दूसरे को फॉलो करना होगा",
+    "send_message_failed": "संदेश भेजने में विफल",
+    "mutual_follow": "परस्पर",
+    "following_label": "फॉलोइंग",
+    "followers_label": "फॉलोअर्स",
+    "no_bio": "कोई बायो नहीं",
+    "not_following_anyone": "अभी तक किसी को फॉलो नहीं किया",
+    "no_followers_yet": "अभी तक कोई फॉलोअर नहीं",
+    
     // Wallet
     "hunter_coin_wallet": "Hunter Coin वॉलेट",
     "usdt_deposit": "जमा करें",

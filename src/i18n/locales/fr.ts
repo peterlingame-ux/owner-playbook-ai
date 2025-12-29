@@ -472,6 +472,21 @@ export const fr = {
     "deposit_amount": "Montant du Dépôt",
     "wallet_address": "Adresse du Portefeuille",
     
+    // Messages Directs
+    "send_message": "Message",
+    "no_messages_yet": "Pas encore de messages",
+    "start_conversation": "Envoyez le premier message pour démarrer une conversation",
+    "type_message": "Tapez un message...",
+    "mutual_follow_required": "Suivi mutuel requis pour envoyer des messages",
+    "mutual_follow_to_message": "Vous devez vous suivre mutuellement pour envoyer des messages",
+    "send_message_failed": "Échec de l'envoi du message",
+    "mutual_follow": "Mutuel",
+    "following_label": "Abonnements",
+    "followers_label": "Abonnés",
+    "no_bio": "Pas de bio",
+    "not_following_anyone": "Ne suit encore personne",
+    "no_followers_yet": "Pas encore d'abonnés",
+    
     "platform_disclaimer": "Avis Légal",
     "platform_disclaimer_content": "HUNSOCCER est uniquement pour la démonstration d'analyse IA et ne fournit pas de services de paris.",
     "disclaimer_text": "Tout le contenu de HUNSOCCER est des résultats d'analyse simulés, uniquement pour la recherche IA.",

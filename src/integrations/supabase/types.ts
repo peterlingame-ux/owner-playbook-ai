@@ -123,6 +123,48 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       model_follows: {
         Row: {
           created_at: string
@@ -425,6 +467,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      are_mutually_following: {
+        Args: { user_a: string; user_b: string }
+        Returns: boolean
+      }
       confirm_deposit: { Args: { p_deposit_id: string }; Returns: Json }
       generate_invitation_code: { Args: never; Returns: string }
       generate_random_username: { Args: never; Returns: string }

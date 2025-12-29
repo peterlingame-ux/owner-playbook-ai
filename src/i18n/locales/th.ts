@@ -291,6 +291,21 @@ export const th = {
     "select_avatar": "เลือกอวาตาร์",
     "saving": "กำลังบันทึก...",
     
+    // ข้อความส่วนตัว
+    "send_message": "ข้อความ",
+    "no_messages_yet": "ยังไม่มีข้อความ",
+    "start_conversation": "ส่งข้อความแรกเพื่อเริ่มการสนทนา",
+    "type_message": "พิมพ์ข้อความ...",
+    "mutual_follow_required": "ต้องติดตามกันเพื่อส่งข้อความ",
+    "mutual_follow_to_message": "คุณต้องติดตามกันเพื่อส่งข้อความ",
+    "send_message_failed": "ส่งข้อความไม่สำเร็จ",
+    "mutual_follow": "ติดตามกัน",
+    "following_label": "กำลังติดตาม",
+    "followers_label": "ผู้ติดตาม",
+    "no_bio": "ไม่มีประวัติ",
+    "not_following_anyone": "ยังไม่ได้ติดตามใคร",
+    "no_followers_yet": "ยังไม่มีผู้ติดตาม",
+    
     // Wallet
     "hunter_coin_wallet": "กระเป๋า Hunter Coin",
     "usdt_deposit": "ฝาก",
