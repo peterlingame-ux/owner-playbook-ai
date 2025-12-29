@@ -1249,6 +1249,19 @@ const PlayerLeaderboardTable = () => {
                     }}
                     boardType={boardType}
                     todayWinRate={todayWinRates.get(player.id)?.winRate}
+                    isLiked={likedPlayers.has(player.id)}
+                    likeCount={likeCounts.get(player.id) || Math.floor(player.winRate * 1.5 + player.totalPredictions * 0.3)}
+                    isLiking={isLiking.has(player.id)}
+                    onLike={(e) => handleLike(player.id, e)}
+                    onShowFollowers={(e, p, count) => {
+                      e.stopPropagation();
+                      const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                      setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                      setIsPlayerFollowersDialogOpen(true);
+                    }}
+                    calculateEstimatedPrize={calculateEstimatedPrize}
+                    totalEligiblePlayers={allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}
+                    aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
                   />
                 ))}
                 
