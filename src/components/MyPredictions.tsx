@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Trophy, Target, Wallet, Edit2, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, Filter, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Plus, CreditCard, Receipt, Crown, Sparkles, UserPlus, Heart, Star, Copy, ChevronDown, Play, Clock, Zap, Award, CircleDollarSign } from "lucide-react";
+import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Star, Copy, Zap, Award } from "lucide-react";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
