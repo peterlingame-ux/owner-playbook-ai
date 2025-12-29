@@ -2360,7 +2360,7 @@ const PlayerLeaderboardTable = () => {
           {/* Table Header */}
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
             <span>排名</span>
-            <span>模拟积分 | 参与规模</span>
+            <span>模拟余额 | 参与规模</span>
           </div>
           
           {/* Followers List */}
