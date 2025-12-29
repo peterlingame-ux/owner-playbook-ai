@@ -275,7 +275,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
           className={`w-full h-10 text-sm font-semibold transition-all duration-300 rounded-xl ${
             isFollowing 
               ? 'bg-gradient-to-r from-success/80 to-emerald-500/80 hover:from-success hover:to-emerald-500 text-white border-0 shadow-lg shadow-success/25' 
-              : `bg-gradient-to-r ${theme.progress} hover:opacity-90 text-white border-0 shadow-lg shadow-primary/20`
+              : 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground border-0 shadow-lg shadow-primary/20'
           }`}
           onClick={handleFollowToggle}
           disabled={followLoading}
