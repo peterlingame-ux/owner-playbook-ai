@@ -18,7 +18,7 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
-import hunterCoinIcon from "@/assets/hunter-coin.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 // Star Background Images
 import starMessi from "@/assets/star-messi.jpg";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
