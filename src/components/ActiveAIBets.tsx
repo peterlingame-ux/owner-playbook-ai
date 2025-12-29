@@ -997,8 +997,8 @@ const ActiveAIBets = () => {
               onClick={nextMatch}
               maxTilt={8}
               scale={1.02}
-              glare={true}
-              maxGlare={0.2}
+              glare={false}
+              maxGlare={0}
             >
               {/* Animated Background Pattern */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
@@ -1019,15 +1019,6 @@ const ActiveAIBets = () => {
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                 />
               </div>
-
-              {/* Sparkle Effect on Hover */}
-              <motion.div
-                className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                animate={{ rotate: [0, 180, 360] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className={`h-4 w-4 ${gradient.accent}`} />
-              </motion.div>
 
               {/* Match Counter - Top Right */}
               {matchEntries.length > 1 && (
