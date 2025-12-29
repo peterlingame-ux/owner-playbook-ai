@@ -156,120 +156,307 @@ const Index = () => {
       </Dialog>
       
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
-        {/* Official Promotional Video Section */}
-        <section className="mb-6 sm:mb-10 lg:mb-14">
-          <div className="text-center mb-3 sm:mb-4 lg:mb-5">
-            <h2 className="text-sm sm:text-base lg:text-xl font-semibold text-foreground tracking-wide">
-              {t('ai_analysis_title')}
+        {/* AI Match Intelligence Section - Modern Western Style */}
+        <section className="mb-8 sm:mb-12 lg:mb-16">
+          {/* Header with gradient accent */}
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center gap-2 mb-3">
+              <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/60" />
+              <span className="text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase text-primary/80">
+                Live Analysis
+              </span>
+              <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/60" />
+            </div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight">
+              Match Intelligence
             </h2>
+            <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+              Real-time AI-powered tactical analysis and performance metrics
+            </p>
           </div>
-          <div className="flex items-center justify-center gap-3 sm:gap-4 lg:gap-6">
-            {/* Left Stats Panel */}
-            <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('realtime_monitoring')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('player_tracking')}: {liveStats.trackedPlayers}</h4>
-                <p className="text-xs text-muted-foreground">{t('tracked_players')}</p>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-6xl mx-auto">
+            
+            {/* Left Stats - Desktop */}
+            <div className="hidden lg:flex lg:col-span-3 flex-col gap-3">
+              <div className="group bg-card hover:bg-card/90 border border-border hover:border-primary/30 rounded-xl p-4 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tracking</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Players Tracked</span>
+                    <span className="text-lg font-semibold text-foreground tabular-nums">{liveStats.trackedPlayers}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full" style={{ width: '100%' }} />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/70">Status: Active</p>
+                </div>
               </div>
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('ai_recognition')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('formation_analysis')}: {liveStats.homeFormation}</h4>
-                <p className="text-xs text-muted-foreground">{t('opponent_formation')}: {liveStats.awayFormation}</p>
-                <p className="text-[10px] text-muted-foreground/70">{t('formation_confidence')}: 92%</p>
+
+              <div className="group bg-card hover:bg-card/90 border border-border hover:border-primary/30 rounded-xl p-4 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 3h18v18H3z"/>
+                      <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Formation</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Home</span>
+                    <span className="text-sm font-mono font-semibold text-foreground">{liveStats.homeFormation}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Away</span>
+                    <span className="text-sm font-mono font-semibold text-foreground">{liveStats.awayFormation}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] text-emerald-500">92% confidence</span>
+                  </div>
+                </div>
               </div>
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('running_stats')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('total_distance')}: {liveStats.totalDistance} {t('km_distance')}</h4>
-                <p className="text-xs text-muted-foreground">{t('sprint_tracking')}: 8.2 km</p>
+
+              <div className="group bg-card hover:bg-card/90 border border-border hover:border-primary/30 rounded-xl p-4 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Distance</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Total</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg font-semibold text-foreground tabular-nums">{liveStats.totalDistance}</span>
+                      <span className="text-xs text-muted-foreground">km</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">High Intensity</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-medium text-orange-500 tabular-nums">8.2</span>
+                      <span className="text-xs text-muted-foreground">km</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Video */}
-            <div className="relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
-              <video
-                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                src="/videos/hunsoccer-promo.mp4?v=2"
-                playsInline
-                autoPlay
-                loop
-                muted
-              >
-                Your browser does not support video playback
-              </video>
-              {/* Legend overlay */}
-              <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded-md px-2 py-1 flex items-center gap-3 text-[10px]">
-                <div className="flex items-center gap-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <span className="text-white/80">{t('legend_home')}</span>
+            {/* Center Video */}
+            <div className="lg:col-span-6">
+              <div className="relative aspect-video rounded-2xl overflow-hidden bg-card border border-border shadow-xl group">
+                <video
+                  className="absolute inset-0 w-full h-full object-cover"
+                  src="/videos/hunsoccer-promo.mp4?v=2"
+                  playsInline
+                  autoPlay
+                  loop
+                  muted
+                >
+                  Your browser does not support video playback
+                </video>
+                
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                
+                {/* Live indicator */}
+                <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-xs font-medium text-white tracking-wide">LIVE</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
-                  <span className="text-white/80">{t('legend_away')}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-0.5 bg-yellow-400" />
-                  <span className="text-white/80">{t('legend_pass')}</span>
+                
+                {/* Legend - Bottom */}
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                  <div className="flex items-center gap-4 bg-black/60 backdrop-blur-md rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                      <span className="text-xs text-white/90">Home</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                      <span className="text-xs text-white/90">Away</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-0.5 bg-amber-400 rounded-full" />
+                      <span className="text-xs text-white/90">Pass Lines</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Stats Panel */}
-            <div className="hidden md:flex flex-col gap-2 w-40 lg:w-48">
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('possession_analysis')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('ball_possession')}: {liveStats.possession}%</h4>
-                <p className="text-xs text-muted-foreground">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
+            {/* Right Stats - Desktop */}
+            <div className="hidden lg:flex lg:col-span-3 flex-col gap-3">
+              <div className="group bg-card hover:bg-card/90 border border-border hover:border-primary/30 rounded-xl p-4 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Possession</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Ball Control</span>
+                    <span className="text-lg font-semibold text-foreground tabular-nums">{liveStats.possession}%</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500" style={{ width: `${liveStats.possession}%` }} />
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Pass Accuracy</span>
+                    <span className="text-sm font-medium text-blue-500 tabular-nums">{liveStats.passAccuracy}%</span>
+                  </div>
+                </div>
               </div>
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('ai_prediction_label')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('goal_probability')}: {liveStats.goalProbability}%</h4>
-                <p className="text-xs text-muted-foreground">{t('danger_zone')}: {liveStats.dangerZone} {t('danger_entries')}</p>
+
+              <div className="group bg-card hover:bg-card/90 border border-border hover:border-primary/30 rounded-xl p-4 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">xG Analysis</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Goal Probability</span>
+                    <span className="text-lg font-semibold text-foreground tabular-nums">{liveStats.goalProbability}%</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Danger Entries</span>
+                    <span className="text-sm font-medium text-red-500 tabular-nums">{liveStats.dangerZone}</span>
+                  </div>
+                </div>
               </div>
-              <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-2.5 lg:p-3">
-                <span className="text-xs text-muted-foreground">{t('pressure_analysis')}</span>
-                <h4 className="text-xs font-medium text-foreground mb-0.5">{t('pressure_index')}: {liveStats.pressureIndex}</h4>
-                <p className="text-xs text-muted-foreground">{t('counter_attack')}: {liveStats.counterAttack} {t('counter_chances')}</p>
+
+              <div className="group bg-card hover:bg-card/90 border border-border hover:border-primary/30 rounded-xl p-4 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pressure</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Intensity Index</span>
+                    <span className="text-lg font-semibold text-foreground tabular-nums">{liveStats.pressureIndex}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-muted-foreground">Counter Chances</span>
+                    <span className="text-sm font-medium text-violet-500 tabular-nums">{liveStats.counterAttack}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           
-          {/* Mobile Stats Panel - Below Video */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-3 sm:mt-4 md:hidden">
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('realtime_monitoring')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.trackedPlayers}</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('tracked_players')}</p>
+          {/* Mobile Stats Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 lg:hidden">
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">Tracking</span>
+              </div>
+              <div className="text-xl font-bold text-foreground tabular-nums">{liveStats.trackedPlayers}</div>
+              <p className="text-[10px] text-muted-foreground">Players Tracked</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('ai_recognition')}</span>
-              <div className="text-xs sm:text-sm font-bold text-primary">{liveStats.homeFormation}</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">vs {liveStats.awayFormation}</p>
+
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3h18v18H3z"/>
+                    <path d="M9 3v18M15 3v18"/>
+                  </svg>
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">Formation</span>
+              </div>
+              <div className="text-sm font-mono font-bold text-foreground">{liveStats.homeFormation}</div>
+              <p className="text-[10px] text-muted-foreground">vs {liveStats.awayFormation}</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('possession_analysis')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.possession}%</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('pass_accuracy')}: {liveStats.passAccuracy}%</p>
+
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">Possession</span>
+              </div>
+              <div className="text-xl font-bold text-foreground tabular-nums">{liveStats.possession}%</div>
+              <p className="text-[10px] text-muted-foreground">Pass: {liveStats.passAccuracy}%</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('ai_prediction_label')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.goalProbability}%</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('danger_zone')}: {liveStats.dangerZone}</p>
+
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">xG</span>
+              </div>
+              <div className="text-xl font-bold text-foreground tabular-nums">{liveStats.goalProbability}%</div>
+              <p className="text-[10px] text-muted-foreground">Goal Prob.</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('pressure_analysis')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.pressureIndex}</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('counter_attack')}: {liveStats.counterAttack}</p>
+
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">Pressure</span>
+              </div>
+              <div className="text-xl font-bold text-foreground tabular-nums">{liveStats.pressureIndex}</div>
+              <p className="text-[10px] text-muted-foreground">Intensity</p>
             </div>
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 sm:p-2 text-center">
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground block leading-tight">{t('running_stats')}</span>
-              <div className="text-base sm:text-lg font-bold text-primary transition-all duration-300">{liveStats.totalDistance}</div>
-              <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('km_distance')}</p>
+
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                  </svg>
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">Distance</span>
+              </div>
+              <div className="text-xl font-bold text-foreground tabular-nums">{liveStats.totalDistance}</div>
+              <p className="text-[10px] text-muted-foreground">km covered</p>
             </div>
           </div>
           
-          {/* Disclaimer below video */}
-          <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 text-center max-w-2xl mx-auto">
-            {t('ai_analysis_disclaimer')}
+          {/* Disclaimer */}
+          <p className="text-[10px] sm:text-xs text-muted-foreground/70 mt-6 text-center max-w-xl mx-auto leading-relaxed">
+            Data derived from real-time visual recognition and statistical models. Subject to delay and margin of error. For tactical analysis reference only.
           </p>
         </section>
 
