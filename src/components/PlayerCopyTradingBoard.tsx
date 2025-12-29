@@ -13,7 +13,7 @@ import { virtualPlayers } from "@/data/virtualPlayers";
 import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp, Search, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AnimatedAmount } from "@/components/AnimatedAmount";
@@ -1089,7 +1089,7 @@ const PlayerCopyTradingBoard = () => {
               <span className="inline-flex items-center gap-1">
                 {profitAmount >= 0 ? '+' : '-'}
                 {Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
+                <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
               </span>
             </p>
           </div>

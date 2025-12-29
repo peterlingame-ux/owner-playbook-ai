@@ -852,7 +852,7 @@ const LeaderboardTable = () => {
                           <span className="inline-flex items-center gap-1">
                             {profitAmount >= 0 ? '+' : '-'}
                             {Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                            <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
+                            <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
                           </span>
                         )}
                       </p>

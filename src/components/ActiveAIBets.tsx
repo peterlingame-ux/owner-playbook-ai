@@ -1105,7 +1105,7 @@ const ActiveAIBets = () => {
                             {getModelDisplayName(aiModel)}
                           </span>
                           <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
                             {balanceNumber} 猎人币
                           </span>
                         </div>

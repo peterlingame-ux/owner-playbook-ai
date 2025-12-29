@@ -206,7 +206,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
           {/* Points Badge */}
           <div className="flex flex-col items-end gap-1">
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium inline-flex items-center gap-1">
-              <img src={hunterCoinIcon} alt="猎人币" className="h-3.5 w-3.5" loading="lazy" />
+              <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
               {t("hunter_coin", { defaultValue: "猎人币" })}
             </span>
             <div className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums inline-flex items-center gap-1.5 ${
@@ -215,7 +215,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
                 : 'bg-destructive/20 text-destructive border border-destructive/30'
             }`}>
               <span>{model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}</span>
-              <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
+              <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ import DirectMessageDialog from "./DirectMessageDialog";
 import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Copy, Zap, Award, XCircle, Clock, MessageCircle } from "lucide-react";
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
-import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

@@ -16,7 +16,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
 import grassTexture from "@/assets/grass-texture.jpg";
-import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 import bitcoinIcon from "@/assets/bitcoin-icon.png";
 import prizeBannerBg from "@/assets/prize-banner-bg.jpg";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
