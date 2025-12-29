@@ -833,8 +833,13 @@ const LeaderboardTable = () => {
                     {/* Bet Amount */}
                     <div>
                       <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟下注</p>
-                      <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
-                          {model.locked ? '???' : `${((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} 猎人币`}
+                      <p className="text-sm sm:text-base font-bold font-mono-data text-foreground flex items-center gap-1">
+                          {model.locked ? '???' : (
+                            <>
+                              {((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5 inline-block" />
+                            </>
+                          )}
                       </p>
             </div>
                     
