@@ -40,14 +40,30 @@ const BottomNav = () => {
                     }`}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {/* Active background pill */}
+                  {/* Active background pill with dynamic glow */}
                   {isActive && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 bg-white/[0.12] rounded-xl border border-white/[0.15] shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                      initial={false}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
+                    <>
+                      {/* Animated glow layer */}
+                      <motion.div
+                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 blur-md"
+                        animate={{
+                          opacity: [0.4, 0.8, 0.4],
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      />
+                      {/* Main pill */}
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute inset-0 bg-gradient-to-r from-white/[0.15] via-white/[0.08] to-white/[0.15] rounded-xl border border-white/20 shadow-[0_0_25px_rgba(100,200,255,0.3)]"
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    </>
                   )}
                   
                   {/* Icon with glow effect */}
