@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
-import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import PlayerExclusiveModelCard from "@/components/PlayerExclusiveModelCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { PlaceBetDialog } from "./PlaceBetDialog";
 import { toast } from "@/hooks/use-toast";
+import TiltCard from "@/components/TiltCard";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -990,19 +991,43 @@ const ActiveAIBets = () => {
           const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
 
           return (
-            <motion.div 
+            <TiltCard
               key={aiModel.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: activeAIs.indexOf(aiModel) * 0.1 }}
-              className={`group relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-500 overflow-hidden cursor-pointer hover:shadow-lg ${gradient.glow}`}
+              className={`group rounded-2xl p-4 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer`}
               onClick={nextMatch}
+              maxTilt={8}
+              scale={1.02}
+              glare={true}
+              maxGlare={0.2}
             >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full blur-2xl -translate-x-1/2 translate-y-1/2" />
+              {/* Animated Background Pattern */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                <motion.div 
+                  className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"
+                  animate={{ 
+                    x: [20, 40, 20],
+                    y: [-20, -40, -20],
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <motion.div 
+                  className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full blur-2xl"
+                  animate={{ 
+                    x: [-10, -30, -10],
+                    y: [10, 30, 10],
+                  }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                />
               </div>
+
+              {/* Sparkle Effect on Hover */}
+              <motion.div
+                className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                animate={{ rotate: [0, 180, 360] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className={`h-4 w-4 ${gradient.accent}`} />
+              </motion.div>
 
               {/* Match Counter - Top Right */}
               {matchEntries.length > 1 && (
@@ -1311,7 +1336,7 @@ const ActiveAIBets = () => {
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </TiltCard>
           );
         })}
         
