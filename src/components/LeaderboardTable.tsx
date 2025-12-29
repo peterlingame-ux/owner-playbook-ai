@@ -104,26 +104,53 @@ const RankingChangeIndicator = ({ currentRank, modelId }: { currentRank: number;
   
   if (change === 0) {
     return (
-      <span className="flex items-center text-muted-foreground">
+      <motion.span 
+        className="flex items-center text-muted-foreground"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
+      >
         <Minus className="h-3 w-3" />
-      </span>
+      </motion.span>
     );
   }
   
   if (change > 0) {
     return (
-      <span className="flex items-center text-emerald-500 font-medium text-[10px]">
-        <ArrowUp className="h-3 w-3" />
+      <motion.span 
+        className="flex items-center text-emerald-500 font-medium text-[10px]"
+        initial={{ opacity: 0, y: 10, scale: 0.5 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200 }}
+      >
+        <motion.span
+          initial={{ y: 0 }}
+          animate={{ y: [-2, 0, -2, 0] }}
+          transition={{ delay: 0.7, duration: 0.6, ease: "easeInOut" }}
+        >
+          <ArrowUp className="h-3 w-3" />
+        </motion.span>
         <span>{change}</span>
-      </span>
+      </motion.span>
     );
   }
   
   return (
-    <span className="flex items-center text-red-500 font-medium text-[10px]">
-      <ArrowDown className="h-3 w-3" />
+    <motion.span 
+      className="flex items-center text-red-500 font-medium text-[10px]"
+      initial={{ opacity: 0, y: -10, scale: 0.5 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200 }}
+    >
+      <motion.span
+        initial={{ y: 0 }}
+        animate={{ y: [2, 0, 2, 0] }}
+        transition={{ delay: 0.7, duration: 0.6, ease: "easeInOut" }}
+      >
+        <ArrowDown className="h-3 w-3" />
+      </motion.span>
       <span>{Math.abs(change)}</span>
-    </span>
+    </motion.span>
   );
 };
 
