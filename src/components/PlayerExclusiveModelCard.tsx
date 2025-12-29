@@ -592,24 +592,17 @@ const PlayerExclusiveModelCard = ({
               <div className="flex items-center justify-between">
                 {/* Player Avatar & Info */}
                 <div className="flex items-center gap-3">
-                  <div className="relative group/avatar">
-                    {/* Animated gradient ring */}
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 opacity-75 blur-sm animate-pulse" />
-                    <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 animate-[spin_3s_linear_infinite]" />
-                    <Avatar className="relative h-12 w-12 ring-2 ring-card shadow-lg">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
                       <AvatarImage 
                         src={avatarUrl} 
                         alt={displayName} 
                         className="object-cover" 
                       />
-                      <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-400">{displayName[0]}</AvatarFallback>
+                      <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
                     </Avatar>
-                    {/* Crown badge for player */}
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-card">
-                      <Sparkles className="h-2.5 w-2.5 text-white" />
-                    </div>
                     {/* Online Indicator */}
-                    <div className="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
