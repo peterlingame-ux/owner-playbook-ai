@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Star, Copy, Zap, Award, XCircle, Clock } from "lucide-react";
+import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Copy, Zap, Award, XCircle, Clock } from "lucide-react";
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
@@ -656,66 +656,47 @@ const MyPredictions = () => {
                   {userProfile?.signature || 'Prediction Expert'}
                 </p>
                 
-                {/* Level Progress Card */}
+                {/* Level Progress */}
                 {(() => {
                   const progress = user ? getNextLevelProgress() : { current: 45, required: 60, percentage: 75 };
                   const currentLevel = user ? level : 1;
                   const nextLevel = Math.min(50, currentLevel + 1);
-                  const displayMinutes = user ? totalMinutes : 45;
-                  const hours = Math.floor(displayMinutes / 60);
-                  const mins = displayMinutes % 60;
-                  const timeDisplay = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                  const isMax = currentLevel >= 50;
                   
                   return (
-                    <div className="w-full p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/20">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-primary/20">
-                            <Star className="h-4 w-4 text-primary" />
-                          </div>
-                          <span className="text-sm font-medium text-foreground">Level {currentLevel}</span>
-                        </div>
-                        <ShadcnTooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-help">
-                              <Clock className="h-3 w-3" />
-                              <span>{timeDisplay} online</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[200px]">
-                            <p className="text-xs">Level up by staying online. Each level requires 1 hour of activity.</p>
-                          </TooltipContent>
-                        </ShadcnTooltip>
+                    <div className="w-full space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Lv.{currentLevel}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {isMax ? 'MAX' : `Lv.${nextLevel}`}
+                        </span>
                       </div>
                       
-                      {/* Progress Bar */}
-                      <div className="relative">
-                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${progress.percentage}%` }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full"
-                          />
-                        </div>
-                        
-                        {/* Progress Labels */}
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                            {progress.current}m / {progress.required}m
-                          </span>
-                          {currentLevel < 50 && (
-                            <span className="text-[10px] text-primary font-medium">
-                              → Level {nextLevel}
-                            </span>
-                          )}
-                          {currentLevel >= 50 && (
-                            <span className="text-[10px] text-amber-500 font-medium flex items-center gap-1">
-                              <Crown className="h-3 w-3" /> MAX
-                            </span>
-                          )}
-                        </div>
+                      {/* Progress Bar with Shimmer */}
+                      <div className="relative h-1.5 w-full bg-muted/50 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progress.percentage}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary to-primary/80 rounded-full"
+                        />
+                        {/* Shimmer Effect */}
+                        <motion.div
+                          className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                          initial={{ x: '-100%' }}
+                          animate={{ x: '400%' }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatDelay: 3,
+                            ease: "easeInOut"
+                          }}
+                        />
                       </div>
+                      
+                      <p className="text-[10px] text-muted-foreground text-center">
+                        {progress.current}m / {progress.required}m to next level
+                      </p>
                     </div>
                   );
                 })()}
