@@ -944,6 +944,12 @@ const resources = {
       "player_technical_breakdown": "Player Technical Breakdown",
       "odds_anomaly_monitoring": "Odds Anomaly Monitoring",
       
+      // Common
+      "common": {
+        "live": "Live",
+        "online": "online"
+      },
+      
       // Teams and Leagues translations (empty for English, use original names)
       "teams": {} as Record<string, string>,
       "leagues": {} as Record<string, string>
@@ -1881,6 +1887,12 @@ const resources = {
       "owner_sentiment_analysis": "老板情绪面分析",
       "player_technical_breakdown": "球员技术面拆解",
       "odds_anomaly_monitoring": "异常赔率监测",
+      
+      // Common
+      "common": {
+        "live": "实时",
+        "online": "在线"
+      },
       
       // Teams and Leagues translations (generated from CSV)
       "teams": teamsZh,
