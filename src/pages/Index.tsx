@@ -162,9 +162,6 @@ const Index = () => {
             <h2 className="text-sm sm:text-base lg:text-xl font-semibold text-foreground tracking-wide">
               {t('ai_analysis_title')}
             </h2>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 max-w-2xl mx-auto">
-              {t('ai_analysis_disclaimer')}
-            </p>
           </div>
           <div className="flex items-center justify-center gap-3 sm:gap-4 lg:gap-6">
             {/* Left Stats Panel */}
@@ -269,6 +266,11 @@ const Index = () => {
               <p className="text-[8px] sm:text-[10px] text-muted-foreground leading-tight">{t('km_distance')}</p>
             </div>
           </div>
+          
+          {/* Disclaimer below video */}
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 text-center max-w-2xl mx-auto">
+            {t('ai_analysis_disclaimer')}
+          </p>
         </section>
 
         {/* AI Betting Cards - Match Predictions Today */}
