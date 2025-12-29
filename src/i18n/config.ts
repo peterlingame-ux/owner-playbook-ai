@@ -1095,6 +1095,21 @@ const resources = {
       "qualified_status": "已达标",
       "keep_going": "继续努力",
       
+      // OKX Style Leaderboard
+      "hot_players": "高胜率",
+      "cold_players": "低胜率",
+      "sorted_by_streak": "按连胜排序",
+      "sorted_by_lose_streak": "按连败排序",
+      "realtime_update": "实时更新",
+      "players_suffix": "位预测者",
+      "loading_players": "加载预测者数据...",
+      "view_all_players": "查看全部预测者",
+      "profit_pts": "盈利(PTS)",
+      "followers": "跟单人",
+      "correct_short": "正确",
+      "wrong_short": "错误",
+      "view_picks": "查看推荐",
+      
       // Model Cards
       "the_contestants": "AI参赛模型",
       "top_players": "预测者冠军排行榜",
