@@ -3,10 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search, Loader2, UserX, Flame, Snowflake } from "lucide-react";
+import { ArrowDown, Trophy, History, ExternalLink, TrendingUp, TrendingDown, Minus, UserPlus, CheckCircle2, Sparkles, Lock, Users, DollarSign, Clock, ThumbsUp, Search, Loader2, UserX } from "lucide-react";
 import { PlayerLeaderboardCard } from "./PlayerLeaderboardCard";
-import { OKXPlayerCard } from "./OKXPlayerCard";
-import { OKXLeaderboardHeader } from "./OKXLeaderboardHeader";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
 import { useState, useEffect, useCallback } from "react";
@@ -241,9 +239,6 @@ const PlayerLeaderboardTable = () => {
   const [isLoadingMoreCold, setIsLoadingMoreCold] = useState(false);
   const INITIAL_DISPLAY_COUNT = 20;
   const LOAD_MORE_COUNT = 20;
-  
-  // OKX风格榜单类型切换
-  const [boardType, setBoardType] = useState<'hot' | 'cold'>('hot');
   
   // 玩家跟单用户弹窗状态
   const [isPlayerFollowersDialogOpen, setIsPlayerFollowersDialogOpen] = useState(false);
@@ -1196,88 +1191,214 @@ const PlayerLeaderboardTable = () => {
         </Card>
       )}
 
-      {/* OKX Style Leaderboard Header */}
-      <OKXLeaderboardHeader
-        timeRange={timeRange}
-        onTimeRangeChange={setTimeRange}
-        boardType={boardType}
-        onBoardTypeChange={setBoardType}
-        totalPlayers={allPlayers.length}
-      />
-
-      {/* OKX Style Player Cards */}
-      <div className="space-y-3 mt-4">
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center py-16"
-            >
-              <div className="flex flex-col items-center gap-3">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
-                <span className="text-sm text-muted-foreground">{t('loading_players') || '加载预测者数据...'}</span>
+      {/* Time Range Filter - Unified for all boards */}
+            <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-foreground">{t('player_recommendation_board')}</h2>
+              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+                <button
+                  onClick={() => setTimeRange(1)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 1
+                ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+            {t('time_filter_1d')}
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 7
+                ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+            {t('time_filter_7d')}
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    timeRange === 30
+                ? 'bg-foreground text-background shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+            {t('time_filter_30d')}
+                </button>
               </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key={`${boardType}-${timeRange}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-3"
-            >
-              {[...allPlayers]
-                .sort((a, b) => 
-                  boardType === 'hot' 
-                    ? (b.currentStreak || 0) - (a.currentStreak || 0)
-                    : (b.worstStreak || 0) - (a.worstStreak || 0)
-                )
-                .slice(0, 10)
-                .map((player, index) => (
-                  <OKXPlayerCard
-                    key={player.id}
-                    player={player}
-                    index={index}
-                    onClick={() => navigate(`/player/${player.id}`)}
-                    onViewHistory={(e) => {
-                      e.stopPropagation();
-                      fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                    }}
-                    boardType={boardType}
-                    todayWinRate={todayWinRates.get(player.id)?.winRate}
-                    isLiked={likedPlayers.has(player.id)}
-                    likeCount={likeCounts.get(player.id) || Math.floor(player.winRate * 1.5 + player.totalPredictions * 0.3)}
-                    isLiking={isLiking.has(player.id)}
-                    onLike={(e) => handleLike(player.id, e)}
-                    onShowFollowers={(e, p, count) => {
-                      e.stopPropagation();
-                      const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
-                      setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
-                      setIsPlayerFollowersDialogOpen(true);
-                    }}
-                    calculateEstimatedPrize={calculateEstimatedPrize}
-                    totalEligiblePlayers={allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}
-                    aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
-                  />
-                ))}
-                
-              {/* 查看更多按钮 */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => boardType === 'hot' ? setShowAllHotPlayers(true) : setShowAllColdPlayers(true)}
-                className="w-full py-3 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors text-sm font-medium text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
+            </div>
+
+      {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+        {/* Column 1: 高胜率榜 */}
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+                <div>
+                  <CardTitle className="text-lg font-bold text-foreground">
+                    {t('hot_streak_board')}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-amber-500 font-medium">前10名</span></p>
+                </div>
+              </div>
+                <button
+                onClick={() => setShowAllHotPlayers(true)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
-                <Users className="h-4 w-4" />
-                <span>{t('view_all_players') || '查看全部预测者'} ({allPlayers.length})</span>
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                {t('all_players')}
+                </button>
+              </div>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
+            <div className="space-y-2">
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
+                  >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`hot-streak-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {[...allPlayers]
+                      .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
+                      .slice(0, 10)
+                      .map((player, index) => {
+                        const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                        return (
+                          <PlayerLeaderboardCard
+                        key={player.id}
+                            player={player}
+                            index={index}
+                            isCurrentUser={!!(user && player.id === user.id)}
+                            isLiked={likedPlayers.has(player.id)}
+                            likeCount={likeCounts.get(player.id) || 0}
+                            isLiking={isLiking.has(player.id)}
+                            onLike={(e) => handleLike(player.id, e)}
+                        onClick={() => navigate(`/player/${player.id}`)}
+                            onViewHistory={(e) => {
+                        e.stopPropagation();
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
+                            onShowFollowers={(e, p, count) => {
+                              e.stopPropagation();
+                              const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                              setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                              setIsPlayerFollowersDialogOpen(true);
+                            }}
+                            maskPlayerName={maskPlayerName}
+                            calculateEstimatedPrize={calculateEstimatedPrize}
+                            totalEligiblePlayers={eligiblePlayers}
+                            aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                            boardType="hot"
+                            todayWinRate={todayWinRates.get(player.id)?.winRate}
+                          />
+                        );
+                      })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Column 3: 低胜率榜 */}
+        <Card className="border-border/50 bg-card/50">
+          <CardHeader className="pb-3 pt-4 px-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+                <div>
+                  <CardTitle className="text-lg font-bold text-foreground">
+                    {t('cold_streak_board')}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-red-500 font-medium">前10名</span></p>
+                </div>
+              </div>
+                <button
+                onClick={() => setShowAllColdPlayers(true)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+              >
+                {t('all_players')}
+                </button>
+              </div>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
+            <div className="space-y-2">
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading-cold"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center py-8"
+                  >
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`cold-streak-${timeRange}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    {[...allPlayers]
+                      .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
+                      .slice(0, 10)
+                      .map((player, index) => {
+                        const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                        return (
+                          <PlayerLeaderboardCard
+                        key={player.id}
+                            player={player}
+                            index={index}
+                            isCurrentUser={!!(user && player.id === user.id)}
+                            isLiked={likedPlayers.has(player.id)}
+                            likeCount={likeCounts.get(player.id) || 0}
+                            isLiking={isLiking.has(player.id)}
+                            onLike={(e) => handleLike(player.id, e)}
+                        onClick={() => navigate(`/player/${player.id}`)}
+                            onViewHistory={(e) => {
+                        e.stopPropagation();
+                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                      }}
+                            onShowFollowers={(e, p, count) => {
+                              e.stopPropagation();
+                              const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                              setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                              setIsPlayerFollowersDialogOpen(true);
+                            }}
+                            maskPlayerName={maskPlayerName}
+                            calculateEstimatedPrize={calculateEstimatedPrize}
+                            totalEligiblePlayers={eligiblePlayers}
+                            aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                            boardType="cold"
+                            todayWinRate={todayWinRates.get(player.id)?.winRate}
+                          />
+                        );
+                      })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
 
