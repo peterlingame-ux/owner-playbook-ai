@@ -2617,10 +2617,6 @@ i18n
       escapeValue: false
     }
   });
-    interpolation: {
-      escapeValue: false
-    }
-  });
 
 // Save language changes to localStorage
 i18n.on('languageChanged', (lng) => {
