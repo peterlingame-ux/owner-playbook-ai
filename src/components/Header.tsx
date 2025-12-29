@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, Moon, Sun } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui
 import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
-import { useTheme } from "next-themes";
+
 import { motion } from "framer-motion";
 
 const Header = () => {
@@ -21,7 +21,7 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPredictions, setShowPredictions] = useState(false);
-  const { theme, setTheme } = useTheme();
+  
 
   const navItems = [
     { to: "/leaderboard", label: t('nav_rank') },
@@ -194,19 +194,6 @@ const Header = () => {
             
             <OnlineUsers />
 
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="inline-flex h-8 w-8 p-0"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            >
-              {theme === "light" ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
-            </Button>
             
             <LanguageSwitcher />
             
