@@ -1194,9 +1194,7 @@ const ActiveAIBets = () => {
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center py-6 text-center">
-                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                          <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-10 w-auto opacity-20" />
-                        </div>
+                        <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-12 w-auto opacity-20 mb-3" />
                         <p className="text-sm text-muted-foreground/80 font-medium">
                           {t('no_active_predictions')}
                         </p>
