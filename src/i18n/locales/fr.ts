@@ -375,6 +375,29 @@ export const fr = {
       "login_now": "Connectez-vous"
     },
     
+    // Personal Center
+    "personal_center": "Centre Personnel",
+    "level": "Niveau",
+    "current_level": "Niveau Actuel",
+    "next_level": "Niveau Suivant",
+    "online_time": "Temps en Ligne",
+    "level_progress": "Progression du Niveau",
+    "minutes_to_next_level": "minutes pour le niveau suivant",
+    "max_level_reached": "Niveau Maximum Atteint!",
+    "total_online_time": "Temps Total en Ligne",
+    "level_up_tip": "Restez en ligne pour monter de niveau",
+    "vip_status": "Statut VIP",
+    "vip_member": "Membre VIP",
+    "not_vip": "Non VIP",
+    "vip_expires": "VIP Expire",
+    "become_vip": "Devenir VIP",
+    "invitation_code": "Code d'Invitation",
+    "copy_code": "Copier le Code",
+    "code_copied": "Code Copié!",
+    "invited_friends": "Amis Invités",
+    "invite_friends": "Inviter des Amis",
+    "share_invitation": "Partager l'Invitation",
+
     // Common
     "copy_trade": "SUIVRE LE MODÈLE",
     "one_click_copy_trade": "Copy Trade en Un Clic",
