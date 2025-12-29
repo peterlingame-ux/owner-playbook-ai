@@ -153,7 +153,7 @@ const WhaleDataChart = ({ match }: WhaleDataChartProps) => {
               <div>
                 <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                   {t('whale_data')}
-                  <span className="text-xs font-normal text-slate-400 px-2 py-0.5 rounded bg-slate-800/50">LIVE</span>
+                  <span className="text-xs font-normal text-slate-400 px-2 py-0.5 rounded bg-slate-800/50">{t('common.live', 'LIVE')}</span>
                 </h3>
                 <p className="text-xs text-slate-400 font-medium">{t('betting_distribution')}</p>
               </div>

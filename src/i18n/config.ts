@@ -947,7 +947,11 @@ const resources = {
       // Common
       "common": {
         "live": "Live",
-        "online": "online"
+        "online": "online",
+        "get_it_on": "GET IT ON",
+        "google_play": "Google Play",
+        "available_on": "Available on the",
+        "app_store": "App Store"
       },
       
       // Teams and Leagues translations (empty for English, use original names)
@@ -1891,7 +1895,11 @@ const resources = {
       // Common
       "common": {
         "live": "实时",
-        "online": "在线"
+        "online": "在线",
+        "get_it_on": "立即下载",
+        "google_play": "Google Play",
+        "available_on": "下载于",
+        "app_store": "App Store"
       },
       
       // Teams and Leagues translations (generated from CSV)
