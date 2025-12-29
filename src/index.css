@@ -38,13 +38,13 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* AI Model Colors - Pure Colors (No Gradient) */
-    --deepseek: 217 91% 60%; /* Blue - lighter */
-    --gpt: 158 64% 52%; /* Green - lighter */
-    --claude: 14 90% 63%; /* Orange - lighter */
-    --gemini: 250 71% 63%; /* Purple - lighter */
-    --grok: 0 0% 25%; /* Red-brown/Deep Red - lighter */
-    --mystery: 45 100% 65%; /* Yellow - lighter */
+    /* AI Model Colors - Harmonious Palette */
+    --deepseek: 200 70% 50%;    /* Cyan Blue */
+    --gpt: 160 50% 45%;         /* Teal Green */
+    --claude: 25 65% 55%;       /* Warm Orange */
+    --gemini: 270 50% 55%;      /* Soft Purple */
+    --grok: 210 25% 45%;        /* Steel Gray */
+    --mystery: 35 80% 55%;      /* Golden Yellow */
     
     /* Chart Colors - Monochromatic */
     --chart-1: 210 15% 55%;
