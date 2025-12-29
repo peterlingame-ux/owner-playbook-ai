@@ -899,6 +899,31 @@ const resources = {
       "login_now_btn": "Login Now",
       "loading_data": "Loading...",
       
+      // Wallet additional keys
+      "deposit_now": "Deposit Now",
+      "deposit_tip": "Tip",
+      "deposit_tip_1": "HUNSOCCER is an AI football prediction platform. Hunter Coins cannot be withdrawn or refunded once deposited.",
+      "deposit_tip_2": "You must confirm you are at least 18 years old before using this service.",
+      "deposit_can_buy": "Hunter Coins can be used to purchase",
+      "subscribe_predictions": "Subscribe Predictions",
+      "ai_analysis": "AI Analysis",
+      "vip_privileges": "VIP Privileges",
+      "prediction_game": "Prediction Game",
+      "no_transaction_records": "No transaction records",
+      "transaction_records_here": "Your deposit and withdrawal records will appear here",
+      "deposit_type": "Deposit",
+      "withdrawal_type": "Withdrawal",
+      
+      // Training/Feed
+      "enter_training_data": "Enter training data",
+      "training_placeholder": "Example:\n• I think home teams usually have higher win rates at home\n• Teams unbeaten in last 5 matches are in better form\n• Champion League matches with big gaps are more likely to upset...",
+      "characters": "characters",
+      "start_training": "Start Training",
+      "no_training_data": "No training data",
+      "start_feeding_hint": "Statistics will appear after you start feeding data",
+      "training_trend_7days": "7-Day Training Trend",
+      "training_count": "Training Count",
+      
       // Invitation
       "my_invitation_code": "My Invitation Code",
       "invited_count": "Invited",
@@ -1847,6 +1872,31 @@ const resources = {
       "login_now_btn": "立即登录",
       "loading_data": "加载中...",
       
+      // 钱包补充键
+      "deposit_now": "立即充值",
+      "deposit_tip": "提示",
+      "deposit_tip_1": "HUNSOCCER是AI足球预测平台，猎人币一经充值成功，不支持提现、退款操作。",
+      "deposit_tip_2": "使用本充值服务前，需确认您已年满18周岁，若您为未成年人，你使用本服务的行为将被视为已获得监护人认可。",
+      "deposit_can_buy": "充值猎人币可购买以下内容",
+      "subscribe_predictions": "订阅预测",
+      "ai_analysis": "AI分析",
+      "vip_privileges": "VIP特权",
+      "prediction_game": "预测竞猜",
+      "no_transaction_records": "暂无交易记录",
+      "transaction_records_here": "您的充值和提款记录将显示在这里",
+      "deposit_type": "充值",
+      "withdrawal_type": "提款",
+      
+      // 训练/喂养
+      "enter_training_data": "输入训练数据",
+      "training_placeholder": "例如：\n• 我认为主队在主场的胜率通常更高\n• 最近5场比赛保持不败的球队状态更好\n• 欧冠比赛中实力差距明显的比赛更容易爆冷...",
+      "characters": "字符",
+      "start_training": "开始训练",
+      "no_training_data": "暂无训练数据",
+      "start_feeding_hint": "开始投喂数据后将显示统计分析",
+      "training_trend_7days": "近7天训练趋势",
+      "training_count": "训练次数",
+      
       // Invitation
       "my_invitation_code": "我的邀请码",
       "invited_count": "已邀请",
@@ -2787,6 +2837,21 @@ const resources = {
       "login_to_view_stats": "예측 통계를 보려면 로그인하세요",
       "login_now_btn": "지금 로그인",
       "loading_data": "로딩 중...",
+      
+      // 지갑 추가 키
+      "deposit_now": "지금 입금",
+      "deposit_tip": "안내",
+      "deposit_tip_1": "HUNSOCCER는 AI 축구 예측 플랫폼입니다. 헌터 코인은 입금 후 출금이나 환불이 불가능합니다.",
+      "deposit_tip_2": "이 서비스를 이용하기 전에 만 18세 이상임을 확인해야 합니다.",
+      "deposit_can_buy": "헌터 코인으로 구매 가능",
+      "subscribe_predictions": "예측 구독",
+      "ai_analysis": "AI 분석",
+      "vip_privileges": "VIP 특권",
+      "prediction_game": "예측 게임",
+      "no_transaction_records": "거래 기록 없음",
+      "transaction_records_here": "입금 및 출금 기록이 여기에 표시됩니다",
+      "deposit_type": "입금",
+      "withdrawal_type": "출금",
       
       // Invitation
       "my_invitation_code": "내 초대 코드",

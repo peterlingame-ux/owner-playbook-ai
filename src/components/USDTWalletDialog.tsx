@@ -10,6 +10,7 @@ import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import usdtIcon from "@/assets/usdt-icon.png";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
@@ -42,6 +43,7 @@ const USDT_WALLET_ADDRESS = "TYxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTWalletDialogProps) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   
   // 支持受控和非受控模式
@@ -399,21 +401,21 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
 
                 {/* 自定义金额 */}
                 <div className="space-y-2">
-                  <Label htmlFor="custom-amount" className="text-sm">自定义金额</Label>
+                  <Label htmlFor="custom-amount" className="text-sm">{t('custom_amount')}</Label>
                   <div className="relative">
-                    <img src={hunterCoinIcon} alt="猎人币" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
+                    <img src={hunterCoinIcon} alt={t('hunter_coin_unit')} className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
                     <Input
                       id="custom-amount"
                       type="number"
                       min="10"
                       step="1"
-                      placeholder="输入充值金额"
+                      placeholder={t('enter_deposit_amount')}
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       className="pl-10 pr-20 font-mono text-lg h-12"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                      猎人币
+                      {t('hunter_coin_unit')}
                     </span>
                   </div>
                 </div>
@@ -424,15 +426,15 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                   onClick={handleProceed}
                   disabled={!amount || parseFloat(amount) < 10}
                 >
-                  立即充值
+                  {t('deposit_now')}
                 </Button>
 
                 {/* 提示说明 */}
                 <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                  <p className="text-sm font-medium text-foreground">提示:</p>
+                  <p className="text-sm font-medium text-foreground">{t('deposit_tip')}:</p>
                   <ul className="text-xs text-muted-foreground space-y-1.5">
-                    <li>1. HUNSOCCER是<span className="text-destructive font-medium">AI足球预测平台</span>，猎人币一经充值成功，不支持提现、退款操作。</li>
-                    <li>2. 使用本充值服务前，需确认您已<span className="text-destructive font-medium">年满18周岁</span>，若您为未成年人，你使用本服务的行为将被视为已获得监护人认可。</li>
+                    <li>1. {t('deposit_tip_1')}</li>
+                    <li>2. {t('deposit_tip_2')}</li>
                   </ul>
                 </div>
 
@@ -440,7 +442,7 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-px bg-border" />
-                    <span className="text-xs text-muted-foreground">充值猎人币可购买以下内容</span>
+                    <span className="text-xs text-muted-foreground">{t('deposit_can_buy')}</span>
                     <div className="flex-1 h-px bg-border" />
                   </div>
                   <div className="grid grid-cols-4 gap-3">
@@ -448,25 +450,25 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
                         <FileText className="h-6 w-6 text-destructive" />
                       </div>
-                      <span className="text-[10px] text-muted-foreground text-center">订阅预测</span>
+                      <span className="text-[10px] text-muted-foreground text-center">{t('subscribe_predictions')}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
                         <Target className="h-6 w-6 text-destructive" />
                       </div>
-                      <span className="text-[10px] text-muted-foreground text-center">AI分析</span>
+                      <span className="text-[10px] text-muted-foreground text-center">{t('ai_analysis')}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
                         <Gift className="h-6 w-6 text-destructive" />
                       </div>
-                      <span className="text-[10px] text-muted-foreground text-center">VIP特权</span>
+                      <span className="text-[10px] text-muted-foreground text-center">{t('vip_privileges')}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
                         <Gamepad2 className="h-6 w-6 text-destructive" />
                       </div>
-                      <span className="text-[10px] text-muted-foreground text-center">预测竞猜</span>
+                      <span className="text-[10px] text-muted-foreground text-center">{t('prediction_game')}</span>
                     </div>
                   </div>
                 </div>
@@ -475,7 +477,7 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
               <div className="space-y-6">
                 {/* 充值金额显示 */}
                 <div className="text-center bg-primary/10 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">充值金额</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('deposit_amount')}</p>
                   <div className="flex items-center justify-center gap-2">
                     <img src={usdtIcon} alt="USDT" className="w-8 h-8" />
                     <p className="text-3xl font-bold font-mono text-primary">{amount} USDT</p>
@@ -493,13 +495,13 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">扫描二维码或复制下方地址</p>
+                  <p className="text-xs text-muted-foreground">{t('scan_qr_or_copy')}</p>
                 </div>
 
                 {/* 钱包地址 */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
-                    钱包地址 
+                    {t('wallet_address')} 
                     <span className="text-xs font-normal px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded">
                       TRC20
                     </span>
@@ -527,12 +529,12 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
 
                 {/* 重要提示 */}
                 <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
-                  <p className="text-sm font-medium text-destructive">重要提示</p>
+                  <p className="text-sm font-medium text-destructive">{t('important_notice')}</p>
                   <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• 请确保使用 <strong>TRC20</strong> 网络转账</li>
-                    <li>• 转账金额需与上方显示金额一致</li>
-                    <li>• 转账完成后，余额将在 1-10 分钟内到账</li>
-                    <li>• 如有问题请联系客服</li>
+                    <li>• {t('use_trc20_network')}</li>
+                    <li>• {t('transfer_exact_amount')}</li>
+                    <li>• {t('balance_update_time')}</li>
+                    <li>• {t('contact_support')}</li>
                   </ul>
                 </div>
 
@@ -543,7 +545,7 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                     className="flex-1"
                     onClick={() => setShowPaymentInfo(false)}
                   >
-                    返回修改
+                    {t('go_back_modify')}
                   </Button>
                   <Button
                     className="flex-1"
@@ -553,10 +555,10 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        提交中...
+                        {t('submitting')}
                       </>
                     ) : (
-                      "我已完成转账"
+                      t('transfer_completed')
                     )}
                   </Button>
                 </div>
@@ -574,9 +576,9 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                 </div>
               ) : (depositRecords.length === 0 && withdrawalRecords.length === 0) ? (
                 <div className="text-center py-12">
-                  <img src={hunterCoinIcon} alt="猎人币" className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-muted-foreground">暂无交易记录</p>
-                  <p className="text-xs text-muted-foreground mt-1">您的充值和提款记录将显示在这里</p>
+                  <img src={hunterCoinIcon} alt={t('hunter_coin_unit')} className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p className="text-muted-foreground">{t('no_transaction_records')}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('transaction_records_here')}</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
@@ -604,22 +606,22 @@ const USDTWalletDialog = ({ trigger, open: controlledOpen, onOpenChange }: USDTW
                             )}
                             <div>
                               <span className="font-mono font-bold text-foreground">
-                                {record.type === 'deposit' ? '+' : '-'}{record.amount} 猎人币
+                                {record.type === 'deposit' ? '+' : '-'}{record.amount} {t('hunter_coin_unit')}
                               </span>
                               <span className="ml-2 text-xs text-muted-foreground">
-                                {record.type === 'deposit' ? '充值' : '提款'}
+                                {record.type === 'deposit' ? t('deposit_type') : t('withdrawal_type')}
                               </span>
                             </div>
                           </div>
                           {getStatusBadge(record.status)}
                         </div>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>{record.network} 网络</span>
+                          <span>{record.network} {t('network_label')}</span>
                           <span>{format(new Date(record.created_at), 'yyyy-MM-dd HH:mm')}</span>
                         </div>
                         {record.type === 'withdrawal' && 'wallet_address' in record && (
                           <p className="text-xs text-muted-foreground mt-1 truncate">
-                            收款地址: {record.wallet_address}
+                            {t('wallet_address')}: {record.wallet_address}
                           </p>
                         )}
                       </div>
