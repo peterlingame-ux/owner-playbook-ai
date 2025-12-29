@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +40,7 @@ import {
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
+import TiltCard from "@/components/TiltCard";
 
 interface TrainingRecord {
   id: string;
@@ -483,334 +483,371 @@ const PlayerExclusiveModelCard = ({
 
   const bet = handicapBet || overUnderBet || moneylineBet;
 
+  // State to track slide direction for animation
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
+
+  const handlePrevMatch = (e: React.MouseEvent) => {
+    setSlideDirection('left');
+    if (onPrevMatch) onPrevMatch(e);
+  };
+
+  const handleNextMatch = (e: React.MouseEvent) => {
+    setSlideDirection('right');
+    if (onNextMatch) onNextMatch(e);
+  };
+
   return (
     <>
-      <Card 
-        className={`relative rounded-lg p-3 sm:p-4 bg-card border border-amber-500/30 hover:border-amber-500/50 transition-all duration-300 overflow-hidden cursor-pointer ${className}`}
-        onClick={onNextMatch}
+      <TiltCard
+        className={`group rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-slate-800/60 to-slate-900/40 backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer ${className}`}
+        onClick={handleNextMatch}
+        maxTilt={8}
+        scale={1.02}
+        glare={false}
+        maxGlare={0}
       >
-        {/* Match Counter - Bottom Right */}
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <motion.div 
+            className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"
+            animate={{ 
+              x: [20, 40, 20],
+              y: [-20, -40, -20],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full blur-2xl"
+            animate={{ 
+              x: [-10, -30, -10],
+              y: [10, 30, 10],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+
+        {/* Match Counter - Top Right */}
         {matchEntries.length > 1 && (
-          <div className="absolute bottom-0 right-1 sm:bottom-0 sm:right-2 z-20 flex items-center gap-0.5 sm:gap-0.5 opacity-70 hover:opacity-100 transition-opacity">
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
             <Button
               size="sm"
               variant="ghost"
-              className="h-3 w-3 sm:h-4 sm:w-4 p-0 bg-background/60 hover:bg-background/80"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onPrevMatch) onPrevMatch(e);
-              }}
+              className="h-6 w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
+              onClick={handlePrevMatch}
               title={t('previous_match') || '上一场'}
             >
-              <ChevronLeft className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+              <ChevronLeft className="h-3 w-3" />
             </Button>
-            <Badge 
-              variant="secondary"
-              className="text-[6px] sm:text-[8px] font-bold px-0.5 sm:px-1 py-0 bg-background/60 cursor-pointer hover:bg-background/80 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onNextMatch) onNextMatch(e);
-              }}
-              title={t('next_match') || '下一场'}
-            >
+            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-white/10 border border-white/10">
               {matchIndex + 1}/{matchEntries.length}
-            </Badge>
+            </span>
             <Button
               size="sm"
               variant="ghost"
-              className="h-3 w-3 sm:h-4 sm:w-4 p-0 bg-background/60 hover:bg-background/80"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onNextMatch) onNextMatch(e);
-              }}
+              className="h-6 w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
+              onClick={handleNextMatch}
               title={t('next_match') || '下一场'}
             >
-              <ChevronRight className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
-            <span className="text-[6px] sm:text-[8px] text-muted-foreground/60 ml-0.5 hidden sm:inline">
-              {t('click_to_switch_next') || '点击切换下一页'}
-            </span>
           </div>
         )}
 
         {/* No Bets Indicator */}
         {matchEntries.length === 0 && (
-          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20">
+          <div className="absolute top-3 right-3 z-20">
             <Badge 
               variant="outline"
-              className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-muted/80 text-muted-foreground"
+              className="text-[10px] font-medium px-2.5 py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
             >
               {t('no_bets')}
             </Badge>
           </div>
         )}
-        
+
         {/* Content */}
-        <div className="relative z-10 space-y-3">
-          {/* Compact Header - Player Info & Actions */}
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-amber-500/30">
-            {/* Player Avatar & Balance */}
-            <div className="flex items-center gap-2">
-              <Avatar className="h-10 w-10 ring-1 ring-amber-500/50">
-                <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
-                <AvatarFallback className="text-xs font-bold bg-amber-500/20 text-amber-400">{displayName[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-amber-400">{displayName}</span>
-                <span className="text-[10px] font-mono-data text-muted-foreground">{balanceValue || '10,000模拟额度'}</span>
+        <div className="relative z-10 space-y-4 overflow-hidden">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={`player-${matchIndex}`}
+              initial={{ 
+                opacity: 0, 
+                x: slideDirection === 'right' ? 80 : -80 
+              }}
+              animate={{ 
+                opacity: 1, 
+                x: 0 
+              }}
+              exit={{ 
+                opacity: 0, 
+                x: slideDirection === 'right' ? -80 : 80 
+              }}
+              transition={{ 
+                duration: 0.25, 
+                ease: "easeOut" 
+              }}
+              className="space-y-4"
+            >
+              {/* AI Model Header */}
+              <div className="flex items-center justify-between">
+                {/* Player Avatar & Info */}
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
+                      <AvatarImage 
+                        src={avatarUrl} 
+                        alt={displayName} 
+                        className="object-cover" 
+                      />
+                      <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
+                    </Avatar>
+                    {/* Online Indicator */}
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
+                      {displayName}
+                    </span>
+                    <span className="text-xs text-muted-foreground/80 font-medium">
+                      {balanceValue || '10,000模拟额度'}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Action Button - Only show when has bets */}
+                {bet && currentMatchData && onOpenAnalysis && (
+                  <Button
+                    size="sm"
+                    className="h-8 px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-xs backdrop-blur-sm transition-all duration-300"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenAnalysis(
+                        currentMatchData.match.mid || currentMatchData.match.fixture_id,
+                        'hunsoccermax',
+                        currentMatchData.match,
+                        { id: 'hunsoccermax', displayName: 'HUNSOCCER MAX' }
+                      );
+                    }}
+                  >
+                    <span>{t('view_analysis')}</span>
+                    <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                  </Button>
+                )}
               </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex items-center gap-1.5">
-              {/* Training Count and Data Feeding - Left of Analysis */}
+
+              {/* Training Badge - Show if has training */}
               {trainingCount > 0 && (
-                <>
-                  <Badge variant="outline" className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400">
-                    {trainingCount}{t('times_training')}
-                  </Badge>
+                <div className="flex items-center gap-2">
                   <Badge 
                     variant="outline" 
-                    className="text-[8px] sm:text-[10px] font-bold px-2 py-0.5 bg-background/80 border-amber-500/40 text-amber-400 cursor-pointer hover:bg-amber-500/20 transition-colors"
+                    className="text-[10px] font-medium px-2.5 py-1 bg-white/10 border-white/20 text-foreground/80 cursor-pointer hover:bg-white/20 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowFeedDialog(true);
                     }}
                   >
-                    {t('model_training') || '模型训练'}
+                    <Brain className="h-3 w-3 mr-1" />
+                    {trainingCount}{t('times_training')}
                   </Badge>
-                </>
+                </div>
               )}
-              {bet && currentMatchData && onOpenAnalysis && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 px-3 bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20 hover:border-amber-500/50 font-semibold"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenAnalysis(
-                      currentMatchData.match.fixture_id,
-                      'hunsoccermax',
-                      currentMatchData.match,
-                      { id: 'hunsoccermax', displayName: 'HUNSOCCER MAX' }
-                    );
-                  }}
-                >
-                  <span className="text-[11px] font-bold">AI分析</span>
-                </Button>
-              )}
-            </div>
-          </div>
 
-          {/* Match Info */}
-          {currentMatchData ? (
-            <div className="space-y-1.5 py-1">
-              {/* League & Status Row */}
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Badge variant="outline" className="text-[9px] py-0.5 px-2 truncate max-w-[80%]">
-                  {safeGetLeagueName(currentMatchData.match)}
-                </Badge>
-              </div>
-              {/* Match Status Indicator */}
-              <div className="flex items-center justify-end gap-2 flex-shrink-0 mb-2">
-                {(() => {
-                  const status = currentMatchData.match.status_short;
-                  const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'P', 'BREAK'];
-                  const finishedStatuses = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+              {/* Match Info */}
+              {currentMatchData ? (
+                <div className="space-y-3">
+                  {/* League Badge */}
+                  <div className="flex items-center justify-center">
+                    <Badge className="text-[11px] py-1 px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
+                      {safeGetLeagueName(currentMatchData.match)}
+                    </Badge>
+                  </div>
+                
+                  {/* Teams Display */}
+                  <div className="flex items-center justify-between gap-2 px-1">
+                    {/* Home Team */}
+                    <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                      <div className="relative">
+                        {currentMatchData.match.home_logo ? (
+                          <Avatar className="h-10 w-10 ring-2 ring-white/10 shadow-md">
+                            <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
+                            <AvatarFallback><Shield className="h-4 w-4" /></AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
+                            <Shield className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="font-semibold text-xs text-center leading-tight truncate w-full max-w-[100px]">
+                        {safeGetTeamName(currentMatchData.match, 'home')}
+                      </p>
+                    </div>
                   
-                  if (liveStatuses.includes(status)) {
-                    return (
-                      <Badge className="text-[8px] px-1.5 py-0 bg-success/20 text-success border-success/40 animate-pulse">
-                        <span className="w-1.5 h-1.5 rounded-full bg-success mr-1" />
-                        {t('live') || 'LIVE'}
-                      </Badge>
-                    );
-                  } else if (finishedStatuses.includes(status)) {
-                    return (
-                      <Badge variant="secondary" className="text-[8px] px-1.5 py-0 text-muted-foreground">
-                        {t('finished') || '已结束'}
-                      </Badge>
-                    );
-                  }
-                  return null;
-                })()}
-              </div>
-              
-              {/* Teams with Logos */}
-              <div className="flex items-center justify-between gap-1 sm:gap-1 px-1">
-                <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0">
-                  {currentMatchData.match.home_logo ? (
-                    <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                      <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
-                      <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                      <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
+                    {/* Match Time Display */}
+                    <MatchTimeDisplay match={currentMatchData.match} />
+                  
+                    {/* Away Team */}
+                    <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                      <div className="relative">
+                        {currentMatchData.match.away_logo ? (
+                          <Avatar className="h-10 w-10 ring-2 ring-white/10 shadow-md">
+                            <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
+                            <AvatarFallback><Shield className="h-4 w-4" /></AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
+                            <Shield className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="font-semibold text-xs text-center leading-tight truncate w-full max-w-[100px]">
+                        {safeGetTeamName(currentMatchData.match, 'away')}
+                      </p>
                     </div>
-                  )}
-                  <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-left truncate">
-                    {safeGetTeamName(currentMatchData.match, 'home')}
-                  </p>
-                </div>
-                
-                {/* Match Time Display */}
-                <MatchTimeDisplay match={currentMatchData.match} />
-                
-                <div className="flex items-center gap-1 sm:gap-1 flex-1 min-w-0 justify-end">
-                  <p className="font-bold text-[10px] sm:text-[10px] leading-tight flex-1 text-right truncate">
-                    {safeGetTeamName(currentMatchData.match, 'away')}
-                  </p>
-                  {currentMatchData.match.away_logo ? (
-                    <Avatar className="h-5 w-5 sm:h-5 sm:w-5 ring-1 ring-border shrink-0">
-                      <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
-                      <AvatarFallback><Shield className="h-2 w-2 sm:h-2 sm:w-2" /></AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <div className="h-5 w-5 sm:h-5 sm:w-5 rounded-full bg-muted flex items-center justify-center shrink-0">
-                      <Shield className="h-2 w-2 sm:h-2 sm:w-2 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2 py-4 text-center">
-              <p className="text-sm text-muted-foreground">
-                {t('no_active_predictions')}
-              </p>
-              <p className="text-xs text-muted-foreground/70">
-                {t('no_bets_for_ai')}
-              </p>
-            </div>
-          )}
-
-          {/* Handicap Bet - Simplified */}
-          {handicapBet && currentMatchData && (
-            <div className="bg-amber-500/10 rounded-lg p-2.5 space-y-2">
-              {/* Bet Type Header */}
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium text-amber-400 uppercase tracking-wide">{t('handicap_bet')}</span>
-                <Badge 
-                  variant="outline"
-                  className={`text-[9px] px-1.5 py-0 ${handicapBet.confirmed ? "text-success border-success/40" : "text-muted-foreground"}`}
-                >
-                  {handicapBet.confirmed ? "✓" : "○"}
-                </Badge>
-              </div>
-              
-              {/* Selection Grid */}
-              <div className="grid grid-cols-2 gap-1.5">
-                <div className={`p-2 rounded-md border transition-all ${
-                  handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
-                    ? "bg-amber-500/20 border-amber-500/50" 
-                    : "bg-card/50 border-border/30"
-                }`}>
-                  <div className="flex items-center gap-1.5">
-                    {currentMatchData.match.home_logo && (
-                      <Avatar className="h-4 w-4">
-                        <AvatarImage src={currentMatchData.match.home_logo} />
-                        <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
-                      </Avatar>
-                    )}
-                    <span className="text-[9px] font-medium truncate flex-1">{safeGetTeamName(currentMatchData.match, 'home')}</span>
-                    {handicapBet.handicapLine !== undefined && (
-                      <span className={`text-[9px] font-mono-data font-bold ${
-                        handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-amber-400" : "text-muted-foreground"
-                      }`}>
-                        {((handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
-                        {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine}
-                      </span>
-                    )}
                   </div>
                 </div>
-                <div className={`p-2 rounded-md border transition-all ${
-                  handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
-                    ? "bg-amber-500/20 border-amber-500/50" 
-                    : "bg-card/50 border-border/30"
-                }`}>
-                  <div className="flex items-center gap-1.5">
-                    {currentMatchData.match.away_logo && (
-                      <Avatar className="h-4 w-4">
-                        <AvatarImage src={currentMatchData.match.away_logo} />
-                        <AvatarFallback><Shield className="h-2 w-2" /></AvatarFallback>
-                      </Avatar>
-                    )}
-                    <span className="text-[9px] font-medium truncate flex-1">{safeGetTeamName(currentMatchData.match, 'away')}</span>
-                    {handicapBet.handicapLine !== undefined && (
-                      <span className={`text-[9px] font-mono-data font-bold ${
-                        handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-amber-400" : "text-muted-foreground"
-                      }`}>
-                        {((handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
-                        {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine}
-                      </span>
-                    )}
+              ) : (
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                    <Clock className="h-6 w-6 text-muted-foreground/50" />
+                  </div>
+                  <p className="text-sm text-muted-foreground/80 font-medium">
+                    {t('no_active_predictions')}
+                  </p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    {t('no_bets_for_ai')}
+                  </p>
+                </div>
+              )}
+
+              {/* Handicap Bet - Modern Style */}
+              {handicapBet && currentMatchData && (
+                <div className="bg-white/5 rounded-xl p-3 space-y-3 border border-white/10">
+                  {/* Bet Type Header */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet')}</span>
+                    <Badge 
+                      variant="outline"
+                      className={`text-[10px] px-2 py-0.5 ${handicapBet.confirmed ? "bg-success/20 text-success border-success/30" : "bg-white/5 text-muted-foreground border-white/10"}`}
+                    >
+                      {handicapBet.confirmed ? "Confirmed" : "Pending"}
+                    </Badge>
+                  </div>
+                  
+                  {/* Selection Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center gap-2 ${
+                      handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
+                        ? "bg-primary/20 border-primary/60" 
+                        : "bg-white/5 border-white/10 opacity-60"
+                    }`}>
+                      {currentMatchData.match.home_logo && (
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage src={currentMatchData.match.home_logo} />
+                          <AvatarFallback><Shield className="h-3 w-3" /></AvatarFallback>
+                        </Avatar>
+                      )}
+                      <span className="text-xs font-semibold truncate flex-1">{safeGetTeamName(currentMatchData.match, 'home')}</span>
+                      {handicapBet.handicapLine !== undefined && (
+                        <span className={`text-xs font-mono font-bold ${
+                          handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
+                        }`}>
+                          {((handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
+                          {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                        </span>
+                      )}
+                    </div>
+                    <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center gap-2 ${
+                      handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
+                        ? "bg-primary/20 border-primary/60" 
+                        : "bg-white/5 border-white/10 opacity-60"
+                    }`}>
+                      {currentMatchData.match.away_logo && (
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage src={currentMatchData.match.away_logo} />
+                          <AvatarFallback><Shield className="h-3 w-3" /></AvatarFallback>
+                        </Avatar>
+                      )}
+                      <span className="text-xs font-semibold truncate flex-1">{safeGetTeamName(currentMatchData.match, 'away')}</span>
+                      {handicapBet.handicapLine !== undefined && (
+                        <span className={`text-xs font-mono font-bold ${
+                          handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
+                        }`}>
+                          {((handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
+                          {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-white/10">
+                    <div className="flex items-center gap-4">
+                      <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
+                      <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                    </div>
+                    <span className="font-mono font-bold text-success">${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                   </div>
                 </div>
-              </div>
-              
-              {/* Compact Stats Row */}
-              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-amber-500/20">
-                <div className="flex items-center gap-3">
-                  <span className="text-muted-foreground">{t('confidence')}: <span className="font-semibold text-foreground">{handicapBet.confidence}%</span></span>
-                  <span className="text-muted-foreground">@<span className="font-mono-data font-semibold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
-                </div>
-                <span className="font-mono-data font-bold text-success">${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Over/Under Bet - Simplified */}
-          {overUnderBet && currentMatchData && (
-            <div className="bg-amber-500/10 rounded-lg p-2.5 space-y-2">
-              {/* Bet Type Header */}
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium text-amber-400 uppercase tracking-wide">{t('over_under_bet')}</span>
-                <Badge 
-                  variant="outline"
-                  className={`text-[9px] px-1.5 py-0 ${overUnderBet.confirmed ? "text-success border-success/40" : "text-muted-foreground"}`}
-                >
-                  {overUnderBet.confirmed ? "✓" : "○"}
-                </Badge>
-              </div>
-              
-              {/* Selection Grid */}
-              <div className="grid grid-cols-2 gap-1.5">
-                <div className={`p-2 rounded-md border text-center transition-all ${
-                  overUnderBet.overUnderPick === 'over'
-                    ? "bg-amber-500/20 border-amber-500/50" 
-                    : "bg-card/50 border-border/30"
-                }`}>
-                  <span className="text-[9px] font-medium">{t('over')}</span>
-                  <span className={`ml-1 text-[10px] font-mono-data font-bold ${
-                    overUnderBet.overUnderPick === 'over' ? "text-amber-400" : "text-muted-foreground"
-                  }`}>{overUnderBet.overUnderLine}</span>
+              {/* Over/Under Bet - Modern Style */}
+              {overUnderBet && currentMatchData && (
+                <div className="bg-white/5 rounded-xl p-3 space-y-3 border border-white/10">
+                  {/* Bet Type Header */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet')}</span>
+                    <Badge 
+                      variant="outline"
+                      className={`text-[10px] px-2 py-0.5 ${overUnderBet.confirmed ? "bg-success/20 text-success border-success/30" : "bg-white/5 text-muted-foreground border-white/10"}`}
+                    >
+                      {overUnderBet.confirmed ? "Confirmed" : "Pending"}
+                    </Badge>
+                  </div>
+                  
+                  {/* Selection Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
+                      overUnderBet.overUnderPick === 'over'
+                        ? "bg-primary/20 border-primary/60" 
+                        : "bg-white/5 border-white/10 opacity-60"
+                    }`}>
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span className="text-xs font-semibold">{t('over')}</span>
+                      <span className={`text-xs font-mono font-bold ${
+                        overUnderBet.overUnderPick === 'over' ? "text-primary" : "text-muted-foreground"
+                      }`}>{overUnderBet.overUnderLine}</span>
+                    </div>
+                    <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
+                      overUnderBet.overUnderPick === 'under'
+                        ? "bg-primary/20 border-primary/60" 
+                        : "bg-white/5 border-white/10 opacity-60"
+                    }`}>
+                      <TrendingUp className="h-3.5 w-3.5 rotate-180" />
+                      <span className="text-xs font-semibold">{t('under')}</span>
+                      <span className={`text-xs font-mono font-bold ${
+                        overUnderBet.overUnderPick === 'under' ? "text-primary" : "text-muted-foreground"
+                      }`}>{overUnderBet.overUnderLine}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-white/10">
+                    <div className="flex items-center gap-4">
+                      <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
+                      <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                    </div>
+                    <span className="font-mono font-bold text-success">${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  </div>
                 </div>
-                <div className={`p-2 rounded-md border text-center transition-all ${
-                  overUnderBet.overUnderPick === 'under'
-                    ? "bg-amber-500/20 border-amber-500/50" 
-                    : "bg-card/50 border-border/30"
-                }`}>
-                  <span className="text-[9px] font-medium">{t('under')}</span>
-                  <span className={`ml-1 text-[10px] font-mono-data font-bold ${
-                    overUnderBet.overUnderPick === 'under' ? "text-amber-400" : "text-muted-foreground"
-                  }`}>{overUnderBet.overUnderLine}</span>
-                </div>
-              </div>
-              
-              {/* Compact Stats Row */}
-              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-amber-500/20">
-                <div className="flex items-center gap-3">
-                  <span className="text-muted-foreground">{t('confidence')}: <span className="font-semibold text-foreground">{overUnderBet.confidence}%</span></span>
-                  <span className="text-muted-foreground">@<span className="font-mono-data font-semibold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
-                </div>
-                <span className="font-mono-data font-bold text-success">${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-              </div>
-            </div>
-          )}
-
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </Card>
+      </TiltCard>
 
       {/* AI Feed Dialog */}
       <Dialog open={showFeedDialog} onOpenChange={handleDialogClose}>
