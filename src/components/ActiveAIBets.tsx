@@ -1337,24 +1337,62 @@ const ActiveAIBets = () => {
           const hunsoccermaxModel = aiModels.find(ai => ai.id === 'hunsoccermax');
           if (!hunsoccermaxModel) return null;
 
+          // Find hunsoccermax bets from database, grouped by match
+          const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
+          
+          matchesWithBets.forEach(match => {
+            const matchBets = autoBets
+              .filter(b => b.match_id?.toString() === match.mid && b.ai_id === 'hunsoccermax')
+              .map(bet => convertBet(bet, match));
+            
+            if (matchBets.length > 0) {
+              betsByMatch.set(match.mid, { match, bets: matchBets });
+            }
+          });
+
+          // Get current match index for hunsoccermax
+          const matchIndex = currentMatchIndex['hunsoccermax'] || 0;
+          const matchEntries = Array.from(betsByMatch.values());
+          const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
+          
+          // Separate bets by type
+          const moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+          const handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
+          const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          
           // Get AI balance
           const balance = aiBalances['hunsoccermax'];
           const balanceValue = balance 
             ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟额度`
             : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟额度` : '10,000模拟额度';
 
-          // Calculate profit from balance
-          const profitValue = balance 
-            ? (balance.available_balance + balance.locked_balance) - 10000
-            : hunsoccermaxModel.change ? Number(hunsoccermaxModel.change.replace(/[^0-9.-]/g, '')) : 0;
-
           return (
             <PlayerExclusiveModelCard
-              totalPredictions={hunsoccermaxModel.totalPredictions}
-              correctPredictions={hunsoccermaxModel.correctPredictions}
-              winRate={hunsoccermaxModel.winRate}
+              currentMatchData={currentMatchData as any}
+              moneylineBet={moneylineBet as any}
+              handicapBet={handicapBet as any}
+              overUnderBet={overUnderBet as any}
               balanceValue={balanceValue}
-              profit={profitValue}
+              matchIndex={matchIndex}
+              matchEntries={matchEntries as any}
+              onOpenPKDialog={handleOpenPKDialog}
+              onOpenAnalysis={getMatchAnalysisFromDB}
+              getTeamName={getTeamName}
+              getLeagueName={getLeagueName}
+              onPrevMatch={(e) => {
+                e.stopPropagation();
+                setCurrentMatchIndex(prev => ({
+                  ...prev,
+                  'hunsoccermax': ((prev['hunsoccermax'] || 0) - 1 + matchEntries.length) % matchEntries.length
+                }));
+              }}
+              onNextMatch={(e) => {
+                e.stopPropagation();
+                setCurrentMatchIndex(prev => ({
+                  ...prev,
+                  'hunsoccermax': ((prev['hunsoccermax'] || 0) + 1) % matchEntries.length
+                }));
+              }}
             />
           );
         })()}
