@@ -2,6 +2,16 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { teamsZh } from './teams-zh';
 import { leaguesZh } from './leagues-zh';
+import { es } from './locales/es';
+import { fr } from './locales/fr';
+import { de } from './locales/de';
+import { pt } from './locales/pt';
+import { ja } from './locales/ja';
+import { ar } from './locales/ar';
+import { ru } from './locales/ru';
+import { hi } from './locales/hi';
+import { it } from './locales/it';
+import { th } from './locales/th';
 
 const resources = {
   en: {
@@ -2577,7 +2587,17 @@ const resources = {
       "teams": {} as Record<string, string>,
       "leagues": {} as Record<string, string>
     }
-  }
+  },
+  es: es,
+  fr: fr,
+  de: de,
+  pt: pt,
+  ja: ja,
+  ar: ar,
+  ru: ru,
+  hi: hi,
+  it: it,
+  th: th
 };
 
 // Import teams and leagues translations
@@ -2592,7 +2612,11 @@ i18n
     resources,
     lng: savedLanguage,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'zh', 'ko'],
+    supportedLngs: ['en', 'zh', 'ko', 'es', 'fr', 'de', 'pt', 'ja', 'ar', 'ru', 'hi', 'it', 'th'],
+    interpolation: {
+      escapeValue: false
+    }
+  });
     interpolation: {
       escapeValue: false
     }
