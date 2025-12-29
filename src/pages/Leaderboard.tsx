@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
@@ -73,6 +74,7 @@ const Leaderboard = () => {
           </motion.div>
         </Tabs>
       </motion.div>
+      <Footer />
     </div>
   );
 };
