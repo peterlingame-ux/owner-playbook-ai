@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Star, Copy, Zap, Award } from "lucide-react";
+import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Star, Copy, Zap, Award, XCircle, Clock } from "lucide-react";
+import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -969,25 +970,161 @@ const MyPredictions = () => {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            {[
-              { value: stats?.totalPredictions || 0, label: 'Total Bets', icon: Target },
-              { value: stats?.correctPredictions || 0, label: 'Wins', icon: CheckCircle2 },
-              { value: `${(stats?.profit || 0) >= 0 ? '+' : ''}$${Math.abs(stats?.profit || 0).toLocaleString()}`, label: 'P&L', icon: (stats?.profit || 0) >= 0 ? TrendingUp : TrendingDown },
-              { value: `${calculatedProfitRate >= 0 ? '+' : ''}${calculatedProfitRate.toFixed(1)}%`, label: 'ROI', icon: BarChart3 },
-            ].map((item, index) => (
-              <div 
-                key={index}
-                className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:border-primary/30 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-2xl lg:text-3xl font-light text-foreground">{item.value}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{item.label}</p>
+            <TooltipProvider delayDuration={100}>
+              {/* Total Bets Card */}
+              <ShadcnTooltip>
+                <TooltipTrigger asChild>
+                  <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-2xl lg:text-3xl font-light text-foreground">{stats?.totalPredictions || 0}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Total Bets</p>
+                      </div>
+                      <Target className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                    </div>
                   </div>
-                  <item.icon className="h-5 w-5 text-muted-foreground/50" />
-                </div>
-              </div>
-            ))}
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
+                  <div className="space-y-3">
+                    <p className="font-medium text-foreground">Betting Summary</p>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <span className="text-muted-foreground">Won:</span>
+                        <span className="text-foreground font-medium">{stats?.correctPredictions || 0}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-destructive" />
+                        <span className="text-muted-foreground">Lost:</span>
+                        <span className="text-foreground font-medium">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0) - (stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-amber-500" />
+                        <span className="text-muted-foreground">Pending:</span>
+                        <span className="text-foreground font-medium">{stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </ShadcnTooltip>
+
+              {/* Wins Card */}
+              <ShadcnTooltip>
+                <TooltipTrigger asChild>
+                  <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-2xl lg:text-3xl font-light text-foreground">{stats?.correctPredictions || 0}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Wins</p>
+                      </div>
+                      <CheckCircle2 className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
+                  <div className="space-y-3">
+                    <p className="font-medium text-foreground">Win Statistics</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Win Rate:</span>
+                        <span className="text-primary font-medium">{(stats?.winRate || 0).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Wins / Total:</span>
+                        <span className="text-foreground font-medium">{stats?.correctPredictions || 0} / {stats?.totalPredictions || 0}</span>
+                      </div>
+                      <div className="w-full h-2 bg-muted rounded-full overflow-hidden mt-2">
+                        <div 
+                          className="h-full bg-primary rounded-full transition-all duration-500" 
+                          style={{ width: `${stats?.winRate || 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </ShadcnTooltip>
+
+              {/* P&L Card */}
+              <ShadcnTooltip>
+                <TooltipTrigger asChild>
+                  <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className={`text-2xl lg:text-3xl font-light ${(stats?.profit || 0) >= 0 ? 'text-foreground' : 'text-destructive'}`}>
+                          {(stats?.profit || 0) >= 0 ? '+' : ''}${Math.abs(stats?.profit || 0).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">P&L</p>
+                      </div>
+                      {(stats?.profit || 0) >= 0 ? (
+                        <TrendingUp className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                      ) : (
+                        <TrendingDown className="h-5 w-5 text-muted-foreground/50 group-hover:text-destructive transition-colors" />
+                      )}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
+                  <div className="space-y-3">
+                    <p className="font-medium text-foreground">Profit & Loss Details</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Starting Balance:</span>
+                        <span className="text-foreground">$10,000</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Current Balance:</span>
+                        <span className="text-foreground font-medium">${(stats?.balance || 10000).toLocaleString()}</span>
+                      </div>
+                      <div className="pt-2 border-t border-border flex items-center justify-between">
+                        <span className="text-muted-foreground">Total P&L:</span>
+                        <span className={`font-medium ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                          {(stats?.profit || 0) >= 0 ? '+' : ''}${(stats?.profit || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </ShadcnTooltip>
+
+              {/* ROI Card */}
+              <ShadcnTooltip>
+                <TooltipTrigger asChild>
+                  <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className={`text-2xl lg:text-3xl font-light ${calculatedProfitRate >= 0 ? 'text-foreground' : 'text-destructive'}`}>
+                          {calculatedProfitRate >= 0 ? '+' : ''}{calculatedProfitRate.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">ROI</p>
+                      </div>
+                      <BarChart3 className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="p-4 max-w-[280px] bg-popover border-border">
+                  <div className="space-y-3">
+                    <p className="font-medium text-foreground">Return on Investment</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Initial Investment:</span>
+                        <span className="text-foreground">$10,000</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Profit/Loss:</span>
+                        <span className={`font-medium ${(stats?.profit || 0) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                          {(stats?.profit || 0) >= 0 ? '+' : ''}${(stats?.profit || 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="pt-2 border-t border-border">
+                        <p className="text-xs text-muted-foreground">
+                          ROI = (Profit / Initial Investment) × 100
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </ShadcnTooltip>
+            </TooltipProvider>
           </motion.div>
 
           {/* Invitation Section */}
