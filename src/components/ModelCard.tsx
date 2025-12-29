@@ -18,6 +18,7 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 // Star Background Images
 import starMessi from "@/assets/star-messi.jpg";
 import starRonaldo from "@/assets/star-ronaldo.jpg";
@@ -204,15 +205,17 @@ const ModelCard = ({ model }: ModelCardProps) => {
           
           {/* Points Badge */}
           <div className="flex flex-col items-end gap-1">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-              {t('simulated_profit')}
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium inline-flex items-center gap-1">
+              <img src={hunterCoinIcon} alt="猎人币" className="h-3.5 w-3.5" loading="lazy" />
+              {t("hunter_coin", { defaultValue: "猎人币" })}
             </span>
-            <div className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums ${
+            <div className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums inline-flex items-center gap-1.5 ${
               isPositive 
                 ? 'bg-success/20 text-success border border-success/30' 
                 : 'bg-destructive/20 text-destructive border border-destructive/30'
             }`}>
-              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')} PTS
+              <span>{model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}</span>
+              <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
             </div>
           </div>
         </div>
