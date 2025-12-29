@@ -1013,7 +1013,7 @@ const resources = {
       "top_players": "预测者冠军排行榜",
       "view_details": "查看详情",
       // AI Analysis Section
-      "ai_analysis_title": "HUNSOCCER 实时比赛智能分析",
+      "ai_analysis_title": "HUNSOCCER 比赛智能分析",
       "ai_analysis_disclaimer": "数据为实时视觉识别与统计模型输出，存在延迟与误差，仅用于技战术分析参考。",
       "realtime_monitoring": "多目标追踪（MOT）",
       "player_tracking": "追踪目标",
