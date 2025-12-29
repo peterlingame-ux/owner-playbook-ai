@@ -173,7 +173,7 @@ const MyPredictions = () => {
   const { t } = useTranslation();
   const { user, userProfile: authUserProfile, refreshUserProfile } = useAuth();
   const navigate = useNavigate();
-  const { level } = useOnlineTracking();
+  const { level, totalMinutes, getNextLevelProgress, formatOnlineTime } = useOnlineTracking();
   const [stats, setStats] = useState<PredictionStats | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -627,6 +627,7 @@ const MyPredictions = () => {
         {/* Left Column - Profile Info */}
         <div className="lg:col-span-1 space-y-6">
           {/* Profile Hero Section */}
+          <TooltipProvider delayDuration={100}>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -655,11 +656,69 @@ const MyPredictions = () => {
                   {userProfile?.signature || 'Prediction Expert'}
                 </p>
                 
-                {/* Level Badge */}
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border">
-                  <Star className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-medium">Level {user ? level : 1}</span>
-                </div>
+                {/* Level Progress Card */}
+                {(() => {
+                  const progress = user ? getNextLevelProgress() : { current: 45, required: 60, percentage: 75 };
+                  const currentLevel = user ? level : 1;
+                  const nextLevel = Math.min(50, currentLevel + 1);
+                  const displayMinutes = user ? totalMinutes : 45;
+                  const hours = Math.floor(displayMinutes / 60);
+                  const mins = displayMinutes % 60;
+                  const timeDisplay = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                  
+                  return (
+                    <div className="w-full p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-lg bg-primary/20">
+                            <Star className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="text-sm font-medium text-foreground">Level {currentLevel}</span>
+                        </div>
+                        <ShadcnTooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-help">
+                              <Clock className="h-3 w-3" />
+                              <span>{timeDisplay} online</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[200px]">
+                            <p className="text-xs">Level up by staying online. Each level requires 1 hour of activity.</p>
+                          </TooltipContent>
+                        </ShadcnTooltip>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="relative">
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress.percentage}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full"
+                          />
+                        </div>
+                        
+                        {/* Progress Labels */}
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                            {progress.current}m / {progress.required}m
+                          </span>
+                          {currentLevel < 50 && (
+                            <span className="text-[10px] text-primary font-medium">
+                              → Level {nextLevel}
+                            </span>
+                          )}
+                          {currentLevel >= 50 && (
+                            <span className="text-[10px] text-amber-500 font-medium flex items-center gap-1">
+                              <Crown className="h-3 w-3" /> MAX
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -730,6 +789,7 @@ const MyPredictions = () => {
               </Dialog>
             </div>
           </motion.div>
+          </TooltipProvider>
 
           {/* Wallet Section */}
           <motion.div 
