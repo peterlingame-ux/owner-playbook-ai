@@ -22,6 +22,7 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -843,9 +844,17 @@ const LeaderboardTable = () => {
                     
                     {/* Profit Amount */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">模拟额度</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">猎人币</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                        {model.locked ? '???' : `${profitAmount >= 0 ? '+' : '-'}${Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS`}
+                        {model.locked ? (
+                          '???'
+                        ) : (
+                          <span className="inline-flex items-center gap-1">
+                            {profitAmount >= 0 ? '+' : '-'}
+                            {Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            <img src={hunterCoinIcon} alt="猎人币" className="h-4 w-4" loading="lazy" />
+                          </span>
+                        )}
                       </p>
                     </div>
                     
