@@ -253,7 +253,6 @@ export const it = {
     "copy_trade_btn": "Segui",
     "coming_soon": "Prossimamente",
     "balance": "Saldo",
-    "profit_loss": "P/P",
     "win_result": "Vinto",
     "loss_result": "Perso",
     "pending_result": "In Attesa",

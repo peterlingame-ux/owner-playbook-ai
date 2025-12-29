@@ -253,7 +253,6 @@ export const ru = {
     "copy_trade_btn": "Следовать",
     "coming_soon": "Скоро",
     "balance": "Баланс",
-    "profit_loss": "П/У",
     "win_result": "Выигрыш",
     "loss_result": "Проигрыш",
     "pending_result": "Ожидание",

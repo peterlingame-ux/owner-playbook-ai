@@ -253,7 +253,6 @@ export const th = {
     "copy_trade_btn": "ติดตาม",
     "coming_soon": "เร็วๆ นี้",
     "balance": "ยอดคงเหลือ",
-    "profit_loss": "กำไร/ขาดทุน",
     "win_result": "ชนะ",
     "loss_result": "แพ้",
     "pending_result": "รอดำเนินการ",

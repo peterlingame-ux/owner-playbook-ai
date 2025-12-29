@@ -284,7 +284,6 @@ export const pt = {
     "copy_trade_btn": "Seguir",
     "coming_soon": "Em Breve",
     "balance": "Saldo",
-    "profit_loss": "L/P",
     "win_result": "Ganhou",
     "loss_result": "Perdeu",
     "pending_result": "Pendente",

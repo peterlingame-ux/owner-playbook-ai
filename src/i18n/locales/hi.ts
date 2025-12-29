@@ -253,7 +253,6 @@ export const hi = {
     "copy_trade_btn": "फॉलो",
     "coming_soon": "जल्द आ रहा है",
     "balance": "बैलेंस",
-    "profit_loss": "लाभ/हानि",
     "win_result": "जीत",
     "loss_result": "हार",
     "pending_result": "लंबित",

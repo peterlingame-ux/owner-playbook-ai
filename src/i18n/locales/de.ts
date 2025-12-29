@@ -284,7 +284,6 @@ export const de = {
     "copy_trade_btn": "Folgen",
     "coming_soon": "Demnächst Verfügbar",
     "balance": "Guthaben",
-    "profit_loss": "G/V",
     "win_result": "Gewonnen",
     "loss_result": "Verloren",
     "pending_result": "Ausstehend",
