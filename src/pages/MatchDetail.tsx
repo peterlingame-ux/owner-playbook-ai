@@ -1363,15 +1363,25 @@ const parseOddsData = (
   }); // 结束 Object.entries(oddsResponse.results).forEach
 
   if (handicap.length === 0 && euroOdds.length === 0 && overUnder.length === 0 && corners.length === 0) {
+    console.warn('[parseOddsData] No odds data found for any type');
     return undefined;
   }
 
-  return {
-    handicap: handicap.length > 0 ? handicap : undefined,
-    euroOdds: euroOdds.length > 0 ? euroOdds : undefined,
-    overUnder: overUnder.length > 0 ? overUnder : undefined,
-    corners: corners.length > 0 ? corners : undefined,
+  const result = {
+    handicap: handicap.length > 0 ? handicap : [],
+    euroOdds: euroOdds.length > 0 ? euroOdds : [],
+    overUnder: overUnder.length > 0 ? overUnder : [],
+    corners: corners.length > 0 ? corners : [],
   };
+
+  console.log('[parseOddsData] Parsed odds result:', {
+    handicap: result.handicap.length,
+    euroOdds: result.euroOdds.length,
+    overUnder: result.overUnder.length,
+    corners: result.corners.length,
+  });
+
+  return result;
 };
 
 // 解析比赛事件
@@ -2116,6 +2126,40 @@ export default function MatchDetail() {
     }
   }, [matchId, match?.status]);
 
+  // 当点击指数按钮时，如果没有指数数据，触发一次加载
+  useEffect(() => {
+    if (activeTab === 'odds' && matchId && match && !match.odds) {
+      const loadOddsData = async () => {
+        try {
+          const companyIds = [7, 3, 2, 11, 10]; // 澳彩、皇冠、BET365、韦德、易胜博
+          console.log('[MatchDetail] Loading odds data for match:', matchId);
+          const oddsResponse = await fetchOddsLive(matchId, companyIds);
+          console.log('[MatchDetail] Odds response received:', oddsResponse);
+          const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
+          console.log('[MatchDetail] Parsed odds data:', parsedOdds);
+          
+          if (parsedOdds) {
+            setMatch(prevMatch => {
+              if (!prevMatch) return prevMatch;
+              const updated = {
+                ...prevMatch,
+                odds: parsedOdds,
+              };
+              console.log('[MatchDetail] Updated match with odds:', updated.odds);
+              return updated;
+            });
+          } else {
+            console.warn('[MatchDetail] Parsed odds data is undefined or empty');
+          }
+        } catch (err) {
+          console.error('Failed to load odds data when clicking odds tab:', err);
+        }
+      };
+
+      loadOddsData();
+    }
+  }, [activeTab, matchId, match]);
+
   if (!match) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -2348,13 +2392,17 @@ export default function MatchDetail() {
     const [oddsType, setOddsType] = useState<'handicap' | 'euroOdds' | 'overUnder' | 'corners'>('handicap');
     const [timeType, setTimeType] = useState<'half' | 'full'>('full');
 
+    console.log('[OddsTab] Match odds data:', match.odds);
+
     // 根据可用数据动态生成类型列表
     const availableOddsTypes = [
-      match.odds?.handicap && match.odds.handicap.length > 0 && { id: 'handicap' as const, label: '让球' },
-      match.odds?.euroOdds && match.odds.euroOdds.length > 0 && { id: 'euroOdds' as const, label: '胜平负' },
-      match.odds?.overUnder && match.odds.overUnder.length > 0 && { id: 'overUnder' as const, label: '总进球' },
-      match.odds?.corners && match.odds.corners.length > 0 && { id: 'corners' as const, label: '角球' },
+      match.odds?.handicap && Array.isArray(match.odds.handicap) && match.odds.handicap.length > 0 && { id: 'handicap' as const, label: '让球' },
+      match.odds?.euroOdds && Array.isArray(match.odds.euroOdds) && match.odds.euroOdds.length > 0 && { id: 'euroOdds' as const, label: '胜平负' },
+      match.odds?.overUnder && Array.isArray(match.odds.overUnder) && match.odds.overUnder.length > 0 && { id: 'overUnder' as const, label: '总进球' },
+      match.odds?.corners && Array.isArray(match.odds.corners) && match.odds.corners.length > 0 && { id: 'corners' as const, label: '角球' },
     ].filter(Boolean) as Array<{ id: 'handicap' | 'euroOdds' | 'overUnder' | 'corners'; label: string }>;
+
+    console.log('[OddsTab] Available odds types:', availableOddsTypes);
 
     // 当数据更新时，如果当前选中的类型没有数据，则切换到第一个可用的类型
     useEffect(() => {
