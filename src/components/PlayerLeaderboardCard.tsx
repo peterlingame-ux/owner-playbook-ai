@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
 interface PlayerData {
   id: string;
@@ -313,16 +314,18 @@ export const PlayerLeaderboardCard = ({
         {/* Bet Amount */}
         <div>
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('bet_amount_label')}</p>
-          <p className="text-xs sm:text-base font-bold font-mono-data text-foreground truncate">
-            {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
+          <p className="text-xs sm:text-base font-bold font-mono-data text-foreground truncate flex items-center gap-0.5">
+            {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" />
           </p>
         </div>
         
         {/* Profit Amount */}
         <div className="text-center">
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('profit_amount_label')}</p>
-          <p className={`text-xs sm:text-base font-bold font-mono-data truncate ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-            {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
+          <p className={`text-xs sm:text-base font-bold font-mono-data truncate flex items-center justify-center gap-0.5 ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" />
           </p>
         </div>
         

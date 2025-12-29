@@ -1077,8 +1077,9 @@ const PlayerCopyTradingBoard = () => {
           {/* Bet Amount */}
           <div>
             <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟下注</p>
-            <p className="text-sm sm:text-base font-bold font-mono-data text-foreground">
-              {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} 猎人币
+            <p className="text-sm sm:text-base font-bold font-mono-data text-foreground flex items-center gap-1">
+              {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5" />
             </p>
           </div>
           
@@ -1382,7 +1383,7 @@ const PlayerCopyTradingBoard = () => {
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">下注</span>
-                                      <span className="text-xs font-semibold text-foreground">{pred.bet_amount} PTS</span>
+                                      <span className="text-xs font-semibold text-foreground flex items-center gap-0.5">{pred.bet_amount}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
@@ -1575,8 +1576,8 @@ const PlayerCopyTradingBoard = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{t('copy_amount')}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {t('available_balance_label')}: <span className="text-foreground font-medium">{userBalance.toLocaleString()} PTS</span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    {t('available_balance_label')}: <span className="text-foreground font-medium flex items-center gap-0.5">{userBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1588,7 +1589,7 @@ const PlayerCopyTradingBoard = () => {
                       className="flex-1"
                       onClick={() => setCopyBetAmount(amount)}
                     >
-                      {amount} PTS
+                      <span className="flex items-center gap-0.5">{amount}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                     </Button>
                   ))}
                 </div>
@@ -1597,8 +1598,8 @@ const PlayerCopyTradingBoard = () => {
               {/* 预期收益 */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
                 <span className="text-sm text-muted-foreground">{t('expected_profit')}</span>
-                <span className="font-bold text-foreground font-mono">
-                  +{(copyBetAmount * 0.8).toFixed(0)} ~ +{(copyBetAmount * 1.2).toFixed(0)} PTS
+                <span className="font-bold text-foreground font-mono flex items-center gap-0.5">
+                  +{(copyBetAmount * 0.8).toFixed(0)} ~ +{(copyBetAmount * 1.2).toFixed(0)}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
                 </span>
               </div>
 
@@ -2172,8 +2173,8 @@ const PlayerCopyTradingBoard = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-bold ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>{follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)} PTS</p>
-                  <p className="text-xs text-foreground font-medium">{follower.copyAmount.toFixed(2)} PTS</p>
+                  <p className={`text-sm font-bold flex items-center justify-end gap-1 ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>{follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" /></p>
+                  <p className="text-xs text-muted-foreground font-medium flex items-center justify-end gap-1">{follower.copyAmount.toFixed(2)}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 opacity-70" /></p>
                 </div>
               </div>
             ))}

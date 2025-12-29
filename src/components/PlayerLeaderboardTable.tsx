@@ -1543,7 +1543,7 @@ const PlayerLeaderboardTable = () => {
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">下注</span>
-                                      <span className="text-xs font-semibold text-foreground">{pred.bet_amount} PTS</span>
+                                      <span className="text-xs font-semibold text-foreground flex items-center gap-0.5">{pred.bet_amount}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                                     </div>
                                     <div className="flex flex-col items-center justify-center py-2.5 px-2">
                                       <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
@@ -1707,8 +1707,8 @@ const PlayerLeaderboardTable = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">订阅金额</span>
-                  <span className="text-xs text-muted-foreground">
-                    可用余额: <span className="text-foreground font-medium">{realBalance.toLocaleString()} PTS</span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    可用余额: <span className="text-foreground font-medium flex items-center gap-0.5">{realBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1720,7 +1720,7 @@ const PlayerLeaderboardTable = () => {
                       className="flex-1"
                       onClick={() => setCopyBetAmount(amount)}
                     >
-                      {amount} PTS
+                      <span className="flex items-center gap-0.5">{amount}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                     </Button>
                   ))}
                 </div>
@@ -1751,13 +1751,13 @@ const PlayerLeaderboardTable = () => {
                 {copyBetAmount > realBalance && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span>余额不足，当前可用余额为 {realBalance.toLocaleString()} PTS</span>
+                    <span className="flex items-center gap-0.5">余额不足，当前可用余额为 {realBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                   </div>
                 )}
                 {copyBetAmount > 0 && copyBetAmount < 10 && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span>最低订阅金额为 10 PTS</span>
+                    <span className="flex items-center gap-0.5">最低订阅金额为 10<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                   </div>
                 )}
               </div>
@@ -1766,8 +1766,8 @@ const PlayerLeaderboardTable = () => {
               <div className="p-3 rounded-lg bg-success/10 border border-success/20">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">预期收益</span>
-                  <span className="font-bold text-success">
-                    +{(copyBetAmount * 1.8).toFixed(0)} PTS
+                  <span className="font-bold text-success flex items-center gap-0.5">
+                    +{(copyBetAmount * 1.8).toFixed(0)}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
                   </span>
                 </div>
               </div>
@@ -1786,7 +1786,7 @@ const PlayerLeaderboardTable = () => {
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    {user ? `确认订阅 ${copyBetAmount} PTS` : `演示订阅 ${copyBetAmount} PTS`}
+                    {user ? <span className="flex items-center gap-0.5">确认订阅 {copyBetAmount}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" /></span> : <span className="flex items-center gap-0.5">演示订阅 {copyBetAmount}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" /></span>}
                   </>
                 )}
               </Button>
@@ -2101,10 +2101,10 @@ const PlayerLeaderboardTable = () => {
                                 <span className="text-muted-foreground">胜率 </span>
                                 <span className="font-bold text-success">{player.winRate.toFixed(1)}%</span>
                               </p>
-                              <p className="text-xs">
+                              <p className="text-xs flex items-center justify-end gap-0.5">
                                 <span className="text-muted-foreground">盈利 </span>
-                                <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
+                                <span className={`font-bold flex items-center gap-0.5 ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" />
                                 </span>
                               </p>
                             </div>
@@ -2238,10 +2238,10 @@ const PlayerLeaderboardTable = () => {
                                 <span className="text-muted-foreground">胜率 </span>
                                 <span className="font-bold text-destructive">{player.winRate.toFixed(1)}%</span>
                               </p>
-                              <p className="text-xs">
+                              <p className="text-xs flex items-center justify-end gap-0.5">
                                 <span className="text-muted-foreground">盈利 </span>
-                                <span className={`font-bold ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PTS
+                                <span className={`font-bold flex items-center gap-0.5 ${(player.profitAmount || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                  {(player.profitAmount || 0) >= 0 ? '+' : ''}{((player.profitAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" />
                                 </span>
                               </p>
                             </div>
@@ -2402,11 +2402,13 @@ const PlayerLeaderboardTable = () => {
                 
                 {/* Right: Profit & Copy Amount */}
                 <div className="text-right">
-                  <p className={`text-sm font-bold tabular-nums ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)} PTS
+                  <p className={`text-sm font-bold tabular-nums flex items-center justify-end gap-1 ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
                   </p>
-                  <p className="text-xs text-foreground flex items-center justify-end mt-0.5">
-                    <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)} PTS</span>
+                  <p className="text-xs text-muted-foreground flex items-center justify-end gap-1 mt-0.5">
+                    <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)}</span>
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 opacity-70" />
                   </p>
                 </div>
               </div>
