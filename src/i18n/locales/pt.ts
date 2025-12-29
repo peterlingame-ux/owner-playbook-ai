@@ -314,6 +314,16 @@ export const pt = {
     "to_next_level": "para o próximo nível",
     "max_level": "MÁX",
     
+    // Mensagens Diretas
+    "send_message": "Mensagem",
+    "no_messages_yet": "Nenhuma mensagem ainda",
+    "start_conversation": "Envie a primeira mensagem para iniciar uma conversa",
+    "type_message": "Digite uma mensagem...",
+    "mutual_follow_required": "Seguir mútuo necessário para enviar mensagens",
+    "mutual_follow_to_message": "Vocês precisam seguir um ao outro para enviar mensagens",
+    "send_message_failed": "Falha ao enviar mensagem",
+    "mutual_follow": "Mútuo",
+    
     // Personal Center - Wallets
     "wallets": "Carteiras",
     "virtual_balance": "Saldo Virtual",

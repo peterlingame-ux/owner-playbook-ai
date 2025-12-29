@@ -314,6 +314,16 @@ export const de = {
     "to_next_level": "bis zum nächsten Level",
     "max_level": "MAX",
     
+    // Direktnachrichten
+    "send_message": "Nachricht",
+    "no_messages_yet": "Noch keine Nachrichten",
+    "start_conversation": "Senden Sie die erste Nachricht, um ein Gespräch zu beginnen",
+    "type_message": "Nachricht eingeben...",
+    "mutual_follow_required": "Gegenseitiges Folgen erforderlich, um Nachrichten zu senden",
+    "mutual_follow_to_message": "Sie müssen einander folgen, um Nachrichten zu senden",
+    "send_message_failed": "Nachricht senden fehlgeschlagen",
+    "mutual_follow": "Gegenseitig",
+    
     // Personal Center - Wallets
     "wallets": "Brieftaschen",
     "virtual_balance": "Virtuelles Guthaben",

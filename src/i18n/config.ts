@@ -750,6 +750,16 @@ const resources = {
       "to_next_level": "to next level",
       "max_level": "MAX",
       
+      // Direct Messages
+      "send_message": "Message",
+      "no_messages_yet": "No messages yet",
+      "start_conversation": "Send the first message to start a conversation",
+      "type_message": "Type a message...",
+      "mutual_follow_required": "Mutual follow required to send messages",
+      "mutual_follow_to_message": "You need to follow each other to send messages",
+      "send_message_failed": "Failed to send message",
+      "mutual_follow": "Mutual",
+      
       // Personal Center - Wallets
       "wallets": "Wallets",
       "virtual_balance": "Virtual Balance",
@@ -1678,6 +1688,16 @@ const resources = {
       "to_next_level": "升级还需",
       "max_level": "满级",
       
+      // 私信
+      "send_message": "发消息",
+      "no_messages_yet": "暂无消息",
+      "start_conversation": "发送第一条消息开始聊天",
+      "type_message": "输入消息...",
+      "mutual_follow_required": "需要互相关注才能发送消息",
+      "mutual_follow_to_message": "需要互相关注才能发送消息",
+      "send_message_failed": "发送消息失败",
+      "mutual_follow": "互关",
+      
       // 个人中心 - 钱包
       "wallets": "钱包",
       "virtual_balance": "虚拟余额",
@@ -2598,6 +2618,16 @@ const resources = {
       "to_next_level": "다음 레벨까지",
       "max_level": "최대",
       "cancel": "취소",
+      
+      // 개인 메시지
+      "send_message": "메시지",
+      "no_messages_yet": "메시지 없음",
+      "start_conversation": "첫 메시지를 보내 대화를 시작하세요",
+      "type_message": "메시지 입력...",
+      "mutual_follow_required": "메시지를 보내려면 서로 팔로우해야 합니다",
+      "mutual_follow_to_message": "메시지를 보내려면 서로 팔로우해야 합니다",
+      "send_message_failed": "메시지 전송 실패",
+      "mutual_follow": "맞팔",
       
       // 개인 센터 - 지갑
       "wallets": "지갑",

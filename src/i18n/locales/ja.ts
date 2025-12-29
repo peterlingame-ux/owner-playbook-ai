@@ -313,6 +313,16 @@ export const ja = {
     "no_followers_yet": "まだフォロワーがいません",
     "to_next_level": "次のレベルまで",
     "max_level": "最大",
+    
+    // ダイレクトメッセージ
+    "send_message": "メッセージ",
+    "no_messages_yet": "まだメッセージがありません",
+    "start_conversation": "最初のメッセージを送信して会話を始めましょう",
+    "type_message": "メッセージを入力...",
+    "mutual_follow_required": "メッセージを送信するには相互フォローが必要です",
+    "mutual_follow_to_message": "メッセージを送信するにはお互いにフォローする必要があります",
+    "send_message_failed": "メッセージの送信に失敗しました",
+    "mutual_follow": "相互",
     "wallets": "ウォレット",
     "virtual_balance": "仮想残高",
     "view_arrow": "表示 →",

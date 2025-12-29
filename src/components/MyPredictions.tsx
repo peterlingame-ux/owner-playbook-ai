@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
-import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Copy, Zap, Award, XCircle, Clock } from "lucide-react";
+import DirectMessageDialog from "./DirectMessageDialog";
+import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Copy, Zap, Award, XCircle, Clock, MessageCircle } from "lucide-react";
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-icon.png";
@@ -199,6 +200,9 @@ const MyPredictions = () => {
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<'overview' | 'history'>('overview');
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [messageTargetUser, setMessageTargetUser] = useState<{ id: string; display_name: string; avatar_url: string } | null>(null);
+  const [messageIsMutualFollow, setMessageIsMutualFollow] = useState(false);
 
   useEffect(() => {
     if (authUserProfile) {
@@ -719,18 +723,40 @@ const MyPredictions = () => {
                     <DialogTitle className="font-light">{t('following_label')} ({followingList.length})</DialogTitle>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto divide-y divide-border">
-                    {followingList.map((u) => (
-                      <div key={u.id} className="py-4 flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={u.avatar_url} />
-                          <AvatarFallback>{u.display_name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{u.display_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
+                    {followingList.map((u) => {
+                      const isMutualFollow = followersList.some(f => f.id === u.id);
+                      return (
+                        <div key={u.id} className="py-4 flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={u.avatar_url} />
+                            <AvatarFallback>{u.display_name.slice(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium truncate">{u.display_name}</p>
+                              {isMutualFollow && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{t('mutual_follow')}</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
+                          </div>
+                          {isMutualFollow && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                setMessageTargetUser({ id: u.id, display_name: u.display_name, avatar_url: u.avatar_url });
+                                setMessageIsMutualFollow(true);
+                                setMessageDialogOpen(true);
+                              }}
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {followingList.length === 0 && (
                       <p className="py-8 text-center text-muted-foreground">{t('not_following_anyone')}</p>
                     )}
@@ -752,18 +778,40 @@ const MyPredictions = () => {
                     <DialogTitle className="font-light">{t('followers_label')} ({followersList.length})</DialogTitle>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto divide-y divide-border">
-                    {followersList.map((u) => (
-                      <div key={u.id} className="py-4 flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={u.avatar_url} />
-                          <AvatarFallback>{u.display_name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{u.display_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
+                    {followersList.map((u) => {
+                      const isMutualFollow = followingList.some(f => f.id === u.id);
+                      return (
+                        <div key={u.id} className="py-4 flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={u.avatar_url} />
+                            <AvatarFallback>{u.display_name.slice(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium truncate">{u.display_name}</p>
+                              {isMutualFollow && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{t('mutual_follow')}</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
+                          </div>
+                          {isMutualFollow && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                setMessageTargetUser({ id: u.id, display_name: u.display_name, avatar_url: u.avatar_url });
+                                setMessageIsMutualFollow(true);
+                                setMessageDialogOpen(true);
+                              }}
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {followersList.length === 0 && (
                       <p className="py-8 text-center text-muted-foreground">{t('no_followers_yet')}</p>
                     )}
@@ -1337,6 +1385,14 @@ const MyPredictions = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Direct Message Dialog */}
+      <DirectMessageDialog
+        open={messageDialogOpen}
+        onOpenChange={setMessageDialogOpen}
+        targetUser={messageTargetUser}
+        isMutualFollow={messageIsMutualFollow}
+      />
     </div>
   );
 };
