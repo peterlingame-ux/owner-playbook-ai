@@ -6,7 +6,6 @@ import ModelCard from "@/components/ModelCard";
 import UserModelCard from "@/components/UserModelCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
-import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 import { aiModels } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
@@ -305,9 +304,6 @@ const Index = () => {
             }}
           />
         </section>
-
-        {/* Disclaimer */}
-        <Disclaimer />
       </div>
 
       {/* Footer */}
