@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { Lock, UserPlus, UserMinus, TrendingUp, Target, BarChart3 } from "lucide-react";
+import { Lock, UserPlus, UserMinus, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -18,6 +18,13 @@ import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import mysteryIcon from "@/assets/mystery-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+// Star Background Images
+import starMessi from "@/assets/star-messi.jpg";
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 interface ModelCardProps {
   model: AIModel;
@@ -110,6 +117,19 @@ const ModelCard = ({ model }: ModelCardProps) => {
       default: return deepseekIcon;
     }
   };
+
+  const getStarBackground = (modelId: string) => {
+    switch(modelId) {
+      case 'deepseek': return starMessi;
+      case 'gpt5': return starRonaldo;
+      case 'claude': return starMbappe;
+      case 'gemini': return starHaaland;
+      case 'grok': return starNeymar;
+      case 'hunsoccermax': return starHunsoccer;
+      case 'mystery': return starMbappe;
+      default: return starMessi;
+    }
+  };
   
   const handleCardClick = () => {
     if (!authLoading && !user) {
@@ -142,11 +162,18 @@ const ModelCard = ({ model }: ModelCardProps) => {
         </div>
       )}
 
-      {/* Background Decoration */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white rounded-full blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-white rounded-full blur-2xl" />
-      </div>
+      {/* Star Background Image */}
+      <div 
+        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+        style={{
+          backgroundImage: `url(${getStarBackground(model.id)})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+        }}
+      />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 p-4 sm:p-5">
@@ -167,8 +194,6 @@ const ModelCard = ({ model }: ModelCardProps) => {
                   style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                 />
               </div>
-              {/* Online indicator */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
             </motion.div>
             <div>
               <h3 className={`font-bold text-base sm:text-lg tracking-tight uppercase ${theme.accent}`}>
