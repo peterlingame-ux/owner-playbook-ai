@@ -189,6 +189,16 @@ export default {
             opacity: "0.7",
           },
         },
+        "coin-shine": {
+          "0%, 100%": {
+            transform: "scale(1) rotate(0deg)",
+            filter: "brightness(1) drop-shadow(0 0 2px rgba(255, 215, 0, 0.5))",
+          },
+          "50%": {
+            transform: "scale(1.1) rotate(5deg)",
+            filter: "brightness(1.3) drop-shadow(0 0 6px rgba(255, 215, 0, 0.8))",
+          },
+        },
       },
       animation: {
         "spin-slow": "spin 8s linear infinite",
@@ -203,6 +213,7 @@ export default {
         "shimmer": "shimmer 2s infinite",
         "bounce-slow": "bounce-slow 2s ease-in-out infinite",
         "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "coin-shine": "coin-shine 3s ease-in-out infinite",
       },
     },
   },
