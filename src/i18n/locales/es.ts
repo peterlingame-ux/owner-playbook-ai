@@ -728,6 +728,16 @@ export const es = {
     "not_following_anyone": "Aún no sigues a nadie",
     "no_followers_yet": "Aún sin seguidores",
     
+    // Common
+    "common": {
+      "live": "EN VIVO",
+      "online": "en línea",
+      "get_it_on": "DESCARGAR EN",
+      "google_play": "Google Play",
+      "available_on": "Disponible en",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

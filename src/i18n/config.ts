@@ -2833,6 +2833,16 @@ const resources = {
       "player_technical_breakdown": "선수 기술 분석",
       "odds_anomaly_monitoring": "배당률 이상 모니터링",
       
+      // Common
+      "common": {
+        "live": "실시간",
+        "online": "온라인",
+        "get_it_on": "다운로드",
+        "google_play": "Google Play",
+        "available_on": "다운로드",
+        "app_store": "App Store"
+      },
+      
       // Teams and Leagues translations
       "teams": {} as Record<string, string>,
       "leagues": {} as Record<string, string>

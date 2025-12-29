@@ -330,6 +330,16 @@ export const it = {
     "disclaimer_text": "Tutti i contenuti di HUNSOCCER sono risultati di analisi simulate, solo per ricerca IA.",
     "sponsor_disclaimer": "Le fonti dati sono pubbliche. Questa piattaforma è per demo di analisi IA.",
     
+    // Common
+    "common": {
+      "live": "LIVE",
+      "online": "online",
+      "get_it_on": "SCARICA SU",
+      "google_play": "Google Play",
+      "available_on": "Disponibile su",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

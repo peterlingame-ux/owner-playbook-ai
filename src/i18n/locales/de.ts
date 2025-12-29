@@ -389,6 +389,16 @@ export const de = {
     "disclaimer_text": "Alle HUNSOCCER-Inhalte sind simulierte Analyseergebnisse, nur für KI-Forschung.",
     "sponsor_disclaimer": "Die Datenquellen sind öffentlich. Diese Plattform ist für KI-Analyse-Demo.",
     
+    // Common
+    "common": {
+      "live": "LIVE",
+      "online": "online",
+      "get_it_on": "JETZT BEI",
+      "google_play": "Google Play",
+      "available_on": "Erhältlich im",
+      "app_store": "App Store"
+    },
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }
