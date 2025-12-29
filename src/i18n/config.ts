@@ -979,6 +979,75 @@ const resources = {
         "app_store": "App Store"
       },
       
+      // Footer
+      "footer_terms": "Terms of Service",
+      "footer_privacy": "Privacy Policy",
+      "footer_disclaimer": "Disclaimer & Risk Warning",
+      "footer_contact": "Contact Us",
+      "footer_faq": "FAQ",
+      "footer_rights": "All rights reserved.",
+      
+      // Terms of Service
+      "terms_acceptance": "1. Acceptance of Terms",
+      "terms_acceptance_content": "By accessing and using HUNSOCCER, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our platform.",
+      "terms_service": "2. Description of Service",
+      "terms_service_content": "HUNSOCCER is an AI technology demonstration platform for football match analysis. We provide simulated predictions using virtual currency only. We do not offer, facilitate, or encourage any form of gambling or betting activities.",
+      "terms_account": "3. User Accounts",
+      "terms_account_content": "You are responsible for maintaining the confidentiality of your account credentials. You must be at least 18 years old to use this service. You agree to provide accurate information when creating an account.",
+      "terms_conduct": "4. User Conduct",
+      "terms_conduct_content": "Users must not use the platform for any illegal purposes, attempt to gain unauthorized access to our systems, or engage in any activity that could harm other users or the platform.",
+      "terms_ip": "5. Intellectual Property",
+      "terms_ip_content": "All content on HUNSOCCER, including but not limited to text, graphics, logos, and software, is the property of HUNSOCCER and is protected by intellectual property laws.",
+      "terms_termination": "6. Termination",
+      "terms_termination_content": "We reserve the right to suspend or terminate your account at any time for violations of these terms or for any other reason at our sole discretion.",
+      
+      // Privacy Policy
+      "privacy_collection": "1. Information We Collect",
+      "privacy_collection_content": "We collect information you provide directly, such as account details, as well as usage data including browsing patterns and device information.",
+      "privacy_use": "2. How We Use Your Information",
+      "privacy_use_content": "We use your information to provide and improve our services, communicate with you, ensure platform security, and comply with legal obligations.",
+      "privacy_sharing": "3. Information Sharing",
+      "privacy_sharing_content": "We do not sell your personal information. We may share data with service providers who assist in operating our platform, or when required by law.",
+      "privacy_security": "4. Data Security",
+      "privacy_security_content": "We implement industry-standard security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure.",
+      "privacy_cookies": "5. Cookies and Tracking",
+      "privacy_cookies_content": "We use cookies and similar technologies to enhance your experience, analyze usage patterns, and personalize content.",
+      "privacy_rights": "6. Your Rights",
+      "privacy_rights_content": "You have the right to access, correct, or delete your personal information. Contact us to exercise these rights.",
+      
+      // Disclaimer
+      "disclaimer_nature": "1. Nature of Service",
+      "disclaimer_nature_content": "HUNSOCCER is a technology demonstration platform that showcases AI capabilities in sports analysis. All predictions are for educational and entertainment purposes only.",
+      "disclaimer_no_gambling": "2. No Gambling Services",
+      "disclaimer_no_gambling_content": "We explicitly do not provide, facilitate, or encourage any form of gambling or betting. All transactions on our platform use virtual currency with no real monetary value.",
+      "disclaimer_accuracy": "3. Prediction Accuracy",
+      "disclaimer_accuracy_content": "AI predictions are based on historical data and algorithms. We make no guarantees about the accuracy of any predictions. Past performance does not indicate future results.",
+      "disclaimer_liability": "4. Limitation of Liability",
+      "disclaimer_liability_content": "HUNSOCCER shall not be liable for any direct, indirect, incidental, or consequential damages arising from the use of our platform.",
+      "disclaimer_age": "5. Age Restriction",
+      "disclaimer_age_content": "Users must be at least 18 years old to access this platform. By using our services, you confirm that you meet this age requirement.",
+      
+      // Contact
+      "contact_email": "Email",
+      "contact_hours": "Business Hours",
+      "contact_hours_content": "Monday - Friday: 9:00 AM - 6:00 PM (UTC+8)",
+      "contact_social": "Social Media",
+      "contact_social_content": "Follow us on social media for updates and announcements.",
+      
+      // FAQ
+      "faq_q1": "What is HUNSOCCER?",
+      "faq_a1": "HUNSOCCER is an AI technology demonstration platform that showcases the capabilities of various AI models in analyzing football matches. It uses virtual currency for simulated predictions.",
+      "faq_q2": "Is this a gambling platform?",
+      "faq_a2": "No. HUNSOCCER is strictly an AI technology showcase and prediction competition platform. We do not provide, facilitate, or encourage any form of gambling or betting activities.",
+      "faq_q3": "How do I participate in the prediction competition?",
+      "faq_a3": "Register a free account, and you can start making predictions. If your prediction accuracy exceeds the AI models over a 30-day period, you may be eligible for prizes.",
+      "faq_q4": "What are Hunter Coins?",
+      "faq_a4": "Hunter Coins are virtual currency used within the platform. They can be used to access premium features and participate in the prediction competition. They have no real monetary value outside the platform.",
+      "faq_q5": "How do I contact support?",
+      "faq_a5": "You can reach our support team via email at support@hunsoccer.com. We typically respond within 24-48 business hours.",
+      "faq_q6": "Can I delete my account?",
+      "faq_a6": "Yes, you can request account deletion by contacting our support team. Please note that this action is irreversible.",
+      
       // Teams and Leagues translations (empty for English, use original names)
       "teams": {} as Record<string, string>,
       "leagues": {} as Record<string, string>
@@ -1952,6 +2021,75 @@ const resources = {
         "app_store": "App Store"
       },
       
+      // Footer
+      "footer_terms": "用户协议",
+      "footer_privacy": "隐私政策",
+      "footer_disclaimer": "免责声明",
+      "footer_contact": "联系我们",
+      "footer_faq": "常见问题",
+      "footer_rights": "版权所有",
+      
+      // Terms of Service
+      "terms_acceptance": "1. 条款接受",
+      "terms_acceptance_content": "访问和使用HUNSOCCER即表示您同意受本服务条款的约束。如果您不同意这些条款，请勿使用我们的平台。",
+      "terms_service": "2. 服务说明",
+      "terms_service_content": "HUNSOCCER是一个展示AI足球赛事分析能力的技术演示平台。我们仅使用虚拟货币提供模拟预测。我们不提供、促进或鼓励任何形式的赌博或投注活动。",
+      "terms_account": "3. 用户账户",
+      "terms_account_content": "您有责任保护账户凭证的机密性。您必须年满18岁才能使用此服务。您同意在创建账户时提供准确的信息。",
+      "terms_conduct": "4. 用户行为",
+      "terms_conduct_content": "用户不得将平台用于任何非法目的，不得尝试未经授权访问我们的系统，也不得从事任何可能损害其他用户或平台的活动。",
+      "terms_ip": "5. 知识产权",
+      "terms_ip_content": "HUNSOCCER上的所有内容，包括但不限于文本、图形、标识和软件，均为HUNSOCCER的财产，受知识产权法保护。",
+      "terms_termination": "6. 终止",
+      "terms_termination_content": "我们保留因违反这些条款或出于我们自行决定的任何其他原因而随时暂停或终止您账户的权利。",
+      
+      // Privacy Policy
+      "privacy_collection": "1. 我们收集的信息",
+      "privacy_collection_content": "我们收集您直接提供的信息（如账户详情），以及使用数据（包括浏览模式和设备信息）。",
+      "privacy_use": "2. 我们如何使用您的信息",
+      "privacy_use_content": "我们使用您的信息来提供和改进服务、与您沟通、确保平台安全以及遵守法律义务。",
+      "privacy_sharing": "3. 信息共享",
+      "privacy_sharing_content": "我们不会出售您的个人信息。我们可能会与协助运营平台的服务提供商共享数据，或在法律要求时共享。",
+      "privacy_security": "4. 数据安全",
+      "privacy_security_content": "我们采用行业标准的安全措施来保护您的个人信息。但是，通过互联网传输的任何方法都不是100%安全的。",
+      "privacy_cookies": "5. Cookie和跟踪",
+      "privacy_cookies_content": "我们使用Cookie和类似技术来增强您的体验、分析使用模式和个性化内容。",
+      "privacy_rights": "6. 您的权利",
+      "privacy_rights_content": "您有权访问、更正或删除您的个人信息。请联系我们行使这些权利。",
+      
+      // Disclaimer
+      "disclaimer_nature": "1. 服务性质",
+      "disclaimer_nature_content": "HUNSOCCER是一个展示AI体育分析能力的技术演示平台。所有预测仅供教育和娱乐目的。",
+      "disclaimer_no_gambling": "2. 非博彩服务",
+      "disclaimer_no_gambling_content": "我们明确不提供、促进或鼓励任何形式的赌博或投注。我们平台上的所有交易都使用没有实际货币价值的虚拟货币。",
+      "disclaimer_accuracy": "3. 预测准确性",
+      "disclaimer_accuracy_content": "AI预测基于历史数据和算法。我们不保证任何预测的准确性。过去的表现不代表未来的结果。",
+      "disclaimer_liability": "4. 责任限制",
+      "disclaimer_liability_content": "HUNSOCCER不对因使用我们平台而产生的任何直接、间接、附带或后果性损害承担责任。",
+      "disclaimer_age": "5. 年龄限制",
+      "disclaimer_age_content": "用户必须年满18岁才能访问本平台。使用我们的服务即表示您确认符合此年龄要求。",
+      
+      // Contact
+      "contact_email": "电子邮件",
+      "contact_hours": "工作时间",
+      "contact_hours_content": "周一至周五：上午9:00 - 下午6:00（UTC+8）",
+      "contact_social": "社交媒体",
+      "contact_social_content": "关注我们的社交媒体获取最新更新和公告。",
+      
+      // FAQ
+      "faq_q1": "什么是HUNSOCCER？",
+      "faq_a1": "HUNSOCCER是一个AI技术演示平台，展示各种AI模型分析足球赛事的能力。它使用虚拟货币进行模拟预测。",
+      "faq_q2": "这是博彩平台吗？",
+      "faq_a2": "不是。HUNSOCCER严格来说是一个AI技术展示和预测竞赛平台。我们不提供、促进或鼓励任何形式的赌博或投注活动。",
+      "faq_q3": "如何参与预测竞赛？",
+      "faq_a3": "注册免费账户后即可开始预测。如果您的预测准确率在30天内超过AI模型，您可能有资格获得奖励。",
+      "faq_q4": "什么是猎人币？",
+      "faq_a4": "猎人币是平台内使用的虚拟货币。它可用于访问高级功能和参与预测竞赛。在平台外没有实际货币价值。",
+      "faq_q5": "如何联系客服？",
+      "faq_a5": "您可以通过电子邮件support@hunsoccer.com联系我们的支持团队。我们通常在24-48个工作小时内回复。",
+      "faq_q6": "我可以删除我的账户吗？",
+      "faq_a6": "可以，您可以通过联系我们的支持团队请求删除账户。请注意，此操作不可撤销。",
+      
       // Teams and Leagues translations (generated from CSV)
       "teams": teamsZh,
       "leagues": leaguesZh
@@ -2907,6 +3045,75 @@ const resources = {
         "available_on": "다운로드",
         "app_store": "App Store"
       },
+      
+      // Footer
+      "footer_terms": "이용약관",
+      "footer_privacy": "개인정보 처리방침",
+      "footer_disclaimer": "면책조항",
+      "footer_contact": "문의하기",
+      "footer_faq": "자주 묻는 질문",
+      "footer_rights": "모든 권리 보유.",
+      
+      // Terms of Service
+      "terms_acceptance": "1. 약관 동의",
+      "terms_acceptance_content": "HUNSOCCER에 접속하고 사용함으로써 귀하는 본 서비스 약관에 동의하게 됩니다. 이 약관에 동의하지 않으시면 플랫폼을 사용하지 마십시오.",
+      "terms_service": "2. 서비스 설명",
+      "terms_service_content": "HUNSOCCER는 축구 경기 분석을 위한 AI 기술 시연 플랫폼입니다. 가상 화폐만을 사용한 시뮬레이션 예측을 제공합니다. 어떠한 형태의 도박이나 베팅 활동도 제공, 촉진 또는 장려하지 않습니다.",
+      "terms_account": "3. 사용자 계정",
+      "terms_account_content": "계정 자격 증명의 기밀성을 유지할 책임은 귀하에게 있습니다. 이 서비스를 이용하려면 만 18세 이상이어야 합니다. 계정 생성 시 정확한 정보를 제공하는 데 동의합니다.",
+      "terms_conduct": "4. 사용자 행동",
+      "terms_conduct_content": "사용자는 플랫폼을 불법적인 목적으로 사용하거나, 시스템에 무단 접근을 시도하거나, 다른 사용자나 플랫폼에 해를 끼칠 수 있는 활동에 참여해서는 안 됩니다.",
+      "terms_ip": "5. 지적 재산권",
+      "terms_ip_content": "텍스트, 그래픽, 로고, 소프트웨어를 포함한 HUNSOCCER의 모든 콘텐츠는 HUNSOCCER의 재산이며 지적 재산권법의 보호를 받습니다.",
+      "terms_termination": "6. 종료",
+      "terms_termination_content": "당사는 이 약관 위반 또는 당사의 단독 재량에 따른 기타 사유로 언제든지 귀하의 계정을 정지하거나 종료할 권리를 보유합니다.",
+      
+      // Privacy Policy
+      "privacy_collection": "1. 수집하는 정보",
+      "privacy_collection_content": "계정 세부 정보와 같이 직접 제공하는 정보와 브라우징 패턴 및 기기 정보를 포함한 사용 데이터를 수집합니다.",
+      "privacy_use": "2. 정보 사용 방법",
+      "privacy_use_content": "귀하의 정보는 서비스 제공 및 개선, 커뮤니케이션, 플랫폼 보안 보장, 법적 의무 준수를 위해 사용됩니다.",
+      "privacy_sharing": "3. 정보 공유",
+      "privacy_sharing_content": "개인 정보를 판매하지 않습니다. 플랫폼 운영을 지원하는 서비스 제공업체와 데이터를 공유하거나 법률에서 요구할 때 공유할 수 있습니다.",
+      "privacy_security": "4. 데이터 보안",
+      "privacy_security_content": "개인 정보를 보호하기 위해 업계 표준 보안 조치를 시행합니다. 그러나 인터넷을 통한 전송 방법은 100% 안전하지 않습니다.",
+      "privacy_cookies": "5. 쿠키 및 추적",
+      "privacy_cookies_content": "경험 향상, 사용 패턴 분석, 콘텐츠 개인화를 위해 쿠키 및 유사 기술을 사용합니다.",
+      "privacy_rights": "6. 귀하의 권리",
+      "privacy_rights_content": "개인 정보에 대한 접근, 수정 또는 삭제 권리가 있습니다. 이러한 권리를 행사하려면 당사에 문의하십시오.",
+      
+      // Disclaimer
+      "disclaimer_nature": "1. 서비스 성격",
+      "disclaimer_nature_content": "HUNSOCCER는 스포츠 분석에서 AI 기능을 보여주는 기술 시연 플랫폼입니다. 모든 예측은 교육 및 엔터테인먼트 목적으로만 제공됩니다.",
+      "disclaimer_no_gambling": "2. 도박 서비스 없음",
+      "disclaimer_no_gambling_content": "어떠한 형태의 도박이나 베팅도 제공, 촉진 또는 장려하지 않습니다. 플랫폼의 모든 거래는 실제 금전적 가치가 없는 가상 화폐를 사용합니다.",
+      "disclaimer_accuracy": "3. 예측 정확도",
+      "disclaimer_accuracy_content": "AI 예측은 과거 데이터와 알고리즘을 기반으로 합니다. 예측의 정확성을 보장하지 않습니다. 과거 성과는 미래 결과를 나타내지 않습니다.",
+      "disclaimer_liability": "4. 책임 제한",
+      "disclaimer_liability_content": "HUNSOCCER는 플랫폼 사용으로 인해 발생하는 직접적, 간접적, 부수적 또는 결과적 손해에 대해 책임을 지지 않습니다.",
+      "disclaimer_age": "5. 연령 제한",
+      "disclaimer_age_content": "이 플랫폼에 접근하려면 만 18세 이상이어야 합니다. 서비스를 사용함으로써 이 연령 요건을 충족함을 확인합니다.",
+      
+      // Contact
+      "contact_email": "이메일",
+      "contact_hours": "업무 시간",
+      "contact_hours_content": "월요일 - 금요일: 오전 9:00 - 오후 6:00 (UTC+8)",
+      "contact_social": "소셜 미디어",
+      "contact_social_content": "업데이트 및 공지를 위해 소셜 미디어를 팔로우하세요.",
+      
+      // FAQ
+      "faq_q1": "HUNSOCCER란 무엇인가요?",
+      "faq_a1": "HUNSOCCER는 다양한 AI 모델의 축구 경기 분석 능력을 보여주는 AI 기술 시연 플랫폼입니다. 시뮬레이션 예측을 위해 가상 화폐를 사용합니다.",
+      "faq_q2": "도박 플랫폼인가요?",
+      "faq_a2": "아니요. HUNSOCCER는 엄격히 AI 기술 쇼케이스 및 예측 대회 플랫폼입니다. 어떠한 형태의 도박이나 베팅 활동도 제공, 촉진 또는 장려하지 않습니다.",
+      "faq_q3": "예측 대회에 어떻게 참가하나요?",
+      "faq_a3": "무료 계정을 등록하면 예측을 시작할 수 있습니다. 30일 동안 예측 정확도가 AI 모델을 초과하면 상금을 받을 자격이 있을 수 있습니다.",
+      "faq_q4": "헌터 코인이란 무엇인가요?",
+      "faq_a4": "헌터 코인은 플랫폼 내에서 사용되는 가상 화폐입니다. 프리미엄 기능 접근 및 예측 대회 참가에 사용할 수 있습니다. 플랫폼 외부에서는 실제 금전적 가치가 없습니다.",
+      "faq_q5": "지원팀에 어떻게 연락하나요?",
+      "faq_a5": "support@hunsoccer.com으로 이메일을 보내 지원팀에 연락할 수 있습니다. 일반적으로 24-48 영업시간 내에 응답합니다.",
+      "faq_q6": "계정을 삭제할 수 있나요?",
+      "faq_a6": "예, 지원팀에 연락하여 계정 삭제를 요청할 수 있습니다. 이 작업은 되돌릴 수 없음을 유의하세요.",
       
       // Teams and Leagues translations
       "teams": {} as Record<string, string>,
