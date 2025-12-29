@@ -300,6 +300,73 @@ export const pt = {
     "signature": "Assinatura",
     "select_avatar": "Selecionar Avatar",
     "saving": "Salvando...",
+    "cancel": "Cancelar",
+    
+    // Personal Center - Profile
+    "personal_center": "Centro Pessoal",
+    "player_default_name": "Jogador",
+    "prediction_expert": "Especialista em Previsões",
+    "following_label": "Seguindo",
+    "followers_label": "Seguidores",
+    "no_bio": "Sem bio",
+    "not_following_anyone": "Ainda não segue ninguém",
+    "no_followers_yet": "Ainda sem seguidores",
+    "to_next_level": "para o próximo nível",
+    "max_level": "MÁX",
+    
+    // Personal Center - Wallets
+    "wallets": "Carteiras",
+    "virtual_balance": "Saldo Virtual",
+    "view_arrow": "Ver →",
+    "prediction_history_title": "Histórico de Previsões",
+    "no_predictions_yet": "Ainda sem previsões",
+    "won_status": "Ganhou",
+    "lost_status": "Perdeu",
+    "subscriptions": "Assinaturas",
+    
+    // Personal Center - Stats
+    "top_percent_players": "Top {{percent}}% dos jogadores",
+    "total_bets_label": "Total de Apostas",
+    "wins_label": "Vitórias",
+    "pnl_label": "L/P",
+    "roi_label": "ROI",
+    "betting_summary": "Resumo de Apostas",
+    "win_statistics": "Estatísticas de Vitória",
+    "wins_total_ratio": "Vitórias / Total",
+    "pnl_details": "Detalhes de Lucro e Perda",
+    "starting_balance": "Saldo Inicial",
+    "current_balance_label": "Saldo Atual",
+    "total_pnl": "L/P Total",
+    "roi_details": "Retorno sobre Investimento",
+    "initial_investment": "Investimento Inicial",
+    "profit_loss_label_detail": "Lucro/Perda",
+    "roi_formula": "ROI = (Lucro / Investimento) × 100",
+    
+    // Personal Center - Referral
+    "referral_code": "Código de Indicação",
+    "invited_label": "Convidados",
+    "referral_bonus_text": "Convide amigos e ganhe 50 Hunter Coins por indicação",
+    "start_predicting": "Começar a Prever",
+    
+    // Personal Center - VIP Dialog
+    "upgrade_to_vip": "Atualizar para VIP",
+    "vip_feature_free_access": "Acesso Gratuito a Todas as Previsões",
+    "vip_feature_free_access_desc": "Ver análises sem gastar moedas",
+    "vip_feature_ai_reports": "Relatórios de IA Exclusivos",
+    "vip_feature_ai_reports_desc": "Obter análises detalhadas de jogos",
+    "vip_feature_alerts": "Alertas dos Melhores Previsores",
+    "vip_feature_alerts_desc": "Notificações prioritárias dos melhores",
+    "vip_feature_badge": "Distintivo VIP",
+    "vip_feature_badge_desc": "Destaque-se com distintivo exclusivo",
+    "thirty_day_vip": "VIP de 30 Dias",
+    "coins_unit": "Moedas",
+    "your_balance": "Seu Saldo",
+    "confirm_upgrade": "Confirmar Atualização",
+    
+    // Personal Center - Invited Users
+    "invited_users": "Usuários Convidados",
+    "no_invited_users_yet": "Ainda sem usuários convidados",
+    "joined_date": "Entrou em",
     
     // Wallet
     "hunter_coin_wallet": "Carteira Hunter Coin",
