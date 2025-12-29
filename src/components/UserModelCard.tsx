@@ -152,7 +152,7 @@ const UserModelCard = () => {
             <div className="space-y-2 sm:space-y-2.5 lg:space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-1 sm:mb-1.5 lg:mb-2">
-                  <span className="text-[8px] sm:text-[10px] lg:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
+                  <span className="text-[8px] sm:text-[10px] lg:text-xs text-amber-200/60 uppercase tracking-wide">胜率</span>
                   <span className="text-lg sm:text-xl lg:text-2xl font-semibold font-mono-data transition-all text-amber-400/50 tabular-nums">
                     --%
                   </span>
@@ -294,7 +294,7 @@ const UserModelCard = () => {
           <div className="space-y-2 sm:space-y-2.5 lg:space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1 sm:mb-1.5 lg:mb-2">
-                <span className="text-[8px] sm:text-[10px] lg:text-xs text-amber-200/60 uppercase tracking-wide">{t('win_rate')}</span>
+                <span className="text-[8px] sm:text-[10px] lg:text-xs text-amber-200/60 uppercase tracking-wide">胜率</span>
                 <span className="text-lg sm:text-xl lg:text-2xl font-semibold font-mono-data transition-all text-amber-300 tabular-nums">
                   {animatedWinRate.toFixed(1)}%
                 </span>
