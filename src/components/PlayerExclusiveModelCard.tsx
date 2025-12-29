@@ -31,6 +31,7 @@ import {
   ChevronRight,
   ArrowRight
 } from "lucide-react";
+import hunsoccerAlphaLogo from "@/assets/hunsoccer-alpha-logo-outline.png";
 import {
   Dialog,
   DialogContent,
@@ -711,8 +712,8 @@ const PlayerExclusiveModelCard = ({
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
-                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                    <Clock className="h-6 w-6 text-muted-foreground/50" />
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                    <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-10 w-auto opacity-20" />
                   </div>
                   <p className="text-sm text-muted-foreground/80 font-medium">
                     {t('no_active_predictions')}
