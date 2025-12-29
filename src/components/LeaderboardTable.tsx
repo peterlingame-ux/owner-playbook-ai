@@ -473,32 +473,30 @@ const LeaderboardTable = () => {
               {/* Top Section: Rank + Avatar + Name + Actions */}
               <div className="flex items-center gap-3 mb-4">
                 {/* Rank Badge */}
-                <div className={`flex-shrink-0 w-7 h-7 rounded-full ${rankBadge.bg} flex items-center justify-center`}>
-                  <span className={`text-xs font-bold ${rankBadge.text}`}>{rankBadge.label}</span>
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full ${rankBadge.bg} flex items-center justify-center`}>
+                  <span className={`text-sm font-bold ${rankBadge.text}`}>{rankBadge.label}</span>
                 </div>
                 
                 {/* Avatar */}
-                <div className="relative flex-shrink-0">
-                  <div className={`w-11 h-11 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-muted/50 p-1.5 flex items-center justify-center overflow-hidden`}>
-                    <img 
-                      src={getModelIcon(model.id)} 
-                      alt={model.name} 
-                      className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
-                      style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                    />
-                  </div>
+                <div className={`flex-shrink-0 w-10 h-10 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-muted/50 p-1.5 flex items-center justify-center overflow-hidden`}>
+                  <img 
+                    src={getModelIcon(model.id)} 
+                    alt={model.name} 
+                    className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                    style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                  />
                 </div>
                 
                 {/* Name & Balance */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-base text-foreground truncate">{getModelDisplayName(model)}</span>
+                    <span className="font-semibold text-base text-foreground">{getModelDisplayName(model)}</span>
                     {/* Like Button */}
                     <div className="relative">
                       <button
                         onClick={handleLike}
                         disabled={isLoading}
-                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full transition-all text-xs ${
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full transition-all text-xs ${
                           isLoading ? 'opacity-50' : ''
                         } ${
                           isLiked 
@@ -525,10 +523,10 @@ const LeaderboardTable = () => {
                       </AnimatePresence>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
                     <Wallet className="h-3 w-3" />
-                    <span><AnimatedPointsBalance modelId={model.id} /> PTS</span>
-                    <span className="text-muted-foreground/60">(初始 10,000)</span>
+                    <span className="font-mono-data"><AnimatedPointsBalance modelId={model.id} /> PTS</span>
+                    <span className="text-muted-foreground/50">/ 10,000</span>
                   </p>
                 </div>
                 
@@ -536,63 +534,61 @@ const LeaderboardTable = () => {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button 
                     onClick={() => navigate('/history')}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                   >
                     {t('history')}
                   </button>
                   <button 
                     onClick={() => openCopyTradeDialog(model.id, getModelDisplayName(model))}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors"
                   >
                     {t('subscribe')}
                   </button>
                 </div>
               </div>
               
-              {/* Stats Grid - Modern 4-column layout */}
-              <div className="grid grid-cols-4 gap-4 py-3 border-y border-border/30">
-                <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Predictions</p>
-                  <p className="text-lg font-bold font-mono-data text-foreground">{model.totalPredictions}</p>
+              {/* Stats Grid - Clean 6-column layout */}
+              <div className="grid grid-cols-6 gap-2 py-3 border-y border-border/30">
+                <div className="text-center px-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">预测</p>
+                  <p className="text-base font-bold font-mono-data text-foreground">{model.totalPredictions}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Win / Loss</p>
-                  <p className="text-lg font-bold font-mono-data">
-                    <span className="text-success">{model.correctPredictions}</span>
-                    <span className="text-muted-foreground mx-1">/</span>
-                    <span className="text-destructive">{model.totalPredictions - model.correctPredictions}</span>
-                  </p>
+                <div className="text-center px-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">正确</p>
+                  <p className="text-base font-bold font-mono-data text-success">{model.correctPredictions}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Accuracy</p>
+                <div className="text-center px-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">错误</p>
+                  <p className="text-base font-bold font-mono-data text-destructive">{model.totalPredictions - model.correctPredictions}</p>
+                </div>
+                <div className="text-center px-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">准确率</p>
                   <AnimatedWinRate 
                     value={model.winRate}
-                    className="text-lg font-bold font-mono-data text-foreground"
+                    className="text-base font-bold font-mono-data text-foreground"
                   />
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">P&L</p>
-                  <p className={`text-lg font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <div className="text-center px-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">投入</p>
+                  <p className="text-base font-bold font-mono-data text-foreground">
+                    {model.locked ? '???' : ((model as any).totalBetAmount || 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-center px-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">收益率</p>
+                  <p className={`text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
                   </p>
                 </div>
               </div>
               
-              {/* Bottom Stats Row */}
+              {/* Bottom Row */}
               <div className="flex items-center justify-between pt-3 text-xs">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <span className="text-muted-foreground">Volume: </span>
-                    <span className="font-medium font-mono-data text-foreground">
-                      {model.locked ? '???' : `${((model as any).totalBetAmount || 0).toLocaleString()} PTS`}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Profit: </span>
-                    <span className={`font-medium font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}${profitAmount.toLocaleString()} PTS`}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-muted-foreground">收益:</span>
+                  <span className={`font-semibold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {model.locked ? '???' : `${profitAmount >= 0 ? '+' : ''}${profitAmount.toLocaleString()} PTS`}
+                  </span>
                 </div>
                 <button
                   onClick={() => {
@@ -600,10 +596,10 @@ const LeaderboardTable = () => {
                     setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
                     setIsFollowersDialogOpen(true);
                   }}
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Users className="h-3.5 w-3.5" />
-                  <span className="font-medium">{((model as any).followerCount || 0).toLocaleString()} followers</span>
+                  <span className="font-medium">{((model as any).followerCount || 0).toLocaleString()} 追踪</span>
                   <ChevronRight className="h-3 w-3" />
                 </button>
               </div>
