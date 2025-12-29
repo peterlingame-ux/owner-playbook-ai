@@ -1270,11 +1270,13 @@ const LeaderboardTable = () => {
                 
                 {/* Right: Profit & Copy Amount */}
                 <div className="text-right">
-                  <p className={`font-bold text-lg tabular-nums ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <p className={`font-bold text-lg tabular-nums flex items-center justify-end gap-1 ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
                   </p>
-                  <p className="text-xs text-warning flex items-center justify-end mt-0.5">
+                  <p className="text-xs text-muted-foreground flex items-center justify-end gap-1 mt-0.5">
                     <span className="tabular-nums font-medium">{follower.copyAmount.toFixed(2)}</span>
+                    <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 opacity-70" />
                   </p>
                 </div>
               </div>
