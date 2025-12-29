@@ -1364,9 +1364,10 @@ const ActiveAIBets = () => {
           
           // Get AI balance
           const balance = aiBalances['hunsoccermax'];
-          const balanceValue = balance 
-            ? `${(balance.available_balance + balance.locked_balance).toLocaleString()}模拟额度`
-            : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? `${Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString()}模拟额度` : '10,000模拟额度';
+          const balanceNumber = balance 
+            ? (balance.available_balance + balance.locked_balance).toLocaleString()
+            : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
+          const balanceValue = `${balanceNumber} 猎人币`;
 
           return (
             <PlayerExclusiveModelCard

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import TiltCard from "@/components/TiltCard";
 import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+import hunterCoinIcon from "@/assets/hunter-coin.png";
 
 interface UserStats {
   totalPredictions: number;
@@ -101,7 +102,7 @@ const UserModelCard = () => {
     : t("demo_player");
 
   const profitLabel = user
-    ? `${isPositive ? "+" : "-"}${Math.abs(stats.profit).toFixed(0)} PTS`
+    ? `${isPositive ? "+" : "-"}${Math.abs(stats.profit).toFixed(0)}`
     : "--";
 
   return (
@@ -204,11 +205,12 @@ const UserModelCard = () => {
 
             {/* Points Badge */}
             <div className="flex flex-col items-end gap-1">
-              <span className="text-[10px] text-amber-200/70 uppercase tracking-wider font-medium">
-                {t("simulated_profit")}
+              <span className="text-[10px] text-amber-200/70 uppercase tracking-wider font-medium inline-flex items-center gap-1">
+                <img src={hunterCoinIcon} alt="猎人币" className="w-3.5 h-3.5" />
+                {t("hunter_coin") || "猎人币"}
               </span>
               <div
-                className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums border ${
+                className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums border inline-flex items-center gap-1.5 ${
                   user
                     ? isPositive
                       ? "bg-success/20 text-success border-success/30"
@@ -217,6 +219,7 @@ const UserModelCard = () => {
                 }`}
               >
                 {profitLabel}
+                <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
               </div>
             </div>
           </div>

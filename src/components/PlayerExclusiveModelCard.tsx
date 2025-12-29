@@ -609,7 +609,7 @@ const PlayerExclusiveModelCard = ({
                       {displayName}
                     </span>
                     <span className="text-xs text-muted-foreground/80 font-medium">
-                      {balanceValue || '10,000模拟额度'}
+                      {balanceValue || '10,000 猎人币'}
                     </span>
                   </div>
                 </div>
