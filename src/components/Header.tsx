@@ -12,6 +12,7 @@ import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
 import { useTheme } from "next-themes";
+import { motion } from "framer-motion";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -59,21 +60,43 @@ const Header = () => {
             </h1>
           </Link>
           
-          {/* Center: Navigation */}
-          <nav className="hidden md:flex items-center gap-1 bg-muted/60 backdrop-blur-md rounded-full px-2 py-1.5 border border-border/30">
+          {/* Center: Navigation - Modern Glassmorphism Style */}
+          <nav className="hidden md:flex items-center bg-white/[0.04] backdrop-blur-xl rounded-2xl p-1.5 border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+            {/* Top glow effect */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-2xl" />
+            
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={({ isActive }) =>
-                  `px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-out
-                  ${isActive 
-                    ? 'bg-foreground/10 text-foreground shadow-sm ring-1 ring-foreground/10 scale-[1.02]' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'
-                  }`
-                }
+                className="relative"
               >
-                {item.label}
+                {({ isActive }) => (
+                  <motion.div
+                    className={`relative flex items-center gap-2 py-2 px-4 rounded-xl transition-all duration-300 text-sm font-medium
+                      ${isActive 
+                        ? 'text-white' 
+                        : 'text-white/50 hover:text-white/80'
+                      }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {/* Active background pill with animation */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeNavTab"
+                        className="absolute inset-0 bg-white/[0.12] rounded-xl border border-white/[0.15] shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    
+                    {/* Label */}
+                    <span className={`relative z-10 whitespace-nowrap ${isActive ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' : ''}`}>
+                      {item.label}
+                    </span>
+                  </motion.div>
+                )}
               </NavLink>
             ))}
           </nav>
