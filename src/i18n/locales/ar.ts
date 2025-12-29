@@ -253,7 +253,6 @@ export const ar = {
     "copy_trade_btn": "متابعة",
     "coming_soon": "قريباً",
     "balance": "الرصيد",
-    "profit_loss": "ربح/خسارة",
     "win_result": "فوز",
     "loss_result": "خسارة",
     "pending_result": "معلق",

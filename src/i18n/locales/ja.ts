@@ -284,7 +284,6 @@ export const ja = {
     "copy_trade_btn": "フォロー",
     "coming_soon": "近日公開",
     "balance": "残高",
-    "profit_loss": "損益",
     "win_result": "勝ち",
     "loss_result": "負け",
     "pending_result": "保留中",
