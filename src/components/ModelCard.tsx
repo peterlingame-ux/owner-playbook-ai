@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AIModel } from "@/types/prediction";
-import { Lock, UserPlus, UserMinus } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -282,12 +282,10 @@ const ModelCard = ({ model }: ModelCardProps) => {
         >
           {isFollowing ? (
             <>
-              <UserMinus className="h-4 w-4 mr-2" />
               {t('following')}
             </>
           ) : (
             <>
-              <UserPlus className="h-4 w-4 mr-2" />
               {t('follow_model')}
             </>
           )}
