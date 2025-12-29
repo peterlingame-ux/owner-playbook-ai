@@ -1,4 +1,4 @@
-// Thai translations
+// Thai translations - Complete
 export const th = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const th = {
     "start_prediction_btn": "เริ่มทำนาย",
     "free_register_btn": "ลงทะเบียนฟรี",
     "no_deposit_free": "ไม่ต้องฝาก · เข้าร่วมฟรี",
+    "completed_rounds": "รอบที่เสร็จสิ้น",
+    "total_winners": "ผู้ชนะทั้งหมด",
+    "total_distributed": "แจกจ่ายทั้งหมด",
+    "featured_winners": "ผู้ชนะเด่น",
+    "featured": "เด่น",
+    "player_win_rate": "อัตราชนะของผู้เล่น",
+    "ai_win_rate_label": "อัตราชนะ AI",
+    "predictions_count": "การทำนาย",
+    "prize_won": "รางวัลที่ชนะ",
+    "virtual_profit": "กำไรเสมือน",
+    "history_records_title": "บันทึกประวัติ",
+    "round_column": "รอบ",
+    "ai_model_column": "โมเดล AI",
+    "winners_column": "ผู้ชนะ",
+    "distributed_column": "แจกจ่าย",
+    "date_column_prize": "วันที่",
+    "no_winners_round": "ไม่มีผู้ชนะรอบนี้",
+    "prize_rules_title": "กฎรางวัล",
+    "rule1": "แต่ละรอบ 30 วัน รางวัล $1,000,000",
+    "rule2": "ผู้เล่นต้องทำนายอย่างน้อยเท่ากับ AI",
+    "rule3": "เฉพาะผู้เล่นที่มีอัตราสูงกว่า AI สามารถชนะ",
+    "rule4": "ถ้าไม่มีใครชนะ AI รางวัลจะสะสม",
+    "rule5": "การแจกจ่ายขึ้นอยู่กับความแตกต่างกับอัตรา AI",
+    "prize_disclaimer": "HUNSOCCER เป็นแพลตฟอร์มการแข่งขันทำนายและสาธิต AI ไม่ใช่เว็บพนัน",
     
     // Stats
     "highest_win_rate": "อัตราชนะสูงสุด",
@@ -64,14 +88,147 @@ export const th = {
     "ai_leaderboard": "AI",
     "player_leaderboard": "ผู้เล่น",
     "all_players": "ผู้เล่นทั้งหมด",
+    "player_detail": "รายละเอียดผู้เล่น",
     "view_all": "ดูทั้งหมด",
     "search_player": "ค้นหาผู้เล่น...",
+    "scroll_for_more": "เลื่อนดูเพิ่ม...",
+    "no_search_results": "ไม่พบผู้เล่น",
+    "no_search_results_hint": "ลองคำอื่น",
+    "clear_search": "ล้างการค้นหา",
     "no_data": "ไม่มีข้อมูล",
+    "top_10": "ท็อป 10",
+    "rank_11_20": "อันดับ 11-20",
+    "highest_win_rate_players": "ผู้เล่นอัตราสูงสุด",
+    "rising_players": "ผู้เล่นที่กำลังมา",
+    "no_more_players": "ไม่มีผู้เล่นเพิ่มเติม",
+    "today_win_rate": "อัตราวันนี้",
+    "today_prediction_win_rate": "อัตราแนะนำวันนี้",
+    "today_prediction": "ตัวเลือกวันนี้",
+    "today_recommendations": "ตัวเลือกวันนี้",
+    "today_history": "ประวัติวันนี้",
+    "no_history_today": "ไม่มีบันทึกวันนี้",
+    "no_data_today": "ไม่มีข้อมูล",
+    "click_to_view_history": "คลิกเพื่อดูประวัติ",
+    "view_history": "ดูประวัติ",
+    "pending": "รอดำเนินการ",
+    "leaderboard_disclaimer": "หมายเหตุ: สถิติทั้งหมดแสดงเฉพาะการทำนายที่เสร็จสิ้น HUNSOCCER สำหรับสาธิตการวิเคราะห์ AI เท่านั้น",
+    "profit_loss": "กำไร/ขาดทุน",
+    "player_recommendation_board": "แนะนำผู้เล่น",
+    "profit_amount_label": "กำไร",
+    "bet_amount_label": "เดิมพันเสมือน",
+    "followers_count": "ผู้ติดตาม",
+    "correct_matches": "ถูก",
+    "incorrect_matches": "ผิด",
+    "estimated_prize": "รางวัลโดยประมาณ",
+    "not_qualified": "ไม่ผ่านเกณฑ์",
+    "win_streak": "ชนะติดต่อกัน",
+    "lose_streak": "แพ้ติดต่อกัน",
+    "win_badge": "ช",
+    "loss_badge": "พ",
+    "people_suffix": "",
+    "matches_suffix": "",
+    "handicap": "แฮนดิแคป",
+    "over_under": "สูง/ต่ำ",
+    "challenge_ai": "ท้าทาย AI",
+    "challenge_ai_reward": "รางวัลท้าทาย AI",
+    "big_prize_waiting": "รางวัลใหญ่รอคุณ",
+    "challenge_description": "เอาชนะ AI ในการทำนาย ความแม่นยำ และคะแนนเพื่อรับรางวัล",
+    "ai_benchmark": "มาตรฐาน AI",
+    "banner_predictions": "การทำนาย:",
+    "banner_win_rate": "ความแม่นยำ:",
+    "banner_profit": "คะแนนจำลอง:",
+    "banner_my_model": "โมเดลพิเศษของฉัน",
+    "login_to_view": "เข้าสู่ระบบเพื่อดูอันดับ",
+    "days_unit": " วัน",
+    "people_qualified": "ผ่านเกณฑ์",
+    "per_capita_prize": "รางวัลต่อคน:",
+    "activity_prize_pool": "กองรางวัล:",
+    "total_prize_value": "มูลค่ารางวัลรวม",
+    "qualified_status": "ผ่านเกณฑ์",
+    "keep_going": "สู้ต่อไป",
     
     // Model Cards
     "the_contestants": "โมเดล AI ที่แข่งขัน",
     "top_players": "แชมป์ผู้เล่น",
     "view_details": "ดูรายละเอียด",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "ข่าวกรองแมตช์แบบเรียลไทม์",
+    "ai_analysis_disclaimer": "ข้อมูลจากการจดจำภาพและโมเดลสถิติ อาจมีความล่าช้าและข้อผิดพลาด",
+    "total_predictions": "การทำนายทั้งหมด",
+    
+    // AI Chat
+    "ai_assistant": "หุ่นยนต์ HUNSOCCER",
+    "ai_assistant_subtitle": "5 AI วิเคราะห์ครบถ้วน",
+    "chat_welcome": "สวัสดี! ฉันเป็นบอทกีฬามืออาชีพ",
+    "chat_placeholder": "ถามฉันได้ทุกเรื่อง...",
+    "chat_ai_response": "ฉันช่วยวิเคราะห์ข้อมูลและเปรียบเทียบการทำนาย AI ได้",
+    "floating_ai_chat": {
+      "welcome": "สวัสดี! ฉันเป็นผู้ช่วย AI ของ HUNSOCCER",
+      "demo_response": "ขอบคุณสำหรับคำถาม! นี่คือโหมดสาธิต",
+      "open_chat_button": "เปิดแชท",
+      "status_online": "ซัพพอร์ตออนไลน์",
+      "input_placeholder": "พิมพ์คำถามเกี่ยวกับฟุตบอล...",
+      "faq_title": "คำถามที่พบบ่อย",
+      "faq": {
+        "view_predictions": {
+          "question": "ดูการทำนาย AI อย่างไร?",
+          "answer": "ที่หน้าแรก โมเดล AI แต่ละตัวให้การวิเคราะห์มืออาชีพ"
+        },
+        "view_winrate": {
+          "question": "ดูอัตราชนะ AI อย่างไร?",
+          "answer": "ไปที่ส่วน 'เปรียบเทียบอัตรา' เพื่อดูสถิติ"
+        },
+        "view_data": {
+          "question": "ดูข้อมูลฟุตบอลอย่างไร?",
+          "answer": "HUNSOCCER ร่วมมือกับผู้ให้บริการข้อมูล เข้าสู่ระบบเพื่อเข้าถึง"
+        },
+        "ai_models": {
+          "question": "โมเดล AI เชี่ยวชาญด้านใด?",
+          "answer": "แต่ละโมเดลมีความเชี่ยวชาญต่างกัน"
+        },
+        "contact": {
+          "question": "ติดต่อทีมอย่างไร?",
+          "answer": "ติดต่อเราทาง Telegram: HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "ภาพรวมตลาด",
+    "banner_title": "แข่งกับโมเดล AI ระดับท็อป",
+    "banner_subtitle": "แสดงทักษะ ท้าทาย AI ชนะรางวัล",
+    "max_prize": "รางวัลสูงสุด",
+    "join_competition": "เข้าร่วมการแข่งขัน",
+    "free_to_join": "เข้าร่วมฟรี",
+    "no_deposit": "ไม่ต้องฝาก",
+    "fair_competition": "การแข่งขันที่ยุติธรรม",
+    
+    // Match Detail
+    "match_not_found": "ไม่พบแมตช์",
+    "go_back": "กลับ",
+    "owner": "เจ้าของ",
+    "health_status": "สถานะสุขภาพ",
+    "financial_status": "สถานะการเงิน",
+    "family_members": "สมาชิกครอบครัว",
+    "social_status": "สถานะทางสังคม",
+    "scandals_controversies": "เรื่องอื้อฉาวและข้อโต้แย้ง",
+    "recent_activities": "กิจกรรมล่าสุด",
+    "exclusive_owner_analysis": "การวิเคราะห์เจ้าของพิเศษ",
+    "years_old": "ปี",
+    "years": "ปี",
+    "back_to_matches": "กลับไปแมตช์",
+    "at": "ที่",
+    "vs": "พบ",
+    "draw": "เสมอ",
+    "win": "ชนะ",
+    "confidence": "ความมั่นใจ",
+    "in_progress": "กำลังดำเนินการ",
+    "days": "ว",
+    "hours": "ช",
+    "minutes": "น",
+    "half_time": "พักครึ่ง",
+    "venue": "สนาม",
     
     // Auth
     "auth": {
@@ -85,7 +242,10 @@ export const th = {
       "verification_code": "รหัสยืนยัน",
       "send_code": "ส่งรหัส",
       "login_success": "เข้าสู่ระบบสำเร็จ",
-      "welcome_back": "ยินดีต้อนรับกลับ!"
+      "welcome_back": "ยินดีต้อนรับกลับ!",
+      "login_failed": "เข้าสู่ระบบล้มเหลว",
+      "register_success": "ลงทะเบียนสำเร็จ",
+      "welcome": "ยินดีต้อนรับ!"
     },
     
     // Common
@@ -101,16 +261,26 @@ export const th = {
     "back": "กลับ",
     "loading_data": "กำลังโหลด...",
     
-    // Match Detail
-    "match_not_found": "ไม่พบแมตช์",
-    "go_back": "กลับ",
-    "confidence": "ความมั่นใจ",
-    "draw": "เสมอ",
-    "win": "ชนะ",
+    // My Predictions
+    "my_predictions": "การทำนายของฉัน",
+    "win_rate_trend": "แนวโน้มอัตราชนะ",
+    "filter": "กรอง",
+    "edit_profile": "แก้ไขโปรไฟล์",
+    "nickname": "ชื่อเล่น",
+    "signature": "ลายเซ็น",
+    "select_avatar": "เลือกอวาตาร์",
+    "saving": "กำลังบันทึก...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "กระเป๋า Hunter Coin",
+    "usdt_deposit": "ฝาก",
+    "deposit_amount": "จำนวนฝาก",
+    "wallet_address": "ที่อยู่กระเป๋า",
+    
     "platform_disclaimer": "ข้อจำกัดความรับผิดชอบ",
-    "disclaimer_text": "HUNSOCCER มีไว้สำหรับการสาธิตการวิเคราะห์ AI เท่านั้น เราไม่ให้บริการเดิมพัน",
+    "platform_disclaimer_content": "HUNSOCCER มีไว้สำหรับการสาธิตการวิเคราะห์ AI เท่านั้น ไม่ให้บริการเดิมพัน",
+    "disclaimer_text": "เนื้อหาทั้งหมดของ HUNSOCCER เป็นผลการวิเคราะห์จำลอง สำหรับการวิจัย AI เท่านั้น",
+    "sponsor_disclaimer": "แหล่งข้อมูลเป็นสาธารณะ แพลตฟอร์มนี้สำหรับสาธิตการวิเคราะห์ AI",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

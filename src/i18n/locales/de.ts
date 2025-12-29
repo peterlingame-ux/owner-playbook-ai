@@ -1,4 +1,4 @@
-// German translations
+// German translations - Complete
 export const de = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const de = {
     "start_prediction_btn": "Vorhersagen Starten",
     "free_register_btn": "Kostenlos Registrieren",
     "no_deposit_free": "Keine Einzahlung · Kostenlose Teilnahme",
+    "completed_rounds": "Abgeschlossene Runden",
+    "total_winners": "Gesamte Gewinner",
+    "total_distributed": "Gesamt Verteilt",
+    "featured_winners": "Ausgewählte Gewinner",
+    "featured": "Ausgewählt",
+    "player_win_rate": "Spieler-Gewinnrate",
+    "ai_win_rate_label": "KI-Gewinnrate",
+    "predictions_count": "Vorhersagen",
+    "prize_won": "Gewonnener Preis",
+    "virtual_profit": "Virtueller Gewinn",
+    "history_records_title": "Historische Aufzeichnungen",
+    "round_column": "Runde",
+    "ai_model_column": "KI-Modell",
+    "winners_column": "Gewinner",
+    "distributed_column": "Verteilt",
+    "date_column_prize": "Datum",
+    "no_winners_round": "Keine Gewinner diese Runde",
+    "prize_rules_title": "Preisregeln",
+    "rule1": "Jede Runde dauert 30 Tage mit einem Preis von 1.000.000 $",
+    "rule2": "Spieler müssen mindestens so viele Vorhersagen wie die KI machen",
+    "rule3": "Nur Spieler mit höherer Rate als die KI können gewinnen",
+    "rule4": "Wenn niemand die KI schlägt, akkumuliert sich der Preis",
+    "rule5": "Die Verteilung basiert auf der Differenz zur KI-Rate",
+    "prize_disclaimer": "HUNSOCCER ist eine Vorhersage-Wettbewerbsplattform und KI-Demo, keine Wett-Website.",
     
     // Stats
     "highest_win_rate": "HÖCHSTE GEWINNRATE",
@@ -64,14 +88,178 @@ export const de = {
     "ai_leaderboard": "KI",
     "player_leaderboard": "Spieler",
     "all_players": "Alle Spieler",
+    "player_detail": "Spielerdetails",
     "view_all": "Alle Anzeigen",
     "search_player": "Spieler suchen...",
+    "scroll_for_more": "Für mehr scrollen...",
+    "no_search_results": "Keine Spieler gefunden",
+    "no_search_results_hint": "Versuchen Sie andere Stichwörter",
+    "clear_search": "Suche löschen",
     "no_data": "Keine Daten verfügbar",
+    "top_10": "Top 10",
+    "rank_11_20": "Rang 11-20",
+    "highest_win_rate_players": "Spieler mit höchster Rate",
+    "rising_players": "Aufsteigende Spieler",
+    "no_more_players": "Keine weiteren Spieler",
+    "today_win_rate": "Heutige Rate",
+    "today_prediction_win_rate": "Heutige Empfehlungsrate",
+    "today_prediction": "Heutige Auswahl",
+    "today_recommendations": "Heutige Auswahl",
+    "today_history": "Heutiger Verlauf",
+    "no_history_today": "Keine Aufzeichnungen heute",
+    "no_data_today": "Keine Daten",
+    "click_to_view_history": "Klicken für Verlauf",
+    "view_history": "Verlauf Anzeigen",
+    "pending": "Ausstehend",
+    "leaderboard_disclaimer": "Hinweis: Alle Statistiken zeigen nur abgeschlossene Vorhersagen. HUNSOCCER ist nur für KI-Analyse-Demo.",
+    "profit_loss": "G/V",
+    "player_recommendation_board": "Spieler-Empfehlungen",
+    "profit_amount_label": "Gewinn",
+    "bet_amount_label": "Virtuelle Wette",
+    "followers_count": "Follower",
+    "correct_matches": "Richtige",
+    "incorrect_matches": "Falsche",
+    "estimated_prize": "Geschätzter Preis",
+    "not_qualified": "Nicht Qualifiziert",
+    "win_streak": "Gewinnserie",
+    "lose_streak": "Verlustserie",
+    "win_badge": "G",
+    "loss_badge": "V",
+    "people_suffix": "",
+    "matches_suffix": "",
+    "handicap": "Handicap",
+    "over_under": "Über/Unter",
+    "challenge_ai": "KI Herausfordern",
+    "challenge_ai_reward": "KI-Herausforderung Belohnung",
+    "big_prize_waiting": "Großer Preis Wartet",
+    "challenge_description": "Übertreffe die KI in Vorhersagen, Genauigkeit und Punkten um Preise zu gewinnen",
+    "ai_benchmark": "KI-Benchmark",
+    "banner_predictions": "Vorhersagen:",
+    "banner_win_rate": "Genauigkeit:",
+    "banner_profit": "Sim-Punkte:",
+    "banner_my_model": "Mein Exklusives Modell",
+    "login_to_view": "Anmelden um dein Ranking zu sehen",
+    "days_unit": " Tage",
+    "people_qualified": "qualifiziert",
+    "per_capita_prize": "Preis pro Kopf:",
+    "activity_prize_pool": "Preispool:",
+    "total_prize_value": "Gesamter Preiswert",
+    "qualified_status": "Qualifiziert",
+    "keep_going": "Weiter So",
     
     // Model Cards
     "the_contestants": "Konkurrierende KI-Modelle",
     "top_players": "Spieler-Champions",
     "view_details": "DETAILS ANZEIGEN",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "Echtzeit-Spiel-Intelligenz",
+    "ai_analysis_disclaimer": "Daten aus visueller Erkennung und statistischen Modellen, Verzögerungen möglich.",
+    "realtime_monitoring": "Multi-Objekt-Tracking (MOT)",
+    "player_tracking": "Tracking-Ziele",
+    "tracked_players": "Status: Gesperrt",
+    "ai_recognition": "Formationserkennung",
+    "formation_analysis": "Aktuelle Formation",
+    "opponent_formation": "Gegner-Formation",
+    "formation_confidence": "Vertrauen",
+    "running_stats": "Physische Belastung",
+    "total_distance": "Gesamtstrecke",
+    "km_distance": "km",
+    "sprint_speed": "Sprint-Geschwindigkeit",
+    "sprint_tracking": "Hochintensives Laufen",
+    "kmh_max": "km/h max",
+    "possession_analysis": "Ballbesitz und Pässe",
+    "ball_possession": "Ballbesitz",
+    "pass_accuracy": "Passgenauigkeit",
+    "accuracy_rate": "Genauigkeit",
+    "ai_prediction_label": "Angriffsgefahr (xG)",
+    "goal_probability": "Torwahrscheinlichkeit",
+    "realtime_xg": "Echtzeit xG",
+    "scoring_chance": "Tor-%",
+    "danger_zone": "Gefährliche Angriffe",
+    "danger_entries": "mal",
+    "pressure_analysis": "Pressing und Transition",
+    "pressure_index": "Pressing-Intensität",
+    "high_press": "Hohes Pressing",
+    "counter_attack": "Transition-Chancen",
+    "counter_chances": "mal",
+    "legend_home": "Heim",
+    "legend_away": "Auswärts",
+    "legend_pass": "Pass/Lauflinien",
+    "total_predictions": "Gesamte Vorhersagen",
+    
+    // AI Chat
+    "ai_assistant": "HUNSOCCER ROBOTER",
+    "ai_assistant_subtitle": "5 KI Umfassende Analyse",
+    "chat_welcome": "Hallo! Ich bin ein professioneller Sport-Bot.",
+    "chat_placeholder": "Fragen Sie mich alles...",
+    "chat_ai_response": "Ich kann Ihnen bei der Datenanalyse helfen.",
+    "floating_ai_chat": {
+      "welcome": "Hallo! Ich bin der HUNSOCCER KI-Assistent.",
+      "demo_response": "Danke für Ihre Frage! Dies ist der Demo-Modus.",
+      "open_chat_button": "Chat öffnen",
+      "status_online": "Online-Support",
+      "input_placeholder": "Stellen Sie Ihre Fußball-Frage...",
+      "faq_title": "FAQ",
+      "faq": {
+        "view_predictions": {
+          "question": "Wie sehe ich KI-Vorhersagen?",
+          "answer": "Auf der Startseite liefert jedes KI-Modell professionelle Analysen."
+        },
+        "view_winrate": {
+          "question": "Wie sehe ich KI-Gewinnraten?",
+          "answer": "Besuchen Sie den Abschnitt 'Ratenvergleich' für Statistiken."
+        },
+        "view_data": {
+          "question": "Wie sehe ich Fußball-Daten?",
+          "answer": "HUNSOCCER arbeitet mit Datenanbietern zusammen. Melden Sie sich an."
+        },
+        "ai_models": {
+          "question": "Worauf spezialisieren sich die KI-Modelle?",
+          "answer": "Jedes Modell hat eine andere Spezialisierung."
+        },
+        "contact": {
+          "question": "Wie kontaktiere ich das Team?",
+          "answer": "Kontaktieren Sie uns über Telegram: HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "MARKTÜBERSICHT",
+    "banner_title": "Tritt gegen Top KI-Modelle an",
+    "banner_subtitle": "Zeige deine Fähigkeiten, fordere KI heraus, gewinne Preise",
+    "max_prize": "MAXIMALER PREIS",
+    "join_competition": "Wettbewerb Beitreten",
+    "free_to_join": "Kostenlos Beitreten",
+    "no_deposit": "Keine Einzahlung",
+    "fair_competition": "Fairer Wettbewerb",
+    
+    // Match Detail
+    "match_not_found": "Spiel nicht gefunden",
+    "go_back": "Zurück",
+    "owner": "Eigentümer",
+    "health_status": "Gesundheitsstatus",
+    "financial_status": "Finanzstatus",
+    "family_members": "Familienmitglieder",
+    "social_status": "Sozialer Status",
+    "scandals_controversies": "Skandale und Kontroversen",
+    "recent_activities": "Aktuelle Aktivitäten",
+    "exclusive_owner_analysis": "Exklusive Eigentümeranalyse",
+    "years_old": "Jahre alt",
+    "years": "Jahre",
+    "back_to_matches": "Zurück zu Spielen",
+    "at": "bei",
+    "vs": "vs",
+    "draw": "Unentschieden",
+    "win": "Sieg",
+    "confidence": "Vertrauen",
+    "in_progress": "In Bearbeitung",
+    "days": "t",
+    "hours": "h",
+    "minutes": "m",
+    "half_time": "Halbzeit",
+    "venue": "Stadion",
     
     // Auth
     "auth": {
@@ -85,7 +273,10 @@ export const de = {
       "verification_code": "Bestätigungscode",
       "send_code": "Code Senden",
       "login_success": "Anmeldung Erfolgreich",
-      "welcome_back": "Willkommen zurück!"
+      "welcome_back": "Willkommen zurück!",
+      "login_failed": "Anmeldung Fehlgeschlagen",
+      "register_success": "Registrierung Erfolgreich",
+      "welcome": "Willkommen!"
     },
     
     // Common
@@ -101,16 +292,26 @@ export const de = {
     "back": "Zurück",
     "loading_data": "Laden...",
     
-    // Match Detail
-    "match_not_found": "Spiel nicht gefunden",
-    "go_back": "Zurück",
-    "confidence": "Vertrauen",
-    "draw": "Unentschieden",
-    "win": "Sieg",
+    // My Predictions
+    "my_predictions": "Meine Vorhersagen",
+    "win_rate_trend": "Gewinnraten-Trend",
+    "filter": "Filtern",
+    "edit_profile": "Profil Bearbeiten",
+    "nickname": "Spitzname",
+    "signature": "Signatur",
+    "select_avatar": "Avatar Auswählen",
+    "saving": "Speichern...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "Hunter Coin Brieftasche",
+    "usdt_deposit": "Einzahlen",
+    "deposit_amount": "Einzahlungsbetrag",
+    "wallet_address": "Brieftaschen-Adresse",
+    
     "platform_disclaimer": "Haftungsausschluss",
-    "disclaimer_text": "HUNSOCCER dient nur zur Demonstration von KI-Analysen. Wir bieten keine Wettdienste an.",
+    "platform_disclaimer_content": "HUNSOCCER dient nur zur Demonstration von KI-Analysen und bietet keine Wettdienste an.",
+    "disclaimer_text": "Alle HUNSOCCER-Inhalte sind simulierte Analyseergebnisse, nur für KI-Forschung.",
+    "sponsor_disclaimer": "Die Datenquellen sind öffentlich. Diese Plattform ist für KI-Analyse-Demo.",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

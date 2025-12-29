@@ -1,4 +1,4 @@
-// Italian translations
+// Italian translations - Complete
 export const it = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const it = {
     "start_prediction_btn": "Inizia a Prevedere",
     "free_register_btn": "Registrazione Gratuita",
     "no_deposit_free": "Senza deposito · Partecipazione gratuita",
+    "completed_rounds": "Turni Completati",
+    "total_winners": "Vincitori Totali",
+    "total_distributed": "Totale Distribuito",
+    "featured_winners": "Vincitori in Evidenza",
+    "featured": "In Evidenza",
+    "player_win_rate": "Tasso di Vittoria Giocatore",
+    "ai_win_rate_label": "Tasso di Vittoria IA",
+    "predictions_count": "Previsioni",
+    "prize_won": "Premio Vinto",
+    "virtual_profit": "Profitto Virtuale",
+    "history_records_title": "Record Storici",
+    "round_column": "Turno",
+    "ai_model_column": "Modello IA",
+    "winners_column": "Vincitori",
+    "distributed_column": "Distribuito",
+    "date_column_prize": "Data",
+    "no_winners_round": "Nessun vincitore in questo turno",
+    "prize_rules_title": "Regole del Premio",
+    "rule1": "Ogni turno dura 30 giorni, con un premio di $1,000,000",
+    "rule2": "I giocatori devono fare almeno tante previsioni quante l'IA",
+    "rule3": "Solo i giocatori con tasso superiore all'IA possono vincere",
+    "rule4": "Se nessuno batte l'IA, il premio si accumula",
+    "rule5": "La distribuzione si basa sulla differenza con il tasso dell'IA",
+    "prize_disclaimer": "HUNSOCCER è una piattaforma di competizione di previsioni e demo IA, non un sito di scommesse.",
     
     // Stats
     "highest_win_rate": "MIGLIOR TASSO DI VITTORIA",
@@ -64,14 +88,147 @@ export const it = {
     "ai_leaderboard": "IA",
     "player_leaderboard": "Giocatori",
     "all_players": "Tutti i Giocatori",
+    "player_detail": "Dettagli Giocatore",
     "view_all": "Vedi Tutto",
     "search_player": "Cerca giocatore...",
+    "scroll_for_more": "Scorri per altro...",
+    "no_search_results": "Nessun giocatore trovato",
+    "no_search_results_hint": "Prova altre parole",
+    "clear_search": "Cancella ricerca",
     "no_data": "Nessun dato disponibile",
+    "top_10": "Top 10",
+    "rank_11_20": "Posizione 11-20",
+    "highest_win_rate_players": "Giocatori con Miglior Tasso",
+    "rising_players": "Giocatori in Crescita",
+    "no_more_players": "Nessun altro giocatore",
+    "today_win_rate": "Tasso di Oggi",
+    "today_prediction_win_rate": "Tasso Raccomandazioni Oggi",
+    "today_prediction": "Scelte di Oggi",
+    "today_recommendations": "Scelte di Oggi",
+    "today_history": "Storico di Oggi",
+    "no_history_today": "Nessun record oggi",
+    "no_data_today": "Nessun dato",
+    "click_to_view_history": "Clicca per vedere lo storico",
+    "view_history": "Vedi Storico",
+    "pending": "In Attesa",
+    "leaderboard_disclaimer": "Nota: Tutte le statistiche riflettono solo le previsioni completate. HUNSOCCER è solo per demo di analisi IA.",
+    "profit_loss": "P/P",
+    "player_recommendation_board": "Raccomandazioni Giocatori",
+    "profit_amount_label": "Profitto",
+    "bet_amount_label": "Scommessa Virtuale",
+    "followers_count": "Follower",
+    "correct_matches": "Corrette",
+    "incorrect_matches": "Errate",
+    "estimated_prize": "Premio Stim.",
+    "not_qualified": "Non Qualificato",
+    "win_streak": "Serie Vincente",
+    "lose_streak": "Serie Perdente",
+    "win_badge": "V",
+    "loss_badge": "P",
+    "people_suffix": "",
+    "matches_suffix": "",
+    "handicap": "Handicap",
+    "over_under": "Over/Under",
+    "challenge_ai": "Sfida l'IA",
+    "challenge_ai_reward": "Ricompensa Sfida IA",
+    "big_prize_waiting": "Grande Premio in Attesa",
+    "challenge_description": "Supera l'IA in previsioni, precisione e punti per vincere premi",
+    "ai_benchmark": "Benchmark IA",
+    "banner_predictions": "Previsioni:",
+    "banner_win_rate": "Precisione:",
+    "banner_profit": "Punti Sim:",
+    "banner_my_model": "Il Mio Modello Esclusivo",
+    "login_to_view": "Accedi per vedere la tua classifica",
+    "days_unit": " giorni",
+    "people_qualified": "qualificati",
+    "per_capita_prize": "Premio Pro Capite:",
+    "activity_prize_pool": "Montepremi:",
+    "total_prize_value": "Valore Totale Premio",
+    "qualified_status": "Qualificato",
+    "keep_going": "Continua Così",
     
     // Model Cards
     "the_contestants": "Modelli IA in Competizione",
     "top_players": "Campioni Giocatori",
     "view_details": "VEDI DETTAGLI",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "Intelligenza Partite in Tempo Reale",
+    "ai_analysis_disclaimer": "Dati da riconoscimento visivo e modelli statistici, soggetti a ritardo ed errore.",
+    "total_predictions": "Previsioni Totali",
+    
+    // AI Chat
+    "ai_assistant": "ROBOT HUNSOCCER",
+    "ai_assistant_subtitle": "5 IA Analisi Completa",
+    "chat_welcome": "Ciao! Sono un bot sportivo professionale.",
+    "chat_placeholder": "Chiedimi qualsiasi cosa...",
+    "chat_ai_response": "Posso aiutarti con l'analisi dei dati e il confronto delle previsioni IA.",
+    "floating_ai_chat": {
+      "welcome": "Ciao! Sono l'assistente IA di HUNSOCCER.",
+      "demo_response": "Grazie per la tua domanda! Questa chat è in modalità demo.",
+      "open_chat_button": "Apri chat",
+      "status_online": "Supporto online",
+      "input_placeholder": "Scrivi la tua domanda sul calcio...",
+      "faq_title": "FAQ",
+      "faq": {
+        "view_predictions": {
+          "question": "Come vedere le previsioni IA?",
+          "answer": "Nella homepage, ogni modello IA fornisce analisi professionale."
+        },
+        "view_winrate": {
+          "question": "Come vedere i tassi di vittoria IA?",
+          "answer": "Visita la sezione 'Confronto Tassi' per le statistiche."
+        },
+        "view_data": {
+          "question": "Come vedere i dati calcistici?",
+          "answer": "HUNSOCCER collabora con fornitori di dati. Accedi per l'accesso."
+        },
+        "ai_models": {
+          "question": "In cosa si specializzano i modelli IA?",
+          "answer": "Ogni modello ha una specializzazione diversa."
+        },
+        "contact": {
+          "question": "Come contattare il team?",
+          "answer": "Contattaci su Telegram: HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "PANORAMICA MERCATO",
+    "banner_title": "Competi con i Migliori Modelli IA",
+    "banner_subtitle": "Mostra le tue abilità, sfida l'IA, vinci premi",
+    "max_prize": "PREMIO MASSIMO",
+    "join_competition": "Partecipa alla Competizione",
+    "free_to_join": "Gratis per Partecipare",
+    "no_deposit": "Senza Deposito",
+    "fair_competition": "Competizione Equa",
+    
+    // Match Detail
+    "match_not_found": "Partita non trovata",
+    "go_back": "Torna Indietro",
+    "owner": "Proprietario",
+    "health_status": "Stato di Salute",
+    "financial_status": "Stato Finanziario",
+    "family_members": "Membri della Famiglia",
+    "social_status": "Stato Sociale",
+    "scandals_controversies": "Scandali e Controversie",
+    "recent_activities": "Attività Recenti",
+    "exclusive_owner_analysis": "Analisi Esclusiva del Proprietario",
+    "years_old": "anni",
+    "years": "anni",
+    "back_to_matches": "Torna alle Partite",
+    "at": "a",
+    "vs": "vs",
+    "draw": "Pareggio",
+    "win": "Vittoria",
+    "confidence": "Fiducia",
+    "in_progress": "In Corso",
+    "days": "g",
+    "hours": "o",
+    "minutes": "m",
+    "half_time": "Intervallo",
+    "venue": "Stadio",
     
     // Auth
     "auth": {
@@ -85,7 +242,10 @@ export const it = {
       "verification_code": "Codice di Verifica",
       "send_code": "Invia Codice",
       "login_success": "Accesso Riuscito",
-      "welcome_back": "Bentornato!"
+      "welcome_back": "Bentornato!",
+      "login_failed": "Accesso Fallito",
+      "register_success": "Registrazione Riuscita",
+      "welcome": "Benvenuto!"
     },
     
     // Common
@@ -101,16 +261,26 @@ export const it = {
     "back": "Indietro",
     "loading_data": "Caricamento...",
     
-    // Match Detail
-    "match_not_found": "Partita non trovata",
-    "go_back": "Torna Indietro",
-    "confidence": "Fiducia",
-    "draw": "Pareggio",
-    "win": "Vittoria",
+    // My Predictions
+    "my_predictions": "Le Mie Previsioni",
+    "win_rate_trend": "Tendenza Tasso di Vittoria",
+    "filter": "Filtra",
+    "edit_profile": "Modifica Profilo",
+    "nickname": "Soprannome",
+    "signature": "Firma",
+    "select_avatar": "Seleziona Avatar",
+    "saving": "Salvataggio...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "Portafoglio Hunter Coin",
+    "usdt_deposit": "Deposita",
+    "deposit_amount": "Importo Deposito",
+    "wallet_address": "Indirizzo Portafoglio",
+    
     "platform_disclaimer": "Avviso Legale",
-    "disclaimer_text": "HUNSOCCER è solo per la dimostrazione dell'analisi IA. Non forniamo servizi di scommesse.",
+    "platform_disclaimer_content": "HUNSOCCER è solo per la dimostrazione dell'analisi IA e non fornisce servizi di scommesse.",
+    "disclaimer_text": "Tutti i contenuti di HUNSOCCER sono risultati di analisi simulate, solo per ricerca IA.",
+    "sponsor_disclaimer": "Le fonti dati sono pubbliche. Questa piattaforma è per demo di analisi IA.",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

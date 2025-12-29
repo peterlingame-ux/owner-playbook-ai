@@ -1,4 +1,4 @@
-// Japanese translations
+// Japanese translations - Complete
 export const ja = {
   translation: {
     // Header
@@ -33,6 +33,30 @@ export const ja = {
     "start_prediction_btn": "予測を開始",
     "free_register_btn": "無料登録",
     "no_deposit_free": "入金不要・参加無料",
+    "completed_rounds": "完了したラウンド",
+    "total_winners": "総勝者数",
+    "total_distributed": "総配布額",
+    "featured_winners": "注目の勝者",
+    "featured": "注目",
+    "player_win_rate": "プレイヤー勝率",
+    "ai_win_rate_label": "AI勝率",
+    "predictions_count": "予測数",
+    "prize_won": "獲得賞金",
+    "virtual_profit": "仮想利益",
+    "history_records_title": "履歴記録",
+    "round_column": "ラウンド",
+    "ai_model_column": "AIモデル",
+    "winners_column": "勝者",
+    "distributed_column": "配布額",
+    "date_column_prize": "日付",
+    "no_winners_round": "このラウンドは勝者なし",
+    "prize_rules_title": "賞金ルール",
+    "rule1": "各ラウンドは30日間、賞金プールは100万ドル",
+    "rule2": "プレイヤーはAI以上の予測数が必要",
+    "rule3": "AIより高い勝率のプレイヤーのみ賞金獲得",
+    "rule4": "AIを超えるプレイヤーがいない場合、賞金は繰り越し",
+    "rule5": "配分はAI勝率との差に基づく",
+    "prize_disclaimer": "HUNSOCCERは予測コンペティションとAIデモプラットフォームであり、賭博サイトではありません。",
     
     // Stats
     "highest_win_rate": "最高勝率",
@@ -48,8 +72,8 @@ export const ja = {
     "live": "ライブ",
     
     // Tabs
-    "leaderboard": "ランキング",
-    "completed_trades": "完了取引",
+    "leaderboard": "リーダーボード",
+    "completed_trades": "完了した取引",
     "model_chat": "モデルチャット",
     "positions": "ポジション",
     
@@ -64,14 +88,178 @@ export const ja = {
     "ai_leaderboard": "AI",
     "player_leaderboard": "プレイヤー",
     "all_players": "全プレイヤー",
+    "player_detail": "プレイヤー詳細",
     "view_all": "すべて見る",
     "search_player": "プレイヤーを検索...",
+    "scroll_for_more": "もっと見るにはスクロール...",
+    "no_search_results": "プレイヤーが見つかりません",
+    "no_search_results_hint": "別のキーワードを試してください",
+    "clear_search": "検索をクリア",
     "no_data": "データがありません",
+    "top_10": "トップ10",
+    "rank_11_20": "順位11-20",
+    "highest_win_rate_players": "最高勝率プレイヤー",
+    "rising_players": "上昇中のプレイヤー",
+    "no_more_players": "これ以上のプレイヤーはいません",
+    "today_win_rate": "今日の勝率",
+    "today_prediction_win_rate": "今日のおすすめ勝率",
+    "today_prediction": "今日のピック",
+    "today_recommendations": "今日のピック",
+    "today_history": "今日の履歴",
+    "no_history_today": "今日の記録はありません",
+    "no_data_today": "データなし",
+    "click_to_view_history": "履歴を表示するにはクリック",
+    "view_history": "履歴を見る",
+    "pending": "保留中",
+    "leaderboard_disclaimer": "注：すべての統計は完了した予測のみを反映しています。HUNSOCCERはAI分析デモ専用です。",
+    "profit_loss": "損益",
+    "player_recommendation_board": "プレイヤーおすすめ",
+    "profit_amount_label": "利益",
+    "bet_amount_label": "仮想ベット",
+    "followers_count": "フォロワー",
+    "correct_matches": "正解",
+    "incorrect_matches": "不正解",
+    "estimated_prize": "推定賞金",
+    "not_qualified": "未資格",
+    "win_streak": "連勝",
+    "lose_streak": "連敗",
+    "win_badge": "勝",
+    "loss_badge": "負",
+    "people_suffix": "人",
+    "matches_suffix": "試合",
+    "handicap": "ハンディキャップ",
+    "over_under": "オーバー/アンダー",
+    "challenge_ai": "AIに挑戦",
+    "challenge_ai_reward": "AI挑戦報酬",
+    "big_prize_waiting": "大きな賞品が待っています",
+    "challenge_description": "予測、精度、ポイントでAIを超えて賞品を獲得",
+    "ai_benchmark": "AIベンチマーク",
+    "banner_predictions": "予測:",
+    "banner_win_rate": "精度:",
+    "banner_profit": "シミュレーションポイント:",
+    "banner_my_model": "マイ専用モデル",
+    "login_to_view": "ログインしてランキングを見る",
+    "days_unit": "日",
+    "people_qualified": "資格者",
+    "per_capita_prize": "一人当たり賞金:",
+    "activity_prize_pool": "賞金プール:",
+    "total_prize_value": "総賞金額",
+    "qualified_status": "資格あり",
+    "keep_going": "続けて",
     
     // Model Cards
     "the_contestants": "競争中のAIモデル",
     "top_players": "プレイヤーチャンピオン",
     "view_details": "詳細を見る",
+    
+    // AI Analysis Section
+    "ai_analysis_title": "リアルタイム試合インテリジェンス",
+    "ai_analysis_disclaimer": "視覚認識と統計モデルからのデータ、遅延とエラーの可能性あり。",
+    "realtime_monitoring": "マルチオブジェクトトラッキング (MOT)",
+    "player_tracking": "トラッキング対象",
+    "tracked_players": "ステータス：ロック",
+    "ai_recognition": "フォーメーション検出",
+    "formation_analysis": "現在のフォーメーション",
+    "opponent_formation": "相手フォーメーション",
+    "formation_confidence": "信頼度",
+    "running_stats": "身体的負荷",
+    "total_distance": "総距離",
+    "km_distance": "km",
+    "sprint_speed": "スプリント速度",
+    "sprint_tracking": "高強度ランニング",
+    "kmh_max": "km/h 最大",
+    "possession_analysis": "ポゼッションとパス",
+    "ball_possession": "ボールポゼッション",
+    "pass_accuracy": "パス精度",
+    "accuracy_rate": "精度",
+    "ai_prediction_label": "攻撃脅威 (xG)",
+    "goal_probability": "ゴール確率",
+    "realtime_xg": "リアルタイムxG",
+    "scoring_chance": "得点%",
+    "danger_zone": "危険な攻撃",
+    "danger_entries": "回",
+    "pressure_analysis": "プレスとトランジション",
+    "pressure_index": "プレス強度",
+    "high_press": "ハイプレス",
+    "counter_attack": "トランジションチャンス",
+    "counter_chances": "回",
+    "legend_home": "ホーム",
+    "legend_away": "アウェイ",
+    "legend_pass": "パス/ランライン",
+    "total_predictions": "総予測数",
+    
+    // AI Chat
+    "ai_assistant": "HUNSOCCERロボット",
+    "ai_assistant_subtitle": "5つのAI総合分析",
+    "chat_welcome": "こんにちは！プロスポーツボットです。",
+    "chat_placeholder": "何でも聞いてください...",
+    "chat_ai_response": "データ分析やAI予測の比較をお手伝いできます。",
+    "floating_ai_chat": {
+      "welcome": "こんにちは！HUNSOCCER AIアシスタントです。",
+      "demo_response": "ご質問ありがとうございます！デモモードで動作中です。",
+      "open_chat_button": "チャットを開く",
+      "status_online": "オンラインサポート",
+      "input_placeholder": "サッカーの質問を入力...",
+      "faq_title": "よくある質問",
+      "faq": {
+        "view_predictions": {
+          "question": "AI予測の見方は？",
+          "answer": "ホームページで各AIモデルがプロの分析を提供しています。"
+        },
+        "view_winrate": {
+          "question": "AI勝率の見方は？",
+          "answer": "「勝率比較」セクションで統計を確認できます。"
+        },
+        "view_data": {
+          "question": "サッカーデータの見方は？",
+          "answer": "HUNSOCCERはデータプロバイダーと提携しています。ログインしてアクセスしてください。"
+        },
+        "ai_models": {
+          "question": "AIモデルの専門分野は？",
+          "answer": "各モデルは異なる専門分野を持っています。"
+        },
+        "contact": {
+          "question": "チームへの連絡方法は？",
+          "answer": "Telegramでお問い合わせください：HUNSOCCER"
+        }
+      }
+    },
+    
+    // Crypto Ticker
+    "market_overview": "マーケット概要",
+    "banner_title": "トップAIモデルと競争",
+    "banner_subtitle": "予測スキルを披露し、AIに挑戦し、賞品を獲得",
+    "max_prize": "最大賞金",
+    "join_competition": "コンペに参加",
+    "free_to_join": "参加無料",
+    "no_deposit": "入金不要",
+    "fair_competition": "公正な競争",
+    
+    // Match Detail
+    "match_not_found": "試合が見つかりません",
+    "go_back": "戻る",
+    "owner": "オーナー",
+    "health_status": "健康状態",
+    "financial_status": "財務状況",
+    "family_members": "家族構成",
+    "social_status": "社会的地位",
+    "scandals_controversies": "スキャンダルと論争",
+    "recent_activities": "最近の活動",
+    "exclusive_owner_analysis": "独占オーナー分析",
+    "years_old": "歳",
+    "years": "年",
+    "back_to_matches": "試合に戻る",
+    "at": "で",
+    "vs": "vs",
+    "draw": "引き分け",
+    "win": "勝利",
+    "confidence": "信頼度",
+    "in_progress": "進行中",
+    "days": "日",
+    "hours": "時",
+    "minutes": "分",
+    "half_time": "ハーフタイム",
+    "venue": "会場",
     
     // Auth
     "auth": {
@@ -85,7 +273,10 @@ export const ja = {
       "verification_code": "認証コード",
       "send_code": "コード送信",
       "login_success": "ログイン成功",
-      "welcome_back": "おかえりなさい！"
+      "welcome_back": "おかえりなさい！",
+      "login_failed": "ログイン失敗",
+      "register_success": "登録成功",
+      "welcome": "ようこそ！"
     },
     
     // Common
@@ -101,16 +292,26 @@ export const ja = {
     "back": "戻る",
     "loading_data": "読み込み中...",
     
-    // Match Detail
-    "match_not_found": "試合が見つかりません",
-    "go_back": "戻る",
-    "confidence": "信頼度",
-    "draw": "引き分け",
-    "win": "勝利",
+    // My Predictions
+    "my_predictions": "マイ予測",
+    "win_rate_trend": "勝率トレンド",
+    "filter": "フィルター",
+    "edit_profile": "プロフィール編集",
+    "nickname": "ニックネーム",
+    "signature": "署名",
+    "select_avatar": "アバター選択",
+    "saving": "保存中...",
     
-    // Disclaimer
+    // Wallet
+    "hunter_coin_wallet": "ハンターコインウォレット",
+    "usdt_deposit": "入金",
+    "deposit_amount": "入金額",
+    "wallet_address": "ウォレットアドレス",
+    
     "platform_disclaimer": "免責事項",
-    "disclaimer_text": "HUNSOCCERはAI分析のデモンストレーションのみを目的としています。賭博サービスは提供していません。",
+    "platform_disclaimer_content": "HUNSOCCERはAI分析のデモンストレーションのみを目的としており、賭博サービスは提供していません。",
+    "disclaimer_text": "HUNSOCCERのすべてのコンテンツはシミュレーション分析結果であり、AI研究専用です。",
+    "sponsor_disclaimer": "データソースは公開されています。このプラットフォームはAI分析デモ用です。",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
