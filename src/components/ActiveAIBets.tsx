@@ -1203,44 +1203,124 @@ const ActiveAIBets = () => {
                       </div>
                     )}
 
-                {/* Handicap Bet - International Clean Style */}
+                {/* Handicap Bet - Modern Style */}
                 {handicapBet && (
-                  <div className="bg-white/[0.03] rounded-xl p-4 space-y-2">
-                    <span className="text-[11px] text-muted-foreground/70 uppercase tracking-wide">{t('handicap_bet')}</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-foreground">
-                        {handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" 
-                          ? getTeamName(currentMatchData!.match, 'home')
-                          : getTeamName(currentMatchData!.match, 'away')}
-                      </span>
-                      {handicapBet.handicapLine !== undefined && (
-                        <span className="text-lg font-mono font-bold text-primary">
-                          {handicapBet.handicapLine > 0 ? '+' : ''}{handicapBet.handicapLine}
-                        </span>
-                      )}
+                  <div className="bg-white/5 rounded-xl p-3 space-y-3 border border-white/10">
+                    {/* Bet Type Header */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet')}</span>
+                      <Badge 
+                        variant="outline"
+                        className={`text-[10px] px-2 py-0.5 ${handicapBet.confirmed ? "bg-success/20 text-success border-success/30" : "bg-white/5 text-muted-foreground border-white/10"}`}
+                      >
+                        {handicapBet.confirmed ? "Confirmed" : "Pending"}
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground/80">
-                      <span>Confidence: <span className="text-foreground font-medium">{handicapBet.confidence}%</span></span>
-                      <span>Odds: <span className="text-foreground font-mono font-medium">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                    
+                    {/* Selection Grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center gap-2 ${
+                        handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME"
+                          ? "bg-primary/20 border-primary/60" 
+                          : "bg-white/5 border-white/10 opacity-60"
+                      }`}>
+                        {currentMatchData?.match.home_logo && (
+                          <Avatar className="h-5 w-5">
+                            <AvatarImage src={currentMatchData.match.home_logo} />
+                            <AvatarFallback><Shield className="h-3 w-3" /></AvatarFallback>
+                          </Avatar>
+                        )}
+                        <span className="text-xs font-semibold truncate flex-1">{getTeamName(currentMatchData!.match, 'home')}</span>
+                        {handicapBet.handicapLine !== undefined && (
+                          <span className={`text-xs font-mono font-bold ${
+                            handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
+                          }`}>
+                            {((handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
+                            {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                          </span>
+                        )}
+                      </div>
+                      <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center gap-2 ${
+                        handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
+                          ? "bg-primary/20 border-primary/60" 
+                          : "bg-white/5 border-white/10 opacity-60"
+                      }`}>
+                        {currentMatchData?.match.away_logo && (
+                          <Avatar className="h-5 w-5">
+                            <AvatarImage src={currentMatchData.match.away_logo} />
+                            <AvatarFallback><Shield className="h-3 w-3" /></AvatarFallback>
+                          </Avatar>
+                        )}
+                        <span className="text-xs font-semibold truncate flex-1">{getTeamName(currentMatchData!.match, 'away')}</span>
+                        {handicapBet.handicapLine !== undefined && (
+                          <span className={`text-xs font-mono font-bold ${
+                            handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
+                          }`}>
+                            {((handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
+                            {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Stats Row */}
+                    <div className="flex items-center justify-between text-xs pt-2 border-t border-white/10">
+                      <div className="flex items-center gap-4">
+                        <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
+                        <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                      </div>
+                      <span className="font-mono font-bold text-success">${(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Over/Under Bet - International Clean Style */}
+                {/* Over/Under Bet - Modern Style */}
                 {overUnderBet && (
-                  <div className="bg-white/[0.03] rounded-xl p-4 space-y-2">
-                    <span className="text-[11px] text-muted-foreground/70 uppercase tracking-wide">{t('over_under_bet')}</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-foreground">
-                        {overUnderBet.overUnderPick === 'over' ? t('over') : t('under')}
-                      </span>
-                      <span className="text-lg font-mono font-bold text-primary">
-                        {overUnderBet.overUnderLine}
-                      </span>
+                  <div className="bg-white/5 rounded-xl p-3 space-y-3 border border-white/10">
+                    {/* Bet Type Header */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet')}</span>
+                      <Badge 
+                        variant="outline"
+                        className={`text-[10px] px-2 py-0.5 ${overUnderBet.confirmed ? "bg-success/20 text-success border-success/30" : "bg-white/5 text-muted-foreground border-white/10"}`}
+                      >
+                        {overUnderBet.confirmed ? "Confirmed" : "Pending"}
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground/80">
-                      <span>Confidence: <span className="text-foreground font-medium">{overUnderBet.confidence}%</span></span>
-                      <span>Odds: <span className="text-foreground font-mono font-medium">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                    
+                    {/* Selection Grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
+                        overUnderBet.overUnderPick === 'over'
+                          ? "bg-primary/20 border-primary/60" 
+                          : "bg-white/5 border-white/10 opacity-60"
+                      }`}>
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        <span className="text-xs font-semibold">{t('over')}</span>
+                        <span className={`text-xs font-mono font-bold ${
+                          overUnderBet.overUnderPick === 'over' ? "text-primary" : "text-muted-foreground"
+                        }`}>{overUnderBet.overUnderLine}</span>
+                      </div>
+                      <div className={`p-2.5 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
+                        overUnderBet.overUnderPick === 'under'
+                          ? "bg-primary/20 border-primary/60" 
+                          : "bg-white/5 border-white/10 opacity-60"
+                      }`}>
+                        <TrendingUp className="h-3.5 w-3.5 rotate-180" />
+                        <span className="text-xs font-semibold">{t('under')}</span>
+                        <span className={`text-xs font-mono font-bold ${
+                          overUnderBet.overUnderPick === 'under' ? "text-primary" : "text-muted-foreground"
+                        }`}>{overUnderBet.overUnderLine}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Stats Row */}
+                    <div className="flex items-center justify-between text-xs pt-2 border-t border-white/10">
+                      <div className="flex items-center gap-4">
+                        <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
+                        <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                      </div>
+                      <span className="font-mono font-bold text-success">${(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
                   </div>
                 )}
