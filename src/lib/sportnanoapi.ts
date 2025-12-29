@@ -6,15 +6,28 @@ const SPORTNANOAPI_BASE_URL = "https://open.sportnanoapi.com/api/v5";
 // 获取本地 API 基础 URL，确保包含协议
 const getApiBaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  
   if (!envUrl) {
-    return "http://localhost:3000";
+    // 开发环境使用相对路径通过代理，生产环境根据协议决定
+    if (import.meta.env.DEV) {
+      return ""; // 使用相对路径，通过 Vite 代理
+    }
+    return isHttps ? "https://localhost:3000" : "http://localhost:3000";
   }
-  // 如果环境变量已经包含协议，直接返回
+  
+  // 如果环境变量已经包含协议
   if (envUrl.startsWith("http://") || envUrl.startsWith("https://")) {
+    // 如果页面是 HTTPS 但 API 是 HTTP，尝试转换为 HTTPS
+    if (isHttps && envUrl.startsWith("http://")) {
+      return envUrl.replace("http://", "https://");
+    }
     return envUrl;
   }
-  // 如果没有协议，默认使用 http://
-  return `http://${envUrl}`;
+  
+  // 如果没有协议，根据页面协议决定
+  const protocol = isHttps ? "https://" : "http://";
+  return `${protocol}${envUrl}`;
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -124,8 +137,9 @@ export const fetchCompetitions = async (
   if (params.time !== undefined) searchParams.append('time', params.time.toString());
   if (params.limit !== undefined) searchParams.append('limit', params.limit.toString());
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/competitions${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/competitions` : "/api/competitions";
+  const url = `${basePath}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -393,8 +407,9 @@ export const fetchFixtures = async (
   if (params.timezone) searchParams.append('timezone', params.timezone);
   // 注意：match/schedule/diary 不添加 limit 参数
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/fixtures${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/fixtures` : "/api/fixtures";
+  const url = `${basePath}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -509,8 +524,9 @@ export const fetchMatchLive = async (matchId?: string | number): Promise<MatchLi
     searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
   }
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/live${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/match/live` : "/api/match/live";
+  const url = `${basePath}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -673,8 +689,9 @@ export const fetchOddsLive = async (
     searchParams.append('company[]', String(id));
   });
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/odds/live?${searchParams.toString()}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/odds/live` : "/api/odds/live";
+  const url = `${basePath}?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -736,8 +753,9 @@ export const fetchMatchTrend = async (
   const searchParams = new URLSearchParams();
   searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/trend/live?${searchParams.toString()}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/match/trend/live` : "/api/match/trend/live";
+  const url = `${basePath}?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -780,8 +798,9 @@ export const fetchMatchTrendDetail = async (
   const searchParams = new URLSearchParams();
   searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/trend/detail?${searchParams.toString()}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/match/trend/detail` : "/api/match/trend/detail";
+  const url = `${basePath}?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -945,8 +964,9 @@ export const fetchMatchLineup = async (
   const searchParams = new URLSearchParams();
   searchParams.append('id', typeof matchId === 'string' ? matchId : matchId.toString());
 
-  // 调用本地 API
-  const url = `${API_BASE_URL}/api/match/lineup/detail?${searchParams.toString()}`;
+  // 调用本地 API（开发环境使用相对路径通过代理，生产环境使用完整 URL）
+  const basePath = API_BASE_URL ? `${API_BASE_URL}/api/match/lineup/detail` : "/api/match/lineup/detail";
+  const url = `${basePath}?${searchParams.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
