@@ -712,7 +712,7 @@ const PlayerExclusiveModelCard = ({
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
-                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-16 w-auto opacity-15 mb-3" />
+                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-20 w-auto opacity-25 mb-3" />
                   <p className="text-sm text-muted-foreground/80 font-medium">
                     {t('no_active_predictions')}
                   </p>
