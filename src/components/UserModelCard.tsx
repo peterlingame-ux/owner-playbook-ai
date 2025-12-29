@@ -111,15 +111,40 @@ const UserModelCard = () => {
       transition={{ duration: 0.4 }}
     >
       <TiltCard
-        className={`group rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border ${USER_THEME.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer`}
+        className={`group rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_-5px_rgba(245,158,11,0.4)]`}
         onClick={handleCardClick}
         maxTilt={6}
         scale={1.02}
         glare={false}
       >
+        {/* Animated Golden Glow Effects */}
+        <motion.div 
+          className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"
+          animate={{ 
+            opacity: [0.2, 0.5, 0.2],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute -bottom-16 -left-16 w-36 h-36 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none"
+          animate={{ 
+            opacity: [0.15, 0.4, 0.15],
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-300/10 rounded-full blur-3xl pointer-events-none"
+          animate={{ 
+            scale: [0.8, 1.1, 0.8],
+            opacity: [0.1, 0.25, 0.1],
+          }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        />
+
         {/* Star Background Image */}
         <div
-          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+          className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500 pointer-events-none"
           style={{
             backgroundImage: `url(${starHunsoccer})`,
             backgroundSize: "cover",
@@ -141,7 +166,7 @@ const UserModelCard = () => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center p-1.5 ring-2 ring-white/10 overflow-hidden">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-2 ring-amber-400/40 overflow-hidden">
                   {user ? (
                     <Avatar className="w-full h-full">
                       <AvatarImage
@@ -149,14 +174,20 @@ const UserModelCard = () => {
                         alt={title}
                         className="object-cover"
                       />
-                      <AvatarFallback className="text-sm font-bold bg-white/10">
+                      <AvatarFallback className="text-sm font-bold bg-amber-900/50 text-amber-200">
                         {(userProfile?.display_name || "U")[0]}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
-                    <div className="w-full h-full rounded-full bg-white/5 flex items-center justify-center">
-                      <User className="h-6 w-6 text-muted-foreground" />
-                    </div>
+                    <motion.div 
+                      className="w-full h-full rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/20 flex items-center justify-center border-2 border-dashed border-amber-400/50"
+                      animate={{ 
+                        borderColor: ['rgba(251,191,36,0.5)', 'rgba(251,191,36,0.8)', 'rgba(251,191,36,0.5)'],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <User className="h-6 w-6 text-amber-400" />
+                    </motion.div>
                   )}
                 </div>
               </motion.div>
@@ -173,7 +204,7 @@ const UserModelCard = () => {
 
             {/* Points Badge */}
             <div className="flex flex-col items-end gap-1">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+              <span className="text-[10px] text-amber-200/70 uppercase tracking-wider font-medium">
                 {t("simulated_profit")}
               </span>
               <div
@@ -182,7 +213,7 @@ const UserModelCard = () => {
                     ? isPositive
                       ? "bg-success/20 text-success border-success/30"
                       : "bg-destructive/20 text-destructive border-destructive/30"
-                    : "bg-white/5 text-muted-foreground border-white/10"
+                    : "bg-amber-500/10 text-amber-400/50 border-amber-500/30"
                 }`}
               >
                 {profitLabel}
@@ -193,15 +224,15 @@ const UserModelCard = () => {
           {/* Win Rate Section */}
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+              <span className="text-xs text-amber-200/60 uppercase tracking-wider font-medium">
                 {t("win_rate")}
               </span>
-              <span className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-foreground">
-                {user ? `${animatedWinRate.toFixed(1)}%` : "--"}
+              <span className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-amber-300">
+                {user ? `${animatedWinRate.toFixed(1)}%` : "--%"}
               </span>
             </div>
 
-            <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+            <div className="relative h-2 bg-amber-900/30 rounded-full overflow-hidden">
               <motion.div
                 className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress}`}
                 initial={{ width: 0 }}
@@ -218,25 +249,25 @@ const UserModelCard = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-3 mb-5 p-3 rounded-xl bg-white/5 border border-white/5">
+          <div className="grid grid-cols-3 gap-3 mb-5 p-3 rounded-xl bg-amber-900/20 border border-amber-500/20">
             <div className="text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">
+              <p className="text-[10px] text-amber-200/50 uppercase tracking-wider mb-1 font-medium">
                 {t("correct")}
               </p>
               <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-success">
                 {user ? stats.correctPredictions : "--"}
               </p>
             </div>
-            <div className="text-center border-x border-white/10">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">
+            <div className="text-center border-x border-amber-500/20">
+              <p className="text-[10px] text-amber-200/50 uppercase tracking-wider mb-1 font-medium">
                 {t("total_predictions")}
               </p>
-              <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-foreground">
+              <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-amber-300">
                 {user ? stats.totalPredictions : "--"}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">
+              <p className="text-[10px] text-amber-200/50 uppercase tracking-wider mb-1 font-medium">
                 {t("wrong")}
               </p>
               <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-destructive">
@@ -249,7 +280,7 @@ const UserModelCard = () => {
           <Button
             variant="outline"
             size="sm"
-            className={`w-full h-10 text-sm font-semibold transition-all duration-300 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 shadow-sm`}
+            className="w-full h-10 text-sm font-semibold transition-all duration-300 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
             onClick={handlePrimaryAction}
           >
             {user ? t("my_predictions") : t("login_to_create_model")}
