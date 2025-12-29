@@ -1172,7 +1172,7 @@ const resources = {
       "profit_loss": "盈亏",
       "player_recommendation_board": "预测者准确率排行榜",
       "profit_amount_label": "模拟额度",
-      "bet_amount_label": "模拟投入",
+      "bet_amount_label": "虚拟下注",
       "followers_count": "追踪人数",
       "correct_matches": "正确场次",
       "incorrect_matches": "错误场次",
