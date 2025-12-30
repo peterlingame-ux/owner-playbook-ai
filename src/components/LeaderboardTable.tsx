@@ -392,8 +392,8 @@ const LeaderboardTable = () => {
   const handleCopyTrade = async () => {
     if (!user) {
       toast({
-        title: "请先登录",
-        description: "登录后即可订阅AI模型",
+        title: t('login_first'),
+        description: t('login_to_subscribe'),
         variant: "default",
       });
       return;
@@ -412,8 +412,8 @@ const LeaderboardTable = () => {
 
       if (balanceError || !balanceData) {
         toast({
-          title: "获取余额失败",
-          description: "请稍后重试",
+          title: t('fetch_balance_failed'),
+          description: t('please_try_later'),
           variant: "destructive",
         });
         return;
@@ -421,8 +421,8 @@ const LeaderboardTable = () => {
 
       if (balanceData.balance < copyTradeAmount) {
         toast({
-          title: "余额不足",
-          description: `当前余额: ${balanceData.balance.toFixed(2)} 猎人币，需要: ${copyTradeAmount} 猎人币`,
+          title: t('insufficient_balance_title'),
+          description: t('current_balance_need', { current: balanceData.balance.toFixed(2), need: copyTradeAmount }),
           variant: "destructive",
         });
         return;
@@ -442,8 +442,8 @@ const LeaderboardTable = () => {
       }
 
       toast({
-        title: "订阅成功！",
-        description: `已订阅 ${copyTradeModel.name}，投入 ${copyTradeAmount} 猎人币`,
+        title: t('subscribe_success'),
+        description: t('subscribed_model', { model: copyTradeModel.name, amount: copyTradeAmount }),
       });
 
       setIsCopyTradeDialogOpen(false);
@@ -452,8 +452,8 @@ const LeaderboardTable = () => {
     } catch (error) {
       console.error('Copy trade error:', error);
       toast({
-        title: "订阅失败",
-        description: "请稍后重试",
+        title: t('subscribe_failed'),
+        description: t('please_try_later'),
         variant: "destructive",
       });
     } finally {
@@ -464,8 +464,8 @@ const LeaderboardTable = () => {
   const openCopyTradeDialog = (modelId: string, modelName: string) => {
     if (!user) {
       toast({
-        title: "请先登录",
-        description: "登录后即可订阅AI模型",
+        title: t('login_first'),
+        description: t('login_to_subscribe'),
         variant: "default",
       });
       navigate('/auth');
@@ -612,8 +612,8 @@ const LeaderboardTable = () => {
                 
                 if (!user) {
                   toast({
-                    title: "请先登录",
-                    description: "登录后即可点赞",
+                    title: t('login_first'),
+                    description: t('login_to_like'),
                     variant: "default",
                   });
                   return;
@@ -769,8 +769,8 @@ const LeaderboardTable = () => {
                             onClick={() => {
                               if (isFull) {
                                 toast({
-                                  title: "订阅名额已满",
-                                  description: `${getModelDisplayName(model)} 的订阅名额已满，请稍后再试或选择其他AI模型`,
+                                  title: t('subscription_full'),
+                                  description: t('subscription_full_desc', { model: getModelDisplayName(model) }),
                                   variant: "destructive",
                                 });
                                 return;

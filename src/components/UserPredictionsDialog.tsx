@@ -52,7 +52,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
       setMatches(todayMatches.slice(0, 10));
     } catch (error) {
       console.error("Error fetching matches:", error);
-      toast.error(t("获取比赛失败"));
+      toast.error(t('fetch_match_list_failed'));
     } finally {
       setLoading(false);
     }
