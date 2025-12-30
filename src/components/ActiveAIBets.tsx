@@ -964,13 +964,11 @@ const ActiveAIBets = () => {
           // For backward compatibility, use moneylineBet as the main bet
           const bet = moneylineBet || handicapBet || overUnderBet;
 
-          // Get AI balance and calculate profit
+          // Get AI balance
           const balance = aiBalances[aiModel.id];
-          const totalBalance = balance 
-            ? (balance.available_balance + balance.locked_balance)
-            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')) : 10000;
-          const profitAmount = totalBalance - 10000; // Initial balance is 10000
-          const profitDisplay = `${profitAmount >= 0 ? '+' : ''}${profitAmount.toLocaleString()}`;
+          const balanceNumber = balance 
+            ? (balance.available_balance + balance.locked_balance).toLocaleString()
+            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
 
           // Handler to switch to next match
           const nextMatch = (e: React.MouseEvent) => {
@@ -1107,10 +1105,9 @@ const ActiveAIBets = () => {
                           <span className={`text-sm font-bold tracking-wide uppercase ${gradient.accent}`}>
                             {getModelDisplayName(aiModel)}
                           </span>
-                          <span className={`text-xs font-medium inline-flex items-center gap-1 ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            <span className="text-muted-foreground">{t("profit_label") || "盈利"}:</span>
+                          <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
                             <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                            {profitDisplay}
+                            {balanceNumber}
                           </span>
                         </div>
                       </div>
@@ -1364,15 +1361,12 @@ const ActiveAIBets = () => {
           const handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
           const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
           
-          // Get AI balance and calculate profit
+          // Get AI balance
           const balance = aiBalances['hunsoccermax'];
-          const totalBalance = balance 
-            ? (balance.available_balance + balance.locked_balance)
-            : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')) : 10000;
-          const profitAmountMax = totalBalance - 10000;
-          const profitDisplayMax = `${profitAmountMax >= 0 ? '+' : ''}${profitAmountMax.toLocaleString()}`;
-          const balanceValue = profitDisplayMax;
-          const isPositiveProfit = profitAmountMax >= 0;
+          const balanceNumber = balance 
+            ? (balance.available_balance + balance.locked_balance).toLocaleString()
+            : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
+          const balanceValue = balanceNumber;
 
           return (
             <PlayerExclusiveModelCard
@@ -1381,7 +1375,6 @@ const ActiveAIBets = () => {
               handicapBet={handicapBet as any}
               overUnderBet={overUnderBet as any}
               balanceValue={balanceValue}
-              isPositiveProfit={isPositiveProfit}
               matchIndex={matchIndex}
               matchEntries={matchEntries as any}
               onOpenPKDialog={handleOpenPKDialog}
