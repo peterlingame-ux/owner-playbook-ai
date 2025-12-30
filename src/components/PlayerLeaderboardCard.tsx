@@ -214,23 +214,47 @@ export const PlayerLeaderboardCard = ({
       {/* Top Row: Avatar, Name, Buttons */}
       <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-          {/* Rank Badge */}
-          <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
-            index === 0 ? 'bg-yellow-500/20' :
-            index === 1 ? 'bg-gray-400/20' :
-            index === 2 ? 'bg-amber-600/20' :
-            'bg-muted'
-          }`}>
-            {index < 3 ? (
-              <Trophy className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
-                index === 0 ? 'text-yellow-500' :
-                index === 1 ? 'text-gray-400' :
-                'text-amber-600'
-              }`} />
-            ) : (
-              <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">{index + 1}</span>
-            )}
-          </div>
+          {/* 关注按钮 - 左上角 */}
+          {currentUserId !== player.id ? (
+            <button
+              onClick={handleFollowToggle}
+              disabled={isFollowLoading}
+              className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-all border ${
+                isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
+              } ${
+                isFollowing 
+                  ? 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30' 
+                  : 'bg-muted text-muted-foreground border-border hover:bg-muted/80 hover:text-foreground'
+              }`}
+              title={isFollowing ? t('following') || '已关注' : t('follow') || '关注'}
+            >
+              {isFollowLoading ? (
+                <Loader2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" />
+              ) : isFollowing ? (
+                <UserCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              ) : (
+                <UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              )}
+            </button>
+          ) : (
+            /* Rank Badge - only show when it's current user */
+            <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
+              index === 0 ? 'bg-yellow-500/20' :
+              index === 1 ? 'bg-gray-400/20' :
+              index === 2 ? 'bg-amber-600/20' :
+              'bg-muted'
+            }`}>
+              {index < 3 ? (
+                <Trophy className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
+                  index === 0 ? 'text-yellow-500' :
+                  index === 1 ? 'text-gray-400' :
+                  'text-amber-600'
+                }`} />
+              ) : (
+                <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">{index + 1}</span>
+              )}
+            </div>
+          )}
           {/* Avatar with Like Button */}
           <div className="relative flex-shrink-0">
             <Avatar className="w-8 h-8 sm:w-12 sm:h-12 border border-border">
@@ -327,34 +351,6 @@ export const PlayerLeaderboardCard = ({
             </span>
           )}
           <div className="flex items-center gap-1">
-            {/* 关注按钮 - 对所有玩家显示 */}
-            {currentUserId !== player.id && (
-              <button
-                onClick={handleFollowToggle}
-                disabled={isFollowLoading}
-                className={`px-1.5 sm:px-2.5 py-1 text-[8px] sm:text-xs font-medium rounded-md transition-all border whitespace-nowrap flex items-center gap-0.5 ${
-                  isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
-                } ${
-                  isFollowing 
-                    ? 'bg-primary/10 text-primary border-primary/40 hover:bg-primary/20' 
-                    : 'bg-muted/60 text-muted-foreground border-border/40 hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                {isFollowLoading ? (
-                  <Loader2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" />
-                ) : isFollowing ? (
-                  <>
-                    <UserCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    <span className="hidden sm:inline">{t('following') || '已关注'}</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    <span className="hidden sm:inline">{t('follow') || '关注'}</span>
-                  </>
-                )}
-              </button>
-            )}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
