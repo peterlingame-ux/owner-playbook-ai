@@ -1235,7 +1235,7 @@ const PlayerLeaderboardTable = () => {
           <CardHeader className="pb-3 pt-4 px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-gradient-to-b from-foreground/80 to-foreground/40 rounded-full" />
+                <div className="w-1 h-8 bg-gradient-to-b from-success to-success/50 rounded-full" />
                 <div>
                   <CardTitle className="text-lg font-bold text-foreground">
                     {t('hot_streak_board')}
