@@ -1240,7 +1240,7 @@ const PlayerLeaderboardTable = () => {
                   <CardTitle className="text-lg font-bold text-foreground">
                     {t('hot_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-amber-500 font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">前10名</span></p>
                 </div>
               </div>
                 <button
@@ -1326,7 +1326,7 @@ const PlayerLeaderboardTable = () => {
                   <CardTitle className="text-lg font-bold text-foreground">
                     {t('cold_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-red-500 font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
                 </div>
               </div>
                 <button
