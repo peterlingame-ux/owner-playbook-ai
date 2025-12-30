@@ -1809,7 +1809,7 @@ const resources = {
       
       // 个人中心 - 钱包
       "wallets": "钱包",
-      "virtual_balance": "虚拟余额",
+      "virtual_balance": "预测历史",
       "view_arrow": "查看 →",
       "prediction_history_title": "预测历史",
       "no_predictions_yet": "暂无预测记录",
@@ -1907,9 +1907,9 @@ const resources = {
       "deposit_hint": "点击上方'充值'按钮添加USDT",
       
       // 猎人币钱包
-      "hunter_coin_wallet": "猎人币钱包",
+      "hunter_coin_wallet": "消费历史",
       "hunter_coin_balance": "猎人币余额",
-      "usdt_wallet": "猎人币钱包",
+      "usdt_wallet": "消费历史",
       "usdt_wallet_balance": "猎人币余额",
       "usdt_deposit": "充值",
       "usdt_deposit_title": "USDT充值",
