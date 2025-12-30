@@ -205,12 +205,8 @@ const UserModelCard = () => {
 
             {/* Points Badge */}
             <div className="flex flex-col items-end gap-1">
-              <span className="text-[10px] text-amber-200/70 uppercase tracking-wider font-medium inline-flex items-center gap-1">
-                <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
-                {t("hunter_coin") || "猎人币"}
-              </span>
               <div
-                className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums border inline-flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg font-bold text-sm tabular-nums border inline-flex items-center gap-1.5 ${
                   user
                     ? isPositive
                       ? "bg-success/20 text-success border-success/30"
@@ -218,8 +214,9 @@ const UserModelCard = () => {
                     : "bg-amber-500/10 text-amber-400/50 border-amber-500/30"
                 }`}
               >
+                <span className="text-muted-foreground font-normal">{t("profit_label") || "盈利"}:</span>
                 <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                {profitLabel}
+                <span className="font-mono">{profitLabel}</span>
               </div>
             </div>
           </div>
