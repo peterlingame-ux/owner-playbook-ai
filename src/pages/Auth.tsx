@@ -23,16 +23,17 @@ import aiGrok from "@/assets/ai-icon-grok.png";
 import aiHunsoccer from "@/assets/ai-icon-hunsoccer.png";
 import type { User } from "@supabase/supabase-js";
 
+// Validation schemas - error messages will be handled by toast using translations
 const countryCodeSchema = z
   .string()
   .trim()
-  .regex(/^\+?\d{1,4}$/, "请输入有效的国际区号");
+  .regex(/^\+?\d{1,4}$/, "invalid_country_code");
 const phoneSchema = z
   .string()
   .trim()
-  .regex(/^\d{5,15}$/, "请输入有效的手机号码");
-const otpSchema = z.string().length(6, "验证码必须是6位数字");
-const passwordSchema = z.string().min(6, "密码至少需要6位");
+  .regex(/^\d{5,15}$/, "invalid_phone");
+const otpSchema = z.string().length(6, "invalid_otp");
+const passwordSchema = z.string().min(6, "invalid_password");
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -115,7 +116,7 @@ const Auth = () => {
 
     if (syncError) {
       toast({
-        title: "用户信息同步失败",
+        title: t("auth.user_sync_failed"),
         description: syncError.message,
         variant: "destructive",
       });
@@ -131,8 +132,8 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "验证失败",
-          description: error.errors[0].message,
+          title: t("auth.validation_failed"),
+          description: t("auth.valid_country_code"),
           variant: "destructive",
         });
       }
@@ -147,8 +148,8 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "验证失败",
-          description: error.errors[0].message,
+          title: t("auth.validation_failed"),
+          description: t("auth.valid_phone"),
           variant: "destructive",
         });
       }
@@ -163,8 +164,8 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "验证失败",
-          description: error.errors[0].message,
+          title: t("auth.validation_failed"),
+          description: t("auth.valid_otp"),
           variant: "destructive",
         });
       }
@@ -179,8 +180,8 @@ const Auth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "验证失败",
-          description: error.errors[0].message,
+          title: t("auth.validation_failed"),
+          description: t("auth.valid_password"),
           variant: "destructive",
         });
       }
@@ -197,8 +198,8 @@ const Auth = () => {
       if (!validatePassword()) return;
       if (password !== confirmPassword) {
         toast({
-          title: "密码不匹配",
-          description: "两次输入的密码不一致",
+          title: t("auth.password_mismatch"),
+          description: t("auth.password_mismatch_desc"),
           variant: "destructive",
         });
         return;
@@ -215,14 +216,14 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "发送失败",
+        title: t("auth.send_failed"),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "验证码已发送",
-        description: "请查收短信验证码",
+        title: t("auth.code_sent"),
+        description: t("auth.check_sms"),
       });
       setStep("otp");
       setCountdown(60);
@@ -244,9 +245,9 @@ const Auth = () => {
     if (error) {
       setLoading(false);
       toast({
-        title: "验证失败",
+        title: t("auth.verify_failed"),
         description: error.message === "Token has expired or is invalid" 
-          ? "验证码已过期或无效" 
+          ? t("auth.code_expired") 
           : error.message,
         variant: "destructive",
       });
@@ -267,15 +268,15 @@ const Auth = () => {
             });
             setLoading(false);
             toast({
-              title: "注册成功",
-              description: "欢迎加入！",
+              title: t("auth.register_success"),
+              description: t("auth.welcome"),
             });
             navigate("/");
           } catch (err) {
             setLoading(false);
             toast({
-              title: "注册成功",
-              description: "密码设置失败，请稍后在个人中心设置",
+              title: t("auth.register_success"),
+              description: t("auth.password_set_failed"),
             });
             navigate("/");
           }
@@ -284,8 +285,8 @@ const Auth = () => {
           setLoading(false);
           setStep("set-password");
           toast({
-            title: "验证成功",
-            description: "请设置新密码",
+            title: t("auth.verify_success"),
+            description: t("auth.please_set_new_password"),
           });
         } else {
           // 登录流程 - 检查是否需要设置密码
@@ -298,13 +299,13 @@ const Auth = () => {
           if (pwdData?.success && !pwdData?.hasPassword) {
             setStep("set-password");
             toast({
-              title: "登录成功",
-              description: "请设置您的登录密码",
+              title: t("auth.login_success"),
+              description: t("auth.please_set_password"),
             });
           } else {
             toast({
-              title: "登录成功",
-              description: "欢迎回来！",
+              title: t("auth.login_success"),
+              description: t("auth.welcome_back"),
             });
             navigate("/");
           }
@@ -322,8 +323,8 @@ const Auth = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: "密码不匹配",
-        description: "两次输入的密码不一致",
+        title: t("auth.password_mismatch"),
+        description: t("auth.password_mismatch_desc"),
         variant: "destructive",
       });
       return;
@@ -344,16 +345,16 @@ const Auth = () => {
 
       if (error || !data?.success) {
         toast({
-          title: "设置失败",
-          description: data?.error || "设置密码失败，请重试",
+          title: t("auth.set_failed"),
+          description: data?.error || t("auth.set_password_failed"),
           variant: "destructive",
         });
       } else {
         // 如果是忘记密码流程，返回登录页面
         if (forgotPasswordPhone) {
           toast({
-            title: "密码重置成功",
-            description: "请使用新密码登录",
+            title: t("auth.password_reset_success"),
+            description: t("auth.login_with_new_password"),
           });
           setStep("phone");
           setLoginMethod("password");
@@ -362,8 +363,8 @@ const Auth = () => {
           setForgotPasswordPhone("");
         } else {
           toast({
-            title: "密码设置成功",
-            description: "下次可以使用手机号和密码直接登录",
+            title: t("auth.password_set_success"),
+            description: t("auth.login_with_password"),
           });
           navigate("/");
         }
@@ -371,8 +372,8 @@ const Auth = () => {
     } catch (err) {
       setLoading(false);
       toast({
-        title: "设置失败",
-        description: "网络错误，请重试",
+        title: t("auth.set_failed"),
+        description: t("auth.network_error"),
         variant: "destructive",
       });
     }
@@ -397,14 +398,14 @@ const Auth = () => {
         setLoading(false);
         if (data?.needSmsLogin) {
           toast({
-            title: "需要短信验证",
-            description: "请先使用短信验证码登录并设置密码",
+            title: t("auth.need_sms_verify"),
+            description: t("auth.login_and_set_password"),
           });
           setLoginMethod("sms");
         } else {
           toast({
-            title: "登录失败",
-            description: data?.error || "手机号或密码错误",
+            title: t("auth.login_failed"),
+            description: data?.error || t("auth.phone_or_password_error"),
             variant: "destructive",
           });
         }
@@ -422,15 +423,15 @@ const Auth = () => {
 
         if (otpError) {
           toast({
-            title: "登录成功",
-            description: "请输入验证码完成登录",
+            title: t("auth.login_success"),
+            description: t("auth.check_sms"),
           });
           setStep("otp");
           setCountdown(60);
         } else {
           toast({
-            title: "验证码已发送",
-            description: "请输入验证码完成登录",
+            title: t("auth.code_sent"),
+            description: t("auth.check_sms"),
           });
           setStep("otp");
           setCountdown(60);
@@ -439,8 +440,8 @@ const Auth = () => {
     } catch (err) {
       setLoading(false);
       toast({
-        title: "登录失败",
-        description: "网络错误，请重试",
+        title: t("auth.login_failed"),
+        description: t("auth.network_error"),
         variant: "destructive",
       });
     }
@@ -473,14 +474,14 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "发送失败",
+        title: t("auth.send_failed"),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "验证码已发送",
-        description: "请查收短信验证码",
+        title: t("auth.code_sent"),
+        description: t("auth.check_sms"),
       });
       setStep("otp");
       setCountdown(60);
@@ -494,8 +495,8 @@ const Auth = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: "密码不匹配",
-        description: "两次输入的密码不一致",
+        title: t("auth.password_mismatch"),
+        description: t("auth.password_mismatch_desc"),
         variant: "destructive",
       });
       return;
@@ -516,14 +517,14 @@ const Auth = () => {
 
       if (error || !data?.success) {
         toast({
-          title: "重置失败",
-          description: data?.error || "重置密码失败，请重试",
+          title: t("auth.reset_failed"),
+          description: data?.error || t("auth.reset_password_failed"),
           variant: "destructive",
         });
       } else {
         toast({
-          title: "密码重置成功",
-          description: "请使用新密码登录",
+          title: t("auth.password_reset_success"),
+          description: t("auth.login_with_new_password"),
         });
         setStep("phone");
         setLoginMethod("password");
@@ -533,8 +534,8 @@ const Auth = () => {
     } catch (err) {
       setLoading(false);
       toast({
-        title: "重置失败",
-        description: "网络错误，请重试",
+        title: t("auth.reset_failed"),
+        description: t("auth.network_error"),
         variant: "destructive",
       });
     }

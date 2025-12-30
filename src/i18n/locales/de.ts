@@ -344,7 +344,11 @@ export const de = {
       "login_failed": "Anmeldung Fehlgeschlagen",
       "phone_or_password_error": "Telefonnummer oder Passwort falsch",
       "verify_success": "Verifizierung Erfolgreich",
-      "please_set_new_password": "Bitte neues Passwort festlegen"
+      "please_set_new_password": "Bitte neues Passwort festlegen",
+      "user_sync_failed": "Benutzersynchronisation fehlgeschlagen",
+      "reset_failed": "Zurücksetzen Fehlgeschlagen",
+      "reset_password_failed": "Passwort zurücksetzen fehlgeschlagen, bitte erneut versuchen",
+      "password_mismatch_desc": "Die beiden Passwörter stimmen nicht überein"
     },
     
     // Common

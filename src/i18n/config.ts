@@ -564,6 +564,7 @@ const resources = {
         "valid_otp": "Code must be 6 digits",
         "valid_password": "Password must be at least 6 characters",
         "password_mismatch": "Passwords do not match",
+        "password_mismatch_desc": "The two passwords you entered do not match",
         "send_failed": "Send Failed",
         "code_sent": "Code Sent",
         "check_sms": "Please check your SMS",
@@ -588,7 +589,10 @@ const resources = {
         "phone_or_password_error": "Phone number or password incorrect",
         "verify_success": "Verification Successful",
         "please_set_new_password": "Please set new password",
-        "logout": "Logout"
+        "logout": "Logout",
+        "user_sync_failed": "User info sync failed",
+        "reset_failed": "Reset Failed",
+        "reset_password_failed": "Failed to reset password, please try again"
       },
       "copy_trade": "FOLLOW MODEL",
       "one_click_copy_trade": "One-Click Copy Trade",
@@ -1652,7 +1656,8 @@ const resources = {
         "valid_phone": "请输入有效的手机号码",
         "valid_otp": "验证码必须是6位数字",
         "valid_password": "密码至少需要6位",
-        "password_mismatch": "两次输入的密码不一致",
+        "password_mismatch": "密码不匹配",
+        "password_mismatch_desc": "两次输入的密码不一致",
         "send_failed": "发送失败",
         "code_sent": "验证码已发送",
         "check_sms": "请查收短信验证码",
@@ -1677,7 +1682,10 @@ const resources = {
         "phone_or_password_error": "手机号或密码错误",
         "verify_success": "验证成功",
         "please_set_new_password": "请设置新密码",
-        "logout": "退出登录"
+        "logout": "退出登录",
+        "user_sync_failed": "用户信息同步失败",
+        "reset_failed": "重置失败",
+        "reset_password_failed": "重置密码失败，请重试"
       },
       "copy_trade": "关注模型",
       "one_click_copy_trade": "一键订阅",
