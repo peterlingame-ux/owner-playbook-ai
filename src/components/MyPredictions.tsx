@@ -821,8 +821,8 @@ const MyPredictions = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
-                        <p className="text-xl font-light text-foreground">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
+                        <p className="text-lg font-light text-foreground">
                           ${(stats?.balance || 10000).toLocaleString()}
                         </p>
                       </div>
@@ -952,8 +952,8 @@ const MyPredictions = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
-                    <p className="text-base font-light text-foreground">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
+                    <p className="text-sm font-light text-foreground">
                       {vipStatus?.is_active ? t('vip_active') : t('unlock_vip')}
                     </p>
                   </div>
@@ -986,8 +986,8 @@ const MyPredictions = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('prediction_game')}</span>
-                    <p className="text-base font-light text-foreground">{t('start_predicting')}</p>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('prediction_game')}</span>
+                    <p className="text-sm font-light text-foreground">{t('start_predicting')}</p>
                   </div>
                   <motion.span 
                     className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
