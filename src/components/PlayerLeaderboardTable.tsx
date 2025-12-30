@@ -1229,7 +1229,7 @@ const PlayerLeaderboardTable = () => {
             </div>
 
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
