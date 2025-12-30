@@ -29,6 +29,7 @@ interface PlayerData {
   isVirtual?: boolean;
   isRecommender?: boolean;
   unlockPrice?: number;
+  isVip?: boolean;
 }
 
 interface PlayerLeaderboardCardProps {
@@ -233,7 +234,7 @@ export const PlayerLeaderboardCard = ({
           </div>
           {/* Avatar with Follow Button */}
           <div className="relative flex-shrink-0">
-            <Avatar className="w-8 h-8 sm:w-12 sm:h-12 border border-border">
+            <Avatar className={`w-8 h-8 sm:w-12 sm:h-12 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
               <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>

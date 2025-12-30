@@ -385,3 +385,22 @@ All colors MUST be HSL.
     }
   }
 }
+
+/* VIP Avatar Glow Effect */
+@keyframes vip-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px 2px hsl(var(--warning) / 0.6),
+                0 0 16px 4px hsl(var(--warning) / 0.4),
+                0 0 24px 6px hsl(var(--warning) / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px hsl(var(--warning) / 0.8),
+                0 0 24px 8px hsl(var(--warning) / 0.5),
+                0 0 36px 12px hsl(var(--warning) / 0.3);
+  }
+}
+
+.vip-avatar-glow {
+  animation: vip-glow 2s ease-in-out infinite;
+  border: 2px solid hsl(var(--warning)) !important;
+}
