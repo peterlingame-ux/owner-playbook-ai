@@ -1114,23 +1114,23 @@ const MyPredictions = () => {
                 </div>
               </div>
 
-              {/* 6. Profit Amount - 盈利金额 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums ${(stats?.totalWon || 0) > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
-                    +${(stats?.totalWon || 0).toLocaleString()}
-                  </p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('profit_amount_label')}</p>
-                </div>
-              </div>
-
-              {/* 7. Profit Rate - 盈利率 */}
+              {/* 6. Profit Rate - 盈利率 */}
               <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
                 <div className="flex flex-col items-center text-center">
                   <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums ${calculatedProfitRate >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                     {calculatedProfitRate >= 0 ? '+' : ''}{calculatedProfitRate.toFixed(1)}%
                   </p>
                   <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('profit_rate_label')}</p>
+                </div>
+              </div>
+
+              {/* 7. Profit Amount - 盈利金额 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums ${(stats?.totalWon || 0) > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
+                    +${(stats?.totalWon || 0).toLocaleString()}
+                  </p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('profit_amount_label')}</p>
                 </div>
               </div>
             </div>
