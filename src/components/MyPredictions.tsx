@@ -640,7 +640,7 @@ const MyPredictions = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         
         {/* Left Column - Profile Info */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 flex flex-col space-y-4">
           {/* Profile Hero Section */}
           <TooltipProvider delayDuration={100}>
           <motion.div 
@@ -805,11 +805,9 @@ const MyPredictions = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="space-y-2"
+            className="flex-1 flex flex-col space-y-2"
           >
-            
-            
-            <div className="space-y-2">
+            <div className="flex-1 flex flex-col space-y-2">
               {/* Virtual Wallet */}
               <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
                 <DialogTrigger asChild>
@@ -1003,7 +1001,7 @@ const MyPredictions = () => {
         </div>
 
         {/* Right Column - Stats & Data */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 flex flex-col space-y-4">
           {/* Win Rate Hero */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
