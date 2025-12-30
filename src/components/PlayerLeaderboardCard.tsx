@@ -343,7 +343,7 @@ export const PlayerLeaderboardCard = ({
         {/* Correct Predictions */}
         <div className="text-center">
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('correct_matches')}</p>
-          <p className="text-xs sm:text-lg font-bold font-mono-data text-success">
+          <p className="text-xs sm:text-lg font-bold font-mono-data text-foreground">
             {player.correctPredictions}<span className="hidden sm:inline">{t('matches_suffix')}</span>
           </p>
         </div>
@@ -351,7 +351,7 @@ export const PlayerLeaderboardCard = ({
         {/* Incorrect Predictions */}
         <div className="text-center">
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('incorrect_matches')}</p>
-          <p className="text-xs sm:text-lg font-bold font-mono-data text-destructive">
+          <p className="text-xs sm:text-lg font-bold font-mono-data text-foreground">
             {player.totalPredictions - player.correctPredictions}<span className="hidden sm:inline">{t('matches_suffix')}</span>
           </p>
         </div>
@@ -382,7 +382,7 @@ export const PlayerLeaderboardCard = ({
         {/* Profit Amount */}
         <div className="text-center">
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('profit_amount_label')}</p>
-          <p className={`text-xs sm:text-base font-bold font-mono-data truncate flex items-center justify-center gap-0.5 ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+          <p className="text-xs sm:text-base font-bold font-mono-data truncate flex items-center justify-center gap-0.5 text-foreground">
             {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" />
           </p>
@@ -391,7 +391,7 @@ export const PlayerLeaderboardCard = ({
         {/* Profit Rate */}
         <div className="text-center">
           <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1">{t('profit_rate')}</p>
-          <p className={`text-xs sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+          <p className="text-xs sm:text-base font-bold font-mono-data text-foreground">
             {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
           </p>
         </div>
