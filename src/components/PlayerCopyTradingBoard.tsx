@@ -2157,7 +2157,7 @@ const PlayerCopyTradingBoard = () => {
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
             <span>排名</span>
-            <span>模拟额度 | 参与规模</span>
+            <span>盈利金额 | 参与规模</span>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1">
             {selectedPlayerFollowers?.followers.map((follower, index) => (
