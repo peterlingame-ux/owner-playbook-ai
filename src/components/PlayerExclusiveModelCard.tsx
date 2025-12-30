@@ -72,6 +72,7 @@ interface PlayerExclusiveModelCardProps {
   handicapBet?: BetData | null;
   overUnderBet?: BetData | null;
   balanceValue?: string;
+  isPositiveProfit?: boolean;
   matchIndex?: number;
   matchEntries?: Array<{ match: any; bets: BetData[] }>;
   onOpenPKDialog?: (match: any) => void;
@@ -206,6 +207,7 @@ const PlayerExclusiveModelCard = ({
   handicapBet,
   overUnderBet,
   balanceValue,
+  isPositiveProfit = true,
   matchIndex = 0,
   matchEntries = [],
   onOpenPKDialog,
@@ -610,9 +612,10 @@ const PlayerExclusiveModelCard = ({
                     <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
                     </span>
-                    <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
+                    <span className={`text-xs font-medium inline-flex items-center gap-1 ${isPositiveProfit ? 'text-success' : 'text-destructive'}`}>
+                      <span className="text-muted-foreground">{t("profit_label") || "盈利"}:</span>
                       <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                      {balanceValue || '10,000'}
+                      {balanceValue || '+0'}
                     </span>
                   </div>
                 </div>
