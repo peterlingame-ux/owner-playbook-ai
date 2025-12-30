@@ -17,6 +17,7 @@ export interface VirtualPlayer {
   allowCopyTrade?: boolean;
   isRecommender?: boolean;
   unlockPrice?: number;
+  isVip?: boolean; // VIP用户标识
 }
 
 // 生成真实的虚拟玩家数据
@@ -34,6 +35,7 @@ const generateRealisticPlayer = (
     unlockPrice?: number;
     worstStreak?: number;
     todayPredictions?: number;
+    isVip?: boolean;
   } = {}
 ): VirtualPlayer => {
   const correctPredictions = Math.round(totalPredictions * winRate / 100);
@@ -83,16 +85,17 @@ const generateRealisticPlayer = (
     allowCopyTrade: options.allowCopyTrade ?? Math.random() > 0.4,
     isRecommender: options.isRecommender ?? Math.random() > 0.5,
     unlockPrice: options.unlockPrice,
+    isVip: options.isVip,
   };
 };
 
 export const virtualPlayers: VirtualPlayer[] = [
   // ============ 顶级玩家 (胜率 75%+) ============
-  generateRealisticPlayer('vp-001', '球王小李', 1, 286, 82.5, { currentStreak: 9, joinedDaysAgo: 156, unlockPrice: 8, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-002', 'PredictorMax', 4, 342, 79.8, { currentStreak: 6, joinedDaysAgo: 203, unlockPrice: 6, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-003', '足彩老司机', 7, 198, 78.3, { currentStreak: 4, joinedDaysAgo: 89, unlockPrice: 5, allowCopyTrade: true, isRecommender: true }),
-  generateRealisticPlayer('vp-004', 'GoalHunter99', 2, 267, 77.1, { currentStreak: 7, joinedDaysAgo: 134, unlockPrice: 4, allowCopyTrade: true }),
-  generateRealisticPlayer('vp-005', '大数据预测王', 9, 412, 76.2, { currentStreak: 3, joinedDaysAgo: 278, unlockPrice: 5, isRecommender: true }),
+  generateRealisticPlayer('vp-001', '球王小李', 1, 286, 82.5, { currentStreak: 9, joinedDaysAgo: 156, unlockPrice: 8, allowCopyTrade: true, isRecommender: true, isVip: true }),
+  generateRealisticPlayer('vp-002', 'PredictorMax', 4, 342, 79.8, { currentStreak: 6, joinedDaysAgo: 203, unlockPrice: 6, allowCopyTrade: true, isRecommender: true, isVip: true }),
+  generateRealisticPlayer('vp-003', '足彩老司机', 7, 198, 78.3, { currentStreak: 4, joinedDaysAgo: 89, unlockPrice: 5, allowCopyTrade: true, isRecommender: true, isVip: true }),
+  generateRealisticPlayer('vp-004', 'GoalHunter99', 2, 267, 77.1, { currentStreak: 7, joinedDaysAgo: 134, unlockPrice: 4, allowCopyTrade: true, isVip: true }),
+  generateRealisticPlayer('vp-005', '大数据预测王', 9, 412, 76.2, { currentStreak: 3, joinedDaysAgo: 278, unlockPrice: 5, isRecommender: true, isVip: true }),
   
   // ============ 高手玩家 (胜率 68-75%) ============
   generateRealisticPlayer('vp-006', 'WinStreak2024', 3, 156, 74.4, { currentStreak: 5, joinedDaysAgo: 67, unlockPrice: 3 }),

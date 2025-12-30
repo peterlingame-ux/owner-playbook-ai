@@ -343,6 +343,7 @@ const PlayerLeaderboardTable = () => {
               isVirtual: true,
               isRecommender: player.isRecommender ?? true,
               unlockPrice: player.unlockPrice,
+              isVip: player.isVip, // 传递VIP状态
             };
           });
         
