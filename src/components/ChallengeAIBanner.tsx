@@ -499,14 +499,6 @@ const ChallengeAIBanner = () => {
               </span>
               <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('prize_per_person') || '平分奖金'}</span>
             </div>
-            <div className="h-8 sm:h-10 w-px bg-border/50" />
-            <div className="flex flex-col items-center">
-              <span className="text-lg sm:text-2xl font-bold text-warning flex items-center gap-1">
-                1,000,000
-                <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5 sm:w-6 sm:h-6" />
-              </span>
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('total_prize_value')}</span>
-            </div>
           </div>
         </div>
       </CardContent>
