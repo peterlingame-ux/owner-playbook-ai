@@ -1137,101 +1137,93 @@ const MyPredictions = () => {
             </div>
           </motion.div>
 
-          {/* Stats Grid - 7 Parameters */}
+          {/* Stats Grid - 7 Parameters with beautiful layout */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3"
+            className="space-y-3"
           >
-            {/* 1. Total Predictions - 总预测 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-primary/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xl lg:text-2xl font-light text-foreground">{stats?.totalPredictions || 0}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('total_predictions_count')}</p>
+            {/* Row 1: Core Stats - 4 cards */}
+            <div className="grid grid-cols-4 gap-3">
+              {/* 1. Total Predictions - 总预测 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/40 mb-2 group-hover:text-primary transition-colors" />
+                  <p className="text-lg sm:text-2xl font-light text-foreground tabular-nums">{stats?.totalPredictions || 0}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('total_predictions_count')}</p>
                 </div>
-                <Target className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
               </div>
-            </div>
 
-            {/* 2. Correct - 正确 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-emerald-500/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xl lg:text-2xl font-light text-emerald-500">{stats?.correctPredictions || 0}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('correct_count')}</p>
+              {/* 2. Correct - 正确 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500/60 mb-2 group-hover:text-emerald-500 transition-colors" />
+                  <p className="text-lg sm:text-2xl font-light text-emerald-500 tabular-nums">{stats?.correctPredictions || 0}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('correct_count')}</p>
                 </div>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground/50 group-hover:text-emerald-500 transition-colors" />
               </div>
-            </div>
 
-            {/* 3. Wrong - 错误 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-destructive/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xl lg:text-2xl font-light text-destructive">
+              {/* 3. Wrong - 错误 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-destructive/40 hover:shadow-lg hover:shadow-destructive/5 transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-destructive/60 mb-2 group-hover:text-destructive transition-colors" />
+                  <p className="text-lg sm:text-2xl font-light text-destructive tabular-nums">
                     {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0) - (stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0)}
                   </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('wrong_count')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('wrong_count')}</p>
                 </div>
-                <XCircle className="h-4 w-4 text-muted-foreground/50 group-hover:text-destructive transition-colors" />
               </div>
-            </div>
 
-            {/* 4. P&L - 盈亏 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-primary/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className={`text-xl lg:text-2xl font-light ${(stats?.profit || 0) >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+              {/* 4. P&L - 盈亏 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  {(stats?.profit || 0) >= 0 ? (
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500/60 mb-2 group-hover:text-emerald-500 transition-colors" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5 text-destructive/60 mb-2 group-hover:text-destructive transition-colors" />
+                  )}
+                  <p className={`text-lg sm:text-2xl font-light tabular-nums ${(stats?.profit || 0) >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                     {(stats?.profit || 0) >= 0 ? '+' : ''}${Math.abs(stats?.profit || 0).toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('pnl_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('pnl_label')}</p>
                 </div>
-                {(stats?.profit || 0) >= 0 ? (
-                  <TrendingUp className="h-4 w-4 text-muted-foreground/50 group-hover:text-emerald-500 transition-colors" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-muted-foreground/50 group-hover:text-destructive transition-colors" />
-                )}
               </div>
             </div>
 
-            {/* 5. Virtual Bet - 虚拟下注 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-primary/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xl lg:text-2xl font-light text-foreground">
+            {/* Row 2: Financial Stats - 3 cards */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* 5. Virtual Bet - 虚拟下注 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/40 mb-2 group-hover:text-primary transition-colors" />
+                  <p className="text-lg sm:text-2xl font-light text-foreground tabular-nums">
                     ${(stats?.totalWagered || 0).toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('virtual_bet_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('virtual_bet_label')}</p>
                 </div>
-                <Wallet className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
               </div>
-            </div>
 
-            {/* 6. Profit Amount - 盈利金额 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-emerald-500/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className={`text-xl lg:text-2xl font-light ${(stats?.totalWon || 0) > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
+              {/* 6. Profit Amount - 盈利金额 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500/60 mb-2 group-hover:text-emerald-500 transition-colors" />
+                  <p className={`text-lg sm:text-2xl font-light tabular-nums ${(stats?.totalWon || 0) > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
                     +${(stats?.totalWon || 0).toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('profit_amount_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('profit_amount_label')}</p>
                 </div>
-                <DollarSign className="h-4 w-4 text-muted-foreground/50 group-hover:text-emerald-500 transition-colors" />
               </div>
-            </div>
 
-            {/* 7. Profit Rate - 盈利率 */}
-            <div className="group relative overflow-hidden rounded-xl bg-card border border-border p-4 hover:border-primary/30 hover:shadow-lg transition-all">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className={`text-xl lg:text-2xl font-light ${calculatedProfitRate >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+              {/* 7. Profit Rate - 盈利率 */}
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/40 mb-2 group-hover:text-primary transition-colors" />
+                  <p className={`text-lg sm:text-2xl font-light tabular-nums ${calculatedProfitRate >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                     {calculatedProfitRate >= 0 ? '+' : ''}{calculatedProfitRate.toFixed(1)}%
                   </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('profit_rate_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('profit_rate_label')}</p>
                 </div>
-                <BarChart3 className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
               </div>
             </div>
           </motion.div>
