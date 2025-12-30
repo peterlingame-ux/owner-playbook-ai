@@ -332,16 +332,6 @@ const ChallengeAIBanner = () => {
                 >
                   <AnimatedPrizeNumber value={1000000} />
                 </motion.span>
-                <motion.img 
-                  src={hunterCoinIcon} 
-                  alt="猎人币" 
-                  className="w-6 h-6 sm:w-10 sm:h-10" 
-                  animate={{ 
-                    rotate: [0, 10, -10, 0],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                />
               </span>
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </motion.div>
