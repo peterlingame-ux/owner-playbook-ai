@@ -2,12 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { ChevronRight, Trophy, Calendar, User, Clock, Gift, Target, Award, Sparkles } from "lucide-react";
+import { ChevronRight, Trophy, Calendar, User, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
 
 // Import product images
 import appleWatchImg from "@/assets/prizes/apple-watch.png";
@@ -17,6 +18,7 @@ import appleIpadImg from "@/assets/prizes/apple-ipad.png";
 import appleVisionImg from "@/assets/prizes/apple-vision.png";
 import appleIphoneImg from "@/assets/prizes/apple-iphone.png";
 import dailyJackpotBg from "@/assets/daily-jackpot-bg.png";
+
 
 // Prize data with names - 6 Apple products rotating
 const prizeData = [
@@ -83,15 +85,13 @@ interface PrizeWinner {
   } | null;
 }
 
+
 const Waitlist = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t, i18n } = useTranslation();
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [prizeWinners, setPrizeWinners] = useState<Record<number, PrizeWinner>>({});
-  
-  const isZh = i18n.language === 'zh';
   
   // Fetch prize winners
   useEffect(() => {
@@ -152,10 +152,6 @@ const Waitlist = () => {
 
   const selectedPrize = selectedDay !== null ? dayPrizes[selectedDay - 1] : null;
   const selectedWinner = selectedDay !== null ? prizeWinners[selectedDay] : null;
-  const currentMonth = new Date().getMonth() + 1;
-
-  // Step icons
-  const stepIcons = [Target, Award, Gift];
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -164,70 +160,52 @@ const Waitlist = () => {
         <img 
           src={dailyJackpotBg} 
           alt="" 
-          className="w-full h-auto max-h-full object-contain opacity-30"
+          className="w-full h-auto max-h-full object-contain opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
       </div>
       
       <Header />
       
-      <main className="container mx-auto px-4 py-6 sm:py-10 max-w-6xl relative z-10">
+      <main className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10 sm:mb-14"
+          className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-warning/10 border border-warning/20 mb-4">
-            <Sparkles className="w-4 h-4 text-warning" />
-            <span className="text-sm font-medium text-warning">{t('daily_prize_tag')}</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">
-            {t('daily_prize_hero_title')}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            每日竞猜赢取大奖
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            {t('daily_prize_hero_desc')}
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            完成每日预测任务，即可参与当日奖品抽取，iPhone、MacBook、PS5 等你来拿
           </p>
         </motion.div>
 
-        {/* Steps Section - Card Style */}
+        {/* Steps Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
         >
           {[
-            { step: "01", titleKey: "daily_step1_title", descKey: "daily_step1_desc" },
-            { step: "02", titleKey: "daily_step2_title", descKey: "daily_step2_desc" },
-            { step: "03", titleKey: "daily_step3_title", descKey: "daily_step3_desc" },
-          ].map((item, idx) => {
-            const Icon = stepIcons[idx];
-            return (
-              <motion.div 
-                key={item.step}
-                whileHover={{ y: -4 }}
-                className="relative p-5 sm:p-6 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-warning/30 transition-all duration-300"
-              >
-                {/* Step Number Badge */}
-                <div className="absolute -top-3 left-5 px-3 py-1 rounded-full bg-warning text-warning-foreground font-bold text-xs">
+            { step: "01", title: "完成每日预测", desc: "每日完成5场比赛预测，即可获得抽奖资格。预测越准确，中奖概率越高。" },
+            { step: "02", title: "达成胜率要求", desc: "当日预测准确率需达到50%及以上，方可参与当晚21:00的奖品抽取。" },
+            { step: "03", title: "领取专属奖品", desc: "中奖后系统将自动通知您，请在7日内完成奖品领取，逾期作废。" },
+          ].map((item, idx) => (
+            <div key={item.step} className="text-left">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="inline-flex items-center justify-center w-10 h-7 rounded bg-warning/90 text-warning-foreground font-bold text-sm">
                   {item.step}
-                </div>
-                
-                <div className="flex items-start gap-4 mt-2">
-                  <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-warning" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">{t(item.titleKey)}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {t(item.descKey)}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+                </span>
+                <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+              </div>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                {item.desc}
+              </p>
+            </div>
+          ))}
         </motion.div>
 
         {/* Prize Calendar Grid */}
@@ -235,30 +213,18 @@ const Waitlist = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mb-12 sm:mb-16"
+          className="mb-16"
         >
           {/* Section Title */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">{t('daily_prizes_section')}</h2>
-              <p className="text-muted-foreground text-sm">{t('daily_draw_time_hint')}</p>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-warning/60" />
-                <span>{t('daily_today')}</span>
-              </div>
-              <div className="flex items-center gap-1.5 ml-3">
-                <div className="w-3 h-3 rounded-sm bg-muted opacity-60" />
-                <span>{t('daily_past_days')}</span>
-              </div>
-            </div>
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">每日奖品</h2>
+            <p className="text-muted-foreground text-sm">每天21:00准时开奖，完成预测即可参与</p>
           </div>
           
           <div className="relative">
             {/* Horizontal scrollable container */}
             <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-background">
-              <div className="inline-flex gap-2 min-w-max px-2">
+              <div className="inline-flex gap-2 min-w-max px-4">
                 {/* 3 rows x 10 columns = 30 days */}
                 <div className="flex flex-col gap-2">
                   {[0, 1, 2].map((rowIdx) => (
@@ -267,41 +233,40 @@ const Waitlist = () => {
                         const dayIndex = rowIdx * 10 + colIdx;
                         const prize = dayPrizes[dayIndex];
                         const now = new Date();
-                        const todayDate = now.getDate();
-                        const isToday = prize.day === todayDate;
-                        const isPast = prize.day < todayDate;
+                        const today = now.getDate();
+                        const currentMonth = now.getMonth() + 1;
+                        const currentYear = now.getFullYear();
+                        const isToday = prize.day === today;
+                        const isPast = prize.day < today;
                         const winner = prizeWinners[prize.day];
                         
                         return (
-                          <motion.div
+                          <div
                             key={colIdx}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.98 }}
                             onClick={() => setSelectedDay(prize.day)}
                             className={`
                               w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
-                              rounded-xl overflow-hidden relative group cursor-pointer
+                              rounded-lg overflow-hidden relative group cursor-pointer
                               border-2 transition-all duration-300
-                              ${isToday ? 'border-warning shadow-lg shadow-warning/30 ring-2 ring-warning/20' : 'border-border/30 hover:border-border'}
-                              ${isPast ? 'opacity-50 grayscale' : ''}
+                              ${isToday ? 'border-warning shadow-lg shadow-warning/30' : 'border-border/50'}
+                              ${isPast ? 'opacity-60' : ''}
                             `}
+                            title={`${currentMonth}月${prize.day}日 - ${prize.name}`}
                           >
                             <img 
                               src={prize.image}
                               alt={prize.name}
-                              className="w-full h-full object-cover"
+                              className={`w-full h-full object-cover ${isPast ? 'grayscale' : ''}`}
                             />
-                            
-                            {/* Date overlay */}
+                            {/* Date overlay - top left with clear format */}
                             <div className={`
                               absolute top-1 left-1 px-1.5 py-0.5 rounded
-                              text-[9px] sm:text-[10px] font-bold
-                              ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/70 text-white'}
+                              text-[9px] sm:text-[11px] font-bold
+                              ${isToday ? 'bg-warning text-warning-foreground' : 'bg-black/80 text-white'}
                             `}>
-                              {isZh ? `${currentMonth}月${prize.day}日` : `${currentMonth}/${prize.day}`}
+                              {currentMonth}月{prize.day}日
                             </div>
-                            
-                            {/* Winner indicator */}
+                            {/* Winner indicator with avatar and name - show mock winner for past days */}
                             {isPast && (winner?.winner || prize.mockWinner) && (
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 sm:p-1.5">
                                 <div className="flex items-center gap-1">
@@ -319,12 +284,11 @@ const Waitlist = () => {
                                 </div>
                               </div>
                             )}
-                            
                             {/* Hover overlay */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="text-[10px] sm:text-xs font-bold text-white text-center px-1">{prize.name}</span>
+                              <span className="text-xs sm:text-sm font-bold text-white text-center px-1">{prize.name}</span>
                             </div>
-                          </motion.div>
+                          </div>
                         );
                       })}
                     </div>
@@ -333,8 +297,8 @@ const Waitlist = () => {
               </div>
             </div>
             {/* Scroll indicators */}
-            <div className="absolute left-0 top-0 bottom-4 w-6 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-4 w-6 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
           </div>
         </motion.div>
 
@@ -343,37 +307,23 @@ const Waitlist = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-center mb-10 sm:mb-12"
+          className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-warning" />
-            <p className="text-muted-foreground font-medium">{t('countdown_to_draw')}</p>
+          <p className="text-muted-foreground mb-4">距离今日开奖</p>
+          <div className="flex items-center justify-center gap-2 font-mono text-4xl sm:text-5xl font-bold text-foreground">
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.hours).padStart(2, '0')}
+            </span>
+            <span className="text-muted-foreground">:</span>
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.minutes).padStart(2, '0')}
+            </span>
+            <span className="text-muted-foreground">:</span>
+            <span className="bg-card border border-border px-4 py-3 rounded-lg min-w-[80px]">
+              {String(countdown.seconds).padStart(2, '0')}
+            </span>
           </div>
-          
-          <div className="flex items-center justify-center gap-2 sm:gap-3 font-mono text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
-            <div className="flex flex-col items-center">
-              <span className="bg-card border border-border px-4 sm:px-6 py-3 sm:py-4 rounded-xl min-w-[70px] sm:min-w-[90px] shadow-sm">
-                {String(countdown.hours).padStart(2, '0')}
-              </span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 font-normal">{t('countdown_hours')}</span>
-            </div>
-            <span className="text-muted-foreground text-2xl sm:text-3xl mb-5">:</span>
-            <div className="flex flex-col items-center">
-              <span className="bg-card border border-border px-4 sm:px-6 py-3 sm:py-4 rounded-xl min-w-[70px] sm:min-w-[90px] shadow-sm">
-                {String(countdown.minutes).padStart(2, '0')}
-              </span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 font-normal">{t('countdown_minutes')}</span>
-            </div>
-            <span className="text-muted-foreground text-2xl sm:text-3xl mb-5">:</span>
-            <div className="flex flex-col items-center">
-              <span className="bg-card border border-border px-4 sm:px-6 py-3 sm:py-4 rounded-xl min-w-[70px] sm:min-w-[90px] shadow-sm">
-                {String(countdown.seconds).padStart(2, '0')}
-              </span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 font-normal">{t('countdown_seconds')}</span>
-            </div>
-          </div>
-          
-          <p className="text-xs text-muted-foreground/70 mt-4">{t('daily_draw_at_21')}</p>
+          <p className="text-xs text-muted-foreground mt-2">每晚 21:00 准时开奖</p>
         </motion.div>
 
         {/* CTA Section */}
@@ -385,22 +335,20 @@ const Waitlist = () => {
         >
           <motion.button
             onClick={() => navigate(user ? '/' : '/auth')}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
             className="
-              px-10 sm:px-12 py-3.5 sm:py-4 text-base sm:text-lg font-bold rounded-xl
+              px-12 py-4 text-lg font-bold rounded-xl
               bg-gradient-to-r from-warning via-amber-500 to-warning
-              text-warning-foreground shadow-lg shadow-warning/25
-              hover:shadow-xl hover:shadow-warning/35
+              text-warning-foreground shadow-lg shadow-warning/30
+              hover:shadow-xl hover:shadow-warning/40
               transition-all duration-300
               flex items-center gap-2 mx-auto
             "
           >
-            {user ? t('start_prediction_btn') : t('join_now_btn')}
+            {user ? '立即参与预测' : '立即参与抽奖'}
             <ChevronRight className="w-5 h-5" />
           </motion.button>
-          
-          <p className="text-xs text-muted-foreground/70 mt-3">{t('no_deposit_free')}</p>
         </motion.div>
 
         {/* Disclaimer */}
@@ -408,14 +356,24 @@ const Waitlist = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="mt-14 sm:mt-16 pt-6 sm:pt-8 border-t border-border/30"
+          className="mt-16 pt-8 border-t border-border/50"
         >
-          <div className="text-xs text-muted-foreground/60 text-center space-y-2 max-w-3xl mx-auto">
-            <p className="font-medium text-muted-foreground/80">{t('disclaimer')}</p>
-            <p className="leading-relaxed">{t('daily_disclaimer_text')}</p>
-            <p className="text-muted-foreground/40 mt-4">© 2025 HUNSOCCER. All rights reserved.</p>
+          <div className="text-xs text-muted-foreground/70 text-center space-y-2 max-w-3xl mx-auto">
+            <p className="font-medium text-muted-foreground">免责声明</p>
+            <p>
+              本活动为 HUNSOCCER 平台举办的虚拟预测竞猜活动，所有奖品抽取结果由系统随机生成，与任何形式的赌博或博彩活动无关。
+              参与者需年满18周岁，活动最终解释权归 HUNSOCCER 所有。
+            </p>
+            <p>
+              奖品发放需中奖者在7日内完成身份验证及收货地址确认，逾期视为自动放弃。
+              因不可抗力因素导致奖品无法发放时，平台保留更换等值奖品的权利。
+            </p>
+            <p className="text-muted-foreground/50">
+              © 2025 HUNSOCCER. All rights reserved.
+            </p>
           </div>
         </motion.div>
+
       </main>
 
       {/* Prize Detail Dialog */}
@@ -424,14 +382,14 @@ const Waitlist = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-warning" />
-              {t('day_prize_detail', { day: selectedDay })}
+              第 {selectedDay} 天奖品详情
             </DialogTitle>
           </DialogHeader>
           
           {selectedPrize && (
             <div className="space-y-4">
               {/* Prize Image */}
-              <div className="aspect-video rounded-xl overflow-hidden bg-muted">
+              <div className="aspect-video rounded-lg overflow-hidden bg-muted">
                 <img 
                   src={selectedPrize.image} 
                   alt={selectedPrize.name}
@@ -442,15 +400,16 @@ const Waitlist = () => {
               {/* Prize Name */}
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-foreground">{selectedPrize.name}</h3>
-                <p className="text-sm text-muted-foreground">{t('daily_prize_label')}</p>
+                <p className="text-sm text-muted-foreground">当日奖品</p>
               </div>
               
               {/* Winner Info */}
-              <div className="bg-muted/30 border border-border/50 rounded-xl p-4">
+              <div className="bg-card border border-border rounded-lg p-4">
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                  {t('winner_info')}
+                  中奖信息
                 </h4>
                 
+                {/* Show mock winner for past days, real winner if available */}
                 {(() => {
                   const mockWinner = selectedPrize?.mockWinner;
                   const realWinner = selectedWinner?.winner;
@@ -460,6 +419,7 @@ const Waitlist = () => {
                   if (winner && isPast) {
                     return (
                       <div className="space-y-3">
+                        {/* Winner Avatar & Name */}
                         <div className="flex items-center gap-3">
                           <img 
                             src={winner.avatar_url}
@@ -472,14 +432,15 @@ const Waitlist = () => {
                             </p>
                             <p className="text-xs text-muted-foreground flex items-center gap-1">
                               <User className="w-3 h-3" />
-                              {t('registered_at')} {winner.created_at}
+                              注册于 {winner.created_at}
                             </p>
                           </div>
                         </div>
                         
+                        {/* Draw Time */}
                         <div className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {t('draw_time')}: {new Date().getFullYear()}-{String(new Date().getMonth() + 1).padStart(2, '0')}-{String(selectedDay).padStart(2, '0')} 21:00
+                          开奖时间: {new Date().getFullYear()}-{String(new Date().getMonth() + 1).padStart(2, '0')}-{String(selectedDay).padStart(2, '0')} 21:00
                         </div>
                       </div>
                     );
@@ -488,10 +449,10 @@ const Waitlist = () => {
                   return (
                     <div className="text-center py-4">
                       <p className="text-muted-foreground text-sm">
-                        {isPast ? t('no_winner') : t('waiting_draw')}
+                        {isPast ? '无人中奖' : '等待开奖'}
                       </p>
                       {new Date().getDate() === selectedDay && (
-                        <p className="text-xs text-warning mt-1">{t('tonight_21_draw')}</p>
+                        <p className="text-xs text-warning mt-1">今晚 21:00 开奖</p>
                       )}
                     </div>
                   );
@@ -501,7 +462,6 @@ const Waitlist = () => {
           )}
         </DialogContent>
       </Dialog>
-      
       <Footer />
     </div>
   );
