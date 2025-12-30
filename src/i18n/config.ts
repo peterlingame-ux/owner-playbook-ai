@@ -747,6 +747,7 @@ const resources = {
       "no_bio": "No bio",
       "not_following_anyone": "Not following anyone yet",
       "no_followers_yet": "No followers yet",
+      "hunter_balance": "Balance",
       "to_next_level": "to next level",
       "max_level": "MAX",
       
@@ -1792,6 +1793,7 @@ const resources = {
       "no_bio": "暂无简介",
       "not_following_anyone": "暂未关注任何人",
       "no_followers_yet": "暂无粉丝",
+      "hunter_balance": "余额",
       "to_next_level": "升级还需",
       "max_level": "满级",
       
