@@ -805,11 +805,11 @@ const MyPredictions = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="space-y-3"
+            className="space-y-2"
           >
             
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Virtual Wallet */}
               <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
                 <DialogTrigger asChild>
@@ -817,7 +817,7 @@ const MyPredictions = () => {
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="w-full text-left rounded-xl bg-card border border-border p-4 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group"
+                    className="w-full text-left rounded-xl bg-card border border-border p-3 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -956,7 +956,7 @@ const MyPredictions = () => {
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="w-full text-left rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background border border-amber-500/30 p-4 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all group"
+                className="w-full text-left rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background border border-amber-500/30 p-3 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all group"
                 onClick={() => setShowVipConfirmDialog(true)}
               >
                 <div className="flex items-center justify-between">
@@ -999,7 +999,7 @@ const MyPredictions = () => {
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="w-full text-left rounded-xl bg-gradient-to-r from-primary/15 via-primary/10 to-background border border-primary/30 p-4 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all group"
+                className="w-full text-left rounded-xl bg-gradient-to-r from-primary/15 via-primary/10 to-background border border-primary/30 p-3 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all group"
                 onClick={() => setIsBetDialogOpen(true)}
               >
                 <div className="flex items-center justify-between">
