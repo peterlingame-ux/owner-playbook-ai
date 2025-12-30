@@ -52,6 +52,110 @@ const AnimatedPrizeNumber = ({ value }: { value: number }) => {
   );
 };
 
+// Flip card digit component
+const FlipDigit = ({ digit, prevDigit }: { digit: string; prevDigit: string }) => {
+  const [isFlipping, setIsFlipping] = useState(false);
+  
+  useEffect(() => {
+    if (digit !== prevDigit) {
+      setIsFlipping(true);
+      const timer = setTimeout(() => setIsFlipping(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [digit, prevDigit]);
+
+  return (
+    <div className="relative w-5 h-7 sm:w-8 sm:h-10 perspective-500">
+      <motion.div
+        className="w-full h-full"
+        animate={isFlipping ? { rotateX: [0, -90, 0] } : {}}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-900 rounded-sm sm:rounded border border-white/20 flex items-center justify-center shadow-lg">
+          <span className="text-base sm:text-xl font-bold font-mono text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
+            {digit}
+          </span>
+        </div>
+        {/* Top highlight */}
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5 rounded-t-sm sm:rounded-t pointer-events-none" />
+      </motion.div>
+    </div>
+  );
+};
+
+// Countdown display with flip animation
+const FlipCountdown = ({ days, hours, minutes, seconds, t }: { 
+  days: number; 
+  hours: number; 
+  minutes: number; 
+  seconds: number;
+  t: (key: string) => string;
+}) => {
+  const [prevValues, setPrevValues] = useState({ days, hours, minutes, seconds });
+  
+  useEffect(() => {
+    setPrevValues({ days, hours, minutes, seconds });
+  }, [days, hours, minutes, seconds]);
+
+  const formatTwo = (n: number) => String(n).padStart(2, '0');
+  const daysStr = String(days);
+  const hoursStr = formatTwo(hours);
+  const minutesStr = formatTwo(minutes);
+  const secondsStr = formatTwo(seconds);
+  
+  const prevDaysStr = String(prevValues.days);
+  const prevHoursStr = formatTwo(prevValues.hours);
+  const prevMinutesStr = formatTwo(prevValues.minutes);
+  const prevSecondsStr = formatTwo(prevValues.seconds);
+
+  return (
+    <div className="flex items-center gap-1 sm:gap-2">
+      {/* Days */}
+      <div className="flex flex-col items-center">
+        <div className="flex gap-0.5">
+          {daysStr.split('').map((d, i) => (
+            <FlipDigit key={`day-${i}`} digit={d} prevDigit={prevDaysStr[i] || '0'} />
+          ))}
+        </div>
+        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('days_unit')}</span>
+      </div>
+      
+      <span className="text-lg sm:text-2xl font-bold text-amber-400/60">:</span>
+      
+      {/* Hours */}
+      <div className="flex flex-col items-center">
+        <div className="flex gap-0.5">
+          <FlipDigit digit={hoursStr[0]} prevDigit={prevHoursStr[0]} />
+          <FlipDigit digit={hoursStr[1]} prevDigit={prevHoursStr[1]} />
+        </div>
+        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('hours') || '时'}</span>
+      </div>
+      
+      <span className="text-lg sm:text-2xl font-bold text-amber-400/60">:</span>
+      
+      {/* Minutes */}
+      <div className="flex flex-col items-center">
+        <div className="flex gap-0.5">
+          <FlipDigit digit={minutesStr[0]} prevDigit={prevMinutesStr[0]} />
+          <FlipDigit digit={minutesStr[1]} prevDigit={prevMinutesStr[1]} />
+        </div>
+        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('minutes') || '分'}</span>
+      </div>
+      
+      <span className="text-lg sm:text-2xl font-bold text-amber-400/60">:</span>
+      
+      {/* Seconds */}
+      <div className="flex flex-col items-center">
+        <div className="flex gap-0.5">
+          <FlipDigit digit={secondsStr[0]} prevDigit={prevSecondsStr[0]} />
+          <FlipDigit digit={secondsStr[1]} prevDigit={prevSecondsStr[1]} />
+        </div>
+        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('seconds') || '秒'}</span>
+      </div>
+    </div>
+  );
+};
+
 const PRIZE_POOL = 1000000; // $1,000,000
 const AI_BENCHMARK_PREDICTIONS = 247;
 const AI_BENCHMARK_WIN_RATE = 78.95;
@@ -330,14 +434,27 @@ const ChallengeAIBanner = () => {
           </div>
           
           {/* 倒计时和统计 */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-sm">
-            <span className="font-mono text-foreground">
-              {countdown.days}{t('days_unit')} {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-            </span>
-            <div className="h-3 sm:h-4 w-px bg-border" />
-            <span><span className="font-bold text-foreground">{qualifiedCount}</span> {t('people_qualified')}</span>
-            <div className="h-3 sm:h-4 w-px bg-border" />
-            <span>{t('activity_prize_pool')} <span className="font-bold text-warning text-xs sm:text-base">1,000,000</span> <span className="text-muted-foreground">({t('total_prize_value')})</span></span>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
+            <FlipCountdown 
+              days={countdown.days} 
+              hours={countdown.hours} 
+              minutes={countdown.minutes} 
+              seconds={countdown.seconds}
+              t={t}
+            />
+            <div className="h-8 sm:h-10 w-px bg-border/50" />
+            <div className="flex flex-col items-center">
+              <span className="text-lg sm:text-2xl font-bold text-foreground">{qualifiedCount}</span>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('people_qualified')}</span>
+            </div>
+            <div className="h-8 sm:h-10 w-px bg-border/50" />
+            <div className="flex flex-col items-center">
+              <span className="text-lg sm:text-2xl font-bold text-warning flex items-center gap-1">
+                1,000,000
+                <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5 sm:w-6 sm:h-6" />
+              </span>
+              <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('total_prize_value')}</span>
+            </div>
           </div>
         </div>
       </CardContent>
