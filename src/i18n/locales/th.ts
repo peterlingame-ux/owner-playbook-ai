@@ -344,7 +344,11 @@ export const th = {
       "login_failed": "เข้าสู่ระบบล้มเหลว",
       "phone_or_password_error": "เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง",
       "verify_success": "ยืนยันสำเร็จ",
-      "please_set_new_password": "กรุณาตั้งรหัสผ่านใหม่"
+      "please_set_new_password": "กรุณาตั้งรหัสผ่านใหม่",
+      "user_sync_failed": "ซิงค์ข้อมูลผู้ใช้ล้มเหลว",
+      "reset_failed": "รีเซ็ตล้มเหลว",
+      "reset_password_failed": "รีเซ็ตรหัสผ่านล้มเหลว ลองอีกครั้ง",
+      "password_mismatch_desc": "รหัสผ่านสองรหัสที่คุณป้อนไม่ตรงกัน"
     },
     
     // Common

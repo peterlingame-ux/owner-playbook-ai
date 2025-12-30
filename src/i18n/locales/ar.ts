@@ -344,7 +344,11 @@ export const ar = {
       "login_failed": "فشل تسجيل الدخول",
       "phone_or_password_error": "رقم الهاتف أو كلمة المرور غير صحيحة",
       "verify_success": "تم التحقق بنجاح",
-      "please_set_new_password": "يرجى تعيين كلمة مرور جديدة"
+      "please_set_new_password": "يرجى تعيين كلمة مرور جديدة",
+      "user_sync_failed": "فشل مزامنة معلومات المستخدم",
+      "reset_failed": "فشل إعادة التعيين",
+      "reset_password_failed": "فشل إعادة تعيين كلمة المرور، حاول مرة أخرى",
+      "password_mismatch_desc": "كلمتا المرور اللتان أدخلتهما غير متطابقتين"
     },
     
     // Common

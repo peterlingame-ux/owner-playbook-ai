@@ -344,7 +344,11 @@ export const it = {
       "login_failed": "Accesso Fallito",
       "phone_or_password_error": "Telefono o password errati",
       "verify_success": "Verifica Riuscita",
-      "please_set_new_password": "Per favore imposta nuova password"
+      "please_set_new_password": "Per favore imposta nuova password",
+      "user_sync_failed": "Sincronizzazione informazioni utente fallita",
+      "reset_failed": "Reimpostazione Fallita",
+      "reset_password_failed": "Reimpostazione password fallita, riprova",
+      "password_mismatch_desc": "Le due password che hai inserito non corrispondono"
     },
     
     // Common
