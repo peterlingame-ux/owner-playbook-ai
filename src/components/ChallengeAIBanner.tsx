@@ -72,7 +72,7 @@ const FlipDigit = ({ digit, prevDigit }: { digit: string; prevDigit: string }) =
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-900 rounded-sm sm:rounded border border-white/20 flex items-center justify-center shadow-lg">
-          <span className="text-base sm:text-xl font-bold font-mono text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
+          <span className="text-base sm:text-xl font-bold font-mono text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
             {digit}
           </span>
         </div>
