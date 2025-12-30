@@ -813,12 +813,21 @@ const MyPredictions = () => {
               {/* Virtual Wallet */}
               <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
                 <DialogTrigger asChild>
-                  <button className="w-full text-left rounded-xl bg-card border border-border p-4 hover:border-primary/30 transition-all group">
+                  <motion.button 
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    className="w-full text-left rounded-xl bg-card border border-border p-4 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-lg bg-primary/10">
+                        <motion.div 
+                          className="p-2.5 rounded-lg bg-primary/10"
+                          whileHover={{ rotate: [0, -10, 10, 0] }}
+                          transition={{ duration: 0.5 }}
+                        >
                           <History className="h-5 w-5 text-primary" />
-                        </div>
+                        </motion.div>
                         <div>
                           <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
                           <p className="text-xl font-light text-foreground">
@@ -826,11 +835,14 @@ const MyPredictions = () => {
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                      <motion.span 
+                        className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
+                        whileHover={{ x: 3 }}
+                      >
                         {t('view_arrow')}
-                      </span>
+                      </motion.span>
                     </div>
-                  </button>
+                  </motion.button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
                   <DialogHeader>
@@ -940,15 +952,22 @@ const MyPredictions = () => {
               </Dialog>
 
               {/* VIP Privileges Card */}
-              <button 
-                className="w-full text-left rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background border border-amber-500/30 p-4 hover:border-amber-500/50 transition-all group"
+              <motion.button 
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                className="w-full text-left rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background border border-amber-500/30 p-4 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all group"
                 onClick={() => setShowVipConfirmDialog(true)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-lg bg-amber-500/20">
+                    <motion.div 
+                      className="p-2.5 rounded-lg bg-amber-500/20"
+                      whileHover={{ rotate: [0, -15, 15, 0], scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
+                    >
                       <Crown className="h-5 w-5 text-amber-500" />
-                    </div>
+                    </motion.div>
                     <div>
                       <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
                       <p className="text-base font-light text-foreground">
@@ -957,16 +976,23 @@ const MyPredictions = () => {
                     </div>
                   </div>
                   {vipStatus?.is_active ? (
-                    <span className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-500">
+                    <motion.span 
+                      className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-500"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
                       {t('vip_badge')}
-                    </span>
+                    </motion.span>
                   ) : (
-                    <span className="text-xs text-muted-foreground group-hover:text-amber-500 transition-colors">
+                    <motion.span 
+                      className="text-xs text-muted-foreground group-hover:text-amber-500 transition-colors"
+                      whileHover={{ x: 3 }}
+                    >
                       {t('view_arrow')}
-                    </span>
+                    </motion.span>
                   )}
                 </div>
-              </button>
+              </motion.button>
 
             </div>
           </motion.div>
