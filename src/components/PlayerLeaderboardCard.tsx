@@ -327,8 +327,8 @@ export const PlayerLeaderboardCard = ({
             </span>
           )}
           <div className="flex items-center gap-1">
-            {/* 关注按钮 - 仅对非虚拟玩家显示 */}
-            {!player.isVirtual && currentUserId !== player.id && (
+            {/* 关注按钮 - 对所有玩家显示 */}
+            {currentUserId !== player.id && (
               <button
                 onClick={handleFollowToggle}
                 disabled={isFollowLoading}
