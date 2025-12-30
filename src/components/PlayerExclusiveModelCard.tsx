@@ -237,7 +237,7 @@ const PlayerExclusiveModelCard = ({
 
   // Demo mode for non-logged-in users
   const isDemo = !user || !userProfile;
-  const displayName = isDemo ? '体验玩家' : `${userProfile?.display_name || '玩家'}的模型`;
+  const displayName = isDemo ? t('demo_player') || '预测者专属模型' : `${userProfile?.display_name || '玩家'}的模型`;
   const avatarUrl = isDemo ? '/avatars/avatar-1.png' : (userProfile?.avatar_url || '/avatars/avatar-1.png');
 
   // Calculate training trend data (last 7 days)
@@ -610,10 +610,12 @@ const PlayerExclusiveModelCard = ({
                     <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
                     </span>
-                    <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
-                      <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                      {balanceValue || '10,000'}
-                    </span>
+                    {!isDemo && (
+                      <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
+                        <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                        {balanceValue || '10,000'}
+                      </span>
+                    )}
                   </div>
                 </div>
                 
