@@ -1074,7 +1074,7 @@ const PlayerCopyTradingBoard = () => {
         <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
           {/* Bet Amount */}
           <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟下注</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('virtual_bet_label')}</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-foreground flex items-center gap-1">
               {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1083,7 +1083,7 @@ const PlayerCopyTradingBoard = () => {
           
           {/* Profit Amount */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
               <span className="inline-flex items-center gap-1">
                 {profitAmount >= 0 ? '+' : '-'}
@@ -1095,7 +1095,7 @@ const PlayerCopyTradingBoard = () => {
           
           {/* Profit Rate */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
             </p>
@@ -1115,14 +1115,14 @@ const PlayerCopyTradingBoard = () => {
               setIsPlayerFollowersDialogOpen(true);
             }}
           >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />追踪人数</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
             <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
               {(() => {
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
                 const variance = (seed % 50) - 25;
                 return Math.max(0, baseCount + variance);
-              })()}人
+              })()}{t('people_suffix')}
             </p>
           </div>
         </div>
@@ -2142,11 +2142,11 @@ const PlayerCopyTradingBoard = () => {
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <DialogTitle className="text-lg font-bold">{selectedPlayerFollowers?.playerName} - 追踪用户</DialogTitle>
-                  <p className="text-xs text-muted-foreground mt-1">更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                  <DialogTitle className="text-lg font-bold">{selectedPlayerFollowers?.playerName} - {t('tracking_users')}</DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">{t('updated_at')} {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-muted-foreground">盈利率</span>
+                  <span className="text-xs text-muted-foreground">{t('profit_rate_label')}</span>
                   <span className="text-lg font-bold text-success">+{(15 + Math.random() * 30).toFixed(1)}%</span>
                   <TrendingUp className="h-4 w-4 text-success" />
                 </div>
@@ -2154,8 +2154,8 @@ const PlayerCopyTradingBoard = () => {
             </DialogHeader>
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
-            <span>排名</span>
-            <span>盈利金额 | 参与规模</span>
+            <span>{t('rank_header')}</span>
+            <span>{t('profit_and_scale')}</span>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1">
             {selectedPlayerFollowers?.followers.map((follower, index) => (
@@ -2167,7 +2167,7 @@ const PlayerCopyTradingBoard = () => {
                   <Avatar className="w-10 h-10 border border-border/50"><AvatarImage src={follower.avatar} /><AvatarFallback>{follower.name.charAt(0)}</AvatarFallback></Avatar>
                   <div>
                     <p className="font-bold text-sm">{follower.name}</p>
-                    <p className="text-xs text-muted-foreground">已追踪{follower.days}次</p>
+                    <p className="text-xs text-muted-foreground">{t('followed_times', { count: follower.days })}</p>
                   </div>
                 </div>
                 <div className="text-right">

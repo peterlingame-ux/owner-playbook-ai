@@ -2354,14 +2354,14 @@ const PlayerLeaderboardTable = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <DialogTitle className="text-lg font-bold text-foreground">
-                    {selectedPlayerFollowers?.playerName} - 追踪用户
+                    {selectedPlayerFollowers?.playerName} - {t('tracking_users')}
                   </DialogTitle>
                   <p className="text-xs text-muted-foreground mt-1">
-                    更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    {t('updated_at')} {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </p>
     </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-muted-foreground">盈利率</span>
+                  <span className="text-xs text-muted-foreground">{t('profit_rate_label')}</span>
                   <span className={`text-lg font-bold font-mono-data ${
                     (selectedPlayerFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 
                       ? 'text-success' 
@@ -2377,8 +2377,8 @@ const PlayerLeaderboardTable = () => {
           
           {/* Table Header */}
           <div className="flex items-center justify-between text-xs text-muted-foreground px-5 py-2.5 border-y border-border/50 bg-muted/30">
-            <span>排名</span>
-            <span>猎人币 | 参与规模</span>
+            <span>{t('rank_header')}</span>
+            <span>{t('hunter_coin_and_scale')}</span>
           </div>
           
           {/* Followers List */}
