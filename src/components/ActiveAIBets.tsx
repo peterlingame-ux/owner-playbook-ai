@@ -1106,8 +1106,8 @@ const ActiveAIBets = () => {
                             {getModelDisplayName(aiModel)}
                           </span>
                           <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
+                            {balanceNumber}
                             <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                            {balanceNumber} 猎人币
                           </span>
                         </div>
                       </div>
@@ -1366,7 +1366,7 @@ const ActiveAIBets = () => {
           const balanceNumber = balance 
             ? (balance.available_balance + balance.locked_balance).toLocaleString()
             : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
-          const balanceValue = `${balanceNumber} 猎人币`;
+          const balanceValue = balanceNumber;
 
           return (
             <PlayerExclusiveModelCard
