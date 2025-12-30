@@ -1943,9 +1943,9 @@ const resources = {
       "deposit_hint": "点击上方'充值'按钮添加USDT",
       
       // 猎人币钱包
-      "hunter_coin_wallet": "消费历史",
+      "hunter_coin_wallet": "VIP特权",
       "hunter_coin_balance": "猎人币余额",
-      "usdt_wallet": "消费历史",
+      "usdt_wallet": "VIP特权",
       "usdt_wallet_balance": "猎人币余额",
       "usdt_deposit": "充值",
       "usdt_deposit_title": "USDT充值",
