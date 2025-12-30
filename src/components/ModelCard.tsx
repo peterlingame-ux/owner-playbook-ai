@@ -218,7 +218,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
             <span className={`font-mono font-bold text-sm tabular-nums leading-none ${
               isPositive ? 'text-success' : 'text-destructive'
             }`}>
-              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}
+              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '').replace(/[+-]/, m => m)}
             </span>
           </div>
         </div>
