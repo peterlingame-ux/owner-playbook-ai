@@ -308,7 +308,7 @@ export const it = {
     "betting_summary": "Riepilogo Scommesse",
     "referral_code": "Codice Referral",
     "invited_label": "Invitati",
-    "referral_bonus_text": "Invita amici e guadagna 50 Hunter Coins per referral",
+    "referral_bonus_text": "Invita 5 amici e ottieni 1 mese di VIP gratuito",
     "start_predicting": "Inizia a Prevedere",
     "upgrade_to_vip": "Upgrade a VIP",
     "thirty_day_vip": "VIP 30 Giorni",

@@ -810,7 +810,7 @@ const resources = {
       // Personal Center - Referral
       "referral_code": "Referral Code",
       "invited_label": "Invited",
-      "referral_bonus_text": "Invite friends and earn 50 Hunter Coins for each referral",
+      "referral_bonus_text": "Invite 5 friends to get 1 month of free VIP",
       "start_predicting": "Start Predicting",
       
       // Personal Center - VIP Dialog
@@ -1875,7 +1875,7 @@ const resources = {
       // 个人中心 - 邀请
       "referral_code": "邀请码",
       "invited_label": "已邀请",
-      "referral_bonus_text": "邀请好友可获得50猎人币奖励",
+      "referral_bonus_text": "邀请5个好友可免费使用VIP一个月",
       "start_predicting": "开始预测",
       
       // 个人中心 - VIP对话框
