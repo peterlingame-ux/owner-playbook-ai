@@ -344,7 +344,11 @@ export const ja = {
       "login_failed": "ログイン失敗",
       "phone_or_password_error": "電話番号またはパスワードが正しくありません",
       "verify_success": "認証成功",
-      "please_set_new_password": "新しいパスワードを設定してください"
+      "please_set_new_password": "新しいパスワードを設定してください",
+      "user_sync_failed": "ユーザー情報の同期に失敗しました",
+      "reset_failed": "リセット失敗",
+      "reset_password_failed": "パスワードのリセットに失敗しました、再試行してください",
+      "password_mismatch_desc": "入力した2つのパスワードが一致しません"
     },
     
     // Common

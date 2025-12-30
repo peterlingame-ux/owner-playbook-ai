@@ -344,7 +344,11 @@ export const pt = {
       "login_failed": "Falha no Login",
       "phone_or_password_error": "Telefone ou senha incorretos",
       "verify_success": "Verificação Bem-sucedida",
-      "please_set_new_password": "Por favor defina nova senha"
+      "please_set_new_password": "Por favor defina nova senha",
+      "user_sync_failed": "Falha ao sincronizar informações do usuário",
+      "reset_failed": "Falha ao Redefinir",
+      "reset_password_failed": "Falha ao redefinir senha, tente novamente",
+      "password_mismatch_desc": "As duas senhas que você digitou não coincidem"
     },
     
     // Common

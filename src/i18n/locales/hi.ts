@@ -344,7 +344,11 @@ export const hi = {
       "login_failed": "लॉगिन विफल",
       "phone_or_password_error": "फोन नंबर या पासवर्ड गलत",
       "verify_success": "सत्यापन सफल",
-      "please_set_new_password": "कृपया नया पासवर्ड सेट करें"
+      "please_set_new_password": "कृपया नया पासवर्ड सेट करें",
+      "user_sync_failed": "उपयोगकर्ता जानकारी सिंक करने में विफल",
+      "reset_failed": "रीसेट विफल",
+      "reset_password_failed": "पासवर्ड रीसेट करने में विफल, पुनः प्रयास करें",
+      "password_mismatch_desc": "आपने जो दो पासवर्ड दर्ज किए हैं वे मेल नहीं खाते"
     },
     
     // Common

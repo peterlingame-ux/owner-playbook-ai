@@ -344,7 +344,11 @@ export const ru = {
       "login_failed": "Ошибка Входа",
       "phone_or_password_error": "Неверный телефон или пароль",
       "verify_success": "Проверка Успешна",
-      "please_set_new_password": "Пожалуйста, установите новый пароль"
+      "please_set_new_password": "Пожалуйста, установите новый пароль",
+      "user_sync_failed": "Не удалось синхронизировать информацию пользователя",
+      "reset_failed": "Ошибка Сброса",
+      "reset_password_failed": "Не удалось сбросить пароль, попробуйте снова",
+      "password_mismatch_desc": "Два введённых пароля не совпадают"
     },
     
     // Common
