@@ -1316,17 +1316,17 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Column 2: 盈利最高榜 */}
+        {/* Column 3: 低胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-3 pt-4 px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-gradient-to-b from-warning to-warning/50 rounded-full" />
+                <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                 <div>
                   <CardTitle className="text-lg font-bold text-foreground">
-                    {t('profit_board')}
+                    {t('cold_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">盈利最高的预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
                 </div>
               </div>
                 <button
@@ -1342,7 +1342,7 @@ const PlayerLeaderboardTable = () => {
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
-                    key="loading-profit"
+                    key="loading-cold"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -1352,7 +1352,7 @@ const PlayerLeaderboardTable = () => {
                   </motion.div>
                 ) : (
                   <motion.div
-                    key={`profit-${timeRange}`}
+                    key={`cold-streak-${timeRange}`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -1360,7 +1360,7 @@ const PlayerLeaderboardTable = () => {
                     className="space-y-2"
                   >
                     {[...allPlayers]
-                      .sort((a, b) => (b.profitAmount || b.profit || 0) - (a.profitAmount || a.profit || 0))
+                      .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
                       .slice(0, 10)
                       .map((player, index) => {
                         const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
@@ -1389,7 +1389,7 @@ const PlayerLeaderboardTable = () => {
                             calculateEstimatedPrize={calculateEstimatedPrize}
                             totalEligiblePlayers={eligiblePlayers}
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
-                            boardType="profit"
+                            boardType="cold"
                             todayWinRate={todayWinRates.get(player.id)?.winRate}
                             currentUserId={user?.id || null}
                           />
