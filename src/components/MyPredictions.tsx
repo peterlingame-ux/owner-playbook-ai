@@ -712,58 +712,14 @@ const MyPredictions = () => {
 
             {/* Follow Stats */}
             <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 border-t border-border">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button className="text-center hover:opacity-70 transition-opacity">
-                    <p className="text-lg font-light text-foreground">{followingList.length}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('following_label')}</p>
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="font-light">{t('following_label')} ({followingList.length})</DialogTitle>
-                  </DialogHeader>
-                  <div className="max-h-[60vh] overflow-y-auto divide-y divide-border">
-                    {followingList.map((u) => {
-                      const isMutualFollow = followersList.some(f => f.id === u.id);
-                      return (
-                        <div key={u.id} className="py-4 flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={u.avatar_url} />
-                            <AvatarFallback>{u.display_name.slice(0, 2)}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium truncate">{u.display_name}</p>
-                              {isMutualFollow && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{t('mutual_follow')}</span>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground truncate">{u.signature || t('no_bio')}</p>
-                          </div>
-                          {isMutualFollow && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setMessageTargetUser({ id: u.id, display_name: u.display_name, avatar_url: u.avatar_url });
-                                setMessageIsMutualFollow(true);
-                                setMessageDialogOpen(true);
-                              }}
-                            >
-                              <MessageCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                    {followingList.length === 0 && (
-                      <p className="py-8 text-center text-muted-foreground">{t('not_following_anyone')}</p>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
+              {/* 关注 - 点击跳转到我的关注页面 */}
+              <button 
+                className="text-center hover:opacity-70 transition-opacity"
+                onClick={() => navigate('/my-following')}
+              >
+                <p className="text-lg font-light text-foreground">{followingList.length}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('following_label')}</p>
+              </button>
 
               <div className="w-px h-8 bg-border" />
 
