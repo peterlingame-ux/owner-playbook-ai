@@ -52,6 +52,51 @@ const AnimatedPrizeNumber = ({ value }: { value: number }) => {
   );
 };
 
+// Animated prize per person with smooth transition
+const AnimatedPrizePerPerson = ({ value, prevValue }: { value: number; prevValue: number }) => {
+  const [displayValue, setDisplayValue] = useState(value);
+  const [isAnimating, setIsAnimating] = useState(false);
+  
+  useEffect(() => {
+    if (value !== prevValue) {
+      setIsAnimating(true);
+      const duration = 1000;
+      const steps = 30;
+      const diff = value - prevValue;
+      const increment = diff / steps;
+      let current = prevValue;
+      let step = 0;
+      
+      const timer = setInterval(() => {
+        step++;
+        current += increment;
+        if (step >= steps) {
+          setDisplayValue(value);
+          setIsAnimating(false);
+          clearInterval(timer);
+        } else {
+          setDisplayValue(Math.floor(current));
+        }
+      }, duration / steps);
+      
+      return () => clearInterval(timer);
+    }
+  }, [value, prevValue]);
+  
+  return (
+    <motion.span
+      className="inline-block"
+      animate={isAnimating ? { 
+        scale: [1, 1.1, 1],
+        color: ['rgb(74, 222, 128)', 'rgb(250, 204, 21)', 'rgb(74, 222, 128)']
+      } : {}}
+      transition={{ duration: 0.5 }}
+    >
+      {displayValue.toLocaleString()}
+    </motion.span>
+  );
+};
+
 // Flip card digit component
 const FlipDigit = ({ digit, prevDigit }: { digit: string; prevDigit: string }) => {
   const [isFlipping, setIsFlipping] = useState(false);
@@ -178,6 +223,7 @@ const ChallengeAIBanner = () => {
   const { user } = useAuth();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [prevPrizePerPerson, setPrevPrizePerPerson] = useState(PRIZE_POOL);
 
   // 计算倒计时 - 每30天为一个周期
   useEffect(() => {
@@ -300,6 +346,14 @@ const ChallengeAIBanner = () => {
     (p.profitAmount || 0) >= AI_BENCHMARK_PROFIT
   ).length;
   const prizePerPerson = qualifiedCount > 0 ? Math.floor(PRIZE_POOL / qualifiedCount) : PRIZE_POOL;
+
+  // Update previous prize value when it changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPrevPrizePerPerson(prizePerPerson);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [prizePerPerson]);
 
   return (
     <Card className="border-border/50 overflow-hidden relative">
@@ -440,7 +494,7 @@ const ChallengeAIBanner = () => {
             <div className="h-8 sm:h-10 w-px bg-border/50" />
             <div className="flex flex-col items-center">
               <span className="text-lg sm:text-2xl font-bold text-success flex items-center gap-1">
-                {prizePerPerson.toLocaleString()}
+                <AnimatedPrizePerPerson value={prizePerPerson} prevValue={prevPrizePerPerson} />
                 <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5 sm:w-6 sm:h-6" />
               </span>
               <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('prize_per_person') || '平分奖金'}</span>
