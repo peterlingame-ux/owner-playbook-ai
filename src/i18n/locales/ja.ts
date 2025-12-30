@@ -338,7 +338,7 @@ export const ja = {
     "roi_label": "ROI",
     "referral_code": "紹介コード",
     "invited_label": "招待済み",
-    "referral_bonus_text": "友達を招待して紹介ごとに50ハンターコインを獲得",
+    "referral_bonus_text": "友達5人を招待すると1ヶ月間VIP無料",
     "start_predicting": "予測を開始",
     "upgrade_to_vip": "VIPにアップグレード",
     "thirty_day_vip": "30日間VIP",
