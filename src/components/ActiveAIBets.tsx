@@ -495,8 +495,8 @@ const ActiveAIBets = () => {
           console.error('Error fetching matches:', matchesError);
           if (!isRefresh) {
             toast({
-              title: "加载失败",
-              description: "无法获取比赛数据",
+              title: t('load_failed'),
+              description: t('fetch_match_failed'),
               variant: "destructive",
             });
           }
@@ -571,8 +571,8 @@ const ActiveAIBets = () => {
         console.error('Unexpected error:', error);
         if (!isRefresh) {
           toast({
-            title: "加载失败",
-            description: "发生未知错误",
+            title: t('load_failed'),
+            description: t('unknown_error'),
             variant: "destructive",
           });
         }

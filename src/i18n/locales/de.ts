@@ -348,6 +348,11 @@ export const de = {
     },
     
     // Common
+    "load_failed": "Laden Fehlgeschlagen",
+    "fetch_match_failed": "Spieldaten können nicht abgerufen werden",
+    "unknown_error": "Ein unbekannter Fehler ist aufgetreten",
+    "fetch_failed_retry": "Datenabruf fehlgeschlagen, bitte später erneut versuchen",
+    "operation_failed": "Operation Fehlgeschlagen",
     "copy_trade": "MODELL FOLGEN",
     "one_click_copy_trade": "Ein-Klick Copy Trade",
     "copy_trade_player": "SPIELER FOLGEN",

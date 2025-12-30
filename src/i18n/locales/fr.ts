@@ -399,6 +399,11 @@ export const fr = {
     "share_invitation": "Partager l'Invitation",
 
     // Common
+    "load_failed": "Échec du Chargement",
+    "fetch_match_failed": "Impossible d'obtenir les données du match",
+    "unknown_error": "Une erreur inconnue s'est produite",
+    "fetch_failed_retry": "Échec de récupération des données, réessayez plus tard",
+    "operation_failed": "Opération Échouée",
     "copy_trade": "SUIVRE LE MODÈLE",
     "one_click_copy_trade": "Copy Trade en Un Clic",
     "copy_trade_player": "SUIVRE LE JOUEUR",

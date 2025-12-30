@@ -348,6 +348,11 @@ export const th = {
     },
     
     // Common
+    "load_failed": "โหลดล้มเหลว",
+    "fetch_match_failed": "ไม่สามารถดึงข้อมูลการแข่งขัน",
+    "unknown_error": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+    "fetch_failed_retry": "ดึงข้อมูลล้มเหลว กรุณาลองใหม่ภายหลัง",
+    "operation_failed": "การดำเนินการล้มเหลว",
     "copy_trade": "ติดตามโมเดล",
     "one_click_copy_trade": "คัดลอกการเทรดด้วยคลิกเดียว",
     "copy_trade_player": "ติดตามผู้เล่น",

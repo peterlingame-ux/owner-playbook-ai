@@ -348,6 +348,11 @@ export const ja = {
     },
     
     // Common
+    "load_failed": "読み込み失敗",
+    "fetch_match_failed": "試合データを取得できません",
+    "unknown_error": "不明なエラーが発生しました",
+    "fetch_failed_retry": "データ取得に失敗しました。後でもう一度お試しください",
+    "operation_failed": "操作失敗",
     "copy_trade": "モデルをフォロー",
     "one_click_copy_trade": "ワンクリックコピートレード",
     "copy_trade_player": "プレイヤーをフォロー",

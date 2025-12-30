@@ -348,6 +348,11 @@ export const it = {
     },
     
     // Common
+    "load_failed": "Caricamento Fallito",
+    "fetch_match_failed": "Impossibile ottenere i dati della partita",
+    "unknown_error": "Si è verificato un errore sconosciuto",
+    "fetch_failed_retry": "Recupero dati fallito, riprova più tardi",
+    "operation_failed": "Operazione Fallita",
     "copy_trade": "SEGUI MODELLO",
     "one_click_copy_trade": "Copy Trade con Un Clic",
     "copy_trade_player": "SEGUI GIOCATORE",

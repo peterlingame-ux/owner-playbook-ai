@@ -348,6 +348,11 @@ export const ar = {
     },
     
     // Common
+    "load_failed": "فشل التحميل",
+    "fetch_match_failed": "تعذر الحصول على بيانات المباراة",
+    "unknown_error": "حدث خطأ غير معروف",
+    "fetch_failed_retry": "فشل جلب البيانات، يرجى المحاولة لاحقاً",
+    "operation_failed": "فشلت العملية",
     "copy_trade": "تابع النموذج",
     "one_click_copy_trade": "نسخ التداول بنقرة واحدة",
     "copy_trade_player": "تابع اللاعب",

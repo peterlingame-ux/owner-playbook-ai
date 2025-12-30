@@ -589,6 +589,10 @@ export const es = {
     "follow_success": "Seguimiento Exitoso",
     "unfollow_success": "Dejaste de seguir",
     "operation_failed": "Operación Fallida",
+    "load_failed": "Error de Carga",
+    "fetch_match_failed": "No se pueden obtener datos del partido",
+    "unknown_error": "Ocurrió un error desconocido",
+    "fetch_failed_retry": "Error al obtener datos, intente más tarde",
     
     // Countdown
     "match_starting_soon": "Comienza Pronto",
