@@ -1,11 +1,13 @@
-import { Trophy, ThumbsUp, Heart, Copy, Users } from "lucide-react";
+import { Trophy, ThumbsUp, Heart, Copy, Users, UserPlus, UserCheck, Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { AnimatedPrize } from "./AnimatedPrize";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
 interface PlayerData {
@@ -46,6 +48,7 @@ interface PlayerLeaderboardCardProps {
   aiBenchmarkWinRate: number;
   boardType?: 'hot' | 'profit' | 'cold'; // 区分排行榜类型
   todayWinRate?: number; // Today's win rate for trend calculation
+  currentUserId?: string | null; // 当前用户ID，用于关注功能
 }
 
 // Profit Rate Badge Component
@@ -79,10 +82,82 @@ export const PlayerLeaderboardCard = ({
   aiBenchmarkWinRate,
   boardType = 'hot',
   todayWinRate,
+  currentUserId,
 }: PlayerLeaderboardCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+
+  // 检查是否已关注该玩家
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (!currentUserId || player.isVirtual) return;
+      
+      const { data } = await supabase
+        .from('user_follows')
+        .select('id')
+        .eq('follower_id', currentUserId)
+        .eq('following_id', player.id)
+        .maybeSingle();
+      
+      setIsFollowing(!!data);
+    };
+    
+    checkFollowStatus();
+  }, [currentUserId, player.id, player.isVirtual]);
+
+  // 关注/取消关注
+  const handleFollowToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!currentUserId) {
+      toast.error(t('please_login_first') || '请先登录');
+      return;
+    }
+    
+    if (player.isVirtual) {
+      toast.error(t('cannot_follow_virtual') || '暂不支持关注虚拟玩家');
+      return;
+    }
+    
+    if (currentUserId === player.id) {
+      toast.error(t('cannot_follow_self') || '不能关注自己');
+      return;
+    }
+
+    setIsFollowLoading(true);
+    try {
+      if (isFollowing) {
+        const { error } = await supabase
+          .from('user_follows')
+          .delete()
+          .eq('follower_id', currentUserId)
+          .eq('following_id', player.id);
+
+        if (error) throw error;
+        setIsFollowing(false);
+        toast.success(t('unfollowed') || '已取消关注');
+      } else {
+        const { error } = await supabase
+          .from('user_follows')
+          .insert({
+            follower_id: currentUserId,
+            following_id: player.id
+          });
+
+        if (error) throw error;
+        setIsFollowing(true);
+        toast.success(t('followed') || '关注成功');
+      }
+    } catch (error) {
+      console.error('Follow toggle error:', error);
+      toast.error(t('operation_failed') || '操作失败');
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
 
   const handleLikeWithAnimation = (e: React.MouseEvent) => {
     if (!isLiked) {
@@ -252,6 +327,34 @@ export const PlayerLeaderboardCard = ({
             </span>
           )}
           <div className="flex items-center gap-1">
+            {/* 关注按钮 - 仅对非虚拟玩家显示 */}
+            {!player.isVirtual && currentUserId !== player.id && (
+              <button
+                onClick={handleFollowToggle}
+                disabled={isFollowLoading}
+                className={`px-1.5 sm:px-2.5 py-1 text-[8px] sm:text-xs font-medium rounded-md transition-all border whitespace-nowrap flex items-center gap-0.5 ${
+                  isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
+                } ${
+                  isFollowing 
+                    ? 'bg-primary/10 text-primary border-primary/40 hover:bg-primary/20' 
+                    : 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
+                }`}
+              >
+                {isFollowLoading ? (
+                  <Loader2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" />
+                ) : isFollowing ? (
+                  <>
+                    <UserCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    <span className="hidden sm:inline">{t('following') || '已关注'}</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    <span className="hidden sm:inline">{t('follow') || '关注'}</span>
+                  </>
+                )}
+              </button>
+            )}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
