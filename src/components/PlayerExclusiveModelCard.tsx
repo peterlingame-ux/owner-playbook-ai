@@ -594,20 +594,26 @@ const PlayerExclusiveModelCard = ({
               <div className="flex items-center justify-between">
                 {/* Player Avatar & Info */}
                 <div className="flex items-center gap-3">
-                  {!isDemo && (
-                    <div className="relative">
-                      <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
-                        <AvatarImage 
-                          src={avatarUrl} 
-                          alt={displayName} 
-                          className="object-cover" 
-                        />
-                        <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
-                      </Avatar>
-                      {/* Online Indicator */}
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
+                      {!isDemo ? (
+                        <>
+                          <AvatarImage 
+                            src={avatarUrl} 
+                            alt={displayName} 
+                            className="object-cover" 
+                          />
+                          <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
+                        </>
+                      ) : (
+                        <AvatarFallback className="bg-white/5" />
+                      )}
+                    </Avatar>
+                    {/* Online Indicator - only show when logged in */}
+                    {!isDemo && (
                       <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
