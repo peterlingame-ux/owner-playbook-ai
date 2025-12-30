@@ -1632,7 +1632,7 @@ const resources = {
       "copy_trade_player": "关注预测者",
       "copy_trade_btn": "订阅",
       "today_copy_trade_btn": "今日订阅",
-      "copy_trading_board": "预测者观点排行榜",
+      "copy_trading_board": "预测者跟单排行榜",
       "hot_streak_board": "高准确率榜",
       "cold_streak_board": "低准确率榜",
       "profit_board": "高盈利榜",

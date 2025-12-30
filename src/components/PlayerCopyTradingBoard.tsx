@@ -1144,7 +1144,7 @@ const PlayerCopyTradingBoard = () => {
     <div className="space-y-6">
       {/* Time Range Filter - Unified for all boards */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者观点排行榜'}</h2>
+        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者跟单排行榜'}</h2>
         <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
           <button
             onClick={() => setTimeRange(1)}
