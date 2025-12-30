@@ -596,7 +596,7 @@ const PlayerExclusiveModelCard = ({
                 {/* Player Avatar & Info */}
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
+                    <Avatar className={`h-12 w-12 shadow-lg ${isDemo ? 'border-2 border-dashed border-white/30' : 'ring-2 ring-white/20'}`}>
                       {!isDemo ? (
                         <>
                           <AvatarImage 
@@ -608,7 +608,7 @@ const PlayerExclusiveModelCard = ({
                         </>
                       ) : (
                         <AvatarFallback className="bg-white/5">
-                          <User className="h-5 w-5 text-muted-foreground/50" />
+                          <User className="h-5 w-5 text-muted-foreground/40" />
                         </AvatarFallback>
                       )}
                     </Avatar>
