@@ -994,6 +994,21 @@ const MyPredictions = () => {
                 </div>
               </motion.button>
 
+              {/* Start Predicting Button */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Button 
+                  className="w-full h-12 rounded-xl text-base font-normal bg-primary hover:bg-primary/90"
+                  onClick={() => setIsBetDialogOpen(true)}
+                >
+                  <Zap className="h-5 w-5 mr-2" />
+                  {t('start_predicting')}
+                </Button>
+              </motion.div>
+
             </div>
           </motion.div>
         </div>
@@ -1157,20 +1172,6 @@ const MyPredictions = () => {
             </p>
           </motion.div>
 
-          {/* CTA Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Button 
-              className="w-full h-14 lg:h-16 rounded-xl text-base lg:text-lg font-normal bg-primary hover:bg-primary/90"
-              onClick={() => setIsBetDialogOpen(true)}
-            >
-              <Zap className="h-5 w-5 lg:h-6 lg:w-6 mr-2" />
-              {t('start_predicting')}
-            </Button>
-          </motion.div>
         </div>
       </div>
 
