@@ -2343,7 +2343,7 @@ const PlayerLeaderboardTable = () => {
                   </p>
     </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-muted-foreground">积分变化率</span>
+                  <span className="text-xs text-muted-foreground">盈利率</span>
                   <span className={`text-lg font-bold font-mono-data ${
                     (selectedPlayerFollowers?.followers.reduce((sum, f) => sum + f.profit, 0) || 0) >= 0 
                       ? 'text-success' 

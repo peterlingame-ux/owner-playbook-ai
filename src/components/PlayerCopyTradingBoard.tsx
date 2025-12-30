@@ -1097,7 +1097,7 @@ const PlayerCopyTradingBoard = () => {
           
           {/* Profit Rate */}
           <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">积分变化率</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
             <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
             </p>
@@ -2148,7 +2148,7 @@ const PlayerCopyTradingBoard = () => {
                   <p className="text-xs text-muted-foreground mt-1">更新于 {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-muted-foreground">积分变化率</span>
+                  <span className="text-xs text-muted-foreground">盈利率</span>
                   <span className="text-lg font-bold text-success">+{(15 + Math.random() * 30).toFixed(1)}%</span>
                   <TrendingUp className="h-4 w-4 text-success" />
                 </div>

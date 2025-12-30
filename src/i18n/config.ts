@@ -1671,7 +1671,7 @@ const resources = {
       "current_score": "当前比分",
       "bet_amount": "投注金额",
       "valid_amount": "有效金额",
-      "profit_rate": "积分变化率",
+      "profit_rate": "盈利率",
       "profit_amount": "盈利金额",
       "balance": "账户余额",
       "bet_slip": "推荐类型",
