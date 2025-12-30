@@ -170,7 +170,6 @@ const ChallengeAIBanner = () => {
           {/* 主标题 */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 sm:gap-3 mb-1 sm:mb-2 flex-wrap">
-              <span className="text-sm sm:text-xl font-bold text-foreground">{t('challenge_ai')}</span>
               <span className="text-xl sm:text-4xl font-black text-foreground flex items-center gap-1">{t('challenge_ai_reward')} 16,393<img src={hunterCoinIcon} alt="猎人币" className="w-6 h-6 sm:w-10 sm:h-10" /></span>
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </div>
