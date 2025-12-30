@@ -32,6 +32,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import hunsoccerAlphaLogo from "@/assets/hunsoccer-alpha-logo-outline.png";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import {
   Dialog,
   DialogContent,
@@ -609,8 +610,9 @@ const PlayerExclusiveModelCard = ({
                     <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
                     </span>
-                    <span className="text-xs text-muted-foreground/80 font-medium">
-                      {balanceValue || '10,000 猎人币'}
+                    <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
+                      {balanceValue || '10,000'}
+                      <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
                     </span>
                   </div>
                 </div>
