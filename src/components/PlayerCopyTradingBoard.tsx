@@ -180,9 +180,9 @@ const PlayerCopyTradingBoard = () => {
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
   const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
-  const [likedPlayers, setLikedPlayers] = useState<Set<string>>(new Set());
-  const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
-  const [isLiking, setIsLiking] = useState<Set<string>>(new Set()); // 防止重复点击
+  const [followedPlayers, setFollowedPlayers] = useState<Set<string>>(new Set());
+  const [followerCounts, setFollowerCounts] = useState<Map<string, number>>(new Map());
+  const [isFollowing, setIsFollowing] = useState<Set<string>>(new Set()); // 防止重复点击
   
   // USDT解锁弹窗状态
   const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
@@ -377,149 +377,147 @@ const PlayerCopyTradingBoard = () => {
 
   // 获取点赞数和用户点赞状态
   useEffect(() => {
-    const fetchLikes = async () => {
+    const fetchFollows = async () => {
       try {
         // 获取所有玩家的ID列表
         const playerIds = allPlayers.map(p => p.id);
 
         if (playerIds.length === 0) return;
 
-        // 获取所有玩家的点赞数
-        const { data: countsData, error: countsError } = await supabase
-          .from('like_counts' as any)
-          .select('entity_id, like_count')
-          .eq('entity_type', 'player')
-          .in('entity_id', playerIds);
+        // 获取所有玩家的关注数
+        const { data: followersData, error: followersError } = await supabase
+          .from('user_follows')
+          .select('following_id')
+          .in('following_id', playerIds);
 
-        if (!countsError && countsData) {
+        if (!followersError && followersData) {
           const countsMap = new Map<string, number>();
-          countsData.forEach((item: any) => {
-            countsMap.set(item.entity_id, item.like_count || 0);
+          followersData.forEach((item: any) => {
+            const currentCount = countsMap.get(item.following_id) || 0;
+            countsMap.set(item.following_id, currentCount + 1);
           });
-          setLikeCounts(countsMap);
+          setFollowerCounts(countsMap);
         }
 
-        // 获取用户已点赞的玩家
+        // 获取用户已关注的玩家
         if (user) {
-          const { data: userLikesData, error: userLikesError } = await supabase
-            .from('likes' as any)
-            .select('entity_id')
-            .eq('user_id', user.id)
-            .eq('entity_type', 'player')
-            .in('entity_id', playerIds);
+          const { data: userFollowsData, error: userFollowsError } = await supabase
+            .from('user_follows')
+            .select('following_id')
+            .eq('follower_id', user.id)
+            .in('following_id', playerIds);
 
-          if (!userLikesError && userLikesData) {
-            const likedSet = new Set<string>();
-            userLikesData.forEach((item: any) => {
-              likedSet.add(item.entity_id);
+          if (!userFollowsError && userFollowsData) {
+            const followedSet = new Set<string>();
+            userFollowsData.forEach((item: any) => {
+              followedSet.add(item.following_id);
             });
-            setLikedPlayers(likedSet);
+            setFollowedPlayers(followedSet);
           }
         }
       } catch (error) {
-        console.error('Error fetching likes:', error);
+        console.error('Error fetching follows:', error);
       }
     };
 
     if (allPlayers.length > 0) {
-      fetchLikes();
+      fetchFollows();
     }
 
-    // 订阅点赞表的变化，实时更新点赞数
-    const likesChannel = supabase
-      .channel('copy-trading-likes-updates')
+    // 订阅关注表的变化，实时更新关注数
+    const followsChannel = supabase
+      .channel('copy-trading-follows-updates')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'likes' as any,
-          filter: 'entity_type=eq.player',
+          table: 'user_follows',
         },
         () => {
-          fetchLikes();
+          fetchFollows();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(likesChannel);
+      supabase.removeChannel(followsChannel);
     };
   }, [allPlayers, user]);
 
-  // 处理点赞/取消点赞
-  const handleLike = async (playerId: string, e?: React.MouseEvent) => {
+  // 处理关注/取消关注
+  const handleFollow = async (playerId: string, e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
     }
     
     if (!user) {
       toast.error("请先登录", {
-        description: "登录后即可点赞",
+        description: "登录后即可关注",
       });
       return;
     }
 
-    if (isLiking.has(playerId)) {
+    if (isFollowing.has(playerId)) {
       return; // 防止重复点击
     }
 
-    setIsLiking(prev => new Set(prev).add(playerId));
+    setIsFollowing(prev => new Set(prev).add(playerId));
 
     try {
-      const isCurrentlyLiked = likedPlayers.has(playerId);
+      const isCurrentlyFollowed = followedPlayers.has(playerId);
 
-      if (isCurrentlyLiked) {
-        // 取消点赞
+      if (isCurrentlyFollowed) {
+        // 取消关注
         const { error } = await supabase
-          .from('likes' as any)
+          .from('user_follows')
           .delete()
-          .eq('user_id', user.id)
-          .eq('entity_type', 'player')
-          .eq('entity_id', playerId);
+          .eq('follower_id', user.id)
+          .eq('following_id', playerId);
 
         if (error) throw error;
 
         // 更新本地状态
-        setLikedPlayers(prev => {
+        setFollowedPlayers(prev => {
           const newSet = new Set(prev);
           newSet.delete(playerId);
           return newSet;
         });
-        setLikeCounts(prev => {
+        setFollowerCounts(prev => {
           const newMap = new Map(prev);
           const currentCount = newMap.get(playerId) || 0;
           newMap.set(playerId, Math.max(0, currentCount - 1));
           return newMap;
         });
+        toast.success("已取消关注");
       } else {
-        // 点赞
+        // 关注
         const { error } = await supabase
-          .from('likes' as any)
+          .from('user_follows')
           .insert({
-            user_id: user.id,
-            entity_type: 'player',
-            entity_id: playerId,
+            follower_id: user.id,
+            following_id: playerId,
           });
 
         if (error) throw error;
 
         // 更新本地状态
-        setLikedPlayers(prev => new Set(prev).add(playerId));
-        setLikeCounts(prev => {
+        setFollowedPlayers(prev => new Set(prev).add(playerId));
+        setFollowerCounts(prev => {
           const newMap = new Map(prev);
           const currentCount = newMap.get(playerId) || 0;
           newMap.set(playerId, currentCount + 1);
           return newMap;
         });
+        toast.success("关注成功");
       }
     } catch (error) {
-      console.error('Error toggling like:', error);
+      console.error('Error toggling follow:', error);
       toast.error("操作失败", {
         description: "请稍后重试",
       });
     } finally {
-      setIsLiking(prev => {
+      setIsFollowing(prev => {
         const newSet = new Set(prev);
         newSet.delete(playerId);
         return newSet;
@@ -868,9 +866,9 @@ const PlayerCopyTradingBoard = () => {
 
     const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
     const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
-    const isLiked = likedPlayers.has(player.id);
-    const likeCount = likeCounts.get(player.id) || 0;
-    const isLikingPlayer = isLiking.has(player.id);
+    const isFollowed = followedPlayers.has(player.id);
+    const followerCount = followerCounts.get(player.id) || 0;
+    const isFollowingPlayer = isFollowing.has(player.id);
     
     return (
       <motion.div
@@ -908,28 +906,28 @@ const PlayerCopyTradingBoard = () => {
                 )}
               </div>
             )}
-            {/* Avatar with Like Button */}
+            {/* Avatar with Follow Button */}
             <div className="relative flex-shrink-0">
               <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border border-border">
                 <AvatarImage src={player.avatarUrl} alt={player.displayName} />
                 <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
               </Avatar>
-              {/* Like Button on Avatar */}
+              {/* Follow Button on Avatar */}
               <div className="absolute -bottom-1 -right-1">
                 <button
-                  onClick={(e) => handleLike(player.id, e)}
-                  disabled={isLikingPlayer}
+                  onClick={(e) => handleFollow(player.id, e)}
+                  disabled={isFollowingPlayer}
                   className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[10px] border ${
-                    isLikingPlayer ? 'opacity-50 cursor-not-allowed' : ''
+                    isFollowingPlayer ? 'opacity-50 cursor-not-allowed' : ''
                   } ${
-                    isLiked 
+                    isFollowed 
                       ? 'bg-primary text-primary-foreground border-primary' 
                       : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                   }`}
-                  title={isLiked ? '取消点赞' : '点赞'}
+                  title={isFollowed ? '取消关注' : '关注'}
                 >
-                  <ThumbsUp className={`h-2.5 w-2.5 ${isLiked ? 'fill-current' : ''}`} />
-                  <span className="font-medium">{likeCount}</span>
+                  <UserPlus className={`h-2.5 w-2.5 ${isFollowed ? 'fill-current' : ''}`} />
+                  <span className="font-medium">{followerCount}</span>
                 </button>
               </div>
             </div>
