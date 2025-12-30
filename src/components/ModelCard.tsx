@@ -209,17 +209,18 @@ const ModelCard = ({ model }: ModelCardProps) => {
               ? 'bg-success/20 border border-success/30' 
               : 'bg-destructive/20 border border-destructive/30'
           }`}>
+            <span className="text-xs font-medium text-muted-foreground">盈利：</span>
+            <span className={`font-mono font-bold text-sm tabular-nums leading-none ${
+              isPositive ? 'text-success' : 'text-destructive'
+            }`}>
+              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}
+            </span>
             <img 
               src={hunterCoinIcon} 
               alt="猎人币" 
               className="h-4 w-4 shrink-0 animate-coin-shine" 
               loading="lazy" 
             />
-            <span className={`font-mono font-bold text-sm tabular-nums leading-none ${
-              isPositive ? 'text-success' : 'text-destructive'
-            }`}>
-              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '').replace(/[+-]/, m => m)}
-            </span>
           </div>
         </div>
 
