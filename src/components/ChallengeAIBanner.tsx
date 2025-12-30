@@ -479,7 +479,8 @@ const ChallengeAIBanner = () => {
           </div>
           
           {/* 倒计时和统计 */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6">
+            {/* 倒计时 */}
             <FlipCountdown 
               days={countdown.days} 
               hours={countdown.hours} 
@@ -487,17 +488,21 @@ const ChallengeAIBanner = () => {
               seconds={countdown.seconds}
               t={t}
             />
-            <div className="h-8 sm:h-10 w-px bg-border/50" />
-            <div className="flex flex-col items-center">
-              <span className="text-lg sm:text-2xl font-bold text-foreground">{qualifiedCount}</span>
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('people_qualified')}</span>
-            </div>
-            <div className="h-8 sm:h-10 w-px bg-border/50" />
-            <div className="flex flex-col items-center">
-              <span className="text-lg sm:text-2xl font-bold text-amber-400">
-                <AnimatedPrizePerPerson value={prizePerPerson} prevValue={prevPrizePerPerson} />
-              </span>
-              <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('prize_per_person') || '平分奖金'}</span>
+            
+            {/* 移动端：统计数据横向排列 */}
+            <div className="flex items-center gap-3 sm:gap-0">
+              <div className="hidden sm:block h-8 sm:h-10 w-px bg-border/50" />
+              <div className="flex flex-col items-center sm:mx-6">
+                <span className="text-base sm:text-2xl font-bold text-foreground">{qualifiedCount}</span>
+                <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('people_qualified')}</span>
+              </div>
+              <div className="h-6 sm:h-10 w-px bg-border/30 sm:bg-border/50" />
+              <div className="flex flex-col items-center">
+                <span className="text-base sm:text-2xl font-bold text-amber-400">
+                  <AnimatedPrizePerPerson value={prizePerPerson} prevValue={prevPrizePerPerson} />
+                </span>
+                <span className="text-[8px] sm:text-[10px] text-muted-foreground">{t('prize_per_person') || '平分奖金'}</span>
+              </div>
             </div>
           </div>
         </div>
