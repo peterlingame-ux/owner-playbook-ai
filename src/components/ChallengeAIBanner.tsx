@@ -5,10 +5,52 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 import prizeBannerGreen from "@/assets/prize-banner-green.png";
 import hunsoccerAiIcon from "@/assets/hunsoccer-ai-icon.png";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import { virtualPlayers } from "@/data/virtualPlayers";
+
+// Animated number component
+const AnimatedPrizeNumber = ({ value }: { value: number }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  
+  useEffect(() => {
+    const duration = 2000;
+    const steps = 60;
+    const increment = value / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= value) {
+        setDisplayValue(value);
+        clearInterval(timer);
+      } else {
+        setDisplayValue(Math.floor(current));
+      }
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [value]);
+  
+  return (
+    <motion.span
+      className="inline-block"
+      animate={{ 
+        scale: [1, 1.02, 1],
+        textShadow: [
+          "0 0 0px rgba(251, 191, 36, 0)",
+          "0 0 20px rgba(251, 191, 36, 0.8)",
+          "0 0 0px rgba(251, 191, 36, 0)"
+        ]
+      }}
+      transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+    >
+      {displayValue.toLocaleString()}
+    </motion.span>
+  );
+};
 
 const PRIZE_POOL = 1000000; // $1,000,000
 const AI_BENCHMARK_PREDICTIONS = 247;
@@ -169,10 +211,36 @@ const ChallengeAIBanner = () => {
         <div className="flex flex-col gap-3 sm:gap-5">
           {/* 主标题 */}
           <div className="text-center">
-            <div className="flex items-center justify-center gap-1 sm:gap-3 mb-1 sm:mb-2 flex-wrap">
-              <span className="text-xl sm:text-4xl font-black text-foreground flex items-center gap-1">{t('challenge_ai_reward')} 16,393<img src={hunterCoinIcon} alt="猎人币" className="w-6 h-6 sm:w-10 sm:h-10" /></span>
+            <motion.div 
+              className="flex items-center justify-center gap-1 sm:gap-3 mb-1 sm:mb-2 flex-wrap"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <span className="text-xl sm:text-4xl font-black text-foreground flex items-center gap-1">
+                {t('challenge_ai_reward')} 
+                <motion.span
+                  className="text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
+                >
+                  <AnimatedPrizeNumber value={1000000} />
+                </motion.span>
+                <motion.img 
+                  src={hunterCoinIcon} 
+                  alt="猎人币" 
+                  className="w-6 h-6 sm:w-10 sm:h-10" 
+                  animate={{ 
+                    rotate: [0, 10, -10, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                />
+              </span>
               <span className="text-sm sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
-            </div>
+            </motion.div>
             <p className="text-xs sm:text-sm text-white max-w-lg mx-auto leading-tight">
               {t('challenge_description')}
             </p>
