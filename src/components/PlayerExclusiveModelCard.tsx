@@ -29,9 +29,7 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
-  ArrowRight,
-  Bot,
-  Lock
+  ArrowRight
 } from "lucide-react";
 import hunsoccerAlphaLogo from "@/assets/hunsoccer-alpha-logo-outline.png";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
@@ -596,30 +594,7 @@ const PlayerExclusiveModelCard = ({
               <div className="flex items-center justify-between">
                 {/* Player Avatar & Info */}
                 <div className="flex items-center gap-3">
-                  {isDemo ? (
-                    <motion.div 
-                      className="relative"
-                      animate={{ 
-                        boxShadow: [
-                          '0 0 0 0 rgba(168, 85, 247, 0)',
-                          '0 0 20px 4px rgba(168, 85, 247, 0.4)',
-                          '0 0 0 0 rgba(168, 85, 247, 0)'
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 ring-2 ring-purple-400/40 shadow-lg flex items-center justify-center backdrop-blur-sm">
-                        <Bot className="h-6 w-6 text-purple-300" />
-                      </div>
-                      <motion.div 
-                        className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-400 rounded-full border-2 border-card flex items-center justify-center"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        <Lock className="h-2 w-2 text-amber-900" />
-                      </motion.div>
-                    </motion.div>
-                  ) : (
+                  {!isDemo && (
                     <div className="relative">
                       <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
                         <AvatarImage 
@@ -634,7 +609,7 @@ const PlayerExclusiveModelCard = ({
                     </div>
                   )}
                   <div className="flex flex-col">
-                    <span className={`text-sm font-bold tracking-wide uppercase ${isDemo ? 'bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent' : 'text-slate-200'}`}>
+                    <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
                     </span>
                     <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
@@ -740,86 +715,30 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-6 text-center relative">
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-16 w-auto opacity-15 mb-3" />
                   {isDemo ? (
                     <>
-                      {/* Animated Background for Demo */}
-                      <div className="absolute inset-0 overflow-hidden rounded-xl">
-                        <motion.div 
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"
-                          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                        <motion.div 
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"
-                          animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.2, 0.4] }}
-                          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        />
-                      </div>
-                      
-                      {/* AI Brain Icon */}
-                      <motion.div 
-                        className="relative z-10 mb-4"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      >
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-400/30 flex items-center justify-center backdrop-blur-sm shadow-lg">
-                          <Brain className="h-8 w-8 text-purple-300" />
-                        </div>
-                        <motion.div 
-                          className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full flex items-center justify-center shadow-lg"
-                          animate={{ scale: [1, 1.15, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        >
-                          <Sparkles className="h-2.5 w-2.5 text-amber-900" />
-                        </motion.div>
-                      </motion.div>
-                      
-                      <p className="relative z-10 text-sm font-semibold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
+                      <p className="text-sm text-muted-foreground/80 font-medium">
                         {t('login_to_create_model')}
                       </p>
-                      <p className="relative z-10 text-xs text-muted-foreground/70 mt-1.5 max-w-[220px] leading-relaxed">
+                      <p className="text-xs text-muted-foreground/60 mt-1 max-w-[200px]">
                         {t('exclusive_model_desc') || '登录后可训练专属AI模型，获取个性化预测'}
                       </p>
-                      
-                      {/* Feature Tags */}
-                      <div className="relative z-10 flex flex-wrap justify-center gap-1.5 mt-3">
-                        <Badge variant="outline" className="text-[9px] px-2 py-0.5 bg-purple-500/10 border-purple-400/30 text-purple-300">
-                          <Brain className="h-2.5 w-2.5 mr-1" />
-                          {t('ai_training') || 'AI训练'}
-                        </Badge>
-                        <Badge variant="outline" className="text-[9px] px-2 py-0.5 bg-blue-500/10 border-blue-400/30 text-blue-300">
-                          <Target className="h-2.5 w-2.5 mr-1" />
-                          {t('personalized') || '个性化'}
-                        </Badge>
-                        <Badge variant="outline" className="text-[9px] px-2 py-0.5 bg-amber-500/10 border-amber-400/30 text-amber-300">
-                          <TrendingUp className="h-2.5 w-2.5 mr-1" />
-                          {t('high_accuracy') || '高准确率'}
-                        </Badge>
-                      </div>
-                      
-                      {/* Login Button */}
-                      <motion.div
-                        className="relative z-10 mt-4"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.98 }}
+                      <Button
+                        size="sm"
+                        className="mt-3 h-8 px-4 rounded-full bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary font-medium text-xs backdrop-blur-sm transition-all duration-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.location.href = '/auth';
+                        }}
                       >
-                        <Button
-                          size="sm"
-                          className="h-9 px-5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold text-xs shadow-lg shadow-purple-500/30 transition-all duration-300 border-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.location.href = '/auth';
-                          }}
-                        >
-                          <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                          {t('login_now') || '立即登录'}
-                        </Button>
-                      </motion.div>
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                        {t('login_now') || '立即登录'}
+                      </Button>
                     </>
                   ) : (
                     <>
-                      <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-16 w-auto opacity-15 mb-3" />
                       <p className="text-sm text-muted-foreground/80 font-medium">
                         {t('no_active_predictions')}
                       </p>
