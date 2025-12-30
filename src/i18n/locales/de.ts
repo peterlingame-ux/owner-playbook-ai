@@ -355,7 +355,7 @@ export const de = {
     // Personal Center - Referral
     "referral_code": "Empfehlungscode",
     "invited_label": "Eingeladen",
-    "referral_bonus_text": "Lade Freunde ein und verdiene 50 Hunter Coins pro Empfehlung",
+    "referral_bonus_text": "Lade 5 Freunde ein und erhalte 1 Monat VIP kostenlos",
     "start_predicting": "Vorhersagen Starten",
     
     // Personal Center - VIP Dialog
