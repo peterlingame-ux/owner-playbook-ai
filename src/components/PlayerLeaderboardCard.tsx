@@ -214,92 +214,52 @@ export const PlayerLeaderboardCard = ({
       {/* Top Row: Avatar, Name, Buttons */}
       <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-          {/* 关注按钮 - 左上角 */}
-          {currentUserId !== player.id ? (
-            <button
-              onClick={handleFollowToggle}
-              disabled={isFollowLoading}
-              className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-all border ${
-                isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
-              } ${
-                isFollowing 
-                  ? 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30' 
-                  : 'bg-muted text-muted-foreground border-border hover:bg-muted/80 hover:text-foreground'
-              }`}
-              title={isFollowing ? t('following') || '已关注' : t('follow') || '关注'}
-            >
-              {isFollowLoading ? (
-                <Loader2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" />
-              ) : isFollowing ? (
-                <UserCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              ) : (
-                <UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              )}
-            </button>
-          ) : (
-            /* Rank Badge - only show when it's current user */
-            <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
-              index === 0 ? 'bg-yellow-500/20' :
-              index === 1 ? 'bg-gray-400/20' :
-              index === 2 ? 'bg-amber-600/20' :
-              'bg-muted'
-            }`}>
-              {index < 3 ? (
-                <Trophy className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
-                  index === 0 ? 'text-yellow-500' :
-                  index === 1 ? 'text-gray-400' :
-                  'text-amber-600'
-                }`} />
-              ) : (
-                <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">{index + 1}</span>
-              )}
-            </div>
-          )}
-          {/* Avatar with Like Button */}
+          {/* Rank Badge */}
+          <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
+            index === 0 ? 'bg-yellow-500/20' :
+            index === 1 ? 'bg-gray-400/20' :
+            index === 2 ? 'bg-amber-600/20' :
+            'bg-muted'
+          }`}>
+            {index < 3 ? (
+              <Trophy className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
+                index === 0 ? 'text-yellow-500' :
+                index === 1 ? 'text-gray-400' :
+                'text-amber-600'
+              }`} />
+            ) : (
+              <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">{index + 1}</span>
+            )}
+          </div>
+          {/* Avatar with Follow Button */}
           <div className="relative flex-shrink-0">
             <Avatar className="w-8 h-8 sm:w-12 sm:h-12 border border-border">
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
               <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
-            {/* Like Button on Avatar - Top */}
-            <div className="absolute -top-1.5 -right-1">
+            {/* Follow Button on Avatar - Top Left */}
+            {currentUserId !== player.id && (
               <button
-                onClick={handleLikeWithAnimation}
-                disabled={isLiking}
-                className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[8px] sm:text-[10px] border ${
-                  isLiking ? 'opacity-50 cursor-not-allowed' : ''
+                onClick={handleFollowToggle}
+                disabled={isFollowLoading}
+                className={`absolute -top-1 -left-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center transition-all border shadow-sm ${
+                  isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
                 } ${
-                  isLiked 
+                  isFollowing 
                     ? 'bg-primary text-primary-foreground border-primary' 
                     : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                 }`}
-                title={isLiked ? '取消点赞' : '点赞'}
+                title={isFollowing ? t('following') || '已关注' : t('follow') || '关注'}
               >
-                <ThumbsUp className={`h-2 w-2 sm:h-2.5 sm:w-2.5 ${isLiked ? 'fill-current' : ''}`} />
-                <span className="font-medium">{likeCount}</span>
+                {isFollowLoading ? (
+                  <Loader2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 animate-spin" />
+                ) : isFollowing ? (
+                  <UserCheck className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+                ) : (
+                  <UserPlus className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+                )}
               </button>
-              {/* Floating Hearts Animation */}
-              <AnimatePresence>
-                {floatingHearts.map((heartId, idx) => (
-                  <motion.div
-                    key={heartId}
-                    initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                    animate={{ 
-                      opacity: 0, 
-                      y: -40, 
-                      x: (idx - 1) * 12,
-                      scale: 1,
-                      rotate: (idx - 1) * 15
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
-                  >
-                    <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            )}
           </div>
           {/* Name & Stats */}
           <div className="min-w-0 flex-1">
