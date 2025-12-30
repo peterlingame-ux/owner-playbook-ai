@@ -594,28 +594,28 @@ const PlayerExclusiveModelCard = ({
               <div className="flex items-center justify-between">
                 {/* Player Avatar & Info */}
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
-                      <AvatarImage 
-                        src={avatarUrl} 
-                        alt={displayName} 
-                        className="object-cover" 
-                      />
-                      <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
-                    </Avatar>
-                    {/* Online Indicator */}
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
-                  </div>
+                  {!isDemo && (
+                    <div className="relative">
+                      <Avatar className="h-12 w-12 ring-2 ring-white/20 shadow-lg">
+                        <AvatarImage 
+                          src={avatarUrl} 
+                          alt={displayName} 
+                          className="object-cover" 
+                        />
+                        <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
+                      </Avatar>
+                      {/* Online Indicator */}
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-card" />
+                    </div>
+                  )}
                   <div className="flex flex-col">
                     <span className="text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
                     </span>
-                    {!isDemo && (
-                      <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
-                        <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                        {balanceValue || '10,000'}
-                      </span>
-                    )}
+                    <span className="text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
+                      <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                      {!isDemo ? (balanceValue || '10,000') : '--'}
+                    </span>
                   </div>
                 </div>
                 
