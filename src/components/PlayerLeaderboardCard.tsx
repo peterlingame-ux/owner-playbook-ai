@@ -242,21 +242,21 @@ export const PlayerLeaderboardCard = ({
               <button
                 onClick={handleFollowToggle}
                 disabled={isFollowLoading}
-                className={`absolute -top-1.5 -left-1.5 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-all border-2 shadow-md ${
+                className={`absolute -top-1 -left-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center transition-all border shadow-sm ${
                   isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
                 } ${
                   isFollowing 
-                    ? 'bg-primary text-primary-foreground border-primary shadow-primary/30' 
-                    : 'bg-warning text-warning-foreground border-warning shadow-warning/30 hover:scale-110'
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                 }`}
                 title={isFollowing ? t('following') || '已关注' : t('follow') || '关注'}
               >
                 {isFollowLoading ? (
-                  <Loader2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" />
+                  <Loader2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 animate-spin" />
                 ) : isFollowing ? (
-                  <UserCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <UserCheck className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
                 ) : (
-                  <UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <UserPlus className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
                 )}
               </button>
             )}
