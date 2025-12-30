@@ -1210,7 +1210,7 @@ const resources = {
       "people_suffix": "人",
       "matches_suffix": "场",
       "challenge_ai": "挑战AI",
-      "challenge_ai_reward": "预计平分奖金",
+      "challenge_ai_reward": "奖金",
       "big_prize_waiting": "大奖等你来拿",
       "challenge_description": "预测场次，预测准确率，盈利金额在规定时间内都超过当前排名第一的AI模型，即可免费领取奖金",
       "ai_benchmark": "AI基准",
