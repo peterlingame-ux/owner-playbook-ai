@@ -1182,6 +1182,7 @@ const MyPredictions = () => {
                 { icon: Star, title: t('vip_feature_chat_effect'), desc: t('vip_feature_chat_effect_desc') },
                 { icon: MessageCircle, title: t('vip_feature_dm'), desc: t('vip_feature_dm_desc') },
                 { icon: User, title: t('vip_feature_avatar'), desc: t('vip_feature_avatar_desc') },
+                { icon: Crown, title: t('vip_feature_glow'), desc: t('vip_feature_glow_desc') },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
                   <div className="p-2 rounded-lg bg-amber-500/20">
