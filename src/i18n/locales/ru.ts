@@ -348,6 +348,11 @@ export const ru = {
     },
     
     // Common
+    "load_failed": "Ошибка Загрузки",
+    "fetch_match_failed": "Не удалось получить данные матча",
+    "unknown_error": "Произошла неизвестная ошибка",
+    "fetch_failed_retry": "Не удалось получить данные, попробуйте позже",
+    "operation_failed": "Операция Не Удалась",
     "copy_trade": "СЛЕДОВАТЬ ЗА МОДЕЛЬЮ",
     "one_click_copy_trade": "Копирование Сделки в Один Клик",
     "copy_trade_player": "СЛЕДОВАТЬ ЗА ИГРОКОМ",

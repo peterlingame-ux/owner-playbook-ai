@@ -453,7 +453,7 @@ const MatchCenter = () => {
       
       if (!response.results) {
         console.error('API response.results is null or undefined');
-        setMatchesError('API 返回数据格式不正确: 缺少 results 字段');
+        setMatchesError(t('fetch_failed_retry'));
         setMatches([]);
         return;
       }
@@ -467,7 +467,7 @@ const MatchCenter = () => {
           hasMatch: response.results && 'match' in response.results,
           matchIsArray: response.results && Array.isArray(response.results.match)
         });
-        setMatchesError(`API 返回的数据格式不正确: results.match 不是数组`);
+        setMatchesError(t('fetch_failed_retry'));
         setMatches([]);
         return;
       }
@@ -514,7 +514,7 @@ const MatchCenter = () => {
       setFavorites(favoriteIds);
     } catch (error) {
       console.error('Failed to fetch matches:', error);
-      const errorMessage = error instanceof Error ? error.message : '获取比赛数据失败，请稍后重试';
+      const errorMessage = error instanceof Error ? error.message : t('fetch_failed_retry');
       setMatchesError(errorMessage);
       setMatches([]); // 清空比赛列表，显示错误信息
     } finally {

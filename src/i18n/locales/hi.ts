@@ -348,6 +348,11 @@ export const hi = {
     },
     
     // Common
+    "load_failed": "लोड विफल",
+    "fetch_match_failed": "मैच डेटा प्राप्त करने में असमर्थ",
+    "unknown_error": "एक अज्ञात त्रुटि हुई",
+    "fetch_failed_retry": "डेटा प्राप्त करने में विफल, कृपया बाद में पुनः प्रयास करें",
+    "operation_failed": "ऑपरेशन विफल",
     "copy_trade": "मॉडल फॉलो करें",
     "one_click_copy_trade": "वन-क्लिक कॉपी ट्रेड",
     "copy_trade_player": "प्लेयर फॉलो करें",
