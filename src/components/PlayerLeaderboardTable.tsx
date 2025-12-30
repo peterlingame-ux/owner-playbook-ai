@@ -1305,6 +1305,7 @@ const PlayerLeaderboardTable = () => {
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
                             boardType="hot"
                             todayWinRate={todayWinRates.get(player.id)?.winRate}
+                            currentUserId={user?.id || null}
                           />
                         );
                       })}
@@ -1390,6 +1391,7 @@ const PlayerLeaderboardTable = () => {
                             aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
                             boardType="cold"
                             todayWinRate={todayWinRates.get(player.id)?.winRate}
+                            currentUserId={user?.id || null}
                           />
                         );
                       })}
@@ -2312,6 +2314,7 @@ const PlayerLeaderboardTable = () => {
                     aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
                     boardType={selectedAllPlayer.boardType}
                     todayWinRate={todayWinRates.get(selectedAllPlayer.player.id)?.winRate}
+                    currentUserId={user?.id || null}
                   />
                 </div>
               </ScrollArea>
