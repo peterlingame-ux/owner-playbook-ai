@@ -337,7 +337,7 @@ export const PlayerLeaderboardCard = ({
                 } ${
                   isFollowing 
                     ? 'bg-primary/10 text-primary border-primary/40 hover:bg-primary/20' 
-                    : 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
+                    : 'bg-muted/60 text-muted-foreground border-border/40 hover:bg-muted hover:text-foreground'
                 }`}
               >
                 {isFollowLoading ? (
