@@ -328,7 +328,7 @@ const PlayerExclusiveModelCard = ({
     
     if (error) {
       console.error('Error fetching training history:', error);
-      toast.error('获取训练历史失败');
+      toast.error(t('fetch_training_failed'));
     } else {
       setTrainingHistory(data || []);
     }

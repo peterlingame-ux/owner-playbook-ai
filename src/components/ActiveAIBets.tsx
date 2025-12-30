@@ -684,8 +684,8 @@ const ActiveAIBets = () => {
 
       if (analysisError) {
         toast({
-          title: "获取分析失败",
-          description: analysisError.message || "无法从数据库获取分析数据",
+          title: t('fetch_analysis_failed'),
+          description: analysisError.message || t('cannot_fetch_analysis'),
           variant: "destructive",
         });
         setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
@@ -694,8 +694,8 @@ const ActiveAIBets = () => {
 
       if (!analysisData || analysisData.length === 0) {
         toast({
-          title: "未找到分析",
-          description: "该比赛暂无AI分析数据",
+          title: t('no_analysis_found'),
+          description: t('no_analysis_data'),
           variant: "default",
         });
         setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
@@ -722,8 +722,8 @@ const ActiveAIBets = () => {
       }));
     } catch (error) {
       toast({
-        title: "获取分析失败",
-        description: "发生未知错误，请稍后重试",
+        title: t('fetch_analysis_failed'),
+        description: t('unknown_error'),
         variant: "destructive",
       });
       setAnalysisDialog(prev => ({ ...prev, isLoading: false }));
