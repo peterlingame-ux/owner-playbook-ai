@@ -862,7 +862,7 @@ const LeaderboardTable = () => {
                     
                     {/* Profit Rate */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">积分变化率</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
                       </p>
