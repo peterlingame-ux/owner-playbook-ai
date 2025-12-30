@@ -405,7 +405,7 @@ const ChallengeAIBanner = () => {
                     <AvatarFallback className="text-xs">AI</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-bold text-xs sm:text-sm">HUNSOCCER MAX</p>
+                    <p className="font-bold text-xs sm:text-sm">{t('ai_models') || 'AI模型'}</p>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">{t('ai_benchmark')}</p>
                   </div>
                 </div>
