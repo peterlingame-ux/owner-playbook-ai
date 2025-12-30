@@ -939,6 +939,35 @@ const MyPredictions = () => {
                 </DialogContent>
               </Dialog>
 
+              {/* VIP Privileges Card */}
+              <button 
+                className="w-full text-left rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background border border-amber-500/30 p-4 hover:border-amber-500/50 transition-all group"
+                onClick={() => setShowVipConfirmDialog(true)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-amber-500/20">
+                      <Crown className="h-5 w-5 text-amber-500" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
+                      <p className="text-base font-light text-foreground">
+                        {vipStatus?.is_active ? t('vip_active') : t('unlock_vip')}
+                      </p>
+                    </div>
+                  </div>
+                  {vipStatus?.is_active ? (
+                    <span className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-500">
+                      {t('vip_badge')}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground group-hover:text-amber-500 transition-colors">
+                      {t('view_arrow')}
+                    </span>
+                  )}
+                </div>
+              </button>
+
             </div>
           </motion.div>
         </div>
