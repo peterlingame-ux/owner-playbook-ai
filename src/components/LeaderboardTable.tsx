@@ -110,7 +110,7 @@ const AnimatedPointsBalance = ({ modelId }: { modelId: string }) => {
 };
 
 // Animated Follower Count Component
-const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit: number; onClick: () => void }) => {
+const AnimatedFollowerCount = ({ value, limit, onClick, followersLabel }: { value: number; limit: number; onClick: () => void; followersLabel: string }) => {
   const [displayValue, setDisplayValue] = useState(value);
   
   useEffect(() => {
@@ -140,7 +140,7 @@ const AnimatedFollowerCount = ({ value, limit, onClick }: { value: number; limit
         isFull ? 'text-destructive hover:text-destructive/80' : 'text-primary hover:text-primary/80'
       }`}
     >
-      <span>👥 追踪人数: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
+      <span>👥 {followersLabel}: {Math.floor(animatedValue).toLocaleString()}/{limit.toLocaleString()}</span>
     </button>
   );
 };
@@ -833,7 +833,7 @@ const LeaderboardTable = () => {
                   <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
                     {/* Bet Amount */}
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">虚拟下注</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('virtual_bet_label')}</p>
                       <p className="text-sm sm:text-base font-bold font-mono-data text-foreground flex items-center gap-1">
                           {model.locked ? '???' : (
                             <>
@@ -846,7 +846,7 @@ const LeaderboardTable = () => {
                     
                     {/* Profit Amount */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {model.locked ? (
                           '???'
@@ -862,7 +862,7 @@ const LeaderboardTable = () => {
                     
                     {/* Profit Rate */}
                     <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">盈利率</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
                       <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
                       </p>
@@ -877,9 +877,9 @@ const LeaderboardTable = () => {
                         setIsFollowersDialogOpen(true);
                       }}
                     >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />追踪人数</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
                       <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
-                        {((model as any).followerCount || 0).toLocaleString()}人
+                        {((model as any).followerCount || 0).toLocaleString()}{t('people_suffix')}
                       </p>
                     </div>
                   </div>
