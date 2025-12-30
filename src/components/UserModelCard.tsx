@@ -218,8 +218,8 @@ const UserModelCard = () => {
                     : "bg-amber-500/10 text-amber-400/50 border-amber-500/30"
                 }`}
               >
-                {profitLabel}
                 <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                {profitLabel}
               </div>
             </div>
           </div>
