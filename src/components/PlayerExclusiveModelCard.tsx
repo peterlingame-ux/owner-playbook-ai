@@ -28,6 +28,7 @@ import {
   Calendar,
   Shield,
   ChevronLeft,
+  User,
   ChevronRight,
   ArrowRight
 } from "lucide-react";
@@ -606,7 +607,9 @@ const PlayerExclusiveModelCard = ({
                           <AvatarFallback className="text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
                         </>
                       ) : (
-                        <AvatarFallback className="bg-white/5" />
+                        <AvatarFallback className="bg-white/5">
+                          <User className="h-5 w-5 text-muted-foreground/50" />
+                        </AvatarFallback>
                       )}
                     </Avatar>
                     {/* Online Indicator - only show when logged in */}
