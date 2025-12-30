@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, CheckCircle2, XCircle, Filter } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Filter, UserPlus, UserCheck, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,10 @@ const PlayerDetail = () => {
     avatarUrl: string;
   } | null>(null);
   const [userBalance, setUserBalance] = useState<{ currentValue: number; profit: number; changePercent: number } | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [followersCount, setFollowersCount] = useState(0);
   const isMobile = useIsMobile();
   const { isSwipingBack, swipeProgress } = useSwipeBack({ enabled: isMobile });
 
@@ -211,6 +216,87 @@ const PlayerDetail = () => {
 
     fetchPlayerHistory();
   }, [playerId, navigate]);
+
+  // 获取当前用户和关注状态
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (!playerId) return;
+
+      // 获取当前用户
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+
+        // 检查是否已关注
+        const { data: followData } = await supabase
+          .from('user_follows')
+          .select('id')
+          .eq('follower_id', user.id)
+          .eq('following_id', playerId)
+          .maybeSingle();
+
+        setIsFollowing(!!followData);
+      }
+
+      // 获取关注者数量
+      const { count } = await supabase
+        .from('user_follows')
+        .select('id', { count: 'exact', head: true })
+        .eq('following_id', playerId);
+
+      setFollowersCount(count || 0);
+    };
+
+    checkFollowStatus();
+  }, [playerId]);
+
+  // 关注/取消关注
+  const handleFollowToggle = async () => {
+    if (!currentUserId) {
+      toast.error(t('please_login_first') || '请先登录');
+      return;
+    }
+
+    if (currentUserId === playerId) {
+      toast.error(t('cannot_follow_self') || '不能关注自己');
+      return;
+    }
+
+    setIsFollowLoading(true);
+    try {
+      if (isFollowing) {
+        // 取消关注
+        const { error } = await supabase
+          .from('user_follows')
+          .delete()
+          .eq('follower_id', currentUserId)
+          .eq('following_id', playerId);
+
+        if (error) throw error;
+        setIsFollowing(false);
+        setFollowersCount(prev => Math.max(0, prev - 1));
+        toast.success(t('unfollowed') || '已取消关注');
+      } else {
+        // 关注
+        const { error } = await supabase
+          .from('user_follows')
+          .insert({
+            follower_id: currentUserId,
+            following_id: playerId
+          });
+
+        if (error) throw error;
+        setIsFollowing(true);
+        setFollowersCount(prev => prev + 1);
+        toast.success(t('followed') || '关注成功');
+      }
+    } catch (error) {
+      console.error('Follow toggle error:', error);
+      toast.error(t('operation_failed') || '操作失败');
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
 
   if (isLoading || !player) {
     return (
@@ -371,15 +457,47 @@ const PlayerDetail = () => {
               <AvatarFallback className="text-base sm:text-2xl">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <h1 
-                className="text-base sm:text-4xl font-bold mb-0 sm:mb-1 truncate"
-                style={{ color: rankColor }}
-              >
-                {player.displayName}
-              </h1>
-              <p className="text-muted-foreground text-[10px] sm:text-lg">
-                {totalPredictions} {t('predictions')}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <h1 
+                    className="text-base sm:text-4xl font-bold mb-0 sm:mb-1 truncate"
+                    style={{ color: rankColor }}
+                  >
+                    {player.displayName}
+                  </h1>
+                  <p className="text-muted-foreground text-[10px] sm:text-lg">
+                    {totalPredictions} {t('predictions')} · {followersCount} {t('followers') || '关注者'}
+                  </p>
+                </div>
+                {/* 关注按钮 */}
+                {currentUserId !== playerId && (
+                  <Button
+                    onClick={handleFollowToggle}
+                    disabled={isFollowLoading}
+                    variant={isFollowing ? "outline" : "default"}
+                    size="sm"
+                    className={`h-7 sm:h-9 px-2 sm:px-4 text-[10px] sm:text-sm flex-shrink-0 ${
+                      isFollowing 
+                        ? 'border-primary/50 text-primary hover:bg-primary/10' 
+                        : 'bg-primary hover:bg-primary/90'
+                    }`}
+                  >
+                    {isFollowLoading ? (
+                      <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                    ) : isFollowing ? (
+                      <>
+                        <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        {t('following') || '已关注'}
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        {t('follow') || '关注'}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
