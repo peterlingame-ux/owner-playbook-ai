@@ -818,6 +818,19 @@ const MyPredictions = () => {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              <div className="w-px h-8 bg-border" />
+
+              <button 
+                onClick={() => setIsWalletDialogOpen(true)}
+                className="text-center hover:opacity-70 transition-opacity"
+              >
+                <div className="flex items-center justify-center gap-1">
+                  <p className="text-lg font-light text-foreground">{(stats?.balance || 10000).toLocaleString()}</p>
+                  <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                </div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('hunter_balance')}</p>
+              </button>
             </div>
           </motion.div>
           </TooltipProvider>
