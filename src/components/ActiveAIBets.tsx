@@ -1400,6 +1400,12 @@ const ActiveAIBets = () => {
         })()}
       </div>
       
+      {/* Hunter Coin Disclaimer */}
+      <div className="mt-6 sm:mt-8 p-4 rounded-lg bg-muted/30 border border-border/50">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {t('hunter_coin_disclaimer')}
+        </p>
+      </div>
       <MatchAnalysisDialog
         open={analysisDialog.open}
         onOpenChange={(open) => setAnalysisDialog(prev => ({ ...prev, open }))}
