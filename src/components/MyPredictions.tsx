@@ -816,8 +816,8 @@ const MyPredictions = () => {
                   <button className="w-full text-left rounded-xl bg-card border border-border p-4 hover:border-primary/30 transition-all group">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-lg bg-muted">
-                          <Wallet className="h-5 w-5 text-muted-foreground" />
+                        <div className="p-2.5 rounded-lg bg-primary/10">
+                          <History className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
