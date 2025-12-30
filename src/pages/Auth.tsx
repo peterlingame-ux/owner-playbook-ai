@@ -8,12 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { ArrowLeft, Eye, EyeOff, Lock, Phone, Home, Sparkles } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Lock, Phone, Home } from "lucide-react";
 import CountryCodeSelect from "@/components/CountryCodeSelect";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/hunnsoccer-alpha-logo.png";
 import authBg from "@/assets/auth-football-bg.jpg";
 import aiBluewhale from "@/assets/ai-icon-bluewhale.png";
@@ -583,71 +582,26 @@ const Auth = () => {
         backgroundImage: `url(${authBg})`
       }}
     >
-      {/* 动态渐变叠加层 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-teal-900/30" />
-      
-      {/* 动态光效背景 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-teal-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-3xl"
-          animate={{
-            rotate: [0, 360],
-            scale: [0.8, 1, 0.8],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-      </div>
+      {/* 深色叠加层 */}
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* 顶部导航栏 */}
-      <motion.header 
-        className="relative z-20 w-full px-4 py-3 flex items-center justify-between bg-black/30 backdrop-blur-xl border-b border-white/10"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-      >
+      <header className="relative z-20 w-full px-4 py-3 flex items-center justify-between bg-black/20 backdrop-blur-md border-b border-white/10">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => step === "otp" || step === "set-password" || step === "forgot-password" ? handleBackToPhone() : navigate("/")}
-            className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 group"
+            className="text-white/80 hover:text-white hover:bg-white/10 transition-all"
           >
             {step === "phone" ? (
               <>
-                <Home className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                <Home className="mr-2 h-4 w-4" />
                 {t("auth.home")}
               </>
             ) : (
               <>
-                <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 {t("auth.back")}
               </>
             )}
@@ -657,68 +611,31 @@ const Auth = () => {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
         </div>
-      </motion.header>
+      </header>
 
       {/* 主内容区域 */}
       <div className="flex-1 flex items-start justify-center px-3 sm:px-4 pb-6 sm:pb-10 pt-8 sm:pt-16">
-        {/* 主卡片 - 高级玻璃态效果 */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-        >
-          <Card className="w-full max-w-md relative z-10 bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/30 overflow-hidden">
-            {/* 卡片顶部光效 */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-400/50 to-transparent" />
-            <div className="absolute top-0 left-1/4 right-1/4 h-24 bg-gradient-to-b from-teal-400/10 to-transparent blur-xl" />
-            
-            <CardHeader className="text-center space-y-4 sm:space-y-6 pb-4 sm:pb-6 pt-6 sm:pt-12 relative">
-              {/* Logo with glow effect */}
-              <motion.div 
-                className="flex justify-center h-20 sm:h-32 overflow-visible relative"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 sm:w-48 sm:h-48 bg-teal-500/20 rounded-full blur-3xl animate-pulse" />
-                </div>
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className="h-full w-auto object-contain scale-[1.5] sm:scale-[2] origin-center relative z-10 drop-shadow-[0_0_30px_rgba(20,184,166,0.3)]"
-                />
-              </motion.div>
-              
-              <motion.div 
-                className="space-y-1 sm:space-y-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <CardTitle className="text-xl sm:text-3xl font-bold text-white flex items-center justify-center gap-2">
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={getStepTitle()}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {getStepTitle()}
-                    </motion.span>
-                  </AnimatePresence>
-                </CardTitle>
-                <motion.p 
-                  className="text-xs sm:text-sm text-white/70 px-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  {getStepDescription()}
-                </motion.p>
-              </motion.div>
-            </CardHeader>
+        {/* 主卡片 - 透明玻璃效果 */}
+        <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20">
+        <CardHeader className="text-center space-y-4 sm:space-y-6 pb-4 sm:pb-6 pt-6 sm:pt-12">
+          {/* Logo */}
+          <div className="flex justify-center h-20 sm:h-32 overflow-visible">
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-full w-auto object-contain scale-[1.5] sm:scale-[2] origin-center"
+            />
+          </div>
+          
+          <div className="space-y-1 sm:space-y-2">
+            <CardTitle className="text-xl sm:text-3xl font-bold text-white">
+              {getStepTitle()}
+            </CardTitle>
+            <p className="text-xs sm:text-sm text-white/70 px-2">
+              {getStepDescription()}
+            </p>
+          </div>
+        </CardHeader>
 
         <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-8 pb-6 sm:pb-10">
           {step === "phone" && (
@@ -833,28 +750,13 @@ const Auth = () => {
                 </>
               )}
 
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <Button
+                type="submit" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                disabled={loading}
               >
-                <Button
-                  type="submit" 
-                  className="w-full h-10 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium rounded-xl transition-all shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 relative overflow-hidden group" 
-                  disabled={loading}
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {loading && (
-                      <motion.div
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      />
-                    )}
-                    {loading ? t("auth.processing") : (loginMethod === "password" ? t("auth.login") : (isSignUp ? t("auth.register") : t("auth.get_code")))}
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </Button>
-              </motion.div>
+                {loading ? t("auth.processing") : (loginMethod === "password" ? t("auth.login") : (isSignUp ? t("auth.register") : t("auth.get_code")))}
+              </Button>
 
               {/* 切换登录方式和忘记密码 */}
               <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
@@ -912,155 +814,80 @@ const Auth = () => {
                   </p>
                 )}
                 
-                {/* AI 模型图标 - 带动画 */}
-                <motion.div 
-                  className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-white/10"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <p className="text-[10px] sm:text-xs text-white/50 text-center mb-2 sm:mb-3 flex items-center justify-center gap-1">
-                    <Sparkles className="w-3 h-3" />
-                    {t("auth.ai_models")}
-                  </p>
+                {/* AI 模型图标 */}
+                <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-white/10">
+                  <p className="text-[10px] sm:text-xs text-white/50 text-center mb-2 sm:mb-3">{t("auth.ai_models")}</p>
                   <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
-                    {[
-                      { src: aiBluewhale, alt: "Bluewhale AI", delay: 0 },
-                      { src: aiGemini, alt: "Gemini", delay: 0.1 },
-                      { src: aiChatgpt, alt: "ChatGPT", delay: 0.2, special: true },
-                      { src: aiClaude, alt: "Claude", delay: 0.3 },
-                      { src: aiGrok, alt: "Grok", delay: 0.4 },
-                      { src: aiHunsoccer, alt: "HunSoccer", delay: 0.5 },
-                    ].map((ai, index) => (
-                      <motion.img 
-                        key={ai.alt}
-                        src={ai.src} 
-                        alt={ai.alt} 
-                        className={`h-7 w-7 sm:h-10 sm:w-10 object-contain cursor-pointer transition-all duration-300 ${
-                          ai.special ? 'bg-emerald-500/60 rounded-full p-0.5 sm:p-1' : ''
-                        }`}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 0.8, scale: 1 }}
-                        transition={{ delay: 0.7 + ai.delay, type: "spring", stiffness: 200 }}
-                        whileHover={{ 
-                          opacity: 1, 
-                          scale: 1.2,
-                          filter: "drop-shadow(0 0 8px rgba(20, 184, 166, 0.6))"
-                        }}
-                      />
-                    ))}
+                    <img src={aiBluewhale} alt="Bluewhale AI" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiGemini} alt="Gemini" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img
+                      src={aiChatgpt}
+                      alt="ChatGPT"
+                      className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer bg-emerald-500/60 rounded-full p-0.5 sm:p-1"
+                    />
+                    <img src={aiClaude} alt="Claude" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiGrok} alt="Grok" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
+                    <img src={aiHunsoccer} alt="HunSoccer" className="h-7 w-7 sm:h-10 sm:w-10 object-contain opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer" />
                   </div>
-                </motion.div>
+                </div>
               </div>
             </form>
           )}
 
           {step === "otp" && (
-            <motion.form 
-              onSubmit={handleVerifyOtp} 
-              className="space-y-4 sm:space-y-6"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+            <form onSubmit={handleVerifyOtp} className="space-y-4 sm:space-y-6">
               <div className="space-y-3 sm:space-y-4">
                 <Label htmlFor="otp" className="text-white/90 text-xs sm:text-sm font-medium block text-center">
                   {t("auth.valid_otp")}
                 </Label>
-                <motion.div 
-                  className="flex justify-center"
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                >
+                <div className="flex justify-center">
                   <InputOTP
                     maxLength={6}
                     value={otp}
                     onChange={setOtp}
                   >
-                    <InputOTPGroup className="gap-1.5 sm:gap-2.5">
-                      {[0, 1, 2, 3, 4, 5].map((index) => (
-                        <InputOTPSlot 
-                          key={index}
-                          index={index} 
-                          className="w-10 h-12 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-xl focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 transition-all" 
-                        />
-                      ))}
+                    <InputOTPGroup className="gap-1 sm:gap-2">
+                      <InputOTPSlot index={0} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={1} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={2} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={3} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={4} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
+                      <InputOTPSlot index={5} className="w-9 h-11 sm:w-12 sm:h-14 bg-white/10 border-white/20 text-white text-lg sm:text-xl font-semibold rounded-lg" />
                     </InputOTPGroup>
                   </InputOTP>
-                </motion.div>
+                </div>
               </div>
 
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <Button 
+                type="submit" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                disabled={loading || otp.length !== 6}
               >
-                <Button 
-                  type="submit" 
-                  className="w-full h-10 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium rounded-xl transition-all shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 relative overflow-hidden group" 
-                  disabled={loading || otp.length !== 6}
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {loading && (
-                      <motion.div
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      />
-                    )}
-                    {loading ? t("auth.verifying") : t("auth.confirm_login")}
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </Button>
-              </motion.div>
+                {loading ? t("auth.verifying") : t("auth.confirm_login")}
+              </Button>
 
               <div className="text-center">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handleSendCode}
-                    disabled={countdown > 0}
-                    className="text-xs sm:text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg"
-                  >
-                    {countdown > 0 ? (
-                      <span className="flex items-center gap-2">
-                        <motion.span
-                          key={countdown}
-                          initial={{ scale: 1.3, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          className="text-teal-400 font-mono"
-                        >
-                          {countdown}
-                        </motion.span>
-                        <span>{t("auth.resend_in", { seconds: "" }).replace("{{seconds}}", "").replace("秒", "").trim()}</span>
-                      </span>
-                    ) : t("auth.resend_code")}
-                  </Button>
-                </motion.div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleSendCode}
+                  disabled={countdown > 0}
+                  className="text-xs sm:text-sm text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  {countdown > 0 ? t("auth.resend_in", { seconds: countdown }) : t("auth.resend_code")}
+                </Button>
               </div>
-            </motion.form>
+            </form>
           )}
 
           {step === "set-password" && (
-            <motion.form 
-              onSubmit={handleSetPassword} 
-              className="space-y-4 sm:space-y-6"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+            <form onSubmit={handleSetPassword} className="space-y-4 sm:space-y-6">
               <div className="space-y-3 sm:space-y-4">
-                <motion.div 
-                  className="space-y-1.5 sm:space-y-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
+                <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="new-password" className="text-white/90 text-xs sm:text-sm font-medium">
                     {t("auth.set_password")}
                   </Label>
-                  <div className="relative group">
+                  <div className="relative">
                     <Input
                       id="new-password"
                       type={showPassword ? "text" : "password"}
@@ -1069,120 +896,53 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 rounded-xl pr-10 sm:pr-12 transition-all"
+                      className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                     />
-                    <motion.button
+                    <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 p-1 rounded-lg hover:bg-white/10 transition-colors"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
-                    </motion.button>
+                    </button>
                   </div>
-                  {/* 密码强度指示器 */}
-                  {password.length > 0 && (
-                    <motion.div 
-                      className="flex gap-1 mt-2"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
-                      {[1, 2, 3, 4].map((level) => (
-                        <div
-                          key={level}
-                          className={`h-1 flex-1 rounded-full transition-all ${
-                            password.length >= level * 3
-                              ? level <= 2
-                                ? 'bg-amber-500'
-                                : 'bg-emerald-500'
-                              : 'bg-white/20'
-                          }`}
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </motion.div>
+                </div>
 
-                <motion.div 
-                  className="space-y-1.5 sm:space-y-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
+                <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="confirm-password" className="text-white/90 text-xs sm:text-sm font-medium">
                     {t("auth.confirm_password")}
                   </Label>
-                  <div className="relative">
-                    <Input
-                      id="confirm-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t("auth.enter_confirm_password")}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      minLength={6}
-                      className={`h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 rounded-xl transition-all ${
-                        confirmPassword && password !== confirmPassword ? 'border-red-400/50' : ''
-                      } ${confirmPassword && password === confirmPassword ? 'border-emerald-400/50' : ''}`}
-                    />
-                    {confirmPassword && (
-                      <motion.div 
-                        className="absolute right-3 top-1/2 -translate-y-1/2"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                      >
-                        {password === confirmPassword ? (
-                          <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                          </div>
-                        ) : (
-                          <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-red-500" />
-                          </div>
-                        )}
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
+                  <Input
+                    id="confirm-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t("auth.enter_confirm_password")}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="h-10 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                  />
+                </div>
               </div>
 
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <Button 
+                type="submit" 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-all shadow-lg shadow-teal-500/30" 
+                disabled={loading || password.length < 6 || password !== confirmPassword}
               >
-                <Button 
-                  type="submit" 
-                  className="w-full h-10 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium rounded-xl transition-all shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed" 
-                  disabled={loading || password.length < 6 || password !== confirmPassword}
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {loading && (
-                      <motion.div
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      />
-                    )}
-                    {loading ? t("auth.setting") : t("auth.confirm_set")}
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </Button>
-              </motion.div>
+                {loading ? t("auth.setting") : t("auth.confirm_set")}
+              </Button>
 
               <div className="text-center">
-                <motion.button
+                <button
                   type="button"
                   onClick={handleSkipSetPassword}
-                  className="text-xs sm:text-sm text-white/60 hover:text-white/80 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="text-xs sm:text-sm text-white/60 hover:text-white/80"
                 >
                   {t("auth.skip_set_later")}
-                </motion.button>
+                </button>
               </div>
-            </motion.form>
+            </form>
           )}
 
           {/* 忘记密码页面 */}
@@ -1234,8 +994,7 @@ const Auth = () => {
             </form>
           )}
         </CardContent>
-          </Card>
-        </motion.div>
+      </Card>
       </div>
 
       <style>{`
