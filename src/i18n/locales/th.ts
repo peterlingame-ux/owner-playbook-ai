@@ -321,7 +321,7 @@ export const th = {
     "signature": "ลายเซ็น",
     "select_avatar": "เลือกอวาตาร์",
     "saving": "กำลังบันทึก...",
-    
+    "cancel": "ยกเลิก",
     // ข้อความส่วนตัว
     "send_message": "ข้อความ",
     "no_messages_yet": "ยังไม่มีข้อความ",

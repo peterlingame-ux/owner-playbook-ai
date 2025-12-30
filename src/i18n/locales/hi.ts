@@ -321,7 +321,7 @@ export const hi = {
     "signature": "हस्ताक्षर",
     "select_avatar": "अवतार चुनें",
     "saving": "सहेज रहा है...",
-    
+    "cancel": "रद्द करें",
     // सीधे संदेश
     "send_message": "संदेश",
     "no_messages_yet": "अभी तक कोई संदेश नहीं",
