@@ -820,20 +820,11 @@ const MyPredictions = () => {
                     className="w-full text-left rounded-xl bg-card border border-border p-3 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <motion.div 
-                          className="p-2.5 rounded-lg bg-primary/10"
-                          whileHover={{ rotate: [0, -10, 10, 0] }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <History className="h-5 w-5 text-primary" />
-                        </motion.div>
-                        <div>
-                          <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
-                          <p className="text-xl font-light text-foreground">
-                            ${(stats?.balance || 10000).toLocaleString()}
-                          </p>
-                        </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
+                        <p className="text-xl font-light text-foreground">
+                          ${(stats?.balance || 10000).toLocaleString()}
+                        </p>
                       </div>
                       <motion.span 
                         className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
@@ -960,20 +951,11 @@ const MyPredictions = () => {
                 onClick={() => setShowVipConfirmDialog(true)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <motion.div 
-                      className="p-2.5 rounded-lg bg-amber-500/20"
-                      whileHover={{ rotate: [0, -15, 15, 0], scale: 1.1 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Crown className="h-5 w-5 text-amber-500" />
-                    </motion.div>
-                    <div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
-                      <p className="text-base font-light text-foreground">
-                        {vipStatus?.is_active ? t('vip_active') : t('unlock_vip')}
-                      </p>
-                    </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
+                    <p className="text-base font-light text-foreground">
+                      {vipStatus?.is_active ? t('vip_active') : t('unlock_vip')}
+                    </p>
                   </div>
                   {vipStatus?.is_active ? (
                     <motion.span 
@@ -1003,18 +985,9 @@ const MyPredictions = () => {
                 onClick={() => setIsBetDialogOpen(true)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <motion.div 
-                      className="p-2.5 rounded-lg bg-primary/20"
-                      whileHover={{ rotate: [0, -15, 15, 0], scale: 1.1 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Zap className="h-5 w-5 text-primary" />
-                    </motion.div>
-                    <div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('prediction_game')}</span>
-                      <p className="text-base font-light text-foreground">{t('start_predicting')}</p>
-                    </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('prediction_game')}</span>
+                    <p className="text-base font-light text-foreground">{t('start_predicting')}</p>
                   </div>
                   <motion.span 
                     className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
