@@ -42,12 +42,9 @@ const Footer = () => {
           </div>
 
           {/* Copyright */}
-          <div className="text-center space-y-2">
+          <div className="text-center">
             <p className="text-xs text-muted-foreground/60">
               © {currentYear} HUNSOCCER. {t('footer_rights')}
-            </p>
-            <p className="text-[10px] text-muted-foreground/40 max-w-2xl mx-auto leading-relaxed">
-              {t('footer_risk_warning')}
             </p>
           </div>
         </div>
