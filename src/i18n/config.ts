@@ -1793,7 +1793,7 @@ const resources = {
       "no_bio": "暂无简介",
       "not_following_anyone": "暂未关注任何人",
       "no_followers_yet": "暂无粉丝",
-      "hunter_balance": "余额",
+      "hunter_balance": "猎人币钱包",
       "to_next_level": "升级还需",
       "max_level": "满级",
       
