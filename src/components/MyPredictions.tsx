@@ -53,6 +53,7 @@ interface PredictionStats {
     result: string;
     bet_amount: number;
     actual_payout: number;
+    potential_payout?: number;
     created_at: string;
     match?: MatchInfo;
   }>;
@@ -871,6 +872,27 @@ const MyPredictions = () => {
                   <DialogHeader>
                     <DialogTitle className="font-light text-xl">{t('prediction_history_title')}</DialogTitle>
                   </DialogHeader>
+                  
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-4 gap-3 py-4 border-b border-border">
+                    <div className="text-center">
+                      <p className="text-xl font-light text-foreground">{stats?.totalPredictions || 0}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('total_bets_label')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-light text-primary">{stats?.correctPredictions || 0}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('won_status')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-light text-destructive">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0) - (stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0)}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('lost_status')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-light text-amber-500">{stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('pending')}</p>
+                    </div>
+                  </div>
+                  
                   <div className="flex-1 overflow-y-auto space-y-3 py-4">
                     {(stats?.recentPredictions || []).length === 0 ? (
                       <div className="text-center py-12 text-muted-foreground">
@@ -882,6 +904,7 @@ const MyPredictions = () => {
                         const profit = pred.actual_payout - pred.bet_amount;
                         const isWin = pred.result === 'win';
                         const isLoss = pred.result === 'loss';
+                        const isPending = pred.result === 'pending';
                         
                         return (
                           <div 
@@ -889,34 +912,60 @@ const MyPredictions = () => {
                             className={`rounded-xl border p-4 ${
                               isWin ? 'border-primary/30 bg-primary/5' : 
                               isLoss ? 'border-destructive/30 bg-destructive/5' : 
-                              'border-border bg-card'
+                              'border-amber-500/30 bg-amber-500/5'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(pred.created_at), 'MMM dd, HH:mm')}
-                              </span>
-                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {format(new Date(pred.created_at), 'yyyy-MM-dd HH:mm')}
+                                </span>
+                                {pred.match?.league_name && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                    {pred.match.league_name}
+                                  </span>
+                                )}
+                              </div>
+                              <span className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${
                                 isWin ? 'bg-primary/20 text-primary' : 
                                 isLoss ? 'bg-destructive/20 text-destructive' : 
-                                'bg-muted text-muted-foreground'
+                                'bg-amber-500/20 text-amber-500'
                               }`}>
+                                {isWin ? <CheckCircle2 className="h-3 w-3" /> : isLoss ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                                 {isWin ? t('won_status') : isLoss ? t('lost_status') : t('pending')}
                               </span>
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <div>
+                              <div className="flex-1">
                                 <p className="text-sm font-medium">
                                   {pred.match?.home_team_name || 'Home'} vs {pred.match?.away_team_name || 'Away'}
                                 </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {pred.prediction} · ${pred.bet_amount}
-                                </p>
+                                {pred.match?.goals_home !== undefined && pred.match?.goals_away !== undefined && !isPending && (
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    {t('final_score')}: {pred.match.goals_home} - {pred.match.goals_away}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                                    {pred.prediction_type === 'handicap' ? t('bet_type_handicap') : t('bet_type_over_under')}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">{pred.prediction}</span>
+                                </div>
                               </div>
-                              <p className={`text-lg font-light ${profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
-                                {profit >= 0 ? '+' : ''}{profit}
-                              </p>
+                              <div className="text-right">
+                                <p className="text-xs text-muted-foreground">{t('bet_amount')}: ${pred.bet_amount}</p>
+                                {!isPending && (
+                                  <p className={`text-lg font-light ${profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                                    {profit >= 0 ? '+' : ''}{profit.toFixed(0)}
+                                  </p>
+                                )}
+                                {isPending && (
+                                  <p className="text-lg font-light text-amber-500">
+                                    +{((pred.potential_payout || pred.bet_amount * 1.9) - pred.bet_amount).toFixed(0)}?
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
                         );
@@ -948,55 +997,112 @@ const MyPredictions = () => {
                     </div>
                   </button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
+                <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
                   <DialogHeader>
                     <DialogTitle className="font-light text-xl">{t('spending_records')}</DialogTitle>
                   </DialogHeader>
-                  <div className="py-4">
-                    <div className="grid grid-cols-3 gap-3 mb-6">
-                      <div className="text-center p-3 rounded-xl bg-muted/50">
-                        <p className="text-xl font-light">{copyTradeRecords.length}</p>
-                        <p className="text-xs text-muted-foreground">{t('subscriptions')}</p>
-                      </div>
-                      <div className="text-center p-3 rounded-xl bg-muted/50">
-                        <p className="text-xl font-light">${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0)}</p>
-                        <p className="text-xs text-muted-foreground">{t('total_spent')}</p>
-                      </div>
-                      <div className="text-center p-3 rounded-xl bg-muted/50">
-                        <p className="text-xl font-light">{copyTradeRecords.filter(r => r.result === 'win').length}</p>
-                        <p className="text-xs text-muted-foreground">{t('wins_label')}</p>
-                      </div>
+                  
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-4 gap-3 py-4 border-b border-border">
+                    <div className="text-center">
+                      <p className="text-xl font-light text-foreground">{copyTradeRecords.length}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('subscriptions')}</p>
                     </div>
-                    
+                    <div className="text-center">
+                      <p className="text-xl font-light text-amber-500">${copyTradeRecords.reduce((sum, r) => sum + r.bet_amount, 0)}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('total_spent')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-light text-primary">{copyTradeRecords.filter(r => r.result === 'win').length}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('wins_label')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-light text-foreground">
+                        ${copyTradeRecords.reduce((sum, r) => sum + r.pnl, 0).toFixed(0)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('profit_loss')}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto py-4">
                     {copyTradeRecords.length > 0 ? (
-                      <div className="space-y-2 max-h-[40vh] overflow-y-auto">
-                        {copyTradeRecords.map((record) => (
-                          <div key={record.id} className="p-3 rounded-xl border border-border">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <Avatar className="h-6 w-6">
-                                  <AvatarImage src={record.followed_player_avatar} />
-                                  <AvatarFallback className="text-[8px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                <span className="text-sm">{record.followed_player_name}</span>
+                      <div className="space-y-3">
+                        {copyTradeRecords.map((record) => {
+                          const isWin = record.result === 'win';
+                          const isLoss = record.result === 'loss';
+                          const isPending = record.result === 'pending';
+                          
+                          return (
+                            <div 
+                              key={record.id} 
+                              className={`p-4 rounded-xl border ${
+                                isWin ? 'border-primary/30 bg-primary/5' : 
+                                isLoss ? 'border-destructive/30 bg-destructive/5' : 
+                                'border-amber-500/30 bg-amber-500/5'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-7 w-7">
+                                    <AvatarImage src={record.followed_player_avatar} />
+                                    <AvatarFallback className="text-[10px]">{record.followed_player_name.slice(0, 2)}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <span className="text-sm font-medium">{record.followed_player_name}</span>
+                                    <p className="text-[10px] text-muted-foreground">{t('copy_trade')}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">
+                                    {format(new Date(record.created_at), 'yyyy-MM-dd HH:mm')}
+                                  </span>
+                                  <span className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${
+                                    isWin ? 'bg-primary/20 text-primary' : 
+                                    isLoss ? 'bg-destructive/20 text-destructive' : 
+                                    'bg-amber-500/20 text-amber-500'
+                                  }`}>
+                                    {isWin ? <CheckCircle2 className="h-3 w-3" /> : isLoss ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                                    {isWin ? t('won_status') : isLoss ? t('lost_status') : t('pending')}
+                                  </span>
+                                </div>
                               </div>
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(record.created_at), 'MMM dd')}
-                              </span>
+                              
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm">
+                                    {record.match_home_team} vs {record.match_away_team}
+                                  </p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                                      {record.prediction_type === 'handicap' ? t('bet_type_handicap') : t('bet_type_over_under')}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">{record.prediction}</span>
+                                    <span className="text-xs text-muted-foreground">@ {record.odds.toFixed(2)}</span>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground">{t('bet_amount')}: ${record.bet_amount}</p>
+                                  {!isPending && (
+                                    <p className={`text-lg font-light ${record.pnl >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                                      {record.pnl >= 0 ? '+' : ''}{record.pnl.toFixed(0)}
+                                    </p>
+                                  )}
+                                  {isPending && (
+                                    <p className="text-lg font-light text-amber-500">
+                                      +{(record.bet_amount * (record.odds - 1)).toFixed(0)}?
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">
-                                {record.match_home_team} vs {record.match_away_team}
-                              </span>
-                              <span className="font-medium text-amber-500">-{record.bet_amount}</span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-muted-foreground">
+                      <div className="text-center py-12 text-muted-foreground">
                         <Receipt className="h-8 w-8 mx-auto mb-2 opacity-30" />
                         <p>{t('no_spending_records')}</p>
+                        <p className="text-xs mt-1">{t('start_copy_trading_hint')}</p>
                       </div>
                     )}
                   </div>
