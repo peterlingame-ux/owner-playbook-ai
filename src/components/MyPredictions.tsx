@@ -1121,7 +1121,6 @@ const MyPredictions = () => {
 
       {/* Dialogs */}
       <PlaceBetDialog open={isBetDialogOpen} onOpenChange={setIsBetDialogOpen} />
-      <USDTWalletDialog open={isWalletDialogOpen} onOpenChange={setIsWalletDialogOpen} />
 
       {/* VIP Confirm Dialog */}
       <Dialog open={showVipConfirmDialog} onOpenChange={setShowVipConfirmDialog}>
