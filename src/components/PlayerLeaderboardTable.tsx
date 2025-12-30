@@ -168,6 +168,7 @@ interface PlayerData {
   isRecommender?: boolean;
   unlockPrice?: number; // USDT解锁价格，0或undefined表示免费
   signature?: string; // 用户个性签名
+  isVip?: boolean; // VIP用户标识
 }
 
 interface TodayPrediction {
@@ -365,6 +366,18 @@ const PlayerLeaderboardTable = () => {
         
         if (balancesError) throw balancesError;
         
+        // 获取所有用户的VIP状态
+        const { data: vipData, error: vipError } = await supabase
+          .from('user_vip')
+          .select('user_id, is_active, expires_at')
+          .eq('is_active', true)
+          .gte('expires_at', new Date().toISOString());
+        
+        if (vipError) console.error('Error fetching VIP data:', vipError);
+        
+        // 创建VIP用户集合
+        const vipUserIds = new Set(vipData?.map(v => v.user_id) || []);
+        
         // 获取所有用户的预测统计 - 根据时间范围筛选
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - timeRange);
@@ -450,6 +463,7 @@ const PlayerLeaderboardTable = () => {
             worstStreak,
             isVirtual: false,
             isRecommender: true, // 真实玩家默认都是推荐者
+            isVip: vipUserIds.has(user.id), // VIP状态
           };
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
