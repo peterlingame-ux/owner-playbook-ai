@@ -807,7 +807,7 @@ const MyPredictions = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            <h2 className="text-xs uppercase tracking-widest text-muted-foreground px-1">{t('wallets')}</h2>
+            
             
             <div className="space-y-3">
               {/* Virtual Wallet */}
