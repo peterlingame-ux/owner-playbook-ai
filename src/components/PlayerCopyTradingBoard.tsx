@@ -1004,7 +1004,7 @@ const PlayerCopyTradingBoard = () => {
               }}
               className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 hover:shadow-lg hover:shadow-warning/40 hover:scale-105 active:scale-95"
             >
-              今日订阅
+              {t('today_copy_trade_btn') || '今日跟单'}
             </button>
           </div>
         </div>
