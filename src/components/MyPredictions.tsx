@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
 import DirectMessageDialog from "./DirectMessageDialog";
-import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Copy, Zap, Award, XCircle, Clock, MessageCircle, DollarSign } from "lucide-react";
+import { Target, Wallet, Check, ArrowLeft, History, Users, TrendingUp, TrendingDown, BarChart3, CheckCircle2, Plus, Receipt, Crown, Sparkles, Copy, Zap, Award, XCircle, Clock, MessageCircle, DollarSign, Star, User } from "lucide-react";
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
@@ -1179,9 +1179,9 @@ const MyPredictions = () => {
             <div className="space-y-3">
               {[
                 { icon: Sparkles, title: t('vip_feature_free_access'), desc: t('vip_feature_free_access_desc') },
-                { icon: Target, title: t('vip_feature_ai_reports'), desc: t('vip_feature_ai_reports_desc') },
-                { icon: TrendingUp, title: t('vip_feature_alerts'), desc: t('vip_feature_alerts_desc') },
-                { icon: Award, title: t('vip_feature_badge'), desc: t('vip_feature_badge_desc') },
+                { icon: Star, title: t('vip_feature_chat_effect'), desc: t('vip_feature_chat_effect_desc') },
+                { icon: MessageCircle, title: t('vip_feature_dm'), desc: t('vip_feature_dm_desc') },
+                { icon: User, title: t('vip_feature_avatar'), desc: t('vip_feature_avatar_desc') },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
                   <div className="p-2 rounded-lg bg-amber-500/20">
