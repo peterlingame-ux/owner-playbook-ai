@@ -187,7 +187,6 @@ export const ar = {
     "legend_away": "ضيف",
     "legend_pass": "خطوط التمرير/الجري",
     "total_predictions": "إجمالي التوقعات",
-    "cancel": "إلغاء",
     
     // AI Chat
     "ai_assistant": "روبوت HUNSOCCER",
@@ -322,7 +321,7 @@ export const ar = {
     "signature": "التوقيع",
     "select_avatar": "اختر الصورة الرمزية",
     "saving": "جاري الحفظ...",
-    
+    "cancel": "إلغاء",
     // الرسائل المباشرة
     "send_message": "رسالة",
     "no_messages_yet": "لا توجد رسائل بعد",

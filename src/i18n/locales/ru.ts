@@ -321,7 +321,7 @@ export const ru = {
     "signature": "Подпись",
     "select_avatar": "Выбрать Аватар",
     "saving": "Сохранение...",
-    
+    "cancel": "Отмена",
     // Личные сообщения
     "send_message": "Сообщение",
     "no_messages_yet": "Пока нет сообщений",
