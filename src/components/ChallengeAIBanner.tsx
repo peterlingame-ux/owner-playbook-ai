@@ -434,7 +434,7 @@ const ChallengeAIBanner = () => {
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{currentPlayer?.displayName || t('banner_my_model')}</p>
+                      <p className="font-bold text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{t('predictor_exclusive_model') || '预测者专属模型'}</p>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">
                         {meetsRequirements ? <span className="text-success">✓ {t('qualified_status')}</span> : t('keep_going')}
                       </p>
@@ -457,12 +457,13 @@ const ChallengeAIBanner = () => {
               <div className="rounded-lg px-2 sm:px-4 py-2 sm:py-3 bg-muted/30">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 sm:gap-3">
-                    <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-muted/40">
-                      <AvatarImage src="/avatars/avatar-1.png" />
-                      <AvatarFallback className="text-xs">P</AvatarFallback>
+                    <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-dashed border-white/30">
+                      <AvatarFallback className="bg-white/5">
+                        <span className="text-xs text-muted-foreground/50">?</span>
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-bold text-xs sm:text-sm">{t('banner_my_model')}</p>
+                      <p className="font-bold text-xs sm:text-sm">{t('predictor_exclusive_model') || '预测者专属模型'}</p>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">{t('login_to_view')}</p>
                     </div>
                   </div>
