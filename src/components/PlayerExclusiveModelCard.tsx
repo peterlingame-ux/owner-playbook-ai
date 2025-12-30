@@ -718,25 +718,9 @@ const PlayerExclusiveModelCard = ({
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                   <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-16 w-auto opacity-15 mb-3" />
                   {isDemo ? (
-                    <>
-                      <p className="text-sm text-muted-foreground/80 font-medium">
-                        {t('login_to_create_model')}
-                      </p>
-                      <p className="text-xs text-muted-foreground/60 mt-1 max-w-[200px]">
-                        {t('exclusive_model_desc') || '登录后可训练专属AI模型，获取个性化预测'}
-                      </p>
-                      <Button
-                        size="sm"
-                        className="mt-3 h-8 px-4 rounded-full bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary font-medium text-xs backdrop-blur-sm transition-all duration-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.location.href = '/auth';
-                        }}
-                      >
-                        <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                        {t('login_now') || '立即登录'}
-                      </Button>
-                    </>
+                    <p className="text-sm text-muted-foreground/80 font-medium">
+                      {t('login_to_create_model')}
+                    </p>
                   ) : (
                     <>
                       <p className="text-sm text-muted-foreground/80 font-medium">
