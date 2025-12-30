@@ -110,19 +110,19 @@ const FlipDigit = ({ digit, prevDigit }: { digit: string; prevDigit: string }) =
   }, [digit, prevDigit]);
 
   return (
-    <div className="relative w-5 h-7 sm:w-8 sm:h-10 perspective-500">
+    <div className="relative w-4 h-5 xs:w-5 xs:h-7 sm:w-7 sm:h-9 perspective-500">
       <motion.div
         className="w-full h-full"
         animate={isFlipping ? { rotateX: [0, -90, 0] } : {}}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-900 rounded-sm sm:rounded border border-white/20 flex items-center justify-center shadow-lg">
-          <span className="text-base sm:text-xl font-bold font-mono text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-900 rounded-[2px] sm:rounded border border-white/20 flex items-center justify-center shadow-lg">
+          <span className="text-xs xs:text-sm sm:text-lg font-bold font-mono text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
             {digit}
           </span>
         </div>
         {/* Top highlight */}
-        <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5 rounded-t-sm sm:rounded-t pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-white/5 rounded-t-[2px] sm:rounded-t pointer-events-none" />
       </motion.div>
     </div>
   );
@@ -154,48 +154,48 @@ const FlipCountdown = ({ days, hours, minutes, seconds, t }: {
   const prevSecondsStr = formatTwo(prevValues.seconds);
 
   return (
-    <div className="flex items-center gap-1 sm:gap-2">
+    <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2">
       {/* Days */}
       <div className="flex flex-col items-center">
-        <div className="flex gap-0.5">
+        <div className="flex gap-[2px]">
           {daysStr.split('').map((d, i) => (
             <FlipDigit key={`day-${i}`} digit={d} prevDigit={prevDaysStr[i] || '0'} />
           ))}
         </div>
-        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('days_unit')}</span>
+        <span className="text-[6px] xs:text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('days_unit')}</span>
       </div>
       
-      <span className="text-lg sm:text-2xl font-bold text-amber-400/60">:</span>
+      <span className="text-sm xs:text-base sm:text-xl font-bold text-white/40">:</span>
       
       {/* Hours */}
       <div className="flex flex-col items-center">
-        <div className="flex gap-0.5">
+        <div className="flex gap-[2px]">
           <FlipDigit digit={hoursStr[0]} prevDigit={prevHoursStr[0]} />
           <FlipDigit digit={hoursStr[1]} prevDigit={prevHoursStr[1]} />
         </div>
-        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('hours') || '时'}</span>
+        <span className="text-[6px] xs:text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('hours') || '时'}</span>
       </div>
       
-      <span className="text-lg sm:text-2xl font-bold text-amber-400/60">:</span>
+      <span className="text-sm xs:text-base sm:text-xl font-bold text-white/40">:</span>
       
       {/* Minutes */}
       <div className="flex flex-col items-center">
-        <div className="flex gap-0.5">
+        <div className="flex gap-[2px]">
           <FlipDigit digit={minutesStr[0]} prevDigit={prevMinutesStr[0]} />
           <FlipDigit digit={minutesStr[1]} prevDigit={prevMinutesStr[1]} />
         </div>
-        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('minutes') || '分'}</span>
+        <span className="text-[6px] xs:text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('minutes') || '分'}</span>
       </div>
       
-      <span className="text-lg sm:text-2xl font-bold text-amber-400/60">:</span>
+      <span className="text-sm xs:text-base sm:text-xl font-bold text-white/40">:</span>
       
       {/* Seconds */}
       <div className="flex flex-col items-center">
-        <div className="flex gap-0.5">
+        <div className="flex gap-[2px]">
           <FlipDigit digit={secondsStr[0]} prevDigit={prevSecondsStr[0]} />
           <FlipDigit digit={secondsStr[1]} prevDigit={prevSecondsStr[1]} />
         </div>
-        <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('seconds') || '秒'}</span>
+        <span className="text-[6px] xs:text-[8px] sm:text-[10px] text-muted-foreground mt-0.5">{t('seconds') || '秒'}</span>
       </div>
     </div>
   );
