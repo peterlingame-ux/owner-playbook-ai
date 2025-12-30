@@ -995,19 +995,35 @@ const MyPredictions = () => {
               </motion.button>
 
               {/* Start Predicting Button */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
+              <motion.button 
+                whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                className="w-full text-left rounded-xl bg-gradient-to-r from-primary/15 via-primary/10 to-background border border-primary/30 p-4 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all group"
+                onClick={() => setIsBetDialogOpen(true)}
               >
-                <Button 
-                  className="w-full h-12 rounded-xl text-base font-normal bg-primary hover:bg-primary/90"
-                  onClick={() => setIsBetDialogOpen(true)}
-                >
-                  <Zap className="h-5 w-5 mr-2" />
-                  {t('start_predicting')}
-                </Button>
-              </motion.div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <motion.div 
+                      className="p-2.5 rounded-lg bg-primary/20"
+                      whileHover={{ rotate: [0, -15, 15, 0], scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Zap className="h-5 w-5 text-primary" />
+                    </motion.div>
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('prediction_game')}</span>
+                      <p className="text-base font-light text-foreground">{t('start_predicting')}</p>
+                    </div>
+                  </div>
+                  <motion.span 
+                    className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
+                    whileHover={{ x: 3 }}
+                  >
+                    {t('view_arrow')}
+                  </motion.span>
+                </div>
+              </motion.button>
 
             </div>
           </motion.div>
