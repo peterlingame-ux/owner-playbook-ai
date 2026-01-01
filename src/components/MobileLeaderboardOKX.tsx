@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar, X, Search } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -109,6 +111,8 @@ const MobileLeaderboardOKX = () => {
   const [showRulesExpanded, setShowRulesExpanded] = useState(false);
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllPredictors, setShowAllPredictors] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch players data
   const fetchPlayers = useCallback(async () => {
@@ -712,6 +716,7 @@ const MobileLeaderboardOKX = () => {
           </div>
           <button 
             className="px-3 py-1.5 text-xs font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1"
+            onClick={() => setShowAllPredictors(true)}
           >
             <Users className="h-3 w-3" />
             {t('all_predictors') || '全部预测者'}
@@ -758,6 +763,101 @@ const MobileLeaderboardOKX = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* All Predictors Dialog */}
+      <Dialog open={showAllPredictors} onOpenChange={setShowAllPredictors}>
+        <DialogContent className="max-w-lg w-[95vw] max-h-[85vh] p-0 bg-card border-primary/30 overflow-hidden">
+          <DialogHeader className="p-4 pb-3 border-b border-border/30">
+            <DialogTitle className="flex items-center gap-2 text-lg font-bold">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              {subTab === 'high' 
+                ? (t('high_accuracy_all_predictors') || '高准确率榜 - 全部预测者')
+                : (t('low_accuracy_all_predictors') || '低准确率榜 - 全部预测者')}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {/* Search Input */}
+          <div className="px-4 py-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t('search_predictor_name') || '搜索预测者名称...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-muted/30 border-primary/30 focus:border-primary"
+              />
+            </div>
+          </div>
+          
+          {/* Predictors List */}
+          <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-2">
+            {allPlayers
+              .filter(player => 
+                player.displayName.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .sort((a, b) => subTab === 'high' 
+                ? (b.currentStreak || 0) - (a.currentStreak || 0)
+                : (b.worstStreak || 0) - (a.worstStreak || 0)
+              )
+              .map((player, index) => (
+                <motion.div
+                  key={player.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.02 }}
+                  onClick={() => {
+                    setShowAllPredictors(false);
+                    navigate(`/player/${player.id}`);
+                  }}
+                  className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border/30 hover:border-primary/40 cursor-pointer transition-all"
+                >
+                  {/* Rank */}
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    index === 0 ? 'bg-yellow-500 text-yellow-950' :
+                    index === 1 ? 'bg-gray-400 text-gray-900' :
+                    index === 2 ? 'bg-amber-600 text-amber-950' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    {index + 1}
+                  </div>
+                  
+                  {/* Avatar */}
+                  <Avatar className="w-10 h-10 border border-border">
+                    <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                    <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Name & Streak */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-sm text-foreground truncate">{player.displayName}</h4>
+                    <p className={`text-xs ${subTab === 'high' ? 'text-success' : 'text-destructive'}`}>
+                      {subTab === 'high' 
+                        ? (t('consecutive_correct') || '连续正确') + ' '
+                        : (t('consecutive_wrong') || '连续错误') + ' '}
+                      <span className="font-bold">
+                        {subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)}
+                      </span>
+                    </p>
+                  </div>
+                  
+                  {/* Stats */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs text-muted-foreground">
+                      {t('win_rate_prefix') || '胜率'} <span className="text-success font-bold">{player.winRate}%</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center justify-end gap-0.5">
+                      {t('profit_label') || '盈利'} <span className={`font-bold ${player.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {player.changePercent >= 0 ? '+' : ''}{Math.round(player.profitAmount || 0)}
+                      </span>
+                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5" />
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
