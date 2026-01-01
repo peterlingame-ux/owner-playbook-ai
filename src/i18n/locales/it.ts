@@ -506,6 +506,7 @@ export const it = {
     "prediction_expert": "Esperto di Previsioni",
     "following_label": "Seguiti",
     "followers_label": "Follower",
+    "win_rate_percent": "Tasso di vittoria (%)",
     "no_bio": "Nessuna bio",
     "not_following_anyone": "Non segui ancora nessuno",
     "no_followers_yet": "Ancora nessun follower",

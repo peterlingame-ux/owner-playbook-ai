@@ -1,4 +1,6 @@
 import i18n from 'i18next';
+
+// Added win_rate_percent translation key
 import { initReactI18next } from 'react-i18next';
 import { teamsZh } from './teams-zh';
 import { leaguesZh } from './leagues-zh';
@@ -850,6 +852,7 @@ const resources = {
       "prediction_expert": "Prediction Expert",
       "following_label": "Following",
       "followers_label": "Followers",
+      "win_rate_percent": "Win Rate (%)",
       "no_bio": "No bio",
       "not_following_anyone": "Not following anyone yet",
       "no_followers_yet": "No followers yet",
@@ -2003,6 +2006,7 @@ const resources = {
       "prediction_expert": "预测专家",
       "following_label": "关注",
       "followers_label": "粉丝",
+      "win_rate_percent": "预测准确率 (%)",
       "no_bio": "暂无简介",
       "not_following_anyone": "暂未关注任何人",
       "no_followers_yet": "暂无粉丝",

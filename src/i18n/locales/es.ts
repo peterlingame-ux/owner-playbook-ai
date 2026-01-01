@@ -837,6 +837,7 @@ export const es = {
     "mutual_follow": "Mutuo",
     "following_label": "Siguiendo",
     "followers_label": "Seguidores",
+    "win_rate_percent": "Tasa de acierto (%)",
     "no_bio": "Sin bio",
     "not_following_anyone": "Aún no sigues a nadie",
     "no_followers_yet": "Aún sin seguidores",

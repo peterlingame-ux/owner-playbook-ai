@@ -531,6 +531,7 @@ export const hi = {
     "mutual_follow": "परस्पर",
     "following_label": "फॉलोइंग",
     "followers_label": "फॉलोअर्स",
+    "win_rate_percent": "जीत दर (%)",
     "no_bio": "कोई बायो नहीं",
     "not_following_anyone": "अभी तक किसी को फॉलो नहीं किया",
     "no_followers_yet": "अभी तक कोई फॉलोअर नहीं",

@@ -631,6 +631,9 @@ export const ko = {
     "message_sent": "메시지 전송됨",
     "message_failed": "메시지 전송 실패",
     "mutual_follow_required": "메시지를 보내려면 상호 팔로우가 필요합니다",
+    "followers_label": "팔로워",
+    "following_label": "팔로잉",
+    "win_rate_percent": "승률 (%)",
     
     // USDT Wallet
     "usdt_balance": "USDT 잔액",
