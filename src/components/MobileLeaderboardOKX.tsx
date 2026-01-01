@@ -2,12 +2,22 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, Bot, Zap } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { virtualPlayers } from "@/data/virtualPlayers";
+import { aiModels } from "@/data/mockData";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
+import ChallengeAIBanner from "@/components/ChallengeAIBanner";
+
+// AI Model Icons
+import deepseekIcon from "@/assets/deepseek-icon.png";
+import gpt5Icon from "@/assets/openai-icon.png";
+import claudeIcon from "@/assets/claude-icon.png";
+import geminiIcon from "@/assets/gemini-icon.png";
+import grokIcon from "@/assets/grok-icon.png";
+import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
 
 interface PlayerData {
   id: string;
@@ -31,16 +41,29 @@ interface PlayerData {
   tradingVolume?: number;
 }
 
-type MainTab = 'hot' | 'copy' | 'strategy';
+type MainTab = 'ai' | 'accuracy' | 'copyTrade';
 type SubTab = 'high' | 'low';
 type SortType = 'comprehensive' | 'winRate' | 'profit' | 'followers';
+
+// AI Model icon mapping
+const getAIIcon = (modelId: string) => {
+  const iconMap: Record<string, string> = {
+    'deepseek': deepseekIcon,
+    'gpt5': gpt5Icon,
+    'claude': claudeIcon,
+    'gemini': geminiIcon,
+    'grok': grokIcon,
+    'hunsoccer-max': hunsoccerIcon,
+  };
+  return iconMap[modelId] || hunsoccerIcon;
+};
 
 const MobileLeaderboardOKX = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [mainTab, setMainTab] = useState<MainTab>('hot');
+  const [mainTab, setMainTab] = useState<MainTab>('ai');
   const [subTab, setSubTab] = useState<SubTab>('high');
   const [sortType, setSortType] = useState<SortType>('comprehensive');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -186,12 +209,12 @@ const MobileLeaderboardOKX = () => {
   }, [allPlayers, subTab, sortType]);
 
   // Generate mini chart path
-  const generateChartPath = (player: PlayerData) => {
+  const generateChartPath = (id: string, changePercent: number) => {
     const width = 100;
     const height = 32;
     const numPoints = 10;
-    const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    const isPositive = player.changePercent >= 0;
+    const seed = id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const isPositive = changePercent >= 0;
     
     const points: string[] = [];
     for (let i = 0; i < numPoints; i++) {
@@ -212,26 +235,131 @@ const MobileLeaderboardOKX = () => {
   ];
 
   const mainTabs = [
-    { value: 'hot', label: t('tab_hot') || '热门' },
-    { value: 'copy', label: t('tab_copy') || '跟单' },
-    { value: 'strategy', label: t('tab_strategy') || '策略' },
+    { value: 'ai', label: t('ai_prediction_board') || 'AI预测排行榜' },
+    { value: 'accuracy', label: t('accuracy_board') || '预测者准确率' },
+    { value: 'copyTrade', label: t('copy_trading_board') || '预测者跟单' },
   ];
 
   const subTabs = [
-    { value: 'high', label: t('sub_tab_high') || '合约' },
-    { value: 'low', label: t('sub_tab_low') || '现货' },
+    { value: 'high', label: t('hot_streak_board') || '高准确率榜' },
+    { value: 'low', label: t('cold_streak_board') || '低准确率榜' },
   ];
+
+  // Render AI Models List
+  const renderAIModels = () => {
+    const modelsWithStats = aiModels.map(model => {
+      const seed = model.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const winRate = 55 + (seed % 20) + (Math.sin(seed) * 5);
+      const changePercent = 10 + (seed % 30) - 5;
+      return {
+        ...model,
+        winRate: Math.round(winRate * 10) / 10,
+        changePercent: Math.round(changePercent * 10) / 10,
+        followers: 500 + (seed % 500),
+        tradingDays: 30 + (seed % 60),
+      };
+    }).sort((a, b) => b.winRate - a.winRate);
+
+    return (
+      <div className="space-y-3">
+        {modelsWithStats.map((model, index) => (
+          <motion.div
+            key={model.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            onClick={() => navigate(`/models?model=${model.id}`)}
+            className="bg-card/50 rounded-xl p-4 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform"
+          >
+            {/* Top: Icon + Name + Badge */}
+            <div className="flex items-start gap-3 mb-3">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden">
+                  <img src={getAIIcon(model.id)} alt={model.name} className="w-8 h-8 object-contain" />
+                </div>
+                {index < 3 && (
+                  <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    index === 0 ? 'bg-yellow-500 text-yellow-950' :
+                    index === 1 ? 'bg-gray-400 text-gray-900' :
+                    'bg-amber-600 text-amber-950'
+                  }`}>
+                    {index + 1}
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-base text-foreground truncate flex items-center gap-1">
+                  {model.name}
+                  <Bot className="h-3.5 w-3.5 text-primary" />
+                </h3>
+                <p className="text-xs text-muted-foreground line-clamp-1">{(model as any).specialty || 'AI预测专家'}</p>
+              </div>
+            </div>
+
+            {/* Middle: Profit Rate + Chart */}
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">
+                  {t('90d_profit') || '近90日收益率'}
+                </p>
+                <p className={`text-3xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
+                </p>
+              </div>
+              
+              {/* Mini Chart */}
+              <div className="w-24 h-10">
+                <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
+                  <path
+                    d={generateChartPath(model.id, model.changePercent)}
+                    fill="none"
+                    stroke={model.changePercent >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Bottom Stats */}
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  {model.followers}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {model.tradingDays}{t('days') || '天'}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-success font-medium">
+                <Zap className="h-3 w-3" />
+                {model.winRate}%
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Challenge AI Banner - Auto fit screen */}
+      <div className="w-full overflow-hidden">
+        <ChallengeAIBanner />
+      </div>
+
       {/* Main Tabs - OKX Style */}
       <div className="sticky top-0 z-30 bg-background border-b border-border/30">
-        <div className="flex items-center gap-6 px-4 pt-2">
+        <div className="flex items-center gap-4 px-4 pt-2 overflow-x-auto scrollbar-hide">
           {mainTabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setMainTab(tab.value as MainTab)}
-              className={`relative py-3 text-base font-medium transition-colors ${
+              className={`relative py-3 text-sm font-medium transition-colors whitespace-nowrap ${
                 mainTab === tab.value
                   ? 'text-foreground'
                   : 'text-muted-foreground'
@@ -249,111 +377,119 @@ const MobileLeaderboardOKX = () => {
         </div>
       </div>
 
-      {/* Sub Tabs */}
-      <div className="sticky top-[52px] z-20 bg-background">
-        <div className="flex items-center gap-4 px-4 py-2">
-          {subTabs.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setSubTab(tab.value as SubTab)}
-              className={`relative text-sm font-medium transition-colors ${
-                subTab === tab.value
-                  ? 'text-foreground font-bold'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              {tab.value === 'high' ? (t('hot_streak_board') || '高准确率榜') : (t('cold_streak_board') || '低准确率榜')}
-              {subTab === tab.value && (
-                <motion.div
-                  layoutId="subTabIndicator"
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-foreground rounded-full"
-                />
-              )}
-            </button>
-          ))}
+      {/* Sub Tabs - Only show for accuracy and copyTrade tabs */}
+      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
+        <div className="sticky top-[52px] z-20 bg-background">
+          <div className="flex items-center gap-4 px-4 py-2">
+            {subTabs.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setSubTab(tab.value as SubTab)}
+                className={`relative text-sm font-medium transition-colors ${
+                  subTab === tab.value
+                    ? 'text-foreground font-bold'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                {tab.label}
+                {subTab === tab.value && (
+                  <motion.div
+                    layoutId="subTabIndicator"
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-foreground rounded-full"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Sort & Filter Row */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
-        {/* Sort Dropdown */}
-        <div className="relative">
+      {/* Sort & Filter Row - Only for player tabs */}
+      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
+          {/* Sort Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              className="flex items-center gap-1 px-3 py-1.5 bg-muted/40 rounded-lg text-sm font-medium text-foreground"
+            >
+              {sortOptions.find(s => s.value === sortType)?.label}
+              <ChevronDown className={`h-4 w-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            <AnimatePresence>
+              {showSortDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[140px] overflow-hidden"
+                >
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSortType(option.value as SortType);
+                        setShowSortDropdown(false);
+                      }}
+                      className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                        sortType === option.value
+                          ? 'bg-primary/10 text-primary font-medium'
+                          : 'text-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Filter Button */}
+          <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors">
+            <Filter className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Rules Accordion - Only for player tabs */}
+      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
+        <>
           <button
-            onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className="flex items-center gap-1 px-3 py-1.5 bg-muted/40 rounded-lg text-sm font-medium text-foreground"
+            onClick={() => setShowRulesExpanded(!showRulesExpanded)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 border-b border-border/20"
           >
-            {sortOptions.find(s => s.value === sortType)?.label}
-            <ChevronDown className={`h-4 w-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
+            <span className="text-sm text-foreground font-medium">
+              {t('ranking_rules') || '交易员上榜条件及排序规则'}
+            </span>
+            <ChevronRight className={`h-5 w-5 text-muted-foreground transition-transform ${showRulesExpanded ? 'rotate-90' : ''}`} />
           </button>
           
           <AnimatePresence>
-            {showSortDropdown && (
+            {showRulesExpanded && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[140px] overflow-hidden"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
               >
-                {sortOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setSortType(option.value as SortType);
-                      setShowSortDropdown(false);
-                    }}
-                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
-                      sortType === option.value
-                        ? 'bg-primary/10 text-primary font-medium'
-                        : 'text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                <div className="px-4 py-3 bg-muted/10 text-xs text-muted-foreground space-y-1">
+                  <p>• {t('rule_predictions') || '预测次数 ≥ 10 次'}</p>
+                  <p>• {t('rule_winrate') || '胜率 ≥ 50%'}</p>
+                  <p>• {t('rule_days') || '活跃天数 ≥ 7 天'}</p>
+                  <p>• {t('rule_sort') || '综合排序基于胜率、收益率、跟单人数加权计算'}</p>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </>
+      )}
 
-        {/* Filter Button */}
-        <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors">
-          <Filter className="h-5 w-5" />
-        </button>
-      </div>
-
-      {/* Rules Accordion */}
-      <button
-        onClick={() => setShowRulesExpanded(!showRulesExpanded)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 border-b border-border/20"
-      >
-        <span className="text-sm text-foreground font-medium">
-          {t('ranking_rules') || '交易员上榜条件及排序规则'}
-        </span>
-        <ChevronRight className={`h-5 w-5 text-muted-foreground transition-transform ${showRulesExpanded ? 'rotate-90' : ''}`} />
-      </button>
-      
-      <AnimatePresence>
-        {showRulesExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 py-3 bg-muted/10 text-xs text-muted-foreground space-y-1">
-              <p>• {t('rule_predictions') || '预测次数 ≥ 10 次'}</p>
-              <p>• {t('rule_winrate') || '胜率 ≥ 50%'}</p>
-              <p>• {t('rule_days') || '活跃天数 ≥ 7 天'}</p>
-              <p>• {t('rule_sort') || '综合排序基于胜率、收益率、跟单人数加权计算'}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Player Cards List */}
+      {/* Content Area */}
       <div className="px-4 py-2 space-y-3 pb-20">
         <AnimatePresence mode="wait">
-          {isLoading ? (
+          {isLoading && mainTab !== 'ai' ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -370,16 +506,21 @@ const MobileLeaderboardOKX = () => {
               exit={{ opacity: 0 }}
               className="space-y-3"
             >
-              {getDisplayPlayers().map((player, index) => (
-                <PlayerCardOKX
-                  key={player.id}
-                  player={player}
-                  index={index}
-                  generateChartPath={generateChartPath}
-                  onClick={() => navigate(`/player/${player.id}`)}
-                  subTab={subTab}
-                />
-              ))}
+              {mainTab === 'ai' ? (
+                renderAIModels()
+              ) : (
+                getDisplayPlayers().map((player, index) => (
+                  <PlayerCardOKX
+                    key={player.id}
+                    player={player}
+                    index={index}
+                    generateChartPath={generateChartPath}
+                    onClick={() => navigate(`/player/${player.id}`)}
+                    subTab={subTab}
+                    mainTab={mainTab}
+                  />
+                ))
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -392,17 +533,15 @@ const MobileLeaderboardOKX = () => {
 interface PlayerCardOKXProps {
   player: PlayerData;
   index: number;
-  generateChartPath: (player: PlayerData) => string;
+  generateChartPath: (id: string, changePercent: number) => string;
   onClick: () => void;
   subTab: SubTab;
+  mainTab: MainTab;
 }
 
-const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab }: PlayerCardOKXProps) => {
+const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
   const isPositive = player.changePercent >= 0;
-  
-  // Generate stable multiplier based on player id
-  const multiplier = ((player.id.charCodeAt(0) % 4) + 1) + (Math.random() * 0.5).toFixed(2);
 
   return (
     <motion.div
@@ -457,33 +596,20 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab }: Pl
       <div className="flex items-end justify-between mb-4">
         <div>
           <p className="text-[10px] text-muted-foreground mb-1">
-            {t('90d_profit') || '近90日交易员收益'}
+            {mainTab === 'copyTrade' 
+              ? (t('90d_copy_profit') || '近90日跟单收益')
+              : (t('90d_profit') || '近90日收益率')}
           </p>
           <p className={`text-3xl font-bold tracking-tight ${isPositive ? 'text-success' : 'text-destructive'}`}>
             {isPositive ? '+' : ''}{player.changePercent.toFixed(2)}%
           </p>
-          <p className={`text-sm font-medium mt-0.5 ${isPositive ? 'text-success' : 'text-destructive'}`}>
-            {isPositive ? '+' : '-'}${Math.abs(player.profitAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
         </div>
         
         {/* Mini Chart */}
-        <div className="w-[100px] h-[40px]">
-          <svg width="100" height="40" className="overflow-visible">
-            <defs>
-              <linearGradient id={`chartGradient-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'} stopOpacity="0.3" />
-                <stop offset="100%" stopColor={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'} stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {/* Area fill */}
+        <div className="w-24 h-10">
+          <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
             <path
-              d={`${generateChartPath(player)} L100,40 L0,40 Z`}
-              fill={`url(#chartGradient-${player.id})`}
-            />
-            {/* Line */}
-            <path
-              d={generateChartPath(player)}
+              d={generateChartPath(player.id, player.changePercent)}
               fill="none"
               stroke={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
               strokeWidth="2"
@@ -494,24 +620,25 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab }: Pl
         </div>
       </div>
 
-      {/* Bottom: Stats Grid */}
-      <div className="grid grid-cols-3 gap-4 pt-3 border-t border-border/30">
-        <div>
-          <p className="text-[10px] text-muted-foreground mb-0.5">{t('followers_count') || '跟单人数'}</p>
-          <p className="text-sm font-bold text-foreground">
-            {player.followers || Math.floor(100 + Math.random() * 400)}/
-            <span className="text-muted-foreground font-normal underline">{Math.floor((player.followers || 300) * 1.5)}</span>
-          </p>
+      {/* Bottom Stats */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1">
+            <Users className="h-3 w-3" />
+            {player.followers || 0}
+          </span>
+          <span className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {player.tradingDays || 0}{t('days') || '天'}
+          </span>
+          <span className="flex items-center gap-1">
+            <DollarSign className="h-3 w-3" />
+            {((player.tradingVolume || 0) / 10000).toFixed(1)}万
+          </span>
         </div>
-        <div>
-          <p className="text-[10px] text-muted-foreground mb-0.5">{t('trading_volume') || '带单规模'}</p>
-          <p className="text-sm font-bold text-foreground">
-            ${((player.tradingVolume || 500000) / 1000).toFixed(0)}K
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] text-muted-foreground mb-0.5">{t('trading_days') || '带单天数'}</p>
-          <p className="text-sm font-bold text-foreground">{player.tradingDays || 30}</p>
+        <div className="flex items-center gap-1 text-success font-medium">
+          <Trophy className="h-3 w-3" />
+          {player.winRate}%
         </div>
       </div>
     </motion.div>
