@@ -1092,151 +1092,140 @@ const MyPredictions = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="py-4 space-y-4"
+                className="py-4 space-y-6"
               >
-                {/* All Star Cards Definition */}
                 {(() => {
                   const ALL_STAR_CARDS = [
-                    { id: 'messi', card_name: '梅西', card_image: '/players/player-1.png', rarity: 'legendary' },
-                    { id: 'ronaldo', card_name: 'C罗', card_image: '/players/player-2.png', rarity: 'legendary' },
-                    { id: 'mbappe', card_name: '姆巴佩', card_image: '/players/player-3.png', rarity: 'epic' },
-                    { id: 'haaland', card_name: '哈兰德', card_image: '/players/player-4.png', rarity: 'epic' },
-                    { id: 'neymar', card_name: '内马尔', card_image: '/players/player-5.png', rarity: 'epic' },
-                    { id: 'salah', card_name: '萨拉赫', card_image: '/players/player-6.png', rarity: 'rare' },
-                    { id: 'debruyne', card_name: '德布劳内', card_image: '/players/player-7.png', rarity: 'rare' },
-                    { id: 'modric', card_name: '莫德里奇', card_image: '/players/player-8.png', rarity: 'rare' },
-                    { id: 'benzema', card_name: '本泽马', card_image: '/players/player-9.png', rarity: 'rare' },
-                    { id: 'vinicius', card_name: '维尼修斯', card_image: '/players/player-10.png', rarity: 'common' },
-                    { id: 'bellingham', card_name: '贝林厄姆', card_image: '/players/player-11.png', rarity: 'common' },
-                    { id: 'saka', card_name: '萨卡', card_image: '/players/player-12.png', rarity: 'common' },
+                    { id: 'messi', name_key: 'player_messi', card_image: '/players/player-1.png', rarity: 'legendary' },
+                    { id: 'ronaldo', name_key: 'player_ronaldo', card_image: '/players/player-2.png', rarity: 'legendary' },
+                    { id: 'mbappe', name_key: 'player_mbappe', card_image: '/players/player-3.png', rarity: 'epic' },
+                    { id: 'haaland', name_key: 'player_haaland', card_image: '/players/player-4.png', rarity: 'epic' },
+                    { id: 'neymar', name_key: 'player_neymar', card_image: '/players/player-5.png', rarity: 'epic' },
+                    { id: 'salah', name_key: 'player_salah', card_image: '/players/player-6.png', rarity: 'rare' },
+                    { id: 'debruyne', name_key: 'player_debruyne', card_image: '/players/player-7.png', rarity: 'rare' },
+                    { id: 'modric', name_key: 'player_modric', card_image: '/players/player-8.png', rarity: 'rare' },
+                    { id: 'benzema', name_key: 'player_benzema', card_image: '/players/player-9.png', rarity: 'rare' },
+                    { id: 'vinicius', name_key: 'player_vinicius', card_image: '/players/player-10.png', rarity: 'common' },
+                    { id: 'bellingham', name_key: 'player_bellingham', card_image: '/players/player-11.png', rarity: 'common' },
+                    { id: 'saka', name_key: 'player_saka', card_image: '/players/player-12.png', rarity: 'common' },
                   ];
+
+                  // Fallback names for i18n
+                  const playerNames: Record<string, string> = {
+                    player_messi: 'Messi',
+                    player_ronaldo: 'Ronaldo',
+                    player_mbappe: 'Mbappé',
+                    player_haaland: 'Haaland',
+                    player_neymar: 'Neymar',
+                    player_salah: 'Salah',
+                    player_debruyne: 'De Bruyne',
+                    player_modric: 'Modrić',
+                    player_benzema: 'Benzema',
+                    player_vinicius: 'Vinícius Jr',
+                    player_bellingham: 'Bellingham',
+                    player_saka: 'Saka',
+                  };
 
                   const unlockedCardIds = new Set(starCards.map(c => c.card_name));
                   const unlockedCount = starCards.length;
-
-                  const rarityColors: Record<string, string> = {
-                    legendary: 'from-amber-400 via-yellow-300 to-amber-500',
-                    epic: 'from-purple-400 via-pink-300 to-purple-500',
-                    rare: 'from-blue-400 via-cyan-300 to-blue-500',
-                    common: 'from-gray-400 via-gray-300 to-gray-500',
-                  };
-                  const rarityBorder: Record<string, string> = {
-                    legendary: 'border-amber-400/50',
-                    epic: 'border-purple-400/50',
-                    rare: 'border-blue-400/50',
-                    common: 'border-border',
-                  };
-                  const rarityLabel: Record<string, string> = {
-                    legendary: '传奇',
-                    epic: '史诗',
-                    rare: '稀有',
-                    common: '普通',
-                  };
+                  const availableToUnlock = Math.floor(invitedUsers.length / 5);
 
                   return (
                     <>
-                      {/* Stats Header */}
+                      {/* Minimal Header */}
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-lg font-bold text-foreground">{t('star_card_collection') || '球星卡收藏'}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {unlockedCount}/{ALL_STAR_CARDS.length} {t('cards_unlocked') || '已解锁'}
+                          <p className="text-sm text-muted-foreground">
+                            {t('collection') || 'Collection'}
+                          </p>
+                          <p className="text-2xl font-bold text-foreground">
+                            {unlockedCount}<span className="text-muted-foreground font-normal">/{ALL_STAR_CARDS.length}</span>
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-                          <Crown className="w-4 h-4 text-amber-400" />
-                          <span className="text-sm font-medium text-amber-400">
-                            {Math.floor(invitedUsers.length / 5)} {t('cards_earned') || '张可解锁'}
-                          </span>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">
+                            {t('available') || 'Available'}
+                          </p>
+                          <p className="text-2xl font-bold text-amber-500">
+                            {availableToUnlock}
+                          </p>
                         </div>
                       </div>
 
-                      {/* Invite Progress Hint */}
-                      <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Share2 className="w-4 h-4" />
-                          <span>{t('invite_to_unlock') || '每邀请5位新玩家解锁1张球星卡'}</span>
+                      {/* Progress Bar */}
+                      <div>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                          <span>{t('next_card') || 'Next card'}</span>
+                          <span>{invitedUsers.length % 5}/5 {t('invites') || 'invites'}</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500"
-                              style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-xs font-medium text-foreground">{invitedUsers.length % 5}/5</span>
+                        <div className="h-1 bg-muted rounded-full overflow-hidden">
+                          <motion.div 
+                            className="h-full bg-foreground rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
+                            transition={{ duration: 0.5 }}
+                          />
                         </div>
                       </div>
 
-                      {/* Star Cards Grid - Show All Cards */}
-                      <div className="grid grid-cols-3 gap-3">
+                      {/* Cards Grid */}
+                      <div className="grid grid-cols-4 gap-2">
                         {ALL_STAR_CARDS.map((card, index) => {
-                          const isUnlocked = unlockedCardIds.has(card.card_name);
+                          const isUnlocked = unlockedCardIds.has(playerNames[card.name_key]);
+                          const playerName = t(card.name_key) || playerNames[card.name_key];
 
                           return (
                             <motion.div
                               key={card.id}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: index * 0.05 }}
-                              className="perspective-1000"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: index * 0.03 }}
+                              className="relative"
                             >
                               <div
-                                className="relative aspect-[3/4] overflow-visible"
+                                className={`relative aspect-square rounded-lg overflow-hidden ${
+                                  isUnlocked ? '' : ''
+                                }`}
                                 style={{
+                                  animation: isUnlocked ? 'cardRotate 10s linear infinite' : 'none',
                                   transformStyle: 'preserve-3d',
-                                  animation: isUnlocked ? 'cardRotate 8s linear infinite' : 'none',
                                 }}
                               >
-                                {/* Player Image - No Border, Just Photo */}
-                                <div className="relative w-full h-full">
-                                  <img 
-                                    src={card.card_image} 
-                                    alt={card.card_name}
-                                    className={`w-full h-full object-contain transition-all duration-300 ${
-                                      isUnlocked 
-                                        ? '' 
-                                        : 'grayscale brightness-[0.15] opacity-60'
-                                    }`}
-                                  />
-                                  
-                                  {/* Lock Icon for Locked Cards */}
-                                  {!isUnlocked && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                      <div className="w-10 h-10 rounded-full bg-black/70 flex items-center justify-center backdrop-blur-sm">
-                                        <svg className="w-5 h-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Shine Effect for Unlocked Legendary */}
-                                  {isUnlocked && card.rarity === 'legendary' && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
-                                  )}
-                                </div>
-
-                                {/* Player Name Below */}
-                                <div className="mt-2 text-center">
-                                  <p className={`text-xs font-medium truncate ${
-                                    isUnlocked ? 'text-foreground' : 'text-zinc-600'
-                                  }`}>
-                                    {card.card_name}
-                                  </p>
-                                  <span className={`text-[10px] ${
+                                <img 
+                                  src={card.card_image} 
+                                  alt={playerName}
+                                  className={`w-full h-full object-cover transition-all duration-300 ${
                                     isUnlocked 
-                                      ? `bg-gradient-to-r ${rarityColors[card.rarity]} bg-clip-text text-transparent font-medium`
-                                      : 'text-zinc-700'
-                                  }`}>
-                                    {rarityLabel[card.rarity]}
-                                  </span>
-                                </div>
+                                      ? '' 
+                                      : 'grayscale brightness-[0.08]'
+                                  }`}
+                                />
+                                
+                                {!isUnlocked && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                  </div>
+                                )}
                               </div>
+                              <p className={`text-[10px] text-center mt-1 truncate ${
+                                isUnlocked ? 'text-foreground' : 'text-zinc-700'
+                              }`}>
+                                {playerName}
+                              </p>
                             </motion.div>
                           );
                         })}
                       </div>
+
+                      {/* Invite CTA */}
+                      <button 
+                        onClick={() => setActiveTab('invite')}
+                        className="w-full py-3 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+                      >
+                        {t('invite_friends') || 'Invite friends to unlock more'}
+                      </button>
                     </>
                   );
                 })()}
