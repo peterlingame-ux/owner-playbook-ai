@@ -1,17 +1,16 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, Trophy, Clock, Bot, User } from "lucide-react";
 
 const BottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
   const navItems = [
-    { to: "/leaderboard", label: t('nav_rank'), icon: Trophy },
-    { to: "/history", label: t('nav_history'), icon: Clock },
-    { to: "/", label: t('nav_live'), icon: Home, isCenter: true },
-    { to: "/models", label: t('nav_models'), icon: Bot },
-    { to: "/my-predictions", label: t('nav_personal_center'), icon: User },
+    { to: "/leaderboard", label: t('nav_rank') },
+    { to: "/history", label: t('nav_history') },
+    { to: "/", label: t('nav_live'), isCenter: true },
+    { to: "/models", label: t('nav_models') },
+    { to: "/my-predictions", label: t('nav_personal_center') },
   ];
 
   return (
@@ -22,10 +21,9 @@ const BottomNav = () => {
       {/* Top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
       
-      <div className="relative flex items-center justify-around px-1 py-1 pb-2">
+      <div className="relative flex items-center justify-around px-2 py-3 pb-4">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
-          const Icon = item.icon;
           
           return (
             <NavLink
@@ -34,57 +32,32 @@ const BottomNav = () => {
               className="relative flex-1 flex justify-center touch-manipulation"
             >
               <div
-                className={`relative flex flex-col items-center justify-center py-2 px-3 rounded-2xl min-w-[60px] min-h-[52px]
-                  active:scale-90 transition-transform duration-100
-                  ${item.isCenter ? 'mt-[-6px]' : ''}`}
+                className={`relative flex items-center justify-center py-2 px-4 rounded-xl min-h-[40px]
+                  active:scale-95 transition-all duration-150`}
               >
-                {/* Center button special styling */}
-                {item.isCenter && (
-                  <div
-                    className={`absolute inset-0 rounded-2xl ${
-                      isActive 
-                        ? 'bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]' 
-                        : 'bg-gradient-to-br from-cyan-600/80 via-blue-600/80 to-purple-600/80'
-                    }`}
-                  />
-                )}
-                
-                {/* Active background for non-center items */}
-                {isActive && !item.isCenter && (
-                  <div className="absolute inset-0 rounded-2xl bg-white/10" />
-                )}
-                
-                {/* Icon */}
-                <div className="relative z-10">
-                  <Icon 
-                    className={`h-5 w-5 transition-colors duration-200 ${
+                {/* Active glow background */}
+                {isActive && (
+                  <div 
+                    className={`absolute inset-0 rounded-xl ${
                       item.isCenter 
-                        ? 'text-white' 
-                        : isActive 
-                          ? 'text-cyan-400' 
-                          : 'text-white/50'
+                        ? 'bg-gradient-to-br from-cyan-500/30 via-blue-500/30 to-purple-500/30' 
+                        : 'bg-cyan-500/15'
                     }`}
-                    strokeWidth={isActive ? 2.5 : 2}
                   />
-                </div>
+                )}
                 
-                {/* Label */}
+                {/* Label with glow effect when active */}
                 <span 
-                  className={`relative z-10 text-[10px] font-medium mt-1 whitespace-nowrap transition-colors duration-200
-                    ${item.isCenter 
-                      ? 'text-white' 
-                      : isActive 
-                        ? 'text-cyan-400 font-semibold' 
-                        : 'text-white/50'
+                  className={`relative z-10 text-sm font-medium whitespace-nowrap transition-all duration-200
+                    ${isActive 
+                      ? item.isCenter
+                        ? 'text-white font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' 
+                        : 'text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]'
+                      : 'text-white/40'
                     }`}
                 >
                   {item.label}
                 </span>
-                
-                {/* Active indicator dot */}
-                {isActive && !item.isCenter && (
-                  <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400" />
-                )}
               </div>
             </NavLink>
           );
