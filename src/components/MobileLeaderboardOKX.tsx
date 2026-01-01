@@ -695,7 +695,7 @@ const MobileLeaderboardOKX = () => {
               </div>
             </div>
 
-            {/* Bottom Stats: Correct, Wrong, Followers, Win Rate */}
+            {/* Bottom Stats: Correct, Wrong, Win Rate, Followers */}
             <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
               <div className="flex items-center gap-1.5">
                 <span className="flex items-center gap-0.5 text-success">
@@ -706,21 +706,21 @@ const MobileLeaderboardOKX = () => {
                   <XCircle className="h-2.5 w-2.5" />
                   {t('wrong_matches_count', { count: model.wrongPredictions }) || `错误${model.wrongPredictions}场`}
                 </span>
-                <button 
-                  className="flex items-center gap-0.5 hover:text-primary transition-colors cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedModelForFollowers(model.id);
-                    setShowFollowersDialog(true);
-                  }}
-                >
-                  <Users className="h-2.5 w-2.5" />
-                  {model.followers}{t('followers_suffix') || '跟单'}
-                </button>
+                <span className="text-success font-medium">
+                  {t('win_rate_prefix') || '胜率'}{model.winRate}%
+                </span>
               </div>
-              <div className="text-success font-medium">
-                {t('win_rate_prefix') || '胜率'}{model.winRate}%
-              </div>
+              <button 
+                className="flex items-center gap-0.5 px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded-md transition-colors cursor-pointer font-medium"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedModelForFollowers(model.id);
+                  setShowFollowersDialog(true);
+                }}
+              >
+                <Users className="h-3 w-3" />
+                {model.followers}{t('followers_suffix') || '跟单'}
+              </button>
             </div>
           </motion.div>
         ))}
