@@ -573,6 +573,7 @@ export const fr = {
     "player_vinicius": "Vinícius Jr",
     "player_bellingham": "Bellingham",
     "player_saka": "Saka",
+    "player_son": "Son",
     "star_card_tab": "Cartes de Stars",
     "display_name": "Nom",
     "bio": "Bio",

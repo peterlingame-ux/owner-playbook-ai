@@ -1097,34 +1097,20 @@ const MyPredictions = () => {
               >
                 {(() => {
                   const ALL_STAR_CARDS = [
-                    { id: 'messi', name_key: 'player_messi', card_image: '/players/player-1.png', rarity: 'legendary' },
-                    { id: 'ronaldo', name_key: 'player_ronaldo', card_image: '/players/player-2.png', rarity: 'legendary' },
-                    { id: 'mbappe', name_key: 'player_mbappe', card_image: '/players/player-3.png', rarity: 'epic' },
-                    { id: 'haaland', name_key: 'player_haaland', card_image: '/players/player-4.png', rarity: 'epic' },
-                    { id: 'neymar', name_key: 'player_neymar', card_image: '/players/player-5.png', rarity: 'epic' },
-                    { id: 'salah', name_key: 'player_salah', card_image: '/players/player-6.png', rarity: 'rare' },
-                    { id: 'debruyne', name_key: 'player_debruyne', card_image: '/players/player-7.png', rarity: 'rare' },
-                    { id: 'modric', name_key: 'player_modric', card_image: '/players/player-8.png', rarity: 'rare' },
-                    { id: 'benzema', name_key: 'player_benzema', card_image: '/players/player-9.png', rarity: 'rare' },
-                    { id: 'vinicius', name_key: 'player_vinicius', card_image: '/players/player-10.png', rarity: 'common' },
-                    { id: 'bellingham', name_key: 'player_bellingham', card_image: '/players/player-11.png', rarity: 'common' },
-                    { id: 'saka', name_key: 'player_saka', card_image: '/players/player-12.png', rarity: 'common' },
+                    { id: 'mbappe', name_key: 'player_mbappe', card_image: '/starcards/mbappe-card.png', rarity: 'legendary' },
+                    { id: 'neymar', name_key: 'player_neymar', card_image: '/starcards/neymar-card.png', rarity: 'legendary' },
+                    { id: 'salah', name_key: 'player_salah', card_image: '/starcards/salah-card.png', rarity: 'epic' },
+                    { id: 'debruyne', name_key: 'player_debruyne', card_image: '/starcards/debruyne-card.png', rarity: 'epic' },
+                    { id: 'son', name_key: 'player_son', card_image: '/starcards/son-card.png', rarity: 'rare' },
                   ];
 
                   // Fallback names for i18n
                   const playerNames: Record<string, string> = {
-                    player_messi: 'Messi',
-                    player_ronaldo: 'Ronaldo',
                     player_mbappe: 'Mbappé',
-                    player_haaland: 'Haaland',
                     player_neymar: 'Neymar',
                     player_salah: 'Salah',
                     player_debruyne: 'De Bruyne',
-                    player_modric: 'Modrić',
-                    player_benzema: 'Benzema',
-                    player_vinicius: 'Vinícius Jr',
-                    player_bellingham: 'Bellingham',
-                    player_saka: 'Saka',
+                    player_son: 'Son',
                   };
 
                   const unlockedCardIds = new Set(starCards.map(c => c.card_name));

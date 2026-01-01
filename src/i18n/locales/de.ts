@@ -555,6 +555,7 @@ export const de = {
     "player_vinicius": "Vinícius Jr",
     "player_bellingham": "Bellingham",
     "player_saka": "Saka",
+    "player_son": "Son",
     "star_card_tab": "Starkarten",
     "display_name": "Anzeigename",
     "bio": "Bio",
