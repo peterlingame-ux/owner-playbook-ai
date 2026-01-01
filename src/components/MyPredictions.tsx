@@ -11,7 +11,6 @@ import { Settings, Send, History, Trophy, Share2, Check, Play, MoreVertical, Che
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
-import personalCenterBg from "@/assets/personal-center-bg-3d.png";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -430,49 +429,54 @@ const MyPredictions = () => {
           </button>
         </div>
 
-        {/* 3D Avatar Section with Fixed Background Image */}
-        <div className="relative w-full max-w-[400px] mx-auto">
-          {/* Fixed Background Image Container */}
+        {/* 3D Avatar Section with Sky Background */}
+        <div className="relative w-full max-w-[380px] mx-auto">
+          {/* Avatar Container with special shape - rounded bottom-right */}
           <div 
-            className="relative w-full overflow-hidden"
+            className="relative w-full aspect-[4/5] overflow-visible"
             style={{
-              borderRadius: '0 0 100px 0',
-              aspectRatio: '1 / 1.1',
+              borderRadius: '0 0 120px 0',
             }}
           >
-            {/* Fixed Background Image - The reference design */}
-            <img 
-              src={personalCenterBg}
-              alt="Background"
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{
-                borderRadius: '0 0 100px 0',
-              }}
-            />
-            
-            {/* 3D Avatar Overlay - User's profile picture pops out */}
+            {/* Sky Background */}
             <div 
-              className="absolute inset-0 flex items-end justify-center pointer-events-none"
+              className="absolute inset-0 overflow-hidden"
               style={{
-                zIndex: 10,
+                borderRadius: '0 0 120px 0',
+                background: 'linear-gradient(180deg, hsl(205 70% 65%) 0%, hsl(205 60% 78%) 40%, hsl(205 50% 88%) 100%)',
               }}
             >
+              {/* Cloud effects */}
               <div 
-                className="relative"
+                className="absolute inset-0"
                 style={{
-                  transform: 'translateY(25px)',
+                  backgroundImage: `
+                    radial-gradient(ellipse 180px 80px at 15% 35%, rgba(255,255,255,0.85) 0%, transparent 70%),
+                    radial-gradient(ellipse 220px 100px at 60% 25%, rgba(255,255,255,0.75) 0%, transparent 70%),
+                    radial-gradient(ellipse 160px 70px at 85% 50%, rgba(255,255,255,0.8) 0%, transparent 70%),
+                    radial-gradient(ellipse 200px 90px at 40% 60%, rgba(255,255,255,0.7) 0%, transparent 70%),
+                    radial-gradient(ellipse 140px 60px at 10% 70%, rgba(255,255,255,0.6) 0%, transparent 70%)
+                  `,
                 }}
-              >
-                <img 
-                  src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
-                  alt={userProfile?.display_name}
-                  className="w-[180px] h-[220px] object-cover object-top rounded-2xl"
-                  style={{
-                    filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.4)) drop-shadow(0 10px 20px rgba(0,0,0,0.2))',
-                    border: '3px solid rgba(255,255,255,0.15)',
-                  }}
-                />
-              </div>
+              />
+            </div>
+
+            {/* Avatar Image - 3D Pop-out Effect */}
+            <div 
+              className="absolute inset-0 flex items-end justify-center"
+              style={{
+                transform: 'translateY(20px)',
+              }}
+            >
+              <img 
+                src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
+                alt={userProfile?.display_name}
+                className="h-[110%] w-auto object-cover object-top"
+                style={{
+                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))',
+                  maxWidth: '120%',
+                }}
+              />
             </div>
           </div>
 
