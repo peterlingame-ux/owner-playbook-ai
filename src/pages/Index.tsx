@@ -155,11 +155,11 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
+      <div className="container mx-auto px-2 sm:px-4 md:px-6 py-3 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
         {/* Official Promotional Video Section - Western Minimalist Style */}
-        <section className="mb-8 sm:mb-12 lg:mb-16">
+        <section className="mb-6 sm:mb-12 lg:mb-16">
           {/* Title */}
-          <h2 className="text-xs sm:text-sm lg:text-base font-medium text-muted-foreground tracking-[0.2em] uppercase text-center mb-6 sm:mb-8">
+          <h2 className="text-[10px] sm:text-sm lg:text-base font-medium text-muted-foreground tracking-[0.15em] sm:tracking-[0.2em] uppercase text-center mb-3 sm:mb-8">
             {t('ai_analysis_title')}
           </h2>
           
@@ -198,8 +198,8 @@ const Index = () => {
               >
                 Your browser does not support video playback
               </video>
-              {/* Minimal Legend */}
-              <div className="absolute bottom-3 left-3 flex items-center gap-4 text-[10px] text-white/70">
+              {/* Minimal Legend - Hidden on mobile */}
+              <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 hidden sm:flex items-center gap-4 text-[10px] text-white/70">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-red-500/90" />
                   {t('legend_home')}
@@ -237,36 +237,24 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Mobile Stats - Horizontal Scroll */}
-          <div className="flex gap-6 overflow-x-auto pb-2 mt-4 md:hidden scrollbar-hide">
-            <div className="flex-shrink-0 min-w-[80px]">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t('realtime_monitoring')}</p>
-              <p className="text-2xl font-light text-foreground tabular-nums">{liveStats.trackedPlayers}</p>
+          {/* Mobile Stats - Compact Grid */}
+          <div className="grid grid-cols-3 gap-2 mt-3 md:hidden">
+            <div className="bg-white/5 rounded-lg p-2 text-center">
+              <p className="text-[8px] text-muted-foreground uppercase tracking-wider truncate">{t('realtime_monitoring')}</p>
+              <p className="text-lg font-light text-foreground tabular-nums">{liveStats.trackedPlayers}</p>
             </div>
-            <div className="flex-shrink-0 min-w-[80px]">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t('ai_recognition')}</p>
-              <p className="text-lg font-light text-foreground">{liveStats.homeFormation}</p>
+            <div className="bg-white/5 rounded-lg p-2 text-center">
+              <p className="text-[8px] text-muted-foreground uppercase tracking-wider truncate">{t('possession_analysis')}</p>
+              <p className="text-lg font-light text-foreground tabular-nums">{liveStats.possession}%</p>
             </div>
-            <div className="flex-shrink-0 min-w-[80px]">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t('possession_analysis')}</p>
-              <p className="text-2xl font-light text-foreground tabular-nums">{liveStats.possession}%</p>
-            </div>
-            <div className="flex-shrink-0 min-w-[80px]">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t('ai_prediction_label')}</p>
-              <p className="text-2xl font-light text-foreground tabular-nums">{liveStats.goalProbability}%</p>
-            </div>
-            <div className="flex-shrink-0 min-w-[80px]">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t('pressure_analysis')}</p>
-              <p className="text-2xl font-light text-foreground tabular-nums">{liveStats.pressureIndex}</p>
-            </div>
-            <div className="flex-shrink-0 min-w-[80px]">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t('running_stats')}</p>
-              <p className="text-2xl font-light text-foreground tabular-nums">{liveStats.totalDistance}</p>
+            <div className="bg-white/5 rounded-lg p-2 text-center">
+              <p className="text-[8px] text-muted-foreground uppercase tracking-wider truncate">{t('ai_prediction_label')}</p>
+              <p className="text-lg font-light text-foreground tabular-nums">{liveStats.goalProbability}%</p>
             </div>
           </div>
           
           {/* Disclaimer */}
-          <p className="text-[10px] text-muted-foreground/60 mt-5 text-center max-w-xl mx-auto">
+          <p className="text-[9px] sm:text-[10px] text-muted-foreground/60 mt-3 sm:mt-5 text-center max-w-xl mx-auto px-2">
             {t('ai_analysis_disclaimer')}
           </p>
         </section>
