@@ -247,23 +247,56 @@ const MobileLeaderboardOKX = () => {
     return filtered.slice(0, 20);
   }, [allPlayers, subTab, sortType]);
 
-  // Generate mini chart path
+  // Generate mini chart path - more realistic profit curve
   const generateChartPath = (id: string, changePercent: number) => {
     const width = 100;
     const height = 32;
-    const numPoints = 10;
+    const numPoints = 12;
     const seed = id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
     const isPositive = changePercent >= 0;
     
-    const points: string[] = [];
+    // Create more realistic price movements with momentum
+    const points: number[] = [];
+    let currentY = height / 2;
+    let momentum = 0;
+    
     for (let i = 0; i < numPoints; i++) {
-      const x = (i / (numPoints - 1)) * width;
-      const variance = ((seed * (i + 1)) % 12) - 6;
-      const trend = isPositive ? (i / numPoints) * 16 : -(i / numPoints) * 12;
-      const y = height / 2 - trend + variance;
-      points.push(`${i === 0 ? 'M' : 'L'}${x},${Math.max(4, Math.min(height - 4, y))}`);
+      // Seeded random for consistency
+      const rand1 = Math.sin(seed * (i + 1) * 0.1) * 0.5 + 0.5;
+      const rand2 = Math.cos(seed * (i + 2) * 0.15) * 0.5 + 0.5;
+      
+      // Add trend direction
+      const trendForce = isPositive ? -0.8 : 0.6;
+      
+      // Random walk with momentum
+      const randomChange = (rand1 - 0.5) * 6;
+      momentum = momentum * 0.3 + randomChange + trendForce;
+      currentY += momentum;
+      
+      // Occasional larger moves (volatility)
+      if (rand2 > 0.85) {
+        currentY += (rand1 - 0.5) * 4;
+      }
+      
+      // Clamp to bounds
+      currentY = Math.max(6, Math.min(height - 6, currentY));
+      points.push(currentY);
     }
-    return points.join(' ');
+    
+    // Ensure end point reflects overall trend
+    if (isPositive) {
+      points[points.length - 1] = Math.min(points[points.length - 1], height * 0.25);
+    } else {
+      points[points.length - 1] = Math.max(points[points.length - 1], height * 0.75);
+    }
+    
+    // Generate smooth curve path
+    const pathPoints = points.map((y, i) => {
+      const x = (i / (numPoints - 1)) * width;
+      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    
+    return pathPoints.join(' ');
   };
 
   const sortOptions = [
@@ -418,31 +451,31 @@ const MobileLeaderboardOKX = () => {
             </div>
 
             {/* Middle: Profit Rate + Profit Amount + Chart */}
-            <div className="flex items-end justify-between mb-4">
-              <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex-1 min-w-0">
                 {/* Profit Rate - Same Line */}
-                <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap w-12">
                     {t('profit_rate_label') || '盈利率'}
                   </span>
-                  <span className={`text-2xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <span className={`text-xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
                   </span>
                 </div>
                 {/* Profit Amount - Same Line */}
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap w-12">
                     {t('profit_amount_label') || '盈利金额'}
                   </span>
                   <span className={`text-sm font-semibold flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
-                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>
               
               {/* Mini Chart */}
-              <div className="w-24 h-10">
+              <div className="w-20 h-10 flex-shrink-0">
                 <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
                   <path
                     d={generateChartPath(model.id, model.changePercent)}
