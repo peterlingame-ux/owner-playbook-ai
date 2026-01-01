@@ -1128,102 +1128,159 @@ const MyPredictions = () => {
                   const availableToUnlock = Math.floor(invitedUsers.length / 5);
 
                   return (
-                    <>
-                      {/* Minimal Header */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            {t('collection') || 'Collection'}
-                          </p>
-                          <p className="text-2xl font-bold text-foreground">
-                            {unlockedCount}<span className="text-muted-foreground font-normal">/{ALL_STAR_CARDS.length}</span>
-                          </p>
+                    <div className="space-y-6">
+                      {/* Premium Header */}
+                      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-5 border border-zinc-700/50">
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent" />
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl" />
+                        
+                        <div className="relative flex items-center justify-between">
+                          <div>
+                            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
+                              {t('star_collection') || 'Star Collection'}
+                            </p>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                                {unlockedCount}
+                              </span>
+                              <span className="text-xl text-zinc-500">/ {ALL_STAR_CARDS.length}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
+                              {t('available_draws') || 'Available'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-3xl font-bold text-amber-400">{availableToUnlock}</span>
+                              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                <Trophy className="w-4 h-4 text-amber-400" />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">
-                            {t('available') || 'Available'}
-                          </p>
-                          <p className="text-2xl font-bold text-amber-500">
-                            {availableToUnlock}
-                          </p>
+
+                        {/* Progress to next card */}
+                        <div className="relative mt-5">
+                          <div className="flex items-center justify-between text-xs mb-2">
+                            <span className="text-zinc-400">{t('next_unlock') || 'Next unlock'}</span>
+                            <span className="text-amber-400 font-medium">{invitedUsers.length % 5}/5</span>
+                          </div>
+                          <div className="h-1.5 bg-zinc-700/50 rounded-full overflow-hidden">
+                            <motion.div 
+                              className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
+                              transition={{ duration: 0.8, ease: "easeOut" }}
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      {/* Progress Bar */}
-                      <div>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                          <span>{t('next_card') || 'Next card'}</span>
-                          <span>{invitedUsers.length % 5}/5 {t('invites') || 'invites'}</span>
-                        </div>
-                        <div className="h-1 bg-muted rounded-full overflow-hidden">
-                          <motion.div 
-                            className="h-full bg-foreground rounded-full"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Cards Grid */}
-                      <div className="grid grid-cols-4 gap-2">
+                      {/* Cards Gallery - Full Size Display */}
+                      <div className="grid grid-cols-2 gap-4">
                         {ALL_STAR_CARDS.map((card, index) => {
                           const isUnlocked = unlockedCardIds.has(playerNames[card.name_key]);
                           const playerName = t(card.name_key) || playerNames[card.name_key];
+                          const rarityColors = {
+                            legendary: { border: 'from-amber-400 via-yellow-500 to-amber-600', glow: 'shadow-amber-500/50', text: 'text-amber-400' },
+                            epic: { border: 'from-purple-400 via-pink-500 to-purple-600', glow: 'shadow-purple-500/50', text: 'text-purple-400' },
+                            rare: { border: 'from-blue-400 via-cyan-500 to-blue-600', glow: 'shadow-blue-500/50', text: 'text-blue-400' },
+                          };
+                          const rarity = rarityColors[card.rarity as keyof typeof rarityColors] || rarityColors.rare;
 
                           return (
                             <motion.div
                               key={card.id}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: index * 0.03 }}
-                              className="relative"
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05, duration: 0.4 }}
+                              className="relative group"
                             >
-                              <div
-                                className={`relative aspect-square rounded-lg overflow-hidden ${
-                                  isUnlocked ? '' : ''
-                                }`}
-                                style={{
-                                  animation: isUnlocked ? 'cardRotate 10s linear infinite' : 'none',
-                                  transformStyle: 'preserve-3d',
-                                }}
-                              >
-                                <img 
-                                  src={card.card_image} 
-                                  alt={playerName}
-                                  className={`w-full h-full object-cover transition-all duration-300 ${
-                                    isUnlocked 
-                                      ? '' 
-                                      : 'grayscale brightness-[0.08]'
-                                  }`}
-                                />
-                                
-                                {!isUnlocked && (
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
+                              {isUnlocked ? (
+                                /* Unlocked Card - Full Glow Effect */
+                                <div className="relative">
+                                  {/* Outer Glow */}
+                                  <div className={`absolute -inset-1 bg-gradient-to-r ${rarity.border} rounded-xl opacity-75 blur-sm group-hover:opacity-100 group-hover:blur-md transition-all duration-300`} />
+                                  
+                                  {/* Card Container */}
+                                  <div className={`relative rounded-xl overflow-hidden shadow-lg ${rarity.glow} shadow-xl`}>
+                                    {/* Shimmer Effect */}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -translate-x-full group-hover:translate-x-full" style={{ transition: 'transform 0.8s ease-in-out, opacity 0.3s' }} />
+                                    
+                                    <img 
+                                      src={card.card_image} 
+                                      alt={playerName}
+                                      className="w-full aspect-[2/3] object-cover"
+                                    />
+                                    
+                                    {/* Bottom Gradient Overlay */}
+                                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent" />
+                                    
+                                    {/* Player Name */}
+                                    <div className="absolute bottom-2 left-0 right-0 text-center">
+                                      <p className="text-white font-bold text-sm drop-shadow-lg">{playerName}</p>
+                                      <p className={`text-xs uppercase tracking-wider ${rarity.text}`}>
+                                        {card.rarity}
+                                      </p>
+                                    </div>
+                                    
+                                    {/* Corner Sparkles */}
+                                    <div className="absolute top-2 right-2">
+                                      <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                                        className={`w-4 h-4 ${rarity.text}`}
+                                      >
+                                        ✦
+                                      </motion.div>
+                                    </div>
                                   </div>
-                                )}
-                              </div>
-                              <p className={`text-[10px] text-center mt-1 truncate ${
-                                isUnlocked ? 'text-foreground' : 'text-zinc-700'
-                              }`}>
-                                {playerName}
-                              </p>
+                                </div>
+                              ) : (
+                                /* Locked Card - Dark State */
+                                <div className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
+                                  {/* Darkened Image */}
+                                  <img 
+                                    src={card.card_image} 
+                                    alt={playerName}
+                                    className="w-full aspect-[2/3] object-cover grayscale brightness-[0.08] contrast-75"
+                                  />
+                                  
+                                  {/* Lock Overlay */}
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                                    <div className="w-12 h-12 rounded-full bg-zinc-800/80 border border-zinc-700 flex items-center justify-center mb-2">
+                                      <svg className="w-5 h-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                      </svg>
+                                    </div>
+                                    <p className="text-zinc-500 text-xs font-medium">{t('locked') || 'LOCKED'}</p>
+                                  </div>
+                                  
+                                  {/* Bottom Info */}
+                                  <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-black/90 to-transparent" />
+                                  <div className="absolute bottom-2 left-0 right-0 text-center">
+                                    <p className="text-zinc-600 font-medium text-sm">{playerName}</p>
+                                    <p className="text-xs text-zinc-700 uppercase tracking-wider">{card.rarity}</p>
+                                  </div>
+                                </div>
+                              )}
                             </motion.div>
                           );
                         })}
                       </div>
 
-                      {/* Invite CTA */}
-                      <button 
+                      {/* Premium Invite CTA */}
+                      <motion.button 
                         onClick={() => setActiveTab('invite')}
-                        className="w-full py-3 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+                        className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-semibold text-sm flex items-center justify-center gap-2 hover:from-amber-400 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/25"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                       >
-                        {t('invite_friends') || 'Invite friends to unlock more'}
-                      </button>
-                    </>
+                        <Share2 className="w-4 h-4" />
+                        {t('invite_to_unlock') || 'Invite Friends to Unlock Cards'}
+                      </motion.button>
+                    </div>
                   );
                 })()}
               </motion.div>
