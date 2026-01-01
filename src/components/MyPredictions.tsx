@@ -1193,17 +1193,6 @@ const MyPredictions = () => {
                                         {card.rarity}
                                       </p>
                                     </div>
-                                    
-                                    {/* Corner Sparkles */}
-                                    <div className="absolute top-2 right-2">
-                                      <motion.div
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                                        className={`w-4 h-4 ${rarity.text}`}
-                                      >
-                                        ✦
-                                      </motion.div>
-                                    </div>
                                   </div>
                                 </div>
                               ) : (
