@@ -103,6 +103,8 @@ const MyPredictions = () => {
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
   const [isVipActive, setIsVipActive] = useState(false);
+  const [starCards, setStarCards] = useState<Array<{ id: string; card_name: string; card_image: string; rarity: string; obtained_at: string }>>([]);
+  const [isLoadingStarCards, setIsLoadingStarCards] = useState(false);
 
   // Fetch VIP status
   useEffect(() => {
@@ -380,6 +382,38 @@ const MyPredictions = () => {
       fetchInvitedUsers();
     }
   }, [activeTab, userProfile?.invitation_code]);
+
+  // Fetch star cards
+  const fetchStarCards = async () => {
+    if (!user) {
+      // Demo data for non-logged in users
+      setStarCards([
+        { id: '1', card_name: '梅西', card_image: '/players/player-1.png', rarity: 'legendary', obtained_at: new Date(Date.now() - 86400000 * 2).toISOString() },
+        { id: '2', card_name: 'C罗', card_image: '/players/player-2.png', rarity: 'legendary', obtained_at: new Date(Date.now() - 86400000 * 5).toISOString() },
+      ]);
+      return;
+    }
+    
+    setIsLoadingStarCards(true);
+    try {
+      const { data } = await supabase
+        .from('star_cards')
+        .select('id, card_name, card_image, rarity, obtained_at')
+        .eq('user_id', user.id)
+        .order('obtained_at', { ascending: false });
+      setStarCards(data || []);
+    } catch (error) {
+      console.error('Error fetching star cards:', error);
+    } finally {
+      setIsLoadingStarCards(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'starcard') {
+      fetchStarCards();
+    }
+  }, [activeTab, user]);
 
   const handleSaveProfile = async () => {
     if (!user) {
@@ -1060,15 +1094,131 @@ const MyPredictions = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="py-4 space-y-4"
               >
-                {/* Star Card Collection */}
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center">
-                    <Crown className="w-10 h-10 text-amber-400" />
+                {/* Stats Header */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">{t('star_card_collection') || '球星卡收藏'}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {t('total_cards', { count: starCards.length }) || `共 ${starCards.length} 张球星卡`}
+                    </p>
                   </div>
-                  <h3 className="text-lg font-bold text-foreground">{t('star_card_collection') || '球星卡收藏'}</h3>
-                  <p className="text-sm text-muted-foreground mt-2">{t('star_card_coming_soon') || '球星卡功能即将上线'}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t('star_card_hint') || '收集专属球星卡，解锁特殊权益'}</p>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                    <Crown className="w-4 h-4 text-amber-400" />
+                    <span className="text-sm font-medium text-amber-400">
+                      {Math.floor(invitedUsers.length / 5)} {t('cards_earned') || '张已解锁'}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Invite Progress Hint */}
+                <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Share2 className="w-4 h-4" />
+                    <span>{t('invite_to_unlock') || '每邀请5位新玩家解锁1张球星卡'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500"
+                        style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-foreground">{invitedUsers.length % 5}/5</span>
+                  </div>
+                </div>
+
+                {/* Star Cards Grid */}
+                {isLoadingStarCards ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 animate-pulse" />
+                    ))}
+                  </div>
+                ) : starCards.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {starCards.map((card, index) => {
+                      const rarityColors: Record<string, string> = {
+                        legendary: 'from-amber-400 via-yellow-300 to-amber-500',
+                        epic: 'from-purple-400 via-pink-300 to-purple-500',
+                        rare: 'from-blue-400 via-cyan-300 to-blue-500',
+                        common: 'from-gray-400 via-gray-300 to-gray-500',
+                      };
+                      const rarityBorder: Record<string, string> = {
+                        legendary: 'border-amber-400/50',
+                        epic: 'border-purple-400/50',
+                        rare: 'border-blue-400/50',
+                        common: 'border-border',
+                      };
+                      const rarityLabel: Record<string, string> = {
+                        legendary: '传奇',
+                        epic: '史诗',
+                        rare: '稀有',
+                        common: '普通',
+                      };
+
+                      return (
+                        <motion.div
+                          key={card.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className={`relative aspect-[3/4] rounded-xl overflow-hidden border-2 ${rarityBorder[card.rarity] || 'border-border'}`}
+                          style={{
+                            background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%)',
+                          }}
+                        >
+                          {/* Rarity Glow Effect */}
+                          <div 
+                            className={`absolute inset-0 opacity-20 bg-gradient-to-br ${rarityColors[card.rarity] || rarityColors.common}`}
+                          />
+                          
+                          {/* Card Image */}
+                          <div className="absolute inset-0 flex items-center justify-center p-4">
+                            <img 
+                              src={card.card_image} 
+                              alt={card.card_name}
+                              className="w-full h-full object-contain drop-shadow-lg"
+                            />
+                          </div>
+
+                          {/* Card Info Overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                            <p className="text-sm font-bold text-white truncate">{card.card_name}</p>
+                            <div className="flex items-center justify-between mt-1">
+                              <span className={`text-xs font-medium bg-gradient-to-r ${rarityColors[card.rarity] || rarityColors.common} bg-clip-text text-transparent`}>
+                                {rarityLabel[card.rarity] || '普通'}
+                              </span>
+                              <span className="text-xs text-white/60">
+                                {format(new Date(card.obtained_at), 'MM/dd')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Shine Effect for Legendary */}
+                          {card.rarity === 'legendary' && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 flex items-center justify-center">
+                      <Crown className="w-10 h-10 text-muted-foreground/50" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t('no_star_cards') || '暂无球星卡'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('invite_to_get_cards') || '邀请好友获得专属球星卡'}</p>
+                    <Button 
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => setActiveTab('invite')}
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      {t('go_invite') || '去邀请'}
+                    </Button>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

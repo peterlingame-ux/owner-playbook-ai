@@ -186,6 +186,39 @@ export type Database = {
         }
         Relationships: []
       }
+      star_cards: {
+        Row: {
+          card_image: string
+          card_name: string
+          created_at: string
+          id: string
+          obtained_at: string
+          obtained_via: string
+          rarity: string
+          user_id: string
+        }
+        Insert: {
+          card_image: string
+          card_name: string
+          created_at?: string
+          id?: string
+          obtained_at?: string
+          obtained_via?: string
+          rarity?: string
+          user_id: string
+        }
+        Update: {
+          card_image?: string
+          card_name?: string
+          created_at?: string
+          id?: string
+          obtained_at?: string
+          obtained_via?: string
+          rarity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       usdt_wallets: {
         Row: {
           balance: number
