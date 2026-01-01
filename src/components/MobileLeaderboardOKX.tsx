@@ -478,9 +478,9 @@ const MobileLeaderboardOKX = () => {
           </motion.div>
         ))}
 
-        {/* Bottom Section: Winning Model Card + Bar Chart */}
-        <div className="mt-6 space-y-4">
-          {/* Winning Model Card - Mobile Optimized */}
+        {/* Bottom Section: Winning Model Card + Bar Chart - Side by Side */}
+        <div className="mt-6 grid grid-cols-2 gap-2">
+          {/* Winning Model Card - Compact */}
           <Card className="relative overflow-hidden">
             {/* Background Image */}
             <div 
@@ -494,47 +494,47 @@ const MobileLeaderboardOKX = () => {
             {/* Dark gradient for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
             
-            <CardContent className="p-4 relative z-10">
-              <h3 className="text-xs font-bold mb-3 text-white/80">{t('winning_model') || '获胜模型'}</h3>
-              <div className="flex items-center gap-2 mb-4">
+            <CardContent className="p-3 relative z-10 h-full flex flex-col">
+              <h3 className="text-[10px] font-bold mb-2 text-white/80">{t('winning_model') || '获胜模型'}</h3>
+              <div className="flex items-center gap-1.5 mb-2">
                 <img 
                   src={getAIIcon(winningModel.id)} 
                   alt={winningModel.name} 
-                  className="h-8 w-8"
+                  className="h-6 w-6"
                   style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                 />
-                <span className="text-lg font-bold text-white">{winningModel.displayName.split(' ')[0]}</span>
+                <span className="text-sm font-bold text-white truncate">{winningModel.displayName.split(' ')[0]}</span>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-1.5 flex-1">
                 <div>
-                  <p className="text-xs text-white/70 mb-1">{t('win_rate_label') || '胜率'}</p>
-                  <p className="text-xl font-bold font-mono text-white">
+                  <p className="text-[9px] text-white/70">{t('win_rate_label') || '胜率'}</p>
+                  <p className="text-lg font-bold font-mono text-white">
                     {winningModel.winRate}%
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-white/70 mb-1">{t('correct_predictions_label') || '正确预测'}</p>
-                  <p className="text-lg font-bold font-mono text-success">
+                  <p className="text-[9px] text-white/70">{t('correct_predictions_label') || '正确预测'}</p>
+                  <p className="text-sm font-bold font-mono text-success">
                     {winningModel.correctPredictions} / {winningModel.totalPredictions}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-white/70 mb-2">{t('active_matches') || '活跃比赛'}</p>
-                  <div className="flex gap-1.5 flex-wrap">
-                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] text-white flex items-center gap-1">
-                      <GoalIcon size={12} className="flex-shrink-0" />
-                      <span>Premier League</span>
+                  <p className="text-[9px] text-white/70 mb-1">{t('active_matches') || '活跃比赛'}</p>
+                  <div className="flex gap-1 flex-wrap">
+                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
+                      <GoalIcon size={8} className="flex-shrink-0" />
+                      <span>Premier</span>
                     </div>
-                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] text-white flex items-center gap-1">
-                      <GoalIcon size={12} className="flex-shrink-0" />
+                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
+                      <GoalIcon size={8} className="flex-shrink-0" />
                       <span>La Liga</span>
                     </div>
-                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] text-white flex items-center gap-1">
-                      <GoalIcon size={12} className="flex-shrink-0" />
-                      <span>Bundesliga</span>
+                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
+                      <GoalIcon size={8} className="flex-shrink-0" />
+                      <span>Bundes</span>
                     </div>
                   </div>
                 </div>
@@ -542,7 +542,7 @@ const MobileLeaderboardOKX = () => {
             </CardContent>
           </Card>
 
-          {/* Bar Chart - Mobile Optimized */}
+          {/* Bar Chart - Compact */}
           <Card className="relative overflow-hidden">
             {/* Grass texture background */}
             <div 
@@ -556,11 +556,11 @@ const MobileLeaderboardOKX = () => {
             {/* Dark overlay for contrast */}
             <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
             
-            <CardContent className="p-4 relative z-10">
-              <div className="flex items-end gap-2 h-[180px]">
+            <CardContent className="p-2 relative z-10 h-full">
+              <div className="flex items-end gap-1 h-full min-h-[180px]">
                 {(() => {
-                  const maxHeight = 150;
-                  const minHeight = 30;
+                  const maxHeight = 130;
+                  const minHeight = 25;
                   const baseWinRate = 100;
                   
                   return modelsWithStats.map((model) => {
@@ -568,12 +568,12 @@ const MobileLeaderboardOKX = () => {
                     const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
                     
                     return (
-                      <div key={model.id} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-                        <div className="text-[9px] font-mono font-bold mb-1">
+                      <div key={model.id} className="flex-1 flex flex-col items-center gap-0.5 min-w-0">
+                        <div className="text-[7px] font-mono font-bold">
                           {model.winRate.toFixed(1)}%
                         </div>
                         <div 
-                          className="w-full rounded-t-lg relative flex items-end justify-center pb-2 transition-all duration-300 shadow-lg"
+                          className="w-full rounded-t-md relative flex items-end justify-center pb-1 transition-all duration-300 shadow-md"
                           style={{ 
                             height: `${heightPx}px`,
                             backgroundColor: `hsl(var(--${model.color}))`,
@@ -582,12 +582,12 @@ const MobileLeaderboardOKX = () => {
                           <img 
                             src={getAIIcon(model.id)} 
                             alt={model.name}
-                            className="h-5 w-5 object-contain"
+                            className="h-3.5 w-3.5 object-contain"
                             style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                           />
                         </div>
-                        <div className="text-[8px] text-center font-medium text-muted-foreground truncate w-full px-0.5">
-                          {model.displayName.split(' ')[0].substring(0, 6)}...
+                        <div className="text-[6px] text-center font-medium text-muted-foreground truncate w-full">
+                          {model.displayName.split(' ')[0].substring(0, 5)}...
                         </div>
                       </div>
                     );
