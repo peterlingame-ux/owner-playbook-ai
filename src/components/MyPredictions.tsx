@@ -465,27 +465,6 @@ const MyPredictions = () => {
     <div className="min-h-screen bg-background pb-24">
       {/* Profile Header - Matching Reference Design Exactly */}
       <div className="relative px-4 pt-4">
-        {/* Top Right Icons - Settings and Share */}
-        <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
-          <button 
-            className="w-12 h-12 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center hover:bg-muted transition-colors"
-            style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: userProfile?.display_name || 'HUNSOCCER',
-                  text: `Check out ${userProfile?.display_name}'s predictions!`,
-                  url: window.location.href,
-                });
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-                toast.success(t('link_copied') || 'Link copied!');
-              }
-            }}
-          >
-            <Send className="w-6 h-6 text-muted-foreground" />
-          </button>
-        </div>
 
         {/* 3D Avatar Section with Sky Background */}
         <div className="relative w-full max-w-[380px] mx-auto">
