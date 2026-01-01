@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -1171,7 +1172,85 @@ const PlayerCopyTradingBoard = () => {
       </div>
 
       {/* Leaderboard Table - Split into Hot Streak and Cold Streak */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Mobile: Use Accordion for collapsible sections */}
+      <div className="block sm:hidden">
+        <Accordion type="single" collapsible defaultValue="hot" className="space-y-2">
+          {/* 连红榜 - Winning Streak */}
+          <AccordionItem value="hot" className="border border-border/50 rounded-lg bg-card/50 overflow-hidden relative">
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
+              style={{ backgroundImage: `url(${winningStreakBg})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
+            <AccordionTrigger className="px-3 py-2.5 hover:no-underline hover:bg-muted/30 relative z-10">
+              <div className="flex items-center justify-between w-full pr-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-foreground">预测者连红榜</div>
+                    <p className="text-[10px] text-muted-foreground">准确率最高预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllHotPlayers(true);
+                  }}
+                  className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                >
+                  {t('all_players')}
+                </button>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pb-3 pt-0 relative z-10">
+              <div className="space-y-1.5">
+                {topStreakPlayers.map((player, index) => (
+                  <PlayerCard key={player.id} player={player} showStreak streakType="best" rank={index + 1} />
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* 连黑榜 - Losing Streak */}
+          <AccordionItem value="cold" className="border border-border/50 rounded-lg bg-card/50 overflow-hidden relative">
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.05]"
+              style={{ backgroundImage: `url(${losingStreakBg})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
+            <AccordionTrigger className="px-3 py-2.5 hover:no-underline hover:bg-muted/30 relative z-10">
+              <div className="flex items-center justify-between w-full pr-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-foreground">预测者连黑榜</div>
+                    <p className="text-[10px] text-muted-foreground">准确率最低预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllColdPlayers(true);
+                  }}
+                  className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                >
+                  {t('all_players')}
+                </button>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pb-3 pt-0 relative z-10">
+              <div className="space-y-1.5">
+                {worstStreakPlayers.map((player, index) => (
+                  <PlayerCard key={player.id} player={player} showStreak streakType="worst" rank={index + 1} />
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+
+      {/* Desktop: Original Card layout */}
+      <div className="hidden sm:grid sm:grid-cols-1 gap-4">
         {/* 连红榜 - Winning Streak */}
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
           {/* 背景图片 */}
