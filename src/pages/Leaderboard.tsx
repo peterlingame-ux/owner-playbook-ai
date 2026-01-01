@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
+import MobileFooter from "@/components/MobileFooter";
 import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
@@ -29,8 +30,8 @@ const Leaderboard = () => {
         <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
         <Header />
         <MobileLeaderboardOKX />
+        <MobileFooter />
         <BottomNav />
-        <div className="h-16" />
       </div>
     );
   }

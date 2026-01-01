@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
+import MobileFooter from "@/components/MobileFooter";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -1054,11 +1055,11 @@ const History = () => {
       {/* Footer - hidden on mobile */}
       {!isMobile && <Footer />}
       
+      {/* Mobile Footer */}
+      {isMobile && <MobileFooter />}
+      
       {/* Mobile Bottom Navigation */}
       {isMobile && <BottomNav />}
-      
-      {/* Bottom padding for mobile */}
-      {isMobile && <div className="h-16" />}
     </div>
   );
 };
