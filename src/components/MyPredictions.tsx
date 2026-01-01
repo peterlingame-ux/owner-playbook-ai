@@ -897,24 +897,6 @@ const MyPredictions = () => {
                   </div>
                 </div>
 
-                {/* Balance Card */}
-                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('hunter_balance') || 'Hunter Coin Balance'}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-2xl font-bold text-foreground">{(stats?.balance || 10000).toLocaleString()}</p>
-                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
-                      </div>
-                    </div>
-                    <Button 
-                      size="sm"
-                      onClick={() => setIsBetDialogOpen(true)}
-                    >
-                      {t('bet_now') || 'Bet Now'}
-                    </Button>
-                  </div>
-                </div>
               </motion.div>
             )}
 
