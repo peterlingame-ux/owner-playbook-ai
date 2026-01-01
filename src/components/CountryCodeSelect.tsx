@@ -70,7 +70,7 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
               placeholder={i18n.language === "ko" ? "국가 검색..." : i18n.language === "zh" ? "搜索国家..." : "Search country..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-9 bg-white/5 border-white/10 text-white text-sm placeholder:text-white/40"
+              className="pl-8 h-9 bg-white/5 border-white/10 text-white text-base placeholder:text-white/40"
             />
           </div>
         </div>
