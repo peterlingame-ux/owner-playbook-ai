@@ -423,13 +423,16 @@ const MobileLeaderboardOKX = () => {
             <div className="flex items-end justify-between mb-4">
               <div>
                 <p className="text-[10px] text-muted-foreground mb-1">
-                  {t('90d_profit') || '近90日收益率'}
+                  {t('profit_rate_label') || '盈利率'}
                 </p>
                 <p className={`text-3xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
                 </p>
                 {/* Profit Amount with Hunter Coin */}
-                <p className={`text-sm font-semibold mt-1 flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <p className="text-[10px] text-muted-foreground mt-2 mb-0.5">
+                  {t('profit_amount_label') || '盈利金额'}
+                </p>
+                <p className={`text-sm font-semibold flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
                   <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                 </p>
