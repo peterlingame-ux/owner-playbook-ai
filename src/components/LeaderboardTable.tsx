@@ -688,18 +688,87 @@ const LeaderboardTable = () => {
               return (
                 <div 
                       key={model.id}
-                  className="bg-muted/20 rounded-lg border border-border/30 p-3 sm:p-4 hover:bg-muted/30 transition-colors"
+                  className="bg-muted/20 rounded-lg border border-border/30 p-2 sm:p-4 hover:bg-muted/30 transition-colors"
                 >
-                  {/* Top Row: Avatar, Name, Buttons */}
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3">
-                      {/* Rank Badge */}
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                        <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
-                        </div>
+                  {/* Mobile Layout */}
+                  <div className="sm:hidden">
+                    {/* Row 1: Rank + Avatar + Name + Win Rate */}
+                    <div className="flex items-center gap-2 mb-2">
+                      {/* Rank */}
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                        <span className="text-[10px] font-semibold text-muted-foreground">{index + 1}</span>
+                      </div>
                       {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        <div className={`w-10 h-10 sm:w-12 sm:h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 overflow-hidden`}>
+                      <div className={`flex-shrink-0 w-8 h-8 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1 flex items-center justify-center border border-border/40 overflow-hidden`}>
+                        <img 
+                          src={getModelIcon(model.id)} 
+                          alt={model.name} 
+                          className={`w-full h-full ${model.id === 'hunsoccermax' && user ? 'object-cover' : 'object-contain'}`}
+                          style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                        />
+                      </div>
+                      {/* Name */}
+                      <div className="flex-1 min-w-0">
+                        <span className="font-semibold text-xs text-foreground truncate block">{getModelDisplayName(model)}</span>
+                      </div>
+                      {/* Win Rate */}
+                      <div className="flex-shrink-0 text-right">
+                        <AnimatedWinRate 
+                          value={model.winRate}
+                          className="text-sm font-bold font-mono-data text-success"
+                          trend={todayWinRates.get(model.id) ? todayWinRates.get(model.id)!.winRate - model.winRate : undefined}
+                          showTrend={todayWinRates.has(model.id)}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Row 2: Stats - 3 columns */}
+                    <div className="grid grid-cols-3 gap-2 text-center mb-2">
+                      <div>
+                        <p className="text-[9px] text-muted-foreground">预测</p>
+                        <p className="text-xs font-bold text-foreground">{model.totalPredictions || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] text-muted-foreground">正确</p>
+                        <p className="text-xs font-bold text-success">{model.locked ? '?' : (model as any).correctPredictions || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] text-muted-foreground">盈利率</p>
+                        <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          {model.locked ? '?' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(0)}%`}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Row 3: Buttons */}
+                    <div className="flex items-center justify-end gap-1">
+                      <button 
+                        onClick={() => navigate('/history')}
+                        className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40"
+                      >
+                        历史预测
+                      </button>
+                      <button 
+                        onClick={() => openCopyTradeDialog(model.id, getModelDisplayName(model))}
+                        className="px-2 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground"
+                      >
+                        自动追踪
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <div className="hidden sm:block">
+                    {/* Top Row: Avatar, Name, Buttons */}
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-3">
+                        {/* Rank Badge */}
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                          <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
+                        </div>
+                        {/* Avatar */}
+                        <div className="relative flex-shrink-0">
+                          <div className={`w-12 h-12 ${model.id === 'hunsoccermax' && user ? 'rounded-full' : 'rounded-lg'} bg-background/60 p-1.5 flex items-center justify-center border border-border/40 overflow-hidden`}>
                             <img 
                               src={getModelIcon(model.id)} 
                               alt={model.name} 
@@ -708,179 +777,151 @@ const LeaderboardTable = () => {
                             />
                           </div>
                         </div>
-                      {/* Name & Stats */}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm sm:text-base text-foreground">{getModelDisplayName(model)}</span>
-                          {/* Like Button */}
-                          <div className="relative">
-                            <button
-                              onClick={handleLike}
-                              disabled={isLoading}
-                              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full transition-all shadow-sm ${
-                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                              } ${
-                                isLiked 
-                                  ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                                  : 'bg-background border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-                              }`}
-                              title={isLiked ? '取消点赞' : '点赞'}
-                            >
-                              <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-                              <span className="text-[10px] font-medium">{likeCount}</span>
-                            </button>
-                            {/* Floating Hearts Animation */}
-                            <AnimatePresence>
-                              {floatingHearts.get(model.id)?.map((heartId, idx) => (
-                                <motion.div
-                                  key={heartId}
-                                  initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
-                                  animate={{ 
-                                    opacity: 0, 
-                                    y: -40, 
-                                    x: (idx - 1) * 12,
-                                    scale: 1,
-                                    rotate: (idx - 1) * 15
-                                  }}
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.8, ease: "easeOut" }}
-                                  className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
-                                >
-                                  <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-                                </motion.div>
-                              ))}
-                            </AnimatePresence>
+                        {/* Name & Stats */}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-base text-foreground">{getModelDisplayName(model)}</span>
+                            {/* Like Button */}
+                            <div className="relative">
+                              <button
+                                onClick={handleLike}
+                                disabled={isLoading}
+                                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full transition-all shadow-sm ${
+                                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                } ${
+                                  isLiked 
+                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                    : 'bg-background border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                                }`}
+                                title={isLiked ? '取消点赞' : '点赞'}
+                              >
+                                <ThumbsUp className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
+                                <span className="text-[10px] font-medium">{likeCount}</span>
+                              </button>
+                              <AnimatePresence>
+                                {floatingHearts.get(model.id)?.map((heartId, idx) => (
+                                  <motion.div
+                                    key={heartId}
+                                    initial={{ opacity: 1, y: 0, x: 0, scale: 0.5 }}
+                                    animate={{ opacity: 0, y: -40, x: (idx - 1) * 12, scale: 1, rotate: (idx - 1) * 15 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    className="absolute -top-1 left-1/2 -translate-x-1/2 pointer-events-none"
+                                  >
+                                    <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
+                                  </motion.div>
+                                ))}
+                              </AnimatePresence>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <button 
-                        onClick={() => navigate('/history')}
-                        className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
-                      >
-                        历史预测
-                      </button>
-                      {(() => {
-                        const isFull = ((model as any).followerCount || 0) >= ((model as any).followerLimit || 1000);
-                        return (
-                          <button 
-                            onClick={() => {
-                              if (isFull) {
-                                toast({
-                                  title: t('subscription_full'),
-                                  description: t('subscription_full_desc', { model: getModelDisplayName(model) }),
-                                  variant: "destructive",
-                                });
-                                return;
-                              }
-                              openCopyTradeDialog(model.id, getModelDisplayName(model));
-                            }}
-                            disabled={isFull}
-                            className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md transition-colors flex items-center gap-1 ${
-                              isFull 
-                                ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-60' 
-                                : 'bg-warning text-warning-foreground hover:bg-warning/90'
-                            }`}
-                          >
-                            {isFull ? '名额已满' : '自动追踪'}
-                          </button>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                  
-                  {/* Stats Grid - Row 1: 预测, 正确场次, 错误场次, 胜率 */}
-                  <div className="grid grid-cols-4 gap-3 sm:gap-4">
-                    {/* Total Predictions */}
-                    <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测</p>
-                      <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
-                        {model.totalPredictions || 0}场
-                      </p>
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => navigate('/history')}
+                          className="px-3 py-1.5 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                        >
+                          历史预测
+                        </button>
+                        {(() => {
+                          const isFull = ((model as any).followerCount || 0) >= ((model as any).followerLimit || 1000);
+                          return (
+                            <button 
+                              onClick={() => {
+                                if (isFull) {
+                                  toast({
+                                    title: t('subscription_full'),
+                                    description: t('subscription_full_desc', { model: getModelDisplayName(model) }),
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                openCopyTradeDialog(model.id, getModelDisplayName(model));
+                              }}
+                              disabled={isFull}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1 ${
+                                isFull 
+                                  ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-60' 
+                                  : 'bg-warning text-warning-foreground hover:bg-warning/90'
+                              }`}
+                            >
+                              {isFull ? '名额已满' : '自动追踪'}
+                            </button>
+                          );
+                        })()}
+                      </div>
                     </div>
                     
-                    {/* Correct Predictions */}
-                    <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确</p>
-                      <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
-                        {model.locked ? '???' : `${(model as any).correctPredictions || 0}场`}
-                      </p>
-                    </div>
-                    
-                    {/* Incorrect Predictions */}
-                    <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误</p>
-                      <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
-                        {model.locked ? '???' : `${(model.totalPredictions || 0) - ((model as any).correctPredictions || 0)}场`}
-                      </p>
-                    </div>
-                    
-                    {/* Win Rate */}
-                    <div className="text-right">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测准确率</p>
+                    {/* Stats Grid - Row 1 */}
+                    <div className="grid grid-cols-4 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">预测</p>
+                        <p className="text-lg font-bold font-mono-data text-foreground">{model.totalPredictions || 0}场</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground mb-1">正确</p>
+                        <p className="text-lg font-bold font-mono-data text-success">{model.locked ? '???' : `${(model as any).correctPredictions || 0}场`}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground mb-1">错误</p>
+                        <p className="text-lg font-bold font-mono-data text-destructive">{model.locked ? '???' : `${(model.totalPredictions || 0) - ((model as any).correctPredictions || 0)}场`}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground mb-1">预测准确率</p>
                         <AnimatedWinRate 
                           value={model.winRate}
-                        className="text-sm sm:text-lg font-bold font-mono-data text-success"
-                        trend={todayWinRates.get(model.id) ? todayWinRates.get(model.id)!.winRate - model.winRate : undefined}
-                        showTrend={todayWinRates.has(model.id)}
-                      />
+                          className="text-lg font-bold font-mono-data text-success"
+                          trend={todayWinRates.get(model.id) ? todayWinRates.get(model.id)!.winRate - model.winRate : undefined}
+                          showTrend={todayWinRates.has(model.id)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Stats Grid - Row 2: 投注金额, 盈利金额, 盈利率, 跟单人数 */}
-                  <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
-                    {/* Bet Amount */}
-                    <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('virtual_bet_label')}</p>
-                      <p className="text-sm sm:text-base font-bold font-mono-data text-foreground flex items-center gap-1">
+                    
+                    {/* Stats Grid - Row 2 */}
+                    <div className="grid grid-cols-4 gap-4 mt-3 pt-3 border-t border-border/50">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">{t('virtual_bet_label')}</p>
+                        <p className="text-base font-bold font-mono-data text-foreground flex items-center gap-1">
                           {model.locked ? '???' : (
                             <>
                               {((model as any).totalBetAmount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                              <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5 inline-block" />
+                              <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5 inline-block" />
                             </>
                           )}
-                      </p>
-            </div>
-                    
-                    {/* Profit Amount */}
-                    <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
-                      <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                        {model.locked ? (
-                          '???'
-                        ) : (
-                          <span className="inline-flex items-center gap-1">
-                            {profitAmount >= 0 ? '+' : '-'}
-                            {Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                            <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    
-                    {/* Profit Rate */}
-                    <div className="text-center">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
-                      <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-                        {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
-                      </p>
-                    </div>
-                    
-                    {/* Copy Traders - Clickable */}
-                    <div 
-                      className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
-                      onClick={() => {
-                        const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
-                        setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
-                        setIsFollowersDialogOpen(true);
-                      }}
-                    >
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
-                      <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
-                        {((model as any).followerCount || 0).toLocaleString()}{t('people_suffix')}
-                      </p>
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
+                        <p className={`text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          {model.locked ? '???' : (
+                            <span className="inline-flex items-center gap-1">
+                              {profitAmount >= 0 ? '+' : '-'}
+                              {Math.abs(profitAmount).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
+                        <p className={`text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
+                        </p>
+                      </div>
+                      <div 
+                        className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+                        onClick={() => {
+                          const followers = generateMockFollowers(model.id, (model as any).followerCount || 0);
+                          setSelectedModelFollowers({ modelId: model.id, modelName: getModelDisplayName(model), followers });
+                          setIsFollowersDialogOpen(true);
+                        }}
+                      >
+                        <p className="text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
+                        <p className="text-base font-bold font-mono-data text-primary hover:underline">
+                          {((model as any).followerCount || 0).toLocaleString()}{t('people_suffix')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
