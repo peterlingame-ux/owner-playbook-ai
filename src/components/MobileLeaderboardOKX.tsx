@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, Bot, Zap } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, Bot, Zap, CheckCircle, XCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -290,6 +290,9 @@ const MobileLeaderboardOKX = () => {
       const changePercent = 10 + (seed % 30) - 5;
       const totalPredictions = 25 + (seed % 10);
       const correctPredictions = Math.round(totalPredictions * (winRate / 100));
+      const wrongPredictions = totalPredictions - correctPredictions;
+      // Calculate profit amount based on changePercent
+      const profitAmount = Math.round((changePercent / 100) * (10000 + seed * 10));
       return {
         ...model,
         winRate: Math.round(winRate * 10) / 10,
@@ -298,6 +301,8 @@ const MobileLeaderboardOKX = () => {
         tradingDays: 30 + (seed % 60),
         totalPredictions,
         correctPredictions,
+        wrongPredictions,
+        profitAmount,
       };
     }).sort((a, b) => b.winRate - a.winRate);
 
@@ -315,7 +320,7 @@ const MobileLeaderboardOKX = () => {
             onClick={() => navigate(`/models?model=${model.id}`)}
             className="bg-card/50 rounded-xl p-4 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform"
           >
-            {/* Top: Icon + Name + Badge */}
+            {/* Top: Icon + Name + Predictions Count */}
             <div className="flex items-start gap-3 mb-3">
               <div className="relative">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden">
@@ -336,11 +341,13 @@ const MobileLeaderboardOKX = () => {
                   {model.name}
                   <Bot className="h-3.5 w-3.5 text-primary" />
                 </h3>
-                <p className="text-xs text-muted-foreground line-clamp-1">{(model as any).specialty || 'AI预测专家'}</p>
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {t('predicted_matches', { count: model.totalPredictions }) || `预测${model.totalPredictions}场`}
+                </p>
               </div>
             </div>
 
-            {/* Middle: Profit Rate + Chart */}
+            {/* Middle: Profit Rate + Profit Amount + Chart */}
             <div className="flex items-end justify-between mb-4">
               <div>
                 <p className="text-[10px] text-muted-foreground mb-1">
@@ -348,6 +355,10 @@ const MobileLeaderboardOKX = () => {
                 </p>
                 <p className={`text-3xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
+                </p>
+                {/* Profit Amount */}
+                <p className={`text-sm font-semibold mt-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
                 </p>
               </div>
               
@@ -366,21 +377,21 @@ const MobileLeaderboardOKX = () => {
               </div>
             </div>
 
-            {/* Bottom Stats */}
+            {/* Bottom Stats: Correct, Wrong, Win Rate */}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {model.followers}
+                <span className="flex items-center gap-1 text-success">
+                  <CheckCircle className="h-3 w-3" />
+                  {t('correct_matches_count', { count: model.correctPredictions }) || `正确${model.correctPredictions}场`}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {model.tradingDays}{t('days') || '天'}
+                <span className="flex items-center gap-1 text-destructive">
+                  <XCircle className="h-3 w-3" />
+                  {t('wrong_matches_count', { count: model.wrongPredictions }) || `错误${model.wrongPredictions}场`}
                 </span>
               </div>
               <div className="flex items-center gap-1 text-success font-medium">
                 <Zap className="h-3 w-3" />
-                {model.winRate}%
+                {t('win_rate_prefix') || '胜率'}{model.winRate}%
               </div>
             </div>
           </motion.div>
