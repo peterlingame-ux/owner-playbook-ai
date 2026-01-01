@@ -956,9 +956,12 @@ const MyPredictions = () => {
                       </p>
                     </div>
                     <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('followers_count_label') || 'Followers'}</p>
-                      <p className="text-xl font-bold text-white">
-                        {followersList.length}<span className="text-zinc-400 text-sm ml-0.5">{t('people_suffix') || ''}</span>
+                      <p className="text-xs text-zinc-400 mb-2">{t('challenge_ai') || 'Challenge AI'}</p>
+                      <p className={`text-xl font-bold ${(stats?.winRate || 0) >= 60 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {(stats?.winRate || 0) >= 60 
+                          ? (t('qualified_status') || 'Qualified')
+                          : (t('not_qualified') || 'Not Qualified')
+                        }
                       </p>
                     </div>
                   </div>
