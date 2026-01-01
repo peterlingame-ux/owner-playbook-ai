@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, Bot, Zap } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { aiModels } from "@/data/mockData";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import ChallengeAIBanner from "@/components/ChallengeAIBanner";
+import { GoalIcon } from "@/components/FootballIcons";
 
 // AI Model Icons
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -18,6 +20,15 @@ import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
 import hunsoccerIcon from "@/assets/hunsoccer-ai-icon.png";
+
+// Expert Images
+import starRonaldo from "@/assets/star-ronaldo.jpg";
+import starMessi from "@/assets/star-messi.jpg";
+import starHaaland from "@/assets/star-haaland.jpg";
+import starMbappe from "@/assets/star-mbappe.jpg";
+import starNeymar from "@/assets/star-neymar.jpg";
+import starHunsoccer from "@/assets/star-hunsoccer.jpg";
+import grassTexture from "@/assets/grass-texture.jpg";
 
 interface PlayerData {
   id: string;
@@ -56,6 +67,32 @@ const getAIIcon = (modelId: string) => {
     'hunsoccer-max': hunsoccerIcon,
   };
   return iconMap[modelId] || hunsoccerIcon;
+};
+
+// Expert images mapping
+const getExpertImage = (modelId: string) => {
+  switch(modelId) {
+    case 'deepseek': return starRonaldo;
+    case 'gpt5': return starNeymar;
+    case 'claude': return starMessi;
+    case 'gemini': return starHaaland;
+    case 'grok': return starMbappe;
+    case 'hunsoccer-max': return starHunsoccer;
+    default: return starRonaldo;
+  }
+};
+
+// Color tint mapping
+const getColorTint = (modelId: string) => {
+  switch(modelId) {
+    case 'deepseek': return 'from-[hsl(217,91%,65%)]/80 to-[hsl(217,91%,45%)]/80';
+    case 'gpt5': return 'from-[hsl(0,0%,35%)]/80 to-[hsl(0,0%,20%)]/80';
+    case 'claude': return 'from-[hsl(14,92%,68%)]/80 to-[hsl(14,92%,50%)]/80';
+    case 'gemini': return 'from-[hsl(250,75%,68%)]/80 to-[hsl(250,75%,50%)]/80';
+    case 'grok': return 'from-[hsl(158,68%,60%)]/80 to-[hsl(158,68%,45%)]/80';
+    case 'hunsoccer-max': return 'from-[hsl(38,92%,50%)]/80 to-[hsl(38,92%,40%)]/80';
+    default: return 'from-[hsl(217,91%,65%)]/80 to-[hsl(217,91%,45%)]/80';
+  }
 };
 
 const MobileLeaderboardOKX = () => {
@@ -251,17 +288,24 @@ const MobileLeaderboardOKX = () => {
       const seed = model.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const winRate = 55 + (seed % 20) + (Math.sin(seed) * 5);
       const changePercent = 10 + (seed % 30) - 5;
+      const totalPredictions = 25 + (seed % 10);
+      const correctPredictions = Math.round(totalPredictions * (winRate / 100));
       return {
         ...model,
         winRate: Math.round(winRate * 10) / 10,
         changePercent: Math.round(changePercent * 10) / 10,
         followers: 500 + (seed % 500),
         tradingDays: 30 + (seed % 60),
+        totalPredictions,
+        correctPredictions,
       };
     }).sort((a, b) => b.winRate - a.winRate);
 
+    const winningModel = modelsWithStats[0];
+
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
+        {/* AI Model Cards List */}
         {modelsWithStats.map((model, index) => (
           <motion.div
             key={model.id}
@@ -341,6 +385,126 @@ const MobileLeaderboardOKX = () => {
             </div>
           </motion.div>
         ))}
+
+        {/* Bottom Section: Winning Model Card + Bar Chart */}
+        <div className="mt-6 space-y-4">
+          {/* Winning Model Card - Mobile Optimized */}
+          <Card className="relative overflow-hidden">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${getExpertImage(winningModel.id)})` }}
+            />
+            
+            {/* Color Tint Overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${getColorTint(winningModel.id)}`} />
+            
+            {/* Dark gradient for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+            
+            <CardContent className="p-4 relative z-10">
+              <h3 className="text-xs font-bold mb-3 text-white/80">{t('winning_model') || '获胜模型'}</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <img 
+                  src={getAIIcon(winningModel.id)} 
+                  alt={winningModel.name} 
+                  className="h-8 w-8"
+                  style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                />
+                <span className="text-lg font-bold text-white">{winningModel.displayName.split(' ')[0]}</span>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-white/70 mb-1">{t('win_rate_label') || '胜率'}</p>
+                  <p className="text-xl font-bold font-mono text-white">
+                    {winningModel.winRate}%
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-white/70 mb-1">{t('correct_predictions_label') || '正确预测'}</p>
+                  <p className="text-lg font-bold font-mono text-success">
+                    {winningModel.correctPredictions} / {winningModel.totalPredictions}
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-white/70 mb-2">{t('active_matches') || '活跃比赛'}</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] text-white flex items-center gap-1">
+                      <GoalIcon size={12} className="flex-shrink-0" />
+                      <span>Premier League</span>
+                    </div>
+                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] text-white flex items-center gap-1">
+                      <GoalIcon size={12} className="flex-shrink-0" />
+                      <span>La Liga</span>
+                    </div>
+                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] text-white flex items-center gap-1">
+                      <GoalIcon size={12} className="flex-shrink-0" />
+                      <span>Bundesliga</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bar Chart - Mobile Optimized */}
+          <Card className="relative overflow-hidden">
+            {/* Grass texture background */}
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{ 
+                backgroundImage: `url(${grassTexture})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+            {/* Dark overlay for contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
+            
+            <CardContent className="p-4 relative z-10">
+              <div className="flex items-end gap-2 h-[180px]">
+                {(() => {
+                  const maxHeight = 150;
+                  const minHeight = 30;
+                  const baseWinRate = 100;
+                  
+                  return modelsWithStats.map((model) => {
+                    const heightRatio = Math.min(model.winRate / baseWinRate, 1);
+                    const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
+                    
+                    return (
+                      <div key={model.id} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                        <div className="text-[9px] font-mono font-bold mb-1">
+                          {model.winRate.toFixed(1)}%
+                        </div>
+                        <div 
+                          className="w-full rounded-t-lg relative flex items-end justify-center pb-2 transition-all duration-300 shadow-lg"
+                          style={{ 
+                            height: `${heightPx}px`,
+                            backgroundColor: `hsl(var(--${model.color}))`,
+                          }}
+                        >
+                          <img 
+                            src={getAIIcon(model.id)} 
+                            alt={model.name}
+                            className="h-5 w-5 object-contain"
+                            style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                          />
+                        </div>
+                        <div className="text-[8px] text-center font-medium text-muted-foreground truncate w-full px-0.5">
+                          {model.displayName.split(' ')[0].substring(0, 6)}...
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   };
