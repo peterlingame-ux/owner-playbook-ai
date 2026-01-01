@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -1244,7 +1245,191 @@ const PlayerLeaderboardTable = () => {
       </div>
 
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
-      <div className="grid grid-cols-1 gap-4 items-start">
+      {/* Mobile: Use Accordion for collapsible sections */}
+      <div className="block sm:hidden">
+        <Accordion type="single" collapsible defaultValue="hot" className="space-y-2">
+          {/* 高胜率榜 */}
+          <AccordionItem value="hot" className="border border-border/50 rounded-lg bg-card/50 overflow-hidden">
+            <AccordionTrigger className="px-3 py-2.5 hover:no-underline hover:bg-muted/30">
+              <div className="flex items-center justify-between w-full pr-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-gradient-to-b from-success to-success/50 rounded-full" />
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-foreground">
+                      {t('hot_streak_board')}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">前10名</span></p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllHotPlayers(true);
+                  }}
+                  className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                >
+                  {t('all_players')}
+                </button>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pb-3 pt-0">
+              <div className="space-y-1.5">
+                <AnimatePresence mode="wait">
+                  {isLoading ? (
+                    <motion.div
+                      key="loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center justify-center py-8"
+                    >
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key={`hot-streak-mobile-${timeRange}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-2"
+                    >
+                      {[...allPlayers]
+                        .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
+                        .slice(0, 10)
+                        .map((player, index) => {
+                          const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                          return (
+                            <PlayerLeaderboardCard
+                              key={player.id}
+                              player={player}
+                              index={index}
+                              isCurrentUser={!!(user && player.id === user.id)}
+                              isLiked={likedPlayers.has(player.id)}
+                              likeCount={likeCounts.get(player.id) || 0}
+                              isLiking={isLiking.has(player.id)}
+                              onLike={(e) => handleLike(player.id, e)}
+                              onClick={() => navigate(`/player/${player.id}`)}
+                              onViewHistory={(e) => {
+                                e.stopPropagation();
+                                fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                              }}
+                              onShowFollowers={(e, p, count) => {
+                                e.stopPropagation();
+                                const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                                setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                                setIsPlayerFollowersDialogOpen(true);
+                              }}
+                              maskPlayerName={maskPlayerName}
+                              calculateEstimatedPrize={calculateEstimatedPrize}
+                              totalEligiblePlayers={eligiblePlayers}
+                              aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                              boardType="hot"
+                              todayWinRate={todayWinRates.get(player.id)?.winRate}
+                              currentUserId={user?.id || null}
+                            />
+                          );
+                        })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* 低胜率榜 */}
+          <AccordionItem value="cold" className="border border-border/50 rounded-lg bg-card/50 overflow-hidden">
+            <AccordionTrigger className="px-3 py-2.5 hover:no-underline hover:bg-muted/30">
+              <div className="flex items-center justify-between w-full pr-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-foreground">
+                      {t('cold_streak_board')}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllColdPlayers(true);
+                  }}
+                  className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                >
+                  {t('all_players')}
+                </button>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pb-3 pt-0">
+              <div className="space-y-1.5">
+                <AnimatePresence mode="wait">
+                  {isLoading ? (
+                    <motion.div
+                      key="loading-cold-mobile"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center justify-center py-8"
+                    >
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key={`cold-streak-mobile-${timeRange}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-2"
+                    >
+                      {[...allPlayers]
+                        .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
+                        .slice(0, 10)
+                        .map((player, index) => {
+                          const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                          return (
+                            <PlayerLeaderboardCard
+                              key={player.id}
+                              player={player}
+                              index={index}
+                              isCurrentUser={!!(user && player.id === user.id)}
+                              isLiked={likedPlayers.has(player.id)}
+                              likeCount={likeCounts.get(player.id) || 0}
+                              isLiking={isLiking.has(player.id)}
+                              onLike={(e) => handleLike(player.id, e)}
+                              onClick={() => navigate(`/player/${player.id}`)}
+                              onViewHistory={(e) => {
+                                e.stopPropagation();
+                                fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                              }}
+                              onShowFollowers={(e, p, count) => {
+                                e.stopPropagation();
+                                const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                                setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                                setIsPlayerFollowersDialogOpen(true);
+                              }}
+                              maskPlayerName={maskPlayerName}
+                              calculateEstimatedPrize={calculateEstimatedPrize}
+                              totalEligiblePlayers={eligiblePlayers}
+                              aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
+                              boardType="cold"
+                              todayWinRate={todayWinRates.get(player.id)?.winRate}
+                              currentUserId={user?.id || null}
+                            />
+                          );
+                        })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+
+      {/* Desktop: Original Card layout */}
+      <div className="hidden sm:grid sm:grid-cols-1 gap-4 items-start">
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50">
           <CardHeader className="pb-2 sm:pb-3 pt-3 sm:pt-4 px-3 sm:px-4">
@@ -1295,7 +1480,7 @@ const PlayerLeaderboardTable = () => {
                         const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
                         return (
                           <PlayerLeaderboardCard
-                        key={player.id}
+                            key={player.id}
                             player={player}
                             index={index}
                             isCurrentUser={!!(user && player.id === user.id)}
@@ -1303,11 +1488,11 @@ const PlayerLeaderboardTable = () => {
                             likeCount={likeCounts.get(player.id) || 0}
                             isLiking={isLiking.has(player.id)}
                             onLike={(e) => handleLike(player.id, e)}
-                        onClick={() => navigate(`/player/${player.id}`)}
+                            onClick={() => navigate(`/player/${player.id}`)}
                             onViewHistory={(e) => {
-                        e.stopPropagation();
-                        fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
-                      }}
+                              e.stopPropagation();
+                              fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
+                            }}
                             onShowFollowers={(e, p, count) => {
                               e.stopPropagation();
                               const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
