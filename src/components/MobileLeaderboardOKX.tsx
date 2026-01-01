@@ -817,7 +817,7 @@ const MobileLeaderboardOKX = () => {
   );
 };
 
-// OKX-style Player Card Component
+// OKX-style Player Card Component - Matching AI card layout
 interface PlayerCardOKXProps {
   player: PlayerData;
   index: number;
@@ -829,6 +829,7 @@ interface PlayerCardOKXProps {
 
 const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const isPositive = player.changePercent >= 0;
 
   return (
@@ -837,17 +838,17 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onClick}
-      className="bg-card/50 rounded-xl p-4 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform"
+      className="bg-card/50 rounded-lg p-3 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform"
     >
-      {/* Top: Avatar + Name + Badge */}
-      <div className="flex items-start gap-3 mb-3">
-        <div className="relative">
-          <Avatar className="w-12 h-12 border-2 border-border">
+      {/* Top: Avatar + Name + Streak Badge + Action Buttons */}
+      <div className="flex items-center gap-2.5 mb-2">
+        <div className="relative flex-shrink-0">
+          <Avatar className="w-10 h-10 border border-border">
             <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-            <AvatarFallback className="text-sm">{player.displayName.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
           {index < 3 && (
-            <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+            <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
               index === 0 ? 'bg-yellow-500 text-yellow-950' :
               index === 1 ? 'bg-gray-400 text-gray-900' :
               'bg-amber-600 text-amber-950'
@@ -857,9 +858,9 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-base text-foreground truncate">{player.displayName}</h3>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+          <h3 className="font-bold text-sm text-foreground truncate flex items-center gap-1">
+            {player.displayName}
+            <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium ${
               subTab === 'high' 
                 ? 'bg-success/20 text-success' 
                 : 'bg-destructive/20 text-destructive'
@@ -867,34 +868,70 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               {subTab === 'high' ? (
                 <>
                   <TrendingUp className="h-2.5 w-2.5" />
-                  {player.currentStreak || 0}x
+                  {player.currentStreak || 0}连胜
                 </>
               ) : (
                 <>
                   <TrendingDown className="h-2.5 w-2.5" />
-                  {player.worstStreak || 0}x
+                  {player.worstStreak || 0}连败
                 </>
               )}
             </span>
-          </div>
+          </h3>
+          <p className="text-[10px] text-muted-foreground">
+            {t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}
+          </p>
+        </div>
+        {/* Top Right Action Buttons */}
+        <div className="flex items-center gap-1">
+          <button 
+            className="px-1.5 py-0.5 text-[9px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/player/${player.id}?tab=history`);
+            }}
+          >
+            {t('history_predictions') || '历史预测'}
+          </button>
+          <button 
+            className="px-1.5 py-0.5 text-[9px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {t('auto_follow') || '自动跟单'}
+          </button>
         </div>
       </div>
 
-      {/* Middle: Profit Rate + Chart */}
-      <div className="flex items-end justify-between mb-4">
-        <div>
-          <p className="text-[10px] text-muted-foreground mb-1">
-            {mainTab === 'copyTrade' 
-              ? (t('90d_copy_profit') || '近90日跟单收益')
-              : (t('90d_profit') || '近90日收益率')}
-          </p>
-          <p className={`text-3xl font-bold tracking-tight ${isPositive ? 'text-success' : 'text-destructive'}`}>
-            {isPositive ? '+' : ''}{player.changePercent.toFixed(2)}%
-          </p>
+      {/* Middle: Profit Rate + Profit Amount + Chart */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex-1 min-w-0">
+          {/* Profit Rate - Same Line */}
+          <div className="flex items-center gap-1 mb-1">
+            <span className="text-[9px] text-muted-foreground whitespace-nowrap w-10">
+              {mainTab === 'copyTrade' 
+                ? (t('copy_profit_label') || '跟单收益')
+                : (t('profit_rate_label') || '盈利率')}
+            </span>
+            <span className={`text-lg font-bold tracking-tight ${isPositive ? 'text-success' : 'text-destructive'}`}>
+              {isPositive ? '+' : ''}{player.changePercent.toFixed(2)}%
+            </span>
+          </div>
+          {/* Profit Amount - Same Line */}
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] text-muted-foreground whitespace-nowrap w-10">
+              {t('profit_amount_label') || '盈利金额'}
+            </span>
+            <span className={`text-xs font-semibold flex items-center gap-0.5 ${isPositive ? 'text-success' : 'text-destructive'}`}>
+              {isPositive ? '+' : ''}{(player.profitAmount || 0).toLocaleString()}
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3" />
+            </span>
+          </div>
         </div>
         
         {/* Mini Chart */}
-        <div className="w-24 h-10">
+        <div className="w-16 h-8 flex-shrink-0">
           <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
             <path
               d={generateChartPath(player.id, player.changePercent)}
@@ -909,24 +946,23 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       </div>
 
       {/* Bottom Stats */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            {player.followers || 0}
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
+        <div className="flex items-center gap-1.5">
+          <span className="flex items-center gap-0.5 text-success">
+            <CheckCircle className="h-2.5 w-2.5" />
+            正确{player.correctPredictions}场
           </span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {player.tradingDays || 0}{t('days') || '天'}
+          <span className="flex items-center gap-0.5 text-destructive">
+            <XCircle className="h-2.5 w-2.5" />
+            错误{player.totalPredictions - player.correctPredictions}场
           </span>
-          <span className="flex items-center gap-1">
-            <DollarSign className="h-3 w-3" />
-            {((player.tradingVolume || 0) / 10000).toFixed(1)}万
+          <span className="flex items-center gap-0.5">
+            <Users className="h-2.5 w-2.5" />
+            {player.followers || 0}跟单
           </span>
         </div>
-        <div className="flex items-center gap-1 text-success font-medium">
-          <Trophy className="h-3 w-3" />
-          {player.winRate}%
+        <div className="text-success font-medium">
+          {t('win_rate_prefix') || '胜率'}{player.winRate}%
         </div>
       </div>
     </motion.div>
