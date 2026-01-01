@@ -1094,131 +1094,195 @@ const MyPredictions = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="py-4 space-y-4"
               >
-                {/* Stats Header */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground">{t('star_card_collection') || '球星卡收藏'}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {t('total_cards', { count: starCards.length }) || `共 ${starCards.length} 张球星卡`}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-                    <Crown className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm font-medium text-amber-400">
-                      {Math.floor(invitedUsers.length / 5)} {t('cards_earned') || '张已解锁'}
-                    </span>
-                  </div>
-                </div>
+                {/* All Star Cards Definition */}
+                {(() => {
+                  const ALL_STAR_CARDS = [
+                    { id: 'messi', card_name: '梅西', card_image: '/players/player-1.png', rarity: 'legendary' },
+                    { id: 'ronaldo', card_name: 'C罗', card_image: '/players/player-2.png', rarity: 'legendary' },
+                    { id: 'mbappe', card_name: '姆巴佩', card_image: '/players/player-3.png', rarity: 'epic' },
+                    { id: 'haaland', card_name: '哈兰德', card_image: '/players/player-4.png', rarity: 'epic' },
+                    { id: 'neymar', card_name: '内马尔', card_image: '/players/player-5.png', rarity: 'epic' },
+                    { id: 'salah', card_name: '萨拉赫', card_image: '/players/player-6.png', rarity: 'rare' },
+                    { id: 'debruyne', card_name: '德布劳内', card_image: '/players/player-7.png', rarity: 'rare' },
+                    { id: 'modric', card_name: '莫德里奇', card_image: '/players/player-8.png', rarity: 'rare' },
+                    { id: 'benzema', card_name: '本泽马', card_image: '/players/player-9.png', rarity: 'rare' },
+                    { id: 'vinicius', card_name: '维尼修斯', card_image: '/players/player-10.png', rarity: 'common' },
+                    { id: 'bellingham', card_name: '贝林厄姆', card_image: '/players/player-11.png', rarity: 'common' },
+                    { id: 'saka', card_name: '萨卡', card_image: '/players/player-12.png', rarity: 'common' },
+                  ];
 
-                {/* Invite Progress Hint */}
-                <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Share2 className="w-4 h-4" />
-                    <span>{t('invite_to_unlock') || '每邀请5位新玩家解锁1张球星卡'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500"
-                        style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium text-foreground">{invitedUsers.length % 5}/5</span>
-                  </div>
-                </div>
+                  const unlockedCardIds = new Set(starCards.map(c => c.card_name));
+                  const unlockedCount = starCards.length;
 
-                {/* Star Cards Grid */}
-                {isLoadingStarCards ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 animate-pulse" />
-                    ))}
-                  </div>
-                ) : starCards.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    {starCards.map((card, index) => {
-                      const rarityColors: Record<string, string> = {
-                        legendary: 'from-amber-400 via-yellow-300 to-amber-500',
-                        epic: 'from-purple-400 via-pink-300 to-purple-500',
-                        rare: 'from-blue-400 via-cyan-300 to-blue-500',
-                        common: 'from-gray-400 via-gray-300 to-gray-500',
-                      };
-                      const rarityBorder: Record<string, string> = {
-                        legendary: 'border-amber-400/50',
-                        epic: 'border-purple-400/50',
-                        rare: 'border-blue-400/50',
-                        common: 'border-border',
-                      };
-                      const rarityLabel: Record<string, string> = {
-                        legendary: '传奇',
-                        epic: '史诗',
-                        rare: '稀有',
-                        common: '普通',
-                      };
+                  const rarityColors: Record<string, string> = {
+                    legendary: 'from-amber-400 via-yellow-300 to-amber-500',
+                    epic: 'from-purple-400 via-pink-300 to-purple-500',
+                    rare: 'from-blue-400 via-cyan-300 to-blue-500',
+                    common: 'from-gray-400 via-gray-300 to-gray-500',
+                  };
+                  const rarityBorder: Record<string, string> = {
+                    legendary: 'border-amber-400/50',
+                    epic: 'border-purple-400/50',
+                    rare: 'border-blue-400/50',
+                    common: 'border-border',
+                  };
+                  const rarityLabel: Record<string, string> = {
+                    legendary: '传奇',
+                    epic: '史诗',
+                    rare: '稀有',
+                    common: '普通',
+                  };
 
-                      return (
-                        <motion.div
-                          key={card.id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.1 }}
-                          className={`relative aspect-[3/4] rounded-xl overflow-hidden border-2 ${rarityBorder[card.rarity] || 'border-border'}`}
-                          style={{
-                            background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%)',
-                          }}
-                        >
-                          {/* Rarity Glow Effect */}
-                          <div 
-                            className={`absolute inset-0 opacity-20 bg-gradient-to-br ${rarityColors[card.rarity] || rarityColors.common}`}
-                          />
-                          
-                          {/* Card Image */}
-                          <div className="absolute inset-0 flex items-center justify-center p-4">
-                            <img 
-                              src={card.card_image} 
-                              alt={card.card_name}
-                              className="w-full h-full object-contain drop-shadow-lg"
+                  return (
+                    <>
+                      {/* Stats Header */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground">{t('star_card_collection') || '球星卡收藏'}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {unlockedCount}/{ALL_STAR_CARDS.length} {t('cards_unlocked') || '已解锁'}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                          <Crown className="w-4 h-4 text-amber-400" />
+                          <span className="text-sm font-medium text-amber-400">
+                            {Math.floor(invitedUsers.length / 5)} {t('cards_earned') || '张可解锁'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Invite Progress Hint */}
+                      <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Share2 className="w-4 h-4" />
+                          <span>{t('invite_to_unlock') || '每邀请5位新玩家解锁1张球星卡'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500"
+                              style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
                             />
                           </div>
+                          <span className="text-xs font-medium text-foreground">{invitedUsers.length % 5}/5</span>
+                        </div>
+                      </div>
 
-                          {/* Card Info Overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                            <p className="text-sm font-bold text-white truncate">{card.card_name}</p>
-                            <div className="flex items-center justify-between mt-1">
-                              <span className={`text-xs font-medium bg-gradient-to-r ${rarityColors[card.rarity] || rarityColors.common} bg-clip-text text-transparent`}>
-                                {rarityLabel[card.rarity] || '普通'}
-                              </span>
-                              <span className="text-xs text-white/60">
-                                {format(new Date(card.obtained_at), 'MM/dd')}
-                              </span>
-                            </div>
-                          </div>
+                      {/* Star Cards Grid - Show All Cards */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {ALL_STAR_CARDS.map((card, index) => {
+                          const isUnlocked = unlockedCardIds.has(card.card_name);
 
-                          {/* Shine Effect for Legendary */}
-                          {card.rarity === 'legendary' && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-                          )}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 flex items-center justify-center">
-                      <Crown className="w-10 h-10 text-muted-foreground/50" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">{t('no_star_cards') || '暂无球星卡'}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('invite_to_get_cards') || '邀请好友获得专属球星卡'}</p>
-                    <Button 
-                      variant="outline"
-                      className="mt-4"
-                      onClick={() => setActiveTab('invite')}
-                    >
-                      <Share2 className="w-4 h-4 mr-2" />
-                      {t('go_invite') || '去邀请'}
-                    </Button>
-                  </div>
-                )}
+                          return (
+                            <motion.div
+                              key={card.id}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="perspective-1000"
+                            >
+                              <div
+                                className={`relative aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all duration-500 ${
+                                  isUnlocked 
+                                    ? `${rarityBorder[card.rarity]} shadow-lg` 
+                                    : 'border-zinc-800 grayscale'
+                                }`}
+                                style={{
+                                  transformStyle: 'preserve-3d',
+                                  animation: isUnlocked ? 'cardRotate 8s linear infinite' : 'none',
+                                  background: isUnlocked 
+                                    ? 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%)'
+                                    : 'linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)',
+                                }}
+                              >
+                                {/* Card Inner Content */}
+                                <div 
+                                  className="absolute inset-0"
+                                  style={{ 
+                                    backfaceVisibility: 'hidden',
+                                  }}
+                                >
+                                  {/* Rarity Glow Effect - Only for unlocked */}
+                                  {isUnlocked && (
+                                    <div 
+                                      className={`absolute inset-0 opacity-30 bg-gradient-to-br ${rarityColors[card.rarity]}`}
+                                    />
+                                  )}
+                                  
+                                  {/* Card Image */}
+                                  <div className="absolute inset-0 flex items-center justify-center p-3">
+                                    <img 
+                                      src={card.card_image} 
+                                      alt={card.card_name}
+                                      className={`w-full h-full object-contain ${
+                                        isUnlocked ? 'drop-shadow-lg' : 'opacity-30 brightness-50'
+                                      }`}
+                                    />
+                                  </div>
+
+                                  {/* Lock Overlay for Locked Cards */}
+                                  {!isUnlocked && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                                      <div className="w-12 h-12 rounded-full bg-zinc-900/80 flex items-center justify-center border border-zinc-700">
+                                        <svg className="w-6 h-6 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Card Info Overlay */}
+                                  <div className={`absolute bottom-0 left-0 right-0 p-3 ${
+                                    isUnlocked ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/90 to-transparent'
+                                  }`}>
+                                    <p className={`text-sm font-bold truncate ${isUnlocked ? 'text-white' : 'text-zinc-500'}`}>
+                                      {card.card_name}
+                                    </p>
+                                    <div className="flex items-center justify-between mt-1">
+                                      <span className={`text-xs font-medium ${
+                                        isUnlocked 
+                                          ? `bg-gradient-to-r ${rarityColors[card.rarity]} bg-clip-text text-transparent`
+                                          : 'text-zinc-600'
+                                      }`}>
+                                        {rarityLabel[card.rarity]}
+                                      </span>
+                                      {isUnlocked && (
+                                        <span className="text-xs text-white/60">已解锁</span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Shine Effect for Unlocked Legendary */}
+                                  {isUnlocked && card.rarity === 'legendary' && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                                  )}
+
+                                  {/* Holographic Effect for Unlocked Cards */}
+                                  {isUnlocked && (
+                                    <div 
+                                      className="absolute inset-0 opacity-30"
+                                      style={{
+                                        background: `linear-gradient(
+                                          135deg,
+                                          transparent 0%,
+                                          rgba(255,255,255,0.1) 45%,
+                                          rgba(255,255,255,0.3) 50%,
+                                          rgba(255,255,255,0.1) 55%,
+                                          transparent 100%
+                                        )`,
+                                        animation: 'cardShine 3s ease-in-out infinite',
+                                      }}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
               </motion.div>
             )}
           </AnimatePresence>
