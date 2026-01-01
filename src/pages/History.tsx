@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter, ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, TrendingUp, CheckCircle2, XCircle, Filter, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { aiModels } from "@/data/mockData";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
@@ -78,6 +79,7 @@ const History = () => {
   const [filterModel, setFilterModel] = useState<string>("all");
   const [filterResult, setFilterResult] = useState<string>("all");
   const [filterPeriod, setFilterPeriod] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
   const [playerHistoryRecords, setPlayerHistoryRecords] = useState<HistoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -370,48 +372,86 @@ const History = () => {
   }, [user, selectedPlayerId]);
 
   // 过滤历史数据
-  let filteredHistory = [...historyRecords].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  if (filterModel !== "all") {
-    filteredHistory = filteredHistory.filter(p => p.aiModel === filterModel);
-  }
-
-  if (filterResult !== "all") {
-    filteredHistory = filteredHistory.filter(p => 
-      filterResult === "correct" ? p.correct : !p.correct
+  const filteredHistory = useMemo(() => {
+    let records = [...historyRecords].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }
 
-  if (filterPeriod !== "all") {
-    const now = new Date();
-    const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
-    const periodDate = new Date(now.setDate(now.getDate() - daysAgo));
-    filteredHistory = filteredHistory.filter(p => 
-      new Date(p.date) >= periodDate
-    );
-  }
+    // 搜索过滤
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      records = records.filter(p => {
+        const matchInfo = p.match;
+        if (matchInfo) {
+          const homeTeam = matchInfo.homeTeam?.toLowerCase() || '';
+          const awayTeam = matchInfo.awayTeam?.toLowerCase() || '';
+          const league = matchInfo.league?.toLowerCase() || '';
+          if (homeTeam.includes(query) || awayTeam.includes(query) || league.includes(query)) {
+            return true;
+          }
+        }
+        if (p.date.includes(query)) return true;
+        if (p.aiModel.toLowerCase().includes(query)) return true;
+        return false;
+      });
+    }
+
+    if (filterModel !== "all") {
+      records = records.filter(p => p.aiModel === filterModel);
+    }
+
+    if (filterResult !== "all") {
+      records = records.filter(p => 
+        filterResult === "correct" ? p.correct : !p.correct
+      );
+    }
+
+    if (filterPeriod !== "all") {
+      const now = new Date();
+      const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
+      const periodDate = new Date(now.setDate(now.getDate() - daysAgo));
+      records = records.filter(p => 
+        new Date(p.date) >= periodDate
+      );
+    }
+
+    return records;
+  }, [historyRecords, searchQuery, filterModel, filterResult, filterPeriod]);
 
   // 过滤玩家历史数据
-  let filteredPlayerHistory = [...playerHistoryRecords].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  if (filterResult !== "all") {
-    filteredPlayerHistory = filteredPlayerHistory.filter(p => 
-      filterResult === "correct" ? p.correct : !p.correct
+  const filteredPlayerHistory = useMemo(() => {
+    let records = [...playerHistoryRecords].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }
 
-  if (filterPeriod !== "all") {
-    const now = new Date();
-    const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
-    const periodDate = new Date(now.setDate(now.getDate() - daysAgo));
-    filteredPlayerHistory = filteredPlayerHistory.filter(p => 
-      new Date(p.date) >= periodDate
-    );
-  }
+    // 搜索过滤
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      records = records.filter(p => {
+        if (p.date.includes(query)) return true;
+        if (p.matchId.includes(query)) return true;
+        if (p.prediction.toLowerCase().includes(query)) return true;
+        return false;
+      });
+    }
+
+    if (filterResult !== "all") {
+      records = records.filter(p => 
+        filterResult === "correct" ? p.correct : !p.correct
+      );
+    }
+
+    if (filterPeriod !== "all") {
+      const now = new Date();
+      const daysAgo = filterPeriod === "7d" ? 7 : filterPeriod === "30d" ? 30 : 90;
+      const periodDate = new Date(now.setDate(now.getDate() - daysAgo));
+      records = records.filter(p => 
+        new Date(p.date) >= periodDate
+      );
+    }
+
+    return records;
+  }, [playerHistoryRecords, searchQuery, filterResult, filterPeriod]);
 
   // 计算AI统计数据
   const totalPredictions = filteredHistory.length;
@@ -632,6 +672,18 @@ const History = () => {
           </TabsList>
           
           <TabsContent value="ai">
+            {/* 搜索框 */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t('search_history') || '搜索球队、联赛、日期...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10 text-sm"
+              />
+            </div>
+
             {/* 筛选器 */}
             <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
               <div className="flex flex-col gap-3">
@@ -640,7 +692,7 @@ const History = () => {
                   <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <Select value={filterModel} onValueChange={setFilterModel}>
                     <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder={t('model')} />
@@ -684,45 +736,18 @@ const History = () => {
               </div>
             </Card>
 
-        {/* 历史记录表格 */}
-        <Card className="overflow-hidden">
-          {/* 滚动提示 - 仅移动端显示 */}
-          <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
-              <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
-            </div>
-          </div>
-          
-          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
-            <Table className="min-w-[800px]">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[80px] sm:w-[100px] text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
-                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('match')}</TableHead>
-                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('model')}</TableHead>
-                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('ai_prediction')}</TableHead>
-                  <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
-                  <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('odds')}</TableHead>
-                  <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
-                  <TableHead className="text-center text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredHistory.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
-                      {t('no_history_data')}
-                    </TableCell>
-                  </TableRow>
-                ) : isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
-                      {t('loading') || '加载中...'}
-                    </TableCell>
-                  </TableRow>
+            {/* 历史记录 - 移动端卡片 / 桌面端表格 */}
+            {isMobile ? (
+              /* 移动端卡片布局 */
+              <div className="space-y-3">
+                {isLoading ? (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    {t('loading') || '加载中...'}
+                  </Card>
+                ) : filteredHistory.length === 0 ? (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    {t('no_history_data')}
+                  </Card>
                 ) : (
                   filteredHistory.map((prediction) => {
                     const match = prediction.match;
@@ -732,116 +757,220 @@ const History = () => {
                     const profit = calculateProfit(prediction);
                     
                     return (
-                      <TableRow 
+                      <Card 
                         key={prediction.id}
-                        className="hover:bg-muted/50 cursor-pointer transition-colors"
+                        className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
                         onClick={() => navigate(`/match/${match.id}`)}
                       >
-                        <TableCell className="font-medium text-[11px] sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="truncate min-w-[70px]">
-                            {prediction.date}
-                          </div>
-                        </TableCell>
-                        
-                        <TableCell className="px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="flex items-center gap-1.5 sm:gap-2 min-w-[180px]">
-                            {match.homeLogo && (
-                              <img 
-                                src={match.homeLogo} 
-                                alt={getTeamName(match, 'home')}
-                                className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
-                              />
-                            )}
-                            <span className="text-xs sm:text-sm font-medium truncate flex-1">{getTeamName(match, 'home')}</span>
-                            <div className="flex flex-col items-center gap-0.5 shrink-0">
-                              <span className="text-muted-foreground text-xs sm:text-sm">{t('vs_text') || 'vs'}</span>
-                              <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">
-                                {match.homeScore !== null && match.awayScore !== null ? (
-                                  `${match.homeScore} - ${match.awayScore}`
-                                ) : (
-                                  '-'
-                                )}
-                              </span>
-                            </div>
-                            <span className="text-xs sm:text-sm font-medium truncate flex-1 text-right">{getTeamName(match, 'away')}</span>
-                            {match.awayLogo && (
-                              <img 
-                                src={match.awayLogo} 
-                                alt={getTeamName(match, 'away')}
-                                className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
-                              />
-                            )}
-                          </div>
-                        </TableCell>
-                        
-                        <TableCell className="px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="flex items-center justify-center">
-                            <div 
-                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center p-1.5 sm:p-2 bg-background/80 backdrop-blur-sm border-2"
-                              style={{ borderColor: `hsl(var(--${model.color}))` }}
-                            >
-                              <img 
-                                src={AI_ICONS[model.id] || deepseekIcon}
-                                alt={model.displayName}
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
-                          </div>
-                        </TableCell>
-                        
-                        <TableCell className="text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="truncate max-w-[120px]">
-                            {getPredictionLabel(prediction, match)}
-                          </div>
-                        </TableCell>
-                        
-                        <TableCell className="text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="truncate max-w-[140px]">
-                            {getBetTypeLabel(prediction.betType, prediction, match)}
-                          </div>
-                        </TableCell>
-                        
-                        <TableCell className="text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4">
-                          @{Math.max(0, prediction.odds - 1).toFixed(2)}
-                        </TableCell>
-                        
-                        <TableCell className={`text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4 ${
-                          profit >= 0 ? 'text-success' : 'text-destructive'
-                        }`}>
-                          {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
-                        </TableCell>
-                        
-                        <TableCell className="text-center px-2 sm:px-4 py-3 sm:py-4">
+                        {/* 顶部: 日期和结果 */}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">{prediction.date}</span>
                           {prediction.pending ? (
-                            <Badge className="gap-1 sm:gap-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
-                              <span>{t('in_progress')}</span>
+                            <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30 text-[10px] px-2 py-0.5">
+                              {t('in_progress')}
                             </Badge>
                           ) : prediction.correct ? (
-                            <Badge className="gap-1 sm:gap-1.5 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
-                              <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                              <span className="hidden xs:inline">{t('correct')}</span>
-                              <span className="xs:hidden">✓</span>
+                            <Badge className="bg-success/20 text-success border-success/30 text-[10px] px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              {t('correct')}
                             </Badge>
                           ) : (
-                            <Badge variant="destructive" className="gap-1 sm:gap-1.5 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
-                              <XCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                              <span className="hidden xs:inline">{t('wrong')}</span>
-                              <span className="xs:hidden">✗</span>
+                            <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
+                              <XCircle className="h-3 w-3 mr-1" />
+                              {t('wrong')}
                             </Badge>
                           )}
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                        
+                        {/* 比赛信息 */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            {match.homeLogo && (
+                              <img src={match.homeLogo} alt="" className="w-5 h-5 object-contain shrink-0" />
+                            )}
+                            <span className="text-xs font-medium truncate">{getTeamName(match, 'home')}</span>
+                          </div>
+                          <div className="flex flex-col items-center shrink-0">
+                            <span className="text-[10px] text-muted-foreground">vs</span>
+                            <span className="text-xs font-mono">
+                              {match.homeScore !== null && match.awayScore !== null 
+                                ? `${match.homeScore}-${match.awayScore}` 
+                                : '-'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+                            <span className="text-xs font-medium truncate">{getTeamName(match, 'away')}</span>
+                            {match.awayLogo && (
+                              <img src={match.awayLogo} alt="" className="w-5 h-5 object-contain shrink-0" />
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* 底部: AI模型、预测、盈亏 */}
+                        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-6 h-6 rounded-full flex items-center justify-center p-1 bg-background/80 border"
+                              style={{ borderColor: `hsl(var(--${model.color}))` }}
+                            >
+                              <img src={AI_ICONS[model.id] || deepseekIcon} alt="" className="w-full h-full object-contain" />
+                            </div>
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">{getBetTypeLabel(prediction.betType, prediction, match)}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-muted-foreground">@{Math.max(0, prediction.odds - 1).toFixed(2)}</span>
+                            <span className={`text-sm font-bold font-mono ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                              {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
+                            </span>
+                          </div>
+                        </div>
+                      </Card>
                     );
                   })
                 )}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
+              </div>
+            ) : (
+              /* 桌面端表格布局 */
+              <Card className="overflow-hidden">
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
+                  <Table className="min-w-[800px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[100px] text-xs px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('match')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('model')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('ai_prediction')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
+                        <TableHead className="text-right text-xs px-4 bg-muted/50 font-bold">{t('odds')}</TableHead>
+                        <TableHead className="text-right text-xs px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
+                        <TableHead className="text-center text-xs px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredHistory.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                            {t('no_history_data')}
+                          </TableCell>
+                        </TableRow>
+                      ) : isLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                            {t('loading') || '加载中...'}
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredHistory.map((prediction) => {
+                          const match = prediction.match;
+                          const model = aiModels.find(m => m.id === prediction.aiModel);
+                          if (!match || !model) return null;
+                          
+                          const profit = calculateProfit(prediction);
+                          
+                          return (
+                            <TableRow 
+                              key={prediction.id}
+                              className="hover:bg-muted/50 cursor-pointer transition-colors"
+                              onClick={() => navigate(`/match/${match.id}`)}
+                            >
+                              <TableCell className="font-medium text-sm px-4 py-4">
+                                {prediction.date}
+                              </TableCell>
+                              
+                              <TableCell className="px-4 py-4">
+                                <div className="flex items-center gap-2 min-w-[180px]">
+                                  {match.homeLogo && (
+                                    <img src={match.homeLogo} alt={getTeamName(match, 'home')} className="w-6 h-6 object-contain shrink-0" />
+                                  )}
+                                  <span className="text-sm font-medium truncate flex-1">{getTeamName(match, 'home')}</span>
+                                  <div className="flex flex-col items-center gap-0.5 shrink-0">
+                                    <span className="text-muted-foreground text-sm">{t('vs_text') || 'vs'}</span>
+                                    <span className="text-xs text-muted-foreground font-mono">
+                                      {match.homeScore !== null && match.awayScore !== null ? `${match.homeScore} - ${match.awayScore}` : '-'}
+                                    </span>
+                                  </div>
+                                  <span className="text-sm font-medium truncate flex-1 text-right">{getTeamName(match, 'away')}</span>
+                                  {match.awayLogo && (
+                                    <img src={match.awayLogo} alt={getTeamName(match, 'away')} className="w-6 h-6 object-contain shrink-0" />
+                                  )}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="px-4 py-4">
+                                <div className="flex items-center justify-center">
+                                  <div 
+                                    className="w-10 h-10 rounded-full flex items-center justify-center p-2 bg-background/80 backdrop-blur-sm border-2"
+                                    style={{ borderColor: `hsl(var(--${model.color}))` }}
+                                  >
+                                    <img src={AI_ICONS[model.id] || deepseekIcon} alt={model.displayName} className="w-full h-full object-contain" />
+                                  </div>
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-sm font-medium px-4 py-4">
+                                <div className="truncate max-w-[120px]">
+                                  {getPredictionLabel(prediction, match)}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-sm px-4 py-4">
+                                <div className="truncate max-w-[140px]">
+                                  {getBetTypeLabel(prediction.betType, prediction, match)}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-right font-mono text-sm font-bold px-4 py-4">
+                                @{Math.max(0, prediction.odds - 1).toFixed(2)}
+                              </TableCell>
+                              
+                              <TableCell className={`text-right font-mono text-sm font-bold px-4 py-4 ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
+                              </TableCell>
+                              
+                              <TableCell className="text-center px-4 py-4">
+                                {prediction.pending ? (
+                                  <Badge className="gap-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 text-xs px-2.5 py-0.5">
+                                    <span>{t('in_progress')}</span>
+                                  </Badge>
+                                ) : prediction.correct ? (
+                                  <Badge className="gap-1.5 bg-success/20 text-success border-success/30 text-xs px-2.5 py-0.5">
+                                    <CheckCircle2 className="h-3.5 w-3.5" />
+                                    <span>{t('correct')}</span>
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="destructive" className="gap-1.5 text-xs px-2.5 py-0.5">
+                                    <XCircle className="h-3.5 w-3.5" />
+                                    <span>{t('wrong')}</span>
+                                  </Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Card>
+            )}
 
           </TabsContent>
           
           <TabsContent value="player">
+            {/* 搜索框 */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t('search_history') || '搜索比赛ID、预测...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10 text-sm"
+              />
+            </div>
+
             {/* 筛选器 - 玩家历史 */}
             <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
               <div className="flex flex-col gap-3">
@@ -850,7 +979,7 @@ const History = () => {
                   <span className="text-xs sm:text-sm font-medium">{t('filters')}:</span>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
                     <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder={t('select_player') || '选择玩家'} />
@@ -935,120 +1064,174 @@ const History = () => {
               </div>
             )}
 
-            {/* 玩家历史记录表格 */}
-            <Card className="overflow-hidden">
-              {/* 滚动提示 - 仅移动端显示 */}
-              <div className="sm:hidden bg-muted/30 px-3 py-2 border-b border-border/50 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{t('swipe_to_view_more')}</span>
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse delay-75" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse delay-150" />
-                </div>
-              </div>
-              
-              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
-                <Table className="min-w-[800px]">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px] sm:w-[100px] text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
-                      <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('match_id')}</TableHead>
-                      <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('prediction')}</TableHead>
-                      <TableHead className="text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
-                      <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('bet_amount')}</TableHead>
-                      <TableHead className="text-right text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
-                      <TableHead className="text-center text-[11px] sm:text-xs px-2 sm:px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {!user ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
-                          {t('please_login') || '请先登录'}
-                        </TableCell>
-                      </TableRow>
-                    ) : filteredPlayerHistory.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
-                          {t('no_history_data')}
-                        </TableCell>
-                      </TableRow>
-                    ) : isPlayerLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-10 sm:py-12 text-sm sm:text-base text-muted-foreground">
-                          {t('loading') || '加载中...'}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredPlayerHistory.map((prediction) => {
-                        const profit = calculateProfit(prediction);
+            {/* 玩家历史记录 - 移动端卡片 / 桌面端表格 */}
+            {isMobile ? (
+              /* 移动端卡片布局 */
+              <div className="space-y-3">
+                {!user ? (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    {t('please_login') || '请先登录'}
+                  </Card>
+                ) : isPlayerLoading ? (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    {t('loading') || '加载中...'}
+                  </Card>
+                ) : filteredPlayerHistory.length === 0 ? (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    {t('no_history_data')}
+                  </Card>
+                ) : (
+                  filteredPlayerHistory.map((prediction) => {
+                    const profit = calculateProfit(prediction);
+                    
+                    return (
+                      <Card 
+                        key={prediction.id}
+                        className="p-3 hover:bg-muted/50 transition-colors"
+                      >
+                        {/* 顶部: 日期和结果 */}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">{prediction.date}</span>
+                          {prediction.pending ? (
+                            <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30 text-[10px] px-2 py-0.5">
+                              {t('in_progress')}
+                            </Badge>
+                          ) : prediction.correct ? (
+                            <Badge className="bg-success/20 text-success border-success/30 text-[10px] px-2 py-0.5">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              {t('correct')}
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
+                              <XCircle className="h-3 w-3 mr-1" />
+                              {t('wrong')}
+                            </Badge>
+                          )}
+                        </div>
                         
-                        return (
-                          <TableRow 
-                            key={prediction.id}
-                            className="hover:bg-muted/50 transition-colors"
-                          >
-                            <TableCell className="font-medium text-[11px] sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
-                              <div className="truncate min-w-[70px]">
-                                {prediction.date}
-                              </div>
-                            </TableCell>
-                            
-                            <TableCell className="text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
-                              <div className="truncate max-w-[150px]">
-                                {prediction.matchId}
-                              </div>
-                            </TableCell>
-                            
-                            <TableCell className="text-xs sm:text-sm font-medium px-2 sm:px-4 py-3 sm:py-4">
-                              <div className="truncate max-w-[120px]">
-                                {prediction.prediction}
-                              </div>
-                            </TableCell>
-                            
-                            <TableCell className="text-xs sm:text-sm px-2 sm:px-4 py-3 sm:py-4">
-                              <div className="truncate max-w-[140px]">
-                                {prediction.betType}
-                              </div>
-                            </TableCell>
-                            
-                            <TableCell className="text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4">
-                              ${prediction.betAmount.toFixed(2)}
-                            </TableCell>
-                            
-                            <TableCell className={`text-right font-mono text-xs sm:text-sm font-bold px-2 sm:px-4 py-3 sm:py-4 ${
-                              profit >= 0 ? 'text-success' : 'text-destructive'
-                            }`}>
-                              {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
-                            </TableCell>
-                            
-                            <TableCell className="text-center px-2 sm:px-4 py-3 sm:py-4">
-                              {prediction.pending ? (
-                                <Badge className="gap-1 sm:gap-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
-                                  <span>{t('in_progress')}</span>
-                                </Badge>
-                              ) : prediction.correct ? (
-                                <Badge className="gap-1 sm:gap-1.5 bg-success/20 text-success border-success/30 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
-                                  <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                  <span className="hidden xs:inline">{t('correct')}</span>
-                                  <span className="xs:hidden">✓</span>
-                                </Badge>
-                              ) : (
-                                <Badge variant="destructive" className="gap-1 sm:gap-1.5 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5">
-                                  <XCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                  <span className="hidden xs:inline">{t('wrong')}</span>
-                                  <span className="xs:hidden">✗</span>
-                                </Badge>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
+                        {/* 比赛信息 */}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground truncate flex-1">ID: {prediction.matchId}</span>
+                        </div>
+                        
+                        {/* 预测信息 */}
+                        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium">{prediction.prediction}</span>
+                            <span className="text-xs text-muted-foreground">({prediction.betType})</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-muted-foreground">${prediction.betAmount.toFixed(0)}</span>
+                            <span className={`text-sm font-bold font-mono ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                              {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
+                            </span>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })
+                )}
               </div>
-            </Card>
+            ) : (
+              /* 桌面端表格布局 */
+              <Card className="overflow-hidden">
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
+                  <Table className="min-w-[800px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[100px] text-xs px-4 bg-muted/50 font-bold">{t('date')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('match_id')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('prediction')}</TableHead>
+                        <TableHead className="text-xs px-4 bg-muted/50 font-bold">{t('bet_type')}</TableHead>
+                        <TableHead className="text-right text-xs px-4 bg-muted/50 font-bold">{t('bet_amount')}</TableHead>
+                        <TableHead className="text-right text-xs px-4 bg-muted/50 font-bold">{t('profit')}</TableHead>
+                        <TableHead className="text-center text-xs px-4 bg-muted/50 font-bold">{t('result')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {!user ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                            {t('please_login') || '请先登录'}
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredPlayerHistory.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                            {t('no_history_data')}
+                          </TableCell>
+                        </TableRow>
+                      ) : isPlayerLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                            {t('loading') || '加载中...'}
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredPlayerHistory.map((prediction) => {
+                          const profit = calculateProfit(prediction);
+                          
+                          return (
+                            <TableRow 
+                              key={prediction.id}
+                              className="hover:bg-muted/50 transition-colors"
+                            >
+                              <TableCell className="font-medium text-sm px-4 py-4">
+                                {prediction.date}
+                              </TableCell>
+                              
+                              <TableCell className="text-sm px-4 py-4">
+                                <div className="truncate max-w-[150px]">
+                                  {prediction.matchId}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-sm font-medium px-4 py-4">
+                                <div className="truncate max-w-[120px]">
+                                  {prediction.prediction}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-sm px-4 py-4">
+                                <div className="truncate max-w-[140px]">
+                                  {prediction.betType}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-right font-mono text-sm font-bold px-4 py-4">
+                                ${prediction.betAmount.toFixed(2)}
+                              </TableCell>
+                              
+                              <TableCell className={`text-right font-mono text-sm font-bold px-4 py-4 ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
+                              </TableCell>
+                              
+                              <TableCell className="text-center px-4 py-4">
+                                {prediction.pending ? (
+                                  <Badge className="gap-1.5 bg-amber-500/20 text-amber-500 border-amber-500/30 text-xs px-2.5 py-0.5">
+                                    <span>{t('in_progress')}</span>
+                                  </Badge>
+                                ) : prediction.correct ? (
+                                  <Badge className="gap-1.5 bg-success/20 text-success border-success/30 text-xs px-2.5 py-0.5">
+                                    <CheckCircle2 className="h-3.5 w-3.5" />
+                                    <span>{t('correct')}</span>
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="destructive" className="gap-1.5 text-xs px-2.5 py-0.5">
+                                    <XCircle className="h-3.5 w-3.5" />
+                                    <span>{t('wrong')}</span>
+                                  </Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
