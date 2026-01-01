@@ -11,6 +11,7 @@ import { Settings, Send, History, Trophy, Share2, Check, Play, MoreVertical, Che
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
+import hunsoccerAlphaLogo from "@/assets/hunsoccer-alpha-text-logo.png";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -1022,8 +1023,8 @@ const MyPredictions = () => {
 
                   {/* Progress Section */}
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0">
-                      <Crown className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-lg bg-card flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="w-7 h-7 object-contain invert dark:invert-0" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground">{t('invite_reward_title') || 'Star Card Reward'}</p>
