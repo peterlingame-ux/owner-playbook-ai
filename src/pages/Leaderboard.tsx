@@ -49,10 +49,10 @@ const Leaderboard = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
           >
-            <TabsList className="grid grid-cols-3 w-full max-w-md sm:max-w-lg h-8 sm:h-10">
-              <TabsTrigger value="ai" className="text-[8px] xs:text-[10px] sm:text-sm px-0.5 xs:px-1 sm:px-4 h-7 sm:h-9 truncate">{t('ai_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="players" className="text-[8px] xs:text-[10px] sm:text-sm px-0.5 xs:px-1 sm:px-4 h-7 sm:h-9 truncate">{t('player_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="copy" className="text-[8px] xs:text-[10px] sm:text-sm px-0.5 xs:px-1 sm:px-4 h-7 sm:h-9 truncate">{t('copy_trading_board')}</TabsTrigger>
+            <TabsList className="grid grid-cols-3 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg h-auto sm:h-10 p-0.5 sm:p-1 gap-0.5 sm:gap-1">
+              <TabsTrigger value="ai" className="text-[9px] xs:text-[11px] sm:text-sm px-1 xs:px-2 sm:px-4 py-1.5 sm:py-2 h-auto min-h-[32px] sm:min-h-[36px] whitespace-normal leading-tight">{t('ai_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="players" className="text-[9px] xs:text-[11px] sm:text-sm px-1 xs:px-2 sm:px-4 py-1.5 sm:py-2 h-auto min-h-[32px] sm:min-h-[36px] whitespace-normal leading-tight">{t('player_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="copy" className="text-[9px] xs:text-[11px] sm:text-sm px-1 xs:px-2 sm:px-4 py-1.5 sm:py-2 h-auto min-h-[32px] sm:min-h-[36px] whitespace-normal leading-tight">{t('copy_trading_board')}</TabsTrigger>
             </TabsList>
           </motion.div>
           
