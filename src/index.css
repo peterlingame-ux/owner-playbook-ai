@@ -393,3 +393,13 @@ All colors MUST be HSL.
               0 0 30px 9px hsl(var(--warning) / 0.2);
   border: 2px solid hsl(var(--warning)) !important;
 }
+
+/* VIP Badge Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
