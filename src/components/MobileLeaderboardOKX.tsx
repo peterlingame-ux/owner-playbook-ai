@@ -419,28 +419,28 @@ const MobileLeaderboardOKX = () => {
               </div>
             </div>
 
-            {/* Middle: Profit Rate + Profit Amount + Followers + Chart */}
+            {/* Middle: Profit Rate + Profit Amount + Chart */}
             <div className="flex items-end justify-between mb-4">
               <div>
-                <p className="text-[10px] text-muted-foreground mb-1">
-                  {t('profit_rate_label') || '盈利率'}
-                </p>
-                <p className={`text-3xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
-                </p>
-                {/* Profit Amount with Hunter Coin */}
-                <p className="text-[10px] text-muted-foreground mt-2 mb-0.5">
-                  {t('profit_amount_label') || '盈利金额'}
-                </p>
-                <p className={`text-sm font-semibold flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
-                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
-                </p>
-                {/* Followers Count */}
-                <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {t('followers_count', { count: model.followers }) || `${model.followers}人跟单`}
-                </p>
+                {/* Profit Rate - Same Line */}
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="text-[10px] text-muted-foreground">
+                    {t('profit_rate_label') || '盈利率'}
+                  </span>
+                  <span className={`text-2xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
+                  </span>
+                </div>
+                {/* Profit Amount - Same Line */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground">
+                    {t('profit_amount_label') || '盈利金额'}
+                  </span>
+                  <span className={`text-sm font-semibold flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
+                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                  </span>
+                </div>
               </div>
               
               {/* Mini Chart */}
@@ -458,9 +458,9 @@ const MobileLeaderboardOKX = () => {
               </div>
             </div>
 
-            {/* Bottom Stats: Correct, Wrong, Win Rate */}
+            {/* Bottom Stats: Correct, Wrong, Followers, Win Rate */}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1 text-success">
                   <CheckCircle className="h-3 w-3" />
                   {t('correct_matches_count', { count: model.correctPredictions }) || `正确${model.correctPredictions}场`}
@@ -469,9 +469,12 @@ const MobileLeaderboardOKX = () => {
                   <XCircle className="h-3 w-3" />
                   {t('wrong_matches_count', { count: model.wrongPredictions }) || `错误${model.wrongPredictions}场`}
                 </span>
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  {t('followers_count', { count: model.followers }) || `${model.followers}人跟单`}
+                </span>
               </div>
-              <div className="flex items-center gap-1 text-success font-medium">
-                <Zap className="h-3 w-3" />
+              <div className="text-success font-medium">
                 {t('win_rate_prefix') || '胜率'}{model.winRate}%
               </div>
             </div>
