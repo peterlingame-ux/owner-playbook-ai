@@ -113,6 +113,8 @@ const MobileLeaderboardOKX = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAllPredictors, setShowAllPredictors] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFollowersDialog, setShowFollowersDialog] = useState(false);
+  const [selectedModelForFollowers, setSelectedModelForFollowers] = useState<string | null>(null);
 
   // Fetch players data
   const fetchPlayers = useCallback(async () => {
@@ -704,10 +706,17 @@ const MobileLeaderboardOKX = () => {
                   <XCircle className="h-2.5 w-2.5" />
                   {t('wrong_matches_count', { count: model.wrongPredictions }) || `错误${model.wrongPredictions}场`}
                 </span>
-                <span className="flex items-center gap-0.5">
+                <button 
+                  className="flex items-center gap-0.5 hover:text-primary transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedModelForFollowers(model.id);
+                    setShowFollowersDialog(true);
+                  }}
+                >
                   <Users className="h-2.5 w-2.5" />
                   {model.followers}{t('followers_suffix') || '跟单'}
-                </span>
+                </button>
               </div>
               <div className="text-success font-medium">
                 {t('win_rate_prefix') || '胜率'}{model.winRate}%
@@ -938,6 +947,132 @@ const MobileLeaderboardOKX = () => {
                   </div>
                 </motion.div>
               ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Model Followers/Subscribers Dialog */}
+      <Dialog open={showFollowersDialog} onOpenChange={setShowFollowersDialog}>
+        <DialogContent className="max-w-md w-[95vw] max-h-[85vh] p-0 bg-card border-primary/30 overflow-hidden">
+          <DialogHeader className="p-4 pb-3 border-b border-border/30">
+            <DialogTitle className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-lg font-bold">
+                  {selectedModelForFollowers && (
+                    <>
+                      <img 
+                        src={getAIIcon(selectedModelForFollowers)} 
+                        alt="" 
+                        className="h-5 w-5"
+                      />
+                      {aiModels.find(m => m.id === selectedModelForFollowers)?.name || selectedModelForFollowers.toUpperCase()} - {t('subscribers') || '订阅用户'}
+                    </>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('updated_at') || '更新于'} {new Date().toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-success">
+                <span className="text-xs text-muted-foreground">{t('total_profit_rate') || '总收益率'}</span>
+                <span className="text-lg font-bold">+85.0%</span>
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {/* Table Header */}
+          <div className="flex items-center justify-between px-4 py-2 bg-muted/20 text-xs text-muted-foreground border-b border-border/30">
+            <span>{t('rank') || '排名'}</span>
+            <span>{t('player_profit_volume') || '玩家收益 | 带单规模'}</span>
+          </div>
+          
+          {/* Subscribers List */}
+          <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-3 pt-3">
+            {(() => {
+              // Generate mock subscribers data
+              const mockSubscribers = virtualPlayers.slice(0, 10).map((player, idx) => ({
+                id: player.id,
+                displayName: player.displayName.length > 5 
+                  ? player.displayName.substring(0, 3) + '***' + player.displayName.slice(-4) 
+                  : player.displayName,
+                avatarUrl: player.avatarUrl,
+                subscribeCount: Math.floor(5 + Math.random() * 30),
+                profit: Math.round((Math.random() - 0.3) * 300 * 100) / 100,
+                volume: Math.round(500 + Math.random() * 1500 * 100) / 100,
+              }));
+              
+              return mockSubscribers.map((sub, index) => (
+                <motion.div
+                  key={sub.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="flex items-center gap-3"
+                >
+                  {/* Rank Medal */}
+                  <div className="w-8 flex-shrink-0 flex justify-center">
+                    {index === 0 ? (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+                        <Trophy className="h-4 w-4 text-yellow-900" />
+                      </div>
+                    ) : index === 1 ? (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center shadow-lg">
+                        <Trophy className="h-4 w-4 text-gray-700" />
+                      </div>
+                    ) : index === 2 ? (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg">
+                        <Trophy className="h-4 w-4 text-amber-900" />
+                      </div>
+                    ) : (
+                      <span className="text-lg font-bold text-muted-foreground">{index + 1}</span>
+                    )}
+                  </div>
+                  
+                  {/* Avatar */}
+                  <Avatar className="w-12 h-12 border-2 border-border">
+                    <AvatarImage src={sub.avatarUrl} alt={sub.displayName} />
+                    <AvatarFallback>{sub.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Name & Subscribe Count */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-base text-foreground truncate">{sub.displayName}</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {t('subscribed_count', { count: sub.subscribeCount }) || `已订阅${sub.subscribeCount}次`}
+                    </p>
+                  </div>
+                  
+                  {/* Profit & Volume */}
+                  <div className="text-right flex-shrink-0">
+                    <p className={`text-lg font-bold flex items-center justify-end gap-0.5 ${sub.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {sub.profit >= 0 ? '+' : ''}{sub.profit.toFixed(2)}
+                      <img src={hunterCoinIcon} alt="HC" className="w-4 h-4" />
+                    </p>
+                    <p className="text-sm text-muted-foreground flex items-center justify-end gap-0.5">
+                      {sub.volume.toFixed(2)}
+                      <img src={hunterCoinIcon} alt="HC" className="w-3.5 h-3.5" />
+                    </p>
+                  </div>
+                </motion.div>
+              ));
+            })()}
+          </div>
+          
+          {/* Close Button */}
+          <div className="p-4 border-t border-border/30">
+            <button 
+              onClick={() => setShowFollowersDialog(false)}
+              className="w-full py-3 bg-muted/50 hover:bg-muted rounded-lg text-foreground font-medium transition-colors"
+            >
+              {t('close') || '关闭'}
+            </button>
           </div>
         </DialogContent>
       </Dialog>
