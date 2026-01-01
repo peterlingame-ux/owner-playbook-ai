@@ -147,7 +147,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <TiltCard
-      className={`group rounded-xl sm:rounded-2xl bg-gradient-to-br ${theme.from} ${theme.to} backdrop-blur-sm border ${theme.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer`}
+      className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${theme.from} ${theme.to} backdrop-blur-sm border ${theme.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer`}
       onClick={handleCardClick}
       maxTilt={6}
       scale={1.02}
@@ -156,9 +156,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
       {/* Locked Overlay */}
       {model.locked && (
         <div className="absolute inset-0 z-30 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/80 border border-border">
-            <Lock className="h-3 w-3 text-amber-400" />
-            <span className="text-[10px] sm:text-sm font-medium text-amber-400">{t('locked_model')}</span>
+          <div className="flex items-center gap-1 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full bg-muted/80 border border-border">
+            <Lock className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-400" />
+            <span className="text-[8px] sm:text-sm font-medium text-amber-400">{t('locked_model')}</span>
           </div>
         </div>
       )}
@@ -177,17 +177,17 @@ const ModelCard = ({ model }: ModelCardProps) => {
       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 p-2 sm:p-5">
+      <div className="relative z-10 p-1.5 sm:p-5">
         {/* Header: Model Info + Points Badge */}
-        <div className="flex items-start justify-between gap-1 sm:gap-2 mb-2 sm:mb-5">
+        <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1.5 sm:mb-5">
           {/* Model Icon & Name */}
-          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-1 sm:gap-3 min-w-0 flex-1">
             <motion.div 
               className="relative shrink-0"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              <div className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center p-1 sm:p-2.5 ring-2 ring-white/10`}>
+              <div className={`w-6 h-6 sm:w-14 sm:h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center p-0.5 sm:p-2.5 ring-1 sm:ring-2 ring-white/10`}>
                 <img 
                   src={getModelIcon(model.id)} 
                   alt={model.name}
@@ -197,19 +197,19 @@ const ModelCard = ({ model }: ModelCardProps) => {
               </div>
             </motion.div>
             <div className="min-w-0">
-              <h3 className={`font-bold text-[10px] sm:text-lg tracking-tight uppercase ${theme.accent} truncate`}>
+              <h3 className={`font-bold text-[9px] sm:text-lg tracking-tight uppercase ${theme.accent} truncate`}>
                 {model.displayName.split(' ')[0]}
               </h3>
             </div>
           </div>
           
           {/* Points Badge */}
-          <div className={`inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2.5 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg shrink-0 ${
+          <div className={`inline-flex items-center gap-0.5 px-0.5 sm:px-2.5 py-0.5 sm:py-1.5 rounded sm:rounded-lg shrink-0 ${
             isPositive 
               ? 'bg-success/20 border border-success/30' 
               : 'bg-destructive/20 border border-destructive/30'
           }`}>
-            <span className={`font-mono font-bold text-[9px] sm:text-sm tabular-nums leading-none ${
+            <span className={`font-mono font-bold text-[8px] sm:text-sm tabular-nums leading-none ${
               isPositive ? 'text-success' : 'text-destructive'
             }`}>
               {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}
@@ -217,25 +217,25 @@ const ModelCard = ({ model }: ModelCardProps) => {
             <img 
               src={hunterCoinIcon} 
               alt="猎人币" 
-              className="h-2.5 w-2.5 sm:h-4 sm:w-4 shrink-0" 
+              className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" 
               loading="lazy" 
             />
           </div>
         </div>
 
         {/* Win Rate Section */}
-        <div className="mb-2 sm:mb-5">
-          <div className="flex items-center justify-between mb-1 sm:mb-2">
-            <span className="text-[8px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium">
+        <div className="mb-1.5 sm:mb-5">
+          <div className="flex items-center justify-between mb-0.5 sm:mb-2">
+            <span className="text-[7px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium">
               胜率
             </span>
-            <span className="text-base sm:text-3xl font-bold font-mono tabular-nums text-foreground">
+            <span className="text-sm sm:text-3xl font-bold font-mono tabular-nums text-foreground">
               {animatedWinRate.toFixed(1)}%
             </span>
           </div>
           
           {/* Progress Bar */}
-          <div className="relative h-1 sm:h-2 bg-white/5 rounded-full overflow-hidden">
+          <div className="relative h-0.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
             <motion.div 
               className={`absolute inset-y-0 left-0 rounded-full ${theme.progress}`}
               initial={{ width: 0 }}
@@ -253,22 +253,22 @@ const ModelCard = ({ model }: ModelCardProps) => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-1 sm:gap-3 mb-2 sm:mb-5 p-1.5 sm:p-3 rounded-md sm:rounded-xl bg-white/5 border border-white/5">
+        <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1.5 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-white/5 border border-white/5">
           <div className="text-center">
-            <p className="text-[7px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0.5 font-medium">{t('correct')}</p>
-            <p className="text-xs sm:text-xl font-bold font-mono tabular-nums text-success">
+            <p className="text-[6px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium">{t('correct')}</p>
+            <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-success">
               {model.correctPredictions}
             </p>
           </div>
           <div className="text-center border-x border-white/10">
-            <p className="text-[7px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0.5 font-medium">{t('total_predictions')}</p>
-            <p className="text-xs sm:text-xl font-bold font-mono tabular-nums text-foreground">
+            <p className="text-[6px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium">{t('total_predictions')}</p>
+            <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-foreground">
               {model.totalPredictions}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-[7px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0.5 font-medium">{t('wrong')}</p>
-            <p className="text-xs sm:text-xl font-bold font-mono tabular-nums text-destructive">
+            <p className="text-[6px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium">{t('wrong')}</p>
+            <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
               {wrongPredictions}
             </p>
           </div>
@@ -278,7 +278,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
         <Button
           variant={isFollowing ? "default" : "outline"}
           size="sm"
-          className={`w-full h-7 sm:h-10 text-[9px] sm:text-sm font-semibold transition-all duration-300 rounded-md sm:rounded-xl ${
+          className={`w-full h-6 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl ${
             isFollowing 
               ? 'bg-success/20 hover:bg-success/30 text-success border border-success/30 shadow-sm' 
               : 'bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 shadow-sm'

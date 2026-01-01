@@ -112,15 +112,15 @@ const UserModelCard = () => {
       transition={{ duration: 0.4 }}
     >
       <TiltCard
-        className={`group rounded-xl sm:rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_-5px_rgba(245,158,11,0.4)]`}
+        className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border sm:border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_15px_-5px_rgba(245,158,11,0.25)] sm:shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_25px_-5px_rgba(245,158,11,0.4)]`}
         onClick={handleCardClick}
         maxTilt={6}
         scale={1.02}
         glare={false}
       >
-        {/* Animated Golden Glow Effects */}
+        {/* Animated Golden Glow Effects - Hidden on mobile for performance */}
         <motion.div 
-          className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"
+          className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none hidden sm:block"
           animate={{ 
             opacity: [0.2, 0.5, 0.2],
             scale: [1, 1.2, 1],
@@ -128,14 +128,14 @@ const UserModelCard = () => {
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute -bottom-16 -left-16 w-36 h-36 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none"
+          className="absolute -bottom-16 -left-16 w-36 h-36 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none hidden sm:block"
           animate={{ 
             opacity: [0.15, 0.4, 0.15],
           }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-300/10 rounded-full blur-3xl pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-300/10 rounded-full blur-3xl pointer-events-none hidden sm:block"
           animate={{ 
             scale: [0.8, 1.1, 0.8],
             opacity: [0.1, 0.25, 0.1],
@@ -157,17 +157,17 @@ const UserModelCard = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 p-3 sm:p-5">
+        <div className="relative z-10 p-1.5 sm:p-5">
           {/* Header: Model Info + Points Badge */}
-          <div className="flex items-start justify-between gap-2 mb-3 sm:mb-5">
+          <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1.5 sm:mb-5">
             {/* Avatar & Name */}
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-1 sm:gap-3 min-w-0">
               <motion.div
                 className="relative"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-2 ring-amber-400/40 overflow-hidden">
+                <div className="w-6 h-6 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-1 sm:ring-2 ring-amber-400/40 overflow-hidden">
                   {user ? (
                     <Avatar className="w-full h-full">
                       <AvatarImage
@@ -175,19 +175,19 @@ const UserModelCard = () => {
                         alt={title}
                         className="object-cover"
                       />
-                      <AvatarFallback className="text-xs sm:text-sm font-bold bg-amber-900/50 text-amber-200">
+                      <AvatarFallback className="text-[8px] sm:text-sm font-bold bg-amber-900/50 text-amber-200">
                         {(userProfile?.display_name || "U")[0]}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
                     <motion.div 
-                      className="w-full h-full rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/20 flex items-center justify-center border-2 border-dashed border-amber-400/50"
+                      className="w-full h-full rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/20 flex items-center justify-center border border-dashed sm:border-2 border-amber-400/50"
                       animate={{ 
                         borderColor: ['rgba(251,191,36,0.5)', 'rgba(251,191,36,0.8)', 'rgba(251,191,36,0.5)'],
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <User className="h-4 w-4 sm:h-6 sm:w-6 text-amber-400" />
+                      <User className="h-3 w-3 sm:h-6 sm:w-6 text-amber-400" />
                     </motion.div>
                   )}
                 </div>
@@ -195,7 +195,7 @@ const UserModelCard = () => {
 
               <div className="min-w-0">
                 <h3
-                  className={`font-bold text-xs sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
+                  className={`font-bold text-[9px] sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
                   title={title}
                 >
                   {title}
@@ -204,9 +204,9 @@ const UserModelCard = () => {
             </div>
 
             {/* Points Badge */}
-            <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col items-end gap-0.5">
               <div
-                className={`px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-mono font-bold text-[10px] sm:text-sm tabular-nums border inline-flex items-center gap-1 ${
+                className={`px-0.5 sm:px-3 py-0.5 sm:py-1.5 rounded sm:rounded-lg font-mono font-bold text-[8px] sm:text-sm tabular-nums border inline-flex items-center gap-0.5 ${
                   user
                     ? isPositive
                       ? "bg-success/20 text-success border-success/30"
@@ -214,24 +214,24 @@ const UserModelCard = () => {
                     : "bg-amber-500/10 text-amber-400/50 border-amber-500/30"
                 }`}
               >
-                <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-5 sm:h-5" />
+                <img src={hunterCoinIcon} alt="猎人币" className="w-2 h-2 sm:w-5 sm:h-5" />
                 {profitLabel}
               </div>
             </div>
           </div>
 
           {/* Win Rate Section */}
-          <div className="mb-3 sm:mb-5">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <span className="text-[9px] sm:text-xs text-amber-200/60 uppercase tracking-wider font-medium">
+          <div className="mb-1.5 sm:mb-5">
+            <div className="flex items-center justify-between mb-0.5 sm:mb-2">
+              <span className="text-[7px] sm:text-xs text-amber-200/60 uppercase tracking-wider font-medium">
                 {t("win_rate")}
               </span>
-              <span className="text-xl sm:text-3xl font-bold font-mono tabular-nums text-amber-300">
+              <span className="text-sm sm:text-3xl font-bold font-mono tabular-nums text-amber-300">
                 {user ? `${animatedWinRate.toFixed(1)}%` : "--%"}
               </span>
             </div>
 
-            <div className="relative h-1.5 sm:h-2 bg-amber-900/30 rounded-full overflow-hidden">
+            <div className="relative h-0.5 sm:h-2 bg-amber-900/30 rounded-full overflow-hidden">
               <motion.div
                 className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress}`}
                 initial={{ width: 0 }}
@@ -248,28 +248,28 @@ const UserModelCard = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-3 sm:mb-5 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-amber-900/20 border border-amber-500/20">
+          <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1.5 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-amber-900/20 border border-amber-500/20">
             <div className="text-center">
-              <p className="text-[8px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0.5 sm:mb-1 font-medium">
+              <p className="text-[6px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0 font-medium">
                 {t("correct")}
               </p>
-              <p className="text-sm sm:text-xl font-bold font-mono tabular-nums text-success">
+              <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-success">
                 {user ? stats.correctPredictions : "--"}
               </p>
             </div>
             <div className="text-center border-x border-amber-500/20">
-              <p className="text-[8px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0.5 sm:mb-1 font-medium">
+              <p className="text-[6px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0 font-medium">
                 {t("total_predictions")}
               </p>
-              <p className="text-sm sm:text-xl font-bold font-mono tabular-nums text-amber-300">
+              <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-amber-300">
                 {user ? stats.totalPredictions : "--"}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[8px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0.5 sm:mb-1 font-medium">
+              <p className="text-[6px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0 font-medium">
                 {t("wrong")}
               </p>
-              <p className="text-sm sm:text-xl font-bold font-mono tabular-nums text-destructive">
+              <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
                 {user ? wrongPredictions : "--"}
               </p>
             </div>
@@ -279,7 +279,7 @@ const UserModelCard = () => {
           <Button
             variant="outline"
             size="sm"
-            className="w-full h-8 sm:h-10 text-[10px] sm:text-sm font-semibold transition-all duration-300 rounded-lg sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
+            className="w-full h-6 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
             onClick={handlePrimaryAction}
           >
             {user ? t("my_predictions") : t("login_to_create_model")}

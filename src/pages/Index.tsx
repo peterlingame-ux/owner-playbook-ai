@@ -281,10 +281,10 @@ const Index = () => {
 
         {/* Models Section */}
         <section className="mb-6 sm:mb-10 lg:mb-14">
-          <h2 className="text-sm sm:text-base lg:text-xl font-semibold mb-3 sm:mb-4 lg:mb-5 text-foreground tracking-wide text-center">
+          <h2 className="text-xs sm:text-base lg:text-xl font-semibold mb-2 sm:mb-4 lg:mb-5 text-foreground tracking-wide text-center px-1">
             {t('the_contestants')}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-3 lg:gap-5 px-0.5 sm:px-0">
             {sortedModels.filter(model => model.id !== 'hunsoccermax').map((model) => (
               <ModelCard 
                 key={model.id} 
