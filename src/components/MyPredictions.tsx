@@ -875,15 +875,15 @@ const MyPredictions = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="py-4 space-y-4"
               >
-                {/* Personal Stats Grid */}
+                {/* Main Stats Grid - 2x2 */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-foreground">{stats?.totalPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_predictions') || 'Total Predictions'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_predictions') || '预测'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-success">{stats?.correctPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('correct_predictions') || 'Correct'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('correct_predictions_count') || '次正确预测'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-destructive">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
@@ -893,7 +893,52 @@ const MyPredictions = () => {
                     <p className={`text-3xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('profit_loss') || 'Profit/Loss'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('profit_amount') || '盈利金额'}</p>
+                  </div>
+                </div>
+
+                {/* Additional Stats - Win Rate & Balance */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
+                    <p className="text-3xl font-bold text-foreground">{(stats?.winRate || 0).toFixed(1)}%</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('win_rate') || '胜率'}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <p className="text-3xl font-bold text-foreground">{(stats?.balance || 10000).toLocaleString()}</p>
+                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{t('hunter_coin_balance') || '猎人币余额'}</p>
+                  </div>
+                </div>
+
+                {/* Wagered Stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <p className="text-2xl font-bold text-foreground">{(stats?.totalWagered || 0).toLocaleString()}</p>
+                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_wagered') || '总投注'}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <p className="text-2xl font-bold text-success">{(stats?.totalWon || 0).toLocaleString()}</p>
+                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_won') || '总赢得'}</p>
+                  </div>
+                </div>
+
+                {/* Followers & Following Stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
+                    <p className="text-2xl font-bold text-foreground">{followersList.length}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('followers_label') || '粉丝'}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
+                    <p className="text-2xl font-bold text-foreground">{followingList.length}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('following_label') || '关注'}</p>
                   </div>
                 </div>
 
