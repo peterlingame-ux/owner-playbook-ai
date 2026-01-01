@@ -1052,32 +1052,40 @@ const MyPredictions = () => {
 
         {/* Right Column - Stats & Data */}
         <div className="lg:col-span-2 flex flex-col space-y-4">
-          {/* Win Rate Hero */}
+          {/* Win Rate Hero - Modern Glass Card */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-background to-primary/5 border border-primary/20 p-6 lg:p-8"
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card/95 via-card/80 to-card/60 backdrop-blur-xl border border-border/50 p-5 sm:p-6 lg:p-8"
           >
-            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
-            <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('win_rate')}</p>
-                <p className="text-5xl lg:text-6xl font-extralight text-foreground tracking-tight">
-                  {(stats?.winRate || 0).toFixed(1)}
-                  <span className="text-2xl lg:text-3xl text-muted-foreground">%</span>
+            {/* Background decorations */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/15 to-transparent rounded-full blur-3xl -translate-y-1/4 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" />
+            
+            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+              <div className="flex-1">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground/80 font-medium mb-2">
+                  Win Rate (%)
                 </p>
-                <p className="text-sm text-primary mt-3">
-                  {t('top_percent_players', { percent: Math.min(99, Math.round(100 - (stats?.winRate || 0))) })}
+                <div className="flex items-baseline gap-1">
+                  <p className="text-5xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tighter">
+                    {(stats?.winRate || 0).toFixed(1)}
+                  </p>
+                  <span className="text-xl sm:text-2xl lg:text-3xl text-muted-foreground/60 font-light">%</span>
+                </div>
+                <p className="text-sm text-primary/80 mt-2 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Top {Math.min(99, Math.round(100 - (stats?.winRate || 0)))}% of players</span>
                 </p>
               </div>
-              <div className="w-full lg:w-48 h-24">
+              <div className="w-full sm:w-40 lg:w-48 h-20 sm:h-24">
                 <PerformanceChart predictions={stats?.recentPredictions || []} />
               </div>
             </div>
           </motion.div>
 
-          {/* Stats Grid - 7 Parameters */}
+          {/* Stats Grid - Modern Dashboard Style */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1085,101 +1093,152 @@ const MyPredictions = () => {
             className="space-y-3"
           >
             {/* Row 1: Core Stats - 4 cards */}
-            <div className="grid grid-cols-4 gap-3">
-              {/* 1. Total Predictions - 总预测 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-light text-foreground tabular-nums">{stats?.totalPredictions || 0}</p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('total_predictions_count')}</p>
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
+              {/* Total Predictions */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-primary/30 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-foreground tabular-nums tracking-tight">
+                    {stats?.totalPredictions || 0}
+                  </p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    Total
+                  </p>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* 2. Correct - 正确 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-light text-emerald-500 tabular-nums">{stats?.correctPredictions || 0}</p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('correct_count')}</p>
+              {/* Correct */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-emerald-500 tabular-nums tracking-tight">
+                    {stats?.correctPredictions || 0}
+                  </p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    Won
+                  </p>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* 3. Wrong - 错误 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-destructive/40 hover:shadow-lg hover:shadow-destructive/5 transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-light text-destructive tabular-nums">
+              {/* Wrong */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-destructive/30 hover:shadow-xl hover:shadow-destructive/5 transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-destructive/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-destructive tabular-nums tracking-tight">
                     {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0) - (stats?.recentPredictions?.filter(p => p.result === 'pending').length || 0)}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('wrong_count')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    Lost
+                  </p>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* 4. P&L - 盈亏 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums ${(stats?.profit || 0) >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+              {/* P&L */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-primary/30 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums tracking-tight ${(stats?.profit || 0) >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                     {(stats?.profit || 0) >= 0 ? '+' : ''}${Math.abs(stats?.profit || 0).toLocaleString()}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('pnl_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    P&L
+                  </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Row 2: Financial Stats - 3 cards */}
-            <div className="grid grid-cols-3 gap-3">
-              {/* 5. Virtual Bet - 虚拟下注 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-light text-foreground tabular-nums">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {/* Virtual Bet */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-primary/30 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-light text-foreground tabular-nums tracking-tight">
                     ${(stats?.totalWagered || 0).toLocaleString()}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('virtual_bet_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    Wagered
+                  </p>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* 6. Profit Rate - 盈利率 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums ${calculatedProfitRate >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+              {/* Profit Rate */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums tracking-tight ${calculatedProfitRate >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                     {calculatedProfitRate >= 0 ? '+' : ''}{calculatedProfitRate.toFixed(1)}%
                   </p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('profit_rate_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    ROI
+                  </p>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* 7. Profit Amount - 盈利金额 */}
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border/50 p-3 sm:p-4 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
-                <div className="flex flex-col items-center text-center">
-                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums ${(stats?.totalWon || 0) > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
+              {/* Profit Amount */}
+              <motion.div 
+                whileHover={{ y: -2 }}
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-3 sm:p-4 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex flex-col items-center text-center">
+                  <p className={`text-xl sm:text-2xl lg:text-3xl font-light tabular-nums tracking-tight ${(stats?.totalWon || 0) > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
                     +${(stats?.totalWon || 0).toLocaleString()}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{t('profit_amount_label')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 uppercase tracking-wider mt-1.5 font-medium">
+                    Winnings
+                  </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
 
-          {/* Invitation Section */}
+          {/* Invitation Section - Modern Card */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="rounded-2xl bg-card border border-border p-5 lg:p-6"
+            className="rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/40 p-4 sm:p-5 lg:p-6 overflow-hidden relative"
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Subtle background glow */}
+            <div className="absolute top-0 left-1/2 w-48 h-48 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+            
+            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-primary/10">
-                  <Users className="h-6 w-6 text-primary" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('referral_code')}</p>
-                  <p className="text-xl font-mono tracking-[0.25em] text-foreground mt-1">
+                  <p className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.15em] font-medium mb-1">
+                    Referral Code
+                  </p>
+                  <p className="text-lg sm:text-xl font-mono tracking-[0.2em] text-foreground">
                     {userProfile?.invitation_code || '--------'}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <button 
-                  className="text-center"
+                  className="text-center group"
                   onClick={() => {
                     if ((userProfile?.invited_count || 0) > 0) {
                       setIsInvitedUsersOpen(true);
@@ -1187,26 +1246,32 @@ const MyPredictions = () => {
                     }
                   }}
                 >
-                  <p className="text-2xl font-light text-primary">{userProfile?.invited_count || 0}</p>
-                  <p className="text-xs text-muted-foreground">{t('invited_label')}</p>
+                  <p className="text-2xl sm:text-3xl font-light text-primary tabular-nums">{userProfile?.invited_count || 0}</p>
+                  <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-medium group-hover:text-primary transition-colors">
+                    Invited
+                  </p>
                 </button>
                 
                 {userProfile?.invitation_code && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-12 w-12 rounded-xl border-primary/30 hover:bg-primary/10"
-                    onClick={copyInvitationCode}
-                  >
-                    <Copy className="h-5 w-5 text-primary" />
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-12 w-12 rounded-xl border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all"
+                      onClick={copyInvitationCode}
+                    >
+                      <Copy className="h-5 w-5 text-primary" />
+                    </Button>
+                  </motion.div>
                 )}
               </div>
             </div>
             
-            <p className="text-sm text-muted-foreground pt-4 mt-4 border-t border-border">
-              {t('referral_bonus_text')}
-            </p>
+            <div className="relative mt-4 pt-4 border-t border-border/30">
+              <p className="text-sm text-muted-foreground/80">
+                <span className="text-primary font-medium">Invite 5 friends</span> to unlock 1 month of free VIP membership
+              </p>
+            </div>
           </motion.div>
 
         </div>
