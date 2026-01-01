@@ -397,23 +397,21 @@ const MobileLeaderboardOKX = () => {
               {/* Top Right Action Buttons */}
               <div className="flex items-center gap-1.5">
                 <button 
-                  className="px-2 py-1 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-md flex items-center gap-1 transition-colors"
+                  className="px-2 py-1 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-md transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/models?model=${model.id}&tab=history`);
                   }}
                 >
-                  <History className="h-3 w-3" />
                   {t('history_predictions') || '历史预测'}
                 </button>
                 <button 
-                  className="px-2 py-1 text-[10px] font-medium bg-primary/20 hover:bg-primary/30 text-primary rounded-md flex items-center gap-1 transition-colors"
+                  className="px-2 py-1 text-[10px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded-md transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     // Auto follow action placeholder
                   }}
                 >
-                  <UserPlus className="h-3 w-3" />
                   {t('auto_follow') || '自动跟单'}
                 </button>
               </div>
