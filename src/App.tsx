@@ -17,7 +17,6 @@ import PlayerDetail from "./pages/PlayerDetail";
 import MatchDetail from "./pages/MatchDetail";
 import Blog from "./pages/Blog";
 import Auth from "./pages/Auth";
-import Waitlist from "./pages/Waitlist";
 import History from "./pages/History";
 import MyPredictions from "./pages/MyPredictions";
 import MyFollowing from "./pages/MyFollowing";
@@ -42,7 +41,6 @@ const AnimatedRoutes = () => {
         <Route path="/my-predictions" element={<PageTransition><MyPredictions /></PageTransition>} />
         <Route path="/my-following" element={<PageTransition><MyFollowing /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
-        <Route path="/waitlist" element={<PageTransition><Waitlist /></PageTransition>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>

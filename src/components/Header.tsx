@@ -28,7 +28,6 @@ const Header = () => {
     { to: "/", label: t('nav_live') },
     { to: "/models", label: t('nav_models') },
     { to: "/my-predictions", label: t('nav_personal_center') },
-    { to: "/waitlist", label: t('nav_prize') },
   ];
 
   const handleSignOut = async () => {
