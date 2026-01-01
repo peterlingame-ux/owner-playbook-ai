@@ -536,39 +536,39 @@ const MyPredictions = () => {
                 </svg>
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card border-border">
+            <DialogContent className="w-[calc(100vw-2rem)] max-w-md mx-auto bg-card border-border max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-xl font-light tracking-wide">{t('edit_profile') || 'Edit Profile'}</DialogTitle>
+                <DialogTitle className="text-lg sm:text-xl font-light tracking-wide">{t('edit_profile') || 'Edit Profile'}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-6 py-4">
+              <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
+                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
                   <Input
                     value={editDisplayName}
                     onChange={(e) => setEditDisplayName(e.target.value)}
-                    className="h-12 bg-background border-border"
+                    className="h-10 sm:h-12 bg-background border-border text-sm"
                     maxLength={20}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
+                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
                   <Input
                     value={editSignature}
                     onChange={(e) => setEditSignature(e.target.value)}
-                    className="h-12 bg-background border-border"
+                    className="h-10 sm:h-12 bg-background border-border text-sm"
                     maxLength={50}
                   />
                 </div>
                 
-                <div className="space-y-3">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
-                  <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-2 sm:space-y-3">
+                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {AVATAR_OPTIONS.map((avatar) => (
                       <button
                         key={avatar}
                         onClick={() => setSelectedAvatar(avatar)}
-                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                        className={`relative aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
                           selectedAvatar === avatar 
                             ? 'border-primary ring-2 ring-primary/20' 
                             : 'border-border hover:border-muted-foreground'
@@ -579,7 +579,7 @@ const MyPredictions = () => {
                         </Avatar>
                         {selectedAvatar === avatar && (
                           <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <Check className="h-6 w-6 text-primary" />
+                            <Check className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                         )}
                       </button>
@@ -588,11 +588,11 @@ const MyPredictions = () => {
                 </div>
               </div>
               
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 h-12" onClick={() => setIsEditDialogOpen(false)}>
+              <div className="flex gap-2 sm:gap-3">
+                <Button variant="outline" className="flex-1 h-10 sm:h-12 text-sm" onClick={() => setIsEditDialogOpen(false)}>
                   {t('cancel') || 'Cancel'}
                 </Button>
-                <Button className="flex-1 h-12" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
+                <Button className="flex-1 h-10 sm:h-12 text-sm" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
                   {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
                 </Button>
               </div>
