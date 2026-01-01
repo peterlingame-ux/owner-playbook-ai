@@ -1,6 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
 import { Home, Trophy, Clock, Bot, User } from "lucide-react";
 
 const BottomNav = () => {
@@ -16,19 +15,14 @@ const BottomNav = () => {
   ];
 
   return (
-    <motion.nav 
-      className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom"
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
       {/* Glassmorphism background */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/90 to-black/70 backdrop-blur-xl" />
       
       {/* Top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
       
-      <div className="relative flex items-center justify-around px-2 py-1.5 pb-2">
+      <div className="relative flex items-center justify-around px-1 py-1 pb-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           const Icon = item.icon;
@@ -37,108 +31,66 @@ const BottomNav = () => {
             <NavLink
               key={item.to}
               to={item.to}
-              className="relative flex-1 flex justify-center"
+              className="relative flex-1 flex justify-center touch-manipulation"
             >
-              <motion.div
-                className={`relative flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl min-w-[56px]
-                  ${item.isCenter ? 'mt-[-8px]' : ''}`}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              <div
+                className={`relative flex flex-col items-center justify-center py-2 px-3 rounded-2xl min-w-[60px] min-h-[52px]
+                  active:scale-90 transition-transform duration-100
+                  ${item.isCenter ? 'mt-[-6px]' : ''}`}
               >
                 {/* Center button special styling */}
                 {item.isCenter && (
-                  <motion.div
+                  <div
                     className={`absolute inset-0 rounded-2xl ${
                       isActive 
-                        ? 'bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500' 
+                        ? 'bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]' 
                         : 'bg-gradient-to-br from-cyan-600/80 via-blue-600/80 to-purple-600/80'
                     }`}
-                    animate={isActive ? {
-                      boxShadow: [
-                        "0 0 20px rgba(59, 130, 246, 0.5)",
-                        "0 0 30px rgba(59, 130, 246, 0.7)",
-                        "0 0 20px rgba(59, 130, 246, 0.5)"
-                      ]
-                    } : {}}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
                 )}
                 
                 {/* Active background for non-center items */}
-                <AnimatePresence>
-                  {isActive && !item.isCenter && (
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl bg-white/10"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.8, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    />
-                  )}
-                </AnimatePresence>
+                {isActive && !item.isCenter && (
+                  <div className="absolute inset-0 rounded-2xl bg-white/10" />
+                )}
                 
-                {/* Icon with bounce animation */}
-                <motion.div
-                  className="relative z-10"
-                  animate={isActive ? { 
-                    y: [0, -3, 0],
-                  } : { y: 0 }}
-                  transition={{ 
-                    duration: 0.4, 
-                    ease: "easeOut",
-                  }}
-                >
+                {/* Icon */}
+                <div className="relative z-10">
                   <Icon 
-                    className={`h-5 w-5 transition-all duration-300 ${
+                    className={`h-5 w-5 transition-colors duration-200 ${
                       item.isCenter 
                         ? 'text-white' 
                         : isActive 
                           ? 'text-cyan-400' 
-                          : 'text-white/40'
+                          : 'text-white/50'
                     }`}
                     strokeWidth={isActive ? 2.5 : 2}
                   />
-                </motion.div>
+                </div>
                 
-                {/* Label with fade animation */}
-                <motion.span 
-                  className={`relative z-10 text-[10px] font-medium mt-0.5 whitespace-nowrap transition-all duration-300
+                {/* Label */}
+                <span 
+                  className={`relative z-10 text-[10px] font-medium mt-1 whitespace-nowrap transition-colors duration-200
                     ${item.isCenter 
                       ? 'text-white' 
                       : isActive 
-                        ? 'text-cyan-400' 
-                        : 'text-white/40'
+                        ? 'text-cyan-400 font-semibold' 
+                        : 'text-white/50'
                     }`}
-                  animate={isActive ? { 
-                    scale: 1.05,
-                    fontWeight: 600
-                  } : { 
-                    scale: 1,
-                    fontWeight: 500
-                  }}
-                  transition={{ duration: 0.2 }}
                 >
                   {item.label}
-                </motion.span>
+                </span>
                 
                 {/* Active indicator dot */}
-                <AnimatePresence>
-                  {isActive && !item.isCenter && (
-                    <motion.div
-                      className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                    />
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {isActive && !item.isCenter && (
+                  <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400" />
+                )}
+              </div>
             </NavLink>
           );
         })}
       </div>
-    </motion.nav>
+    </nav>
   );
 };
 
