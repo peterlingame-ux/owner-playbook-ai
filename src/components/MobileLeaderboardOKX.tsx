@@ -400,10 +400,10 @@ const MobileLeaderboardOKX = () => {
           </div>
         </div>
 
-        {/* Winning Model Section - Like the uploaded image */}
-        <div className="grid grid-cols-5 gap-2">
-          {/* Left: Winning Model Card - Takes 2 columns */}
-          <Card className="col-span-2 relative overflow-hidden">
+        {/* Winning Model Section - Responsive layout */}
+        <div className="space-y-3">
+          {/* Top: Winning Model Card - Full width */}
+          <Card className="relative overflow-hidden">
             {/* Background Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center"
@@ -416,46 +416,53 @@ const MobileLeaderboardOKX = () => {
             {/* Dark gradient for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
             
-            <CardContent className="p-3 relative z-10 h-full flex flex-col min-h-[200px]">
-              <h3 className="text-[10px] font-bold mb-2 text-white/80">{t('winning_model') || '获胜模型'}</h3>
-              <div className="flex items-center gap-1.5 mb-3">
-                <img 
-                  src={getAIIcon(winningModel.id)} 
-                  alt={winningModel.name} 
-                  className="h-6 w-6"
-                  style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                />
-                <span className="text-base font-bold text-white truncate">{winningModel.displayName.split(' ')[0]}</span>
-              </div>
+            <CardContent className="p-4 relative z-10">
+              <h3 className="text-xs font-bold mb-3 text-white/80">{t('winning_model') || '获胜模型'}</h3>
               
-              <div className="space-y-2 flex-1">
-                <div>
-                  <p className="text-[9px] text-white/70">{t('win_rate_label') || '胜率'}</p>
-                  <p className="text-2xl font-bold font-mono text-white">
-                    {winningModel.winRate}%
-                  </p>
+              <div className="flex items-start gap-4">
+                {/* Left: Model Info */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <img 
+                      src={getAIIcon(winningModel.id)} 
+                      alt={winningModel.name} 
+                      className="h-8 w-8"
+                      style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                    />
+                    <span className="text-lg font-bold text-white">{winningModel.displayName.split(' ')[0]}</span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-[10px] text-white/70">{t('win_rate_label') || '胜率'}</p>
+                      <p className="text-3xl font-bold font-mono text-white">
+                        {winningModel.winRate}%
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-[10px] text-white/70">{t('correct_predictions_label') || '正确预测'}</p>
+                      <p className="text-lg font-bold font-mono text-success">
+                        {winningModel.correctPredictions} / {winningModel.totalPredictions}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-[9px] text-white/70">{t('correct_predictions_label') || '正确预测'}</p>
-                  <p className="text-base font-bold font-mono text-success">
-                    {winningModel.correctPredictions} / {winningModel.totalPredictions}
-                  </p>
-                </div>
-                
-                <div>
-                  <p className="text-[9px] text-white/70 mb-1">{t('active_matches') || '活跃比赛'}</p>
-                  <div className="flex gap-1 flex-wrap">
-                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
-                      <GoalIcon size={8} className="flex-shrink-0" />
+                {/* Right: Active Leagues */}
+                <div className="flex-shrink-0">
+                  <p className="text-[10px] text-white/70 mb-2">{t('active_matches') || '活跃比赛'}</p>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[9px] text-white flex items-center gap-1">
+                      <GoalIcon size={10} className="flex-shrink-0" />
                       <span>Premier League</span>
                     </div>
-                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
-                      <GoalIcon size={8} className="flex-shrink-0" />
+                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[9px] text-white flex items-center gap-1">
+                      <GoalIcon size={10} className="flex-shrink-0" />
                       <span>La Liga</span>
                     </div>
-                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
-                      <GoalIcon size={8} className="flex-shrink-0" />
+                    <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[9px] text-white flex items-center gap-1">
+                      <GoalIcon size={10} className="flex-shrink-0" />
                       <span>Bundesliga</span>
                     </div>
                   </div>
@@ -464,50 +471,58 @@ const MobileLeaderboardOKX = () => {
             </CardContent>
           </Card>
 
-          {/* Right: Model Bar Cards - Takes 3 columns */}
-          <div className="col-span-3 flex gap-1.5 overflow-x-auto pb-2">
-            {modelsWithStats.map((model) => {
-              // Get model specific colors for bars
-              const getModelBarColor = (modelId: string) => {
-                switch(modelId) {
-                  case 'deepseek': return 'bg-[hsl(217,91%,60%)]';
-                  case 'hunsoccer-max': return 'bg-[hsl(38,92%,50%)]';
-                  case 'grok': return 'bg-[hsl(210,15%,55%)]';
-                  case 'gemini': return 'bg-[hsl(250,75%,60%)]';
-                  case 'gpt5': return 'bg-[hsl(158,68%,50%)]';
-                  case 'claude': return 'bg-[hsl(14,92%,60%)]';
-                  default: return 'bg-primary';
-                }
-              };
-              
-              const maxHeight = 120;
-              const minHeight = 40;
-              const heightRatio = Math.min(model.winRate / 100, 1);
-              const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
-              
-              return (
-                <div key={model.id} className="flex flex-col items-center gap-1 min-w-[48px] flex-shrink-0">
-                  <div className="text-[10px] font-mono font-bold text-foreground">
-                    {model.winRate.toFixed(1)}%
-                  </div>
-                  <div 
-                    className={`w-full rounded-md relative flex items-end justify-center pb-2 transition-all duration-300 ${getModelBarColor(model.id)}`}
-                    style={{ height: `${heightPx}px` }}
-                  >
-                    <img 
-                      src={getAIIcon(model.id)} 
-                      alt={model.name}
-                      className="h-5 w-5 object-contain"
-                      style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                    />
-                  </div>
-                  <div className="text-[8px] text-center font-medium text-muted-foreground truncate w-full">
-                    {model.displayName.split(' ')[0].substring(0, 8)}...
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {/* Bottom: Model Bar Cards - Horizontal scroll */}
+          <Card className="relative overflow-hidden bg-card/50 border-border/30">
+            <CardContent className="p-3">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {modelsWithStats.map((model) => {
+                  // Get model specific colors for bars
+                  const getModelBarColor = (modelId: string) => {
+                    switch(modelId) {
+                      case 'deepseek': return 'bg-[hsl(217,91%,60%)]';
+                      case 'hunsoccer-max': return 'bg-[hsl(38,92%,50%)]';
+                      case 'grok': return 'bg-[hsl(210,15%,55%)]';
+                      case 'gemini': return 'bg-[hsl(250,75%,60%)]';
+                      case 'gpt5': return 'bg-[hsl(158,68%,50%)]';
+                      case 'claude': return 'bg-[hsl(14,92%,60%)]';
+                      default: return 'bg-primary';
+                    }
+                  };
+                  
+                  const maxHeight = 100;
+                  const minHeight = 35;
+                  const heightRatio = Math.min(model.winRate / 100, 1);
+                  const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
+                  
+                  return (
+                    <div 
+                      key={model.id} 
+                      className="flex flex-col items-center gap-1 flex-1 min-w-[50px]"
+                      onClick={() => navigate(`/models?model=${model.id}`)}
+                    >
+                      <div className="text-[10px] font-mono font-bold text-foreground">
+                        {model.winRate.toFixed(1)}%
+                      </div>
+                      <div 
+                        className={`w-full rounded-md relative flex items-end justify-center pb-2 transition-all duration-300 cursor-pointer hover:opacity-90 ${getModelBarColor(model.id)}`}
+                        style={{ height: `${heightPx}px` }}
+                      >
+                        <img 
+                          src={getAIIcon(model.id)} 
+                          alt={model.name}
+                          className="h-5 w-5 object-contain"
+                          style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                        />
+                      </div>
+                      <div className="text-[8px] text-center font-medium text-muted-foreground truncate w-full">
+                        {model.displayName.split(' ')[0].substring(0, 6)}...
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Note */}
