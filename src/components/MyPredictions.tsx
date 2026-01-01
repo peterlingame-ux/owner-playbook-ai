@@ -749,7 +749,7 @@ const MyPredictions = () => {
             <div className="flex items-center justify-center gap-1.5">
               <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
               <p className="text-2xl font-bold text-foreground">
-                {(stats?.balance || 0) >= 10000 ? `${((stats?.balance || 0) / 1000).toFixed(1)}K` : (stats?.balance || 0).toLocaleString()}
+                {(stats?.balance || 0).toLocaleString()}
               </p>
             </div>
             <p className="text-sm text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
