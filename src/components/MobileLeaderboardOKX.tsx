@@ -386,19 +386,19 @@ const MobileLeaderboardOKX = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-card/50 rounded-xl p-4 border border-border/30"
+            className="bg-card/50 rounded-lg p-3 border border-border/30"
           >
             {/* Top: Icon + Name + Like Button + Action Buttons */}
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-2.5 mb-2">
               <div className="relative flex-shrink-0">
                 <div 
-                  className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden cursor-pointer"
+                  className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden cursor-pointer"
                   onClick={() => navigate(`/models?model=${model.id}`)}
                 >
-                  <img src={getAIIcon(model.id)} alt={model.name} className="w-8 h-8 object-contain" />
+                  <img src={getAIIcon(model.id)} alt={model.name} className="w-6 h-6 object-contain" />
                 </div>
                 {index < 3 && (
-                  <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
                     index === 0 ? 'bg-yellow-500 text-yellow-950' :
                     index === 1 ? 'bg-gray-400 text-gray-900' :
                     'bg-amber-600 text-amber-950'
@@ -409,28 +409,27 @@ const MobileLeaderboardOKX = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 
-                  className="font-bold text-base text-foreground truncate flex items-center gap-1.5 cursor-pointer"
+                  className="font-bold text-sm text-foreground truncate flex items-center gap-1 cursor-pointer"
                   onClick={() => navigate(`/models?model=${model.id}`)}
                 >
                   {model.name}
                   <button 
-                    className="p-1 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                    className="p-0.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Like action placeholder
                     }}
                   >
-                    <ThumbsUp className="h-3.5 w-3.5 text-primary" />
+                    <ThumbsUp className="h-3 w-3 text-primary" />
                   </button>
                 </h3>
-                <p className="text-xs text-muted-foreground line-clamp-1">
+                <p className="text-[10px] text-muted-foreground">
                   {t('predicted_matches', { count: model.totalPredictions }) || `预测${model.totalPredictions}场`}
                 </p>
               </div>
               {/* Top Right Action Buttons */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <button 
-                  className="px-2 py-1 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-md transition-colors"
+                  className="px-1.5 py-0.5 text-[9px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/models?model=${model.id}&tab=history`);
@@ -439,10 +438,9 @@ const MobileLeaderboardOKX = () => {
                   {t('history_predictions') || '历史预测'}
                 </button>
                 <button 
-                  className="px-2 py-1 text-[10px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded-md transition-colors"
+                  className="px-1.5 py-0.5 text-[9px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Auto follow action placeholder
                   }}
                 >
                   {t('auto_follow') || '自动跟单'}
@@ -451,31 +449,31 @@ const MobileLeaderboardOKX = () => {
             </div>
 
             {/* Middle: Profit Rate + Profit Amount + Chart */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex-1 min-w-0">
                 {/* Profit Rate - Same Line */}
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap w-12">
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-[9px] text-muted-foreground whitespace-nowrap w-10">
                     {t('profit_rate_label') || '盈利率'}
                   </span>
-                  <span className={`text-xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <span className={`text-lg font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
                   </span>
                 </div>
                 {/* Profit Amount - Same Line */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap w-12">
+                <div className="flex items-center gap-1">
+                  <span className="text-[9px] text-muted-foreground whitespace-nowrap w-10">
                     {t('profit_amount_label') || '盈利金额'}
                   </span>
-                  <span className={`text-sm font-semibold flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <span className={`text-xs font-semibold flex items-center gap-0.5 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
-                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5" />
+                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3" />
                   </span>
                 </div>
               </div>
               
               {/* Mini Chart */}
-              <div className="w-20 h-10 flex-shrink-0">
+              <div className="w-16 h-8 flex-shrink-0">
                 <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
                   <path
                     d={generateChartPath(model.id, model.changePercent)}
@@ -490,19 +488,19 @@ const MobileLeaderboardOKX = () => {
             </div>
 
             {/* Bottom Stats: Correct, Wrong, Followers, Win Rate */}
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 text-success">
-                  <CheckCircle className="h-3 w-3" />
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
+              <div className="flex items-center gap-1.5">
+                <span className="flex items-center gap-0.5 text-success">
+                  <CheckCircle className="h-2.5 w-2.5" />
                   {t('correct_matches_count', { count: model.correctPredictions }) || `正确${model.correctPredictions}场`}
                 </span>
-                <span className="flex items-center gap-1 text-destructive">
-                  <XCircle className="h-3 w-3" />
+                <span className="flex items-center gap-0.5 text-destructive">
+                  <XCircle className="h-2.5 w-2.5" />
                   {t('wrong_matches_count', { count: model.wrongPredictions }) || `错误${model.wrongPredictions}场`}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {t('followers_count', { count: model.followers }) || `${model.followers}人跟单`}
+                <span className="flex items-center gap-0.5">
+                  <Users className="h-2.5 w-2.5" />
+                  {model.followers}{t('followers_suffix') || '跟单'}
                 </span>
               </div>
               <div className="text-success font-medium">
