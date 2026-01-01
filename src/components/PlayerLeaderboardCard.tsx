@@ -217,25 +217,25 @@ export const PlayerLeaderboardCard = ({
         {/* Row 1: Rank + Avatar + Name + Win Rate */}
         <div className="flex items-center gap-2 mb-2">
           {/* Rank */}
-          <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+          <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
             index === 0 ? 'bg-yellow-500/20' :
             index === 1 ? 'bg-gray-400/20' :
             index === 2 ? 'bg-amber-600/20' :
             'bg-muted'
           }`}>
             {index < 3 ? (
-              <Trophy className={`h-2.5 w-2.5 ${
+              <Trophy className={`h-3 w-3 ${
                 index === 0 ? 'text-yellow-500' :
                 index === 1 ? 'text-gray-400' :
                 'text-amber-600'
               }`} />
             ) : (
-              <span className="text-[10px] font-semibold text-muted-foreground">{index + 1}</span>
+              <span className="text-[11px] font-bold text-muted-foreground">{index + 1}</span>
             )}
           </div>
           {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <Avatar className={`w-8 h-8 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
+            <Avatar className={`w-9 h-9 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
               <AvatarFallback className="text-[10px]">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
@@ -263,12 +263,12 @@ export const PlayerLeaderboardCard = ({
           </div>
           {/* Name + Streak */}
           <div className="flex-1 min-w-0 overflow-hidden">
-            <span className="font-semibold text-xs text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
-            <div className="text-[8px] xs:text-[9px] text-muted-foreground flex items-center gap-0.5 truncate">
+            <span className="font-bold text-sm text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
+            <div className="text-[9px] text-muted-foreground flex items-center gap-0.5">
               {boardType === 'cold' ? (
-                <span className="truncate"><span className="hidden xs:inline">{t('lose_streak')}</span><span className="xs:hidden">{t('lose_short') || '败'}</span> <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
+                <span>{t('lose_streak')} <span className="text-destructive font-bold">{player.worstStreak || 0}</span></span>
               ) : (
-                <span className="truncate"><span className="hidden xs:inline">{t('win_streak')}</span><span className="xs:hidden">{t('win_short') || '胜'}</span> <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
+                <span>{t('win_streak')} <span className="text-success font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
               )}
             </div>
           </div>
@@ -276,39 +276,46 @@ export const PlayerLeaderboardCard = ({
           <div className="text-right flex-shrink-0">
             <AnimatedWinRate 
               value={player.winRate}
-              className="text-sm font-bold font-mono-data text-success"
+              className="text-base font-bold font-mono-data text-success"
               trend={todayWinRate !== undefined ? todayWinRate - player.winRate : undefined}
               showTrend={todayWinRate !== undefined}
             />
           </div>
         </div>
         
-        {/* Row 2: Stats - 3 columns */}
-        <div className="grid grid-cols-3 gap-1 xs:gap-2 text-center mb-2">
+        {/* Row 2: Stats - 4 columns */}
+        <div className="grid grid-cols-4 gap-1 text-center mb-2 py-2 px-1 bg-muted/30 rounded-lg">
           <div className="min-w-0">
-            <p className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('predictions_short') || t('total_predictions')}</p>
+            <p className="text-[8px] text-muted-foreground mb-0.5">{t('predictions_short') || '预测'}</p>
             <p className="text-xs font-bold text-foreground">{player.totalPredictions}</p>
           </div>
           <div className="min-w-0">
-            <p className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('correct_short') || t('correct_matches')}</p>
+            <p className="text-[8px] text-muted-foreground mb-0.5">{t('correct_short') || '正确'}</p>
             <p className="text-xs font-bold text-success">{player.correctPredictions}</p>
           </div>
           <div className="min-w-0">
-            <p className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('profit_short') || t('profit_rate')}</p>
+            <p className="text-[8px] text-muted-foreground mb-0.5">{t('profit_short') || '盈利'}</p>
+            <p className={`text-xs font-bold inline-flex items-center gap-0.5 justify-center ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {profitAmount >= 0 ? '+' : ''}{Math.abs(profitAmount).toLocaleString()}
+              <img src={hunterCoinIcon} alt="" className="w-3 h-3" />
+            </p>
+          </div>
+          <div className="min-w-0">
+            <p className="text-[8px] text-muted-foreground mb-0.5">盈利率</p>
             <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
               {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
             </p>
           </div>
         </div>
         
-        {/* Row 3: Buttons */}
+        {/* Row 3: Prize + Buttons */}
         <div className="flex items-center justify-between gap-1">
           {prize > 0 ? (
-            <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[8px] xs:text-[9px] font-bold flex-shrink-0">
-              <AnimatedPrize value={prize} className="text-[8px] xs:text-[9px] font-bold text-warning" duration={600} showLabel={true} />
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold flex-shrink-0">
+              <AnimatedPrize value={prize} className="text-[9px] font-bold text-warning" duration={600} showLabel={true} />
             </span>
           ) : (
-            <span className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('not_qualified_short') || t('not_qualified')}</span>
+            <span className="text-[9px] text-muted-foreground">{t('not_qualified_short') || '未达标'}</span>
           )}
           <div className="flex items-center gap-1 flex-shrink-0">
             <button 
@@ -316,15 +323,15 @@ export const PlayerLeaderboardCard = ({
                 e.stopPropagation();
                 navigate('/history');
               }}
-              className="px-1.5 py-0.5 text-[8px] xs:text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
+              className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
             >
-              {t('history_short') || t('view_history')}
+              历史
             </button>
             <button 
               onClick={onViewHistory}
-              className="px-1.5 py-0.5 text-[8px] xs:text-[9px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
+              className="px-2.5 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
             >
-              {t('today_short') || t('today_recommendations')}
+              今日推荐
             </button>
           </div>
         </div>
