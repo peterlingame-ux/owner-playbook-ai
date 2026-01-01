@@ -308,20 +308,21 @@ const FloatingAIChat = () => {
         />
       )}
 
-      {/* 最小化按钮 */}
+      {/* 最小化按钮 - 移动端放在左上角header区域，桌面端放在右下角 */}
       {isMinimized && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+        <div className="fixed top-[52px] left-[90px] xs:left-[100px] sm:bottom-6 sm:right-6 sm:top-auto sm:left-auto z-50">
           {/* 脉冲圆环效果 */}
           <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
           <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
           
-          {/* 主按钮 */}
+          {/* 主按钮 - 移动端更小 */}
           <button
           onClick={handleOpenChat}
-            className="relative w-14 h-14 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+            className="relative w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
             title={t("floating_ai_chat.open_chat_button")}
           >
-            <MessageCircle size={24} />
+            <MessageCircle size={16} className="sm:hidden" />
+            <MessageCircle size={24} className="hidden sm:block" />
           </button>
         </div>
       )}
