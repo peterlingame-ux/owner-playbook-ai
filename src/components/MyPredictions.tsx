@@ -997,57 +997,57 @@ const MyPredictions = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="py-4 space-y-4"
               >
-                {/* Invitation Code Card */}
-                <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('your_invitation_code') || 'Your Invitation Code'}</p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <p className="text-2xl font-mono font-bold text-foreground tracking-wider">
-                      {userProfile?.invitation_code || 'XXXXXX'}
-                    </p>
-                    <button 
-                      onClick={copyInvitationCode}
-                      className="p-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 transition-colors"
-                    >
-                      <Copy className="w-4 h-4 text-amber-400" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {t('invited_count', { count: userProfile?.invited_count || invitedUsers.length }) || `已邀请 ${invitedUsers.length} 位用户`}
-                  </p>
-                </div>
-
-                {/* Star Card Reward Hint */}
-                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0">
-                      <Crown className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">{t('invite_reward_title') || '邀请奖励'}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {t('invite_reward_desc') || '每邀请5位真实新玩家，赠送球星卡解锁'}
+                {/* Combined Invitation Card */}
+                <div className="p-5 rounded-2xl bg-card border border-border/50">
+                  {/* Invitation Code Section */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                        {t('your_invitation_code') || 'Your Code'}
+                      </p>
+                      <p className="text-3xl font-mono font-bold text-foreground tracking-widest">
+                        {userProfile?.invitation_code || 'XXXXXX'}
                       </p>
                     </div>
+                    <button 
+                      onClick={copyInvitationCode}
+                      className="w-12 h-12 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 transition-colors flex items-center justify-center"
+                    >
+                      <Copy className="w-5 h-5 text-amber-400" />
+                    </button>
                   </div>
-                  {/* Progress indicator */}
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">
-                        {t('invite_progress') || '邀请进度'}
-                      </span>
-                      <span className="text-xs font-medium text-foreground">
-                        {invitedUsers.length % 5}/5
-                      </span>
+
+                  {/* Divider */}
+                  <div className="h-px bg-border/50 my-4" />
+
+                  {/* Progress Section */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0">
+                      <Crown className="w-4 h-4 text-white" />
                     </div>
-                    <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
-                        style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
-                      />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{t('invite_reward_title') || 'Star Card Reward'}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {t('invite_reward_desc') || 'Invite 5 friends for 1 star card'}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t('star_cards_earned', { count: Math.floor(invitedUsers.length / 5) }) || `已获得 ${Math.floor(invitedUsers.length / 5)} 张球星卡`}
-                    </p>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-lg font-bold text-foreground">{invitedUsers.length % 5}<span className="text-muted-foreground font-normal">/5</span></p>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
+                      style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
+                    />
+                  </div>
+
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+                    <span>{t('star_cards_earned', { count: Math.floor(invitedUsers.length / 5) }) || `${Math.floor(invitedUsers.length / 5)} cards earned`}</span>
+                    <span>{t('total_invited', { count: invitedUsers.length }) || `${invitedUsers.length} invited`}</span>
                   </div>
                 </div>
 

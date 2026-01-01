@@ -822,6 +822,10 @@ export const es = {
     "total_won_stat": "Total Ganado",
     "correct_predictions_count": "Correctas",
     "personal_records": "Estadísticas",
+    "invite_reward_title": "Premio de Carta de Estrella",
+    "invite_reward_desc": "Invita 5 amigos para 1 carta",
+    "star_cards_earned": "{{count}} cartas ganadas",
+    "total_invited": "{{count}} invitados",
     
     // Common
     "common": {
