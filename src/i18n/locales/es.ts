@@ -796,6 +796,33 @@ export const es = {
     "not_following_anyone": "Aún no sigues a nadie",
     "no_followers_yet": "Aún sin seguidores",
     
+    // Personal Center - Star Cards
+    "collection": "Colección",
+    "available": "Disponible",
+    "next_card": "Siguiente carta",
+    "invites": "invitaciones",
+    "player_messi": "Messi",
+    "player_ronaldo": "Ronaldo",
+    "player_mbappe": "Mbappé",
+    "player_haaland": "Haaland",
+    "player_neymar": "Neymar",
+    "player_salah": "Salah",
+    "player_debruyne": "De Bruyne",
+    "player_modric": "Modrić",
+    "player_benzema": "Benzema",
+    "player_vinicius": "Vinícius Jr",
+    "player_bellingham": "Bellingham",
+    "player_saka": "Saka",
+    "star_card_tab": "Cartas de Estrellas",
+    "display_name": "Nombre",
+    "bio": "Biografía",
+    "avatar": "Avatar",
+    "minutes_unit": "min",
+    "total_wagered": "Total Apostado",
+    "total_won_stat": "Total Ganado",
+    "correct_predictions_count": "Correctas",
+    "personal_records": "Estadísticas",
+    
     // Common
     "common": {
       "live": "EN VIVO",
