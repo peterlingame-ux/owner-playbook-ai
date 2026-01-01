@@ -462,7 +462,7 @@ const MyPredictions = () => {
   const currentLevel = user ? level : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
+    <div className="min-h-screen bg-background pb-8 sm:pb-24 overflow-x-hidden">
       {/* Profile Header - Matching Reference Design Exactly */}
       <div className="relative px-3 sm:px-4 pt-4">
 
