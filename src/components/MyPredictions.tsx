@@ -844,7 +844,12 @@ const MyPredictions = () => {
                             {pred.match?.home_team_name || 'Home'} vs {pred.match?.away_team_name || 'Away'}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {pred.prediction} · {format(new Date(pred.created_at), 'MM/dd HH:mm')}
+                            {pred.prediction
+                              .replace(/^Home/i, t('prediction_home') || 'Home')
+                              .replace(/^Away/i, t('prediction_away') || 'Away')
+                              .replace(/^Over/i, t('prediction_over') || 'Over')
+                              .replace(/^Under/i, t('prediction_under') || 'Under')
+                            } · {format(new Date(pred.created_at), 'MM/dd HH:mm')}
                           </p>
                         </div>
 

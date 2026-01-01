@@ -851,6 +851,10 @@ const resources = {
       "wrong_predictions": "Wrong",
       "bet_now": "Bet Now",
       "followers_count_label": "Followers",
+      "prediction_home": "Home",
+      "prediction_away": "Away",
+      "prediction_over": "Over",
+      "prediction_under": "Under",
       
       // Personal Center - Star Cards
       "collection": "Collection",
@@ -2044,6 +2048,10 @@ const resources = {
       // 个人中心 - 标签页
       "star_card_tab": "球星卡",
       "followers_count_label": "跟单人数",
+      "prediction_home": "主队",
+      "prediction_away": "客队",
+      "prediction_over": "大",
+      "prediction_under": "小",
       
       // 私信
       "send_message": "发消息",
