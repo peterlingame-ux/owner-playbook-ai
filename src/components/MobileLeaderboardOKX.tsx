@@ -471,11 +471,11 @@ const MobileLeaderboardOKX = () => {
             </CardContent>
           </Card>
 
-          {/* Bottom: Model Bar Cards - Horizontal scroll */}
+          {/* Bottom: Model Bar Cards - Horizontal scroll with animation */}
           <Card className="relative overflow-hidden bg-card/50 border-border/30">
             <CardContent className="p-3">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {modelsWithStats.map((model) => {
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide items-end min-h-[140px]">
+                {modelsWithStats.map((model, index) => {
                   // Get model specific colors for bars
                   const getModelBarColor = (modelId: string) => {
                     switch(modelId) {
@@ -495,29 +495,51 @@ const MobileLeaderboardOKX = () => {
                   const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
                   
                   return (
-                    <div 
+                    <motion.div 
                       key={model.id} 
                       className="flex flex-col items-center gap-1 flex-1 min-w-[50px]"
                       onClick={() => navigate(`/models?model=${model.id}`)}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.1, duration: 0.3 }}
                     >
-                      <div className="text-[10px] font-mono font-bold text-foreground">
-                        {model.winRate.toFixed(1)}%
-                      </div>
-                      <div 
-                        className={`w-full rounded-md relative flex items-end justify-center pb-2 transition-all duration-300 cursor-pointer hover:opacity-90 ${getModelBarColor(model.id)}`}
-                        style={{ height: `${heightPx}px` }}
+                      <motion.div 
+                        className="text-[10px] font-mono font-bold text-foreground"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
                       >
-                        <img 
+                        {model.winRate.toFixed(1)}%
+                      </motion.div>
+                      <motion.div 
+                        className={`w-full rounded-md relative flex items-end justify-center pb-2 cursor-pointer hover:opacity-90 ${getModelBarColor(model.id)}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: heightPx, opacity: 1 }}
+                        transition={{ 
+                          delay: index * 0.1, 
+                          duration: 0.5, 
+                          ease: [0.34, 1.56, 0.64, 1] // Spring-like easing
+                        }}
+                      >
+                        <motion.img 
                           src={getAIIcon(model.id)} 
                           alt={model.name}
                           className="h-5 w-5 object-contain"
                           style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 + 0.4, duration: 0.3 }}
                         />
-                      </div>
-                      <div className="text-[8px] text-center font-medium text-muted-foreground truncate w-full">
+                      </motion.div>
+                      <motion.div 
+                        className="text-[8px] text-center font-medium text-muted-foreground truncate w-full"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: index * 0.1 + 0.5, duration: 0.3 }}
+                      >
                         {model.displayName.split(' ')[0].substring(0, 6)}...
-                      </div>
-                    </div>
+                      </motion.div>
+                    </motion.div>
                   );
                 })}
               </div>
