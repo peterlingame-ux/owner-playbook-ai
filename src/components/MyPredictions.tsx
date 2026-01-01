@@ -98,7 +98,7 @@ const MyPredictions = () => {
   const [followingList, setFollowingList] = useState<FollowUser[]>([]);
   const [followersList, setFollowersList] = useState<FollowUser[]>([]);
   const [isLoadingFollows, setIsLoadingFollows] = useState(false);
-  const [activeTab, setActiveTab] = useState<'history' | 'records' | 'invite'>('history');
+  const [activeTab, setActiveTab] = useState<'history' | 'records' | 'invite' | 'starcard'>('history');
   const [invitedUsers, setInvitedUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string; created_at: string }>>([]);
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
@@ -785,6 +785,16 @@ const MyPredictions = () => {
             >
               {t('invitation_code_tab') || 'Podcast'}
             </button>
+            <button
+              onClick={() => setActiveTab('starcard')}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                activeTab === 'starcard' 
+                  ? 'bg-foreground text-background' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t('star_card_tab') || '球星卡'}
+            </button>
           </div>
         </div>
 
@@ -1003,6 +1013,26 @@ const MyPredictions = () => {
                       <p className="text-xs mt-1">{t('share_code_hint') || 'Share your code to invite friends!'}</p>
                     </div>
                   )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'starcard' && (
+              <motion.div
+                key="starcard"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="py-4 space-y-4"
+              >
+                {/* Star Card Collection */}
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center">
+                    <Crown className="w-10 h-10 text-amber-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground">{t('star_card_collection') || '球星卡收藏'}</h3>
+                  <p className="text-sm text-muted-foreground mt-2">{t('star_card_coming_soon') || '球星卡功能即将上线'}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('star_card_hint') || '收集专属球星卡，解锁特殊权益'}</p>
                 </div>
               </motion.div>
             )}
