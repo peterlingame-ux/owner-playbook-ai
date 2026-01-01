@@ -732,7 +732,7 @@ const MyPredictions = () => {
                         {currentLevel >= 50 ? (t('max_level') || 'Max Level') : `${t('next_level') || 'Next'}: Lv.${currentLevel + 1}`}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {getNextLevelProgress().current}/{getNextLevelProgress().required} {t('minutes') || 'min'}
+                        {getNextLevelProgress().current}/{getNextLevelProgress().required} {t('minutes_unit') || 'min'}
                       </span>
                     </div>
                     <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
