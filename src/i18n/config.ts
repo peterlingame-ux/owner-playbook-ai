@@ -850,6 +850,7 @@ const resources = {
       "start_predicting": "Start Predicting",
       "wrong_predictions": "Wrong",
       "bet_now": "Bet Now",
+      "followers_count_label": "Followers",
       
       // Personal Center - Star Cards
       "collection": "Collection",
@@ -2037,17 +2038,12 @@ const resources = {
       "player_bellingham": "贝林厄姆",
       "player_saka": "萨卡",
       "player_son": "孙兴慜",
+      "player_kane": "凯恩",
+      "player_dembele": "登贝莱",
       
       // 个人中心 - 标签页
       "star_card_tab": "球星卡",
-      "display_name": "昵称",
-      "bio": "签名",
-      "avatar": "头像",
-      "next_level": "下一级",
-      "minutes_unit": "分钟",
-      "total_wagered": "累计投注",
-      "total_won_stat": "累计获胜",
-      "correct_predictions_count": "正确预测",
+      "followers_count_label": "跟单人数",
       
       // 私信
       "send_message": "发消息",
