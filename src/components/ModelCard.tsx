@@ -163,14 +163,13 @@ const ModelCard = ({ model }: ModelCardProps) => {
         </div>
       )}
 
-      {/* Star Background Image */}
-      <div 
-        className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
-        style={{
-          backgroundImage: `url(${getStarBackground(model.id)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-        }}
+      {/* Star Background Image - Use img with lazy loading */}
+      <img 
+        src={getStarBackground(model.id)}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
       />
       
       {/* Gradient Overlay */}
@@ -234,17 +233,15 @@ const ModelCard = ({ model }: ModelCardProps) => {
             </span>
           </div>
           
-          {/* Progress Bar */}
+          {/* Progress Bar - Simplified on mobile */}
           <div className="relative h-0.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
-            <motion.div 
-              className={`absolute inset-y-0 left-0 rounded-full ${theme.progress}`}
-              initial={{ width: 0 }}
-              animate={{ width: `${animatedWinRate}%` }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+            <div 
+              className={`absolute inset-y-0 left-0 rounded-full ${theme.progress} transition-all duration-500`}
+              style={{ width: `${animatedWinRate}%` }}
             />
-            {/* Animated shine effect */}
+            {/* Animated shine effect - Desktop only */}
             <motion.div
-              className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+              className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/30 to-transparent hidden sm:block"
               initial={{ x: '-100%' }}
               animate={{ x: '400%' }}
               transition={{ duration: 2, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}

@@ -106,11 +106,7 @@ const UserModelCard = () => {
     : "--";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <div>
       <TiltCard
         className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border sm:border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_15px_-5px_rgba(245,158,11,0.25)] sm:shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_25px_-5px_rgba(245,158,11,0.4)]`}
         onClick={handleCardClick}
@@ -143,14 +139,13 @@ const UserModelCard = () => {
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
         />
 
-        {/* Star Background Image */}
-        <div
-          className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500 pointer-events-none"
-          style={{
-            backgroundImage: `url(${starHunsoccer})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center top",
-          }}
+        {/* Star Background Image - Use img with lazy loading */}
+        <img
+          src={starHunsoccer}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover opacity-15 group-hover:opacity-25 transition-opacity duration-500 pointer-events-none"
         />
 
         {/* Gradient Overlay */}
@@ -231,15 +226,15 @@ const UserModelCard = () => {
               </span>
             </div>
 
+            {/* Progress Bar - Simplified on mobile */}
             <div className="relative h-0.5 sm:h-2 bg-amber-900/30 rounded-full overflow-hidden">
-              <motion.div
-                className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${user ? animatedWinRate : 0}%` }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
+              <div
+                className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress} transition-all duration-500`}
+                style={{ width: `${user ? animatedWinRate : 0}%` }}
               />
+              {/* Animated shine effect - Desktop only */}
               <motion.div
-                className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/30 to-transparent hidden sm:block"
                 initial={{ x: "-100%" }}
                 animate={{ x: "400%" }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
@@ -286,7 +281,7 @@ const UserModelCard = () => {
           </Button>
         </div>
       </TiltCard>
-    </motion.div>
+    </div>
   );
 };
 
