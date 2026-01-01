@@ -237,19 +237,31 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Mobile Stats - Compact Grid */}
-          <div className="grid grid-cols-3 gap-2 mt-3 md:hidden">
-            <div className="bg-white/5 rounded-lg p-2 text-center">
-              <p className="text-[8px] text-muted-foreground uppercase tracking-wider truncate">{t('realtime_monitoring')}</p>
-              <p className="text-lg font-light text-foreground tabular-nums">{liveStats.trackedPlayers}</p>
+          {/* Mobile Stats - 2 rows for better visibility */}
+          <div className="grid grid-cols-3 gap-1.5 mt-2 md:hidden">
+            <div className="bg-white/5 rounded-lg p-1.5 text-center">
+              <p className="text-[7px] text-muted-foreground uppercase leading-tight">{t('realtime_monitoring')}</p>
+              <p className="text-sm font-light text-foreground tabular-nums">{liveStats.trackedPlayers}</p>
             </div>
-            <div className="bg-white/5 rounded-lg p-2 text-center">
-              <p className="text-[8px] text-muted-foreground uppercase tracking-wider truncate">{t('possession_analysis')}</p>
-              <p className="text-lg font-light text-foreground tabular-nums">{liveStats.possession}%</p>
+            <div className="bg-white/5 rounded-lg p-1.5 text-center">
+              <p className="text-[7px] text-muted-foreground uppercase leading-tight">{t('ai_recognition')}</p>
+              <p className="text-sm font-light text-foreground">{liveStats.homeFormation}</p>
             </div>
-            <div className="bg-white/5 rounded-lg p-2 text-center">
-              <p className="text-[8px] text-muted-foreground uppercase tracking-wider truncate">{t('ai_prediction_label')}</p>
-              <p className="text-lg font-light text-foreground tabular-nums">{liveStats.goalProbability}%</p>
+            <div className="bg-white/5 rounded-lg p-1.5 text-center">
+              <p className="text-[7px] text-muted-foreground uppercase leading-tight">{t('running_stats')}</p>
+              <p className="text-sm font-light text-foreground tabular-nums">{liveStats.totalDistance}<span className="text-[8px] ml-0.5">{t('km_distance')}</span></p>
+            </div>
+            <div className="bg-white/5 rounded-lg p-1.5 text-center">
+              <p className="text-[7px] text-muted-foreground uppercase leading-tight">{t('possession_analysis')}</p>
+              <p className="text-sm font-light text-foreground tabular-nums">{liveStats.possession}%</p>
+            </div>
+            <div className="bg-white/5 rounded-lg p-1.5 text-center">
+              <p className="text-[7px] text-muted-foreground uppercase leading-tight">{t('ai_prediction_label')}</p>
+              <p className="text-sm font-light text-foreground tabular-nums">{liveStats.goalProbability}%</p>
+            </div>
+            <div className="bg-white/5 rounded-lg p-1.5 text-center">
+              <p className="text-[7px] text-muted-foreground uppercase leading-tight">{t('pressure_analysis')}</p>
+              <p className="text-sm font-light text-foreground tabular-nums">{liveStats.pressureIndex}</p>
             </div>
           </div>
           
