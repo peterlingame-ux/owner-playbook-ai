@@ -1107,6 +1107,14 @@ const resources = {
       "disclaimer_text": "HUNSOCCER All content is simulated analysis results, solely for AI technology research and match analysis demonstration. We do not provide or guide any form of betting or gambling activities.",
       "sponsor_disclaimer": "The above are public sports data sources. This platform is only for AI analysis display and does not provide betting access.",
       
+      // Mobile Footer
+      "user_agreement": "User Agreement",
+      "privacy_policy": "Privacy Policy",
+      "disclaimer": "Disclaimer",
+      "contact_us": "Contact Us",
+      "faq": "FAQ",
+      "all_rights_reserved": "All rights reserved.",
+      
       // Blog page features
       "owner_sentiment_analysis": "Owner Sentiment Analysis",
       "player_technical_breakdown": "Player Technical Breakdown",
@@ -2289,6 +2297,14 @@ const resources = {
       "footer_contact": "联系我们",
       "footer_faq": "常见问题",
       "footer_rights": "版权所有",
+      
+      // Mobile Footer
+      "user_agreement": "用户协议",
+      "privacy_policy": "隐私政策",
+      "disclaimer": "免责声明",
+      "contact_us": "联系我们",
+      "faq": "常见问题",
+      "all_rights_reserved": "版权所有",
       
       // Terms of Service
       "terms_acceptance": "1. 条款接受",
