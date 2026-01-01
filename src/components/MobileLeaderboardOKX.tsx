@@ -316,10 +316,20 @@ const MobileLeaderboardOKX = () => {
     { value: 'copyTrade', label: t('copy_trading_board') || '预测者跟单' },
   ];
 
-  const subTabs = [
-    { value: 'high', label: t('hot_streak_board') || '高准确率榜' },
-    { value: 'low', label: t('cold_streak_board') || '低准确率榜' },
-  ];
+  const getSubTabs = () => {
+    if (mainTab === 'copyTrade') {
+      return [
+        { value: 'high', label: t('hot_streak_predictor') || '预测者连红榜' },
+        { value: 'low', label: t('cold_streak_predictor') || '预测者连黑榜' },
+      ];
+    }
+    return [
+      { value: 'high', label: t('hot_streak_board') || '高准确率榜' },
+      { value: 'low', label: t('cold_streak_board') || '低准确率榜' },
+    ];
+  };
+
+  const subTabs = getSubTabs();
 
   const timeFilters = [
     { value: 'day', label: t('time_day') || '日' },
