@@ -531,6 +531,7 @@ export const ar = {
     "mutual_follow": "متابعة متبادلة",
     "following_label": "المتابَعون",
     "followers_label": "المتابِعون",
+    "win_rate_percent": "معدل الفوز (%)",
     "no_bio": "لا توجد نبذة",
     "not_following_anyone": "لا تتابع أحداً بعد",
     "no_followers_yet": "لا يوجد متابعون بعد",

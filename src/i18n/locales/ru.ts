@@ -531,6 +531,7 @@ export const ru = {
     "mutual_follow": "Взаимно",
     "following_label": "Подписки",
     "followers_label": "Подписчики",
+    "win_rate_percent": "Процент побед (%)",
     "no_bio": "Нет описания",
     "not_following_anyone": "Пока ни на кого не подписаны",
     "no_followers_yet": "Пока нет подписчиков",

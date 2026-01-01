@@ -506,6 +506,7 @@ export const ja = {
     "prediction_expert": "予測エキスパート",
     "following_label": "フォロー中",
     "followers_label": "フォロワー",
+    "win_rate_percent": "勝率 (%)",
     "no_bio": "自己紹介なし",
     "not_following_anyone": "まだ誰もフォローしていません",
     "no_followers_yet": "まだフォロワーがいません",

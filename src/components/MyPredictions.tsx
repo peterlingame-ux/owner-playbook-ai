@@ -398,117 +398,174 @@ const MyPredictions = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Hero Section with Profile Image */}
+      {/* Hero Section with Fixed Sky Background and 3D Avatar */}
       <div className="relative">
-        {/* Large Profile Image Background */}
-        <div className="relative h-[280px] sm:h-[320px] overflow-hidden">
-          {/* Background gradient/image */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-primary/10 to-background" />
+        {/* Fixed Sky Background */}
+        <div className="relative h-[320px] sm:h-[360px] overflow-hidden">
+          {/* Sky background - gradient simulating sky with clouds */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(180deg, hsl(200 60% 70%) 0%, hsl(200 50% 85%) 50%, hsl(200 40% 95%) 100%)',
+            }}
+          />
+          {/* Cloud texture overlay */}
+          <div 
+            className="absolute inset-0 opacity-60"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 200px 100px at 20% 40%, rgba(255,255,255,0.9) 0%, transparent 70%),
+                radial-gradient(ellipse 150px 80px at 70% 30%, rgba(255,255,255,0.8) 0%, transparent 70%),
+                radial-gradient(ellipse 180px 90px at 50% 60%, rgba(255,255,255,0.7) 0%, transparent 70%),
+                radial-gradient(ellipse 120px 60px at 85% 55%, rgba(255,255,255,0.75) 0%, transparent 70%),
+                radial-gradient(ellipse 100px 50px at 15% 70%, rgba(255,255,255,0.65) 0%, transparent 70%)
+              `,
+            }}
+          />
           
-          {/* Profile Image - Large with rounded bottom */}
-          <div className="absolute inset-x-0 top-0 h-[260px] sm:h-[300px] flex items-center justify-center overflow-hidden">
-            <div className="relative w-[200px] h-[240px] sm:w-[240px] sm:h-[280px]">
-              {/* Rounded bottom clip */}
+          {/* 3D Avatar Container - Centered with pop-out effect */}
+          <div className="absolute inset-x-0 top-4 flex justify-center">
+            <div className="relative">
+              {/* Avatar Frame with rounded corners */}
               <div 
-                className="absolute inset-0 overflow-hidden"
+                className="relative w-[180px] h-[220px] sm:w-[220px] sm:h-[260px] overflow-hidden"
                 style={{
-                  borderRadius: '0 0 50% 50% / 0 0 20% 20%',
+                  borderRadius: '24px 24px 48px 48px',
+                  boxShadow: '0 20px 60px -10px rgba(0,0,0,0.4), 0 10px 30px -5px rgba(0,0,0,0.2)',
+                  transform: 'perspective(1000px) rotateX(2deg)',
                 }}
               >
+                {/* Avatar Image */}
                 <img 
                   src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
                   alt={userProfile?.display_name}
                   className="w-full h-full object-cover"
+                  style={{
+                    transform: 'scale(1.05)',
+                  }}
                 />
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+                {/* Subtle gradient overlay for depth */}
+                <div 
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.15) 100%)',
+                  }}
+                />
+                {/* Inner border glow for 3D effect */}
+                <div 
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    borderRadius: '24px 24px 48px 48px',
+                    boxShadow: 'inset 0 -2px 20px rgba(0,0,0,0.1), inset 0 2px 10px rgba(255,255,255,0.1)',
+                  }}
+                />
               </div>
+
+              {/* Edit Button - Bottom left of avatar, overlapping */}
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="absolute -left-4 bottom-6 w-12 h-12 rounded-full bg-[hsl(65,60%,65%)] hover:bg-[hsl(65,60%,60%)] flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10"
+                    style={{
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(220 25% 15%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                      <path d="M15 5l4 4" />
+                    </svg>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md bg-card border-border">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-light tracking-wide">{t('edit_profile') || 'Edit Profile'}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
+                      <Input
+                        value={editDisplayName}
+                        onChange={(e) => setEditDisplayName(e.target.value)}
+                        className="h-12 bg-background border-border"
+                        maxLength={20}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
+                      <Input
+                        value={editSignature}
+                        onChange={(e) => setEditSignature(e.target.value)}
+                        className="h-12 bg-background border-border"
+                        maxLength={50}
+                      />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {AVATAR_OPTIONS.map((avatar) => (
+                          <button
+                            key={avatar}
+                            onClick={() => setSelectedAvatar(avatar)}
+                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                              selectedAvatar === avatar 
+                                ? 'border-primary ring-2 ring-primary/20' 
+                                : 'border-border hover:border-muted-foreground'
+                            }`}
+                          >
+                            <Avatar className="h-full w-full rounded-none">
+                              <AvatarImage src={avatar} className="object-cover" />
+                            </Avatar>
+                            {selectedAvatar === avatar && (
+                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                <Check className="h-6 w-6 text-primary" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1 h-12" onClick={() => setIsEditDialogOpen(false)}>
+                      {t('cancel') || 'Cancel'}
+                    </Button>
+                    <Button className="flex-1 h-12" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
+                      {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
-          {/* Edit Profile Button - Circular at bottom left of image */}
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogTrigger asChild>
-              <button className="absolute left-[calc(50%-120px)] sm:left-[calc(50%-140px)] bottom-8 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform z-10">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                </svg>
-              </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card border-border">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-light tracking-wide">{t('edit_profile') || 'Edit Profile'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6 py-4">
-                <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
-                  <Input
-                    value={editDisplayName}
-                    onChange={(e) => setEditDisplayName(e.target.value)}
-                    className="h-12 bg-background border-border"
-                    maxLength={20}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
-                  <Input
-                    value={editSignature}
-                    onChange={(e) => setEditSignature(e.target.value)}
-                    className="h-12 bg-background border-border"
-                    maxLength={50}
-                  />
-                </div>
-                
-                <div className="space-y-3">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {AVATAR_OPTIONS.map((avatar) => (
-                      <button
-                        key={avatar}
-                        onClick={() => setSelectedAvatar(avatar)}
-                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                          selectedAvatar === avatar 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-border hover:border-muted-foreground'
-                        }`}
-                      >
-                        <Avatar className="h-full w-full rounded-none">
-                          <AvatarImage src={avatar} className="object-cover" />
-                        </Avatar>
-                        {selectedAvatar === avatar && (
-                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <Check className="h-6 w-6 text-primary" />
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 h-12" onClick={() => setIsEditDialogOpen(false)}>
-                  {t('cancel') || 'Cancel'}
-                </Button>
-                <Button className="flex-1 h-12" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
-                  {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* Gradient overlay at bottom for smooth transition to dark background */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-24"
+            style={{
+              background: 'linear-gradient(180deg, transparent 0%, hsl(var(--background)) 100%)',
+            }}
+          />
         </div>
 
         {/* Top Right Icons */}
         <div className="absolute top-4 right-4 flex flex-col gap-3 z-20">
           <button 
             onClick={() => navigate('/settings')}
-            className="w-10 h-10 rounded-lg bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-card transition-colors"
+            className="w-11 h-11 rounded-xl bg-card/90 backdrop-blur-sm border border-border/30 flex items-center justify-center hover:bg-card transition-colors"
+            style={{
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            }}
           >
             <Settings className="w-5 h-5 text-foreground" />
           </button>
           <button 
-            className="w-10 h-10 rounded-lg bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-card transition-colors"
+            className="w-11 h-11 rounded-xl bg-card/90 backdrop-blur-sm border border-border/30 flex items-center justify-center hover:bg-card transition-colors"
+            style={{
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            }}
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
@@ -528,43 +585,51 @@ const MyPredictions = () => {
       </div>
 
       {/* Profile Info Section */}
-      <div className="px-4 -mt-4">
+      <div className="px-4 -mt-8">
         {/* Name + PRO Badge + Level */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <h1 className="text-2xl font-bold text-foreground">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             {userProfile?.display_name || 'Player'}
           </h1>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30">
-            <Crown className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-xs font-bold text-amber-400">Pro</span>
-            <span className="text-xs font-bold text-amber-300">Lv.{currentLevel}</span>
+          <div 
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full"
+            style={{
+              background: 'linear-gradient(135deg, hsl(25 70% 50%) 0%, hsl(35 80% 55%) 100%)',
+              boxShadow: '0 2px 8px rgba(200, 120, 50, 0.3)',
+            }}
+          >
+            <Crown className="w-3.5 h-3.5 text-white" />
+            <span className="text-xs font-bold text-white">Pro</span>
+            <span className="text-xs font-bold text-white/90">Lv.{currentLevel}</span>
           </div>
         </div>
 
         {/* Bio/Signature */}
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-1.5">
           {userProfile?.signature || t('prediction_expert') || 'Prediction Expert'}
         </p>
 
-        {/* Stats Row - Followers, Following, Win Rate */}
-        <div className="flex items-center gap-2 mt-5">
+        {/* Stats Row - Followers, Following, Win Rate (%) */}
+        <div className="flex items-stretch gap-px mt-5 rounded-xl overflow-hidden border border-border/30">
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-3 rounded-xl bg-card border border-border/50 text-center hover:border-primary/30 transition-colors"
+            className="flex-1 py-4 bg-card text-center hover:bg-muted/50 transition-colors"
           >
             <p className="text-xl font-bold text-foreground">{followersList.length.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('followers_label') || 'Followers'}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('followers_label') || '粉丝'}</p>
           </button>
+          <div className="w-px bg-border/30" />
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-3 rounded-xl bg-card border border-border/50 text-center hover:border-primary/30 transition-colors"
+            className="flex-1 py-4 bg-card text-center hover:bg-muted/50 transition-colors"
           >
             <p className="text-xl font-bold text-foreground">{followingList.length}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('following_label') || 'Following'}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('following_label') || '关注'}</p>
           </button>
-          <div className="flex-1 py-3 rounded-xl bg-card border border-border/50 text-center">
+          <div className="w-px bg-border/30" />
+          <div className="flex-1 py-4 bg-card text-center">
             <p className="text-xl font-bold text-primary">{(stats?.winRate || 0).toFixed(1)}%</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('win_rate') || 'Win Rate'}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('win_rate_percent') || '预测准确率 (%)'}</p>
           </div>
         </div>
 

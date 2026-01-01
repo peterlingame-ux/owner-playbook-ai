@@ -531,6 +531,7 @@ export const th = {
     "mutual_follow": "ติดตามกัน",
     "following_label": "กำลังติดตาม",
     "followers_label": "ผู้ติดตาม",
+    "win_rate_percent": "อัตราชนะ (%)",
     "no_bio": "ไม่มีประวัติ",
     "not_following_anyone": "ยังไม่ได้ติดตามใคร",
     "no_followers_yet": "ยังไม่มีผู้ติดตาม",
