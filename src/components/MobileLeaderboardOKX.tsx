@@ -980,15 +980,15 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
         <div className="flex items-center gap-1.5">
           <span className="flex items-center gap-0.5 text-success">
             <CheckCircle className="h-2.5 w-2.5" />
-            正确{player.correctPredictions}场
+            {t('correct_matches_count', { count: player.correctPredictions }) || `正确${player.correctPredictions}场`}
           </span>
           <span className="flex items-center gap-0.5 text-destructive">
             <XCircle className="h-2.5 w-2.5" />
-            错误{player.totalPredictions - player.correctPredictions}场
+            {t('wrong_matches_count', { count: player.totalPredictions - player.correctPredictions }) || `错误${player.totalPredictions - player.correctPredictions}场`}
           </span>
           <span className="flex items-center gap-0.5">
             <Users className="h-2.5 w-2.5" />
-            {player.followers || 0}跟单
+            {player.followers || 0}{t('followers_suffix') || '跟单'}
           </span>
         </div>
         <div className="text-success font-medium">
