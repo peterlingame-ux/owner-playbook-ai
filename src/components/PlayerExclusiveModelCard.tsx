@@ -502,15 +502,15 @@ const PlayerExclusiveModelCard = ({
   return (
     <>
       <TiltCard
-        className={`group rounded-xl sm:rounded-2xl p-3 sm:p-5 bg-gradient-to-br from-slate-800/60 to-slate-900/40 backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer ${className}`}
+        className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-slate-800/60 to-slate-900/40 backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer ${className}`}
         onClick={handleNextMatch}
         maxTilt={8}
         scale={1.02}
         glare={false}
         maxGlare={0}
       >
-        {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+        {/* Animated Background Pattern - Hidden on mobile for performance */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none hidden sm:block">
           <motion.div 
             className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"
             animate={{ 
@@ -531,37 +531,37 @@ const PlayerExclusiveModelCard = ({
 
         {/* Match Counter - Top Right */}
         {matchEntries.length > 1 && (
-          <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20 flex items-center gap-0.5 sm:gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
             <Button
               size="sm"
               variant="ghost"
-              className="h-6 w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
+              className="h-4 w-4 sm:h-6 sm:w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
               onClick={handlePrevMatch}
               title={t('previous_match') || '上一场'}
             >
-              <ChevronLeft className="h-3 w-3" />
+              <ChevronLeft className="h-2 w-2 sm:h-3 sm:w-3" />
             </Button>
-            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-white/10 border border-white/10">
+            <span className="text-[8px] sm:text-xs font-mono font-medium px-1 sm:px-2 py-0 sm:py-0.5 rounded-full bg-white/10 border border-white/10">
               {matchIndex + 1}/{matchEntries.length}
             </span>
             <Button
               size="sm"
               variant="ghost"
-              className="h-6 w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
+              className="h-4 w-4 sm:h-6 sm:w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
               onClick={handleNextMatch}
               title={t('next_match') || '下一场'}
             >
-              <ChevronRight className="h-3 w-3" />
+              <ChevronRight className="h-2 w-2 sm:h-3 sm:w-3" />
             </Button>
           </div>
         )}
 
         {/* No Bets Indicator */}
         {matchEntries.length === 0 && (
-          <div className="absolute top-3 right-3 z-20">
+          <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
             <Badge 
               variant="outline"
-              className="text-[10px] font-medium px-2.5 py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
+              className="text-[8px] sm:text-[10px] font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
             >
               {t('no_bets')}
             </Badge>
@@ -569,7 +569,7 @@ const PlayerExclusiveModelCard = ({
         )}
 
         {/* Content */}
-        <div className="relative z-10 space-y-4 overflow-hidden">
+        <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`player-${matchIndex}`}
@@ -589,14 +589,14 @@ const PlayerExclusiveModelCard = ({
                 duration: 0.25, 
                 ease: "easeOut" 
               }}
-              className="space-y-4"
+              className="space-y-1.5 sm:space-y-4"
             >
               {/* AI Model Header */}
               <div className="flex items-center justify-between">
                 {/* Player Avatar & Info */}
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1 sm:gap-3">
                   <div className="relative">
-                    <Avatar className={`h-9 w-9 sm:h-12 sm:w-12 shadow-lg ${isDemo ? 'border-2 border-dashed border-white/30' : 'ring-2 ring-white/20'}`}>
+                    <Avatar className={`h-6 w-6 sm:h-12 sm:w-12 shadow-lg ${isDemo ? 'border border-dashed sm:border-2 border-white/30' : 'ring-1 sm:ring-2 ring-white/20'}`}>
                       {!isDemo ? (
                         <>
                           <AvatarImage 
@@ -604,35 +604,35 @@ const PlayerExclusiveModelCard = ({
                             alt={displayName} 
                             className="object-cover" 
                           />
-                          <AvatarFallback className="text-xs sm:text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
+                          <AvatarFallback className="text-[8px] sm:text-sm font-bold bg-white/10">{displayName[0]}</AvatarFallback>
                         </>
                       ) : (
                         <AvatarFallback className="bg-white/5">
-                          <User className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/40" />
+                          <User className="h-3 w-3 sm:h-5 sm:w-5 text-muted-foreground/40" />
                         </AvatarFallback>
                       )}
                     </Avatar>
                     {/* Online Indicator - only show when logged in */}
                     {!isDemo && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border-2 border-card" />
+                      <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-slate-200">
+                    <span className="text-[9px] sm:text-sm font-bold tracking-wide uppercase text-slate-200">
                       {displayName}
                     </span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
-                      <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5">
+                      <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5" />
                       {!isDemo ? (balanceValue || '10,000') : '--'}
                     </span>
                   </div>
                 </div>
                 
-                {/* Action Button - Only show when has bets */}
+                {/* Action Button - Only show when has bets, hidden on mobile */}
                 {bet && currentMatchData && onOpenAnalysis && (
                   <Button
                     size="sm"
-                    className="h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300"
+                    className="hidden sm:flex h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300"
                     onClick={(e) => {
                       e.stopPropagation();
                       onOpenAnalysis(
@@ -650,9 +650,9 @@ const PlayerExclusiveModelCard = ({
                 )}
               </div>
 
-              {/* Training Badge - Show if has training */}
+              {/* Training Badge - Show if has training, hidden on mobile */}
               {trainingCount > 0 && (
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
                   <Badge 
                     variant="outline" 
                     className="text-[10px] font-medium px-2.5 py-1 bg-white/10 border-white/20 text-foreground/80 cursor-pointer hover:bg-white/20 transition-colors"
@@ -672,31 +672,31 @@ const PlayerExclusiveModelCard = ({
 
               {/* Match Info */}
               {currentMatchData ? (
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-1 sm:space-y-3">
                   {/* League Badge */}
                   <div className="flex items-center justify-center">
-                    <Badge className="text-[10px] sm:text-[11px] py-0.5 sm:py-1 px-2 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
+                    <Badge className="text-[7px] sm:text-[11px] py-0 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
                       {safeGetLeagueName(currentMatchData.match)}
                     </Badge>
                   </div>
                 
                   {/* Teams Display */}
-                  <div className="flex items-center justify-between gap-1 sm:gap-2 px-0 sm:px-1">
+                  <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
                     {/* Home Team */}
-                    <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
                       <div className="relative">
                         {currentMatchData.match.home_logo ? (
-                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-white/10 shadow-md">
+                          <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                             <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
-                            <AvatarFallback><Shield className="h-3 w-3 sm:h-4 sm:w-4" /></AvatarFallback>
+                            <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
                           </Avatar>
                         ) : (
-                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
-                            <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                          <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                            <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
                           </div>
                         )}
                       </div>
-                      <p className="font-semibold text-[10px] sm:text-xs text-center leading-tight truncate w-full max-w-[70px] sm:max-w-[100px]">
+                      <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                         {safeGetTeamName(currentMatchData.match, 'home')}
                       </p>
                     </div>
@@ -705,38 +705,38 @@ const PlayerExclusiveModelCard = ({
                     <MatchTimeDisplay match={currentMatchData.match} />
                   
                     {/* Away Team */}
-                    <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
                       <div className="relative">
                         {currentMatchData.match.away_logo ? (
-                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-white/10 shadow-md">
+                          <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                             <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
-                            <AvatarFallback><Shield className="h-3 w-3 sm:h-4 sm:w-4" /></AvatarFallback>
+                            <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
                           </Avatar>
                         ) : (
-                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
-                            <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                          <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                            <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
                           </div>
                         )}
                       </div>
-                      <p className="font-semibold text-[10px] sm:text-xs text-center leading-tight truncate w-full max-w-[70px] sm:max-w-[100px]">
+                      <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                         {safeGetTeamName(currentMatchData.match, 'away')}
                       </p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-6 text-center">
-                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-16 w-auto opacity-15 mb-3" />
+                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center">
+                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3" />
                   {isDemo ? (
-                    <p className="text-sm text-muted-foreground/80 font-medium">
+                    <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
                       {t('login_to_create_model')}
                     </p>
                   ) : (
                     <>
-                      <p className="text-sm text-muted-foreground/80 font-medium">
+                      <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
                         {t('no_active_predictions')}
                       </p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">
+                      <p className="text-[8px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block">
                         {t('no_bets_for_ai')}
                       </p>
                     </>
@@ -744,9 +744,9 @@ const PlayerExclusiveModelCard = ({
                 </div>
               )}
 
-              {/* Handicap Bet - Modern Style */}
+              {/* Handicap Bet - Modern Style - Hidden on mobile */}
               {handicapBet && currentMatchData && (
-                <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
+                <div className="hidden sm:block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                   {/* Bet Type Header */}
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet')}</span>
@@ -815,9 +815,9 @@ const PlayerExclusiveModelCard = ({
                 </div>
               )}
 
-              {/* Over/Under Bet - Modern Style */}
+              {/* Over/Under Bet - Modern Style - Hidden on mobile */}
               {overUnderBet && currentMatchData && (
-                <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
+                <div className="hidden sm:block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                   {/* Bet Type Header */}
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet')}</span>
