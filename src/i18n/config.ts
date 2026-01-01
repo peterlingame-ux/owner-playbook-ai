@@ -856,6 +856,19 @@ const resources = {
       "hunter_balance": "Balance",
       "to_next_level": "to next level",
       "max_level": "MAX",
+      "personal_records": "Personal Records",
+      "invitation_code_tab": "Invite Code",
+      "your_invitation_code": "Your Invitation Code",
+      "invited_users": "Invited Users",
+      "invitation_code_copied": "Invitation code copied!",
+      "link_copied": "Link copied!",
+      "no_invited_users": "No invited users yet",
+      "share_code_hint": "Share your code to invite friends!",
+      "joined_on": "Joined",
+      "no_predictions_yet": "No predictions yet",
+      "start_predicting": "Start Predicting",
+      "wrong_predictions": "Wrong",
+      "bet_now": "Bet Now",
       
       // Direct Messages
       "send_message": "Message",
@@ -872,7 +885,6 @@ const resources = {
       "virtual_balance": "Virtual Balance",
       "view_arrow": "View →",
       "prediction_history_title": "Prediction History",
-      "no_predictions_yet": "No predictions yet",
       "won_status": "Won",
       "lost_status": "Lost",
       "subscriptions": "Subscriptions",
@@ -899,7 +911,7 @@ const resources = {
       "referral_code": "Referral Code",
       "invited_label": "Invited",
       "referral_bonus_text": "Invite 5 friends to get 1 month of free VIP",
-      "start_predicting": "Start Predicting",
+      
       
       // Personal Center - VIP Dialog
       "upgrade_to_vip": "Upgrade to VIP",
@@ -919,7 +931,7 @@ const resources = {
       "confirm_upgrade": "Confirm Upgrade",
       
       // Personal Center - Invited Users
-      "invited_users": "Invited Users",
+      
       "no_invited_users_yet": "No invited users yet",
       "joined_date": "Joined",
       
@@ -1040,7 +1052,7 @@ const resources = {
       "copy": "Copy",
       "invited_users_title": "Invited Users",
       "registered_at": "Registered",
-      "no_invited_users": "No invitations yet",
+      "no_invited_users_message": "No invitations yet",
 
       "member": "Member",
       "active": "Active",
