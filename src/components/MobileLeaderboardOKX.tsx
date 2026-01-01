@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, Bot, Zap, CheckCircle, XCircle } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -317,13 +317,15 @@ const MobileLeaderboardOKX = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            onClick={() => navigate(`/models?model=${model.id}`)}
-            className="bg-card/50 rounded-xl p-4 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform"
+            className="bg-card/50 rounded-xl p-4 border border-border/30"
           >
-            {/* Top: Icon + Name + Predictions Count */}
+            {/* Top: Icon + Name + Like Button + Action Buttons */}
             <div className="flex items-start gap-3 mb-3">
               <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden">
+                <div 
+                  className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden cursor-pointer"
+                  onClick={() => navigate(`/models?model=${model.id}`)}
+                >
                   <img src={getAIIcon(model.id)} alt={model.name} className="w-8 h-8 object-contain" />
                 </div>
                 {index < 3 && (
@@ -337,17 +339,51 @@ const MobileLeaderboardOKX = () => {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base text-foreground truncate flex items-center gap-1">
+                <h3 
+                  className="font-bold text-base text-foreground truncate flex items-center gap-1.5 cursor-pointer"
+                  onClick={() => navigate(`/models?model=${model.id}`)}
+                >
                   {model.name}
-                  <Bot className="h-3.5 w-3.5 text-primary" />
+                  <button 
+                    className="p-1 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Like action placeholder
+                    }}
+                  >
+                    <ThumbsUp className="h-3.5 w-3.5 text-primary" />
+                  </button>
                 </h3>
                 <p className="text-xs text-muted-foreground line-clamp-1">
                   {t('predicted_matches', { count: model.totalPredictions }) || `预测${model.totalPredictions}场`}
                 </p>
               </div>
+              {/* Top Right Action Buttons */}
+              <div className="flex items-center gap-1.5">
+                <button 
+                  className="px-2 py-1 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-md flex items-center gap-1 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/models?model=${model.id}&tab=history`);
+                  }}
+                >
+                  <History className="h-3 w-3" />
+                  {t('history_predictions') || '历史预测'}
+                </button>
+                <button 
+                  className="px-2 py-1 text-[10px] font-medium bg-primary/20 hover:bg-primary/30 text-primary rounded-md flex items-center gap-1 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Auto follow action placeholder
+                  }}
+                >
+                  <UserPlus className="h-3 w-3" />
+                  {t('auto_follow') || '自动跟单'}
+                </button>
+              </div>
             </div>
 
-            {/* Middle: Profit Rate + Profit Amount + Chart */}
+            {/* Middle: Profit Rate + Profit Amount + Followers + Chart */}
             <div className="flex items-end justify-between mb-4">
               <div>
                 <p className="text-[10px] text-muted-foreground mb-1">
@@ -356,9 +392,15 @@ const MobileLeaderboardOKX = () => {
                 <p className={`text-3xl font-bold tracking-tight ${model.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {model.changePercent >= 0 ? '+' : ''}{model.changePercent.toFixed(2)}%
                 </p>
-                {/* Profit Amount */}
-                <p className={`text-sm font-semibold mt-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {/* Profit Amount with Hunter Coin */}
+                <p className={`text-sm font-semibold mt-1 flex items-center gap-1 ${model.profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {model.profitAmount >= 0 ? '+' : ''}{model.profitAmount.toLocaleString()}
+                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                </p>
+                {/* Followers Count */}
+                <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  {t('followers_count', { count: model.followers }) || `${model.followers}人跟单`}
                 </p>
               </div>
               
