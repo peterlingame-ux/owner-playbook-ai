@@ -2052,6 +2052,9 @@ const resources = {
       "prediction_away": "客队",
       "prediction_over": "大",
       "prediction_under": "小",
+      "correct_predictions_count": "正确场次",
+      "wrong_predictions": "错误场次",
+      "total_wagered": "虚拟下注",
       
       // 私信
       "send_message": "发消息",
