@@ -711,14 +711,14 @@ const MobileLeaderboardOKX = () => {
                 </span>
               </div>
               <button 
-                className="flex items-center gap-0.5 px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded-md transition-colors cursor-pointer font-medium"
+                className="flex items-center gap-0.5 px-1.5 py-0.5 bg-primary/10 hover:bg-primary/20 text-primary rounded transition-colors cursor-pointer text-[10px] font-medium"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedModelForFollowers(model.id);
                   setShowFollowersDialog(true);
                 }}
               >
-                <Users className="h-3 w-3" />
+                <Users className="h-2.5 w-2.5" />
                 {model.followers}{t('followers_suffix') || '跟单'}
               </button>
             </div>
