@@ -869,6 +869,7 @@ const resources = {
       "player_vinicius": "Vinícius Jr",
       "player_bellingham": "Bellingham",
       "player_saka": "Saka",
+      "player_son": "Son",
       
       // Personal Center - Tabs
       "star_card_tab": "Star Cards",
@@ -2030,6 +2031,7 @@ const resources = {
       "player_vinicius": "维尼修斯",
       "player_bellingham": "贝林厄姆",
       "player_saka": "萨卡",
+      "player_son": "孙兴慜",
       
       // 个人中心 - 标签页
       "star_card_tab": "球星卡",
