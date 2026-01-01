@@ -389,8 +389,8 @@ const MyPredictions = () => {
     if (!user) {
       // Demo data for non-logged in users
       setStarCards([
-        { id: '1', card_name: '梅西', card_image: '/players/player-1.png', rarity: 'legendary', obtained_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-        { id: '2', card_name: 'C罗', card_image: '/players/player-2.png', rarity: 'legendary', obtained_at: new Date(Date.now() - 86400000 * 5).toISOString() },
+        { id: '1', card_name: 'Messi', card_image: '/starcards/mbappe-card.png', rarity: 'legendary', obtained_at: new Date(Date.now() - 86400000 * 2).toISOString() },
+        { id: '2', card_name: 'Ronaldo', card_image: '/starcards/ronaldo-card.png', rarity: 'legendary', obtained_at: new Date(Date.now() - 86400000 * 5).toISOString() },
       ]);
       return;
     }
@@ -797,7 +797,7 @@ const MyPredictions = () => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('star_card_tab') || '球星卡'}
+              {t('star_card_tab') || 'Star Cards'}
             </button>
           </div>
         </div>
@@ -893,11 +893,11 @@ const MyPredictions = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-foreground">{stats?.totalPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_predictions') || '预测'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_predictions') || 'Predictions'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-success">{stats?.correctPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('correct_predictions_count') || '次正确预测'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('correct_predictions_count') || 'Correct'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-destructive">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
@@ -907,7 +907,7 @@ const MyPredictions = () => {
                     <p className={`text-3xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('profit_amount') || '盈利金额'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('profit_amount') || 'Profit'}</p>
                   </div>
                 </div>
 
@@ -915,14 +915,14 @@ const MyPredictions = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-3xl font-bold text-foreground">{(stats?.winRate || 0).toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('win_rate') || '胜率'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('win_rate') || 'Win Rate'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <div className="flex items-center justify-center gap-1.5">
                       <p className="text-3xl font-bold text-foreground">{(stats?.balance || 10000).toLocaleString()}</p>
                       <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5" />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('hunter_coin_balance') || '猎人币余额'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
                   </div>
                 </div>
 
@@ -933,14 +933,14 @@ const MyPredictions = () => {
                       <p className="text-2xl font-bold text-foreground">{(stats?.totalWagered || 0).toLocaleString()}</p>
                       <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_wagered') || '总投注'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_wagered') || 'Total Wagered'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <div className="flex items-center justify-center gap-1.5">
                       <p className="text-2xl font-bold text-success">{(stats?.totalWon || 0).toLocaleString()}</p>
                       <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_won') || '总赢得'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('total_won') || 'Total Won'}</p>
                   </div>
                 </div>
 
@@ -948,11 +948,11 @@ const MyPredictions = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-2xl font-bold text-foreground">{followersList.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('followers_label') || '粉丝'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('followers_label') || 'Followers'}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
                     <p className="text-2xl font-bold text-foreground">{followingList.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('following_label') || '关注'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('following_label') || 'Following'}</p>
                   </div>
                 </div>
 
