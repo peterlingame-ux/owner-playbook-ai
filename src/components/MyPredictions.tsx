@@ -601,7 +601,6 @@ const MyPredictions = () => {
                 boxShadow: '0 2px 8px rgba(200, 150, 50, 0.4)',
               }}
             >
-              <Crown className="w-4 h-4 text-white" />
               <span className="text-sm font-bold text-white">Lv.{currentLevel}</span>
             </div>
             
