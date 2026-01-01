@@ -7,7 +7,9 @@ import UserModelCard from "@/components/UserModelCard";
 import CryptoTicker from "@/components/CryptoTicker";
 import ActiveAIBets from "@/components/ActiveAIBets";
 import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
 import { aiModels } from "@/data/mockData";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AIModel } from "@/types/prediction";
 import {
@@ -21,6 +23,7 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
@@ -306,8 +309,14 @@ const Index = () => {
         </section>
       </div>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer - hidden on mobile when bottom nav is shown */}
+      {!isMobile && <Footer />}
+      
+      {/* Mobile Bottom Navigation */}
+      {isMobile && <BottomNav />}
+      
+      {/* Bottom padding for mobile to account for bottom nav */}
+      {isMobile && <div className="h-16" />}
     </div>
   );
 };
