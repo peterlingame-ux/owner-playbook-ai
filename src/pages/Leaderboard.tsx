@@ -50,9 +50,9 @@ const Leaderboard = () => {
             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
           >
             <TabsList className="grid grid-cols-3 w-full max-w-md sm:max-w-lg h-8 sm:h-10">
-              <TabsTrigger value="ai" className="text-[10px] sm:text-sm px-1 sm:px-4 h-7 sm:h-9">{t('ai_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="players" className="text-[10px] sm:text-sm px-1 sm:px-4 h-7 sm:h-9">{t('player_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="copy" className="text-[10px] sm:text-sm px-1 sm:px-4 h-7 sm:h-9">{t('copy_trading_board')}</TabsTrigger>
+              <TabsTrigger value="ai" className="text-[8px] xs:text-[10px] sm:text-sm px-0.5 xs:px-1 sm:px-4 h-7 sm:h-9 truncate">{t('ai_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="players" className="text-[8px] xs:text-[10px] sm:text-sm px-0.5 xs:px-1 sm:px-4 h-7 sm:h-9 truncate">{t('player_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="copy" className="text-[8px] xs:text-[10px] sm:text-sm px-0.5 xs:px-1 sm:px-4 h-7 sm:h-9 truncate">{t('copy_trading_board')}</TabsTrigger>
             </TabsList>
           </motion.div>
           
