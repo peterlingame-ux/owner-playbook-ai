@@ -723,36 +723,36 @@ const MyPredictions = () => {
       </div>
 
         {/* Stats Row - Three Columns */}
-        <div className="flex items-stretch gap-2 mt-6">
+        <div className="flex items-stretch gap-1.5 sm:gap-2 mt-4 sm:mt-6">
           {/* Followers */}
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors"
+            className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0"
           >
-            <p className="text-2xl font-bold text-foreground">
+            <p className="text-lg sm:text-2xl font-bold text-foreground">
               {followersList.length >= 1000 ? `${(followersList.length / 1000).toFixed(1)}K` : followersList.length}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">{t('followers_label') || 'Followers'}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('followers_label') || '粉丝'}</p>
           </button>
           
           {/* Following */}
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors"
+            className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0"
           >
-            <p className="text-2xl font-bold text-foreground">{followingList.length}</p>
-            <p className="text-sm text-muted-foreground mt-1">{t('following_label') || 'Following'}</p>
+            <p className="text-lg sm:text-2xl font-bold text-foreground">{followingList.length}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('following_label') || '关注'}</p>
           </button>
           
           {/* Hunter Coin Balance */}
-          <div className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center">
-            <div className="flex items-center justify-center gap-1.5">
-              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
-              <p className="text-2xl font-bold text-foreground">
+          <div className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0">
+            <div className="flex items-center justify-center gap-1 sm:gap-1.5">
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4 sm:w-6 sm:h-6 flex-shrink-0" />
+              <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
                 {(stats?.balance || 0).toLocaleString()}
               </p>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('hunter_coin_balance') || '猎人币'}</p>
           </div>
         </div>
 
