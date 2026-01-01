@@ -585,11 +585,49 @@ const MyPredictions = () => {
             </div>
           </div>
 
-          {/* Signature / Bio */}
-          <p className="text-base text-muted-foreground mt-2">
-            {userProfile?.signature || t('prediction_expert') || 'Prediction Expert'}
-          </p>
+        {/* Signature / Bio */}
+        <p className="text-base text-muted-foreground mt-2">
+          {userProfile?.signature || t('prediction_expert') || 'Prediction Expert'}
+        </p>
+
+        {/* Level Display with Progress Bar */}
+        <div className="mt-4">
+          <div className="flex items-center gap-3">
+            {/* Level Badge */}
+            <div 
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, hsl(45 90% 50%) 0%, hsl(35 85% 45%) 100%)',
+                boxShadow: '0 2px 8px rgba(200, 150, 50, 0.4)',
+              }}
+            >
+              <Crown className="w-4 h-4 text-white" />
+              <span className="text-sm font-bold text-white">Lv.{currentLevel}</span>
+            </div>
+            
+            {/* Progress to Next Level */}
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-muted-foreground">
+                  {currentLevel >= 50 ? (t('max_level') || 'Max Level') : `${t('next_level') || 'Next'}: Lv.${currentLevel + 1}`}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {getNextLevelProgress().current}/{getNextLevelProgress().required} {t('minutes') || 'min'}
+                </span>
+              </div>
+              <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                <div 
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${getNextLevelProgress().percentage}%`,
+                    background: 'linear-gradient(90deg, hsl(45 90% 50%) 0%, hsl(35 85% 55%) 100%)',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
         {/* Stats Row - Three Columns */}
         <div className="flex items-stretch gap-2 mt-6">
