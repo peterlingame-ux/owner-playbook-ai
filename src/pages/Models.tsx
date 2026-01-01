@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
+import MobileFooter from "@/components/MobileFooter";
 import MatchCenter from "@/components/MatchCenter";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -17,11 +18,11 @@ export default function Models() {
       {/* Footer - hidden on mobile */}
       {!isMobile && <Footer />}
       
+      {/* Mobile Footer */}
+      {isMobile && <MobileFooter />}
+      
       {/* Mobile Bottom Navigation */}
       {isMobile && <BottomNav />}
-      
-      {/* Bottom padding for mobile */}
-      {isMobile && <div className="h-16" />}
     </div>
   );
 }
