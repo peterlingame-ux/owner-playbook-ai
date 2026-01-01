@@ -1115,18 +1115,6 @@ const MyPredictions = () => {
                               <span className="text-xl text-zinc-500">/ {ALL_STAR_CARDS.length}</span>
                             </div>
                           </div>
-                          
-                          <div className="text-right">
-                            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
-                              {t('available_draws') || 'Available'}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-3xl font-bold text-amber-400">{availableToUnlock}</span>
-                              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                <Trophy className="w-4 h-4 text-amber-400" />
-                              </div>
-                            </div>
-                          </div>
                         </div>
 
                         {/* Progress to next card */}
