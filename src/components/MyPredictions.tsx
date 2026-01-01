@@ -593,37 +593,84 @@ const MyPredictions = () => {
         {/* Level Display with Progress Bar */}
         <div className="mt-4">
           <div className="flex items-center gap-3">
-            {/* Level Badge */}
-            <div 
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, hsl(45 90% 50%) 0%, hsl(35 85% 45%) 100%)',
-                boxShadow: '0 2px 8px rgba(200, 150, 50, 0.4)',
-              }}
-            >
-              <span className="text-sm font-bold text-white">Lv.{currentLevel}</span>
-            </div>
-            
-            {/* Progress to Next Level */}
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-muted-foreground">
-                  {currentLevel >= 50 ? (t('max_level') || 'Max Level') : `${t('next_level') || 'Next'}: Lv.${currentLevel + 1}`}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {getNextLevelProgress().current}/{getNextLevelProgress().required} {t('minutes') || 'min'}
-                </span>
-              </div>
-              <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${getNextLevelProgress().percentage}%`,
-                    background: 'linear-gradient(90deg, hsl(45 90% 50%) 0%, hsl(35 85% 55%) 100%)',
-                  }}
-                />
-              </div>
-            </div>
+            {/* Level Badge - Different colors based on level range */}
+            {(() => {
+              // Define level tier colors
+              const getLevelStyle = () => {
+                if (currentLevel >= 36) {
+                  // Diamond: 36-50 - Cyan/Blue gradient
+                  return {
+                    background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 60%) 100%)',
+                    boxShadow: '0 2px 8px rgba(80, 180, 220, 0.5)',
+                  };
+                } else if (currentLevel >= 21) {
+                  // Gold: 21-35 - Gold gradient
+                  return {
+                    background: 'linear-gradient(135deg, hsl(45 90% 50%) 0%, hsl(35 85% 45%) 100%)',
+                    boxShadow: '0 2px 8px rgba(200, 150, 50, 0.4)',
+                  };
+                } else if (currentLevel >= 11) {
+                  // Silver: 11-20 - Silver/Gray gradient
+                  return {
+                    background: 'linear-gradient(135deg, hsl(210 10% 70%) 0%, hsl(210 15% 55%) 100%)',
+                    boxShadow: '0 2px 8px rgba(150, 150, 160, 0.4)',
+                  };
+                } else {
+                  // Bronze: 1-10 - Bronze/Brown gradient
+                  return {
+                    background: 'linear-gradient(135deg, hsl(25 60% 50%) 0%, hsl(20 55% 40%) 100%)',
+                    boxShadow: '0 2px 8px rgba(180, 120, 80, 0.4)',
+                  };
+                }
+              };
+
+              const getProgressBarStyle = () => {
+                if (currentLevel >= 36) {
+                  return 'linear-gradient(90deg, hsl(195 85% 55%) 0%, hsl(210 90% 60%) 100%)';
+                } else if (currentLevel >= 21) {
+                  return 'linear-gradient(90deg, hsl(45 90% 50%) 0%, hsl(35 85% 55%) 100%)';
+                } else if (currentLevel >= 11) {
+                  return 'linear-gradient(90deg, hsl(210 10% 70%) 0%, hsl(210 15% 60%) 100%)';
+                } else {
+                  return 'linear-gradient(90deg, hsl(25 60% 50%) 0%, hsl(20 55% 45%) 100%)';
+                }
+              };
+
+              const levelStyle = getLevelStyle();
+              const progressBarStyle = getProgressBarStyle();
+
+              return (
+                <>
+                  <div 
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                    style={levelStyle}
+                  >
+                    <span className="text-sm font-bold text-white">Lv.{currentLevel}</span>
+                  </div>
+                  
+                  {/* Progress to Next Level */}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-muted-foreground">
+                        {currentLevel >= 50 ? (t('max_level') || 'Max Level') : `${t('next_level') || 'Next'}: Lv.${currentLevel + 1}`}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {getNextLevelProgress().current}/{getNextLevelProgress().required} {t('minutes') || 'min'}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${getNextLevelProgress().percentage}%`,
+                          background: progressBarStyle,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
