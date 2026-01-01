@@ -389,8 +389,8 @@ const MobileLeaderboardOKX = () => {
             className="bg-card/50 rounded-xl p-4 border border-border/30"
           >
             {/* Top: Icon + Name + Like Button + Action Buttons */}
-            <div className="flex items-start gap-3 mb-3">
-              <div className="relative">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="relative flex-shrink-0">
                 <div 
                   className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/50 flex items-center justify-center overflow-hidden cursor-pointer"
                   onClick={() => navigate(`/models?model=${model.id}`)}
