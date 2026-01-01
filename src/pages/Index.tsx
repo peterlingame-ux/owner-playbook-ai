@@ -141,17 +141,17 @@ const Index = () => {
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="max-w-[90vw] sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-center">
+            <DialogTitle className="text-base sm:text-xl font-bold text-center pr-6">
               {t('welcome_title')}
             </DialogTitle>
-            <DialogDescription className="text-sm whitespace-pre-line text-center pt-3">
+            <DialogDescription className="text-xs sm:text-sm whitespace-pre-line text-center pt-2 sm:pt-3 leading-relaxed">
               {t('welcome_message')}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-center pt-3">
-            <Button onClick={handleWelcomeClose} size="default" className="min-w-[160px]">
+          <div className="flex justify-center pt-2 sm:pt-3">
+            <Button onClick={handleWelcomeClose} size="sm" className="min-w-[120px] sm:min-w-[160px] h-9 sm:h-10 text-sm">
               {t('welcome_button')}
             </Button>
           </div>
