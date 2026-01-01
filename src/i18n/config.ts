@@ -851,6 +851,36 @@ const resources = {
       "wrong_predictions": "Wrong",
       "bet_now": "Bet Now",
       
+      // Personal Center - Star Cards
+      "collection": "Collection",
+      "available": "Available",
+      "next_card": "Next card",
+      "invites": "invites",
+      "invite_friends": "Invite friends to unlock more",
+      "player_messi": "Messi",
+      "player_ronaldo": "Ronaldo",
+      "player_mbappe": "Mbappé",
+      "player_haaland": "Haaland",
+      "player_neymar": "Neymar",
+      "player_salah": "Salah",
+      "player_debruyne": "De Bruyne",
+      "player_modric": "Modrić",
+      "player_benzema": "Benzema",
+      "player_vinicius": "Vinícius Jr",
+      "player_bellingham": "Bellingham",
+      "player_saka": "Saka",
+      
+      // Personal Center - Tabs
+      "star_card_tab": "Star Cards",
+      "display_name": "Display Name",
+      "bio": "Bio",
+      "avatar": "Avatar",
+      "next_level": "Next",
+      "minutes_unit": "min",
+      "total_wagered": "Total Wagered",
+      "total_won_stat": "Total Won",
+      "correct_predictions_count": "Correct",
+      
       // Direct Messages
       "send_message": "Message",
       "no_messages_yet": "No messages yet",
@@ -1977,6 +2007,36 @@ const resources = {
       "hunter_balance": "猎人币钱包",
       "to_next_level": "升级还需",
       "max_level": "满级",
+      
+      // 个人中心 - 球星卡
+      "collection": "收藏",
+      "available": "可解锁",
+      "next_card": "下一张",
+      "invites": "邀请",
+      "invite_friends": "邀请好友解锁更多",
+      "player_messi": "梅西",
+      "player_ronaldo": "C罗",
+      "player_mbappe": "姆巴佩",
+      "player_haaland": "哈兰德",
+      "player_neymar": "内马尔",
+      "player_salah": "萨拉赫",
+      "player_debruyne": "德布劳内",
+      "player_modric": "莫德里奇",
+      "player_benzema": "本泽马",
+      "player_vinicius": "维尼修斯",
+      "player_bellingham": "贝林厄姆",
+      "player_saka": "萨卡",
+      
+      // 个人中心 - 标签页
+      "star_card_tab": "球星卡",
+      "display_name": "昵称",
+      "bio": "签名",
+      "avatar": "头像",
+      "next_level": "下一级",
+      "minutes_unit": "分钟",
+      "total_wagered": "累计投注",
+      "total_won_stat": "累计获胜",
+      "correct_predictions_count": "正确预测",
       
       // 私信
       "send_message": "发消息",
