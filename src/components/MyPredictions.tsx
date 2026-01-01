@@ -468,13 +468,6 @@ const MyPredictions = () => {
         {/* Top Right Icons - Settings and Share */}
         <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
           <button 
-            onClick={() => navigate('/settings')}
-            className="w-12 h-12 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center hover:bg-muted transition-colors"
-            style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}
-          >
-            <Settings className="w-6 h-6 text-muted-foreground" />
-          </button>
-          <button 
             className="w-12 h-12 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center hover:bg-muted transition-colors"
             style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}
             onClick={() => {
