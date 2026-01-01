@@ -211,7 +211,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
             <span className={`font-mono font-bold text-[8px] sm:text-sm tabular-nums leading-none ${
               isPositive ? 'text-success' : 'text-destructive'
             }`}>
-              {model.change.replace(/\$/, '').replace(/\.00$/, '').replace(/,/g, '')}
+              {(() => {
+                const numValue = parseFloat(model.change.replace(/[\$,]/g, ''));
+                const sign = numValue >= 0 ? '+' : '';
+                return sign + Math.abs(numValue).toLocaleString();
+              })()}
             </span>
             <img 
               src={hunterCoinIcon} 
