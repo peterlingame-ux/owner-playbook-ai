@@ -301,17 +301,17 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
     };
     
     return (
-      <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 pt-6 sm:pt-8">
+      <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-4 pt-4 sm:pt-8 px-1">
         {payload.map((entry: any, index: number) => (
           <div 
             key={`item-${index}`} 
-            className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+            className="flex items-center gap-1 sm:gap-2 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
           >
             <div 
-              className="w-3 h-3 rounded-full"
+              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full shrink-0"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-[9px] sm:text-xs font-medium text-muted-foreground whitespace-nowrap">
               {getName(entry.dataKey, entry.value)}
             </span>
           </div>
@@ -327,19 +327,19 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   };
 
   return (
-    <Card className="p-6 sm:p-8 bg-card/50 backdrop-blur-sm border-border/20">
+    <Card className="p-3 sm:p-6 lg:p-8 bg-card/50 backdrop-blur-sm border-border/20">
       {/* Header - Minimalist */}
-      <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
+      <div className="mb-4 sm:mb-6 lg:mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+          <h2 className="text-sm sm:text-lg lg:text-xl font-semibold tracking-tight text-foreground text-center sm:text-left">
             {t('performance_over_time')}
           </h2>
           
           {/* Time Range Tabs - Pill style */}
-          <div className="flex bg-muted/30 rounded-full p-1">
+          <div className="flex bg-muted/30 rounded-full p-0.5 sm:p-1">
             <button
               onClick={() => setTimeRange('7d')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
                 timeRange === '7d'
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -349,7 +349,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             </button>
             <button 
               onClick={() => setTimeRange('24h')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
                 timeRange === '24h' 
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -359,7 +359,7 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
             </button>
             <button 
               onClick={() => setTimeRange('72h')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
                 timeRange === '72h' 
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -372,43 +372,46 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
       </div>
       
       {isLoading ? (
-        <div className="h-[280px] sm:h-[360px] flex items-center justify-center">
-          <div className="text-muted-foreground text-sm">{t('loading')}</div>
+        <div className="h-[220px] sm:h-[280px] lg:h-[360px] flex items-center justify-center">
+          <div className="text-muted-foreground text-xs sm:text-sm">{t('loading')}</div>
         </div>
       ) : data.length === 0 ? (
-        <div className="h-[280px] sm:h-[360px] flex items-center justify-center">
-          <div className="text-muted-foreground text-sm">{t('no_data')}</div>
+        <div className="h-[220px] sm:h-[280px] lg:h-[360px] flex items-center justify-center">
+          <div className="text-muted-foreground text-xs sm:text-sm">{t('no_data')}</div>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={280} className="sm:!h-[360px]">
-          <LineChart 
-            data={data} 
-            margin={{ top: 20, right: 20, left: 0, bottom: 10 }}
-          >
-          <CartesianGrid 
-            strokeDasharray="0" 
-            stroke="hsl(var(--border)/0.3)" 
-            vertical={false}
-            horizontal={true}
-          />
-          <XAxis 
-            dataKey="date" 
-            stroke="hsl(var(--muted-foreground)/0.5)"
-            fontSize={11}
-            tickLine={false}
-            axisLine={false}
-            dy={10}
-          />
-          <YAxis 
-            stroke="hsl(var(--muted-foreground)/0.5)"
-            fontSize={11}
-            tickLine={false}
-            axisLine={false}
-            domain={['auto', 'auto']}
-            tickFormatter={(value) => `${value}%`}
-            width={45}
-            dx={-5}
-          />
+        <div className="w-full h-[220px] sm:h-[280px] lg:h-[360px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart 
+              data={data} 
+              margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
+            >
+            <CartesianGrid 
+              strokeDasharray="0" 
+              stroke="hsl(var(--border)/0.3)" 
+              vertical={false}
+              horizontal={true}
+            />
+            <XAxis 
+              dataKey="date" 
+              stroke="hsl(var(--muted-foreground)/0.5)"
+              fontSize={9}
+              tickLine={false}
+              axisLine={false}
+              dy={5}
+              tick={{ fontSize: 9 }}
+            />
+            <YAxis 
+              stroke="hsl(var(--muted-foreground)/0.5)"
+              fontSize={9}
+              tickLine={false}
+              axisLine={false}
+              domain={['auto', 'auto']}
+              tickFormatter={(value) => `${value}%`}
+              width={35}
+              dx={-2}
+              tick={{ fontSize: 9 }}
+            />
           <Tooltip 
             contentStyle={{
               backgroundColor: "hsl(var(--popover))",
@@ -534,8 +537,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
               strokeWidth: 2,
             }}
           />
-        </LineChart>
-      </ResponsiveContainer>
+          </LineChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </Card>
   );
