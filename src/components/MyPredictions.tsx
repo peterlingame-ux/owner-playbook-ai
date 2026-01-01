@@ -462,9 +462,9 @@ const MyPredictions = () => {
   const currentLevel = user ? level : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
       {/* Profile Header - Matching Reference Design Exactly */}
-      <div className="relative px-4 pt-4">
+      <div className="relative px-3 sm:px-4 pt-4">
 
         {/* 3D Avatar Section with Sky Background */}
         <div className="relative w-full max-w-[380px] mx-auto">
@@ -1109,31 +1109,31 @@ const MyPredictions = () => {
                   return (
                     <div className="space-y-6">
                       {/* Premium Header */}
-                      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-5 border border-zinc-700/50">
+                      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-3 sm:p-5 border border-zinc-700/50">
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent" />
                         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl" />
                         
                         <div className="relative flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
+                            <p className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-widest mb-1">
                               {t('star_collection') || 'Star Collection'}
                             </p>
                             <div className="flex items-baseline gap-1">
-                              <span className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                              <span className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
                                 {unlockedCount}
                               </span>
-                              <span className="text-xl text-zinc-500">/ {ALL_STAR_CARDS.length}</span>
+                              <span className="text-base sm:text-xl text-zinc-500">/ {ALL_STAR_CARDS.length}</span>
                             </div>
                           </div>
                         </div>
 
                         {/* Progress to next card */}
-                        <div className="relative mt-5">
-                          <div className="flex items-center justify-between text-xs mb-2">
+                        <div className="relative mt-3 sm:mt-5">
+                          <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1.5 sm:mb-2">
                             <span className="text-zinc-400">{t('next_unlock') || 'Next unlock'}</span>
                             <span className="text-amber-400 font-medium">{invitedUsers.length % 5}/5</span>
                           </div>
-                          <div className="h-1.5 bg-zinc-700/50 rounded-full overflow-hidden">
+                          <div className="h-1 sm:h-1.5 bg-zinc-700/50 rounded-full overflow-hidden">
                             <motion.div 
                               className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full"
                               initial={{ width: 0 }}
@@ -1144,8 +1144,8 @@ const MyPredictions = () => {
                         </div>
                       </div>
 
-                      {/* Cards Gallery - Responsive Display */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                      {/* Cards Gallery - Fixed 3-Column Display */}
+                      <div className="grid grid-cols-3 gap-2">
                         {ALL_STAR_CARDS.map((card, index) => {
                           const isUnlocked = unlockedCardIds.has(playerNames[card.name_key]);
                           const playerName = t(card.name_key) || playerNames[card.name_key];
