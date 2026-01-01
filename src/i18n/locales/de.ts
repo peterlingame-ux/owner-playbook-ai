@@ -569,6 +569,10 @@ export const de = {
     "history_records": "Verlauf",
     "your_invitation_code": "Dein Einladungscode",
     "invited_count": "Eingeladen",
+    "invite_reward_title": "Starkarten-Belohnung",
+    "invite_reward_desc": "5 Freunde einladen für 1 Karte",
+    "star_cards_earned": "{{count}} Karten verdient",
+    "total_invited": "{{count}} eingeladen",
     
     "platform_disclaimer": "Haftungsausschluss",
     "platform_disclaimer_content": "HUNSOCCER dient nur zur Demonstration von KI-Analysen und bietet keine Wettdienste an.",

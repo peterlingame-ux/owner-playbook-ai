@@ -922,6 +922,10 @@ const resources = {
       "referral_code": "Referral Code",
       "invited_label": "Invited",
       "referral_bonus_text": "Invite 5 friends to get 1 month of free VIP",
+      "invite_reward_title": "Star Card Reward",
+      "invite_reward_desc": "Invite 5 friends for 1 star card",
+      "star_cards_earned": "{{count}} cards earned",
+      "total_invited": "{{count}} invited",
       
       
       // Personal Center - VIP Dialog
@@ -2080,6 +2084,10 @@ const resources = {
       "referral_code": "邀请码",
       "invited_label": "已邀请",
       "referral_bonus_text": "邀请5个好友可免费使用VIP一个月",
+      "invite_reward_title": "球星卡奖励",
+      "invite_reward_desc": "每邀请5位好友，赠送1张球星卡",
+      "star_cards_earned": "已获得{{count}}张",
+      "total_invited": "已邀请{{count}}人",
       "start_predicting": "开始预测",
       
       // 个人中心 - VIP对话框

@@ -582,6 +582,10 @@ export const fr = {
     "total_won_stat": "Total Gagné",
     "correct_predictions_count": "Correctes",
     "personal_records": "Statistiques",
+    "invite_reward_title": "Récompense Carte de Star",
+    "invite_reward_desc": "Invitez 5 amis pour 1 carte",
+    "star_cards_earned": "{{count}} cartes gagnées",
+    "total_invited": "{{count}} invités",
     
     "platform_disclaimer": "Avis Légal",
     "platform_disclaimer_content": "HUNSOCCER est uniquement pour la démonstration d'analyse IA et ne fournit pas de services de paris.",
