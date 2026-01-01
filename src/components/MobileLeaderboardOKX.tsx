@@ -651,7 +651,7 @@ const MobileLeaderboardOKX = () => {
                     e.stopPropagation();
                   }}
                 >
-                  {t('today_predictions') || '今日预测'}
+                  {t('auto_copy_trade') || '自动跟单'}
                 </button>
               </div>
             </div>
@@ -1165,7 +1165,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               e.stopPropagation();
             }}
           >
-            {t('today_predictions') || '今日预测'}
+            {t('today_copy_trade') || '今日跟单'}
           </button>
         </div>
       </div>
