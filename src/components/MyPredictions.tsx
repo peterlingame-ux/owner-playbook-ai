@@ -1195,7 +1195,7 @@ const MyPredictions = () => {
                                     alt={card.card_name}
                                     className={`w-full h-full object-contain transition-all duration-300 ${
                                       isUnlocked 
-                                        ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]' 
+                                        ? '' 
                                         : 'grayscale brightness-[0.15] opacity-60'
                                     }`}
                                   />
