@@ -210,8 +210,12 @@ const resources = {
       "rule_days": "Active Days ≥ 7",
       "rule_sort": "Comprehensive ranking based on win rate, profit, and followers",
       "90d_profit": "90D Trader Profit",
+      "90d_copy_profit": "90D Copy Profit",
       "trading_volume": "Trading Volume",
       "trading_days": "Trading Days",
+      "all_predictors": "All Predictors",
+      "copy_profit_label": "Copy Profit",
+      "followers_suffix": " followers",
       // Model Cards
       "the_contestants": "AI Competing Models",
       "top_players": "Player Champions",
@@ -1334,6 +1338,10 @@ const resources = {
       "total_prize_value": "奖品总价值",
       "qualified_status": "已达标",
       "keep_going": "继续努力",
+      "all_predictors": "全部预测者",
+      "copy_profit_label": "跟单收益",
+      "followers_suffix": "跟单",
+      "90d_copy_profit": "近90日跟单收益",
       
       // Model Cards
       "the_contestants": "AI参赛模型",
