@@ -850,6 +850,11 @@ const resources = {
       "start_predicting": "Start Predicting",
       "wrong_predictions": "Wrong",
       "bet_now": "Bet Now",
+      "followers_count_label": "Followers",
+      "prediction_home": "Home",
+      "prediction_away": "Away",
+      "prediction_over": "Over",
+      "prediction_under": "Under",
       
       // Personal Center - Star Cards
       "collection": "Collection",
@@ -2037,17 +2042,19 @@ const resources = {
       "player_bellingham": "贝林厄姆",
       "player_saka": "萨卡",
       "player_son": "孙兴慜",
+      "player_kane": "凯恩",
+      "player_dembele": "登贝莱",
       
       // 个人中心 - 标签页
       "star_card_tab": "球星卡",
-      "display_name": "昵称",
-      "bio": "签名",
-      "avatar": "头像",
-      "next_level": "下一级",
-      "minutes_unit": "分钟",
-      "total_wagered": "累计投注",
-      "total_won_stat": "累计获胜",
-      "correct_predictions_count": "正确预测",
+      "followers_count_label": "跟单人数",
+      "prediction_home": "主队",
+      "prediction_away": "客队",
+      "prediction_over": "大",
+      "prediction_under": "小",
+      "correct_predictions_count": "正确场次",
+      "wrong_predictions": "错误场次",
+      "total_wagered": "虚拟下注",
       
       // 私信
       "send_message": "发消息",
@@ -2166,9 +2173,9 @@ const resources = {
       
       // 猎人币钱包
       "hunter_coin_wallet": "VIP特权",
-      "hunter_coin_balance": "猎人币余额",
+      "hunter_coin_balance": "猎人币",
       "usdt_wallet": "VIP特权",
-      "usdt_wallet_balance": "猎人币余额",
+      "usdt_wallet_balance": "猎人币",
       "usdt_deposit": "充值",
       "usdt_deposit_title": "USDT充值",
       "deposit_description": "请输入充值金额，使用 TRC20 网络转账 USDT，到账后自动兑换为猎人币（1:1）。",

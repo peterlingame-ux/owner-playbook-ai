@@ -12,7 +12,7 @@ const MobileFooter = () => {
   ];
 
   return (
-    <footer className="w-full bg-background border-t border-border/30 py-6 px-4 pb-24">
+    <footer className="w-full bg-background border-t border-border/30 py-4 sm:py-6 px-4 pb-20 sm:pb-24">
       {/* Links Row - Responsive wrap */}
       <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 mb-4">
         {footerLinks.map((link, index) => (

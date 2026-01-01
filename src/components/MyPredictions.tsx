@@ -462,9 +462,9 @@ const MyPredictions = () => {
   const currentLevel = user ? level : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-8 sm:pb-24 overflow-x-hidden">
       {/* Profile Header - Matching Reference Design Exactly */}
-      <div className="relative px-4 pt-4">
+      <div className="relative px-3 sm:px-4 pt-4">
 
         {/* 3D Avatar Section with Sky Background */}
         <div className="relative w-full max-w-[380px] mx-auto">
@@ -536,39 +536,39 @@ const MyPredictions = () => {
                 </svg>
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card border-border">
+            <DialogContent className="w-[calc(100vw-2rem)] max-w-md mx-auto bg-card border-border max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-xl font-light tracking-wide">{t('edit_profile') || 'Edit Profile'}</DialogTitle>
+                <DialogTitle className="text-lg sm:text-xl font-light tracking-wide">{t('edit_profile') || 'Edit Profile'}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-6 py-4">
+              <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
+                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
                   <Input
                     value={editDisplayName}
                     onChange={(e) => setEditDisplayName(e.target.value)}
-                    className="h-12 bg-background border-border"
+                    className="h-10 sm:h-12 bg-background border-border text-sm"
                     maxLength={20}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
+                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
                   <Input
                     value={editSignature}
                     onChange={(e) => setEditSignature(e.target.value)}
-                    className="h-12 bg-background border-border"
+                    className="h-10 sm:h-12 bg-background border-border text-sm"
                     maxLength={50}
                   />
                 </div>
                 
-                <div className="space-y-3">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
-                  <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-2 sm:space-y-3">
+                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {AVATAR_OPTIONS.map((avatar) => (
                       <button
                         key={avatar}
                         onClick={() => setSelectedAvatar(avatar)}
-                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                        className={`relative aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
                           selectedAvatar === avatar 
                             ? 'border-primary ring-2 ring-primary/20' 
                             : 'border-border hover:border-muted-foreground'
@@ -579,7 +579,7 @@ const MyPredictions = () => {
                         </Avatar>
                         {selectedAvatar === avatar && (
                           <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <Check className="h-6 w-6 text-primary" />
+                            <Check className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                         )}
                       </button>
@@ -588,11 +588,11 @@ const MyPredictions = () => {
                 </div>
               </div>
               
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 h-12" onClick={() => setIsEditDialogOpen(false)}>
+              <div className="flex gap-2 sm:gap-3">
+                <Button variant="outline" className="flex-1 h-10 sm:h-12 text-sm" onClick={() => setIsEditDialogOpen(false)}>
                   {t('cancel') || 'Cancel'}
                 </Button>
-                <Button className="flex-1 h-12" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
+                <Button className="flex-1 h-10 sm:h-12 text-sm" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
                   {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
                 </Button>
               </div>
@@ -723,75 +723,75 @@ const MyPredictions = () => {
       </div>
 
         {/* Stats Row - Three Columns */}
-        <div className="flex items-stretch gap-2 mt-6">
+        <div className="flex items-stretch gap-1.5 sm:gap-2 mt-4 sm:mt-6">
           {/* Followers */}
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors"
+            className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0"
           >
-            <p className="text-2xl font-bold text-foreground">
+            <p className="text-lg sm:text-2xl font-bold text-foreground">
               {followersList.length >= 1000 ? `${(followersList.length / 1000).toFixed(1)}K` : followersList.length}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">{t('followers_label') || 'Followers'}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('followers_label') || '粉丝'}</p>
           </button>
           
           {/* Following */}
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors"
+            className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0"
           >
-            <p className="text-2xl font-bold text-foreground">{followingList.length}</p>
-            <p className="text-sm text-muted-foreground mt-1">{t('following_label') || 'Following'}</p>
+            <p className="text-lg sm:text-2xl font-bold text-foreground">{followingList.length}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('following_label') || '关注'}</p>
           </button>
           
           {/* Hunter Coin Balance */}
-          <div className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center">
-            <div className="flex items-center justify-center gap-1.5">
-              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
-              <p className="text-2xl font-bold text-foreground">
-                {(stats?.balance || 0) >= 10000 ? `${((stats?.balance || 0) / 1000).toFixed(1)}K` : (stats?.balance || 0).toLocaleString()}
+          <div className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0">
+            <div className="flex items-center justify-center gap-1 sm:gap-1.5">
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4 sm:w-6 sm:h-6 flex-shrink-0" />
+              <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
+                {(stats?.balance || 0).toLocaleString()}
               </p>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('hunter_coin_balance') || '猎人币'}</p>
           </div>
         </div>
 
-        {/* Tabs - Recent / Collect / Podcast style */}
+        {/* Tabs - Responsive Scrollable */}
         <div className="mt-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4">
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'history' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('history_records') || 'Recent'}
+              {t('history_records') || 'History'}
             </button>
             <button
               onClick={() => setActiveTab('records')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'records' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('personal_records') || 'Collect'}
+              {t('personal_records') || 'Personal Records'}
             </button>
             <button
               onClick={() => setActiveTab('invite')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'invite' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('invitation_code_tab') || 'Podcast'}
+              {t('invitation_code_tab') || 'Invite Code'}
             </button>
             <button
               onClick={() => setActiveTab('starcard')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'starcard' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -844,7 +844,12 @@ const MyPredictions = () => {
                             {pred.match?.home_team_name || 'Home'} vs {pred.match?.away_team_name || 'Away'}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {pred.prediction} · {format(new Date(pred.created_at), 'MM/dd HH:mm')}
+                            {pred.prediction
+                              .replace(/^Home/i, t('prediction_home') || 'Home')
+                              .replace(/^Away/i, t('prediction_away') || 'Away')
+                              .replace(/^Over/i, t('prediction_over') || 'Over')
+                              .replace(/^Under/i, t('prediction_under') || 'Under')
+                            } · {format(new Date(pred.created_at), 'MM/dd HH:mm')}
                           </p>
                         </div>
 
@@ -887,75 +892,80 @@ const MyPredictions = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="py-4 space-y-4"
+                className="py-4"
               >
-                {/* Main Stats Grid - 2x2 */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-foreground">{stats?.totalPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_predictions') || 'Predictions'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-success">{stats?.correctPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('correct_predictions_count') || 'Correct'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-destructive">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('wrong_predictions') || 'Wrong'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className={`text-3xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('profit_amount') || 'Profit'}</p>
-                  </div>
-                </div>
-
-                {/* Additional Stats - Win Rate & Balance */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-foreground">{(stats?.winRate || 0).toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('win_rate') || 'Win Rate'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-3xl font-bold text-foreground">{(stats?.balance || 10000).toLocaleString()}</p>
-                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5" />
+                {/* Single Card Style - Like Reference */}
+                <div className="rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800/95 to-zinc-900 border border-zinc-700/50 overflow-hidden">
+                  {/* Top Row - Predictions Stats - Responsive Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-zinc-700/50 border-b border-zinc-700/50">
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('total_predictions') || 'Predictions'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-white">
+                        {stats?.totalPredictions || 0}<span className="text-zinc-400 text-xs sm:text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
-                  </div>
-                </div>
-
-                {/* Wagered Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-bold text-foreground">{(stats?.totalWagered || 0).toLocaleString()}</p>
-                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('correct_predictions_count') || 'Correct'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-white">
+                        {stats?.correctPredictions || 0}<span className="text-zinc-400 text-xs sm:text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_wagered') || 'Total Wagered'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-bold text-success">{(stats?.totalWon || 0).toLocaleString()}</p>
-                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('wrong_predictions') || 'Wrong'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-white">
+                        {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}<span className="text-zinc-400 text-xs sm:text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_won') || 'Total Won'}</p>
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('win_rate_percent') || 'Win Rate (%)'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-emerald-400 flex items-center justify-center gap-1">
+                        {(stats?.winRate || 0).toFixed(1)}%
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                          <polyline points="17 6 23 6 23 12" />
+                        </svg>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Row - Financial Stats - Responsive Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-zinc-700/50">
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('total_wagered') || 'Virtual Bet'}</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <p className="text-base sm:text-xl font-bold text-white">{(stats?.totalWagered || 0).toLocaleString()}</p>
+                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </div>
+                    </div>
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('profit_amount') || 'Profit'}</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <p className={`text-base sm:text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {(stats?.profit || 0) >= 0 ? '+' : ''}{(stats?.profit || 0).toLocaleString()}
+                        </p>
+                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </div>
+                    </div>
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('profit_rate') || 'Profit Rate'}</p>
+                      <p className={`text-base sm:text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {stats?.totalWagered && stats.totalWagered > 0 
+                          ? `${(stats.profit || 0) >= 0 ? '+' : ''}${((stats.profit || 0) / stats.totalWagered * 100).toFixed(1)}%`
+                          : '0%'
+                        }
+                      </p>
+                    </div>
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('challenge_ai') || 'Challenge AI'}</p>
+                      <p className={`text-base sm:text-xl font-bold ${(stats?.winRate || 0) >= 60 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {(stats?.winRate || 0) >= 60 
+                          ? (t('qualified_status') || 'Qualified')
+                          : (t('not_qualified') || 'Not Qualified')
+                        }
+                      </p>
+                    </div>
                   </div>
                 </div>
-
-                {/* Followers & Following Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-2xl font-bold text-foreground">{followersList.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('followers_label') || 'Followers'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-2xl font-bold text-foreground">{followingList.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('following_label') || 'Following'}</p>
-                  </div>
-                </div>
-
               </motion.div>
             )}
 
@@ -1099,43 +1109,31 @@ const MyPredictions = () => {
                   return (
                     <div className="space-y-6">
                       {/* Premium Header */}
-                      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-5 border border-zinc-700/50">
+                      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-3 sm:p-5 border border-zinc-700/50">
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent" />
                         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl" />
                         
                         <div className="relative flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
+                            <p className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-widest mb-1">
                               {t('star_collection') || 'Star Collection'}
                             </p>
                             <div className="flex items-baseline gap-1">
-                              <span className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                              <span className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
                                 {unlockedCount}
                               </span>
-                              <span className="text-xl text-zinc-500">/ {ALL_STAR_CARDS.length}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="text-right">
-                            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
-                              {t('available_draws') || 'Available'}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-3xl font-bold text-amber-400">{availableToUnlock}</span>
-                              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                <Trophy className="w-4 h-4 text-amber-400" />
-                              </div>
+                              <span className="text-base sm:text-xl text-zinc-500">/ {ALL_STAR_CARDS.length}</span>
                             </div>
                           </div>
                         </div>
 
                         {/* Progress to next card */}
-                        <div className="relative mt-5">
-                          <div className="flex items-center justify-between text-xs mb-2">
+                        <div className="relative mt-3 sm:mt-5">
+                          <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1.5 sm:mb-2">
                             <span className="text-zinc-400">{t('next_unlock') || 'Next unlock'}</span>
                             <span className="text-amber-400 font-medium">{invitedUsers.length % 5}/5</span>
                           </div>
-                          <div className="h-1.5 bg-zinc-700/50 rounded-full overflow-hidden">
+                          <div className="h-1 sm:h-1.5 bg-zinc-700/50 rounded-full overflow-hidden">
                             <motion.div 
                               className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full"
                               initial={{ width: 0 }}
@@ -1146,8 +1144,8 @@ const MyPredictions = () => {
                         </div>
                       </div>
 
-                      {/* Cards Gallery - Full Size Display */}
-                      <div className="grid grid-cols-2 gap-4">
+                      {/* Cards Gallery - Fixed 3-Column Display */}
+                      <div className="grid grid-cols-3 gap-2">
                         {ALL_STAR_CARDS.map((card, index) => {
                           const isUnlocked = unlockedCardIds.has(playerNames[card.name_key]);
                           const playerName = t(card.name_key) || playerNames[card.name_key];
