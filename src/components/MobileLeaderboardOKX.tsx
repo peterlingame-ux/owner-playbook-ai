@@ -719,40 +719,6 @@ const MobileLeaderboardOKX = () => {
         </div>
       )}
 
-
-      {/* Rules Accordion - Only for player tabs */}
-      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
-        <>
-          <button
-            onClick={() => setShowRulesExpanded(!showRulesExpanded)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 border-b border-border/20"
-          >
-            <span className="text-sm text-foreground font-medium">
-              {t('ranking_rules') || '交易员上榜条件及排序规则'}
-            </span>
-            <ChevronRight className={`h-5 w-5 text-muted-foreground transition-transform ${showRulesExpanded ? 'rotate-90' : ''}`} />
-          </button>
-          
-          <AnimatePresence>
-            {showRulesExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="px-4 py-3 bg-muted/10 text-xs text-muted-foreground space-y-1">
-                  <p>• {t('rule_predictions') || '预测次数 ≥ 10 次'}</p>
-                  <p>• {t('rule_winrate') || '胜率 ≥ 50%'}</p>
-                  <p>• {t('rule_days') || '活跃天数 ≥ 7 天'}</p>
-                  <p>• {t('rule_sort') || '综合排序基于胜率、收益率、跟单人数加权计算'}</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </>
-      )}
-
       {/* Content Area */}
       <div className="px-4 py-2 space-y-3 pb-20">
         <AnimatePresence mode="wait">
