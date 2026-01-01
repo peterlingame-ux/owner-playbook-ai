@@ -30,6 +30,9 @@ const resources = {
       "nav_my": "My",
       "nav_personal_center": "Personal Center",
       
+      // Top AI Model
+      "top_ai_model_name": "DeepSeek R1",
+      
       // Stats
       "highest_win_rate": "HIGHEST WIN RATE",
       "lowest_win_rate": "LOWEST WIN RATE",
@@ -1173,6 +1176,9 @@ const resources = {
       "nav_models": "赛事中心",
       "nav_my": "我的",
       "nav_personal_center": "个人中心",
+      
+      // Top AI Model
+      "top_ai_model_name": "DeepSeek R1",
       
       // Stats
       "highest_win_rate": "最高胜率",
