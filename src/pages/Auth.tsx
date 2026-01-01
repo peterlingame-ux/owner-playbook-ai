@@ -652,12 +652,13 @@ const Auth = () => {
                   <Input
                     id="phone"
                     type="tel"
+                    inputMode="numeric"
                     placeholder={t("auth.enter_phone")}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={15}
-                    className="flex-1 h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="flex-1 h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
@@ -676,7 +677,7 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-9 sm:pr-12"
+                      className="h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                     />
                     <button
                       type="button"
@@ -705,7 +706,7 @@ const Auth = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-9 sm:pr-12"
+                        className="h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                       />
                       <button
                         type="button"
@@ -729,7 +730,7 @@ const Auth = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                      className="h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                     />
                   </div>
 
@@ -744,7 +745,7 @@ const Auth = () => {
                       value={invitationCode}
                       onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
                       maxLength={10}
-                      className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
+                      className="h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
                     />
                   </div>
                 </>
@@ -896,7 +897,7 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-9 sm:pr-12"
+                      className="h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg pr-10 sm:pr-12"
                     />
                     <button
                       type="button"
@@ -920,7 +921,7 @@ const Auth = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
@@ -960,12 +961,13 @@ const Auth = () => {
                   <Input
                     id="forgot-phone"
                     type="tel"
+                    inputMode="numeric"
                     placeholder={t("auth.enter_phone")}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={15}
-                    className="flex-1 h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="flex-1 h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
