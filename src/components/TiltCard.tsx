@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, ReactNode, MouseEvent, TouchEvent } from 'react';
 import { motion } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TiltCardProps {
   children: ReactNode;
@@ -30,10 +31,14 @@ const TiltCard = ({
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, scale: 1 });
   const [glarePos, setGlarePos] = useState({ x: 50, y: 50, opacity: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Disable all tilt effects on mobile for performance
+  const effectsDisabled = disabled || isMobile;
 
   const updateTilt = useCallback(
     (clientX: number, clientY: number) => {
-      if (!cardRef.current || disabled) return;
+      if (!cardRef.current || effectsDisabled) return;
 
       const rect = cardRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -54,36 +59,50 @@ const TiltCard = ({
       setTilt({ rotateX, rotateY, scale });
       setGlarePos({ x: glareX, y: glareY, opacity: maxGlare });
     },
-    [maxTilt, scale, maxGlare, disabled]
+    [maxTilt, scale, maxGlare, effectsDisabled]
   );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
-      updateTilt(e.clientX, e.clientY);
-    },
-    [updateTilt]
-  );
-
-  const handleTouchMove = useCallback(
-    (e: TouchEvent<HTMLDivElement>) => {
-      if (e.touches.length === 1) {
-        updateTilt(e.touches[0].clientX, e.touches[0].clientY);
+      if (!isMobile) {
+        updateTilt(e.clientX, e.clientY);
       }
     },
-    [updateTilt]
+    [updateTilt, isMobile]
+  );
+
+  // Disable touch move tilt on mobile for performance
+  const handleTouchMove = useCallback(
+    (e: TouchEvent<HTMLDivElement>) => {
+      // Do nothing on mobile - disable tilt effect for performance
+    },
+    []
   );
 
   const handleMouseEnter = useCallback(() => {
-    if (!disabled) {
+    if (!effectsDisabled) {
       setIsHovering(true);
     }
-  }, [disabled]);
+  }, [effectsDisabled]);
 
   const handleMouseLeave = useCallback(() => {
     setIsHovering(false);
     setTilt({ rotateX: 0, rotateY: 0, scale: 1 });
     setGlarePos({ x: 50, y: 50, opacity: 0 });
   }, []);
+
+  // Simplified render for mobile - no 3D transforms
+  if (isMobile) {
+    return (
+      <div
+        ref={cardRef}
+        className={`relative ${className}`}
+        onClick={onClick}
+      >
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -111,7 +130,7 @@ const TiltCard = ({
         damping: 20,
         mass: 0.5,
       }}
-      whileHover={disabled ? {} : { 
+      whileHover={effectsDisabled ? {} : { 
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)' 
       }}
     >
