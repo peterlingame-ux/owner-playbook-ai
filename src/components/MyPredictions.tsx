@@ -613,10 +613,15 @@ const MyPredictions = () => {
             <p className="text-sm text-muted-foreground mt-1">{t('following_label') || 'Following'}</p>
           </button>
           
-          {/* Win Rate as "Visitors" equivalent */}
+          {/* Hunter Coin Balance */}
           <div className="flex-1 py-4 rounded-xl border border-border/50 bg-card/50 text-center">
-            <p className="text-2xl font-bold text-foreground">{(stats?.winRate || 0).toFixed(0)}%</p>
-            <p className="text-sm text-muted-foreground mt-1">{t('win_rate') || 'Win Rate'}</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
+              <p className="text-2xl font-bold text-foreground">
+                {(stats?.balance || 0) >= 10000 ? `${((stats?.balance || 0) / 1000).toFixed(1)}K` : (stats?.balance || 0).toLocaleString()}
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
           </div>
         </div>
 
