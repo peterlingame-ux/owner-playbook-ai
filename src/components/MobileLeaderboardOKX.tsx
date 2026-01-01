@@ -443,7 +443,7 @@ const MobileLeaderboardOKX = () => {
                     e.stopPropagation();
                   }}
                 >
-                  {t('auto_follow') || '自动跟单'}
+                  {t('today_predictions') || '今日预测'}
                 </button>
               </div>
             </div>
@@ -719,54 +719,6 @@ const MobileLeaderboardOKX = () => {
         </div>
       )}
 
-      {/* Sort & Filter Row - Only for player tabs */}
-      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
-          {/* Sort Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-muted/40 rounded-lg text-xs font-medium text-foreground"
-            >
-              {sortOptions.find(s => s.value === sortType)?.label}
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            
-            <AnimatePresence>
-              {showSortDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[120px] overflow-hidden"
-                >
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setSortType(option.value as SortType);
-                        setShowSortDropdown(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left text-xs transition-colors ${
-                        sortType === option.value
-                          ? 'bg-primary/10 text-primary font-medium'
-                          : 'text-foreground hover:bg-muted/50'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Filter Button */}
-          <button className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors">
-            <Filter className="h-4 w-4" />
-          </button>
-        </div>
-      )}
 
       {/* Rules Accordion - Only for player tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
@@ -929,7 +881,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               e.stopPropagation();
             }}
           >
-            {t('auto_follow') || '自动跟单'}
+            {t('today_predictions') || '今日预测'}
           </button>
         </div>
       </div>
