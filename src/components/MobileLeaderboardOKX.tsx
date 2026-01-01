@@ -692,17 +692,44 @@ const MobileLeaderboardOKX = () => {
         </div>
       )}
 
+      {/* Time Filter & All Predictors - For accuracy and copyTrade tabs */}
+      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
+          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+            {timeFilters.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setTimeFilter(filter.value as TimeFilter)}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                  timeFilter === filter.value
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+          <button 
+            className="px-3 py-1.5 text-xs font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1"
+          >
+            <Users className="h-3 w-3" />
+            {t('all_predictors') || '全部预测者'}
+          </button>
+        </div>
+      )}
+
       {/* Sort & Filter Row - Only for player tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
           {/* Sort Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-muted/40 rounded-lg text-sm font-medium text-foreground"
+              className="flex items-center gap-1 px-3 py-1.5 bg-muted/40 rounded-lg text-xs font-medium text-foreground"
             >
               {sortOptions.find(s => s.value === sortType)?.label}
-              <ChevronDown className={`h-4 w-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
             </button>
             
             <AnimatePresence>
@@ -711,7 +738,7 @@ const MobileLeaderboardOKX = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[140px] overflow-hidden"
+                  className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[120px] overflow-hidden"
                 >
                   {sortOptions.map((option) => (
                     <button
@@ -720,7 +747,7 @@ const MobileLeaderboardOKX = () => {
                         setSortType(option.value as SortType);
                         setShowSortDropdown(false);
                       }}
-                      className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                      className={`w-full px-3 py-2 text-left text-xs transition-colors ${
                         sortType === option.value
                           ? 'bg-primary/10 text-primary font-medium'
                           : 'text-foreground hover:bg-muted/50'
@@ -735,8 +762,8 @@ const MobileLeaderboardOKX = () => {
           </div>
 
           {/* Filter Button */}
-          <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors">
-            <Filter className="h-5 w-5" />
+          <button className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors">
+            <Filter className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -858,29 +885,32 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-sm text-foreground truncate flex items-center gap-1">
+          <h3 className="font-bold text-sm text-foreground truncate">
             {player.displayName}
-            <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium ${
-              subTab === 'high' 
-                ? 'bg-success/20 text-success' 
-                : 'bg-destructive/20 text-destructive'
-            }`}>
-              {subTab === 'high' ? (
-                <>
-                  <TrendingUp className="h-2.5 w-2.5" />
-                  {player.currentStreak || 0}连胜
-                </>
-              ) : (
-                <>
-                  <TrendingDown className="h-2.5 w-2.5" />
-                  {player.worstStreak || 0}连败
-                </>
-              )}
-            </span>
           </h3>
-          <p className="text-[10px] text-muted-foreground">
-            {t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}
-          </p>
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span>{t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}</span>
+            {/* Streak Indicators - Like PC version */}
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: Math.min(player.currentStreak || 0, 5) }).map((_, i) => (
+                <span 
+                  key={i} 
+                  className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold border ${
+                    subTab === 'high' 
+                      ? 'border-success/50 text-success bg-success/10' 
+                      : 'border-destructive/50 text-destructive bg-destructive/10'
+                  }`}
+                >
+                  {subTab === 'high' ? '胜' : '败'}
+                </span>
+              ))}
+              {(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)) > 5 && (
+                <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] border border-muted-foreground/30 text-muted-foreground">
+                  ···
+                </span>
+              )}
+            </div>
+          </div>
         </div>
         {/* Top Right Action Buttons */}
         <div className="flex items-center gap-1">
