@@ -317,6 +317,12 @@ const MobileLeaderboardOKX = () => {
   ];
 
   const getSubTabs = () => {
+    if (mainTab === 'ai') {
+      return [
+        { value: 'high', label: t('all_participating_models') || '所有参赛模型' },
+        { value: 'low', label: t('best_winning_model') || '最佳获胜模型' },
+      ];
+    }
     if (mainTab === 'copyTrade') {
       return [
         { value: 'high', label: t('hot_streak_predictor') || '预测者连红榜' },
@@ -366,7 +372,156 @@ const MobileLeaderboardOKX = () => {
 
     const winningModel = modelsWithStats[0];
 
-    return (
+    // 渲染"最佳获胜模型"子页面
+    const renderBestWinningModel = () => (
+      <div className="space-y-4">
+        {/* Time Filter Tabs */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+            {timeFilters.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setTimeFilter(filter.value as TimeFilter)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                  timeFilter === filter.value
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            {timeFilter === 'day' ? t('today_data') || '今日数据' : 
+             timeFilter === 'week' ? t('weekly_data') || '本周数据' : 
+             t('monthly_data') || '本月数据'}
+          </div>
+        </div>
+
+        {/* Winning Model Section - Like the uploaded image */}
+        <div className="grid grid-cols-5 gap-2">
+          {/* Left: Winning Model Card - Takes 2 columns */}
+          <Card className="col-span-2 relative overflow-hidden">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${getExpertImage(winningModel.id)})` }}
+            />
+            
+            {/* Color Tint Overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${getColorTint(winningModel.id)}`} />
+            
+            {/* Dark gradient for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+            
+            <CardContent className="p-3 relative z-10 h-full flex flex-col min-h-[200px]">
+              <h3 className="text-[10px] font-bold mb-2 text-white/80">{t('winning_model') || '获胜模型'}</h3>
+              <div className="flex items-center gap-1.5 mb-3">
+                <img 
+                  src={getAIIcon(winningModel.id)} 
+                  alt={winningModel.name} 
+                  className="h-6 w-6"
+                  style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                />
+                <span className="text-base font-bold text-white truncate">{winningModel.displayName.split(' ')[0]}</span>
+              </div>
+              
+              <div className="space-y-2 flex-1">
+                <div>
+                  <p className="text-[9px] text-white/70">{t('win_rate_label') || '胜率'}</p>
+                  <p className="text-2xl font-bold font-mono text-white">
+                    {winningModel.winRate}%
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-[9px] text-white/70">{t('correct_predictions_label') || '正确预测'}</p>
+                  <p className="text-base font-bold font-mono text-success">
+                    {winningModel.correctPredictions} / {winningModel.totalPredictions}
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-[9px] text-white/70 mb-1">{t('active_matches') || '活跃比赛'}</p>
+                  <div className="flex gap-1 flex-wrap">
+                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
+                      <GoalIcon size={8} className="flex-shrink-0" />
+                      <span>Premier League</span>
+                    </div>
+                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
+                      <GoalIcon size={8} className="flex-shrink-0" />
+                      <span>La Liga</span>
+                    </div>
+                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
+                      <GoalIcon size={8} className="flex-shrink-0" />
+                      <span>Bundesliga</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Right: Model Bar Cards - Takes 3 columns */}
+          <div className="col-span-3 flex gap-1.5 overflow-x-auto pb-2">
+            {modelsWithStats.map((model) => {
+              // Get model specific colors for bars
+              const getModelBarColor = (modelId: string) => {
+                switch(modelId) {
+                  case 'deepseek': return 'bg-[hsl(217,91%,60%)]';
+                  case 'hunsoccer-max': return 'bg-[hsl(38,92%,50%)]';
+                  case 'grok': return 'bg-[hsl(210,15%,55%)]';
+                  case 'gemini': return 'bg-[hsl(250,75%,60%)]';
+                  case 'gpt5': return 'bg-[hsl(158,68%,50%)]';
+                  case 'claude': return 'bg-[hsl(14,92%,60%)]';
+                  default: return 'bg-primary';
+                }
+              };
+              
+              const maxHeight = 120;
+              const minHeight = 40;
+              const heightRatio = Math.min(model.winRate / 100, 1);
+              const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
+              
+              return (
+                <div key={model.id} className="flex flex-col items-center gap-1 min-w-[48px] flex-shrink-0">
+                  <div className="text-[10px] font-mono font-bold text-foreground">
+                    {model.winRate.toFixed(1)}%
+                  </div>
+                  <div 
+                    className={`w-full rounded-md relative flex items-end justify-center pb-2 transition-all duration-300 ${getModelBarColor(model.id)}`}
+                    style={{ height: `${heightPx}px` }}
+                  >
+                    <img 
+                      src={getAIIcon(model.id)} 
+                      alt={model.name}
+                      className="h-5 w-5 object-contain"
+                      style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
+                    />
+                  </div>
+                  <div className="text-[8px] text-center font-medium text-muted-foreground truncate w-full">
+                    {model.displayName.split(' ')[0].substring(0, 8)}...
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Note */}
+        <div className="mt-4 p-3 bg-muted/20 rounded-lg border border-border/30">
+          <p className="text-[10px] text-muted-foreground">
+            <span className="font-bold text-foreground">{t('note') || '注意'}：</span>
+            {t('stats_note') || '所有统计数据仅反映已完成的比赛预测。直播比赛预测在比赛结束前不计入统计。'}
+          </p>
+        </div>
+      </div>
+    );
+
+    // 渲染"所有参赛模型"子页面
+    const renderAllModels = () => (
       <div className="space-y-4">
         {/* Time Filter Tabs */}
         <div className="flex items-center justify-between mb-4">
@@ -523,128 +678,11 @@ const MobileLeaderboardOKX = () => {
             </div>
           </motion.div>
         ))}
-
-        {/* Bottom Section: Winning Model Card + Bar Chart - Side by Side */}
-        <div className="mt-6 grid grid-cols-2 gap-2">
-          {/* Winning Model Card - Compact */}
-          <Card className="relative overflow-hidden">
-            {/* Background Image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${getExpertImage(winningModel.id)})` }}
-            />
-            
-            {/* Color Tint Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${getColorTint(winningModel.id)}`} />
-            
-            {/* Dark gradient for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
-            
-            <CardContent className="p-3 relative z-10 h-full flex flex-col">
-              <h3 className="text-[10px] font-bold mb-2 text-white/80">{t('winning_model') || '获胜模型'}</h3>
-              <div className="flex items-center gap-1.5 mb-2">
-                <img 
-                  src={getAIIcon(winningModel.id)} 
-                  alt={winningModel.name} 
-                  className="h-6 w-6"
-                  style={winningModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                />
-                <span className="text-sm font-bold text-white truncate">{winningModel.displayName.split(' ')[0]}</span>
-              </div>
-              
-              <div className="space-y-1.5 flex-1">
-                <div>
-                  <p className="text-[9px] text-white/70">{t('win_rate_label') || '胜率'}</p>
-                  <p className="text-lg font-bold font-mono text-white">
-                    {winningModel.winRate}%
-                  </p>
-                </div>
-                
-                <div>
-                  <p className="text-[9px] text-white/70">{t('correct_predictions_label') || '正确预测'}</p>
-                  <p className="text-sm font-bold font-mono text-success">
-                    {winningModel.correctPredictions} / {winningModel.totalPredictions}
-                  </p>
-                </div>
-                
-                <div>
-                  <p className="text-[9px] text-white/70 mb-1">{t('active_matches') || '活跃比赛'}</p>
-                  <div className="flex gap-1 flex-wrap">
-                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
-                      <GoalIcon size={8} className="flex-shrink-0" />
-                      <span>Premier</span>
-                    </div>
-                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
-                      <GoalIcon size={8} className="flex-shrink-0" />
-                      <span>La Liga</span>
-                    </div>
-                    <div className="px-1.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] text-white flex items-center gap-0.5">
-                      <GoalIcon size={8} className="flex-shrink-0" />
-                      <span>Bundes</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Bar Chart - Compact */}
-          <Card className="relative overflow-hidden">
-            {/* Grass texture background */}
-            <div 
-              className="absolute inset-0 opacity-20"
-              style={{ 
-                backgroundImage: `url(${grassTexture})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-            {/* Dark overlay for contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/60" />
-            
-            <CardContent className="p-2 relative z-10 h-full">
-              <div className="flex items-end gap-1 h-full min-h-[180px]">
-                {(() => {
-                  const maxHeight = 130;
-                  const minHeight = 25;
-                  const baseWinRate = 100;
-                  
-                  return modelsWithStats.map((model) => {
-                    const heightRatio = Math.min(model.winRate / baseWinRate, 1);
-                    const heightPx = heightRatio * (maxHeight - minHeight) + minHeight;
-                    
-                    return (
-                      <div key={model.id} className="flex-1 flex flex-col items-center gap-0.5 min-w-0">
-                        <div className="text-[7px] font-mono font-bold">
-                          {model.winRate.toFixed(1)}%
-                        </div>
-                        <div 
-                          className="w-full rounded-t-md relative flex items-end justify-center pb-1 transition-all duration-300 shadow-md"
-                          style={{ 
-                            height: `${heightPx}px`,
-                            backgroundColor: `hsl(var(--${model.color}))`,
-                          }}
-                        >
-                          <img 
-                            src={getAIIcon(model.id)} 
-                            alt={model.name}
-                            className="h-3.5 w-3.5 object-contain"
-                            style={model.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
-                          />
-                        </div>
-                        <div className="text-[6px] text-center font-medium text-muted-foreground truncate w-full">
-                          {model.displayName.split(' ')[0].substring(0, 5)}...
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     );
+
+    // 根据subTab返回不同内容
+    return subTab === 'high' ? renderAllModels() : renderBestWinningModel();
   };
 
   return (
@@ -679,32 +717,30 @@ const MobileLeaderboardOKX = () => {
         </div>
       </div>
 
-      {/* Sub Tabs - Only show for accuracy and copyTrade tabs */}
-      {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
-        <div className="sticky top-[52px] z-20 bg-background">
-          <div className="flex items-center gap-4 px-4 py-2">
-            {subTabs.map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => setSubTab(tab.value as SubTab)}
-                className={`relative text-sm font-medium transition-colors ${
-                  subTab === tab.value
-                    ? 'text-foreground font-bold'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {tab.label}
-                {subTab === tab.value && (
-                  <motion.div
-                    layoutId="subTabIndicator"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-foreground rounded-full"
-                  />
-                )}
-              </button>
-            ))}
-          </div>
+      {/* Sub Tabs - Show for all tabs */}
+      <div className="sticky top-[52px] z-20 bg-background">
+        <div className="flex items-center gap-4 px-4 py-2">
+          {subTabs.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setSubTab(tab.value as SubTab)}
+              className={`relative text-sm font-medium transition-colors ${
+                subTab === tab.value
+                  ? 'text-foreground font-bold'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              {tab.label}
+              {subTab === tab.value && (
+                <motion.div
+                  layoutId="subTabIndicator"
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-foreground rounded-full"
+                />
+              )}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Time Filter & All Predictors - For accuracy and copyTrade tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
