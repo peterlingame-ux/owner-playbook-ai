@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -1050,7 +1051,14 @@ const History = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <Footer />
+      {/* Footer - hidden on mobile */}
+      {!isMobile && <Footer />}
+      
+      {/* Mobile Bottom Navigation */}
+      {isMobile && <BottomNav />}
+      
+      {/* Bottom padding for mobile */}
+      {isMobile && <div className="h-16" />}
     </div>
   );
 };
