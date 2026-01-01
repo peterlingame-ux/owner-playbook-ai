@@ -2173,9 +2173,9 @@ const resources = {
       
       // 猎人币钱包
       "hunter_coin_wallet": "VIP特权",
-      "hunter_coin_balance": "猎人币余额",
+      "hunter_coin_balance": "猎人币",
       "usdt_wallet": "VIP特权",
-      "usdt_wallet_balance": "猎人币余额",
+      "usdt_wallet_balance": "猎人币",
       "usdt_deposit": "充值",
       "usdt_deposit_title": "USDT充值",
       "deposit_description": "请输入充值金额，使用 TRC20 网络转账 USDT，到账后自动兑换为猎人币（1:1）。",
