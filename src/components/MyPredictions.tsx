@@ -807,29 +807,44 @@ const MyPredictions = () => {
             transition={{ delay: 0.2 }}
             className="flex-1 flex flex-col space-y-2"
           >
-            <div className="flex-1 flex flex-col space-y-2">
-              {/* Virtual Wallet */}
+            <div className="flex-1 flex flex-col space-y-3">
+              {/* Prediction History Card - Modern Glass Style */}
               <Dialog open={isPredictionHistoryOpen} onOpenChange={setIsPredictionHistoryOpen}>
                 <DialogTrigger asChild>
                   <motion.button 
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="w-full text-left rounded-xl bg-card border border-border p-3 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group"
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="w-full text-left rounded-2xl bg-gradient-to-br from-card/90 to-card/60 backdrop-blur-sm border border-border/50 p-4 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group overflow-hidden relative"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('virtual_balance')}</span>
-                        <p className="text-lg font-light text-foreground">
-                          ${(stats?.balance || 10000).toLocaleString()}
-                        </p>
+                    {/* Subtle background glow */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                    
+                    <div className="flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+                          <History className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground font-medium tracking-wide mb-1">
+                            Prediction History
+                          </p>
+                          <p className="text-2xl font-semibold text-foreground tracking-tight">
+                            ${(stats?.balance || 10000).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <motion.span 
-                        className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
-                        whileHover={{ x: 3 }}
-                      >
-                        {t('view_arrow')}
-                      </motion.span>
+                      <div className="flex items-center gap-2 text-muted-foreground group-hover:text-primary transition-colors">
+                        <span className="text-sm font-medium hidden sm:inline">Details</span>
+                        <motion.div
+                          animate={{ x: [0, 3, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </motion.div>
+                      </div>
                     </div>
                   </motion.button>
                 </DialogTrigger>
@@ -940,59 +955,94 @@ const MyPredictions = () => {
                 </DialogContent>
               </Dialog>
 
-              {/* VIP Privileges Card */}
+              {/* VIP Privileges Card - Premium Style */}
               <motion.button 
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="w-full text-left rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background border border-amber-500/30 p-3 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all group"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="w-full text-left rounded-2xl bg-gradient-to-br from-amber-950/40 via-amber-900/20 to-background/80 backdrop-blur-sm border border-amber-500/30 p-4 hover:border-amber-400/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative"
                 onClick={() => setShowVipConfirmDialog(true)}
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vip_privileges')}</span>
-                    <p className="text-sm font-light text-foreground">
-                      {vipStatus?.is_active ? t('vip_active') : t('unlock_vip')}
-                    </p>
+                {/* Premium glow effect */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-20 h-20 bg-amber-500/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/2" />
+                
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/30 to-amber-600/10 flex items-center justify-center border border-amber-500/30 shadow-lg shadow-amber-500/10">
+                      <Crown className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-amber-400/80 font-medium tracking-wide mb-1">
+                        VIP Membership
+                      </p>
+                      <p className="text-lg font-semibold text-foreground tracking-tight">
+                        {vipStatus?.is_active ? 'Premium Active' : 'Unlock Premium'}
+                      </p>
+                    </div>
                   </div>
-                  {vipStatus?.is_active ? (
-                    <motion.span 
-                      className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-500"
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      {t('vip_badge')}
-                    </motion.span>
-                  ) : (
-                    <motion.span 
-                      className="text-xs text-muted-foreground group-hover:text-amber-500 transition-colors"
-                      whileHover={{ x: 3 }}
-                    >
-                      {t('view_arrow')}
-                    </motion.span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {vipStatus?.is_active ? (
+                      <motion.span 
+                        className="text-xs px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/20 text-amber-400 font-medium border border-amber-500/30"
+                        animate={{ scale: [1, 1.03, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        ✦ Active
+                      </motion.span>
+                    ) : (
+                      <div className="flex items-center gap-2 text-amber-400/70 group-hover:text-amber-400 transition-colors">
+                        <span className="text-sm font-medium hidden sm:inline">View</span>
+                        <motion.div
+                          animate={{ x: [0, 3, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </motion.div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.button>
 
-              {/* Start Predicting Button */}
+              {/* Start Predicting Card - Action Style */}
               <motion.button 
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="w-full text-left rounded-xl bg-gradient-to-r from-primary/15 via-primary/10 to-background border border-primary/30 p-3 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all group"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="w-full text-left rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-background/80 backdrop-blur-sm border border-primary/30 p-4 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group overflow-hidden relative"
                 onClick={() => setIsBetDialogOpen(true)}
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('prediction_game')}</span>
-                    <p className="text-sm font-light text-foreground">{t('start_predicting')}</p>
+                {/* Glow effect */}
+                <div className="absolute top-0 right-0 w-28 h-28 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center border border-primary/25">
+                      <Target className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-primary/70 font-medium tracking-wide mb-1">
+                        Match Prediction
+                      </p>
+                      <p className="text-lg font-semibold text-foreground tracking-tight">
+                        Start Betting
+                      </p>
+                    </div>
                   </div>
-                  <motion.span 
-                    className="text-xs text-muted-foreground group-hover:text-primary transition-colors"
-                    whileHover={{ x: 3 }}
-                  >
-                    {t('view_arrow')}
-                  </motion.span>
+                  <div className="flex items-center gap-2 text-muted-foreground group-hover:text-primary transition-colors">
+                    <span className="text-sm font-medium hidden sm:inline">Play</span>
+                    <motion.div
+                      animate={{ x: [0, 3, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </motion.div>
+                  </div>
                 </div>
               </motion.button>
 
