@@ -127,39 +127,39 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
   }, [match.status_short, match.status_elapsed, match.mgt, t]);
 
   return (
-    <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
+    <div className="flex flex-col items-center gap-0 sm:gap-0.5 px-0.5 sm:px-1 shrink-0">
       {matchStatus === 'not_started' ? (
         <>
           {/* 未开赛：显示 VS 和倒计时 */}
-          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[7px] sm:text-[8px] text-muted-foreground font-medium">
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[6px] sm:text-[8px] text-muted-foreground font-medium hidden sm:block">
             {t('until_match_starts') || '距离比赛开始'}
           </span>
-          <span className="text-[8px] sm:text-[9px] text-foreground/70 font-mono font-semibold">
+          <span className="text-[7px] sm:text-[9px] text-foreground/70 font-mono font-semibold">
             {timeDisplay}
           </span>
         </>
       ) : matchStatus === 'live' ? (
         <>
           {/* 开赛：显示 VS 和比赛时间 */}
-          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[9px] sm:text-[10px] text-success font-bold font-mono">
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[8px] sm:text-[10px] text-success font-bold font-mono">
             {timeDisplay}
           </span>
         </>
       ) : matchStatus === 'half_time' ? (
         <>
           {/* 中场休息：显示 VS 和"中场休息" */}
-          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-bold">
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[7px] sm:text-[9px] text-muted-foreground font-bold">
             {timeDisplay}
           </span>
         </>
       ) : (
         <>
           {/* 其他状态 */}
-          <span className="text-[10px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[8px] sm:text-[9px] text-muted-foreground font-mono font-semibold">
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[7px] sm:text-[9px] text-muted-foreground font-mono font-semibold">
             {timeDisplay}
           </span>
         </>
@@ -878,10 +878,10 @@ const ActiveAIBets = () => {
   if (isInitialLoading) {
     return (
       <div className="w-full">
-        <div className="flex items-center justify-center mb-5">
-          <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">{t('active_ai_predictions')}</h2>
+        <div className="flex items-center justify-center mb-3 sm:mb-5">
+          <h2 className="text-sm sm:text-lg lg:text-xl font-semibold text-foreground">{t('active_ai_predictions')}</h2>
         </div>
-        <p className="text-sm text-muted-foreground text-center py-6">
+        <p className="text-xs sm:text-sm text-muted-foreground text-center py-4 sm:py-6">
           加载中...
         </p>
       </div>
@@ -893,7 +893,7 @@ const ActiveAIBets = () => {
       {/* Subtle refresh indicator */}
       {isRefreshing && (
         <div className="absolute top-0 right-0 z-50">
-          <div className="h-1 w-16 bg-gradient-to-r from-primary/40 to-primary/80 rounded-full overflow-hidden">
+          <div className="h-0.5 sm:h-1 w-12 sm:w-16 bg-gradient-to-r from-primary/40 to-primary/80 rounded-full overflow-hidden">
             <motion.div 
               className="h-full bg-primary"
               initial={{ x: '-100%' }}
@@ -905,16 +905,16 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header */}
-      <div className="flex items-center justify-center mb-6 sm:mb-8">
+      <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8">
         <div className="relative">
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
+          <h2 className="text-sm sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
             {t('active_ai_predictions')}
           </h2>
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
+          <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-1.5 sm:gap-3 lg:gap-5">
         {activeAIs.map((aiModel) => {
           // Find this AI's bets from database, grouped by match
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
@@ -995,15 +995,15 @@ const ActiveAIBets = () => {
           return (
             <TiltCard
               key={aiModel.id}
-              className={`group rounded-xl sm:rounded-2xl p-3 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer`}
+              className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer`}
               onClick={nextMatch}
               maxTilt={8}
               scale={1.02}
               glare={false}
               maxGlare={0}
             >
-              {/* Animated Background Pattern */}
-              <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+              {/* Animated Background Pattern - Hidden on mobile for performance */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none hidden sm:block">
                 <motion.div 
                   className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"
                   animate={{ 
@@ -1024,37 +1024,37 @@ const ActiveAIBets = () => {
 
               {/* Match Counter - Top Right */}
               {matchEntries.length > 1 && (
-                <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20 flex items-center gap-0.5 sm:gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-6 w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
+                    className="h-4 w-4 sm:h-6 sm:w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
                     onClick={prevMatch}
                     title={t('previous_match') || '上一场'}
                   >
-                    <ChevronLeft className="h-3 w-3" />
+                    <ChevronLeft className="h-2 w-2 sm:h-3 sm:w-3" />
                   </Button>
-                  <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-white/10 border border-white/10">
+                  <span className="text-[8px] sm:text-xs font-mono font-medium px-1 sm:px-2 py-0 sm:py-0.5 rounded-full bg-white/10 border border-white/10">
                     {matchIndex + 1}/{matchEntries.length}
                   </span>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-6 w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
+                    className="h-4 w-4 sm:h-6 sm:w-6 p-0 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
                     onClick={nextMatch}
                     title={t('next_match') || '下一场'}
                   >
-                    <ChevronRight className="h-3 w-3" />
+                    <ChevronRight className="h-2 w-2 sm:h-3 sm:w-3" />
                   </Button>
                 </div>
               )}
 
               {/* No Bets Indicator */}
               {matchEntries.length === 0 && (
-                <div className="absolute top-3 right-3 z-20">
+                <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
                   <Badge 
                     variant="outline"
-                    className="text-[10px] font-medium px-2.5 py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
+                    className="text-[8px] sm:text-[10px] font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
                   >
                     {t('no_bets')}
                   </Badge>
@@ -1062,7 +1062,7 @@ const ActiveAIBets = () => {
               )}
 
               {/* Content */}
-              <div className="relative z-10 space-y-4 overflow-hidden">
+              <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -1082,41 +1082,41 @@ const ActiveAIBets = () => {
                       duration: 0.25, 
                       ease: "easeOut" 
                     }}
-                    className="space-y-4"
+                    className="space-y-1.5 sm:space-y-4"
                   >
                     {/* AI Model Header */}
                     <div className="flex items-center justify-between">
                      {/* AI Avatar & Info */}
-                      <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex items-center gap-1 sm:gap-3">
                         <div className="relative">
-                          <Avatar className="h-9 w-9 sm:h-12 sm:w-12 ring-2 ring-white/20 shadow-lg">
+                          <Avatar className="h-6 w-6 sm:h-12 sm:w-12 ring-1 sm:ring-2 ring-white/20 shadow-lg">
                             <AvatarImage 
                               src={AI_ICONS[aiModel.id]} 
                               alt={aiModel.displayName} 
                               className="object-cover" 
                               style={aiModel.id === 'grok' ? { filter: 'brightness(0) invert(1)' } : undefined}
                             />
-                            <AvatarFallback className="text-xs sm:text-sm font-bold bg-white/10">{aiModel.name[0]}</AvatarFallback>
+                            <AvatarFallback className="text-[8px] sm:text-sm font-bold bg-white/10">{aiModel.name[0]}</AvatarFallback>
                           </Avatar>
                           {/* Online Indicator */}
-                          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border-2 border-card" />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                         </div>
                         <div className="flex flex-col">
-                          <span className={`text-xs sm:text-sm font-bold tracking-wide uppercase ${gradient.accent}`}>
+                          <span className={`text-[9px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent}`}>
                             {getModelDisplayName(aiModel)}
                           </span>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-1">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5" />
+                          <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5" />
                             {balanceNumber}
                           </span>
                         </div>
                       </div>
                       
-                      {/* Action Button - Only show when has bets */}
+                      {/* Action Button - Only show when has bets, hidden on mobile */}
                       {(moneylineBet || handicapBet || overUnderBet) && (
                         <Button
                           size="sm"
-                          className="h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300"
+                          className="hidden sm:flex h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (currentMatchData) {
@@ -1141,31 +1141,31 @@ const ActiveAIBets = () => {
 
                     {/* Match Info */}
                     {currentMatchData ? (
-                      <div className="space-y-2 sm:space-y-3">
+                      <div className="space-y-1 sm:space-y-3">
                         {/* League Badge */}
                         <div className="flex items-center justify-center">
-                          <Badge className="text-[10px] sm:text-[11px] py-0.5 sm:py-1 px-2 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
+                          <Badge className="text-[7px] sm:text-[11px] py-0 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
                             {getLeagueName(currentMatchData.match)}
                           </Badge>
                         </div>
                       
                         {/* Teams Display */}
-                        <div className="flex items-center justify-between gap-1 sm:gap-2 px-0 sm:px-1">
+                        <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
                           {/* Home Team */}
-                          <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
                             <div className="relative">
                               {currentMatchData.match.home_logo ? (
-                                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-white/10 shadow-md">
+                                <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                                  <AvatarFallback><Shield className="h-3 w-3 sm:h-4 sm:w-4" /></AvatarFallback>
+                                  <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
-                                  <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                                  <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[10px] sm:text-xs text-center leading-tight truncate w-full max-w-[70px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'home')}
                             </p>
                           </div>
@@ -1174,40 +1174,40 @@ const ActiveAIBets = () => {
                           <MatchTimeDisplay match={currentMatchData.match} />
                         
                           {/* Away Team */}
-                          <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
                             <div className="relative">
                               {currentMatchData.match.away_logo ? (
-                                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-white/10 shadow-md">
+                                <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                                  <AvatarFallback><Shield className="h-3 w-3 sm:h-4 sm:w-4" /></AvatarFallback>
+                                  <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
-                                  <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                                  <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[10px] sm:text-xs text-center leading-tight truncate w-full max-w-[70px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'away')}
                             </p>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-6 text-center">
-                        <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-16 w-auto opacity-15 mb-3" />
-                        <p className="text-sm text-muted-foreground/80 font-medium">
+                      <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center">
+                        <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3" />
+                        <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
                           {t('no_active_predictions')}
                         </p>
-                        <p className="text-xs text-muted-foreground/60 mt-1">
+                        <p className="text-[8px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block">
                           {t('no_bets_for_ai')}
                         </p>
                       </div>
                     )}
 
-                {/* Handicap Bet - Modern Style */}
+                {/* Handicap Bet - Modern Style - Hidden on mobile */}
                 {handicapBet && (
-                  <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
+                  <div className="hidden sm:block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                     {/* Bet Type Header */}
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet')}</span>
@@ -1276,9 +1276,9 @@ const ActiveAIBets = () => {
                   </div>
                 )}
 
-                {/* Over/Under Bet - Modern Style */}
+                {/* Over/Under Bet - Modern Style - Hidden on mobile */}
                 {overUnderBet && (
-                  <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
+                  <div className="hidden sm:block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                     {/* Bet Type Header */}
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet')}</span>
