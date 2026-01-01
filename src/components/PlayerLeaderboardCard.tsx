@@ -262,13 +262,13 @@ export const PlayerLeaderboardCard = ({
             )}
           </div>
           {/* Name + Streak */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 overflow-hidden">
             <span className="font-semibold text-xs text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
-            <div className="text-[9px] text-muted-foreground flex items-center gap-1">
+            <div className="text-[8px] xs:text-[9px] text-muted-foreground flex items-center gap-0.5 truncate">
               {boardType === 'cold' ? (
-                <span>{t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
+                <span className="truncate"><span className="hidden xs:inline">{t('lose_streak')}</span><span className="xs:hidden">{t('lose_short') || '败'}</span> <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
               ) : (
-                <span>{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
+                <span className="truncate"><span className="hidden xs:inline">{t('win_streak')}</span><span className="xs:hidden">{t('win_short') || '胜'}</span> <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
               )}
             </div>
           </div>
@@ -284,47 +284,47 @@ export const PlayerLeaderboardCard = ({
         </div>
         
         {/* Row 2: Stats - 3 columns */}
-        <div className="grid grid-cols-3 gap-2 text-center mb-2">
-          <div>
-            <p className="text-[9px] text-muted-foreground">{t('total_predictions')}</p>
+        <div className="grid grid-cols-3 gap-1 xs:gap-2 text-center mb-2">
+          <div className="min-w-0">
+            <p className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('predictions_short') || t('total_predictions')}</p>
             <p className="text-xs font-bold text-foreground">{player.totalPredictions}</p>
           </div>
-          <div>
-            <p className="text-[9px] text-muted-foreground">{t('correct_matches')}</p>
+          <div className="min-w-0">
+            <p className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('correct_short') || t('correct_matches')}</p>
             <p className="text-xs font-bold text-success">{player.correctPredictions}</p>
           </div>
-          <div>
-            <p className="text-[9px] text-muted-foreground">{t('profit_rate')}</p>
+          <div className="min-w-0">
+            <p className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('profit_short') || t('profit_rate')}</p>
             <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+              {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
             </p>
           </div>
         </div>
         
         {/* Row 3: Buttons */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-1">
           {prize > 0 ? (
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold">
-              <AnimatedPrize value={prize} className="text-[9px] font-bold text-warning" duration={600} showLabel={true} />
+            <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[8px] xs:text-[9px] font-bold flex-shrink-0">
+              <AnimatedPrize value={prize} className="text-[8px] xs:text-[9px] font-bold text-warning" duration={600} showLabel={true} />
             </span>
           ) : (
-            <span className="text-[9px] text-muted-foreground">{t('not_qualified')}</span>
+            <span className="text-[8px] xs:text-[9px] text-muted-foreground truncate">{t('not_qualified_short') || t('not_qualified')}</span>
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 navigate('/history');
               }}
-              className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40"
+              className="px-1.5 py-0.5 text-[8px] xs:text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
             >
-              {t('view_history')}
+              {t('history_short') || t('view_history')}
             </button>
             <button 
               onClick={onViewHistory}
-              className="px-2 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground"
+              className="px-1.5 py-0.5 text-[8px] xs:text-[9px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
             >
-              {t('today_recommendations')}
+              {t('today_short') || t('today_recommendations')}
             </button>
           </div>
         </div>
