@@ -978,8 +978,43 @@ const MyPredictions = () => {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    {t('invited_count', { count: userProfile?.invited_count || invitedUsers.length }) || `Invited ${invitedUsers.length} users`}
+                    {t('invited_count', { count: userProfile?.invited_count || invitedUsers.length }) || `已邀请 ${invitedUsers.length} 位用户`}
                   </p>
+                </div>
+
+                {/* Star Card Reward Hint */}
+                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0">
+                      <Crown className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{t('invite_reward_title') || '邀请奖励'}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t('invite_reward_desc') || '每邀请5位真实新玩家，赠送球星卡解锁'}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Progress indicator */}
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-muted-foreground">
+                        {t('invite_progress') || '邀请进度'}
+                      </span>
+                      <span className="text-xs font-medium text-foreground">
+                        {invitedUsers.length % 5}/5
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
+                        style={{ width: `${((invitedUsers.length % 5) / 5) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t('star_cards_earned', { count: Math.floor(invitedUsers.length / 5) }) || `已获得 ${Math.floor(invitedUsers.length / 5)} 张球星卡`}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Invited Users List */}
