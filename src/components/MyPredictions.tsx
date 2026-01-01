@@ -767,7 +767,7 @@ const MyPredictions = () => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('history_records') || 'Recent'}
+              {t('history_records') || 'History'}
             </button>
             <button
               onClick={() => setActiveTab('records')}
@@ -777,7 +777,7 @@ const MyPredictions = () => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('personal_records') || 'Collect'}
+              {t('personal_records') || 'Personal Records'}
             </button>
             <button
               onClick={() => setActiveTab('invite')}
@@ -787,7 +787,7 @@ const MyPredictions = () => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('invitation_code_tab') || 'Podcast'}
+              {t('invitation_code_tab') || 'Invite Code'}
             </button>
             <button
               onClick={() => setActiveTab('starcard')}
