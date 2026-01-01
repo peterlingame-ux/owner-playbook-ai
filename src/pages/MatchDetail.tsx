@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
 import LiveFootballAnimation from "@/components/LiveFootballAnimation";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/PullToRefresh";
 import { fetchMatchDetail, fetchMatchLiveById, fetchOddsLive, fetchMatchTrend, fetchMatchTrendDetail, fetchMatchLineup, ODDS_COMPANY_NAMES } from "@/lib/sportnanoapi";
 import type { MatchLiveData } from "@/types/footballApi";
 import ftbLiveBg from "@/assets/ftbLive.7d6ed6f.png";
@@ -1478,6 +1480,87 @@ export default function MatchDetail() {
   const [textLiveTab, setTextLiveTab] = useState<'text' | 'events'>('text'); // 文字直播/重要事件切换
   const [onlyGoals, setOnlyGoals] = useState(false); // 只看进球开关
 
+  // 刷新比赛数据的函数
+  const refreshMatchData = useCallback(async () => {
+    if (!matchId) return;
+    
+    try {
+      // 获取实时数据
+      const live = await fetchMatchLiveById(matchId);
+      if (live) {
+        setLiveData(live);
+        
+        // 更新比赛数据
+        setMatch(prevMatch => {
+          if (!prevMatch) return prevMatch;
+          
+          const updatedMatch = { ...prevMatch };
+          
+          // 更新比分
+          if (live.score.homeScores.length > 0) {
+            updatedMatch.homeTeam.score = live.score.homeScores[0];
+          }
+          if (live.score.awayScores.length > 0) {
+            updatedMatch.awayTeam.score = live.score.awayScores[0];
+          }
+          
+          // 更新半场比分
+          if (live.score.homeScores.length > 1) {
+            updatedMatch.homeTeam.halfTimeScore = live.score.homeScores[1];
+          }
+          if (live.score.awayScores.length > 1) {
+            updatedMatch.awayTeam.halfTimeScore = live.score.awayScores[1];
+          }
+          
+          // 更新红牌和黄牌
+          if (live.score.homeScores.length > 2) {
+            updatedMatch.homeTeam.redCards = live.score.homeScores[2] >= 0 ? live.score.homeScores[2] : 0;
+          }
+          if (live.score.awayScores.length > 2) {
+            updatedMatch.awayTeam.redCards = live.score.awayScores[2] >= 0 ? live.score.awayScores[2] : 0;
+          }
+          if (live.score.homeScores.length > 3) {
+            updatedMatch.homeTeam.yellowCards = live.score.homeScores[3] >= 0 ? live.score.homeScores[3] : 0;
+          }
+          if (live.score.awayScores.length > 3) {
+            updatedMatch.awayTeam.yellowCards = live.score.awayScores[3] >= 0 ? live.score.awayScores[3] : 0;
+          }
+          
+          // 更新文字直播
+          if (live.tlive && Array.isArray(live.tlive) && live.tlive.length > 0) {
+            setTextLiveData(live.tlive);
+          }
+          
+          return updatedMatch;
+        });
+      }
+      
+      // 获取指数数据
+      const companyIds = [7, 3, 2, 11, 10];
+      const oddsResponse = await fetchOddsLive(matchId, companyIds);
+      const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
+      if (parsedOdds) {
+        setMatch(prevMatch => {
+          if (!prevMatch) return prevMatch;
+          return { ...prevMatch, odds: parsedOdds };
+        });
+      }
+    } catch (err) {
+      console.error('Failed to refresh match data:', err);
+    }
+  }, [matchId]);
+
+  // 下拉刷新 hook
+  const {
+    pullDistance,
+    isRefreshing,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  } = usePullToRefresh({
+    onRefresh: refreshMatchData,
+    threshold: 80,
+  });
 
   // 计算比赛进行分钟数
   const calculateMatchMinute = (live: MatchLiveData | null, matchStatus: 'live' | 'finished' | 'upcoming'): string | undefined => {
@@ -2758,11 +2841,30 @@ export default function MatchDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background relative"
+      onTouchStart={isMobile ? handleTouchStart : undefined}
+      onTouchMove={isMobile ? handleTouchMove : undefined}
+      onTouchEnd={isMobile ? handleTouchEnd : undefined}
+    >
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       
+      {/* 下拉刷新指示器 */}
+      {isMobile && (
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance} 
+          isRefreshing={isRefreshing} 
+        />
+      )}
+      
       {/* 顶部区域 - 足球场背景 */}
-      <div className="relative overflow-hidden">
+      <div 
+        className="relative overflow-hidden"
+        style={{
+          transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
+          transition: isRefreshing ? 'none' : 'transform 0.2s ease-out',
+        }}
+      >
         {/* 背景图片 */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -2882,7 +2984,13 @@ export default function MatchDetail() {
       </div>
 
       {/* 标签导航 */}
-      <div className="sticky top-0 z-20 bg-card border-b border-border">
+      <div 
+        className="sticky top-0 z-20 bg-card border-b border-border"
+        style={{
+          transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
+          transition: isRefreshing ? 'none' : 'transform 0.2s ease-out',
+        }}
+      >
         <div className="flex items-center overflow-x-auto scrollbar-hide">
           {[
             { id: 'live' as const, label: '直播', icon: null },
@@ -2908,7 +3016,13 @@ export default function MatchDetail() {
       </div>
 
       {/* 内容区域 */}
-      <div className="bg-card">
+      <div 
+        className="bg-card"
+        style={{
+          transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
+          transition: isRefreshing ? 'none' : 'transform 0.2s ease-out',
+        }}
+      >
         {activeTab === 'live' && (
           <div className="p-2 sm:p-4 space-y-4 sm:space-y-6">
             {/* 时间轴图表 */}
