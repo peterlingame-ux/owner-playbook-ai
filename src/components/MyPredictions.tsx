@@ -1146,8 +1146,8 @@ const MyPredictions = () => {
                         </div>
                       </div>
 
-                      {/* Cards Gallery - Full Size Display */}
-                      <div className="grid grid-cols-2 gap-4">
+                      {/* Cards Gallery - Compact 3-Column Display */}
+                      <div className="grid grid-cols-3 gap-3">
                         {ALL_STAR_CARDS.map((card, index) => {
                           const isUnlocked = unlockedCardIds.has(playerNames[card.name_key]);
                           const playerName = t(card.name_key) || playerNames[card.name_key];
