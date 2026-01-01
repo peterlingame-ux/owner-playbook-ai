@@ -887,75 +887,77 @@ const MyPredictions = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="py-4 space-y-4"
+                className="py-4"
               >
-                {/* Main Stats Grid - 2x2 */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-foreground">{stats?.totalPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_predictions') || 'Predictions'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-success">{stats?.correctPredictions || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('correct_predictions_count') || 'Correct'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-destructive">{(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('wrong_predictions') || 'Wrong'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className={`text-3xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {(stats?.profit || 0) >= 0 ? '+' : ''}{stats?.profit?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('profit_amount') || 'Profit'}</p>
-                  </div>
-                </div>
-
-                {/* Additional Stats - Win Rate & Balance */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-3xl font-bold text-foreground">{(stats?.winRate || 0).toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('win_rate') || 'Win Rate'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-3xl font-bold text-foreground">{(stats?.balance || 10000).toLocaleString()}</p>
-                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5" />
+                {/* Single Card Style - Like Reference */}
+                <div className="rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800/95 to-zinc-900 border border-zinc-700/50 overflow-hidden">
+                  {/* Top Row - Predictions Stats */}
+                  <div className="grid grid-cols-4 divide-x divide-zinc-700/50 border-b border-zinc-700/50">
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('total_predictions') || 'Predictions'}</p>
+                      <p className="text-xl font-bold text-white">
+                        {stats?.totalPredictions || 0}<span className="text-zinc-400 text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('hunter_coin_balance') || 'Balance'}</p>
-                  </div>
-                </div>
-
-                {/* Wagered Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-bold text-foreground">{(stats?.totalWagered || 0).toLocaleString()}</p>
-                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('correct_predictions_count') || 'Correct'}</p>
+                      <p className="text-xl font-bold text-white">
+                        {stats?.correctPredictions || 0}<span className="text-zinc-400 text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_wagered') || 'Total Wagered'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-2xl font-bold text-success">{(stats?.totalWon || 0).toLocaleString()}</p>
-                      <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('wrong_predictions') || 'Wrong'}</p>
+                      <p className="text-xl font-bold text-white">
+                        {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}<span className="text-zinc-400 text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('total_won') || 'Total Won'}</p>
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('win_rate_percent') || 'Win Rate (%)'}</p>
+                      <p className="text-xl font-bold text-emerald-400 flex items-center justify-center gap-1">
+                        {(stats?.winRate || 0).toFixed(1)}%
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                          <polyline points="17 6 23 6 23 12" />
+                        </svg>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Row - Financial Stats */}
+                  <div className="grid grid-cols-4 divide-x divide-zinc-700/50">
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('total_wagered') || 'Virtual Bet'}</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <p className="text-xl font-bold text-white">{(stats?.totalWagered || 0).toLocaleString()}</p>
+                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('profit_amount') || 'Profit'}</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <p className={`text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {(stats?.profit || 0) >= 0 ? '+' : ''}{(stats?.profit || 0).toLocaleString()}
+                        </p>
+                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('profit_rate') || 'Profit Rate'}</p>
+                      <p className={`text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {stats?.totalWagered && stats.totalWagered > 0 
+                          ? `${(stats.profit || 0) >= 0 ? '+' : ''}${((stats.profit || 0) / stats.totalWagered * 100).toFixed(1)}%`
+                          : '0%'
+                        }
+                      </p>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-zinc-400 mb-2">{t('followers_count_label') || 'Followers'}</p>
+                      <p className="text-xl font-bold text-white">
+                        {followersList.length}<span className="text-zinc-400 text-sm ml-0.5">{t('people_suffix') || ''}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-
-                {/* Followers & Following Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-2xl font-bold text-foreground">{followersList.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('followers_label') || 'Followers'}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-card border border-border/30 text-center">
-                    <p className="text-2xl font-bold text-foreground">{followingList.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t('following_label') || 'Following'}</p>
-                  </div>
-                </div>
-
               </motion.div>
             )}
 
