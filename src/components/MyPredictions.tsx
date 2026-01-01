@@ -1099,18 +1099,28 @@ const MyPredictions = () => {
                   const ALL_STAR_CARDS = [
                     { id: 'mbappe', name_key: 'player_mbappe', card_image: '/starcards/mbappe-card.png', rarity: 'legendary' },
                     { id: 'neymar', name_key: 'player_neymar', card_image: '/starcards/neymar-card.png', rarity: 'legendary' },
+                    { id: 'ronaldo', name_key: 'player_ronaldo', card_image: '/starcards/ronaldo-card.png', rarity: 'legendary' },
+                    { id: 'haaland', name_key: 'player_haaland', card_image: '/starcards/haaland-card.png', rarity: 'legendary' },
+                    { id: 'vinicius', name_key: 'player_vinicius', card_image: '/starcards/vinicius-card.png', rarity: 'legendary' },
                     { id: 'salah', name_key: 'player_salah', card_image: '/starcards/salah-card.png', rarity: 'epic' },
                     { id: 'debruyne', name_key: 'player_debruyne', card_image: '/starcards/debruyne-card.png', rarity: 'epic' },
+                    { id: 'kane', name_key: 'player_kane', card_image: '/starcards/kane-card.png', rarity: 'epic' },
                     { id: 'son', name_key: 'player_son', card_image: '/starcards/son-card.png', rarity: 'rare' },
+                    { id: 'dembele', name_key: 'player_dembele', card_image: '/starcards/dembele-card.png', rarity: 'rare' },
                   ];
 
                   // Fallback names for i18n
                   const playerNames: Record<string, string> = {
                     player_mbappe: 'Mbappé',
                     player_neymar: 'Neymar',
+                    player_ronaldo: 'Ronaldo',
+                    player_haaland: 'Haaland',
+                    player_vinicius: 'Vinícius Jr',
                     player_salah: 'Salah',
                     player_debruyne: 'De Bruyne',
+                    player_kane: 'Kane',
                     player_son: 'Son',
+                    player_dembele: 'Dembélé',
                   };
 
                   const unlockedCardIds = new Set(starCards.map(c => c.card_name));
