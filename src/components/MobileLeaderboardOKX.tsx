@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +55,7 @@ interface PlayerData {
 type MainTab = 'ai' | 'accuracy' | 'copyTrade';
 type SubTab = 'high' | 'low';
 type SortType = 'comprehensive' | 'winRate' | 'profit' | 'followers';
+type TimeFilter = 'day' | 'week' | 'month';
 
 // AI Model icon mapping
 const getAIIcon = (modelId: string) => {
@@ -103,6 +104,7 @@ const MobileLeaderboardOKX = () => {
   const [mainTab, setMainTab] = useState<MainTab>('ai');
   const [subTab, setSubTab] = useState<SubTab>('high');
   const [sortType, setSortType] = useState<SortType>('comprehensive');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('week');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showRulesExpanded, setShowRulesExpanded] = useState(false);
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
@@ -282,13 +284,22 @@ const MobileLeaderboardOKX = () => {
     { value: 'low', label: t('cold_streak_board') || '低准确率榜' },
   ];
 
-  // Render AI Models List
+  const timeFilters = [
+    { value: 'day', label: t('time_day') || '日' },
+    { value: 'week', label: t('time_week') || '周' },
+    { value: 'month', label: t('time_month') || '月' },
+  ];
+
   const renderAIModels = () => {
+    // Multiplier based on time filter to simulate different data
+    const timeMultiplier = timeFilter === 'day' ? 0.3 : timeFilter === 'week' ? 0.7 : 1;
+    
     const modelsWithStats = aiModels.map(model => {
       const seed = model.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const winRate = 55 + (seed % 20) + (Math.sin(seed) * 5);
-      const changePercent = 10 + (seed % 30) - 5;
-      const totalPredictions = 25 + (seed % 10);
+      const baseWinRate = 55 + (seed % 20) + (Math.sin(seed) * 5);
+      const winRate = baseWinRate + (timeFilter === 'day' ? (seed % 5) - 2 : timeFilter === 'week' ? (seed % 3) - 1 : 0);
+      const changePercent = (10 + (seed % 30) - 5) * timeMultiplier;
+      const totalPredictions = Math.round((25 + (seed % 10)) * timeMultiplier);
       const correctPredictions = Math.round(totalPredictions * (winRate / 100));
       const wrongPredictions = totalPredictions - correctPredictions;
       // Calculate profit amount based on changePercent
@@ -297,7 +308,7 @@ const MobileLeaderboardOKX = () => {
         ...model,
         winRate: Math.round(winRate * 10) / 10,
         changePercent: Math.round(changePercent * 10) / 10,
-        followers: 500 + (seed % 500),
+        followers: Math.round((500 + (seed % 500)) * timeMultiplier),
         tradingDays: 30 + (seed % 60),
         totalPredictions,
         correctPredictions,
@@ -310,6 +321,31 @@ const MobileLeaderboardOKX = () => {
 
     return (
       <div className="space-y-4">
+        {/* Time Filter Tabs */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+            {timeFilters.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setTimeFilter(filter.value as TimeFilter)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                  timeFilter === filter.value
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            {timeFilter === 'day' ? t('today_data') || '今日数据' : 
+             timeFilter === 'week' ? t('weekly_data') || '本周数据' : 
+             t('monthly_data') || '本月数据'}
+          </div>
+        </div>
+
         {/* AI Model Cards List */}
         {modelsWithStats.map((model, index) => (
           <motion.div
