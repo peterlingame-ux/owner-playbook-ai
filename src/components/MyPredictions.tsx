@@ -1169,7 +1169,7 @@ const MyPredictions = () => {
                       </div>
 
                       {/* Star Cards Grid - Show All Cards */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-3">
                         {ALL_STAR_CARDS.map((card, index) => {
                           const isUnlocked = unlockedCardIds.has(card.card_name);
 
@@ -1182,98 +1182,55 @@ const MyPredictions = () => {
                               className="perspective-1000"
                             >
                               <div
-                                className={`relative aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all duration-500 ${
-                                  isUnlocked 
-                                    ? `${rarityBorder[card.rarity]} shadow-lg` 
-                                    : 'border-zinc-800 grayscale'
-                                }`}
+                                className="relative aspect-[3/4] overflow-visible"
                                 style={{
                                   transformStyle: 'preserve-3d',
                                   animation: isUnlocked ? 'cardRotate 8s linear infinite' : 'none',
-                                  background: isUnlocked 
-                                    ? 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%)'
-                                    : 'linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)',
                                 }}
                               >
-                                {/* Card Inner Content */}
-                                <div 
-                                  className="absolute inset-0"
-                                  style={{ 
-                                    backfaceVisibility: 'hidden',
-                                  }}
-                                >
-                                  {/* Rarity Glow Effect - Only for unlocked */}
-                                  {isUnlocked && (
-                                    <div 
-                                      className={`absolute inset-0 opacity-30 bg-gradient-to-br ${rarityColors[card.rarity]}`}
-                                    />
-                                  )}
+                                {/* Player Image - No Border, Just Photo */}
+                                <div className="relative w-full h-full">
+                                  <img 
+                                    src={card.card_image} 
+                                    alt={card.card_name}
+                                    className={`w-full h-full object-contain transition-all duration-300 ${
+                                      isUnlocked 
+                                        ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]' 
+                                        : 'grayscale brightness-[0.15] opacity-60'
+                                    }`}
+                                  />
                                   
-                                  {/* Card Image */}
-                                  <div className="absolute inset-0 flex items-center justify-center p-3">
-                                    <img 
-                                      src={card.card_image} 
-                                      alt={card.card_name}
-                                      className={`w-full h-full object-contain ${
-                                        isUnlocked ? 'drop-shadow-lg' : 'opacity-30 brightness-50'
-                                      }`}
-                                    />
-                                  </div>
-
-                                  {/* Lock Overlay for Locked Cards */}
+                                  {/* Lock Icon for Locked Cards */}
                                   {!isUnlocked && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                                      <div className="w-12 h-12 rounded-full bg-zinc-900/80 flex items-center justify-center border border-zinc-700">
-                                        <svg className="w-6 h-6 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <div className="w-10 h-10 rounded-full bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                                        <svg className="w-5 h-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
                                       </div>
                                     </div>
                                   )}
 
-                                  {/* Card Info Overlay */}
-                                  <div className={`absolute bottom-0 left-0 right-0 p-3 ${
-                                    isUnlocked ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/90 to-transparent'
-                                  }`}>
-                                    <p className={`text-sm font-bold truncate ${isUnlocked ? 'text-white' : 'text-zinc-500'}`}>
-                                      {card.card_name}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-1">
-                                      <span className={`text-xs font-medium ${
-                                        isUnlocked 
-                                          ? `bg-gradient-to-r ${rarityColors[card.rarity]} bg-clip-text text-transparent`
-                                          : 'text-zinc-600'
-                                      }`}>
-                                        {rarityLabel[card.rarity]}
-                                      </span>
-                                      {isUnlocked && (
-                                        <span className="text-xs text-white/60">已解锁</span>
-                                      )}
-                                    </div>
-                                  </div>
-
                                   {/* Shine Effect for Unlocked Legendary */}
                                   {isUnlocked && card.rarity === 'legendary' && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
                                   )}
+                                </div>
 
-                                  {/* Holographic Effect for Unlocked Cards */}
-                                  {isUnlocked && (
-                                    <div 
-                                      className="absolute inset-0 opacity-30"
-                                      style={{
-                                        background: `linear-gradient(
-                                          135deg,
-                                          transparent 0%,
-                                          rgba(255,255,255,0.1) 45%,
-                                          rgba(255,255,255,0.3) 50%,
-                                          rgba(255,255,255,0.1) 55%,
-                                          transparent 100%
-                                        )`,
-                                        animation: 'cardShine 3s ease-in-out infinite',
-                                      }}
-                                    />
-                                  )}
+                                {/* Player Name Below */}
+                                <div className="mt-2 text-center">
+                                  <p className={`text-xs font-medium truncate ${
+                                    isUnlocked ? 'text-foreground' : 'text-zinc-600'
+                                  }`}>
+                                    {card.card_name}
+                                  </p>
+                                  <span className={`text-[10px] ${
+                                    isUnlocked 
+                                      ? `bg-gradient-to-r ${rarityColors[card.rarity]} bg-clip-text text-transparent font-medium`
+                                      : 'text-zinc-700'
+                                  }`}>
+                                    {rarityLabel[card.rarity]}
+                                  </span>
                                 </div>
                               </div>
                             </motion.div>
