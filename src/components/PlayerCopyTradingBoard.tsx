@@ -874,256 +874,249 @@ const PlayerCopyTradingBoard = () => {
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        whileHover={{ 
-          scale: 1.02, 
-          y: -2,
-          boxShadow: "0 8px 25px -5px rgba(0, 0, 0, 0.2)"
-        }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2, delay: (rank || 0) * 0.03 }}
-        className="rounded-lg border bg-muted/20 border-border/30 p-3 sm:p-4 cursor-pointer"
+        whileHover={{ scale: 1.01, y: -1 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ duration: 0.2, delay: (rank || 0) * 0.02 }}
+        className="rounded-lg border bg-muted/20 border-border/30 p-2 sm:p-4 cursor-pointer"
         onClick={() => navigate(`/player/${player.id}`)}
       >
-        {/* Top Row: Rank, Avatar, Name, Buttons */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-3">
-            {/* Rank Badge */}
+        {/* Mobile Layout */}
+        <div className="sm:hidden">
+          {/* Row 1: Rank + Avatar + Name + Win Rate */}
+          <div className="flex items-center gap-2 mb-2">
             {rank !== undefined && (
-              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
                 rank === 1 ? 'bg-yellow-500/20' :
                 rank === 2 ? 'bg-gray-400/20' :
                 rank === 3 ? 'bg-amber-600/20' :
                 'bg-muted'
               }`}>
                 {rank <= 3 ? (
-                  <Trophy className={`h-3 w-3 ${
+                  <Trophy className={`h-2.5 w-2.5 ${
                     rank === 1 ? 'text-yellow-500' :
                     rank === 2 ? 'text-gray-400' :
                     'text-amber-600'
                   }`} />
                 ) : (
-                  <span className="text-xs font-semibold text-muted-foreground">{rank}</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground">{rank}</span>
                 )}
               </div>
             )}
-            {/* Avatar with Follow Button */}
-            <div className="relative flex-shrink-0">
-              <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border border-border">
-                <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-                <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
-              </Avatar>
-              {/* Follow Button on Avatar */}
-              <div className="absolute -bottom-1 -right-1">
-                <button
-                  onClick={(e) => handleFollow(player.id, e)}
-                  disabled={isFollowingPlayer}
-                  className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[10px] border ${
-                    isFollowingPlayer ? 'opacity-50 cursor-not-allowed' : ''
-                  } ${
-                    isFollowed 
-                      ? 'bg-primary text-primary-foreground border-primary' 
-                      : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                  }`}
-                  title={isFollowed ? '取消关注' : '关注'}
-                >
-                  <UserPlus className={`h-2.5 w-2.5 ${isFollowed ? 'fill-current' : ''}`} />
-                  <span className="font-medium">{followerCount}</span>
-                </button>
-              </div>
-            </div>
-            {/* Name & Streak Stats */}
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm sm:text-base text-foreground">{maskPlayerName(player.displayName)}</span>
-              </div>
-              <div className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
+            <Avatar className="w-8 h-8 border border-border flex-shrink-0">
+              <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+              <AvatarFallback className="text-[10px]">{player.displayName.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <span className="font-semibold text-xs text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
+              <div className="text-[9px] text-muted-foreground">
                 {streakType === 'worst' ? (
-                  <>
-                    连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
-                    <span className="flex items-center gap-0.5 ml-1">
-                      {Array.from({ length: Math.min(player.worstStreak || 0, 5) }).map((_, i) => (
-                        <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground font-bold">
-                          败
-                        </span>
-                      ))}
-                      {(player.worstStreak || 0) > 5 && (
-                        <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground/10 border border-dashed border-foreground/40 flex items-center justify-center text-[8px] sm:text-[9px] text-foreground/70 font-medium">
-                          …
-                        </span>
-                      )}
-                    </span>
-                  </>
+                  <span>连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
                 ) : (
-                  <>
-                    连续正确 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
-                    <span className="flex items-center gap-0.5 ml-1">
-                      {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
-                        <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive font-bold">
-                          胜
-                        </span>
-                      ))}
-                      {(player.currentStreak || player.bestStreak || 0) > 5 && (
-                        <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[8px] sm:text-[9px] text-destructive/70 font-medium">
-                          …
-                        </span>
-                      )}
-                    </span>
-                  </>
+                  <span>连胜 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
                 )}
               </div>
             </div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-sm font-bold font-mono-data text-success">{player.winRate.toFixed(0)}%</p>
+            </div>
           </div>
-          {/* Action Buttons & Prize */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {/* Estimated Prize Badge */}
+          
+          {/* Row 2: Stats - 3 columns */}
+          <div className="grid grid-cols-3 gap-2 text-center mb-2">
+            <div>
+              <p className="text-[9px] text-muted-foreground">预测</p>
+              <p className="text-xs font-bold text-foreground">{player.totalPredictions}</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-muted-foreground">正确</p>
+              <p className="text-xs font-bold text-success">{player.correctPredictions}</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-muted-foreground">盈利率</p>
+              <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
+              </p>
+            </div>
+          </div>
+          
+          {/* Row 3: Buttons */}
+          <div className="flex items-center justify-between gap-2">
             {prize > 0 ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-[10px] sm:text-xs font-bold shadow-sm">
-                <AnimatedPrize value={prize} className="text-[10px] sm:text-xs font-bold text-warning" duration={600} showLabel={true} />
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold">
+                <AnimatedPrize value={prize} className="text-[9px] font-bold text-warning" duration={600} showLabel={true} />
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-[10px] sm:text-xs">
-                <span className="font-medium hidden sm:inline">预期奖金:</span>
-                <span>未达标</span>
-              </span>
+              <span className="text-[9px] text-muted-foreground">未达标</span>
             )}
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate('/history');
-              }}
-              className="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
-            >
-              历史预测
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                fetchTodayPredictions(player);
-              }}
-              className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 hover:shadow-lg hover:shadow-warning/40 hover:scale-105 active:scale-95"
-            >
-              {t('today_copy_trade_btn') || '今日跟单'}
-            </button>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/history');
+                }}
+                className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40"
+              >
+                历史预测
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fetchTodayPredictions(player);
+                }}
+                className="px-2 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground"
+              >
+                今日跟单
+              </button>
+            </div>
           </div>
         </div>
-        
-        {/* Stats Grid - Row 1: 预测, 正确, 错误, 胜率 */}
-        <div className="grid grid-cols-4 gap-3 sm:gap-4">
-          {/* Total Predictions */}
-          <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">预测</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-foreground">
-              {player.totalPredictions}场
-            </p>
+
+        {/* Desktop Layout */}
+        <div className="hidden sm:block">
+          {/* Top Row: Rank, Avatar, Name, Buttons */}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              {rank !== undefined && (
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                  rank === 1 ? 'bg-yellow-500/20' :
+                  rank === 2 ? 'bg-gray-400/20' :
+                  rank === 3 ? 'bg-amber-600/20' :
+                  'bg-muted'
+                }`}>
+                  {rank <= 3 ? (
+                    <Trophy className={`h-3 w-3 ${
+                      rank === 1 ? 'text-yellow-500' :
+                      rank === 2 ? 'text-gray-400' :
+                      'text-amber-600'
+                    }`} />
+                  ) : (
+                    <span className="text-xs font-semibold text-muted-foreground">{rank}</span>
+                  )}
+                </div>
+              )}
+              <div className="relative flex-shrink-0">
+                <Avatar className="w-12 h-12 border border-border">
+                  <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                  <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1">
+                  <button
+                    onClick={(e) => handleFollow(player.id, e)}
+                    disabled={isFollowingPlayer}
+                    className={`flex items-center gap-0.5 px-1 py-0.5 rounded-full transition-all text-[10px] border ${
+                      isFollowingPlayer ? 'opacity-50' : ''
+                    } ${
+                      isFollowed 
+                        ? 'bg-primary text-primary-foreground border-primary' 
+                        : 'bg-background text-muted-foreground border-border'
+                    }`}
+                  >
+                    <UserPlus className={`h-2.5 w-2.5 ${isFollowed ? 'fill-current' : ''}`} />
+                    <span className="font-medium">{followerCount}</span>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <span className="font-semibold text-base text-foreground">{maskPlayerName(player.displayName)}</span>
+                <div className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1">
+                  {streakType === 'worst' ? (
+                    <span>连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
+                  ) : (
+                    <span>连续正确 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {prize > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-warning/20 border border-warning/40 text-warning text-xs font-bold">
+                  <AnimatedPrize value={prize} className="text-xs font-bold text-warning" duration={600} showLabel={true} />
+                </span>
+              ) : (
+                <span className="px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-xs">未达标</span>
+              )}
+              <button 
+                onClick={(e) => { e.stopPropagation(); navigate('/history'); }}
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground border border-border/40"
+              >
+                历史预测
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); fetchTodayPredictions(player); }}
+                className="px-3.5 py-1.5 text-xs font-bold rounded-md bg-warning text-warning-foreground"
+              >
+                今日跟单
+              </button>
+            </div>
           </div>
           
-          {/* Correct Predictions */}
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">正确</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-success">
-              {player.correctPredictions}场
-            </p>
+          {/* Stats Grid - Row 1 */}
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">预测</p>
+              <p className="text-lg font-bold font-mono-data text-foreground">{player.totalPredictions}场</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">正确</p>
+              <p className="text-lg font-bold font-mono-data text-success">{player.correctPredictions}场</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">错误</p>
+              <p className="text-lg font-bold font-mono-data text-destructive">{player.totalPredictions - player.correctPredictions}场</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground mb-1">胜率</p>
+              <p className="text-lg font-bold font-mono-data text-success">{player.winRate.toFixed(0)}%</p>
+            </div>
           </div>
           
-          {/* Incorrect Predictions */}
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">错误</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-destructive">
-              {player.totalPredictions - player.correctPredictions}场
-            </p>
-          </div>
-          
-          {/* Win Rate */}
-          <div className="text-right">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">胜率</p>
-            <p className="text-sm sm:text-lg font-bold font-mono-data text-success inline-flex items-center">
-              {player.winRate.toFixed(0)}%
-              {(() => {
-                const todayData = todayStats.get(player.id);
-                if (todayData && todayData.total > 0) {
-                  const trendValue = todayData.winRate - player.winRate;
-                  if (trendValue > 2) {
-                    return (
-                      <motion.span
-                        animate={{ scale: [1, 1.15, 1] }}
-                        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                        className="inline-flex ml-1"
-                      >
-                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success drop-shadow-[0_0_4px_hsl(var(--success))]" />
-                      </motion.span>
-                    );
-                  } else if (trendValue < -2) {
-                    return (
-                      <motion.span
-                        animate={{ scale: [1, 1.15, 1] }}
-                        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                        className="inline-flex ml-1"
-                      >
-                        <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive drop-shadow-[0_0_4px_hsl(var(--destructive))]" />
-                      </motion.span>
-                    );
-                  }
-                }
-                return null;
-              })()}
-            </p>
-          </div>
-        </div>
-        
-        {/* Stats Grid - Row 2: 投注金额, 盈利金额, 盈利率, 跟单人数 */}
-        <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-3 pt-3 border-t border-border/50">
-          {/* Bet Amount */}
-          <div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('virtual_bet_label')}</p>
-            <p className="text-sm sm:text-base font-bold font-mono-data text-foreground flex items-center gap-1">
-              {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-              <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4 sm:w-5 sm:h-5" />
-            </p>
-          </div>
-          
-          {/* Profit Amount */}
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
-            <p className={`text-sm sm:text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-              <span className="inline-flex items-center gap-1">
-                {profitAmount >= 0 ? '+' : '-'}
-                {Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" loading="lazy" />
-              </span>
-            </p>
-          </div>
-          
-          {/* Profit Rate */}
-          <div className="text-center">
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
-            <p className={`text-sm sm:text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
-            </p>
-          </div>
-          
-          {/* Copy Traders - Clickable */}
-          <div 
-            className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-              const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
-              const variance = (seed % 50) - 25;
-              const followerCount = Math.max(0, baseCount + variance);
-              const followers = generatePlayerMockFollowers(player.id, player.displayName, followerCount);
-              setSelectedPlayerFollowers({ playerId: player.id, playerName: player.displayName, followers });
-              setIsPlayerFollowersDialogOpen(true);
-            }}
-          >
-            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
-            <p className="text-sm sm:text-base font-bold font-mono-data text-primary hover:underline">
-              {(() => {
+          {/* Stats Grid - Row 2 */}
+          <div className="grid grid-cols-4 gap-4 mt-3 pt-3 border-t border-border/50">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">{t('virtual_bet_label')}</p>
+              <p className="text-base font-bold font-mono-data text-foreground flex items-center gap-1">
+                {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">{t('profit_amount_label')}</p>
+              <p className={`text-base font-bold font-mono-data ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <span className="inline-flex items-center gap-1">
+                  {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  <img src={hunterCoinIcon} alt="猎人币" className="h-5 w-5" />
+                </span>
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
+              <p className={`text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+              </p>
+            </div>
+            <div 
+              className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
                 const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
                 const variance = (seed % 50) - 25;
-                return Math.max(0, baseCount + variance);
-              })()}{t('people_suffix')}
-            </p>
+                const followerCount = Math.max(0, baseCount + variance);
+                const followers = generatePlayerMockFollowers(player.id, player.displayName, followerCount);
+                setSelectedPlayerFollowers({ playerId: player.id, playerName: player.displayName, followers });
+                setIsPlayerFollowersDialogOpen(true);
+              }}
+            >
+              <p className="text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
+              <p className="text-base font-bold font-mono-data text-primary hover:underline">
+                {(() => {
+                  const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                  const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
+                  const variance = (seed % 50) - 25;
+                  return Math.max(0, baseCount + variance);
+                })()}{t('people_suffix')}
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -1139,14 +1132,14 @@ const PlayerCopyTradingBoard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Time Range Filter - Unified for all boards */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者跟单排行榜'}</h2>
-        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h2 className="text-base sm:text-lg font-bold text-foreground">{t('copy_trading_board') || '预测者跟单排行榜'}</h2>
+        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5 self-start sm:self-auto">
           <button
             onClick={() => setTimeRange(1)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
               timeRange === 1
                 ? 'bg-foreground text-background shadow-sm' 
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -1156,7 +1149,7 @@ const PlayerCopyTradingBoard = () => {
           </button>
           <button
             onClick={() => setTimeRange(7)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
               timeRange === 7
                 ? 'bg-foreground text-background shadow-sm' 
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -1166,7 +1159,7 @@ const PlayerCopyTradingBoard = () => {
           </button>
           <button
             onClick={() => setTimeRange(30)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
               timeRange === 30
                 ? 'bg-foreground text-background shadow-sm' 
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -1178,7 +1171,7 @@ const PlayerCopyTradingBoard = () => {
       </div>
 
       {/* Leaderboard Table - Split into Hot Streak and Cold Streak */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4">
         {/* 连红榜 - Winning Streak */}
         <Card className="border-border/50 bg-card/50 relative overflow-hidden">
           {/* 背景图片 */}
@@ -1187,13 +1180,13 @@ const PlayerCopyTradingBoard = () => {
             style={{ backgroundImage: `url(${winningStreakBg})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-card/98 via-card/90 to-card/80" />
-          <div className="pb-3 pt-4 px-4 relative z-10">
+          <div className="pb-2 sm:pb-3 pt-3 sm:pt-4 px-3 sm:px-4 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
+                <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">预测者连红榜</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">准确率最高预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                  <h3 className="text-sm sm:text-lg font-bold text-foreground">预测者连红榜</h3>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">准确率最高预测者 · <span className="text-foreground font-medium">前10名</span></p>
                 </div>
               </div>
               <button
