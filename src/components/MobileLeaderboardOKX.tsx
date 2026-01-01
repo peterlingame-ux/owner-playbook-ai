@@ -791,20 +791,25 @@ const MobileLeaderboardOKX = () => {
       {/* Time Filter & All Predictors - For accuracy and copyTrade tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
-          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
-            {timeFilters.map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setTimeFilter(filter.value as TimeFilter)}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                  timeFilter === filter.value
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+              {timeFilters.map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setTimeFilter(filter.value as TimeFilter)}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    timeFilter === filter.value
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            <span className="px-2 py-0.5 text-[10px] font-bold bg-warning/20 text-warning border border-warning/30 rounded">
+              TOP10
+            </span>
           </div>
           <button 
             className="px-3 py-1.5 text-xs font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1"
