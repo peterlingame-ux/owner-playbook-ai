@@ -199,117 +199,116 @@ export const PlayerLeaderboardCard = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       whileHover={{ 
-        scale: 1.02, 
-        y: -2,
-        boxShadow: "0 8px 25px -5px rgba(0, 0, 0, 0.2)"
+        scale: 1.01, 
+        y: -1,
+        boxShadow: "0 4px 15px -3px rgba(0, 0, 0, 0.15)"
       }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2, delay: index * 0.03 }}
-      className={`rounded-lg border p-2.5 sm:p-4 cursor-pointer ${
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.2, delay: index * 0.02 }}
+      className={`rounded-lg border p-2 sm:p-4 cursor-pointer ${
         isCurrentUser 
           ? 'bg-primary/10 border-primary/30' 
           : 'bg-muted/20 border-border/30'
       }`}
       onClick={onClick}
     >
-      {/* Top Row: Avatar, Name, Buttons */}
-      <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
-        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-          {/* Rank Badge */}
-          <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
+      {/* Mobile: Compact layout */}
+      <div className="sm:hidden">
+        {/* Row 1: Rank + Avatar + Name + Win Rate */}
+        <div className="flex items-center gap-2 mb-2">
+          {/* Rank */}
+          <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
             index === 0 ? 'bg-yellow-500/20' :
             index === 1 ? 'bg-gray-400/20' :
             index === 2 ? 'bg-amber-600/20' :
             'bg-muted'
           }`}>
             {index < 3 ? (
-              <Trophy className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
+              <Trophy className={`h-2.5 w-2.5 ${
                 index === 0 ? 'text-yellow-500' :
                 index === 1 ? 'text-gray-400' :
                 'text-amber-600'
               }`} />
             ) : (
-              <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">{index + 1}</span>
+              <span className="text-[10px] font-semibold text-muted-foreground">{index + 1}</span>
             )}
           </div>
-          {/* Avatar with Follow Button */}
+          {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <Avatar className={`w-8 h-8 sm:w-12 sm:h-12 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
+            <Avatar className={`w-8 h-8 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-              <AvatarFallback className="text-[10px] sm:text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+              <AvatarFallback className="text-[10px]">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
-            {/* Follow Button on Avatar - Top Left */}
             {currentUserId !== player.id && (
               <button
                 onClick={handleFollowToggle}
                 disabled={isFollowLoading}
-                className={`absolute -top-1 -left-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center transition-all border shadow-sm ${
-                  isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
+                className={`absolute -top-0.5 -left-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all border shadow-sm ${
+                  isFollowLoading ? 'opacity-50' : ''
                 } ${
                   isFollowing 
                     ? 'bg-primary text-primary-foreground border-primary' 
-                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+                    : 'bg-background text-muted-foreground border-border'
                 }`}
-                title={isFollowing ? t('following') || '已关注' : t('follow') || '关注'}
               >
                 {isFollowLoading ? (
-                  <Loader2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 animate-spin" />
+                  <Loader2 className="h-2 w-2 animate-spin" />
                 ) : isFollowing ? (
-                  <UserCheck className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+                  <UserCheck className="h-2 w-2" />
                 ) : (
-                  <UserPlus className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+                  <UserPlus className="h-2 w-2" />
                 )}
               </button>
             )}
           </div>
-          {/* Name & Stats */}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-              <span className="font-semibold text-xs sm:text-base text-foreground truncate max-w-[80px] sm:max-w-none">{maskPlayerName(player.displayName)}</span>
-            </div>
-            <div className="mt-0.5 text-[9px] sm:text-xs text-muted-foreground flex items-center gap-0.5 sm:gap-1 flex-wrap">
+          {/* Name + Streak */}
+          <div className="flex-1 min-w-0">
+            <span className="font-semibold text-xs text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
+            <div className="text-[9px] text-muted-foreground flex items-center gap-1">
               {boardType === 'cold' ? (
-                <>
-                  <span className="whitespace-nowrap">{t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
-                  <span className="flex items-center gap-0.5 ml-0.5">
-                    {Array.from({ length: Math.min(player.worstStreak || 0, 3) }).map((_, i) => (
-                      <span key={i} className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[6px] sm:text-[9px] text-foreground font-bold">
-                        {t('loss_badge')}
-                      </span>
-                    ))}
-                  </span>
-                </>
+                <span>{t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
               ) : (
-                <>
-                  <span className="whitespace-nowrap">{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
-                  <span className="flex items-center gap-0.5 ml-0.5">
-                    {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
-                      <span key={i} className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[6px] sm:text-[9px] text-destructive font-bold">
-                        {t('win_badge')}
-                      </span>
-                    ))}
-                    {(player.currentStreak || player.bestStreak || 0) > 5 && (
-                      <span className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[6px] sm:text-[9px] text-destructive/70 font-medium">
-                        …
-                      </span>
-                    )}
-                  </span>
-                </>
+                <span>{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
               )}
             </div>
           </div>
+          {/* Win Rate */}
+          <div className="text-right flex-shrink-0">
+            <AnimatedWinRate 
+              value={player.winRate}
+              className="text-sm font-bold font-mono-data text-success"
+              trend={todayWinRate !== undefined ? todayWinRate - player.winRate : undefined}
+              showTrend={todayWinRate !== undefined}
+            />
+          </div>
         </div>
-        {/* Action Buttons & Prize - Stacked on mobile */}
-        <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3 flex-shrink-0">
-          {/* Estimated Prize Badge */}
+        
+        {/* Row 2: Stats - 3 columns */}
+        <div className="grid grid-cols-3 gap-2 text-center mb-2">
+          <div>
+            <p className="text-[9px] text-muted-foreground">{t('total_predictions')}</p>
+            <p className="text-xs font-bold text-foreground">{player.totalPredictions}</p>
+          </div>
+          <div>
+            <p className="text-[9px] text-muted-foreground">{t('correct_matches')}</p>
+            <p className="text-xs font-bold text-success">{player.correctPredictions}</p>
+          </div>
+          <div>
+            <p className="text-[9px] text-muted-foreground">{t('profit_rate')}</p>
+            <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+            </p>
+          </div>
+        </div>
+        
+        {/* Row 3: Buttons */}
+        <div className="flex items-center justify-between gap-2">
           {prize > 0 ? (
-            <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-[8px] sm:text-xs font-bold shadow-sm whitespace-nowrap">
-              <AnimatedPrize value={prize} className="text-[8px] sm:text-xs font-bold text-warning" duration={600} showLabel={true} />
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold">
+              <AnimatedPrize value={prize} className="text-[9px] font-bold text-warning" duration={600} showLabel={true} />
             </span>
           ) : (
-            <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-[8px] sm:text-xs whitespace-nowrap">
-              {t('not_qualified')}
-            </span>
+            <span className="text-[9px] text-muted-foreground">{t('not_qualified')}</span>
           )}
           <div className="flex items-center gap-1">
             <button 
@@ -317,89 +316,209 @@ export const PlayerLeaderboardCard = ({
                 e.stopPropagation();
                 navigate('/history');
               }}
-              className="px-1.5 sm:px-3 py-1 text-[8px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40 whitespace-nowrap"
+              className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40"
             >
               {t('view_history')}
             </button>
             <button 
               onClick={onViewHistory}
-              className="px-1.5 sm:px-3.5 py-1 text-[8px] sm:text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 whitespace-nowrap"
+              className="px-2 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground"
             >
               {t('today_recommendations')}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Desktop: Original layout */}
+      <div className="hidden sm:block">
+        {/* Top Row: Avatar, Name, Buttons */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Rank Badge */}
+            <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              index === 0 ? 'bg-yellow-500/20' :
+              index === 1 ? 'bg-gray-400/20' :
+              index === 2 ? 'bg-amber-600/20' :
+              'bg-muted'
+            }`}>
+              {index < 3 ? (
+                <Trophy className={`h-3 w-3 ${
+                  index === 0 ? 'text-yellow-500' :
+                  index === 1 ? 'text-gray-400' :
+                  'text-amber-600'
+                }`} />
+              ) : (
+                <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
+              )}
+            </div>
+            {/* Avatar with Follow Button */}
+            <div className="relative flex-shrink-0">
+              <Avatar className={`w-12 h-12 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
+                <AvatarImage src={player.avatarUrl} alt={player.displayName} />
+                <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              {currentUserId !== player.id && (
+                <button
+                  onClick={handleFollowToggle}
+                  disabled={isFollowLoading}
+                  className={`absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center transition-all border shadow-sm ${
+                    isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${
+                    isFollowing 
+                      ? 'bg-primary text-primary-foreground border-primary' 
+                      : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+                  }`}
+                  title={isFollowing ? t('following') || '已关注' : t('follow') || '关注'}
+                >
+                  {isFollowLoading ? (
+                    <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                  ) : isFollowing ? (
+                    <UserCheck className="h-2.5 w-2.5" />
+                  ) : (
+                    <UserPlus className="h-2.5 w-2.5" />
+                  )}
+                </button>
+              )}
+            </div>
+            {/* Name & Stats */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-base text-foreground">{maskPlayerName(player.displayName)}</span>
+              </div>
+              <div className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
+                {boardType === 'cold' ? (
+                  <>
+                    <span className="whitespace-nowrap">{t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
+                    <span className="flex items-center gap-0.5 ml-0.5">
+                      {Array.from({ length: Math.min(player.worstStreak || 0, 3) }).map((_, i) => (
+                        <span key={i} className="w-5 h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[9px] text-foreground font-bold">
+                          {t('loss_badge')}
+                        </span>
+                      ))}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="whitespace-nowrap">{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
+                    <span className="flex items-center gap-0.5 ml-0.5">
+                      {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
+                        <span key={i} className="w-5 h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[9px] text-destructive font-bold">
+                          {t('win_badge')}
+                        </span>
+                      ))}
+                      {(player.currentStreak || player.bestStreak || 0) > 5 && (
+                        <span className="w-5 h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[9px] text-destructive/70 font-medium">
+                          …
+                        </span>
+                      )}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* Action Buttons & Prize */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {prize > 0 ? (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-xs font-bold shadow-sm whitespace-nowrap">
+                <AnimatedPrize value={prize} className="text-xs font-bold text-warning" duration={600} showLabel={true} />
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-xs whitespace-nowrap">
+                {t('not_qualified')}
+              </span>
+            )}
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/history');
+                }}
+                className="px-3 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40 whitespace-nowrap"
+              >
+                {t('view_history')}
+              </button>
+              <button 
+                onClick={onViewHistory}
+                className="px-3.5 py-1 text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 whitespace-nowrap"
+              >
+                {t('today_recommendations')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       
-      {/* Stats Grid - Row 1: 预测, 正确, 错误, 胜率 */}
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-4">
+      {/* Stats Grid - Row 1: 预测, 正确, 错误, 胜率 - Desktop only */}
+      <div className="hidden sm:grid grid-cols-4 gap-4">
         {/* Total Predictions */}
         <div>
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('total_predictions')}</p>
-          <p className="text-xs sm:text-lg font-bold font-mono-data text-foreground">
-            {player.totalPredictions}<span className="hidden sm:inline">{t('matches_suffix')}</span>
+          <p className="text-xs text-muted-foreground mb-1 truncate">{t('total_predictions')}</p>
+          <p className="text-lg font-bold font-mono-data text-foreground">
+            {player.totalPredictions}{t('matches_suffix')}
           </p>
         </div>
         
         {/* Correct Predictions */}
         <div className="text-center">
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('correct_matches')}</p>
-          <p className="text-xs sm:text-lg font-bold font-mono-data text-foreground">
-            {player.correctPredictions}<span className="hidden sm:inline">{t('matches_suffix')}</span>
+          <p className="text-xs text-muted-foreground mb-1 truncate">{t('correct_matches')}</p>
+          <p className="text-lg font-bold font-mono-data text-foreground">
+            {player.correctPredictions}{t('matches_suffix')}
           </p>
         </div>
         
         {/* Incorrect Predictions */}
         <div className="text-center">
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('incorrect_matches')}</p>
-          <p className="text-xs sm:text-lg font-bold font-mono-data text-foreground">
-            {player.totalPredictions - player.correctPredictions}<span className="hidden sm:inline">{t('matches_suffix')}</span>
+          <p className="text-xs text-muted-foreground mb-1 truncate">{t('incorrect_matches')}</p>
+          <p className="text-lg font-bold font-mono-data text-foreground">
+            {player.totalPredictions - player.correctPredictions}{t('matches_suffix')}
           </p>
         </div>
         
         {/* Win Rate */}
         <div className="text-right">
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1">{t('win_rate')}</p>
+          <p className="text-xs text-muted-foreground mb-1">{t('win_rate')}</p>
           <AnimatedWinRate 
             value={player.winRate}
-            className="text-xs sm:text-base font-bold font-mono-data text-success"
+            className="text-base font-bold font-mono-data text-success"
             trend={todayWinRate !== undefined ? todayWinRate - player.winRate : undefined}
             showTrend={todayWinRate !== undefined}
           />
         </div>
       </div>
       
-      {/* Stats Grid - Row 2: 投注金额, 盈利金额, 跟单人数, 预期奖金 */}
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-4 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border/50">
+      {/* Stats Grid - Row 2: 投注金额, 盈利金额, 跟单人数, 预期奖金 - Desktop only */}
+      <div className="hidden sm:grid grid-cols-4 gap-4 mt-3 pt-3 border-t border-border/50">
         {/* Bet Amount */}
         <div>
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('bet_amount_label')}</p>
-          <p className="text-xs sm:text-base font-bold font-mono-data text-foreground truncate flex items-center gap-0.5">
+          <p className="text-xs text-muted-foreground mb-1 truncate">{t('bet_amount_label')}</p>
+          <p className="text-base font-bold font-mono-data text-foreground truncate flex items-center gap-0.5">
             {((player.totalBetAmount || 0) / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" />
+            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
           </p>
         </div>
         
         {/* Profit Amount */}
         <div className="text-center">
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 truncate">{t('profit_amount_label')}</p>
-          <p className="text-xs sm:text-base font-bold font-mono-data truncate flex items-center justify-center gap-0.5 text-foreground">
+          <p className="text-xs text-muted-foreground mb-1 truncate">{t('profit_amount_label')}</p>
+          <p className="text-base font-bold font-mono-data truncate flex items-center justify-center gap-0.5 text-foreground">
             {profitAmount >= 0 ? '+' : '-'}{Math.abs(profitAmount / 100).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4" />
+            <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
           </p>
         </div>
         
         {/* Profit Rate */}
         <div className="text-center">
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1">{t('profit_rate')}</p>
-          <p className="text-xs sm:text-base font-bold font-mono-data text-foreground">
+          <p className="text-xs text-muted-foreground mb-1">{t('profit_rate')}</p>
+          <p className="text-base font-bold font-mono-data text-foreground">
             {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
           </p>
         </div>
         
         {/* Copy Traders - Clickable */}
         <div 
-          className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-0.5 sm:p-1 -m-0.5 sm:-m-1 transition-colors"
+          className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
@@ -413,14 +532,14 @@ export const PlayerLeaderboardCard = ({
             }
           }}
         >
-          <p className="text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 flex items-center justify-end gap-0.5 sm:gap-1"><Users className="h-2.5 w-2.5 sm:h-3 sm:w-3" fill="currentColor" /><span className="hidden sm:inline">{t('followers_count')}</span></p>
-          <p className="text-xs sm:text-base font-bold font-mono-data text-primary hover:underline">
+          <p className="text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
+          <p className="text-base font-bold font-mono-data text-primary hover:underline">
             {(() => {
               const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
               const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
               const variance = (seed % 50) - 25;
-              return Math.max(0, baseCount + variance);
-            })()}<span className="hidden sm:inline">{t('people_suffix')}</span>
+              return Math.max(0, baseCount + variance).toLocaleString();
+            })()}{t('people_suffix')}
           </p>
         </div>
       </div>

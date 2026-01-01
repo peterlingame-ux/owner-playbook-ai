@@ -1207,67 +1207,67 @@ const PlayerLeaderboardTable = () => {
       )}
 
       {/* Time Range Filter - Unified for all boards */}
-            <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">{t('player_recommendation_board')}</h2>
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
-                <button
-                  onClick={() => setTimeRange(1)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 1
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h2 className="text-base sm:text-lg font-bold text-foreground">{t('player_recommendation_board')}</h2>
+        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5 self-start sm:self-auto">
+          <button
+            onClick={() => setTimeRange(1)}
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+              timeRange === 1
                 ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
             {t('time_filter_1d')}
-                </button>
-                <button
-                  onClick={() => setTimeRange(7)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 7
+          </button>
+          <button
+            onClick={() => setTimeRange(7)}
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+              timeRange === 7
                 ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
             {t('time_filter_7d')}
-                </button>
-                <button
-                  onClick={() => setTimeRange(30)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-                    timeRange === 30
+          </button>
+          <button
+            onClick={() => setTimeRange(30)}
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+              timeRange === 30
                 ? 'bg-foreground text-background shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
             {t('time_filter_30d')}
-                </button>
-              </div>
-            </div>
+          </button>
+        </div>
+      </div>
 
       {/* Leaderboard Table - Split into Hot Streak, Profit, and Cold Streak */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <div className="grid grid-cols-1 gap-4 items-start">
         {/* Column 1: 高胜率榜 */}
         <Card className="border-border/50 bg-card/50">
-          <CardHeader className="pb-3 pt-4 px-4">
+          <CardHeader className="pb-2 sm:pb-3 pt-3 sm:pt-4 px-3 sm:px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-gradient-to-b from-success to-success/50 rounded-full" />
+                <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-success to-success/50 rounded-full" />
                 <div>
-                  <CardTitle className="text-lg font-bold text-foreground">
+                  <CardTitle className="text-sm sm:text-lg font-bold text-foreground">
                     {t('hot_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">前10名</span></p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">前10名</span></p>
                 </div>
               </div>
-                <button
+              <button
                 onClick={() => setShowAllHotPlayers(true)}
-                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
                 {t('all_players')}
-                </button>
-              </div>
+              </button>
+            </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 pt-0">
-            <div className="space-y-2">
+          <CardContent className="px-2 sm:px-4 pb-3 sm:pb-4 pt-0">
+            <div className="space-y-1.5 sm:space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -1331,29 +1331,29 @@ const PlayerLeaderboardTable = () => {
           </CardContent>
         </Card>
 
-        {/* Column 3: 低胜率榜 */}
+        {/* Column 2: 低胜率榜 */}
         <Card className="border-border/50 bg-card/50">
-          <CardHeader className="pb-3 pt-4 px-4">
+          <CardHeader className="pb-2 sm:pb-3 pt-3 sm:pt-4 px-3 sm:px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
+                <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                 <div>
-                  <CardTitle className="text-lg font-bold text-foreground">
+                  <CardTitle className="text-sm sm:text-lg font-bold text-foreground">
                     {t('cold_streak_board')}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
                 </div>
               </div>
-                <button
+              <button
                 onClick={() => setShowAllColdPlayers(true)}
-                className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
+                className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
               >
                 {t('all_players')}
-                </button>
-              </div>
+              </button>
+            </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 pt-0">
-            <div className="space-y-2">
+          <CardContent className="px-2 sm:px-4 pb-3 sm:pb-4 pt-0">
+            <div className="space-y-1.5 sm:space-y-2">
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
