@@ -3,11 +3,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
+import { AnimatePresence } from "framer-motion";
 import FloatingAIChat from "./components/FloatingAIChat";
-import BottomNav from "./components/BottomNav";
+import PageTransition from "./components/PageTransition";
 import Index from "./pages/Index";
 import Leaderboard from "./pages/Leaderboard";
 import Models from "./pages/Models";
@@ -24,6 +25,31 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/leaderboard" element={<PageTransition><Leaderboard /></PageTransition>} />
+        <Route path="/models" element={<PageTransition><Models /></PageTransition>} />
+        <Route path="/model/:modelId" element={<PageTransition><ModelDetail /></PageTransition>} />
+        <Route path="/player/:playerId" element={<PageTransition><PlayerDetail /></PageTransition>} />
+        <Route path="/match/:matchId" element={<PageTransition><MatchDetail /></PageTransition>} />
+        <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
+        <Route path="/history" element={<PageTransition><History /></PageTransition>} />
+        <Route path="/my-predictions" element={<PageTransition><MyPredictions /></PageTransition>} />
+        <Route path="/my-following" element={<PageTransition><MyFollowing /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/waitlist" element={<PageTransition><Waitlist /></PageTransition>} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
@@ -32,22 +58,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/models" element={<Models />} />
-              <Route path="/model/:modelId" element={<ModelDetail />} />
-              <Route path="/player/:playerId" element={<PlayerDetail />} />
-              <Route path="/match/:matchId" element={<MatchDetail />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/my-predictions" element={<MyPredictions />} />
-              <Route path="/my-following" element={<MyFollowing />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/waitlist" element={<Waitlist />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AnimatedRoutes />
             {/* Global Floating AI Chat */}
             <FloatingAIChat />
           </AuthProvider>
