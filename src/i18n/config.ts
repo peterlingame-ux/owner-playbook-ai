@@ -32,6 +32,7 @@ const resources = {
       
       // Top AI Model
       "top_ai_model_name": "DeepSeek R1",
+      "search_history": "Search teams, leagues, dates...",
       
       // Stats
       "highest_win_rate": "HIGHEST WIN RATE",
@@ -1179,6 +1180,7 @@ const resources = {
       
       // Top AI Model
       "top_ai_model_name": "DeepSeek R1",
+      "search_history": "搜索球队、联赛、日期...",
       
       // Stats
       "highest_win_rate": "最高胜率",
