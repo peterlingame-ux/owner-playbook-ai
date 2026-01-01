@@ -1227,17 +1227,6 @@ const MyPredictions = () => {
                           );
                         })}
                       </div>
-
-                      {/* Premium Invite CTA */}
-                      <motion.button 
-                        onClick={() => setActiveTab('invite')}
-                        className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-semibold text-sm flex items-center justify-center gap-2 hover:from-amber-400 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/25"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Share2 className="w-4 h-4" />
-                        {t('invite_to_unlock') || 'Invite Friends to Unlock Cards'}
-                      </motion.button>
                     </div>
                   );
                 })()}
