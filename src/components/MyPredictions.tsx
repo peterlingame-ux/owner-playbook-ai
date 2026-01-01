@@ -756,12 +756,12 @@ const MyPredictions = () => {
           </div>
         </div>
 
-        {/* Tabs - Recent / Collect / Podcast style */}
+        {/* Tabs - Responsive Scrollable */}
         <div className="mt-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4">
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'history' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -771,7 +771,7 @@ const MyPredictions = () => {
             </button>
             <button
               onClick={() => setActiveTab('records')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'records' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -781,7 +781,7 @@ const MyPredictions = () => {
             </button>
             <button
               onClick={() => setActiveTab('invite')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'invite' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -791,7 +791,7 @@ const MyPredictions = () => {
             </button>
             <button
               onClick={() => setActiveTab('starcard')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'starcard' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -896,31 +896,31 @@ const MyPredictions = () => {
               >
                 {/* Single Card Style - Like Reference */}
                 <div className="rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800/95 to-zinc-900 border border-zinc-700/50 overflow-hidden">
-                  {/* Top Row - Predictions Stats */}
-                  <div className="grid grid-cols-4 divide-x divide-zinc-700/50 border-b border-zinc-700/50">
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('total_predictions') || 'Predictions'}</p>
-                      <p className="text-xl font-bold text-white">
-                        {stats?.totalPredictions || 0}<span className="text-zinc-400 text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                  {/* Top Row - Predictions Stats - Responsive Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-zinc-700/50 border-b border-zinc-700/50">
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('total_predictions') || 'Predictions'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-white">
+                        {stats?.totalPredictions || 0}<span className="text-zinc-400 text-xs sm:text-sm ml-0.5">{t('matches_suffix') || ''}</span>
                       </p>
                     </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('correct_predictions_count') || 'Correct'}</p>
-                      <p className="text-xl font-bold text-white">
-                        {stats?.correctPredictions || 0}<span className="text-zinc-400 text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('correct_predictions_count') || 'Correct'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-white">
+                        {stats?.correctPredictions || 0}<span className="text-zinc-400 text-xs sm:text-sm ml-0.5">{t('matches_suffix') || ''}</span>
                       </p>
                     </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('wrong_predictions') || 'Wrong'}</p>
-                      <p className="text-xl font-bold text-white">
-                        {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}<span className="text-zinc-400 text-sm ml-0.5">{t('matches_suffix') || ''}</span>
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('wrong_predictions') || 'Wrong'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-white">
+                        {(stats?.totalPredictions || 0) - (stats?.correctPredictions || 0)}<span className="text-zinc-400 text-xs sm:text-sm ml-0.5">{t('matches_suffix') || ''}</span>
                       </p>
                     </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('win_rate_percent') || 'Win Rate (%)'}</p>
-                      <p className="text-xl font-bold text-emerald-400 flex items-center justify-center gap-1">
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('win_rate_percent') || 'Win Rate (%)'}</p>
+                      <p className="text-lg sm:text-xl font-bold text-emerald-400 flex items-center justify-center gap-1">
                         {(stats?.winRate || 0).toFixed(1)}%
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                           <polyline points="17 6 23 6 23 12" />
                         </svg>
@@ -928,36 +928,36 @@ const MyPredictions = () => {
                     </div>
                   </div>
                   
-                  {/* Bottom Row - Financial Stats */}
-                  <div className="grid grid-cols-4 divide-x divide-zinc-700/50">
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('total_wagered') || 'Virtual Bet'}</p>
+                  {/* Bottom Row - Financial Stats - Responsive Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-zinc-700/50">
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('total_wagered') || 'Virtual Bet'}</p>
                       <div className="flex items-center justify-center gap-1">
-                        <p className="text-xl font-bold text-white">{(stats?.totalWagered || 0).toLocaleString()}</p>
-                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                        <p className="text-base sm:text-xl font-bold text-white">{(stats?.totalWagered || 0).toLocaleString()}</p>
+                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3 sm:w-4 sm:h-4" />
                       </div>
                     </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('profit_amount') || 'Profit'}</p>
+                    <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('profit_amount') || 'Profit'}</p>
                       <div className="flex items-center justify-center gap-1">
-                        <p className={`text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <p className={`text-base sm:text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                           {(stats?.profit || 0) >= 0 ? '+' : ''}{(stats?.profit || 0).toLocaleString()}
                         </p>
-                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3 sm:w-4 sm:h-4" />
                       </div>
                     </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('profit_rate') || 'Profit Rate'}</p>
-                      <p className={`text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('profit_rate') || 'Profit Rate'}</p>
+                      <p className={`text-base sm:text-xl font-bold ${(stats?.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {stats?.totalWagered && stats.totalWagered > 0 
                           ? `${(stats.profit || 0) >= 0 ? '+' : ''}${((stats.profit || 0) / stats.totalWagered * 100).toFixed(1)}%`
                           : '0%'
                         }
                       </p>
                     </div>
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-2">{t('challenge_ai') || 'Challenge AI'}</p>
-                      <p className={`text-xl font-bold ${(stats?.winRate || 0) >= 60 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className="p-3 sm:p-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('challenge_ai') || 'Challenge AI'}</p>
+                      <p className={`text-base sm:text-xl font-bold ${(stats?.winRate || 0) >= 60 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {(stats?.winRate || 0) >= 60 
                           ? (t('qualified_status') || 'Qualified')
                           : (t('not_qualified') || 'Not Qualified')
@@ -1144,8 +1144,8 @@ const MyPredictions = () => {
                         </div>
                       </div>
 
-                      {/* Cards Gallery - Compact 3-Column Display */}
-                      <div className="grid grid-cols-3 gap-3">
+                      {/* Cards Gallery - Responsive Display */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                         {ALL_STAR_CARDS.map((card, index) => {
                           const isUnlocked = unlockedCardIds.has(playerNames[card.name_key]);
                           const playerName = t(card.name_key) || playerNames[card.name_key];
