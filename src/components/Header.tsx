@@ -55,8 +55,7 @@ const Header = () => {
           {/* Left: Logo */}
           <Link to="/" className="flex items-center flex-shrink-0">
             <h1 className="font-pixel text-[10px] xs:text-xs sm:text-base md:text-lg text-foreground hover:text-primary transition-colors tracking-wider leading-tight">
-              <span className="hidden xs:inline">HUNSOCCER ALPHA</span>
-              <span className="xs:hidden">HUNSOCCER</span>
+              HUNSOCCER
             </h1>
           </Link>
           
