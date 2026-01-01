@@ -308,23 +308,32 @@ export const PlayerLeaderboardCard = ({
           </div>
         </div>
         
-        {/* Row 3: Buttons only */}
-        <div className="flex items-center justify-end gap-1">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate('/history');
-            }}
-            className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
-          >
-            历史
-          </button>
-          <button 
-            onClick={onViewHistory}
-            className="px-2.5 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
-          >
-            今日推荐
-          </button>
+        {/* Row 3: Prize + Buttons */}
+        <div className="flex items-center justify-between gap-1">
+          {prize > 0 ? (
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold flex-shrink-0">
+              <AnimatedPrize value={prize} className="text-[9px] font-bold text-warning" duration={600} showLabel={true} />
+            </span>
+          ) : (
+            <span className="text-[9px] text-muted-foreground">{t('not_qualified_short') || '未达标'}</span>
+          )}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/history');
+              }}
+              className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
+            >
+              历史
+            </button>
+            <button 
+              onClick={onViewHistory}
+              className="px-2.5 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
+            >
+              今日推荐
+            </button>
+          </div>
         </div>
       </div>
 
