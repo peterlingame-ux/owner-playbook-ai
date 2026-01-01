@@ -102,6 +102,36 @@ const MyPredictions = () => {
   const [invitedUsers, setInvitedUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string; created_at: string }>>([]);
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
+  const [isVipActive, setIsVipActive] = useState(false);
+
+  // Fetch VIP status
+  useEffect(() => {
+    const fetchVipStatus = async () => {
+      if (!user) {
+        setIsVipActive(false);
+        return;
+      }
+      
+      try {
+        const { data } = await supabase
+          .from('user_vip')
+          .select('is_active, expires_at')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (data && data.is_active && new Date(data.expires_at) > new Date()) {
+          setIsVipActive(true);
+        } else {
+          setIsVipActive(false);
+        }
+      } catch (error) {
+        console.error('Error fetching VIP status:', error);
+        setIsVipActive(false);
+      }
+    };
+    
+    fetchVipStatus();
+  }, [user]);
 
   useEffect(() => {
     if (authUserProfile) {
@@ -570,18 +600,31 @@ const MyPredictions = () => {
             <h1 className="text-2xl font-bold text-foreground">
               {userProfile?.display_name || 'Player'}
             </h1>
-            {/* Pro Badge - Orange hexagon style */}
+            {/* VIP Badge - Diamond shining when active, dark when inactive */}
             <div 
-              className="flex items-center gap-1 px-2 py-1 rounded-md"
-              style={{
-                background: 'linear-gradient(135deg, hsl(25 80% 50%) 0%, hsl(35 85% 55%) 100%)',
-                boxShadow: '0 2px 8px rgba(200, 100, 50, 0.4)',
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md relative overflow-hidden ${isVipActive ? 'animate-pulse' : ''}`}
+              style={isVipActive ? {
+                background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
+                boxShadow: '0 2px 12px rgba(80, 180, 220, 0.6), 0 0 20px rgba(100, 200, 255, 0.3)',
+              } : {
+                background: 'linear-gradient(135deg, hsl(0 0% 25%) 0%, hsl(0 0% 35%) 100%)',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+              {/* Diamond shimmer effect for VIP */}
+              {isVipActive && (
+                <div 
+                  className="absolute inset-0 opacity-40"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                    animation: 'shimmer 2s infinite',
+                  }}
+                />
+              )}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white" className="relative z-10">
                 <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
               </svg>
-              <span className="text-xs font-bold text-white">Pro</span>
+              <span className={`text-xs font-bold relative z-10 ${isVipActive ? 'text-white' : 'text-gray-400'}`}>VIP</span>
             </div>
           </div>
 
