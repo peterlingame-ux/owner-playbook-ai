@@ -2176,7 +2176,7 @@ export default function MatchDetail() {
 
     return (
       <div className="flex flex-col items-center">
-        <div className="relative w-16 h-16">
+        <div className="relative w-12 h-12 sm:w-16 sm:h-16">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
             <circle cx="32" cy="32" r="28" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
             <circle 
@@ -2190,8 +2190,8 @@ export default function MatchDetail() {
             />
           </svg>
         </div>
-        <span className="text-[10px] text-muted-foreground mt-1">{label}</span>
-        <div className="flex items-center gap-2 text-xs mt-0.5">
+        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 sm:mt-1">{label}</span>
+        <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs mt-0.5">
           <span className="text-foreground font-medium">{homeValue}</span>
           <span className="text-foreground font-medium">{awayValue}</span>
         </div>
@@ -2205,23 +2205,23 @@ export default function MatchDetail() {
     const awayWidth = (awayValue / max) * 100;
 
     return (
-      <div className="space-y-1">
-        <div className="text-center text-xs text-muted-foreground">{label}</div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium w-4 text-right">{homeValue}</span>
-          <div className="flex-1 h-2 bg-muted/30 rounded-full overflow-hidden flex flex-row-reverse">
+      <div className="space-y-0.5 sm:space-y-1">
+        <div className="text-center text-[10px] sm:text-xs text-muted-foreground">{label}</div>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <span className="text-[10px] sm:text-xs font-medium w-3 sm:w-4 text-right">{homeValue}</span>
+          <div className="flex-1 h-1.5 sm:h-2 bg-muted/30 rounded-full overflow-hidden flex flex-row-reverse">
             <div 
               className={`h-full ${reverse ? 'bg-warning' : 'bg-destructive'} transition-all`}
               style={{ width: `${homeWidth}%` }}
             />
           </div>
-          <div className="flex-1 h-2 bg-muted/30 rounded-full overflow-hidden">
+          <div className="flex-1 h-1.5 sm:h-2 bg-muted/30 rounded-full overflow-hidden">
             <div 
               className={`h-full ${reverse ? 'bg-warning' : 'bg-warning'} transition-all`}
               style={{ width: `${awayWidth}%` }}
             />
           </div>
-          <span className="text-xs font-medium w-4">{awayValue}</span>
+          <span className="text-[10px] sm:text-xs font-medium w-3 sm:w-4">{awayValue}</span>
         </div>
       </div>
     );
@@ -2330,54 +2330,54 @@ export default function MatchDetail() {
       >
         <div className="relative">
           {/* 球员号码 */}
-          <div className={`absolute -top-0.5 -left-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] text-white font-bold z-10 border border-white/30 ${
+          <div className={`absolute -top-0.5 -left-0.5 w-3 h-3 sm:w-4 sm:h-4 rounded-full flex items-center justify-center text-[7px] sm:text-[9px] text-white font-bold z-10 border border-white/30 ${
             isAway ? 'bg-green-600' : 'bg-red-600'
           }`}>
             {player.number}
           </div>
           {/* 头像 */}
-          <Avatar className={`w-9 h-9 border-2 shadow-lg ${
+          <Avatar className={`w-7 h-7 sm:w-9 sm:h-9 border-2 shadow-lg ${
             isAway ? 'border-green-500' : 'border-red-500'
           }`}>
             <AvatarImage src={player.avatar} />
-            <AvatarFallback className={`text-[9px] text-white ${
+            <AvatarFallback className={`text-[7px] sm:text-[9px] text-white ${
               isAway ? 'bg-green-600' : 'bg-red-600'
             }`}>{player.number}</AvatarFallback>
           </Avatar>
           {/* 队长标记 */}
           {player.isCaptain && (
-            <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center text-[8px] text-black font-bold border border-white/50">
+            <div className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-500 rounded-full flex items-center justify-center text-[6px] sm:text-[8px] text-black font-bold border border-white/50">
               C
             </div>
           )}
           {/* 黄牌标记 */}
           {yellowCards.length > 0 && (
             <div className="absolute -bottom-0.5 -left-0.5">
-              <YellowCardIcon size={12} />
+              <YellowCardIcon size={10} />
             </div>
           )}
           {/* 红牌标记 */}
           {redCards.length > 0 && (
             <div className="absolute -bottom-0.5 -left-0.5">
-              <RedCardIcon size={12} />
+              <RedCardIcon size={10} />
             </div>
           )}
           {/* 换人标记 */}
           {substitutionOut && (
-            <div className="absolute -bottom-0.5 -right-0.5 flex items-center gap-0.5 bg-red-600/90 rounded px-0.5 py-0 text-[8px] text-white font-medium border border-white/30">
-              <ArrowLeft className="w-2 h-2" />
+            <div className="absolute -bottom-0.5 -right-0.5 flex items-center gap-0.5 bg-red-600/90 rounded px-0.5 py-0 text-[6px] sm:text-[8px] text-white font-medium border border-white/30">
+              <ArrowLeft className="w-1.5 h-1.5 sm:w-2 sm:h-2" />
               <span>{substitutionTime}</span>
             </div>
           )}
           {/* 进球标记 */}
           {goals.length > 0 && (
             <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-full">
-              <GoalIcon size={12} />
+              <GoalIcon size={10} />
             </div>
           )}
         </div>
         {/* 球员名字（简写） */}
-        <span className="text-[9px] text-white mt-0.5 text-center truncate max-w-[50px] drop-shadow-lg font-medium leading-tight">
+        <span className="text-[7px] sm:text-[9px] text-white mt-0.5 text-center truncate max-w-[40px] sm:max-w-[50px] drop-shadow-lg font-medium leading-tight">
           {(() => {
             console.log(`球员完整名字 (player.name): ${player.name}, 从incidents获取: ${playerName}, 简写: ${getShortName(playerName)}`);
             return getShortName(playerName);
@@ -2772,98 +2772,98 @@ export default function MatchDetail() {
         <div className="absolute inset-0 bg-black/40" />
 
         {/* 头部导航 */}
-        <div className="relative z-10 flex items-center justify-between px-4 py-3 safe-area-padding-top">
-          <button onClick={() => navigate('/models')} className="text-white">
-            <ArrowLeft className="w-6 h-6" />
+        <div className="relative z-10 flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 safe-area-padding-top">
+          <button onClick={() => navigate('/models')} className="text-white p-1">
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <div className="text-center">
-            <div className="text-white font-medium">{match.league}{match.leagueStage ? ` ${match.leagueStage}` : ''}</div>
-            <div className="text-white/70 text-sm">{match.date} {match.time}</div>
+          <div className="text-center flex-1 min-w-0 px-2">
+            <div className="text-white font-medium text-sm sm:text-base truncate">{match.league}{match.leagueStage ? ` ${match.leagueStage}` : ''}</div>
+            <div className="text-white/70 text-xs sm:text-sm">{match.date} {match.time}</div>
           </div>
-          <div className="w-6" />
+          <div className="w-7 sm:w-6" />
         </div>
 
         {/* 比分区域 */}
-        <div className="relative z-10 px-4 py-6">
+        <div className="relative z-10 px-2 sm:px-4 py-4 sm:py-6">
           {/* 比赛状态标签 */}
           {match.minute && (
-            <div className="flex justify-center mb-4">
-              <span className="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-white text-sm font-medium">
+            <div className="flex justify-center mb-2 sm:mb-4">
+              <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-white/20 backdrop-blur rounded-full text-white text-xs sm:text-sm font-medium">
                 {match.minute}
               </span>
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
             {/* 主队 */}
-            <div className="flex flex-col items-center flex-1">
+            <div className="flex flex-col items-center flex-1 min-w-0">
               {/* Logo 在上方 */}
               {match.homeTeam.logo ? (
                 <img 
                   src={match.homeTeam.logo} 
                   alt={match.homeTeam.name}
-                  className="w-16 h-16 mb-2 object-contain"
+                  className="w-10 h-10 sm:w-16 sm:h-16 mb-1 sm:mb-2 object-contain"
                 />
               ) : (
-                <div className="text-5xl mb-2">{match.homeTeam.flag}</div>
+                <div className="text-3xl sm:text-5xl mb-1 sm:mb-2">{match.homeTeam.flag}</div>
               )}
-              <div className="text-white font-medium text-center">{match.homeTeam.name}</div>
-              {match.homeTeam.fifaRank && (
-                <div className="text-white/60 text-sm">[FIFA {match.homeTeam.fifaRank}]</div>
+              <div className="text-white font-medium text-center text-xs sm:text-base truncate max-w-full px-1">{match.homeTeam.name}</div>
+              {match.homeTeam.fifaRank > 0 && (
+                <div className="text-white/60 text-[10px] sm:text-sm">[{match.homeTeam.fifaRank}]</div>
               )}
             </div>
 
             {/* 比分 */}
-            <div className="text-center">
-              <div className="text-white text-5xl font-bold">
+            <div className="text-center flex-shrink-0">
+              <div className="text-white text-3xl sm:text-5xl font-bold">
                 {match.homeTeam.score} - {match.awayTeam.score}
               </div>
-              <div className="text-white/70 text-sm mt-1">
+              <div className="text-white/70 text-[10px] sm:text-sm mt-0.5 sm:mt-1">
                 半场 {match.homeTeam.halfTimeScore}-{match.awayTeam.halfTimeScore}
                 {match.homeTeam.extraTimeScore !== undefined && (
-                  <span className="ml-2">加时 {match.homeTeam.extraTimeScore}-{match.awayTeam.extraTimeScore}</span>
+                  <span className="ml-1 sm:ml-2">加时 {match.homeTeam.extraTimeScore}-{match.awayTeam.extraTimeScore}</span>
                 )}
               </div>
             </div>
 
             {/* 客队 */}
-            <div className="flex flex-col items-center flex-1">
+            <div className="flex flex-col items-center flex-1 min-w-0">
               {/* Logo 在上方 */}
               {match.awayTeam.logo ? (
                 <img 
                   src={match.awayTeam.logo} 
                   alt={match.awayTeam.name}
-                  className="w-16 h-16 mb-2 object-contain"
+                  className="w-10 h-10 sm:w-16 sm:h-16 mb-1 sm:mb-2 object-contain"
                 />
               ) : (
-                <div className="text-5xl mb-2">{match.awayTeam.flag}</div>
+                <div className="text-3xl sm:text-5xl mb-1 sm:mb-2">{match.awayTeam.flag}</div>
               )}
-              <div className="text-white font-medium text-center">{match.awayTeam.name}</div>
-              {match.awayTeam.fifaRank && (
-                <div className="text-white/60 text-sm">[FIFA {match.awayTeam.fifaRank}]</div>
+              <div className="text-white font-medium text-center text-xs sm:text-base truncate max-w-full px-1">{match.awayTeam.name}</div>
+              {match.awayTeam.fifaRank > 0 && (
+                <div className="text-white/60 text-[10px] sm:text-sm">[{match.awayTeam.fifaRank}]</div>
               )}
             </div>
           </div>
 
           {/* 视频按钮 */}
-          <div className="flex justify-center gap-3 mt-6">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full text-white text-sm">
-              <Play className="w-4 h-4 fill-white" />
+          <div className="flex justify-center gap-2 sm:gap-3 mt-3 sm:mt-6">
+            <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur rounded-full text-white text-[10px] sm:text-sm">
+              <Play className="w-3 h-3 sm:w-4 sm:h-4 fill-white" />
               <span>视频直播</span>
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full text-white text-sm">
-              <CircleDot className="w-4 h-4" />
+            <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur rounded-full text-white text-[10px] sm:text-sm">
+              <CircleDot className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>动画直播</span>
             </button>
           </div>
 
           {/* 支持率 */}
-          <div className="flex items-center justify-between mt-6 px-2">
-            <div className="flex items-center gap-2">
-              <ThumbsUp className="w-4 h-4 text-green-400" />
-              <span className="text-white text-sm">{match.supportRate.home}%</span>
+          <div className="flex items-center justify-between mt-3 sm:mt-6 px-1 sm:px-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <ThumbsUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+              <span className="text-white text-[10px] sm:text-sm">{match.supportRate.home}%</span>
             </div>
-            <div className="flex-1 mx-4 h-1.5 bg-white/20 rounded-full overflow-hidden flex">
+            <div className="flex-1 mx-2 sm:mx-4 h-1 sm:h-1.5 bg-white/20 rounded-full overflow-hidden flex">
               <div 
                 className="h-full bg-green-400" 
                 style={{ width: `${match.supportRate.home}%` }}
@@ -2873,9 +2873,9 @@ export default function MatchDetail() {
                 style={{ width: `${match.supportRate.away}%` }}
               />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white text-sm">{match.supportRate.away}%</span>
-              <ThumbsDown className="w-4 h-4 text-blue-400" />
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-white text-[10px] sm:text-sm">{match.supportRate.away}%</span>
+              <ThumbsDown className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
             </div>
           </div>
         </div>
@@ -2883,24 +2883,24 @@ export default function MatchDetail() {
 
       {/* 标签导航 */}
       <div className="sticky top-0 z-20 bg-card border-b border-border">
-        <div className="flex items-center overflow-x-auto">
+        <div className="flex items-center overflow-x-auto scrollbar-hide">
           {[
             { id: 'live' as const, label: '直播', icon: null },
             { id: 'chat' as const, label: '聊天', icon: MessageCircle },
             { id: 'lineup' as const, label: '阵容', icon: Users },
             { id: 'odds' as const, label: '指数', icon: BarChart2 },
-            { id: 'expert' as const, label: 'HUNSOCCER AI热力图', icon: UserCheck },
+            { id: 'expert' as const, label: 'AI热力图', icon: UserCheck },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`relative flex items-center gap-1 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                 activeTab === tab.id ? 'text-destructive' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {tab.label}
               {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-destructive rounded-full" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 sm:w-6 h-0.5 bg-destructive rounded-full" />
               )}
             </button>
           ))}
@@ -2910,28 +2910,28 @@ export default function MatchDetail() {
       {/* 内容区域 */}
       <div className="bg-card">
         {activeTab === 'live' && (
-          <div className="p-4 space-y-6">
+          <div className="p-2 sm:p-4 space-y-4 sm:space-y-6">
             {/* 时间轴图表 */}
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-2 sm:p-4 bg-muted/20 border-border/50">
               <div className="relative">
                 {/* 球队Logo */}
-                <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between py-2 z-10">
+                <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between py-1 sm:py-2 z-10">
                   {match.homeTeam.logo ? (
-                    <img src={match.homeTeam.logo} alt={match.homeTeam.name} className="w-10 h-10 rounded-full object-contain bg-white/10 p-1" />
+                    <img src={match.homeTeam.logo} alt={match.homeTeam.name} className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-contain bg-white/10 p-0.5 sm:p-1" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg">{match.homeTeam.flag}</div>
+                    <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center text-sm sm:text-lg">{match.homeTeam.flag}</div>
                   )}
                   {match.awayTeam.logo ? (
-                    <img src={match.awayTeam.logo} alt={match.awayTeam.name} className="w-10 h-10 rounded-full object-contain bg-white/10 p-1" />
+                    <img src={match.awayTeam.logo} alt={match.awayTeam.name} className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-contain bg-white/10 p-0.5 sm:p-1" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg">{match.awayTeam.flag}</div>
+                    <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center text-sm sm:text-lg">{match.awayTeam.flag}</div>
                   )}
                 </div>
 
                 {/* 时间轴容器 */}
-                <div className="ml-14 relative">
+                <div className="ml-10 sm:ml-14 relative">
                   {/* 时间刻度 */}
-                  <div className="flex items-center justify-between mb-2 text-[10px] text-muted-foreground px-1">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2 text-[8px] sm:text-[10px] text-muted-foreground px-0.5 sm:px-1">
                     <span>0'</span>
                     <span>15'</span>
                     <span>30'</span>
@@ -2942,7 +2942,7 @@ export default function MatchDetail() {
                   </div>
 
                   {/* 图表区域 - 使用 SVG 路径连接数据点 */}
-                  <div className="relative h-20">
+                  <div className="relative h-16 sm:h-20">
                     {(() => {
                       
                       if (!match.timeline || match.timeline.length === 0) {
@@ -3778,7 +3778,16 @@ export default function MatchDetail() {
               {/* 球场容器（使用相对定位，球员绝对定位） */}
               {/* 坐标系统：主队原点在左上，客队原点在右下，坐标范围0-100 */}
               {/* 坐标直接映射到容器的百分比位置，不考虑padding */}
-              <div className="relative w-full" style={{ minHeight: '500px', aspectRatio: '3/2', padding: '40px 20px' }}>
+              <div className="relative w-full" style={{ minHeight: '380px', aspectRatio: '2/3' }}>
+                {/* 在小屏幕上高度更小 */}
+                <style>{`
+                  @media (min-width: 640px) {
+                    .lineup-field {
+                      min-height: 500px !important;
+                      aspect-ratio: 3/2 !important;
+                    }
+                  }
+                `}</style>
                 {/* 主队阵容 - 根据坐标绝对定位 */}
                 {match.homeTeam.lineup && match.homeTeam.lineup.startingXI.length > 0 && (
                   <>
