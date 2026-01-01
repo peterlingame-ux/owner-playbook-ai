@@ -378,6 +378,18 @@ const ChallengeAIBanner = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
+              <span className="text-sm xs:text-base sm:text-4xl font-black text-foreground flex items-center gap-0.5 sm:gap-1 flex-wrap justify-center">
+                <span className="truncate max-w-[120px] xs:max-w-none">{t('challenge_ai_reward')}</span>
+                <motion.span
+                  className="text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
+                >
+                  <AnimatedPrizeNumber value={1000000} />
+                </motion.span>
+              </span>
               <span className="text-[9px] xs:text-[10px] sm:text-xl font-bold text-foreground">{t('big_prize_waiting')}</span>
             </motion.div>
             <p className="text-[8px] xs:text-[9px] sm:text-sm text-white/90 max-w-lg mx-auto leading-tight px-1 line-clamp-2">
