@@ -112,7 +112,7 @@ const UserModelCard = () => {
       transition={{ duration: 0.4 }}
     >
       <TiltCard
-        className={`group rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_-5px_rgba(245,158,11,0.4)]`}
+        className={`group rounded-xl sm:rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_-5px_rgba(245,158,11,0.4)]`}
         onClick={handleCardClick}
         maxTilt={6}
         scale={1.02}
@@ -157,17 +157,17 @@ const UserModelCard = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 p-4 sm:p-5">
+        <div className="relative z-10 p-3 sm:p-5">
           {/* Header: Model Info + Points Badge */}
-          <div className="flex items-start justify-between gap-3 mb-5">
+          <div className="flex items-start justify-between gap-2 mb-3 sm:mb-5">
             {/* Avatar & Name */}
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <motion.div
                 className="relative"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-2 ring-amber-400/40 overflow-hidden">
+                <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-2 ring-amber-400/40 overflow-hidden">
                   {user ? (
                     <Avatar className="w-full h-full">
                       <AvatarImage
@@ -175,7 +175,7 @@ const UserModelCard = () => {
                         alt={title}
                         className="object-cover"
                       />
-                      <AvatarFallback className="text-sm font-bold bg-amber-900/50 text-amber-200">
+                      <AvatarFallback className="text-xs sm:text-sm font-bold bg-amber-900/50 text-amber-200">
                         {(userProfile?.display_name || "U")[0]}
                       </AvatarFallback>
                     </Avatar>
@@ -187,7 +187,7 @@ const UserModelCard = () => {
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <User className="h-6 w-6 text-amber-400" />
+                      <User className="h-4 w-4 sm:h-6 sm:w-6 text-amber-400" />
                     </motion.div>
                   )}
                 </div>
@@ -195,7 +195,7 @@ const UserModelCard = () => {
 
               <div className="min-w-0">
                 <h3
-                  className={`font-bold text-base sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
+                  className={`font-bold text-xs sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
                   title={title}
                 >
                   {title}
@@ -206,7 +206,7 @@ const UserModelCard = () => {
             {/* Points Badge */}
             <div className="flex flex-col items-end gap-1">
               <div
-                className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm tabular-nums border inline-flex items-center gap-1.5 ${
+                className={`px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-mono font-bold text-[10px] sm:text-sm tabular-nums border inline-flex items-center gap-1 ${
                   user
                     ? isPositive
                       ? "bg-success/20 text-success border-success/30"
@@ -214,24 +214,24 @@ const UserModelCard = () => {
                     : "bg-amber-500/10 text-amber-400/50 border-amber-500/30"
                 }`}
               >
-                <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
+                <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-5 sm:h-5" />
                 {profitLabel}
               </div>
             </div>
           </div>
 
           {/* Win Rate Section */}
-          <div className="mb-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-amber-200/60 uppercase tracking-wider font-medium">
+          <div className="mb-3 sm:mb-5">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <span className="text-[9px] sm:text-xs text-amber-200/60 uppercase tracking-wider font-medium">
                 {t("win_rate")}
               </span>
-              <span className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-amber-300">
+              <span className="text-xl sm:text-3xl font-bold font-mono tabular-nums text-amber-300">
                 {user ? `${animatedWinRate.toFixed(1)}%` : "--%"}
               </span>
             </div>
 
-            <div className="relative h-2 bg-amber-900/30 rounded-full overflow-hidden">
+            <div className="relative h-1.5 sm:h-2 bg-amber-900/30 rounded-full overflow-hidden">
               <motion.div
                 className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress}`}
                 initial={{ width: 0 }}
@@ -248,28 +248,28 @@ const UserModelCard = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-3 mb-5 p-3 rounded-xl bg-amber-900/20 border border-amber-500/20">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-3 sm:mb-5 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-amber-900/20 border border-amber-500/20">
             <div className="text-center">
-              <p className="text-[10px] text-amber-200/50 uppercase tracking-wider mb-1 font-medium">
+              <p className="text-[8px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0.5 sm:mb-1 font-medium">
                 {t("correct")}
               </p>
-              <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-success">
+              <p className="text-sm sm:text-xl font-bold font-mono tabular-nums text-success">
                 {user ? stats.correctPredictions : "--"}
               </p>
             </div>
             <div className="text-center border-x border-amber-500/20">
-              <p className="text-[10px] text-amber-200/50 uppercase tracking-wider mb-1 font-medium">
+              <p className="text-[8px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0.5 sm:mb-1 font-medium">
                 {t("total_predictions")}
               </p>
-              <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-amber-300">
+              <p className="text-sm sm:text-xl font-bold font-mono tabular-nums text-amber-300">
                 {user ? stats.totalPredictions : "--"}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[10px] text-amber-200/50 uppercase tracking-wider mb-1 font-medium">
+              <p className="text-[8px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0.5 sm:mb-1 font-medium">
                 {t("wrong")}
               </p>
-              <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-destructive">
+              <p className="text-sm sm:text-xl font-bold font-mono tabular-nums text-destructive">
                 {user ? wrongPredictions : "--"}
               </p>
             </div>
@@ -279,7 +279,7 @@ const UserModelCard = () => {
           <Button
             variant="outline"
             size="sm"
-            className="w-full h-10 text-sm font-semibold transition-all duration-300 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
+            className="w-full h-8 sm:h-10 text-[10px] sm:text-sm font-semibold transition-all duration-300 rounded-lg sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
             onClick={handlePrimaryAction}
           >
             {user ? t("my_predictions") : t("login_to_create_model")}
