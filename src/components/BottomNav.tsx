@@ -20,7 +20,7 @@ const BottomNav = () => {
       {/* Top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
       
-      <div className="relative flex items-center justify-around px-1 py-3 pb-4">
+      <div className="relative flex items-stretch justify-around px-1 py-3 pb-4">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           
@@ -28,11 +28,11 @@ const BottomNav = () => {
             <NavLink
               key={item.to}
               to={item.to}
-              className="relative flex-1 flex justify-center touch-manipulation min-w-0"
+              className="relative flex-1 flex justify-center touch-manipulation min-w-0 overflow-hidden"
             >
               <div
-                className={`relative flex items-center justify-center py-2 px-2 sm:px-4 rounded-xl min-h-[40px]
-                  active:scale-95 transition-all duration-150`}
+                className="relative flex items-center justify-center py-2 px-1 rounded-xl min-h-[40px] w-full
+                  active:scale-95 transition-all duration-150"
               >
                 {/* Active glow background */}
                 {isActive && (
@@ -47,7 +47,7 @@ const BottomNav = () => {
                 
                 {/* Label with glow effect when active - auto-shrink for long text */}
                 <span 
-                  className={`relative z-10 text-[10px] xs:text-xs sm:text-sm font-medium transition-all duration-200 text-center leading-tight truncate max-w-full
+                  className={`relative z-10 text-[9px] xs:text-[10px] sm:text-xs font-medium transition-all duration-200 text-center leading-tight line-clamp-2 break-words px-0.5
                     ${isActive 
                       ? item.isCenter
                         ? 'text-white font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' 
