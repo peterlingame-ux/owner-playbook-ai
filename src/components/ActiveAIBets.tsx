@@ -933,7 +933,7 @@ const ActiveAIBets = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 lg:gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 lg:gap-5 auto-rows-fr">
         {activeAIs.map((aiModel) => {
           // Find this AI's bets from database, grouped by match
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
