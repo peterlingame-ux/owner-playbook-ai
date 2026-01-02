@@ -364,6 +364,7 @@ const MobileLeaderboardOKX = () => {
         winRate: Math.round(winRate * 10) / 10,
         changePercent: Math.round(changePercent * 10) / 10,
         followers: Math.round((500 + (seed % 500)) * timeMultiplier),
+        likes: Math.round((200 + (seed % 300)) * timeMultiplier), // 点赞数
         tradingDays: 30 + (seed % 60),
         totalPredictions,
         correctPredictions,
@@ -622,12 +623,13 @@ const MobileLeaderboardOKX = () => {
                 >
                   {model.name}
                   <button 
-                    className="p-0.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                    className="flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
                   >
                     <ThumbsUp className="h-3 w-3 text-primary" />
+                    <span className="text-[10px] font-medium text-primary">{model.likes}</span>
                   </button>
                 </h3>
                 <p className="text-[10px] text-muted-foreground">
