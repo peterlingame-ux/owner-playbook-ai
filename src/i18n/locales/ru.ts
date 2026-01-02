@@ -478,6 +478,8 @@ export const ru = {
     "follow_player_title": "Подписаться на игрока",
     "follow_player_confirm": "Вы уверены, что хотите подписаться на {{name}}?",
     "follow_success": "Вы подписались на {{name}}",
+    "auto_predict_enabled": "Автоматический прогноз включен",
+    "auto_predict_disabled": "Автоматический прогноз отключен",
     // Личные сообщения
     "send_message": "Сообщение",
     "no_messages_yet": "Пока нет сообщений",
