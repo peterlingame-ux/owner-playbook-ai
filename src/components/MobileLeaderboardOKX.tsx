@@ -125,6 +125,9 @@ const MobileLeaderboardOKX = () => {
   const [selectedModelForFollowers, setSelectedModelForFollowers] = useState<string | null>(null);
   const [showPlayerFollowersDialog, setShowPlayerFollowersDialog] = useState(false);
   const [selectedPlayerForFollowers, setSelectedPlayerForFollowers] = useState<PlayerData | null>(null);
+  // Follow player confirmation dialog state
+  const [showFollowPlayerDialog, setShowFollowPlayerDialog] = useState(false);
+  const [playerToFollow, setPlayerToFollow] = useState<PlayerData | null>(null);
   
   // History and Copy Trade states
   interface TodayPrediction {
@@ -1442,6 +1445,10 @@ const MobileLeaderboardOKX = () => {
                       setShowPlayerFollowersDialog(true);
                     }}
                     onHistoryClick={fetchTodayHistory}
+                    onFollowPlayerClick={(player) => {
+                      setPlayerToFollow(player);
+                      setShowFollowPlayerDialog(true);
+                    }}
                   />
                 ))
               )}
@@ -1794,6 +1801,51 @@ const MobileLeaderboardOKX = () => {
             >
               {t('close') || '关闭'}
             </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Follow Player Confirmation Dialog */}
+      <Dialog open={showFollowPlayerDialog} onOpenChange={setShowFollowPlayerDialog}>
+        <DialogContent className="max-w-[280px] p-4 gap-4">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-base font-bold text-center">
+              {t('follow_player_title') || '关注玩家'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {playerToFollow && (
+            <div className="flex flex-col items-center gap-3">
+              <Avatar className="w-14 h-14 border-2 border-border">
+                <AvatarImage src={playerToFollow.avatarUrl} alt={playerToFollow.displayName} />
+                <AvatarFallback className="text-lg">{playerToFollow.displayName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <p className="text-sm text-muted-foreground text-center">
+                {t('follow_player_confirm', { name: playerToFollow.displayName }) || `确定要关注 ${playerToFollow.displayName} 吗？`}
+              </p>
+            </div>
+          )}
+          
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowFollowPlayerDialog(false)}
+            >
+              {t('cancel') || '取消'}
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                if (playerToFollow) {
+                  toast.success(t('follow_success', { name: playerToFollow.displayName }) || `已关注 ${playerToFollow.displayName}`);
+                }
+                setShowFollowPlayerDialog(false);
+                setPlayerToFollow(null);
+              }}
+            >
+              {t('confirm') || '确定'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -2468,9 +2520,10 @@ interface PlayerCardOKXProps {
   mainTab: MainTab;
   onFollowersClick: (player: PlayerData) => void;
   onHistoryClick: (playerId: string, playerName: string, isVirtual: boolean) => void;
+  onFollowPlayerClick: (player: PlayerData) => void;
 }
 
-const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick, onHistoryClick }: PlayerCardOKXProps) => {
+const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick, onHistoryClick, onFollowPlayerClick }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = player.changePercent >= 0;
@@ -2518,6 +2571,16 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               {index + 1}
             </div>
           )}
+          {/* Follow Player Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onFollowPlayerClick(player);
+            }}
+            className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+          >
+            <span className="text-[10px] font-bold leading-none">+</span>
+          </button>
         </div>
         <div className="flex-1 min-w-0 overflow-hidden">
           <h3 className="font-bold text-xs text-foreground truncate">
