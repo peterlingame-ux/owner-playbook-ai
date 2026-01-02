@@ -93,14 +93,14 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30 max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-[95vw] sm:max-w-sm p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30">
         {/* Header */}
-        <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
+        <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3">
           <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            <DialogTitle className="text-lg sm:text-xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
               {isVipActive ? t('vip_active') : t('open_vip')}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground mt-1 sm:mt-2 text-sm">
+            <DialogDescription className="text-muted-foreground mt-1 text-xs sm:text-sm">
               {isVipActive 
                 ? t('vip_enjoy_privileges')
                 : t('vip_unlock_privileges')
@@ -109,53 +109,53 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
           </DialogHeader>
         </div>
 
-        {/* Privileges List - Scrollable */}
-        <div className="px-4 sm:px-6 pb-3 sm:pb-4 space-y-2 sm:space-y-3 overflow-y-auto flex-1 min-h-0">
+        {/* Privileges List - Compact */}
+        <div className="px-3 sm:px-4 pb-2 sm:pb-3 space-y-1.5 sm:space-y-2">
           {privileges.map((privilege, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex items-start gap-3 sm:gap-4 p-2.5 sm:p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors"
+              transition={{ delay: index * 0.05 }}
+              className="flex items-center gap-2.5 sm:gap-3 p-2 sm:p-2.5 rounded-lg bg-muted/30 border border-border/50"
             >
               <div 
-                className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${privilege.color} flex items-center justify-center shadow-lg`}
+                className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${privilege.color} flex items-center justify-center shadow-md`}
               >
-                <privilege.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <privilege.icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base">{privilege.title}</h3>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-semibold text-foreground text-xs sm:text-sm">{privilege.title}</h3>
                   {isVipActive && (
-                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
+                    <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500 flex-shrink-0" />
                   )}
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-2">{privilege.description}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">{privilege.description}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Price and Purchase Button - Fixed at bottom */}
-        <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2 flex-shrink-0 border-t border-border/30 bg-background/80 backdrop-blur-sm">
+        {/* Price and Purchase Button */}
+        <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-1 border-t border-border/30 bg-background/80">
           {!isVipActive && (
             <>
               {/* Price Display */}
-              <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4 p-2.5 sm:p-3 rounded-xl bg-muted/50 border border-border/30">
-                <span className="text-muted-foreground text-sm">{t('vip_price')}:</span>
-                <div className="flex items-center gap-1.5">
-                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5 sm:w-6 sm:h-6" />
-                  <span className="text-xl sm:text-2xl font-bold text-primary">{VIP_COST}</span>
+              <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3 p-2 rounded-lg bg-muted/50 border border-border/30">
+                <span className="text-muted-foreground text-xs">{t('vip_price')}:</span>
+                <div className="flex items-center gap-1">
+                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-lg sm:text-xl font-bold text-primary">{VIP_COST}</span>
                 </div>
-                <span className="text-muted-foreground text-xs sm:text-sm">/ {VIP_DURATION_DAYS}{t('days')}</span>
+                <span className="text-muted-foreground text-xs">/ {VIP_DURATION_DAYS}{t('days')}</span>
               </div>
 
               {/* Purchase Button */}
               <Button
                 onClick={handlePurchaseVip}
                 disabled={isPurchasing}
-                className="w-full h-11 sm:h-12 text-base sm:text-lg font-bold relative overflow-hidden"
+                className="w-full h-9 sm:h-10 text-sm sm:text-base font-bold relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 60%) 100%)',
                   boxShadow: '0 4px 15px rgba(80, 180, 220, 0.4)',
@@ -163,41 +163,26 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
               >
                 {isPurchasing ? (
                   <>
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     {t('processing')}
                   </>
                 ) : (
                   <>
-                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <Crown className="w-4 h-4 mr-2" />
                     {t('open_vip_now')}
                   </>
                 )}
-                {/* Button shimmer */}
-                <motion.div
-                  className="absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
-                  }}
-                  animate={{
-                    x: ['-100%', '100%'],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
               </Button>
             </>
           )}
 
           {isVipActive && (
-            <div className="text-center p-3 sm:p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 border border-cyan-500/20">
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 border border-cyan-500/20">
               <div className="flex items-center justify-center gap-2">
-                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                <span className="font-semibold text-foreground text-sm sm:text-base">{t('vip_status_active')}</span>
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="font-semibold text-foreground text-sm">{t('vip_status_active')}</span>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t('enjoy_all_privileges')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('enjoy_all_privileges')}</p>
             </div>
           )}
         </div>
