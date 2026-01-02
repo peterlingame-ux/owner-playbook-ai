@@ -870,7 +870,7 @@ const PlayerExclusiveModelCard = ({
                     }}
                   >
                     <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    {t('ai_predict_match') || 'AI预测比赛'}
+                    {t('start_prediction') || '开始预测'}
                   </Button>
                 </div>
               ) : manualBetConfirmed && confirmedManualBet ? (
