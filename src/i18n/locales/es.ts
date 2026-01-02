@@ -634,9 +634,11 @@ export const es = {
     // Model Follow
     "follow_model": "Seguir Modelo",
     "following": "Siguiendo",
-    "follow_success": "Seguimiento Exitoso",
+    "follow_success": "Ahora sigues a {{name}}",
     "unfollow_success": "Dejaste de seguir",
     "operation_failed": "Operación Fallida",
+    "follow_player_title": "Seguir Jugador",
+    "follow_player_confirm": "¿Estás seguro de que quieres seguir a {{name}}?",
     "load_failed": "Error de Carga",
     "fetch_match_failed": "No se pueden obtener datos del partido",
     "unknown_error": "Ocurrió un error desconocido",
@@ -859,6 +861,10 @@ export const es = {
       "available_on": "Disponible en",
       "app_store": "App Store"
     },
+    
+    // Common
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

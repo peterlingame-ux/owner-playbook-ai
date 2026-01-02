@@ -805,6 +805,10 @@ const resources = {
       "enter_signature": "Enter your personal signature",
       "select_avatar": "Select Avatar",
       "cancel": "Cancel",
+      "confirm": "Confirm",
+      "follow_player_title": "Follow Player",
+      "follow_player_confirm": "Are you sure you want to follow {{name}}?",
+      "follow_success": "Successfully followed {{name}}",
       "save": "Save",
       "saving": "Saving...",
       "back": "Back",
@@ -965,7 +969,6 @@ const resources = {
       // Model Follow
       "follow_model": "Follow Model",
       "following": "Following",
-      "follow_success": "Follow Success",
       "unfollow_success": "Unfollowed",
       "operation_failed": "Operation Failed",
       
@@ -2013,6 +2016,10 @@ const resources = {
       "enter_signature": "输入您的个性签名",
       "select_avatar": "选择头像",
       "cancel": "取消",
+      "confirm": "确定",
+      "follow_player_title": "关注玩家",
+      "follow_player_confirm": "确定要关注 {{name}} 吗？",
+      "follow_success": "已关注 {{name}}",
       "save": "保存",
       "saving": "保存中...",
       "back": "返回",
@@ -2163,7 +2170,6 @@ const resources = {
       // 模型关注
       "follow_model": "关注模型",
       "following": "已关注",
-      "follow_success": "关注成功",
       "unfollow_success": "已取消关注",
       "operation_failed": "操作失败",
       

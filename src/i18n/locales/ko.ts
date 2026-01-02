@@ -629,6 +629,9 @@ export const ko = {
     "cancel": "취소",
     "yes": "예",
     "no": "아니오",
+    "follow_player_title": "플레이어 팔로우",
+    "follow_player_confirm": "{{name}}님을 팔로우하시겠습니까?",
+    "follow_success": "{{name}}님을 팔로우했습니다",
     
     // Loading states
     "loading": "로딩 중...",

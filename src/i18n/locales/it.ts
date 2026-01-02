@@ -453,6 +453,10 @@ export const it = {
     "select_avatar": "Seleziona Avatar",
     "saving": "Salvataggio...",
     "cancel": "Annulla",
+    "confirm": "Conferma",
+    "follow_player_title": "Segui Giocatore",
+    "follow_player_confirm": "Sei sicuro di voler seguire {{name}}?",
+    "follow_success": "Ora segui {{name}}",
     
     // Personal Center
     "personal_center": "Centro Personale",
