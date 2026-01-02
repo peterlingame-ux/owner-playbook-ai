@@ -1113,7 +1113,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
     >
       {/* Qualified Stamp - 已达标 */}
       {isQualified && (
-        <div className="absolute top-1/2 right-16 -translate-y-1/2 rotate-[-12deg] pointer-events-none z-10">
+        <div className="absolute top-1/2 right-24 -translate-y-1/2 rotate-[-12deg] pointer-events-none z-10">
           <div className="relative">
             {/* Outer glow effect */}
             <div className="absolute inset-0 blur-[2px] bg-success/30 rounded scale-110" />
