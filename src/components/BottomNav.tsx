@@ -96,21 +96,41 @@ const BottomNav = () => {
             {leftItems.map(renderNavItem)}
           </div>
 
-          {/* Center ON/OFF Toggle Button */}
-          <button
-            onClick={handleToggleAutoPredict}
-            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mx-2
-              transition-all duration-300 active:scale-90 -mt-4
-              ${autoPredict 
-                ? 'bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500 shadow-[0_0_20px_rgba(34,211,238,0.6)]' 
-                : 'bg-gradient-to-br from-gray-500 to-gray-600 shadow-[0_0_10px_rgba(107,114,128,0.4)]'
-              }`}
-          >
-            <span className={`text-xs font-bold leading-none
-              ${autoPredict ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : 'text-gray-300'}`}>
-              {autoPredict ? 'ON' : 'OFF'}
-            </span>
-          </button>
+          {/* Center ON/OFF Toggle Button with floating effect */}
+          <div className="relative flex-shrink-0 mx-2 -mt-6">
+            {/* Outer glow ring animation */}
+            <div 
+              className={`absolute inset-0 rounded-full transition-all duration-500
+                ${autoPredict 
+                  ? 'animate-pulse bg-gradient-to-br from-cyan-400/40 via-blue-400/40 to-purple-400/40 scale-125 blur-md' 
+                  : 'bg-gray-500/20 scale-110 blur-sm'
+                }`}
+            />
+            
+            {/* Secondary glow layer */}
+            {autoPredict && (
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 scale-150 blur-xl animate-[pulse_2s_ease-in-out_infinite]" />
+            )}
+            
+            {/* Main button */}
+            <button
+              onClick={handleToggleAutoPredict}
+              className={`relative w-14 h-14 rounded-full flex items-center justify-center
+                transition-all duration-300 active:scale-90
+                ${autoPredict 
+                  ? 'bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500 shadow-[0_4px_20px_rgba(34,211,238,0.7),0_0_40px_rgba(139,92,246,0.5)]' 
+                  : 'bg-gradient-to-br from-gray-500 to-gray-600 shadow-[0_4px_15px_rgba(107,114,128,0.5)]'
+                }`}
+            >
+              {/* Inner highlight */}
+              <div className="absolute inset-1 rounded-full bg-gradient-to-b from-white/20 to-transparent" />
+              
+              <span className={`relative text-sm font-bold leading-none
+                ${autoPredict ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,1)]' : 'text-gray-300'}`}>
+                {autoPredict ? 'ON' : 'OFF'}
+              </span>
+            </button>
+          </div>
 
           {/* Right nav items */}
           <div className="flex items-center flex-1">
