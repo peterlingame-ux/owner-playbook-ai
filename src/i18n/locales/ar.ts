@@ -478,8 +478,6 @@ export const ar = {
     "follow_player_title": "متابعة اللاعب",
     "follow_player_confirm": "هل أنت متأكد أنك تريد متابعة {{name}}؟",
     "follow_success": "تمت متابعة {{name}} بنجاح",
-    "auto_predict_enabled": "تم تفعيل التنبؤ التلقائي",
-    "auto_predict_disabled": "تم تعطيل التنبؤ التلقائي",
     // الرسائل المباشرة
     "send_message": "رسالة",
     "no_messages_yet": "لا توجد رسائل بعد",

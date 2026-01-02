@@ -478,8 +478,6 @@ export const th = {
     "follow_player_title": "ติดตามผู้เล่น",
     "follow_player_confirm": "คุณแน่ใจหรือไม่ที่จะติดตาม {{name}}?",
     "follow_success": "ติดตาม {{name}} แล้ว",
-    "auto_predict_enabled": "เปิดใช้งานการทำนายอัตโนมัติ",
-    "auto_predict_disabled": "ปิดใช้งานการทำนายอัตโนมัติ",
     // ข้อความส่วนตัว
     "send_message": "ข้อความ",
     "no_messages_yet": "ยังไม่มีข้อความ",

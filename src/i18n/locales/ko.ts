@@ -632,8 +632,6 @@ export const ko = {
     "follow_player_title": "플레이어 팔로우",
     "follow_player_confirm": "{{name}}님을 팔로우하시겠습니까?",
     "follow_success": "{{name}}님을 팔로우했습니다",
-    "auto_predict_enabled": "자동 예측 활성화됨",
-    "auto_predict_disabled": "자동 예측 비활성화됨",
     
     // Loading states
     "loading": "로딩 중...",
