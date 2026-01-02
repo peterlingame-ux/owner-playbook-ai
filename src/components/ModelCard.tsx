@@ -147,7 +147,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <TiltCard
-      className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${theme.from} ${theme.to} backdrop-blur-sm border ${theme.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col`}
+      className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${theme.from} ${theme.to} backdrop-blur-sm border ${theme.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px]`}
       onClick={handleCardClick}
       maxTilt={6}
       scale={1.02}
@@ -176,7 +176,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 p-2 sm:p-5 flex flex-col flex-1">
+      <div className="relative z-10 p-2 sm:p-5 h-full flex flex-col">
         {/* Header: Model Info + Points Badge */}
         <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1 sm:mb-5">
           {/* Model Icon & Name */}
