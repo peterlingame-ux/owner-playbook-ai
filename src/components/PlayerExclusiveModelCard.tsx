@@ -1473,196 +1473,197 @@ const PlayerExclusiveModelCard = ({
         </DialogContent>
       </Dialog>
 
-      {/* Manual Bet Dialog - Simplified */}
+      {/* Manual Bet Dialog - Clean & Minimal */}
       <Dialog open={showManualBetDialog} onOpenChange={setShowManualBetDialog}>
-        <DialogContent className="sm:max-w-[420px] max-h-[80vh] overflow-hidden flex flex-col p-0 gap-0 bg-[#1a1a1a] border-[#2a2a2a] rounded-xl">
-          {/* Header */}
-          <div className="px-5 pt-4 pb-3 border-b border-[#2a2a2a]">
-            <DialogTitle className="text-sm font-medium text-white flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-500" />
-              {t('ai_predict_match') || 'AI预测比赛'}
+        <DialogContent className="sm:max-w-[400px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 bg-[#141414] border-[#252525] rounded-xl">
+          {/* Header - Minimal */}
+          <div className="px-4 pt-4 pb-3">
+            <DialogTitle className="text-base font-semibold text-white">
+              {t('ai_predict_match') || 'AI Prediction'}
             </DialogTitle>
           </div>
 
-          <ScrollArea className="flex-1 px-5 py-4">
-            <div className="space-y-4">
-              {/* Match Selection - Compact */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-[#888]">{t('select_match') || '选择比赛'}</label>
-                <div className="space-y-1.5">
-                  {matchesToShow.slice(0, 5).map((match: any) => (
-                    <div
-                      key={match.mid || match.fixture_id}
-                      className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
-                        selectedMatch?.mid === match.mid || selectedMatch?.fixture_id === match.fixture_id
-                          ? 'bg-amber-500/10 border-amber-500/50'
-                          : 'bg-[#222] border-[#333] hover:border-[#444]'
-                      }`}
-                      onClick={() => setSelectedMatch(match)}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <Avatar className="h-5 w-5">
-                            <AvatarImage src={match.home_logo} />
-                            <AvatarFallback className="text-[8px]">H</AvatarFallback>
-                          </Avatar>
-                          <span className="text-[11px] font-medium truncate">{safeGetTeamName(match, 'home')}</span>
+          <ScrollArea className="flex-1 px-4 pb-4">
+            <div className="space-y-5">
+              {/* Match Selection - Clean Cards */}
+              <div className="space-y-3">
+                <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                  {t('select_match') || 'Select Match'}
+                </label>
+                <div className="space-y-2">
+                  {matchesToShow.slice(0, 5).map((match: any) => {
+                    const isSelected = selectedMatch?.mid === match.mid || selectedMatch?.fixture_id === match.fixture_id;
+                    return (
+                      <div
+                        key={match.mid || match.fixture_id}
+                        className={`p-3 rounded-lg cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-primary/10 ring-1 ring-primary/50'
+                            : 'bg-[#1c1c1c] hover:bg-[#222]'
+                        }`}
+                        onClick={() => {
+                          setSelectedMatch(match);
+                          setManualPrediction('');
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-white truncate flex-1">
+                            {safeGetTeamName(match, 'home')}
+                          </span>
+                          <span className="text-xs text-neutral-500 px-3">vs</span>
+                          <span className="text-sm font-medium text-white truncate flex-1 text-right">
+                            {safeGetTeamName(match, 'away')}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-[#666] px-1">vs</span>
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
-                          <span className="text-[11px] font-medium truncate">{safeGetTeamName(match, 'away')}</span>
-                          <Avatar className="h-5 w-5">
-                            <AvatarImage src={match.away_logo} />
-                            <AvatarFallback className="text-[8px]">A</AvatarFallback>
-                          </Avatar>
+                        <div className="text-center mt-1">
+                          <span className="text-[10px] text-neutral-600">{safeGetLeagueName(match)}</span>
                         </div>
                       </div>
-                      <div className="text-center mt-0.5">
-                        <span className="text-[9px] text-[#555]">{safeGetLeagueName(match)}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
+              {/* Only show bet options after match is selected */}
               {selectedMatch && (
                 <>
-                  {/* Bet Type - Compact */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-[#888]">{t('bet_type') || '玩法类型'}</label>
-                    <div className="grid grid-cols-2 gap-1.5">
+                  {/* Divider */}
+                  <div className="h-px bg-[#252525]" />
+
+                  {/* Bet Type Selection */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                      {t('bet_type') || 'Bet Type'}
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
                       <button
-                        className={`h-9 rounded-lg text-xs font-medium transition-all ${
+                        className={`h-10 rounded-lg text-sm font-medium transition-all ${
                           manualBetType === 'handicap' 
-                            ? 'bg-amber-500 text-black' 
-                            : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                         }`}
                         onClick={() => setManualBetType('handicap')}
                       >
-                        {t('handicap_bet') || '让球'}
+                        {t('handicap_bet') || 'Handicap'}
                       </button>
                       <button
-                        className={`h-9 rounded-lg text-xs font-medium transition-all ${
+                        className={`h-10 rounded-lg text-sm font-medium transition-all ${
                           manualBetType === 'over_under' 
-                            ? 'bg-amber-500 text-black' 
-                            : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                         }`}
                         onClick={() => setManualBetType('over_under')}
                       >
-                        {t('over_under_bet') || '大小球'}
+                        {t('over_under_bet') || 'Over/Under'}
                       </button>
                     </div>
                   </div>
 
-                  {/* Handicap Selection - Compact */}
+                  {/* Handicap Options */}
                   {manualBetType === 'handicap' && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-[#888]">{t('handicap_line') || '让球盘口'}</label>
-                        <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                          {t('handicap_line') || 'Line'}
+                        </label>
+                        <div className="flex items-center gap-3">
                           <button
-                            className="h-7 w-7 rounded-md bg-[#222] border border-[#333] text-[#aaa] text-sm hover:border-[#444]"
+                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
                             onClick={() => setManualHandicapLine(prev => prev - 0.5)}
-                          >-</button>
-                          <span className="w-12 text-center font-mono font-bold text-sm">
+                          >−</button>
+                          <span className="w-14 text-center font-mono font-semibold text-white">
                             {manualHandicapLine > 0 ? '+' : ''}{manualHandicapLine}
                           </span>
                           <button
-                            className="h-7 w-7 rounded-md bg-[#222] border border-[#333] text-[#aaa] text-sm hover:border-[#444]"
+                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
                             onClick={() => setManualHandicapLine(prev => prev + 0.5)}
                           >+</button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-2 gap-2">
                         <button
-                          className={`h-10 rounded-lg text-xs font-medium transition-all flex flex-col items-center justify-center ${
+                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
                             manualPrediction === 'HOME' 
-                              ? 'bg-amber-500 text-black' 
-                              : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                           }`}
                           onClick={() => setManualPrediction('HOME')}
                         >
-                          <span className="truncate max-w-[80px]">{safeGetTeamName(selectedMatch, 'home')}</span>
-                          <span className="text-[10px] opacity-70">{manualHandicapLine > 0 ? '+' : ''}{manualHandicapLine}</span>
+                          {safeGetTeamName(selectedMatch, 'home')}
                         </button>
                         <button
-                          className={`h-10 rounded-lg text-xs font-medium transition-all flex flex-col items-center justify-center ${
+                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
                             manualPrediction === 'AWAY' 
-                              ? 'bg-amber-500 text-black' 
-                              : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                           }`}
                           onClick={() => setManualPrediction('AWAY')}
                         >
-                          <span className="truncate max-w-[80px]">{safeGetTeamName(selectedMatch, 'away')}</span>
-                          <span className="text-[10px] opacity-70">{-manualHandicapLine > 0 ? '+' : ''}{-manualHandicapLine}</span>
+                          {safeGetTeamName(selectedMatch, 'away')}
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {/* Over/Under Selection - Compact */}
+                  {/* Over/Under Options */}
                   {manualBetType === 'over_under' && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-[#888]">{t('over_under_line') || '大小球盘口'}</label>
-                        <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                          {t('over_under_line') || 'Total'}
+                        </label>
+                        <div className="flex items-center gap-3">
                           <button
-                            className="h-7 w-7 rounded-md bg-[#222] border border-[#333] text-[#aaa] text-sm hover:border-[#444]"
+                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
                             onClick={() => setManualOverUnderLine(prev => Math.max(0.5, prev - 0.5))}
-                          >-</button>
-                          <span className="w-12 text-center font-mono font-bold text-sm">
+                          >−</button>
+                          <span className="w-14 text-center font-mono font-semibold text-white">
                             {manualOverUnderLine}
                           </span>
                           <button
-                            className="h-7 w-7 rounded-md bg-[#222] border border-[#333] text-[#aaa] text-sm hover:border-[#444]"
+                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
                             onClick={() => setManualOverUnderLine(prev => prev + 0.5)}
                           >+</button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-2 gap-2">
                         <button
-                          className={`h-10 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
                             manualOverUnderPick === 'over' 
-                              ? 'bg-amber-500 text-black' 
-                              : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                           }`}
                           onClick={() => setManualOverUnderPick('over')}
                         >
-                          <TrendingUp className="h-3.5 w-3.5" />
-                          <span>{t('over') || '大'} {manualOverUnderLine}</span>
+                          {t('over') || 'Over'} {manualOverUnderLine}
                         </button>
                         <button
-                          className={`h-10 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
                             manualOverUnderPick === 'under' 
-                              ? 'bg-amber-500 text-black' 
-                              : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                           }`}
                           onClick={() => setManualOverUnderPick('under')}
                         >
-                          <TrendingUp className="h-3.5 w-3.5 rotate-180" />
-                          <span>{t('under') || '小'} {manualOverUnderLine}</span>
+                          {t('under') || 'Under'} {manualOverUnderLine}
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {/* Bet Amount - Compact */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-medium text-[#888]">{t('bet_amount') || '下注金额'}</label>
-                      <div className="flex items-center gap-1">
-                        <img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
-                        <span className="font-mono font-bold text-sm text-white">{manualBetAmount}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5">
+                  {/* Bet Amount */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                      {t('bet_amount') || 'Amount'}
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
                       {[100, 200, 500, 1000].map((amount) => (
                         <button
                           key={amount}
-                          className={`flex-1 h-8 rounded-lg text-xs font-medium transition-all ${
+                          className={`h-10 rounded-lg text-sm font-medium transition-all ${
                             manualBetAmount === amount 
-                              ? 'bg-amber-500 text-black' 
-                              : 'bg-[#222] border border-[#333] text-[#aaa] hover:border-[#444]'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
                           }`}
                           onClick={() => setManualBetAmount(amount)}
                         >
@@ -1671,33 +1672,26 @@ const PlayerExclusiveModelCard = ({
                       ))}
                     </div>
                   </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm rounded-lg mt-2"
+                    onClick={handleManualBetSubmit}
+                    disabled={isSubmittingBet || (manualBetType === 'handicap' && !manualPrediction)}
+                  >
+                    {isSubmittingBet ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        {t('submitting') || 'Submitting...'}
+                      </>
+                    ) : (
+                      t('confirm_prediction') || 'Confirm Prediction'
+                    )}
+                  </Button>
                 </>
               )}
             </div>
           </ScrollArea>
-
-          {/* Footer */}
-          {selectedMatch && (
-            <div className="px-5 py-3 border-t border-[#2a2a2a]">
-              <Button
-                className="w-full h-10 bg-amber-500 hover:bg-amber-600 text-black font-medium text-sm rounded-lg"
-                onClick={handleManualBetSubmit}
-                disabled={isSubmittingBet || (manualBetType === 'handicap' && !manualPrediction)}
-              >
-                {isSubmittingBet ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {t('submitting') || '提交中...'}
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                    {t('confirm_prediction') || '确认预测'}
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
     </>
