@@ -1285,8 +1285,8 @@ const MobileLeaderboardOKX = () => {
             </div>
 
             {/* Bottom Stats: Correct, Wrong, Followers */}
-            <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1 mt-1 border-t border-border/20">
-              <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+            <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1.5 pb-0 border-t border-border/20">
+              <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                 <span className="flex items-center gap-0.5 text-success flex-shrink-0">
                   <CheckCircle className="h-2.5 w-2.5" />
                   <span className="truncate">{model.correctPredictions}</span>
@@ -2556,7 +2556,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       )}
 
       {/* Top: Avatar + Name + Streak Badge + Action Buttons */}
-      <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex items-center gap-2 mb-2">
         <div className="relative flex-shrink-0">
           <Avatar className="w-9 h-9 border border-border">
             <AvatarImage src={player.avatarUrl} alt={player.displayName} />
@@ -2641,7 +2641,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       </div>
 
       {/* Middle: Profit Rate + Profit Amount + Chart */}
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex-1 min-w-0 overflow-hidden">
           {/* Profit Rate - Same Line */}
           <div className="flex items-center gap-1 mb-1">
@@ -2688,8 +2688,8 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       </div>
 
       {/* Bottom Stats */}
-      <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1 mt-1 border-t border-border/20">
-        <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+      <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-2 border-t border-border/20">
+        <div className="flex items-center gap-1 min-w-0 overflow-hidden">
           <span className="flex items-center gap-0.5 text-success flex-shrink-0">
             <CheckCircle className="h-2.5 w-2.5" />
             <span className="truncate">{player.correctPredictions}</span>
