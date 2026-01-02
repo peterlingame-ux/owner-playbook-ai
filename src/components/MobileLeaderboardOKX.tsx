@@ -2,13 +2,18 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar, X, Search } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar, X, Search, Lock, CheckCircle2, Copy } from "lucide-react";
+import { differenceInSeconds } from "date-fns";
+import { format } from "date-fns";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import { virtualPlayers } from "@/data/virtualPlayers";
 import { aiModels } from "@/data/mockData";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
@@ -53,6 +58,8 @@ interface PlayerData {
   followers?: number;
   tradingDays?: number;
   tradingVolume?: number;
+  unlockPrice?: number;
+  signature?: string;
 }
 
 type MainTab = 'ai' | 'accuracy' | 'copyTrade';
@@ -118,6 +125,109 @@ const MobileLeaderboardOKX = () => {
   const [selectedModelForFollowers, setSelectedModelForFollowers] = useState<string | null>(null);
   const [showPlayerFollowersDialog, setShowPlayerFollowersDialog] = useState(false);
   const [selectedPlayerForFollowers, setSelectedPlayerForFollowers] = useState<PlayerData | null>(null);
+  
+  // History and Copy Trade states
+  interface TodayPrediction {
+    id: string;
+    match_id: string;
+    prediction: string;
+    prediction_type: 'over_under' | 'handicap';
+    bet_amount: number;
+    potential_payout: number | null;
+    actual_payout: number | null;
+    result: 'win' | 'lose' | null;
+    created_at: string;
+    home_team: string;
+    away_team: string;
+    home_logo?: string | null;
+    away_logo?: string | null;
+    home_score?: number | null;
+    away_score?: number | null;
+    match_status?: string;
+    match_date?: string | Date;
+  }
+  
+  const [selectedPlayerHistory, setSelectedPlayerHistory] = useState<{ playerId: string; playerName: string; predictions: TodayPrediction[] } | null>(null);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [copyTradeDialog, setCopyTradeDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
+  const [copyBetAmount, setCopyBetAmount] = useState(100);
+  const [isCopying, setIsCopying] = useState(false);
+  // 已跟单的预测ID集合 - 跟单后才能看到具体盘口
+  const [copiedPredictions, setCopiedPredictions] = useState<Set<string>>(new Set());
+  // USDT解锁弹窗状态
+  const [unlockDialog, setUnlockDialog] = useState<{ player: PlayerData; prediction: TodayPrediction } | null>(null);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [usdtBalance, setUsdtBalance] = useState(0);
+  // AI模型自动跟单状态
+  const [copyTradeModel, setCopyTradeModel] = useState<{ id: string; name: string } | null>(null);
+  const [isCopyTradeDialogOpen, setIsCopyTradeDialogOpen] = useState(false);
+  const [copyTradeAmount, setCopyTradeAmount] = useState<number>(100);
+  const [isCopyTrading, setIsCopyTrading] = useState(false);
+
+  // MatchCountdown component
+  const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
+    const { t } = useTranslation();
+    const [countdown, setCountdown] = useState('');
+    const [isStarting, setIsStarting] = useState(false);
+    
+    useEffect(() => {
+      const updateCountdown = () => {
+        const now = new Date();
+        const target = new Date(matchDate);
+        const diffInSeconds = differenceInSeconds(target, now);
+        
+        if (diffInSeconds <= 0) {
+          setCountdown(t('match_starting_soon') || '即将开始');
+          setIsStarting(true);
+          return;
+        }
+        
+        setIsStarting(false);
+        const days = Math.floor(diffInSeconds / 86400);
+        const hours = Math.floor((diffInSeconds % 86400) / 3600);
+        const minutes = Math.floor((diffInSeconds % 3600) / 60);
+        
+        const d = t('days_short') || '天';
+        const h = t('hours_short') || '时';
+        const m = t('minutes_short') || '分';
+        
+        if (days > 0) {
+          setCountdown(`${days}${d}${hours}${h}${minutes}${m}`);
+        } else if (hours > 0) {
+          setCountdown(`${hours}${h}${minutes}${m}`);
+        } else {
+          setCountdown(`${minutes}${m}`);
+        }
+      };
+      
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 60000); // Update every minute
+      return () => clearInterval(interval);
+    }, [matchDate, t]);
+    
+    return (
+      <span className={isStarting ? 'text-amber-500 font-semibold' : 'text-muted-foreground'}>
+        {countdown}
+      </span>
+    );
+  };
+
+  // Get USDT balance
+  useEffect(() => {
+    const fetchUsdtBalance = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('usdt_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) {
+        setUsdtBalance(data.balance);
+      }
+    };
+    fetchUsdtBalance();
+  }, [user]);
 
   // Fetch players data
   const fetchPlayers = useCallback(async () => {
@@ -304,6 +414,343 @@ const MobileLeaderboardOKX = () => {
 
     return filtered.slice(0, 20);
   }, [allPlayers, subTab, sortType]);
+
+  // Fetch today history for a player
+  const fetchTodayHistory = async (playerId: string, playerName: string, isVirtual: boolean) => {
+    setIsLoadingHistory(true);
+    setIsHistoryDialogOpen(true);
+    
+    const upcomingMatches = [
+      { home: '皇家马德里', away: '巴塞罗那', matchTime: '21:00' },
+      { home: '曼城', away: '利物浦', matchTime: '22:30' },
+      { home: '拜仁慕尼黑', away: '多特蒙德', matchTime: '21:30' },
+      { home: '巴黎圣日耳曼', away: '马赛', matchTime: '23:00' },
+    ];
+    
+    const completedMatches = [
+      { home: '曼联', away: '热刺', homeScore: 2, awayScore: 1 },
+      { home: '阿森纳', away: '纽卡斯尔', homeScore: 3, awayScore: 0 },
+    ];
+
+    if (isVirtual) {
+      const upcomingCount = Math.floor(Math.random() * 3) + 2;
+      const completedCount = Math.floor(Math.random() * 2) + 1;
+      
+      const mockPredictions: TodayPrediction[] = [];
+      
+      for (let i = 0; i < upcomingCount; i++) {
+        const match = upcomingMatches[i % upcomingMatches.length];
+        const betAmount = Math.floor(Math.random() * 400) + 100;
+        const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
+        const isOverUnder = Math.random() > 0.5;
+        const prediction = isOverUnder ? '大 2.5球' : '让分主胜 -0.5';
+        mockPredictions.push({
+          id: `upcoming-${playerId}-${i}`,
+          match_id: `upcoming-${1000 + i}`,
+          prediction: prediction,
+          prediction_type: isOverUnder ? 'over_under' : 'handicap',
+          bet_amount: betAmount,
+          potential_payout: potentialPayout,
+          result: null,
+          actual_payout: null,
+          created_at: new Date().toISOString(),
+          home_team: match.home,
+          away_team: match.away,
+          home_logo: null,
+          away_logo: null,
+          home_score: null,
+          away_score: null,
+          match_status: 'NS'
+        });
+      }
+      
+      for (let i = 0; i < completedCount; i++) {
+        const match = completedMatches[i % completedMatches.length];
+        const isWin = Math.random() > 0.4;
+        const betAmount = Math.floor(Math.random() * 400) + 100;
+        const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
+        const isOverUnder = Math.random() > 0.5;
+        const prediction = isOverUnder ? '大 2.5球' : '让分主胜 -0.5';
+        mockPredictions.push({
+          id: `completed-${playerId}-${i}`,
+          match_id: `completed-${2000 + i}`,
+          prediction: prediction,
+          prediction_type: isOverUnder ? 'over_under' : 'handicap',
+          bet_amount: betAmount,
+          potential_payout: potentialPayout,
+          result: isWin ? 'win' : 'lose',
+          actual_payout: isWin ? potentialPayout : 0,
+          created_at: new Date(Date.now() - 3600000).toISOString(),
+          home_team: match.home,
+          away_team: match.away,
+          home_logo: null,
+          away_logo: null,
+          home_score: match.homeScore,
+          away_score: match.awayScore,
+          match_status: 'FT'
+        });
+      }
+      
+      setSelectedPlayerHistory({ playerId, playerName, predictions: mockPredictions });
+      setIsLoadingHistory(false);
+      return;
+    }
+
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString();
+
+      const { data, error } = await supabase
+        .from('user_predictions')
+        .select('*')
+        .eq('user_id', playerId)
+        .gte('created_at', todayStr)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching today history:', error);
+      }
+
+      if (!data || data.length === 0) {
+        const upcomingCount = Math.floor(Math.random() * 3) + 2;
+        const completedCount = Math.floor(Math.random() * 2) + 1;
+        
+        const mockPredictions: TodayPrediction[] = [];
+        for (let i = 0; i < upcomingCount; i++) {
+          const match = upcomingMatches[i % upcomingMatches.length];
+          const betAmount = Math.floor(Math.random() * 400) + 100;
+          const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
+          const isOverUnder = Math.random() > 0.5;
+          const prediction = isOverUnder ? '大 2.5球' : '让分主胜 -0.5';
+          mockPredictions.push({
+            id: `upcoming-${playerId}-${i}`,
+            match_id: `upcoming-${1000 + i}`,
+            prediction: prediction,
+            prediction_type: isOverUnder ? 'over_under' : 'handicap',
+            bet_amount: betAmount,
+            potential_payout: potentialPayout,
+            result: null,
+            actual_payout: null,
+            created_at: new Date().toISOString(),
+            home_team: match.home,
+            away_team: match.away,
+            home_logo: null,
+            away_logo: null,
+            home_score: null,
+            away_score: null,
+            match_status: 'NS'
+          });
+        }
+        setSelectedPlayerHistory({ playerId, playerName, predictions: mockPredictions });
+      } else {
+        const predictionsData: TodayPrediction[] = data.map((pred: any) => ({
+          id: pred.id,
+          match_id: pred.match_id || '',
+          prediction: pred.prediction || '',
+          prediction_type: pred.prediction_type || 'over_under',
+          bet_amount: pred.bet_amount || 0,
+          potential_payout: pred.potential_payout || null,
+          result: pred.result || null,
+          actual_payout: pred.actual_payout || null,
+          created_at: pred.created_at,
+          home_team: pred.home_team || '',
+          away_team: pred.away_team || '',
+          home_logo: null,
+          away_logo: null,
+          home_score: pred.home_score || null,
+          away_score: pred.away_score || null,
+          match_status: pred.match_status || 'NS'
+        }));
+        setSelectedPlayerHistory({ playerId, playerName, predictions: predictionsData });
+      }
+    } catch (error) {
+      console.error('Error fetching today history:', error);
+      setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // Handle copy trade from history
+  const handleCopyTradeFromHistory = (pred: TodayPrediction) => {
+    const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+    if (!player) return;
+    
+    // 检查是否需要付费解锁
+    const unlockPrice = player.unlockPrice ?? 0;
+    if (unlockPrice > 0) {
+      // 需要付费，显示解锁弹窗
+      setUnlockDialog({ player, prediction: pred });
+    } else {
+      // 免费，直接进入跟单流程
+      setCopyTradeDialog({ player, prediction: pred });
+      setCopyBetAmount(100);
+    }
+  };
+
+  // Confirm unlock
+  const confirmUnlock = async () => {
+    if (!unlockDialog) return;
+    
+    const unlockPrice = unlockDialog.player.unlockPrice ?? 0;
+    
+    setIsUnlocking(true);
+    
+    try {
+      // 如果用户已登录，使用真实数据库操作
+      if (user) {
+        if (usdtBalance < unlockPrice) {
+          toast.error(`猎人币余额不足，需要 ${unlockPrice} 猎人币，当前余额 ${usdtBalance} 猎人币`);
+          setIsUnlocking(false);
+          return;
+        }
+        
+        // 扣除猎人币
+        const { error } = await supabase
+          .from('usdt_wallets')
+          .update({ balance: usdtBalance - unlockPrice })
+          .eq('user_id', user.id);
+        
+        if (error) {
+          toast.error('扣款失败：' + error.message);
+          setIsUnlocking(false);
+          return;
+        }
+        
+        // 更新本地猎人币余额
+        setUsdtBalance(prev => prev - unlockPrice);
+        toast.success(`已扣除 ${unlockPrice} 猎人币，预测已解锁`);
+      } else {
+        // 演示模式：模拟延迟
+        await new Promise(resolve => setTimeout(resolve, 300));
+        toast.success('演示模式：预测已解锁');
+      }
+      
+      // 将预测添加到已解锁列表
+      setCopiedPredictions(prev => {
+        const newSet = new Set(prev);
+        newSet.add(unlockDialog.prediction.id);
+        return newSet;
+      });
+      
+      // 关闭解锁弹窗，进入跟单流程
+      setUnlockDialog(null);
+      setCopyTradeDialog({ player: unlockDialog.player, prediction: unlockDialog.prediction });
+      setCopyBetAmount(100);
+      
+    } catch (error) {
+      console.error('Unlock error:', error);
+      toast.error('解锁失败，请稍后重试');
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  // Open copy trade dialog for AI model
+  const openCopyTradeDialog = (modelId: string, modelName: string) => {
+    if (!user) {
+      toast.warning(t('login_first') || '请先登录', {
+        description: t('login_to_subscribe') || '登录后即可订阅AI模型'
+      });
+      navigate('/auth');
+      return;
+    }
+    setCopyTradeModel({ id: modelId, name: modelName });
+    setIsCopyTradeDialogOpen(true);
+  };
+
+  // Handle copy trade for AI model
+  const handleCopyTrade = async () => {
+    if (!user) {
+      toast.warning(t('login_first') || '请先登录', {
+        description: t('login_to_subscribe') || '登录后即可订阅AI模型'
+      });
+      return;
+    }
+
+    if (!copyTradeModel) return;
+
+    setIsCopyTrading(true);
+    try {
+      // 检查用户余额
+      const { data: balanceData, error: balanceError } = await supabase
+        .from('user_balances')
+        .select('balance')
+        .eq('user_id', user.id)
+        .single();
+
+      if (balanceError || !balanceData) {
+        toast.error(t('fetch_balance_failed') || '获取余额失败', {
+          description: t('please_try_later') || '请稍后重试'
+        });
+        return;
+      }
+
+      if (balanceData.balance < copyTradeAmount) {
+        toast.error(t('insufficient_balance_title') || '余额不足', {
+          description: t('current_balance_need', { current: balanceData.balance.toFixed(2), need: copyTradeAmount }) || `当前余额 ${balanceData.balance.toFixed(2)}，需要 ${copyTradeAmount}`
+        });
+        return;
+      }
+
+      // 扣除余额
+      const { error: updateError } = await supabase
+        .from('user_balances')
+        .update({ 
+          balance: balanceData.balance - copyTradeAmount,
+          total_wagered: (balanceData as any).total_wagered + copyTradeAmount,
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      toast.success(t('subscribe_success') || '订阅成功', {
+        description: t('subscribed_model', { model: copyTradeModel.name, amount: copyTradeAmount }) || `已订阅 ${copyTradeModel.name}，金额 ${copyTradeAmount} 猎人币`
+      });
+
+      setIsCopyTradeDialogOpen(false);
+      setCopyTradeModel(null);
+      setCopyTradeAmount(100);
+    } catch (error) {
+      console.error('Copy trade error:', error);
+      toast.error(t('subscribe_failed') || '订阅失败', {
+        description: t('please_try_later') || '请稍后重试'
+      });
+    } finally {
+      setIsCopyTrading(false);
+    }
+  };
+
+  // Confirm copy trade
+  const confirmCopyTrade = async () => {
+    if (!copyTradeDialog) return;
+    
+    setIsCopying(true);
+    try {
+      // 模拟跟单过程
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 将预测添加到已解锁列表
+      setCopiedPredictions(prev => {
+        const newSet = new Set(prev);
+        newSet.add(copyTradeDialog.prediction.id);
+        return newSet;
+      });
+      
+      // 这里可以添加实际的跟单API调用
+      // const { error } = await supabase.from('copy_trades').insert({...});
+      
+      setIsCopying(false);
+      setCopyTradeDialog(null);
+      // 可以显示成功提示
+    } catch (error) {
+      console.error('Copy trade error:', error);
+      setIsCopying(false);
+    }
+  };
 
   // Generate mini chart path - more realistic profit curve
   const generateChartPath = (id: string, changePercent: number) => {
@@ -694,15 +1141,16 @@ const MobileLeaderboardOKX = () => {
                   className="px-1.5 py-0.5 text-[9px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/models?model=${model.id}&tab=history`);
+                    navigate(`/model/${model.id}`);
                   }}
                 >
                   {t('history_predictions') || '历史预测'}
                 </button>
                 <button 
-                  className="px-1.5 py-0.5 text-[9px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors"
+                  className="px-1.5 py-0.5 text-[9px] font-medium bg-warning hover:bg-warning/90 text-warning-foreground rounded transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
+                    openCopyTradeDialog(model.id, model.name);
                   }}
                 >
                   {t('auto_copy_trade') || '自动跟单'}
@@ -734,22 +1182,28 @@ const MobileLeaderboardOKX = () => {
                 </div>
               </div>
               
-              {/* Mini Chart */}
-              <div className="w-16 h-8 flex-shrink-0">
-                <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
-                  <path
-                    d={generateChartPath(model.id, model.changePercent)}
-                    fill="none"
-                    stroke={model.changePercent >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              {/* Mini Chart + Win Rate */}
+              <div className="w-16 flex-shrink-0 flex flex-col items-end">
+                <div className="w-16 h-8">
+                  <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
+                    <path
+                      d={generateChartPath(model.id, model.changePercent)}
+                      fill="none"
+                      stroke={model.changePercent >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                {/* Win Rate below chart */}
+                <div className="text-[9px] text-success font-medium mt-0.5">
+                  {model.winRate}%
+                </div>
               </div>
             </div>
 
-            {/* Bottom Stats: Correct, Wrong, Win Rate, Followers */}
+            {/* Bottom Stats: Correct, Wrong, Followers */}
             <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1.5 pb-0 border-t border-border/20">
               <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                 <span className="flex items-center gap-0.5 text-success flex-shrink-0">
@@ -759,9 +1213,6 @@ const MobileLeaderboardOKX = () => {
                 <span className="flex items-center gap-0.5 text-destructive flex-shrink-0">
                   <XCircle className="h-2.5 w-2.5" />
                   <span className="truncate">{model.wrongPredictions}</span>
-                </span>
-                <span className="text-success font-medium flex-shrink-0 whitespace-nowrap">
-                  {model.winRate}%
                 </span>
               </div>
               <button 
@@ -912,6 +1363,7 @@ const MobileLeaderboardOKX = () => {
                       setSelectedPlayerForFollowers(player);
                       setShowPlayerFollowersDialog(true);
                     }}
+                    onHistoryClick={fetchTodayHistory}
                   />
                 ))
               )}
@@ -1267,6 +1719,463 @@ const MobileLeaderboardOKX = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* History Dialog */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+        <DialogContent className="max-w-sm p-0 gap-0">
+          {/* Header - Clean & Simple */}
+          <div className="px-4 py-3 border-b border-border/50">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3">
+                <Avatar className="w-10 h-10 border-2 border-border">
+                  <AvatarImage src={allPlayers.find(p => p.id === selectedPlayerHistory?.playerId)?.avatarUrl} />
+                  <AvatarFallback className="bg-muted text-foreground font-bold text-sm">
+                    {selectedPlayerHistory?.playerName?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <span className="text-base font-bold">{(() => {
+                    const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+                    return player ? (player.displayName.length > 5 
+                      ? player.displayName.substring(0, 3) + '***' + player.displayName.slice(-4) 
+                      : player.displayName) : (selectedPlayerHistory?.playerName || '');
+                  })()}</span>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                    {(() => {
+                      const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+                      const unlockPrice = player?.unlockPrice ?? 0;
+                      return (
+                        <>
+                          <span className="text-muted-foreground truncate max-w-[200px]">
+                            {player?.signature || '这个人很懒，什么都没写~'}
+                          </span>
+                          {unlockPrice > 0 ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                              <span className="text-[10px] font-semibold text-foreground">{unlockPrice}</span>
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-success/10 text-success font-medium">
+                              {t('free') || '免费'}
+                            </span>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          
+          {isLoadingHistory ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+            </div>
+          ) : selectedPlayerHistory && (
+            <div className="max-h-[60vh] overflow-y-auto">
+                {(() => {
+                  const upcomingPredictions = selectedPlayerHistory.predictions.filter(p => !p.result);
+                  const completedPredictions = selectedPlayerHistory.predictions.filter(p => p.result);
+                  
+                  return (
+                    <>
+                      {upcomingPredictions.length > 0 && (
+                        <div className="divide-y divide-border/30">
+                          {upcomingPredictions.map((pred) => {
+                            const getRecommendedInfo = () => {
+                              const prediction = pred.prediction;
+                              if (prediction.includes('大') || prediction.toLowerCase().includes('over')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return { label: `大${line}`, type: '大小' };
+                              } else if (prediction.includes('小') || prediction.toLowerCase().includes('under')) {
+                                const line = prediction.match(/[\d.]+/)?.[0] || '2.5';
+                                return { label: `小${line}`, type: '大小' };
+                              } else if (prediction.includes('让分主胜') || prediction.includes('主让')) {
+                                const line = prediction.match(/-?[\d.]+/)?.[0] || '-0.5';
+                                return { label: `主队${line}`, type: '让球' };
+                              } else if (prediction.includes('让分客胜') || prediction.includes('客让')) {
+                                const line = prediction.match(/\+?[\d.]+/)?.[0] || '+0.5';
+                                return { label: `客队+${line.replace('+', '')}`, type: '让球' };
+                              }
+                              return { label: prediction, type: '-' };
+                            };
+                            const recommended = getRecommendedInfo();
+                            
+                            // 计算赔率
+                            const odds = pred.potential_payout && pred.bet_amount 
+                              ? (pred.potential_payout / pred.bet_amount).toFixed(2) 
+                              : '1.85';
+                            
+                            return (
+                              <div key={pred.id} className="px-4 py-3">
+                                {copiedPredictions.has(pred.id) ? (
+                                  // 已跟单 - 显示完整比赛信息
+                                  <div className="rounded-lg bg-muted/20 border border-border/30 overflow-hidden">
+                                    {/* 比赛信息头部 */}
+                                    <div className="px-3 py-3 border-b border-border/20">
+                                      {/* 球队对阵 - 居中显示带队标 */}
+                                      <div className="flex items-center justify-center gap-4 mb-2">
+                                        <div className="flex items-center gap-2">
+                                          <img 
+                                            src={`/src/assets/team-${(pred.home_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                                            alt=""
+                                            className="w-6 h-6 object-contain"
+                                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                          />
+                                          <span className="text-sm font-semibold text-foreground">{pred.home_team || '主队'}</span>
+                                        </div>
+                                        <span className="text-muted-foreground/50 text-xs font-normal">vs</span>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-semibold text-foreground">{pred.away_team || '客队'}</span>
+                                          <img 
+                                            src={`/src/assets/team-${(pred.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇家马德里', 'real-madrid').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                                            alt=""
+                                            className="w-6 h-6 object-contain"
+                                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                          />
+                                        </div>
+                                      </div>
+                                      {/* 开赛时间和倒计时 */}
+                                      <div className="flex items-center justify-center gap-2 text-[10px]">
+                                        <Clock className="h-3 w-3 text-muted-foreground" />
+                                        <span className="text-muted-foreground">
+                                          {pred.match_date ? format(new Date(pred.match_date), 'MM/dd HH:mm') : '待定'}
+                                        </span>
+                                        {pred.match_date && (
+                                          <>
+                                            <span className="text-muted-foreground/50">|</span>
+                                            <span className="px-2 py-0.5 rounded-full bg-amber-500/10">
+                                              <MatchCountdown matchDate={pred.match_date} />
+                                            </span>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                    
+                                    {/* 投注信息 - 四列等宽布局 */}
+                                    <div className="grid grid-cols-4 divide-x divide-border/20">
+                                      <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                        <span className="text-[10px] text-muted-foreground mb-1">类型</span>
+                                        <span className="text-xs font-semibold text-foreground">{recommended.type}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                        <span className="text-[10px] text-muted-foreground mb-1">推荐</span>
+                                        <span className="text-xs font-bold text-primary">{recommended.label}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                        <span className="text-[10px] text-muted-foreground mb-1">下注</span>
+                                        <span className="text-xs font-semibold text-foreground flex items-center gap-0.5">{pred.bet_amount}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
+                                      </div>
+                                      <div className="flex flex-col items-center justify-center py-2.5 px-2">
+                                        <span className="text-[10px] text-muted-foreground mb-1">赔率</span>
+                                        <span className="text-xs font-semibold text-warning">@{odds}</span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* 已跟单状态 */}
+                                    <div className="flex items-center justify-center gap-1.5 py-2 bg-success/5 border-t border-border/20">
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                                      <span className="text-xs font-medium text-success">已订阅</span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  // 未跟单 - 隐藏比赛信息，只显示跟单按钮
+                                  <div className="flex items-center justify-between py-1">
+                                    <div className="flex items-center gap-2">
+                                      <Lock className="h-4 w-4 text-amber-500" />
+                                      <span className="text-sm text-muted-foreground">订阅后查看比赛详情</span>
+                                      <span className="inline-flex items-center gap-0.5">
+                                        <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
+                                        <span className="text-xs font-bold text-warning">10</span>
+                                      </span>
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      className="h-7 px-3 text-xs"
+                                      onClick={() => handleCopyTradeFromHistory(pred)}
+                                    >
+                                      订阅
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      
+                      {upcomingPredictions.length === 0 && (
+                        <div className="px-4 py-8 text-center text-muted-foreground text-sm">
+                          暂无待开赛推荐
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Copy Trade Dialog */}
+      <Dialog open={!!copyTradeDialog} onOpenChange={() => setCopyTradeDialog(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              {t('one_click_copy') || '一键跟单'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {copyTradeDialog && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Avatar className="w-10 h-10 border-2 border-primary/30">
+                  <AvatarImage src={copyTradeDialog.player.avatarUrl} />
+                  <AvatarFallback>{copyTradeDialog.player.displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{copyTradeDialog.player.displayName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('win_rate')}: <span className="text-success font-medium">{copyTradeDialog.player.winRate.toFixed(1)}%</span>
+                  </p>
+                </div>
+              </div>
+              
+              {copyTradeDialog.prediction && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
+                  <div className="text-sm font-semibold mb-2">{copyTradeDialog.prediction.home_team} vs {copyTradeDialog.prediction.away_team}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t('prediction')}: <span className="font-medium text-foreground">{copyTradeDialog.prediction.prediction}</span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('copy_amount') || '跟单金额'}</label>
+                <div className="flex gap-2">
+                  {[100, 200, 500, 1000].map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={copyBetAmount === amount ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCopyBetAmount(amount)}
+                      className="flex-1"
+                    >
+                      {amount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setCopyTradeDialog(null)}
+                >
+                  {t('cancel') || '取消'}
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={confirmCopyTrade}
+                  disabled={isCopying}
+                >
+                  {isCopying ? (t('copying') || '跟单中...') : (t('confirm_copy') || '确认跟单')}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 猎人币解锁确认弹窗 */}
+      <Dialog open={!!unlockDialog} onOpenChange={() => setUnlockDialog(null)}>
+        <DialogContent className="max-w-xs p-0 gap-0">
+          {unlockDialog && (
+            <>
+              {/* 头部 */}
+              <div className="p-4 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12 border-2 border-primary/30">
+                    <AvatarImage src={unlockDialog.player.avatarUrl} />
+                    <AvatarFallback>{unlockDialog.player.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-bold text-base">{unlockDialog.player.displayName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t('win_rate')}: <span className="text-success font-medium">{unlockDialog.player.winRate.toFixed(1)}%</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 内容 */}
+              <div className="p-4 space-y-4">
+                <div className="text-center">
+                  <Lock className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                  <p className="text-sm font-semibold mb-1">{t('unlock_prediction') || '解锁预测'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('unlock_prediction_desc') || '支付猎人币后即可查看完整预测信息'}
+                  </p>
+                </div>
+                
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
+                  <div className="text-xs text-muted-foreground mb-1">{t('unlock_price') || '解锁价格'}</div>
+                  <div className="flex items-center gap-2">
+                    <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
+                    <span className="text-xl font-bold text-foreground">{unlockDialog.player.unlockPrice ?? 0}</span>
+                    <span className="text-xs text-muted-foreground">猎人币</span>
+                  </div>
+                  {user && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      {t('current_balance') || '当前余额'}: <span className="font-medium text-foreground">{usdtBalance}</span> 猎人币
+                    </div>
+                  )}
+                </div>
+                
+                {unlockDialog.prediction && (
+                  <div className="p-3 rounded-lg bg-muted/20 border border-border/30">
+                    <div className="text-xs text-muted-foreground mb-1">{t('match') || '比赛'}</div>
+                    <div className="text-sm font-semibold">
+                      {unlockDialog.prediction.home_team} vs {unlockDialog.prediction.away_team}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* 底部按钮 */}
+              <div className="p-4 border-t border-border/50 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setUnlockDialog(null)}
+                >
+                  {t('cancel') || '取消'}
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={confirmUnlock}
+                  disabled={isUnlocking || (user && usdtBalance < (unlockDialog.player.unlockPrice ?? 0))}
+                >
+                  {isUnlocking ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {t('unlocking') || '解锁中...'}
+                    </>
+                  ) : (
+                    t('confirm_unlock') || '确认解锁'
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Model Copy Trade Dialog */}
+      <Dialog open={isCopyTradeDialogOpen} onOpenChange={setIsCopyTradeDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Copy className="w-5 h-5 text-warning" />
+              订阅 {copyTradeModel?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Model Info */}
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <div className="w-10 h-10 rounded-lg bg-background p-1.5 border border-border/40">
+                <img 
+                  src={copyTradeModel ? (() => {
+                    const model = aiModels.find(m => m.id === copyTradeModel.id);
+                    if (!model) return '';
+                    switch(model.id) {
+                      case 'deepseek': return deepseekIcon;
+                      case 'gpt5': return gpt5Icon;
+                      case 'claude': return claudeIcon;
+                      case 'gemini': return geminiIcon;
+                      case 'grok': return grokIcon;
+                      case 'hunsoccermax': return hunsoccerIcon;
+                      default: return deepseekIcon;
+                    }
+                  })() : ''} 
+                  alt={copyTradeModel?.name || ''} 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">{copyTradeModel?.name}</p>
+                <p className="text-xs text-muted-foreground">跟随AI模型的下一场预测</p>
+              </div>
+            </div>
+            
+            {/* Amount Input */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">订阅金额 (猎人币)</label>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {[50, 100, 200, 500].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => setCopyTradeAmount(amount)}
+                    className={`py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
+                      copyTradeAmount === amount
+                        ? 'bg-warning text-warning-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {amount}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                  </button>
+                ))}
+              </div>
+              <input
+                type="number"
+                value={copyTradeAmount}
+                onChange={(e) => setCopyTradeAmount(Math.max(10, parseInt(e.target.value) || 0))}
+                className="w-full px-3 py-2 bg-muted/50 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-warning/50"
+                placeholder="自定义金额"
+                min={10}
+              />
+            </div>
+            
+            {/* Info Note */}
+            <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg">
+              <p className="text-xs text-warning">
+                订阅后，系统将在该AI模型下一次预测时，自动为您投注相同的选项
+              </p>
+            </div>
+          </div>
+          
+          {/* Actions */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsCopyTradeDialogOpen(false)}
+              className="flex-1 py-2.5 text-sm font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={handleCopyTrade}
+              disabled={isCopyTrading || copyTradeAmount < 10}
+              className="flex-1 py-2.5 text-sm font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isCopyTrading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-warning-foreground/30 border-t-warning-foreground rounded-full animate-spin" />
+                  处理中...
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  确认订阅
+                </>
+              )}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -1280,9 +2189,10 @@ interface PlayerCardOKXProps {
   subTab: SubTab;
   mainTab: MainTab;
   onFollowersClick: (player: PlayerData) => void;
+  onHistoryClick: (playerId: string, playerName: string, isVirtual: boolean) => void;
 }
 
-const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick }: PlayerCardOKXProps) => {
+const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick, onHistoryClick }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = player.changePercent >= 0;
@@ -1368,7 +2278,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             className="px-1 py-0.5 text-[8px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors whitespace-nowrap"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/player/${player.id}?tab=history`);
+              navigate('/history');
             }}
           >
             {mainTab === 'copyTrade' 
@@ -1379,6 +2289,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             className="px-1 py-0.5 text-[8px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors whitespace-nowrap"
             onClick={(e) => {
               e.stopPropagation();
+              onHistoryClick(player.id, player.displayName, player.isVirtual || false);
             }}
           >
             {mainTab === 'copyTrade' 
@@ -1414,18 +2325,24 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           </div>
         </div>
         
-        {/* Mini Chart */}
-        <div className="w-14 h-7 flex-shrink-0">
-          <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
-            <path
-              d={generateChartPath(player.id, player.changePercent)}
-              fill="none"
-              stroke={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        {/* Mini Chart + Win Rate */}
+        <div className="w-14 flex-shrink-0 flex flex-col items-end">
+          <div className="w-14 h-7">
+            <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
+              <path
+                d={generateChartPath(player.id, player.changePercent)}
+                fill="none"
+                stroke={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          {/* Win Rate below chart */}
+          <div className="text-[9px] text-success font-medium mt-0.5">
+            {player.winRate}%
+          </div>
         </div>
       </div>
 
@@ -1439,9 +2356,6 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           <span className="flex items-center gap-0.5 text-destructive flex-shrink-0">
             <XCircle className="h-2.5 w-2.5" />
             <span className="truncate">{player.totalPredictions - player.correctPredictions}</span>
-          </span>
-          <span className="text-success font-medium flex-shrink-0 whitespace-nowrap">
-            {player.winRate}%
           </span>
         </div>
         <button 

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,6 +130,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
 const FloatingAIChat = () => {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const [isMinimized, setIsMinimized] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -138,11 +140,33 @@ const FloatingAIChat = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // 查找Header中的AI按钮插槽
-  useEffect(() => {
+  // 查找Header中的AI按钮插槽 - 在路由变化和定期检查
+  const findHeaderSlot = () => {
     const slot = document.getElementById("header-ai-chat-slot");
-    setHeaderSlot(slot);
-  }, []);
+    if (slot) {
+      setHeaderSlot(slot);
+    }
+  };
+
+  useEffect(() => {
+    // 初始查找
+    findHeaderSlot();
+    
+    // 路由变化时重新查找
+    const timeoutId = setTimeout(() => {
+      findHeaderSlot();
+    }, 100);
+
+    // 定期检查（每500ms检查一次，确保slot存在）
+    const intervalId = setInterval(() => {
+      findHeaderSlot();
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
+    };
+  }, [location.pathname]);
 
   const registerTimeout = (timeoutId: ReturnType<typeof setTimeout>) => {
     timeoutsRef.current.push(timeoutId);
@@ -316,27 +340,48 @@ const FloatingAIChat = () => {
         />
       )}
 
-      {/* 移动端AI按钮 - 通过Portal放在Header的logo右边 */}
-      {isMinimized && headerSlot && createPortal(
-        <div className="relative">
-          {/* 脉冲圆环效果 */}
-          <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
-          <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
-          
-          <button
-            onClick={handleOpenChat}
-            className="relative w-7 h-7 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
-            title={t("floating_ai_chat.open_chat_button")}
-          >
-            <MessageCircle size={14} />
-          </button>
-        </div>,
-        headerSlot
+      {/* 移动端AI按钮 - 通过Portal放在Header的logo右边，如果slot不存在则固定在右下角 */}
+      {isMinimized && (
+        <>
+          {headerSlot ? (
+            createPortal(
+              <div className="relative flex-shrink-0">
+                {/* 脉冲圆环效果 */}
+                <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
+                <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
+                
+                <button
+                  onClick={handleOpenChat}
+                  className="relative w-7 h-7 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center flex-shrink-0"
+                  style={{ minWidth: '28px', minHeight: '28px', maxWidth: '28px', maxHeight: '28px' }}
+                  title={t("floating_ai_chat.open_chat_button")}
+                >
+                  <MessageCircle size={14} />
+                </button>
+              </div>,
+              headerSlot
+            )
+          ) : (
+            <div className="md:hidden fixed bottom-20 right-4 z-50">
+              {/* 脉冲圆环效果 */}
+              <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
+              <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
+              
+              <button
+                onClick={handleOpenChat}
+                className="relative w-12 h-12 rounded-full bg-[hsl(172,48%,55%)] hover:bg-[hsl(172,48%,50%)] text-white shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                title={t("floating_ai_chat.open_chat_button")}
+              >
+                <MessageCircle size={20} />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* 桌面端AI按钮 - 固定在右下角 */}
       {isMinimized && (
-        <div className="hidden sm:block fixed bottom-6 right-6 z-50">
+        <div className="hidden md:block fixed bottom-6 right-6 z-50">
           {/* 脉冲圆环效果 */}
           <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/30 animate-ping" />
           <div className="absolute inset-0 rounded-full bg-[hsl(172,48%,55%)]/20 animate-pulse" />
