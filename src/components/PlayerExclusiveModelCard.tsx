@@ -1505,7 +1505,7 @@ const PlayerExclusiveModelCard = ({
                 {matchesToShow.slice(0, 5).map((match: any) => (
                   <div
                     key={match.mid || match.fixture_id}
-                    className="p-4 rounded-lg bg-[#141414] hover:bg-[#1a1a1a] cursor-pointer transition-colors border border-[#1f1f1f] hover:border-[#2a2a2a]"
+                    className="p-4 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors border border-border hover:border-muted-foreground/30"
                     onClick={() => {
                       setSelectedMatch(match);
                       setManualPrediction('');
@@ -1515,12 +1515,12 @@ const PlayerExclusiveModelCard = ({
                       <span className="text-sm font-medium truncate max-w-[130px]">
                         {safeGetTeamName(match, 'home')}
                       </span>
-                      <span className="text-xs text-[#666] mx-3">vs</span>
+                      <span className="text-xs text-muted-foreground mx-3">vs</span>
                       <span className="text-sm font-medium truncate max-w-[130px] text-right">
                         {safeGetTeamName(match, 'away')}
                       </span>
                     </div>
-                    <p className="text-[10px] text-[#555] text-center mt-2">
+                    <p className="text-[10px] text-muted-foreground text-center mt-2">
                       {safeGetLeagueName(match)}
                     </p>
                   </div>
@@ -1530,18 +1530,18 @@ const PlayerExclusiveModelCard = ({
               /* Step 2: Betting Options */
               <div className="p-4 space-y-4">
                 {/* Match Header */}
-                <div className="text-center pb-3 border-b border-[#1a1a1a]">
-                  <p className="text-[10px] text-[#666] mb-1">{safeGetLeagueName(selectedMatch)}</p>
+                <div className="text-center pb-3 border-b border-border">
+                  <p className="text-[10px] text-muted-foreground mb-1">{safeGetLeagueName(selectedMatch)}</p>
                   <div className="flex items-center justify-center gap-3">
                     <span className="text-sm font-semibold">{safeGetTeamName(selectedMatch, 'home')}</span>
-                    <span className="text-xs text-[#555]">vs</span>
+                    <span className="text-xs text-muted-foreground">vs</span>
                     <span className="text-sm font-semibold">{safeGetTeamName(selectedMatch, 'away')}</span>
                   </div>
                 </div>
 
                 {/* Handicap Section - Fixed Options */}
                 <div className="space-y-2">
-                  <span className="text-xs text-[#888]">{t('handicap_bet') || '让分盘'}</span>
+                  <span className="text-xs text-muted-foreground">{t('handicap_bet') || '让分盘'}</span>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { line: -0.5, homeOdds: 1.85, awayOdds: 1.95 },
@@ -1555,13 +1555,13 @@ const PlayerExclusiveModelCard = ({
                           className={`p-2.5 rounded-lg border transition-all text-left ${
                             manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === line
                               ? 'bg-primary/10 border-primary'
-                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                              : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
                           }`}
                           onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); setManualHandicapLine(line); }}
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] truncate max-w-[60px]">{safeGetTeamName(selectedMatch, 'home')}</span>
-                            <span className="text-[10px] text-[#666]">{line > 0 ? '+' : ''}{line}</span>
+                            <span className="text-[10px] text-muted-foreground">{line > 0 ? '+' : ''}{line}</span>
                           </div>
                           <p className="text-base font-bold text-primary mt-1">{homeOdds.toFixed(2)}</p>
                         </button>
@@ -1570,13 +1570,13 @@ const PlayerExclusiveModelCard = ({
                           className={`p-2.5 rounded-lg border transition-all text-left ${
                             manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === line
                               ? 'bg-primary/10 border-primary'
-                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                              : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
                           }`}
                           onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); setManualHandicapLine(line); }}
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] truncate max-w-[60px]">{safeGetTeamName(selectedMatch, 'away')}</span>
-                            <span className="text-[10px] text-[#666]">{-line > 0 ? '+' : ''}{-line}</span>
+                            <span className="text-[10px] text-muted-foreground">{-line > 0 ? '+' : ''}{-line}</span>
                           </div>
                           <p className="text-base font-bold text-primary mt-1">{awayOdds.toFixed(2)}</p>
                         </button>
@@ -1587,7 +1587,7 @@ const PlayerExclusiveModelCard = ({
 
                 {/* Over/Under Section - Fixed Options */}
                 <div className="space-y-2">
-                  <span className="text-xs text-[#888]">{t('over_under_bet') || '大小球'}</span>
+                  <span className="text-xs text-muted-foreground">{t('over_under_bet') || '大小球'}</span>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { line: 2.5, overOdds: 1.88, underOdds: 1.92 },
@@ -1600,7 +1600,7 @@ const PlayerExclusiveModelCard = ({
                           className={`p-2.5 rounded-lg border transition-all text-left ${
                             manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === line
                               ? 'bg-primary/10 border-primary'
-                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                              : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
                           }`}
                           onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); setManualOverUnderLine(line); }}
                         >
@@ -1612,7 +1612,7 @@ const PlayerExclusiveModelCard = ({
                           className={`p-2.5 rounded-lg border transition-all text-left ${
                             manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === line
                               ? 'bg-primary/10 border-primary'
-                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                              : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
                           }`}
                           onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); setManualOverUnderLine(line); }}
                         >
@@ -1625,16 +1625,16 @@ const PlayerExclusiveModelCard = ({
                 </div>
 
                 {/* Bet Amount Input */}
-                <div className="space-y-2 pt-2 border-t border-[#1a1a1a]">
+                <div className="space-y-2 pt-2 border-t border-border">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#888]">{t('bet_amount') || '下注金额'}</span>
+                    <span className="text-xs text-muted-foreground">{t('bet_amount') || '下注金额'}</span>
                     <div className="flex items-center gap-1">
                       <img src={hunterCoinIcon} alt="" className="w-4 h-4" />
                       <input
                         type="number"
                         value={manualBetAmount}
                         onChange={(e) => setManualBetAmount(Math.max(10, parseInt(e.target.value) || 0))}
-                        className="w-20 h-8 px-2 rounded bg-[#141414] border border-[#1f1f1f] text-right text-sm font-mono focus:outline-none focus:border-primary"
+                        className="w-20 h-8 px-2 rounded bg-secondary/50 border border-border text-right text-sm font-mono focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -1646,7 +1646,7 @@ const PlayerExclusiveModelCard = ({
                         className={`flex-1 py-1.5 rounded text-xs font-medium transition-colors ${
                           manualBetAmount === amt
                             ? 'bg-primary/20 text-primary border border-primary/30'
-                            : 'bg-[#141414] text-[#888] border border-[#1f1f1f] hover:border-[#333]'
+                            : 'bg-secondary/50 text-muted-foreground border border-border hover:border-muted-foreground/50'
                         }`}
                         onClick={() => setManualBetAmount(amt)}
                       >
@@ -1658,8 +1658,8 @@ const PlayerExclusiveModelCard = ({
 
                 {/* Potential Win */}
                 {((manualBetType === 'handicap' && manualPrediction) || manualBetType === 'over_under') && (
-                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#141414]">
-                    <span className="text-xs text-[#888]">{t('potential_win') || '预计收益'}</span>
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-secondary/50">
+                    <span className="text-xs text-muted-foreground">{t('potential_win') || '预计收益'}</span>
                     <span className="text-sm font-bold text-success">
                       +{(manualBetAmount * 0.9).toFixed(0)}
                     </span>
