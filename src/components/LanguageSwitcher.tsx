@@ -42,15 +42,11 @@ const languages = [
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
 
-  // Load saved language on mount, default to Chinese
+  // Load saved language on mount
   useEffect(() => {
     const savedLang = localStorage.getItem('language');
     if (savedLang && languages.some(l => l.code === savedLang)) {
       i18n.changeLanguage(savedLang);
-    } else {
-      // Default to Chinese if no language is saved
-      i18n.changeLanguage('zh');
-      localStorage.setItem('language', 'zh');
     }
   }, [i18n]);
 

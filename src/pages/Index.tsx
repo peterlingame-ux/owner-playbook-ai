@@ -135,9 +135,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-full">
+      <div className="w-full max-w-full overflow-x-hidden">
       <Header />
-      <div className="pt-[74px] sm:pt-[74px]">
       <CryptoTicker />
+      </div>
+      <div className="pt-[50px] sm:pt-[70px]">
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
