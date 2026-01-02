@@ -601,15 +601,15 @@ const MyPredictions = () => {
         </div>
 
         {/* Profile Info - Name, Pro Badge, Signature */}
-        <div className="mt-6">
+        <div className="mt-6 overflow-hidden">
           {/* Name + PRO Badge */}
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-foreground">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
               {userProfile?.display_name || 'Player'}
             </h1>
             {/* VIP Badge - Diamond shining when active, dark when inactive */}
             <div 
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md relative overflow-hidden ${isVipActive ? 'animate-pulse' : ''}`}
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md relative overflow-hidden flex-shrink-0 ${isVipActive ? 'animate-pulse' : ''}`}
               style={isVipActive ? {
                 background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
                 boxShadow: '0 2px 12px rgba(80, 180, 220, 0.6), 0 0 20px rgba(100, 200, 255, 0.3)',
@@ -633,7 +633,7 @@ const MyPredictions = () => {
           </div>
 
         {/* Signature / Bio */}
-        <p className="text-base text-muted-foreground mt-2">
+        <p className="text-sm sm:text-base text-muted-foreground mt-2 line-clamp-2 break-words">
           {userProfile?.signature || t('prediction_expert') || 'Prediction Expert'}
         </p>
 
@@ -723,45 +723,45 @@ const MyPredictions = () => {
       </div>
 
         {/* Stats Row - Three Columns */}
-        <div className="flex items-stretch gap-1.5 sm:gap-2 mt-4 sm:mt-6">
+        <div className="flex items-stretch gap-1 sm:gap-2 mt-4 sm:mt-6">
           {/* Followers */}
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0"
+            className="flex-1 py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0 overflow-hidden"
           >
-            <p className="text-lg sm:text-2xl font-bold text-foreground">
+            <p className="text-base sm:text-2xl font-bold text-foreground">
               {followersList.length >= 1000 ? `${(followersList.length / 1000).toFixed(1)}K` : followersList.length}
             </p>
-            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('followers_label') || '粉丝'}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('followers_label') || '粉丝'}</p>
           </button>
           
           {/* Following */}
           <button 
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0"
+            className="flex-1 py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0 overflow-hidden"
           >
-            <p className="text-lg sm:text-2xl font-bold text-foreground">{followingList.length}</p>
-            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('following_label') || '关注'}</p>
+            <p className="text-base sm:text-2xl font-bold text-foreground">{followingList.length}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('following_label') || '关注'}</p>
           </button>
           
           {/* Hunter Coin Balance */}
-          <div className="flex-1 py-2.5 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0">
-            <div className="flex items-center justify-center gap-1 sm:gap-1.5">
-              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4 sm:w-6 sm:h-6 flex-shrink-0" />
-              <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
+          <div className="flex-1 py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0 overflow-hidden">
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1.5 px-1">
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5 sm:w-6 sm:h-6 flex-shrink-0" />
+              <p className="text-base sm:text-2xl font-bold text-foreground truncate">
                 {(stats?.balance || 0).toLocaleString()}
               </p>
             </div>
-            <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t('hunter_coin_balance') || '猎人币'}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('hunter_coin_balance') || '猎人币'}</p>
           </div>
         </div>
 
         {/* Tabs - Responsive Scrollable */}
-        <div className="mt-6">
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4">
+        <div className="mt-5 sm:mt-6">
+          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'history' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -771,33 +771,33 @@ const MyPredictions = () => {
             </button>
             <button
               onClick={() => setActiveTab('records')}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'records' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('personal_records') || 'Personal Records'}
+              {t('personal_records') || 'Records'}
             </button>
             <button
               onClick={() => setActiveTab('invite')}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'invite' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('invitation_code_tab') || 'Invite Code'}
+              {t('invitation_code_tab') || 'Invite'}
             </button>
             <button
               onClick={() => setActiveTab('starcard')}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'starcard' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t('star_card_tab') || 'Star Cards'}
+              {t('star_card_tab') || 'Cards'}
             </button>
           </div>
         </div>
