@@ -30,7 +30,8 @@ import {
   ChevronLeft,
   User,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Check
 } from "lucide-react";
 import hunsoccerAlphaLogo from "@/assets/hunsoccer-alpha-logo-outline.png";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
@@ -1532,33 +1533,43 @@ const PlayerExclusiveModelCard = ({
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      className={`p-2 rounded-lg border transition-all text-left ${
+                      className={`p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'handicap' && manualPrediction === 'HOME'
-                          ? 'bg-primary/10 border-primary'
-                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
+                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50 hover:bg-secondary/70'
                       }`}
                       onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); setManualHandicapLine(-0.5); }}
                     >
+                      {manualBetType === 'handicap' && manualPrediction === 'HOME' && (
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] truncate max-w-[70px]">{safeGetTeamName(selectedMatch, 'home')}</span>
+                        <span className="text-xs font-medium truncate max-w-[80px]">{safeGetTeamName(selectedMatch, 'home')}</span>
                         <span className="text-[10px] text-muted-foreground">-0.5</span>
                       </div>
-                      <p className="text-sm font-bold text-primary mt-0.5">1.85</p>
+                      <p className={`text-base font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' ? 'text-primary' : 'text-foreground'}`}>1.85</p>
                     </button>
                     <button
                       type="button"
-                      className={`p-2 rounded-lg border transition-all text-left ${
+                      className={`p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'handicap' && manualPrediction === 'AWAY'
-                          ? 'bg-primary/10 border-primary'
-                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
+                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50 hover:bg-secondary/70'
                       }`}
                       onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); setManualHandicapLine(-0.5); }}
                     >
+                      {manualBetType === 'handicap' && manualPrediction === 'AWAY' && (
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] truncate max-w-[70px]">{safeGetTeamName(selectedMatch, 'away')}</span>
+                        <span className="text-xs font-medium truncate max-w-[80px]">{safeGetTeamName(selectedMatch, 'away')}</span>
                         <span className="text-[10px] text-muted-foreground">+0.5</span>
                       </div>
-                      <p className="text-sm font-bold text-primary mt-0.5">1.95</p>
+                      <p className={`text-base font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' ? 'text-primary' : 'text-foreground'}`}>1.95</p>
                     </button>
                   </div>
                 </div>
@@ -1569,27 +1580,37 @@ const PlayerExclusiveModelCard = ({
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      className={`p-2 rounded-lg border transition-all text-left ${
+                      className={`p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'over_under' && manualOverUnderPick === 'over'
-                          ? 'bg-primary/10 border-primary'
-                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
+                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50 hover:bg-secondary/70'
                       }`}
                       onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); setManualOverUnderLine(2.5); }}
                     >
-                      <span className="text-[11px]">{t('over') || '大'} 2.5</span>
-                      <p className="text-sm font-bold text-primary mt-0.5">1.88</p>
+                      {manualBetType === 'over_under' && manualOverUnderPick === 'over' && (
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                        </div>
+                      )}
+                      <span className="text-xs font-medium">{t('over') || '大'} 2.5</span>
+                      <p className={`text-base font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' ? 'text-primary' : 'text-foreground'}`}>1.88</p>
                     </button>
                     <button
                       type="button"
-                      className={`p-2 rounded-lg border transition-all text-left ${
+                      className={`p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'over_under' && manualOverUnderPick === 'under'
-                          ? 'bg-primary/10 border-primary'
-                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50'
+                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          : 'bg-secondary/50 border-border hover:border-muted-foreground/50 hover:bg-secondary/70'
                       }`}
                       onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); setManualOverUnderLine(2.5); }}
                     >
-                      <span className="text-[11px]">{t('under') || '小'} 2.5</span>
-                      <p className="text-sm font-bold text-primary mt-0.5">1.92</p>
+                      {manualBetType === 'over_under' && manualOverUnderPick === 'under' && (
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                        </div>
+                      )}
+                      <span className="text-xs font-medium">{t('under') || '小'} 2.5</span>
+                      <p className={`text-base font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' ? 'text-primary' : 'text-foreground'}`}>1.92</p>
                     </button>
                   </div>
                 </div>
@@ -1603,14 +1624,14 @@ const PlayerExclusiveModelCard = ({
                       type="number"
                       value={manualBetAmount}
                       onChange={(e) => setManualBetAmount(Math.max(10, parseInt(e.target.value) || 0))}
-                      className="w-24 h-8 px-2 rounded bg-secondary/50 border border-border text-right text-sm font-mono focus:outline-none focus:border-primary"
+                      className="w-24 h-8 px-2 rounded bg-secondary/50 border border-border text-right text-sm font-mono focus:outline-none focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Potential Win */}
                 {((manualBetType === 'handicap' && manualPrediction) || manualBetType === 'over_under') && (
-                  <div className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-secondary/50">
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-success/10 border border-success/20 animate-fade-in">
                     <span className="text-xs text-muted-foreground">{t('potential_win') || '预计收益'}</span>
                     <span className="text-sm font-bold text-success">
                       +{(manualBetAmount * 0.9).toFixed(0)}
