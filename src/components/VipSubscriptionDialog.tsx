@@ -27,39 +27,39 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
   const privileges = [
     {
       icon: Camera,
-      title: t('vip_privilege_avatar') || '自定义头像',
-      description: t('vip_privilege_avatar_desc') || '可上传并更换个性化自定义头像',
+      title: t('vip_privilege_avatar'),
+      description: t('vip_privilege_avatar_desc'),
       color: 'from-pink-500 to-rose-500',
     },
     {
       icon: Eye,
-      title: t('vip_privilege_matches') || '免费观看比赛',
-      description: t('vip_privilege_matches_desc') || '免费查看所有比赛详细数据与分析',
+      title: t('vip_privilege_matches'),
+      description: t('vip_privilege_matches_desc'),
       color: 'from-blue-500 to-cyan-500',
     },
     {
       icon: Sparkles,
-      title: t('vip_privilege_entrance') || '特效入场',
-      description: t('vip_privilege_entrance_desc') || '进入比赛聊天框时有炫酷特效入场效果',
+      title: t('vip_privilege_entrance'),
+      description: t('vip_privilege_entrance_desc'),
       color: 'from-purple-500 to-violet-500',
     },
     {
       icon: Star,
-      title: t('vip_privilege_glow') || '名字发光',
-      description: t('vip_privilege_glow_desc') || '排行榜中名字会有闪亮发光效果',
+      title: t('vip_privilege_glow'),
+      description: t('vip_privilege_glow_desc'),
       color: 'from-yellow-500 to-amber-500',
     },
     {
       icon: MessageCircle,
-      title: t('vip_privilege_dm') || '私信互动',
-      description: t('vip_privilege_dm_desc') || '可与其他玩家进行私信交流互动',
+      title: t('vip_privilege_dm'),
+      description: t('vip_privilege_dm_desc'),
       color: 'from-green-500 to-emerald-500',
     },
   ];
 
   const handlePurchaseVip = async () => {
     if (!user) {
-      toast.error(t('please_login') || '请先登录');
+      toast.error(t('please_login'));
       return;
     }
 
@@ -77,15 +77,15 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
       const result = data as { success: boolean; error?: string };
       
       if (result.success) {
-        toast.success(t('vip_purchase_success') || 'VIP开通成功！');
+        toast.success(t('vip_purchase_success'));
         onVipPurchased?.();
         onOpenChange(false);
       } else {
-        toast.error(result.error || t('vip_purchase_failed') || '开通失败');
+        toast.error(result.error || t('vip_purchase_failed'));
       }
     } catch (error: any) {
       console.error('Error purchasing VIP:', error);
-      toast.error(error.message || t('vip_purchase_failed') || '开通失败');
+      toast.error(error.message || t('vip_purchase_failed'));
     } finally {
       setIsPurchasing(false);
     }
@@ -93,27 +93,27 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30">
+      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30 max-h-[90vh] flex flex-col">
         {/* Header with VIP Crown */}
-        <div className="relative px-6 pt-8 pb-6 text-center overflow-hidden">
+        <div className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-6 text-center overflow-hidden flex-shrink-0">
           {/* Background glow effect */}
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/20 blur-3xl rounded-full" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 sm:w-64 h-24 sm:h-32 bg-primary/20 blur-3xl rounded-full" />
           
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", duration: 0.8 }}
-            className="relative inline-flex items-center justify-center w-20 h-20 rounded-full mb-4"
+            className="relative inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 sm:mb-4"
             style={{
               background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
               boxShadow: '0 4px 20px rgba(80, 180, 220, 0.5), 0 0 40px rgba(100, 200, 255, 0.3)',
             }}
           >
-            <Crown className="w-10 h-10 text-white" />
+            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             {/* Shimmer effect */}
             <motion.div
-              className="absolute inset-0 rounded-full"
+              className="absolute inset-0 rounded-full overflow-hidden"
               style={{
                 background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
               }}
@@ -129,65 +129,65 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
           </motion.div>
           
           <DialogHeader className="relative">
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              {isVipActive ? (t('vip_active') || 'VIP已激活') : (t('open_vip') || '开通VIP会员')}
+            <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              {isVipActive ? t('vip_active') : t('open_vip')}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground mt-2">
+            <DialogDescription className="text-muted-foreground mt-1 sm:mt-2 text-sm">
               {isVipActive 
-                ? (t('vip_enjoy_privileges') || '尊享以下专属特权')
-                : (t('vip_unlock_privileges') || '解锁专属特权，尊享VIP体验')
+                ? t('vip_enjoy_privileges')
+                : t('vip_unlock_privileges')
               }
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        {/* Privileges List */}
-        <div className="px-6 pb-4 space-y-3">
+        {/* Privileges List - Scrollable */}
+        <div className="px-4 sm:px-6 pb-3 sm:pb-4 space-y-2 sm:space-y-3 overflow-y-auto flex-1 min-h-0">
           {privileges.map((privilege, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="flex items-start gap-4 p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors"
+              className="flex items-start gap-3 sm:gap-4 p-2.5 sm:p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors"
             >
               <div 
-                className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${privilege.color} flex items-center justify-center shadow-lg`}
+                className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${privilege.color} flex items-center justify-center shadow-lg`}
               >
-                <privilege.icon className="w-5 h-5 text-white" />
+                <privilege.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground">{privilege.title}</h3>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">{privilege.title}</h3>
                   {isVipActive && (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5">{privilege.description}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-2">{privilege.description}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Price and Purchase Button */}
-        <div className="px-6 pb-6 pt-2">
+        {/* Price and Purchase Button - Fixed at bottom */}
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2 flex-shrink-0 border-t border-border/30 bg-background/80 backdrop-blur-sm">
           {!isVipActive && (
             <>
               {/* Price Display */}
-              <div className="flex items-center justify-center gap-2 mb-4 p-3 rounded-xl bg-muted/50 border border-border/30">
-                <span className="text-muted-foreground">{t('vip_price') || '开通价格'}:</span>
+              <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4 p-2.5 sm:p-3 rounded-xl bg-muted/50 border border-border/30">
+                <span className="text-muted-foreground text-sm">{t('vip_price')}:</span>
                 <div className="flex items-center gap-1.5">
-                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
-                  <span className="text-2xl font-bold text-primary">{VIP_COST}</span>
+                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="text-xl sm:text-2xl font-bold text-primary">{VIP_COST}</span>
                 </div>
-                <span className="text-muted-foreground text-sm">/ {VIP_DURATION_DAYS}{t('days') || '天'}</span>
+                <span className="text-muted-foreground text-xs sm:text-sm">/ {VIP_DURATION_DAYS}{t('days')}</span>
               </div>
 
               {/* Purchase Button */}
               <Button
                 onClick={handlePurchaseVip}
                 disabled={isPurchasing}
-                className="w-full h-12 text-lg font-bold relative overflow-hidden"
+                className="w-full h-11 sm:h-12 text-base sm:text-lg font-bold relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 60%) 100%)',
                   boxShadow: '0 4px 15px rgba(80, 180, 220, 0.4)',
@@ -195,13 +195,13 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
               >
                 {isPurchasing ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    {t('processing') || '处理中...'}
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                    {t('processing')}
                   </>
                 ) : (
                   <>
-                    <Crown className="w-5 h-5 mr-2" />
-                    {t('open_vip_now') || '立即开通VIP'}
+                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    {t('open_vip_now')}
                   </>
                 )}
                 {/* Button shimmer */}
@@ -224,12 +224,12 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
           )}
 
           {isVipActive && (
-            <div className="text-center p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 border border-cyan-500/20">
+            <div className="text-center p-3 sm:p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 border border-cyan-500/20">
               <div className="flex items-center justify-center gap-2">
-                <Check className="w-5 h-5 text-green-500" />
-                <span className="font-semibold text-foreground">{t('vip_status_active') || 'VIP会员已激活'}</span>
+                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                <span className="font-semibold text-foreground text-sm sm:text-base">{t('vip_status_active')}</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">{t('enjoy_all_privileges') || '尊享全部专属特权'}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t('enjoy_all_privileges')}</p>
             </div>
           )}
         </div>

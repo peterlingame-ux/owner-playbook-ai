@@ -532,6 +532,30 @@ export const ja = {
     "disclaimer_text": "HUNSOCCERのすべてのコンテンツはシミュレーション分析結果であり、AI研究専用です。",
     "sponsor_disclaimer": "データソースは公開されています。このプラットフォームはAI分析デモ用です。",
     
+    // VIP Dialog
+    "open_vip": "VIP会員を開通",
+    "vip_unlock_privileges": "特典をアンロックして、VIP体験をお楽しみください",
+    "vip_enjoy_privileges": "限定特典をお楽しみください",
+    "vip_active": "VIP有効",
+    "vip_privilege_avatar": "カスタムアバター",
+    "vip_privilege_avatar_desc": "オリジナルのアバターをアップロードして変更できます",
+    "vip_privilege_matches": "無料試合アクセス",
+    "vip_privilege_matches_desc": "すべての試合データと分析に無料でアクセス",
+    "vip_privilege_entrance": "特別入場エフェクト",
+    "vip_privilege_entrance_desc": "試合チャットに入室時にクールなエフェクト",
+    "vip_privilege_glow": "名前が光る",
+    "vip_privilege_glow_desc": "ランキングであなたの名前が光ります",
+    "vip_privilege_dm": "プライベートメッセージ",
+    "vip_privilege_dm_desc": "他のプレイヤーとプライベートにチャット",
+    "vip_price": "開通価格",
+    "open_vip_now": "今すぐVIPを開通",
+    "vip_purchase_success": "VIP開通成功！",
+    "vip_purchase_failed": "開通失敗",
+    "vip_status_active": "VIP会員有効",
+    "enjoy_all_privileges": "すべての限定特典をお楽しみください",
+    "please_login": "先にログインしてください",
+    
+    
     // Common
     "common": {
       "live": "ライブ",

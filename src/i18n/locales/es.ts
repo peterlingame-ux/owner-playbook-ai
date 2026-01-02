@@ -828,6 +828,28 @@ export const es = {
     "star_cards_earned": "{{count}} cartas ganadas",
     "total_invited": "{{count}} invitados",
     
+    // VIP Dialog
+    "open_vip": "Activar Membresía VIP",
+    "vip_unlock_privileges": "Desbloquea privilegios exclusivos, disfruta de la experiencia VIP",
+    "vip_enjoy_privileges": "Disfruta de privilegios exclusivos",
+    "vip_privilege_avatar": "Avatar Personalizado",
+    "vip_privilege_avatar_desc": "Sube y cambia tu avatar personalizado",
+    "vip_privilege_matches": "Acceso Gratuito a Partidos",
+    "vip_privilege_matches_desc": "Acceso gratuito a todos los datos y análisis de partidos",
+    "vip_privilege_entrance": "Efecto de Entrada Especial",
+    "vip_privilege_entrance_desc": "Efectos especiales al entrar al chat del partido",
+    "vip_privilege_glow": "Efecto de Nombre Brillante",
+    "vip_privilege_glow_desc": "Tu nombre brillará en las clasificaciones",
+    "vip_privilege_dm": "Mensajes Privados",
+    "vip_privilege_dm_desc": "Chatea privadamente con otros jugadores",
+    "vip_price": "Precio de Activación",
+    "open_vip_now": "Activar VIP Ahora",
+    "vip_purchase_success": "¡VIP activado con éxito!",
+    "vip_purchase_failed": "Error en activación",
+    "vip_status_active": "Membresía VIP Activa",
+    "enjoy_all_privileges": "Disfruta de todos los privilegios exclusivos",
+    "please_login": "Por favor inicia sesión primero",
+    
     // Common
     "common": {
       "live": "EN VIVO",
