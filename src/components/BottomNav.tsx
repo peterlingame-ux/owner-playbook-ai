@@ -7,7 +7,6 @@ const BottomNav = () => {
 
   const navItems = [
     { to: "/leaderboard", label: t('nav_rank') },
-    { to: "/history", label: t('nav_history') },
     { to: "/", label: t('nav_live'), isCenter: true },
     { to: "/models", label: t('nav_models') },
     { to: "/my-predictions", label: t('nav_personal_center') },
