@@ -1099,6 +1099,9 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = player.changePercent >= 0;
+  
+  // Check if player qualifies for prize pool (win rate >= 60% AND correct predictions >= 10)
+  const isQualified = player.winRate >= 60 && player.correctPredictions >= 10;
 
   return (
     <motion.div
@@ -1106,8 +1109,24 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
       onClick={onClick}
-      className="bg-card/50 rounded-lg p-3 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform"
+      className="bg-card/50 rounded-lg p-3 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform relative overflow-hidden"
     >
+      {/* Qualified Stamp - 已达标 */}
+      {isQualified && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] pointer-events-none z-10">
+          <div className="relative">
+            {/* Outer glow effect */}
+            <div className="absolute inset-0 blur-sm bg-success/20 rounded-lg scale-110" />
+            {/* Stamp container */}
+            <div className="relative px-4 py-1.5 border-[3px] border-success rounded-lg bg-success/10 backdrop-blur-[2px]">
+              <span className="text-success font-black text-lg tracking-wider whitespace-nowrap" style={{ textShadow: '0 0 8px hsl(var(--success) / 0.5)' }}>
+                {t('qualified_stamp') || '已达标'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top: Avatar + Name + Streak Badge + Action Buttons */}
       <div className="flex items-center gap-2.5 mb-2">
         <div className="relative flex-shrink-0">
