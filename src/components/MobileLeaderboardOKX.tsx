@@ -740,12 +740,12 @@ const MobileLeaderboardOKX = () => {
 
       {/* Main Tabs - OKX Style */}
       <div className="sticky top-0 z-30 bg-background border-b border-border/30">
-        <div className="flex items-center gap-4 px-4 pt-2 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 px-3 pt-2 overflow-x-auto scrollbar-hide">
           {mainTabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setMainTab(tab.value as MainTab)}
-              className={`relative py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`relative py-3 text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 mainTab === tab.value
                   ? 'text-foreground'
                   : 'text-muted-foreground'
@@ -765,12 +765,12 @@ const MobileLeaderboardOKX = () => {
 
       {/* Sub Tabs - Show for all tabs */}
       <div className="sticky top-[52px] z-20 bg-background">
-        <div className="flex items-center gap-4 px-4 py-2">
+        <div className="flex items-center gap-2 px-3 py-2 overflow-x-auto scrollbar-hide">
           {subTabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setSubTab(tab.value as SubTab)}
-              className={`relative text-sm font-medium transition-colors ${
+              className={`relative text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 subTab === tab.value
                   ? 'text-foreground font-bold'
                   : 'text-muted-foreground'
@@ -790,14 +790,14 @@ const MobileLeaderboardOKX = () => {
 
       {/* Time Filter & All Predictors - For accuracy and copyTrade tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border/20 gap-2">
+          <div className="flex items-center gap-1.5 min-w-0 flex-shrink">
+            <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
               {timeFilters.map((filter) => (
                 <button
                   key={filter.value}
                   onClick={() => setTimeFilter(filter.value as TimeFilter)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                  className={`px-2 py-1 text-[10px] font-medium rounded-md transition-all ${
                     timeFilter === filter.value
                       ? 'bg-primary text-primary-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -807,16 +807,17 @@ const MobileLeaderboardOKX = () => {
                 </button>
               ))}
             </div>
-            <span className="px-2 py-0.5 text-[10px] font-bold bg-warning/20 text-warning border border-warning/30 rounded">
+            <span className="px-1.5 py-0.5 text-[9px] font-bold bg-warning/20 text-warning border border-warning/30 rounded flex-shrink-0">
               TOP10
             </span>
           </div>
           <button 
-            className="px-3 py-1.5 text-xs font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1"
+            className="px-2 py-1 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
             onClick={() => setShowAllPredictors(true)}
           >
             <Users className="h-3 w-3" />
-            {t('all_predictors') || '全部预测者'}
+            <span className="hidden xs:inline">{t('all_predictors') || '全部预测者'}</span>
+            <span className="xs:hidden">{t('all_short') || '全部'}</span>
           </button>
         </div>
       )}
@@ -1128,9 +1129,9 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       )}
 
       {/* Top: Avatar + Name + Streak Badge + Action Buttons */}
-      <div className="flex items-center gap-2.5 mb-2">
+      <div className="flex items-center gap-2 mb-2">
         <div className="relative flex-shrink-0">
-          <Avatar className="w-10 h-10 border border-border">
+          <Avatar className="w-9 h-9 border border-border">
             <AvatarImage src={player.avatarUrl} alt={player.displayName} />
             <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -1144,28 +1145,28 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             </div>
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-sm text-foreground truncate">
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <h3 className="font-bold text-xs text-foreground truncate">
             {player.displayName}
           </h3>
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-            <span>{t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}</span>
+          <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
+            <span className="truncate">{t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}</span>
             {/* Streak Indicators - Like PC version */}
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: Math.min(player.currentStreak || 0, 5) }).map((_, i) => (
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              {Array.from({ length: Math.min(player.currentStreak || 0, 3) }).map((_, i) => (
                 <span 
                   key={i} 
-                  className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold border ${
+                  className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold border ${
                     subTab === 'high' 
                       ? 'border-success/50 text-success bg-success/10' 
                       : 'border-destructive/50 text-destructive bg-destructive/10'
                   }`}
                 >
-                  {subTab === 'high' ? '胜' : '败'}
+                  {subTab === 'high' ? (t('win_badge') || '胜') : (t('loss_badge') || '败')}
                 </span>
               ))}
-              {(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)) > 5 && (
-                <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] border border-muted-foreground/30 text-muted-foreground">
+              {(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)) > 3 && (
+                <span className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] border border-muted-foreground/30 text-muted-foreground">
                   ···
                 </span>
               )}
@@ -1173,55 +1174,55 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           </div>
         </div>
         {/* Top Right Action Buttons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 flex-shrink-0">
           <button 
-            className="px-1.5 py-0.5 text-[9px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors"
+            className="px-1 py-0.5 text-[8px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors whitespace-nowrap"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/player/${player.id}?tab=history`);
             }}
           >
-            {t('history_predictions') || '历史预测'}
+            {t('history_short') || '历史'}
           </button>
           <button 
-            className="px-1.5 py-0.5 text-[9px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors"
+            className="px-1 py-0.5 text-[8px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors whitespace-nowrap"
             onClick={(e) => {
               e.stopPropagation();
             }}
           >
-            {t('today_copy_trade') || '今日跟单'}
+            {t('today_short') || '今日'}
           </button>
         </div>
       </div>
 
       {/* Middle: Profit Rate + Profit Amount + Chart */}
       <div className="flex items-center justify-between mb-2">
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           {/* Profit Rate - Same Line */}
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[9px] text-muted-foreground whitespace-nowrap w-10">
+            <span className="text-[8px] text-muted-foreground whitespace-nowrap w-8 truncate">
               {mainTab === 'copyTrade' 
-                ? (t('copy_profit_label') || '跟单收益')
-                : (t('profit_rate_label') || '盈利率')}
+                ? (t('copy_short') || '收益')
+                : (t('profit_short') || '盈利率')}
             </span>
-            <span className={`text-lg font-bold tracking-tight ${isPositive ? 'text-success' : 'text-destructive'}`}>
-              {isPositive ? '+' : ''}{player.changePercent.toFixed(2)}%
+            <span className={`text-base font-bold tracking-tight ${isPositive ? 'text-success' : 'text-destructive'}`}>
+              {isPositive ? '+' : ''}{player.changePercent.toFixed(1)}%
             </span>
           </div>
           {/* Profit Amount - Same Line */}
           <div className="flex items-center gap-1">
-            <span className="text-[9px] text-muted-foreground whitespace-nowrap w-10">
-              {t('profit_amount_label') || '盈利金额'}
+            <span className="text-[8px] text-muted-foreground whitespace-nowrap w-8 truncate">
+              {t('amount_short') || '金额'}
             </span>
-            <span className={`text-xs font-semibold flex items-center gap-0.5 ${isPositive ? 'text-success' : 'text-destructive'}`}>
+            <span className={`text-[11px] font-semibold flex items-center gap-0.5 ${isPositive ? 'text-success' : 'text-destructive'}`}>
               {isPositive ? '+' : ''}{(player.profitAmount || 0).toLocaleString()}
-              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3" />
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-2.5 h-2.5" />
             </span>
           </div>
         </div>
         
         {/* Mini Chart */}
-        <div className="w-16 h-8 flex-shrink-0">
+        <div className="w-14 h-7 flex-shrink-0">
           <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
             <path
               d={generateChartPath(player.id, player.changePercent)}
@@ -1236,23 +1237,23 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       </div>
 
       {/* Bottom Stats */}
-      <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
-        <div className="flex items-center gap-1.5">
-          <span className="flex items-center gap-0.5 text-success">
+      <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-2 border-t border-border/20">
+        <div className="flex items-center gap-1 min-w-0 overflow-hidden">
+          <span className="flex items-center gap-0.5 text-success flex-shrink-0">
             <CheckCircle className="h-2.5 w-2.5" />
-            {t('correct_matches_count', { count: player.correctPredictions }) || `正确${player.correctPredictions}场`}
+            <span className="truncate">{player.correctPredictions}</span>
           </span>
-          <span className="flex items-center gap-0.5 text-destructive">
+          <span className="flex items-center gap-0.5 text-destructive flex-shrink-0">
             <XCircle className="h-2.5 w-2.5" />
-            {t('wrong_matches_count', { count: player.totalPredictions - player.correctPredictions }) || `错误${player.totalPredictions - player.correctPredictions}场`}
+            <span className="truncate">{player.totalPredictions - player.correctPredictions}</span>
           </span>
-          <span className="flex items-center gap-0.5">
+          <span className="flex items-center gap-0.5 flex-shrink-0">
             <Users className="h-2.5 w-2.5" />
-            {player.followers || 0}{t('followers_suffix') || '跟单'}
+            <span className="truncate">{player.followers || 0}</span>
           </span>
         </div>
-        <div className="text-success font-medium">
-          {t('win_rate_prefix') || '胜率'}{player.winRate}%
+        <div className="text-success font-medium flex-shrink-0 whitespace-nowrap">
+          {player.winRate}%
         </div>
       </div>
     </motion.div>

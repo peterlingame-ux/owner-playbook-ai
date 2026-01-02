@@ -187,7 +187,10 @@ const resources = {
       "trading_volume": "Trading Volume",
       "trading_days": "Trading Days",
       "all_predictors": "All Predictors",
+      "all_short": "All",
       "copy_profit_label": "Copy Profit",
+      "copy_short": "Profit",
+      "amount_short": "Amount",
       "followers_suffix": " followers",
       
       // Mobile Leaderboard - AI Prediction
@@ -1362,7 +1365,10 @@ const resources = {
       "qualified_stamp": "已达标",
       "keep_going": "继续努力",
       "all_predictors": "全部预测者",
+      "all_short": "全部",
       "copy_profit_label": "跟单收益",
+      "copy_short": "收益",
+      "amount_short": "金额",
       "followers_suffix": "跟单",
       "90d_copy_profit": "近90日跟单收益",
       
