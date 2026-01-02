@@ -1113,13 +1113,13 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
     >
       {/* Qualified Stamp - 已达标 */}
       {isQualified && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] pointer-events-none z-10">
+        <div className="absolute top-1/2 right-16 -translate-y-1/2 rotate-[-12deg] pointer-events-none z-10">
           <div className="relative">
             {/* Outer glow effect */}
-            <div className="absolute inset-0 blur-sm bg-success/20 rounded-lg scale-110" />
+            <div className="absolute inset-0 blur-[2px] bg-success/30 rounded scale-110" />
             {/* Stamp container */}
-            <div className="relative px-4 py-1.5 border-[3px] border-success rounded-lg bg-success/10 backdrop-blur-[2px]">
-              <span className="text-success font-black text-lg tracking-wider whitespace-nowrap" style={{ textShadow: '0 0 8px hsl(var(--success) / 0.5)' }}>
+            <div className="relative px-2 py-0.5 border-2 border-success rounded bg-success/15 backdrop-blur-[1px]">
+              <span className="text-success font-black text-[10px] tracking-wide whitespace-nowrap" style={{ textShadow: '0 0 4px hsl(var(--success) / 0.6)' }}>
                 {t('qualified_stamp') || '已达标'}
               </span>
             </div>
