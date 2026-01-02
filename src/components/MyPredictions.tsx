@@ -472,37 +472,38 @@ const MyPredictions = () => {
   const currentLevel = user ? level : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-8 sm:pb-24 overflow-x-hidden">
+    <div className="min-h-screen bg-background pb-20 sm:pb-24 overflow-x-hidden">
       {/* Profile Header - Matching Reference Design Exactly */}
       <div className="relative px-3 sm:px-4 pt-4">
 
         {/* 3D Avatar Section with Sky Background */}
-        <div className="relative w-full max-w-[380px] mx-auto">
+        <div className="relative w-full max-w-[min(380px,calc(100vw-24px))] mx-auto">
           {/* Avatar Container with special shape - rounded bottom-right with mask */}
           <div 
-            className="relative w-full aspect-[4/5] overflow-hidden"
+            className="relative w-full overflow-hidden"
             style={{
-              borderRadius: '0 0 120px 0',
+              borderRadius: '0 0 clamp(60px, 15vw, 120px) 0',
+              aspectRatio: '4/5',
             }}
           >
             {/* Sky Background */}
             <div 
               className="absolute inset-0 overflow-hidden"
               style={{
-                borderRadius: '0 0 120px 0',
+                borderRadius: '0 0 clamp(60px, 15vw, 120px) 0',
                 background: 'linear-gradient(180deg, hsl(205 70% 65%) 0%, hsl(205 60% 78%) 40%, hsl(205 50% 88%) 100%)',
               }}
             >
-              {/* Cloud effects */}
+              {/* Cloud effects - responsive sizing */}
               <div 
                 className="absolute inset-0"
                 style={{
                   backgroundImage: `
-                    radial-gradient(ellipse 180px 80px at 15% 35%, rgba(255,255,255,0.85) 0%, transparent 70%),
-                    radial-gradient(ellipse 220px 100px at 60% 25%, rgba(255,255,255,0.75) 0%, transparent 70%),
-                    radial-gradient(ellipse 160px 70px at 85% 50%, rgba(255,255,255,0.8) 0%, transparent 70%),
-                    radial-gradient(ellipse 200px 90px at 40% 60%, rgba(255,255,255,0.7) 0%, transparent 70%),
-                    radial-gradient(ellipse 140px 60px at 10% 70%, rgba(255,255,255,0.6) 0%, transparent 70%)
+                    radial-gradient(ellipse 40% 25% at 15% 35%, rgba(255,255,255,0.85) 0%, transparent 70%),
+                    radial-gradient(ellipse 45% 30% at 60% 25%, rgba(255,255,255,0.75) 0%, transparent 70%),
+                    radial-gradient(ellipse 35% 22% at 85% 50%, rgba(255,255,255,0.8) 0%, transparent 70%),
+                    radial-gradient(ellipse 42% 28% at 40% 60%, rgba(255,255,255,0.7) 0%, transparent 70%),
+                    radial-gradient(ellipse 30% 18% at 10% 70%, rgba(255,255,255,0.6) 0%, transparent 70%)
                   `,
                 }}
               />
@@ -512,7 +513,7 @@ const MyPredictions = () => {
             <div 
               className="absolute inset-0 flex items-end justify-center overflow-hidden"
               style={{
-                borderRadius: '0 0 120px 0',
+                borderRadius: '0 0 clamp(60px, 15vw, 120px) 0',
               }}
             >
               <img 
@@ -521,7 +522,7 @@ const MyPredictions = () => {
                 className="h-full w-full object-cover"
                 style={{
                   filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))',
-                  objectPosition: 'center bottom',
+                  objectPosition: 'center top',
                 }}
               />
             </div>
@@ -531,14 +532,14 @@ const MyPredictions = () => {
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
               <button 
-                className="absolute left-0 bottom-0 w-14 h-14 rounded-full flex items-center justify-center z-20 hover:scale-105 transition-transform"
+                className="absolute left-0 bottom-0 w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-20 hover:scale-105 transition-transform"
                 style={{
                   background: 'hsl(70 65% 55%)',
                   boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
                 }}
               >
                 {/* Pen with lines icon - matching reference */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(220 20% 15%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="hsl(220 20% 15%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
                   <path d="M15 5l4 4" />
                   <path d="M2 18h5" />
@@ -717,16 +718,16 @@ const MyPredictions = () => {
         </div>
 
         {/* Profile Info - Name, Pro Badge, Signature */}
-        <div className="mt-6 overflow-hidden">
+        <div className="mt-4 sm:mt-6 overflow-hidden">
           {/* Name + PRO Badge */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
+            <h1 className="text-lg sm:text-2xl font-bold text-foreground truncate max-w-[calc(100vw-120px)] sm:max-w-none">
               {userProfile?.display_name || 'Player'}
             </h1>
             {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
             <button 
               onClick={() => setIsVipDialogOpen(true)}
-              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md relative overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md relative overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
               style={isVipActive ? {
                 background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
                 boxShadow: '0 2px 12px rgba(80, 180, 220, 0.6), 0 0 20px rgba(100, 200, 255, 0.3)',
@@ -745,18 +746,18 @@ const MyPredictions = () => {
                   }}
                 />
               )}
-              <span className={`text-xs font-bold relative z-10 ${isVipActive ? 'text-white' : 'text-gray-400'}`}>VIP</span>
+              <span className={`text-[10px] sm:text-xs font-bold relative z-10 ${isVipActive ? 'text-white' : 'text-gray-400'}`}>VIP</span>
             </button>
           </div>
 
         {/* Signature / Bio */}
-        <p className="text-sm sm:text-base text-muted-foreground mt-2 line-clamp-2 break-words">
+        <p className="text-xs sm:text-base text-muted-foreground mt-1.5 sm:mt-2 line-clamp-2 break-words">
           {userProfile?.signature || t('prediction_expert') || 'Prediction Expert'}
         </p>
 
         {/* Level Display with Progress Bar */}
-        <div className="mt-4">
-          <div className="flex items-center gap-3">
+        <div className="mt-3 sm:mt-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Level Badge - Different colors based on level range */}
             {(() => {
               // Define level tier colors
@@ -806,19 +807,19 @@ const MyPredictions = () => {
               return (
                 <>
                   <div 
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                    className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex-shrink-0"
                     style={levelStyle}
                   >
-                    <span className="text-sm font-bold text-white">Lv.{currentLevel}</span>
+                    <span className="text-xs sm:text-sm font-bold text-white whitespace-nowrap">Lv.{currentLevel}</span>
                   </div>
                   
                   {/* Progress to Next Level */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-0.5 sm:mb-1 gap-1">
+                      <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
                         {currentLevel >= 50 ? (t('max_level') || 'Max Level') : `${t('next_level') || 'Next'}: Lv.${currentLevel + 1}`}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">
                         {getNextLevelProgress().current}/{getNextLevelProgress().required} {t('minutes_unit') || 'min'}
                       </span>
                     </div>
