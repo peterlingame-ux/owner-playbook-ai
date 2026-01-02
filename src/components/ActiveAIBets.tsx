@@ -1401,6 +1401,8 @@ const ActiveAIBets = () => {
               onOpenAnalysis={getMatchAnalysisFromDB}
               getTeamName={getTeamName}
               getLeagueName={getLeagueName}
+              isManualPrediction={!isAutoPrediction}
+              availableMatches={matches}
               onPrevMatch={(e) => {
                 e.stopPropagation();
                 setCurrentMatchIndex(prev => ({
