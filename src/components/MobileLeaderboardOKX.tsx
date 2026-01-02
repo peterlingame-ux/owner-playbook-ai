@@ -1248,6 +1248,8 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             className="px-1 py-0.5 text-[8px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors whitespace-nowrap"
             onClick={(e) => {
               e.stopPropagation();
+              // Navigate to PC-style copy trading page
+              navigate('/leaderboard?tab=copy');
             }}
           >
             {t('today_short') || '今日'}
