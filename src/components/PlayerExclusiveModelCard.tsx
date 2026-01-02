@@ -1481,24 +1481,11 @@ const PlayerExclusiveModelCard = ({
         }
       }}>
         <DialogContent className="sm:max-w-md w-[calc(100%-32px)] max-h-[85vh] p-0 gap-0 bg-card border-border">
-          {/* Header */}
-          <DialogHeader className="px-4 py-3 border-b border-border flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              {selectedMatch && (
-                <button
-                  onClick={() => setSelectedMatch(null)}
-                  className="p-1 rounded hover:bg-white/10 transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-              )}
-              <DialogTitle className="text-sm font-medium">
-                {selectedMatch ? safeGetTeamName(selectedMatch, 'home') + ' vs ' + safeGetTeamName(selectedMatch, 'away') : (t('select_match') || '选择比赛')}
-              </DialogTitle>
-            </div>
+          <DialogHeader className="sr-only">
+            <DialogTitle>{t('select_match') || '选择比赛'}</DialogTitle>
           </DialogHeader>
 
-          <div className="overflow-y-auto max-h-[calc(85vh-60px)]">
+          <div className="overflow-y-auto max-h-[85vh]">
             {/* Step 1: Match Selection */}
             {!selectedMatch ? (
               <div className="p-3 space-y-2">
