@@ -642,6 +642,27 @@ export const ko = {
     "days_ago": "일 전",
     "yesterday": "어제",
     
+    // VIP Dialog
+    "open_vip": "VIP 회원 활성화",
+    "vip_unlock_privileges": "독점 혜택을 잠금 해제하고 VIP 경험을 즐기세요",
+    "vip_enjoy_privileges": "독점 혜택을 즐기세요",
+    "vip_active": "VIP 활성화됨",
+    "vip_privilege_avatar": "커스텀 아바타",
+    "vip_privilege_avatar_desc": "개인 아바타를 업로드하고 변경할 수 있습니다",
+    "vip_privilege_matches": "무료 경기 접근",
+    "vip_privilege_matches_desc": "모든 경기 데이터와 분석에 무료 접근",
+    "vip_privilege_entrance": "특별 입장 효과",
+    "vip_privilege_entrance_desc": "경기 채팅에 입장 시 멋진 효과",
+    "vip_privilege_glow": "이름 빛나기",
+    "vip_privilege_glow_desc": "순위표에서 당신의 이름이 빛납니다",
+    "vip_privilege_dm": "개인 메시지",
+    "vip_privilege_dm_desc": "다른 플레이어와 개인적으로 채팅",
+    "open_vip_now": "지금 VIP 활성화",
+    "vip_status_active": "VIP 회원 활성화됨",
+    "enjoy_all_privileges": "모든 독점 혜택을 즐기세요",
+    "please_login": "먼저 로그인하세요",
+    
+    
     // Countries
     "select_country": "국가 선택",
     "country_code": "국가 코드"
