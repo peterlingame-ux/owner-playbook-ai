@@ -381,7 +381,6 @@ const ChallengeAIBanner = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <span className="text-sm xs:text-base sm:text-4xl font-black text-foreground flex items-center gap-0.5 sm:gap-1 flex-wrap justify-center">
-                <span className="truncate max-w-[120px] xs:max-w-none">{t('challenge_ai_reward')}</span>
                 <motion.span
                   className="text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]"
                   animate={{ 

@@ -478,9 +478,9 @@ const MyPredictions = () => {
 
         {/* 3D Avatar Section with Sky Background */}
         <div className="relative w-full max-w-[380px] mx-auto">
-          {/* Avatar Container with special shape - rounded bottom-right */}
+          {/* Avatar Container with special shape - rounded bottom-right with mask */}
           <div 
-            className="relative w-full aspect-[4/5] overflow-visible"
+            className="relative w-full aspect-[4/5] overflow-hidden"
             style={{
               borderRadius: '0 0 120px 0',
             }}
@@ -508,20 +508,20 @@ const MyPredictions = () => {
               />
             </div>
 
-            {/* Avatar Image - 3D Pop-out Effect */}
+            {/* Avatar Image - 3D Pop-out Effect with rounded bottom-right mask */}
             <div 
-              className="absolute inset-0 flex items-end justify-center"
+              className="absolute inset-0 flex items-end justify-center overflow-hidden"
               style={{
-                transform: 'translateY(20px)',
+                borderRadius: '0 0 120px 0',
               }}
             >
               <img 
                 src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
                 alt={userProfile?.display_name}
-                className="h-[110%] w-auto object-cover object-top"
+                className="h-full w-full object-cover"
                 style={{
                   filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))',
-                  maxWidth: '120%',
+                  objectPosition: 'center bottom',
                 }}
               />
             </div>

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar, X, Search, Lock, CheckCircle2, Copy } from "lucide-react";
+import { ChevronRight, ChevronDown, Filter, TrendingUp, TrendingDown, Users, Clock, DollarSign, Trophy, Loader2, ThumbsUp, Zap, CheckCircle, XCircle, History, UserPlus, Calendar, X, Search, Lock, CheckCircle2, Copy, Sparkles } from "lucide-react";
 import { differenceInSeconds } from "date-fns";
 import { format } from "date-fns";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -164,6 +164,17 @@ const MobileLeaderboardOKX = () => {
   const [isCopyTradeDialogOpen, setIsCopyTradeDialogOpen] = useState(false);
   const [copyTradeAmount, setCopyTradeAmount] = useState<number>(100);
   const [isCopyTrading, setIsCopyTrading] = useState(false);
+  // 跟单成功状态
+  const [copySuccess, setCopySuccess] = useState<{
+    show: boolean;
+    oldBalance: number;
+    newBalance: number;
+    betAmount: number;
+    playerName: string;
+    prediction?: TodayPrediction;
+    predictionType?: string;
+    odds?: string;
+  } | null>(null);
 
   // MatchCountdown component
   const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
@@ -728,26 +739,93 @@ const MobileLeaderboardOKX = () => {
   const confirmCopyTrade = async () => {
     if (!copyTradeDialog) return;
     
+    const oldBalance = usdtBalance;
+    
+    if (copyBetAmount > usdtBalance) {
+      toast.error('余额不足，无法订阅');
+      return;
+    }
+
+    if (copyBetAmount < 10) {
+      toast.error('最低订阅金额为 10 猎人币');
+      return;
+    }
+    
     setIsCopying(true);
     try {
-      // 模拟跟单过程
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 计算赔率和预测类型
+      const odds = copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount 
+        ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2) 
+        : '1.85';
+      const predictionType = copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让球';
       
-      // 将预测添加到已解锁列表
+      let newBalance = oldBalance - copyBetAmount;
+      
+      // 如果用户已登录，使用真实数据库操作
+      if (user) {
+        const potentialPayout = copyBetAmount * parseFloat(odds);
+        const matchDate = new Date().toISOString();
+        
+        const { data, error } = await supabase.rpc('place_bet', {
+          p_user_id: user.id,
+          p_match_id: copyTradeDialog.prediction.match_id,
+          p_prediction_type: copyTradeDialog.prediction.prediction_type,
+          p_prediction: `订阅-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
+          p_bet_amount: copyBetAmount,
+          p_potential_payout: potentialPayout,
+          p_match_date: matchDate,
+        });
+
+        if (error) {
+          console.error('Copy trade error:', error);
+          toast.error('订阅失败：' + error.message);
+          return;
+        }
+
+        const result = data as { success: boolean; error?: string; new_balance?: number };
+        
+        if (!result.success) {
+          toast.error(result.error || '订阅失败');
+          return;
+        }
+
+        // 更新余额
+        if (result.new_balance !== undefined) {
+          setUsdtBalance(result.new_balance);
+          newBalance = result.new_balance;
+        }
+      } else {
+        // 演示模式：模拟延迟
+        await new Promise(resolve => setTimeout(resolve, 500));
+        toast.success('演示模式：订阅成功');
+        setUsdtBalance(newBalance);
+      }
+      
+      // 将该预测添加到已跟单列表，解锁显示
       setCopiedPredictions(prev => {
         const newSet = new Set(prev);
         newSet.add(copyTradeDialog.prediction.id);
         return newSet;
       });
       
-      // 这里可以添加实际的跟单API调用
-      // const { error } = await supabase.from('copy_trades').insert({...});
+      // 显示成功动画 - 不自动关闭，由用户手动关闭
+      setCopySuccess({
+        show: true,
+        oldBalance,
+        newBalance,
+        betAmount: copyBetAmount,
+        playerName: copyTradeDialog.player.displayName,
+        prediction: copyTradeDialog.prediction,
+        predictionType,
+        odds,
+      });
       
-      setIsCopying(false);
       setCopyTradeDialog(null);
-      // 可以显示成功提示
+      
     } catch (error) {
       console.error('Copy trade error:', error);
+      toast.error('订阅失败，请稍后重试');
+    } finally {
       setIsCopying(false);
     }
   };
@@ -1106,7 +1184,7 @@ const MobileLeaderboardOKX = () => {
                   <img src={getAIIcon(model.id)} alt={model.name} className="w-6 h-6 object-contain" />
                 </div>
                 {index < 3 && (
-                  <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                  <div className={`absolute -top-1 -left-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
                     index === 0 ? 'bg-yellow-500 text-yellow-950' :
                     index === 1 ? 'bg-gray-400 text-gray-900' :
                     'bg-amber-600 text-amber-950'
@@ -1185,16 +1263,16 @@ const MobileLeaderboardOKX = () => {
               {/* Mini Chart + Win Rate */}
               <div className="w-16 flex-shrink-0 flex flex-col items-end">
                 <div className="w-16 h-8">
-                  <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
-                    <path
-                      d={generateChartPath(model.id, model.changePercent)}
-                      fill="none"
-                      stroke={model.changePercent >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
+                  <path
+                    d={generateChartPath(model.id, model.changePercent)}
+                    fill="none"
+                    stroke={model.changePercent >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 </div>
                 {/* Win Rate below chart */}
                 <div className="text-[9px] text-success font-medium mt-0.5">
@@ -1238,13 +1316,13 @@ const MobileLeaderboardOKX = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Challenge AI Banner - Auto fit screen */}
-      <div className="w-full overflow-hidden">
+      {/* Challenge AI Banner - Auto fit screen - Sticky below header */}
+      <div className="sticky top-[69px] sm:top-[70px] z-40 w-full overflow-hidden">
         <ChallengeAIBanner />
       </div>
 
-      {/* Main Tabs - OKX Style */}
-      <div className="sticky top-0 z-30 bg-background border-b border-border/30">
+      {/* Main Tabs - OKX Style - Positioned below banner (header ~69px + banner ~180px) */}
+      <div className="sticky top-[249px] sm:top-[290px] z-30 bg-background border-b border-border/30">
         <div className="flex items-center gap-2 px-3 pt-2 overflow-x-auto scrollbar-hide">
           {mainTabs.map((tab) => (
             <button
@@ -1268,8 +1346,8 @@ const MobileLeaderboardOKX = () => {
         </div>
       </div>
 
-      {/* Sub Tabs - Show for all tabs */}
-      <div className="sticky top-[52px] z-20 bg-background">
+      {/* Sub Tabs - Show for all tabs - Positioned below main tabs (main tab ~52px height) */}
+      <div className="sticky top-[301px] sm:top-[342px] z-20 bg-background">
         <div className="flex items-center gap-2 px-3 py-2 overflow-x-auto scrollbar-hide">
           {subTabs.map((tab) => (
             <button
@@ -1609,7 +1687,7 @@ const MobileLeaderboardOKX = () => {
                       {selectedPlayerForFollowers.displayName} - {t('followers') || '跟单者'}
                     </>
                   )}
-                </div>
+    </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {t('updated_at') || '更新于'} {new Date().toLocaleString('zh-CN', { 
                     year: 'numeric', 
@@ -2176,6 +2254,206 @@ const MobileLeaderboardOKX = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* 跟单成功动画弹窗 */}
+      <AnimatePresence>
+        {copySuccess?.show && (
+          <Dialog open={true} onOpenChange={() => setCopySuccess(null)}>
+            <DialogContent className="max-w-sm overflow-hidden">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", duration: 0.5 }}
+                className="text-center space-y-4"
+              >
+                {/* 跟随玩家头像 */}
+                <motion.div 
+                  className="mx-auto w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center relative border-2 border-primary"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2, duration: 0.6 }}
+                >
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={allPlayers.find(p => p.displayName === copySuccess.playerName)?.avatarUrl} />
+                    <AvatarFallback className="text-xl">{copySuccess.playerName?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  
+                  {/* 成功勾选标记 */}
+                  <motion.div
+                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-success flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.5, duration: 0.4 }}
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-white" />
+                  </motion.div>
+                  
+                  {/* 闪烁星星效果 */}
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: [0, 1, 0],
+                        opacity: [0, 1, 0],
+                        x: [0, (i % 2 === 0 ? 1 : -1) * (30 + Math.random() * 20)],
+                        y: [0, (i < 3 ? -1 : 1) * (20 + Math.random() * 20)],
+                      }}
+                      transition={{ 
+                        delay: 0.5 + i * 0.1,
+                        duration: 0.8,
+                        ease: "easeOut"
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 text-yellow-500" />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* 成功文字 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <h3 className="text-xl font-bold text-success">跟单成功!</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    已跟随 <span className="text-foreground font-medium">{copySuccess.playerName}</span>
+                  </p>
+                </motion.div>
+
+                {/* 追踪人数信息 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.35 }}
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50"
+                >
+                  <Users className="h-4 w-4 text-primary" fill="currentColor" />
+                  <span className="text-sm text-muted-foreground">
+                    已有 <span className="text-foreground font-bold">{50 + (copySuccess.playerName.charCodeAt(0) % 150)}</span> 人订阅该玩家
+                  </span>
+                </motion.div>
+
+                {/* 综合跟单信息卡片 */}
+                {copySuccess.prediction && (
+                  <motion.div
+                    initial={{ y: 20, opacity: 0, scale: 0.95 }}
+                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, type: "spring" }}
+                    className="w-full rounded-xl bg-gradient-to-b from-muted/30 to-muted/10 border border-border/50 overflow-hidden"
+                  >
+                    {/* 比赛信息头部 */}
+                    <div className="px-4 py-3 border-b border-border/30">
+                      <div className="flex items-center justify-center mb-2">
+                        <span className="text-xs font-medium text-muted-foreground">英超联赛</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={`/src/assets/team-${(copySuccess.prediction.home_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                            alt=""
+                            className="w-6 h-6 object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                          />
+                          <span className="text-primary font-bold">{copySuccess.prediction.home_team || '主队'}</span>
+                        </div>
+                        <span className="text-muted-foreground text-sm">vs</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary font-bold">{copySuccess.prediction.away_team || '客队'}</span>
+                          <img 
+                            src={`/src/assets/team-${(copySuccess.prediction.away_team || '').toLowerCase().replace(/\s+/g, '-').replace('曼城', 'manchester-city').replace('利物浦', 'liverpool').replace('曼联', 'manchester-united').replace('巴塞罗那', 'barcelona').replace('皇马', 'real-madrid').replace('拜仁', 'bayern').replace('巴黎', 'psg').replace('阿森纳', 'arsenal').replace('国际米兰', 'inter').replace('AC米兰', 'acmilan').replace('马竞', 'atletico').replace('多特', 'dortmund')}.png`}
+                            alt=""
+                            className="w-6 h-6 object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 投注详情 */}
+                    <div className="px-4 py-3 border-b border-border/30">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="text-center p-2.5 rounded-lg bg-background/50 border border-border/30">
+                          <div className="text-[10px] text-muted-foreground mb-1">类型</div>
+                          <div className="text-sm font-semibold">{copySuccess.predictionType}</div>
+                        </div>
+                        <div className="text-center p-2.5 rounded-lg bg-primary/10 border border-primary/30">
+                          <div className="text-[10px] text-muted-foreground mb-1">预测</div>
+                          <div className="text-sm font-semibold text-primary">{copySuccess.prediction.prediction}</div>
+                        </div>
+                        <div className="text-center p-2.5 rounded-lg bg-background/50 border border-border/30">
+                          <div className="text-[10px] text-muted-foreground mb-1">赔率</div>
+                          <div className="text-sm font-semibold text-warning">{copySuccess.odds}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 金额显示 - 一行两列 */}
+                    <div className="px-4 py-3 border-b border-border/30">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <p className="text-[10px] text-muted-foreground mb-1">玩家下注</p>
+                          <div className="text-lg font-bold font-mono">{copySuccess.prediction.bet_amount}</div>
+                        </div>
+                        <div className="text-center border-l border-border/30">
+                          <p className="text-[10px] text-muted-foreground mb-1">您的跟单金额</p>
+                          <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.8, type: "spring" }}
+                            className="text-lg font-bold font-mono text-primary"
+                          >
+                            {copySuccess.betAmount.toLocaleString()}
+                          </motion.div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 预期收益 */}
+                    <div className="px-4 py-3 bg-success/5">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex flex-col">
+                          <span className="text-muted-foreground">预期收益</span>
+                          <span className="text-[10px] text-muted-foreground/70">{copySuccess.betAmount} × {copySuccess.odds}</span>
+                        </div>
+                        <motion.span
+                          initial={{ scale: 1 }}
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ delay: 1.5, duration: 0.5 }}
+                          className="font-bold text-success"
+                        >
+                          +{(copySuccess.betAmount * parseFloat(copySuccess.odds || '1')).toFixed(0)}
+                        </motion.span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* 操作按钮 */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                >
+                  <Button 
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setCopySuccess(null);
+                      navigate('/my-predictions');
+                    }}
+                  >
+                    查看我的跟单记录
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -2232,7 +2510,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
           {index < 3 && (
-            <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+            <div className={`absolute -top-1 -left-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
               index === 0 ? 'bg-yellow-500 text-yellow-950' :
               index === 1 ? 'bg-gray-400 text-gray-900' :
               'bg-amber-600 text-amber-950'
@@ -2328,16 +2606,16 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
         {/* Mini Chart + Win Rate */}
         <div className="w-14 flex-shrink-0 flex flex-col items-end">
           <div className="w-14 h-7">
-            <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
-              <path
-                d={generateChartPath(player.id, player.changePercent)}
-                fill="none"
-                stroke={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <svg width="100" height="32" viewBox="0 0 100 32" className="w-full h-full">
+            <path
+              d={generateChartPath(player.id, player.changePercent)}
+              fill="none"
+              stroke={isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           </div>
           {/* Win Rate below chart */}
           <div className="text-[9px] text-success font-medium mt-0.5">
@@ -2365,8 +2643,8 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             onFollowersClick(player);
           }}
         >
-          <Users className="h-2.5 w-2.5" />
-          <span className="truncate">{player.followers || 0}</span>
+            <Users className="h-2.5 w-2.5" />
+            <span className="truncate">{player.followers || 0}</span>
         </button>
       </div>
     </motion.div>

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, UserCheck, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
-import LiveFootballAnimation from "@/components/LiveFootballAnimation";
+import { ArrowLeft, Play, ThumbsUp, ThumbsDown, ChevronRight, MessageCircle, Users, BarChart2, Flame, CircleDot, Thermometer, Droplets, MapPin, Clock, ExternalLink, Smile, Gift, Send, Maximize2 } from "lucide-react";
 import { GoalIcon, YellowCardIcon, WhistleIcon, RedCardIcon, CornerIcon, InfoIcon, OffTargetIcon, OnTargetIcon, OffsideIcon } from "@/components/FootballIcons";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -451,7 +450,7 @@ const generateDefaultMatch = (id: string): MatchDetailInfo => ({
   timeline: []
 });
 
-type TabType = 'live' | 'chat' | 'lineup' | 'odds' | 'expert' | 'hot';
+type TabType = 'live' | 'chat' | 'lineup' | 'odds' | 'hot';
 
 // 阵型克制关系定义
 interface FormationMatchup {
@@ -1216,12 +1215,6 @@ const parseOddsData = (
   companyIds: number[] = [7, 3, 2, 11, 10]
 ): MatchDetailInfo['odds'] | undefined => {
   if (!oddsResponse.results || typeof oddsResponse.results !== 'object' || Array.isArray(oddsResponse.results) || Object.keys(oddsResponse.results).length === 0) {
-    console.warn('No results in odds response or invalid format:', {
-      hasResults: !!oddsResponse.results,
-      type: typeof oddsResponse.results,
-      isArray: Array.isArray(oddsResponse.results),
-      keysLength: oddsResponse.results ? Object.keys(oddsResponse.results).length : 0
-    });
     return undefined;
   }
 
@@ -1280,7 +1273,6 @@ const parseOddsData = (
       // 解析赔率字符串：主胜/大球/大,和局/盘口,客胜/小球/小,是否封盘
       const oddsParts = oddsString.split(',');
       if (oddsParts.length < 4) {
-        console.warn('Invalid odds string format:', oddsString);
         return;
       }
       
@@ -1365,7 +1357,6 @@ const parseOddsData = (
   }); // 结束 Object.entries(oddsResponse.results).forEach
 
   if (handicap.length === 0 && euroOdds.length === 0 && overUnder.length === 0 && corners.length === 0) {
-    console.warn('[parseOddsData] No odds data found for any type');
     return undefined;
   }
 
@@ -1375,13 +1366,6 @@ const parseOddsData = (
     overUnder: overUnder.length > 0 ? overUnder : [],
     corners: corners.length > 0 ? corners : [],
   };
-
-  console.log('[parseOddsData] Parsed odds result:', {
-    handicap: result.handicap.length,
-    euroOdds: result.euroOdds.length,
-    overUnder: result.overUnder.length,
-    corners: result.corners.length,
-  });
 
   return result;
 };
@@ -1546,7 +1530,7 @@ export default function MatchDetail() {
         });
       }
     } catch (err) {
-      console.error('Failed to refresh match data:', err);
+      // Failed to refresh match data
     }
   }, [matchId]);
 
@@ -1631,11 +1615,8 @@ export default function MatchDetail() {
           const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
           if (parsedOdds) {
             matchData.odds = parsedOdds;
-          } else {
-            console.warn('No odds data parsed from response');
           }
         } catch (oddsError) {
-          console.error('Failed to load odds data:', oddsError);
           // 指数数据加载失败不影响主流程
         }
         
@@ -1694,7 +1675,6 @@ export default function MatchDetail() {
             }
           }
         } catch (trendError) {
-          console.error('Failed to load trend data:', trendError);
           // 趋势数据加载失败不影响主流程
         }
         
@@ -1787,14 +1767,12 @@ export default function MatchDetail() {
               }
             }
           } catch (lineupError) {
-            console.error('Failed to load lineup data:', lineupError);
             // 阵容数据加载失败不影响主流程
           }
         }
         
         setMatch(matchData);
       } catch (err) {
-        console.error('Failed to load match data:', err);
         setError(err instanceof Error ? err.message : '加载比赛数据失败');
         // 使用虚拟数据作为后备
         if (matchId) {
@@ -2031,7 +2009,6 @@ export default function MatchDetail() {
           });
         }
       } catch (err) {
-        console.error('Failed to update live data:', err);
         // 不显示错误，静默失败，继续轮询
       }
     };
@@ -2190,11 +2167,8 @@ export default function MatchDetail() {
               odds: parsedOdds,
             };
           });
-        } else {
-          console.warn('No odds data parsed from update response');
         }
       } catch (err) {
-        console.error('Failed to update odds data:', err);
         // 指数数据更新失败不影响其他功能，静默失败
       }
     };
@@ -2215,11 +2189,8 @@ export default function MatchDetail() {
       const loadOddsData = async () => {
         try {
           const companyIds = [7, 3, 2, 11, 10]; // 澳彩、皇冠、BET365、韦德、易胜博
-          console.log('[MatchDetail] Loading odds data for match:', matchId);
           const oddsResponse = await fetchOddsLive(matchId, companyIds);
-          console.log('[MatchDetail] Odds response received:', oddsResponse);
           const parsedOdds = parseOddsData(oddsResponse, matchId, companyIds);
-          console.log('[MatchDetail] Parsed odds data:', parsedOdds);
           
           if (parsedOdds) {
             setMatch(prevMatch => {
@@ -2228,14 +2199,11 @@ export default function MatchDetail() {
                 ...prevMatch,
                 odds: parsedOdds,
               };
-              console.log('[MatchDetail] Updated match with odds:', updated.odds);
               return updated;
             });
-          } else {
-            console.warn('[MatchDetail] Parsed odds data is undefined or empty');
           }
         } catch (err) {
-          console.error('Failed to load odds data when clicking odds tab:', err);
+          // Failed to load odds data
         }
       };
 
@@ -2461,10 +2429,7 @@ export default function MatchDetail() {
         </div>
         {/* 球员名字（简写） */}
         <span className="text-[7px] sm:text-[9px] text-white mt-0.5 text-center truncate max-w-[40px] sm:max-w-[50px] drop-shadow-lg font-medium leading-tight">
-          {(() => {
-            console.log(`球员完整名字 (player.name): ${player.name}, 从incidents获取: ${playerName}, 简写: ${getShortName(playerName)}`);
-            return getShortName(playerName);
-          })()}
+          {getShortName(playerName)}
         </span>
       </div>
     );
@@ -2475,7 +2440,46 @@ export default function MatchDetail() {
     const [oddsType, setOddsType] = useState<'handicap' | 'euroOdds' | 'overUnder' | 'corners'>('handicap');
     const [timeType, setTimeType] = useState<'half' | 'full'>('full');
 
-    console.log('[OddsTab] Match odds data:', match.odds);
+    // 格式化平台名字：中文显示首字+*，英文显示首单词+*
+    const formatBookmakerName = (name: string): string => {
+      if (!name) return name;
+      
+      // 判断是否为中文（包含中文字符）
+      const hasChinese = /[\u4e00-\u9fa5]/.test(name);
+      
+      if (hasChinese) {
+        // 中文：只显示首字，剩余用*代替
+        if (name.length <= 1) return name;
+        return name.charAt(0) + '*'.repeat(name.length - 1);
+      } else {
+        // 英文：只显示首单词，剩余用*代替
+        const trimmed = name.trim();
+        const words = trimmed.split(/\s+/);
+        
+        if (words.length > 1) {
+          // 有空格：显示第一个单词，剩余部分用*代替
+          const firstWord = words[0];
+          const remainingLength = trimmed.length - firstWord.length;
+          return firstWord + '*'.repeat(remainingLength);
+        } else {
+          // 没有空格：检查是否包含数字
+          const numbers = trimmed.match(/\d+/);
+          if (numbers) {
+            // 如果包含数字，显示数字部分（取前2位）+ *
+            const numStr = numbers[0];
+            if (numStr.length >= 2) {
+              return numStr.substring(0, 2) + '*';
+            } else {
+              return numStr + '*';
+            }
+          } else {
+            // 没有数字：只显示首字母，剩余用*代替
+            if (trimmed.length <= 1) return trimmed;
+            return trimmed.charAt(0) + '*'.repeat(trimmed.length - 1);
+          }
+        }
+      }
+    };
 
     // 根据可用数据动态生成类型列表
     const availableOddsTypes = [
@@ -2484,8 +2488,6 @@ export default function MatchDetail() {
       match.odds?.overUnder && Array.isArray(match.odds.overUnder) && match.odds.overUnder.length > 0 && { id: 'overUnder' as const, label: '总进球' },
       match.odds?.corners && Array.isArray(match.odds.corners) && match.odds.corners.length > 0 && { id: 'corners' as const, label: '角球' },
     ].filter(Boolean) as Array<{ id: 'handicap' | 'euroOdds' | 'overUnder' | 'corners'; label: string }>;
-
-    console.log('[OddsTab] Available odds types:', availableOddsTypes);
 
     // 当数据更新时，如果当前选中的类型没有数据，则切换到第一个可用的类型
     useEffect(() => {
@@ -2548,7 +2550,7 @@ export default function MatchDetail() {
             <div className="divide-y divide-border/20">
               {match.odds.handicap.map((odds, index) => (
                 <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
-                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <span className="w-16 text-sm font-medium text-foreground">{formatBookmakerName(odds.bookmaker)}</span>
                   <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
                     <span className="text-foreground">{odds.initialHome.toFixed(2)}</span>
                     <span className="text-destructive font-medium">{odds.initialHandicap > 0 ? `+${odds.initialHandicap}` : odds.initialHandicap}</span>
@@ -2576,7 +2578,7 @@ export default function MatchDetail() {
             <div className="divide-y divide-border/20">
               {match.odds.euroOdds.map((odds, index) => (
                 <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
-                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <span className="w-16 text-sm font-medium text-foreground">{formatBookmakerName(odds.bookmaker)}</span>
                   <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
                     <span className="text-foreground">{odds.initialHome.toFixed(2)}</span>
                     <span className="text-muted-foreground">{odds.initialDraw.toFixed(2)}</span>
@@ -2604,7 +2606,7 @@ export default function MatchDetail() {
             <div className="divide-y divide-border/20">
               {match.odds.overUnder.map((odds, index) => (
                 <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
-                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <span className="w-16 text-sm font-medium text-foreground">{formatBookmakerName(odds.bookmaker)}</span>
                   <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
                     <span className="text-foreground">大 {odds.initialOver.toFixed(2)}</span>
                     <span className="text-warning font-medium">{odds.initialLine}</span>
@@ -2632,7 +2634,7 @@ export default function MatchDetail() {
             <div className="divide-y divide-border/20">
               {match.odds.corners.map((odds, index) => (
                 <div key={index} className="flex items-center px-4 py-3 hover:bg-muted/10 transition-colors">
-                  <span className="w-16 text-sm font-medium text-foreground">{odds.bookmaker}</span>
+                  <span className="w-16 text-sm font-medium text-foreground">{formatBookmakerName(odds.bookmaker)}</span>
                   <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
                     <span className="text-foreground">大 {odds.initialOver.toFixed(2)}</span>
                     <span className="text-warning font-medium">{odds.initialLine}</span>
@@ -2997,7 +2999,6 @@ export default function MatchDetail() {
             { id: 'chat' as const, label: '聊天', icon: MessageCircle },
             { id: 'lineup' as const, label: '阵容', icon: Users },
             { id: 'odds' as const, label: '指数', icon: BarChart2 },
-            { id: 'expert' as const, label: 'AI热力图', icon: UserCheck },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -4118,16 +4119,6 @@ export default function MatchDetail() {
 
         {activeTab === 'odds' && (
           <OddsTab match={match} />
-        )}
-
-        {activeTab === 'expert' && (
-          <div className="p-4">
-            <LiveFootballAnimation 
-              homeFormation={match.homeTeam.lineup?.formation || '4-4-2'}
-              awayFormation={match.awayTeam.lineup?.formation || '4-3-3'}
-              isPlaying={true}
-            />
-          </div>
         )}
 
         {activeTab === 'hot' && (
