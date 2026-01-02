@@ -93,7 +93,7 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-sm p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30">
+      <DialogContent className="w-[92vw] max-w-sm p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30 rounded-xl">
         {/* Header */}
         <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3">
           <DialogHeader>
