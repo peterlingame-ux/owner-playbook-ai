@@ -2571,15 +2571,15 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               {index + 1}
             </div>
           )}
-          {/* Follow Player Button - minimal style */}
+          {/* Follow Player Button - simple + icon */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onFollowPlayerClick(player);
             }}
-            className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-foreground/80 flex items-center justify-center"
+            className="absolute -top-1 -right-1 text-primary text-sm font-bold leading-none"
           >
-            <span className="text-[8px] text-background font-bold leading-none">+</span>
+            +
           </button>
         </div>
         <div className="flex-1 min-w-0 overflow-hidden">
