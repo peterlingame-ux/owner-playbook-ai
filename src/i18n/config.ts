@@ -165,6 +165,7 @@ const resources = {
       "prize_per_person": "Prize Per Person",
       "total_prize_value": "Total Prize Value",
       "qualified_status": "Qualified",
+      "qualified_stamp": "QUALIFIED",
       "keep_going": "Keep Going",
       // OKX-style Mobile Leaderboard
       "tab_hot": "Hot",
@@ -1358,6 +1359,7 @@ const resources = {
       "prize_per_person": "平分奖金",
       "total_prize_value": "奖品总价值",
       "qualified_status": "已达标",
+      "qualified_stamp": "已达标",
       "keep_going": "继续努力",
       "all_predictors": "全部预测者",
       "copy_profit_label": "跟单收益",
