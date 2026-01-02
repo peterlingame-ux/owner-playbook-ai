@@ -8,7 +8,7 @@ import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
 import DirectMessageDialog from "./DirectMessageDialog";
 import VipSubscriptionDialog from "./VipSubscriptionDialog";
-import { Settings, Send, History, Trophy, Share2, Check, Play, MoreVertical, ChevronRight, Crown, Copy, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Settings, Send, History, Trophy, Share2, Check, Play, MoreVertical, ChevronRight, Crown, Copy, CheckCircle2, XCircle, Clock, Upload, ImagePlus } from "lucide-react";
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
@@ -108,6 +108,8 @@ const MyPredictions = () => {
   const [isVipDialogOpen, setIsVipDialogOpen] = useState(false);
   const [starCards, setStarCards] = useState<Array<{ id: string; card_name: string; card_image: string; rarity: string; obtained_at: string }>>([]);
   const [isLoadingStarCards, setIsLoadingStarCards] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [customAvatarUrl, setCustomAvatarUrl] = useState<string | null>(null);
 
   // Fetch VIP status
   const fetchVipStatus = async () => {
@@ -152,6 +154,12 @@ const MyPredictions = () => {
       });
       setEditDisplayName(authUserProfile.display_name || '');
       setSelectedAvatar(authUserProfile.avatar_url || '/avatars/avatar-1.png');
+      
+      // Check if avatar is a custom uploaded one (from storage)
+      const avatarUrl = authUserProfile.avatar_url || '';
+      if (avatarUrl.includes('supabase') && avatarUrl.includes('avatars')) {
+        setCustomAvatarUrl(avatarUrl);
+      }
     }
   }, [authUserProfile]);
 
@@ -564,8 +572,114 @@ const MyPredictions = () => {
                 </div>
                 
                 <div className="space-y-2 sm:space-y-3">
-                  <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
+                    {isVipActive && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30">
+                        VIP {t('custom_upload') || '自定义上传'}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* VIP Custom Avatar Upload */}
+                  {isVipActive && (
+                    <div className="mb-3">
+                      <label className="relative flex flex-col items-center justify-center p-4 border-2 border-dashed border-cyan-500/30 rounded-xl bg-gradient-to-br from-cyan-500/5 to-blue-500/5 hover:from-cyan-500/10 hover:to-blue-500/10 cursor-pointer transition-all group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file || !user) return;
+                            
+                            // Validate file size (max 2MB)
+                            if (file.size > 2 * 1024 * 1024) {
+                              toast.error(t('file_too_large') || '文件过大，最大2MB');
+                              return;
+                            }
+                            
+                            setIsUploadingAvatar(true);
+                            try {
+                              const fileExt = file.name.split('.').pop();
+                              const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+                              
+                              // Upload to Supabase Storage
+                              const { data: uploadData, error: uploadError } = await supabase.storage
+                                .from('avatars')
+                                .upload(fileName, file, { upsert: true });
+                              
+                              if (uploadError) throw uploadError;
+                              
+                              // Get public URL
+                              const { data: urlData } = supabase.storage
+                                .from('avatars')
+                                .getPublicUrl(fileName);
+                              
+                              const publicUrl = urlData.publicUrl;
+                              setCustomAvatarUrl(publicUrl);
+                              setSelectedAvatar(publicUrl);
+                              toast.success(t('avatar_uploaded') || '头像上传成功');
+                            } catch (error: any) {
+                              console.error('Error uploading avatar:', error);
+                              toast.error(error.message || t('upload_failed') || '上传失败');
+                            } finally {
+                              setIsUploadingAvatar(false);
+                            }
+                          }}
+                          disabled={isUploadingAvatar}
+                        />
+                        {isUploadingAvatar ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                            <span className="text-xs text-muted-foreground">{t('uploading') || '上传中...'}</span>
+                          </div>
+                        ) : customAvatarUrl ? (
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-12 h-12 border-2 border-cyan-500">
+                              <AvatarImage src={customAvatarUrl} className="object-cover" />
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="text-sm text-foreground">{t('custom_avatar') || '自定义头像'}</span>
+                              <span className="text-[10px] text-muted-foreground">{t('click_to_change') || '点击更换'}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <ImagePlus className="w-8 h-8 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm text-foreground">{t('upload_custom_avatar') || '上传自定义头像'}</span>
+                            <span className="text-[10px] text-muted-foreground mt-1">{t('max_file_size') || '支持 JPG, PNG (最大2MB)'}</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  )}
+                  
+                  {/* Default Avatar Options */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                    {/* Show custom avatar as first option if exists */}
+                    {customAvatarUrl && (
+                      <button
+                        onClick={() => setSelectedAvatar(customAvatarUrl)}
+                        className={`relative aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
+                          selectedAvatar === customAvatarUrl 
+                            ? 'border-cyan-400 ring-2 ring-cyan-400/20' 
+                            : 'border-cyan-500/30 hover:border-cyan-400/50'
+                        }`}
+                      >
+                        <Avatar className="h-full w-full rounded-none">
+                          <AvatarImage src={customAvatarUrl} className="object-cover" />
+                        </Avatar>
+                        {selectedAvatar === customAvatarUrl && (
+                          <div className="absolute inset-0 bg-cyan-400/20 flex items-center justify-center">
+                            <Check className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-400" />
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1">
+                          <span className="text-[8px] text-white">VIP</span>
+                        </div>
+                      </button>
+                    )}
                     {AVATAR_OPTIONS.map((avatar) => (
                       <button
                         key={avatar}
