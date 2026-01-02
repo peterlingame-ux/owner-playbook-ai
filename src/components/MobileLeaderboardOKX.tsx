@@ -49,6 +49,7 @@ interface PlayerData {
   currentStreak?: number;
   worstStreak?: number;
   isVirtual?: boolean;
+  isWinner?: boolean;
   followers?: number;
   tradingDays?: number;
   tradingVolume?: number;
@@ -182,26 +183,55 @@ const MobileLeaderboardOKX = () => {
         }
       });
 
-      // 添加虚拟玩家
-      const virtualPlayerData: PlayerData[] = virtualPlayers.map((vp, i) => ({
-        id: vp.id,
-        displayName: vp.displayName,
-        avatarUrl: vp.avatarUrl,
-        totalPredictions: vp.totalPredictions,
-        correctPredictions: vp.correctPredictions,
-        winRate: parseFloat(vp.winRate.toFixed(1)),
-        balance: vp.balance || 0,
-        profit: vp.profit,
-        changePercent: vp.changePercent,
-        profitAmount: vp.profit,
-        rank: 0,
-        currentStreak: Math.floor(Math.random() * 10) + 1,
-        worstStreak: Math.floor(Math.random() * 6),
-        isVirtual: true,
-        followers: Math.floor(200 + Math.random() * 800),
-        tradingDays: Math.floor(30 + Math.random() * 100),
-        tradingVolume: Math.floor(500000 + Math.random() * 5000000),
-      }));
+      // 添加虚拟玩家 - 分为高准确率（赢家）和低准确率（输家）
+      const virtualPlayerData: PlayerData[] = virtualPlayers.map((vp, i) => {
+        const seed = vp.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+        // 一半是高胜率玩家，一半是低胜率玩家
+        const isWinner = i < virtualPlayers.length / 2;
+        
+        // 高准确率玩家：胜率60-85%，正收益，连胜
+        // 低准确率玩家：胜率25-45%，负收益，连负
+        const winRate = isWinner 
+          ? 60 + (seed % 25) // 60-85%
+          : 25 + (seed % 20); // 25-45%
+        
+        const changePercent = isWinner 
+          ? 15 + (seed % 35) // +15% to +50%
+          : -(10 + (seed % 30)); // -10% to -40%
+        
+        const profit = isWinner 
+          ? 5000 + (seed % 15000) // 正收益
+          : -(2000 + (seed % 8000)); // 负收益
+        
+        const currentStreak = isWinner 
+          ? 3 + (seed % 8) // 3-10连胜
+          : 0;
+        
+        const worstStreak = isWinner 
+          ? 0
+          : 3 + (seed % 7); // 3-9连负
+        
+        return {
+          id: vp.id,
+          displayName: vp.displayName,
+          avatarUrl: vp.avatarUrl,
+          totalPredictions: vp.totalPredictions,
+          correctPredictions: Math.round(vp.totalPredictions * (winRate / 100)),
+          winRate: parseFloat(winRate.toFixed(1)),
+          balance: vp.balance || 0,
+          profit: profit,
+          changePercent: parseFloat(changePercent.toFixed(1)),
+          profitAmount: profit,
+          rank: 0,
+          currentStreak: currentStreak,
+          worstStreak: worstStreak,
+          isVirtual: true,
+          isWinner: isWinner, // 标记是赢家还是输家
+          followers: Math.floor(200 + Math.random() * 800),
+          tradingDays: Math.floor(30 + Math.random() * 100),
+          tradingVolume: Math.floor(500000 + Math.random() * 5000000),
+        };
+      });
 
       const combined = [...realPlayers, ...virtualPlayerData]
         .sort((a, b) => b.winRate - a.winRate)
@@ -223,31 +253,51 @@ const MobileLeaderboardOKX = () => {
   const getDisplayPlayers = useCallback(() => {
     let filtered = [...allPlayers];
     
-    // Filter by sub tab
+    // Filter by sub tab - 高准确率榜显示赢家，低准确率榜显示输家
     if (subTab === 'high') {
-      filtered = filtered.sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0));
+      // 高准确率榜：只显示赢家（高胜率、正收益、有连胜）
+      filtered = filtered
+        .filter(p => p.isWinner === true || (p.winRate >= 55 && p.changePercent > 0))
+        .sort((a, b) => {
+          // 按连胜数排序，然后按胜率
+          const streakDiff = (b.currentStreak || 0) - (a.currentStreak || 0);
+          if (streakDiff !== 0) return streakDiff;
+          return b.winRate - a.winRate;
+        });
     } else {
-      filtered = filtered.sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0));
+      // 低准确率榜：只显示输家（低胜率、负收益、有连负）
+      filtered = filtered
+        .filter(p => p.isWinner === false || (p.winRate < 50 && p.changePercent < 0))
+        .sort((a, b) => {
+          // 按连负数排序，然后按胜率（从低到高）
+          const streakDiff = (b.worstStreak || 0) - (a.worstStreak || 0);
+          if (streakDiff !== 0) return streakDiff;
+          return a.winRate - b.winRate;
+        });
     }
 
-    // Apply sort
+    // Apply additional sort if specified
     switch (sortType) {
       case 'winRate':
-        filtered = filtered.sort((a, b) => b.winRate - a.winRate);
+        if (subTab === 'high') {
+          filtered = filtered.sort((a, b) => b.winRate - a.winRate);
+        } else {
+          filtered = filtered.sort((a, b) => a.winRate - b.winRate);
+        }
         break;
       case 'profit':
-        filtered = filtered.sort((a, b) => b.changePercent - a.changePercent);
+        if (subTab === 'high') {
+          filtered = filtered.sort((a, b) => b.changePercent - a.changePercent);
+        } else {
+          filtered = filtered.sort((a, b) => a.changePercent - b.changePercent);
+        }
         break;
       case 'followers':
         filtered = filtered.sort((a, b) => (b.followers || 0) - (a.followers || 0));
         break;
       default:
-        // comprehensive - balanced score
-        filtered = filtered.sort((a, b) => {
-          const scoreA = a.winRate * 0.4 + a.changePercent * 0.3 + ((a.followers || 0) / 100) * 0.3;
-          const scoreB = b.winRate * 0.4 + b.changePercent * 0.3 + ((b.followers || 0) / 100) * 0.3;
-          return scoreB - scoreA;
-        });
+        // comprehensive - use default sorting from above
+        break;
     }
 
     return filtered.slice(0, 20);
