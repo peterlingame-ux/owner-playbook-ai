@@ -357,18 +357,20 @@ const ChallengeAIBanner = () => {
 
   return (
     <Card className="border-border/50 overflow-hidden relative">
-      {/* 绿色草地背景图 - 手机端优化 */}
+      {/* 绿色草地背景图 - 手机端优化，自动适应屏幕 */}
       <div 
-        className="absolute inset-0 bg-cover bg-center sm:bg-center"
+        className="absolute inset-0"
         style={{ 
           backgroundImage: `url(${prizeBannerGreen})`,
-          filter: 'brightness(0.85)',
+          backgroundSize: 'cover',
           backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+          filter: 'brightness(0.85)',
         }}
       />
       {/* 手机端背景渐变遮罩 - 确保文字可读 */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/30 sm:hidden" />
-      <CardContent className="p-2.5 sm:p-6 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/10 to-background/40 sm:from-background/20 sm:via-transparent sm:to-background/30" />
+      <CardContent className="p-3 sm:p-6 relative">
         <div className="flex flex-col gap-2 sm:gap-5">
           {/* 主标题 - 手机端紧凑布局 */}
           <div className="text-center">
