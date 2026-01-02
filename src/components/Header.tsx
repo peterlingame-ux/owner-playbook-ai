@@ -51,12 +51,17 @@ const Header = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 safe-area-top w-full max-w-full overflow-x-hidden">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 w-full max-w-full overflow-x-hidden">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
-          {/* Left: Logo */}
-          <Link to="/" className="flex items-center flex-shrink-0">
-            <h1 className="font-pixel text-[10px] xs:text-xs sm:text-base md:text-lg text-foreground hover:text-primary transition-colors tracking-wider leading-tight">
-              HUNSOCCER
-            </h1>
-          </Link>
+          {/* Left: Logo + AI Button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <Link to="/" className="flex items-center">
+              <h1 className="font-pixel text-[10px] xs:text-xs sm:text-base md:text-lg text-foreground hover:text-primary transition-colors tracking-wider leading-tight">
+                HUNSOCCER
+              </h1>
+            </Link>
+            
+            {/* AI Chat Button - 放在logo右边 */}
+            <div id="header-ai-chat-slot" className="md:hidden" />
+          </div>
           
           {/* Center: Navigation - Modern Glassmorphism Style */}
           <nav className="hidden md:flex items-center bg-white/[0.04] backdrop-blur-xl rounded-2xl p-1.5 border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
