@@ -857,12 +857,12 @@ const PlayerExclusiveModelCard = ({
                 /* Manual Prediction Mode - Show AI Predict Button */
                 <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center">
                   <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3" />
-                  <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium mb-2 sm:mb-3">
+                  <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
                     {t('manual_prediction_hint') || '选择比赛进行人工预测'}
                   </p>
                   <Button
                     size="sm"
-                    className="h-7 sm:h-9 px-3 sm:px-5 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-[10px] sm:text-sm"
+                    className="h-7 sm:h-9 px-3 sm:px-5 rounded-full bg-white hover:bg-white/90 text-slate-900 font-medium text-[10px] sm:text-sm mt-2 sm:mt-3"
                     onClick={(e) => {
                       e.stopPropagation();
                       // Allow demo users to view the dialog
