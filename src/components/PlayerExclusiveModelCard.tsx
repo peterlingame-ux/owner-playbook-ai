@@ -1540,101 +1540,88 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
 
-                {/* Handicap Section */}
+                {/* Handicap Section - Fixed Options */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#888]">{t('handicap_bet') || '让分盘'}</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        className="w-6 h-6 rounded bg-[#1a1a1a] text-[#888] text-xs flex items-center justify-center hover:bg-[#222]"
-                        onClick={() => setManualHandicapLine(prev => prev - 0.5)}
-                      >−</button>
-                      <span className="w-10 text-center text-xs font-mono text-[#aaa]">
-                        {manualHandicapLine > 0 ? '+' : ''}{manualHandicapLine}
-                      </span>
-                      <button
-                        type="button"
-                        className="w-6 h-6 rounded bg-[#1a1a1a] text-[#888] text-xs flex items-center justify-center hover:bg-[#222]"
-                        onClick={() => setManualHandicapLine(prev => prev + 0.5)}
-                      >+</button>
-                    </div>
-                  </div>
+                  <span className="text-xs text-[#888]">{t('handicap_bet') || '让分盘'}</span>
                   <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      className={`p-3 rounded-lg border transition-all ${
-                        manualBetType === 'handicap' && manualPrediction === 'HOME'
-                          ? 'bg-primary/10 border-primary text-primary'
-                          : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
-                      }`}
-                      onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); }}
-                    >
-                      <p className="text-xs truncate">{safeGetTeamName(selectedMatch, 'home')}</p>
-                      <p className="text-xs text-[#666] mt-0.5">{manualHandicapLine > 0 ? '+' : ''}{manualHandicapLine}</p>
-                      <p className="text-lg font-bold text-primary mt-1">1.85</p>
-                    </button>
-                    <button
-                      type="button"
-                      className={`p-3 rounded-lg border transition-all ${
-                        manualBetType === 'handicap' && manualPrediction === 'AWAY'
-                          ? 'bg-primary/10 border-primary text-primary'
-                          : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
-                      }`}
-                      onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); }}
-                    >
-                      <p className="text-xs truncate">{safeGetTeamName(selectedMatch, 'away')}</p>
-                      <p className="text-xs text-[#666] mt-0.5">{-manualHandicapLine > 0 ? '+' : ''}{-manualHandicapLine}</p>
-                      <p className="text-lg font-bold text-primary mt-1">1.95</p>
-                    </button>
+                    {[
+                      { line: -0.5, homeOdds: 1.85, awayOdds: 1.95 },
+                      { line: 0, homeOdds: 1.90, awayOdds: 1.90 },
+                      { line: +0.5, homeOdds: 1.95, awayOdds: 1.85 },
+                      { line: -1, homeOdds: 2.10, awayOdds: 1.75 },
+                    ].map(({ line, homeOdds, awayOdds }) => (
+                      <div key={line} className="contents">
+                        <button
+                          type="button"
+                          className={`p-2.5 rounded-lg border transition-all text-left ${
+                            manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === line
+                              ? 'bg-primary/10 border-primary'
+                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                          }`}
+                          onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); setManualHandicapLine(line); }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] truncate max-w-[60px]">{safeGetTeamName(selectedMatch, 'home')}</span>
+                            <span className="text-[10px] text-[#666]">{line > 0 ? '+' : ''}{line}</span>
+                          </div>
+                          <p className="text-base font-bold text-primary mt-1">{homeOdds.toFixed(2)}</p>
+                        </button>
+                        <button
+                          type="button"
+                          className={`p-2.5 rounded-lg border transition-all text-left ${
+                            manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === line
+                              ? 'bg-primary/10 border-primary'
+                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                          }`}
+                          onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); setManualHandicapLine(line); }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] truncate max-w-[60px]">{safeGetTeamName(selectedMatch, 'away')}</span>
+                            <span className="text-[10px] text-[#666]">{-line > 0 ? '+' : ''}{-line}</span>
+                          </div>
+                          <p className="text-base font-bold text-primary mt-1">{awayOdds.toFixed(2)}</p>
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Over/Under Section */}
+                {/* Over/Under Section - Fixed Options */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#888]">{t('over_under_bet') || '大小球'}</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        className="w-6 h-6 rounded bg-[#1a1a1a] text-[#888] text-xs flex items-center justify-center hover:bg-[#222]"
-                        onClick={() => setManualOverUnderLine(prev => Math.max(0.5, prev - 0.5))}
-                      >−</button>
-                      <span className="w-10 text-center text-xs font-mono text-[#aaa]">
-                        {manualOverUnderLine}
-                      </span>
-                      <button
-                        type="button"
-                        className="w-6 h-6 rounded bg-[#1a1a1a] text-[#888] text-xs flex items-center justify-center hover:bg-[#222]"
-                        onClick={() => setManualOverUnderLine(prev => prev + 0.5)}
-                      >+</button>
-                    </div>
-                  </div>
+                  <span className="text-xs text-[#888]">{t('over_under_bet') || '大小球'}</span>
                   <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      className={`p-3 rounded-lg border transition-all ${
-                        manualBetType === 'over_under' && manualOverUnderPick === 'over'
-                          ? 'bg-primary/10 border-primary text-primary'
-                          : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
-                      }`}
-                      onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); }}
-                    >
-                      <p className="text-xs">{t('over') || '大'} {manualOverUnderLine}</p>
-                      <p className="text-lg font-bold text-primary mt-1">1.90</p>
-                    </button>
-                    <button
-                      type="button"
-                      className={`p-3 rounded-lg border transition-all ${
-                        manualBetType === 'over_under' && manualOverUnderPick === 'under'
-                          ? 'bg-primary/10 border-primary text-primary'
-                          : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
-                      }`}
-                      onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); }}
-                    >
-                      <p className="text-xs">{t('under') || '小'} {manualOverUnderLine}</p>
-                      <p className="text-lg font-bold text-primary mt-1">1.90</p>
-                    </button>
+                    {[
+                      { line: 2.5, overOdds: 1.88, underOdds: 1.92 },
+                      { line: 3, overOdds: 2.05, underOdds: 1.80 },
+                      { line: 3.5, overOdds: 2.20, underOdds: 1.70 },
+                    ].map(({ line, overOdds, underOdds }) => (
+                      <div key={line} className="contents">
+                        <button
+                          type="button"
+                          className={`p-2.5 rounded-lg border transition-all text-left ${
+                            manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === line
+                              ? 'bg-primary/10 border-primary'
+                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                          }`}
+                          onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); setManualOverUnderLine(line); }}
+                        >
+                          <span className="text-[11px]">{t('over') || '大'} {line}</span>
+                          <p className="text-base font-bold text-primary mt-1">{overOdds.toFixed(2)}</p>
+                        </button>
+                        <button
+                          type="button"
+                          className={`p-2.5 rounded-lg border transition-all text-left ${
+                            manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === line
+                              ? 'bg-primary/10 border-primary'
+                              : 'bg-[#141414] border-[#1f1f1f] hover:border-[#333]'
+                          }`}
+                          onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); setManualOverUnderLine(line); }}
+                        >
+                          <span className="text-[11px]">{t('under') || '小'} {line}</span>
+                          <p className="text-base font-bold text-primary mt-1">{underOdds.toFixed(2)}</p>
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
