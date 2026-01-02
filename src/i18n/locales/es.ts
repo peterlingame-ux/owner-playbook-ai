@@ -639,6 +639,8 @@ export const es = {
     "operation_failed": "Operación Fallida",
     "follow_player_title": "Seguir Jugador",
     "follow_player_confirm": "¿Estás seguro de que quieres seguir a {{name}}?",
+    "auto_predict_enabled": "Predicción automática activada",
+    "auto_predict_disabled": "Predicción automática desactivada",
     "load_failed": "Error de Carga",
     "fetch_match_failed": "No se pueden obtener datos del partido",
     "unknown_error": "Ocurrió un error desconocido",
