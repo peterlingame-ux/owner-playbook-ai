@@ -1682,95 +1682,43 @@ const PlayerExclusiveModelCard = ({
         </DialogContent>
       </Dialog>
 
-      {/* Success Animation Dialog */}
+      {/* Success Animation Dialog - Simplified for mobile */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="sm:max-w-xs w-[280px] p-6 gap-0 bg-card border-border text-center">
+        <DialogContent className="sm:max-w-[200px] w-[160px] p-4 gap-0 bg-card/95 backdrop-blur-md border-border/50 text-center rounded-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>{t('bet_success') || '预测成功'}</DialogTitle>
           </DialogHeader>
           <motion.div
-            initial={{ scale: 0, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="flex flex-col items-center"
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="flex flex-col items-center py-2"
           >
             {/* Success Icon */}
             <motion.div 
-              className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-4"
+              className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center mb-2"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 250 }}
             >
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 350 }}
               >
-                <CheckCircle2 className="h-8 w-8 text-success" />
+                <CheckCircle2 className="h-6 w-6 text-success" />
               </motion.div>
             </motion.div>
             
             {/* Success Text */}
-            <motion.h3 
-              className="text-lg font-semibold mb-2"
-              initial={{ opacity: 0, y: 10 }}
+            <motion.p 
+              className="text-sm font-semibold"
+              initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.3 }}
             >
-              {isDemo ? (t('demo_prediction_success') || '体验预测成功') : (t('bet_success') || '预测成功')}
-            </motion.h3>
-            
-            {/* Bet Details */}
-            {confirmedManualBet && (
-              <motion.div 
-                className="text-sm text-muted-foreground space-y-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <p className="flex items-center justify-center gap-1">
-                  <img src={hunterCoinIcon} alt="" className="w-4 h-4" />
-                  <span className="font-medium text-foreground">{confirmedManualBet.betAmount}</span>
-                </p>
-                <p className="text-xs">
-                  {confirmedManualBet.betType === 'handicap' 
-                    ? `${t('handicap_bet') || '让分'}: ${confirmedManualBet.prediction === 'HOME' ? safeGetTeamName(confirmedManualBet.match, 'home') : safeGetTeamName(confirmedManualBet.match, 'away')}`
-                    : `${t('over_under_bet') || '大小球'}: ${confirmedManualBet.overUnderPick === 'over' ? (t('over') || '大') : (t('under') || '小')} ${confirmedManualBet.overUnderLine}`
-                  }
-                </p>
-              </motion.div>
-            )}
-
-            {/* Animated Confetti Effect */}
-            <motion.div 
-              className="absolute inset-0 pointer-events-none overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              {[...Array(6)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 rounded-full bg-success/60"
-                  initial={{ 
-                    x: '50%', 
-                    y: '50%',
-                    scale: 0 
-                  }}
-                  animate={{ 
-                    x: `${20 + Math.random() * 60}%`,
-                    y: `${10 + Math.random() * 80}%`,
-                    scale: [0, 1, 0],
-                    opacity: [0, 1, 0]
-                  }}
-                  transition={{ 
-                    delay: 0.3 + i * 0.1,
-                    duration: 1,
-                    ease: "easeOut"
-                  }}
-                />
-              ))}
-            </motion.div>
+              {isDemo ? (t('demo_success') || '体验成功') : (t('success') || '成功')}
+            </motion.p>
           </motion.div>
         </DialogContent>
       </Dialog>
