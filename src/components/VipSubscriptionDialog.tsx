@@ -94,41 +94,9 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-md p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30 max-h-[90vh] flex flex-col">
-        {/* Header with VIP Crown */}
-        <div className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-6 text-center overflow-hidden flex-shrink-0">
-          {/* Background glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 sm:w-64 h-24 sm:h-32 bg-primary/20 blur-3xl rounded-full" />
-          
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", duration: 0.8 }}
-            className="relative inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 sm:mb-4"
-            style={{
-              background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
-              boxShadow: '0 4px 20px rgba(80, 180, 220, 0.5), 0 0 40px rgba(100, 200, 255, 0.3)',
-            }}
-          >
-            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-            {/* Shimmer effect */}
-            <motion.div
-              className="absolute inset-0 rounded-full overflow-hidden"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-              }}
-              animate={{
-                x: ['-100%', '100%'],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-          </motion.div>
-          
-          <DialogHeader className="relative">
+        {/* Header */}
+        <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
+          <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
               {isVipActive ? t('vip_active') : t('open_vip')}
             </DialogTitle>
