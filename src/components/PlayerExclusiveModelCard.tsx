@@ -869,7 +869,6 @@ const PlayerExclusiveModelCard = ({
                       setShowManualBetDialog(true);
                     }}
                   >
-                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     {t('start_prediction') || '开始预测'}
                   </Button>
                 </div>
