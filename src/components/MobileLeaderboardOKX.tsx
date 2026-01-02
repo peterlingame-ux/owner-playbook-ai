@@ -1151,9 +1151,9 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           </h3>
           <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
             <span className="truncate">{t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}</span>
-            {/* Streak Indicators - Like PC version */}
+            {/* Streak Indicators - Like PC version with count */}
             <div className="flex items-center gap-0.5 flex-shrink-0">
-              {Array.from({ length: Math.min(player.currentStreak || 0, 3) }).map((_, i) => (
+              {Array.from({ length: Math.min(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0), 3) }).map((_, i) => (
                 <span 
                   key={i} 
                   className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold border ${
@@ -1165,9 +1165,12 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
                   {subTab === 'high' ? (t('win_badge') || '胜') : (t('loss_badge') || '败')}
                 </span>
               ))}
-              {(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)) > 3 && (
-                <span className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] border border-muted-foreground/30 text-muted-foreground">
-                  ···
+              {/* Show streak count number */}
+              {(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)) > 0 && (
+                <span className={`text-[9px] font-bold ml-0.5 ${
+                  subTab === 'high' ? 'text-success' : 'text-destructive'
+                }`}>
+                  ×{subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)}
                 </span>
               )}
             </div>
