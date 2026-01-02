@@ -553,8 +553,8 @@ const PlayerExclusiveModelCard = ({
 
   // Handle manual bet submission
   const handleManualBetSubmit = async () => {
-    if (!user || !selectedMatch) {
-      toast.error(t('please_login_first') || '请先登录');
+    if (!selectedMatch) {
+      toast.error(t('please_select_match') || '请选择比赛');
       return;
     }
 
@@ -565,53 +565,59 @@ const PlayerExclusiveModelCard = ({
 
     setIsSubmittingBet(true);
 
-    try {
-      // Calculate odds (demo calculation)
-      const odds = 1.85 + Math.random() * 0.3;
-      const potentialPayout = manualBetAmount * odds;
-      const matchDate = selectedMatch.date || new Date().toISOString().split('T')[0];
+    // Calculate odds (demo calculation)
+    const odds = 1.85 + Math.random() * 0.3;
+    const potentialPayout = manualBetAmount * odds;
 
-      const { data, error } = await supabase.rpc('place_bet', {
-        p_user_id: user.id,
-        p_match_id: selectedMatch.mid || selectedMatch.fixture_id?.toString(),
-        p_match_date: matchDate,
-        p_prediction: manualBetType === 'handicap' ? manualPrediction : manualOverUnderPick.toUpperCase(),
-        p_prediction_type: manualBetType,
-        p_bet_amount: manualBetAmount,
-        p_potential_payout: potentialPayout,
-        p_confidence: 75,
-        p_handicap_line: manualBetType === 'handicap' ? manualHandicapLine : null,
-        p_over_under_line: manualBetType === 'over_under' ? manualOverUnderLine : null,
-      });
+    // If user is logged in, save to database
+    if (user) {
+      try {
+        const matchDate = selectedMatch.date || new Date().toISOString().split('T')[0];
 
-      if (error) {
-        console.error('Place bet error:', error);
-        toast.error(t('bet_failed') || '下注失败');
+        const { data, error } = await supabase.rpc('place_bet', {
+          p_user_id: user.id,
+          p_match_id: selectedMatch.mid || selectedMatch.fixture_id?.toString(),
+          p_match_date: matchDate,
+          p_prediction: manualBetType === 'handicap' ? manualPrediction : manualOverUnderPick.toUpperCase(),
+          p_prediction_type: manualBetType,
+          p_bet_amount: manualBetAmount,
+          p_potential_payout: potentialPayout,
+          p_confidence: 75,
+          p_handicap_line: manualBetType === 'handicap' ? manualHandicapLine : null,
+          p_over_under_line: manualBetType === 'over_under' ? manualOverUnderLine : null,
+        });
+
+        if (error) {
+          console.error('Place bet error:', error);
+          toast.error(t('bet_failed') || '下注失败');
+          setIsSubmittingBet(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Manual bet error:', err);
+        toast.error(t('unknown_error') || '未知错误');
+        setIsSubmittingBet(false);
         return;
       }
-
-      // Save the confirmed bet for display
-      setConfirmedManualBet({
-        match: selectedMatch,
-        betType: manualBetType,
-        prediction: manualBetType === 'handicap' ? manualPrediction : manualOverUnderPick.toUpperCase(),
-        betAmount: manualBetAmount,
-        odds: odds,
-        confidence: 75,
-        handicapLine: manualBetType === 'handicap' ? manualHandicapLine : undefined,
-        overUnderLine: manualBetType === 'over_under' ? manualOverUnderLine : undefined,
-        overUnderPick: manualBetType === 'over_under' ? manualOverUnderPick : undefined,
-      });
-
-      setManualBetConfirmed(true);
-      setShowManualBetDialog(false);
-      toast.success(t('bet_success') || '预测成功');
-    } catch (err) {
-      console.error('Manual bet error:', err);
-      toast.error(t('unknown_error') || '未知错误');
-    } finally {
-      setIsSubmittingBet(false);
     }
+
+    // Save the confirmed bet for display (works for both demo and logged-in users)
+    setConfirmedManualBet({
+      match: selectedMatch,
+      betType: manualBetType,
+      prediction: manualBetType === 'handicap' ? manualPrediction : manualOverUnderPick.toUpperCase(),
+      betAmount: manualBetAmount,
+      odds: odds,
+      confidence: 75,
+      handicapLine: manualBetType === 'handicap' ? manualHandicapLine : undefined,
+      overUnderLine: manualBetType === 'over_under' ? manualOverUnderLine : undefined,
+      overUnderPick: manualBetType === 'over_under' ? manualOverUnderPick : undefined,
+    });
+
+    setManualBetConfirmed(true);
+    setShowManualBetDialog(false);
+    setIsSubmittingBet(false);
+    toast.success(isDemo ? (t('demo_prediction_success') || '体验预测成功') : (t('bet_success') || '预测成功'));
   };
 
   // Reset manual bet when switching modes
@@ -859,10 +865,7 @@ const PlayerExclusiveModelCard = ({
                     className="h-7 sm:h-9 px-3 sm:px-5 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-[10px] sm:text-sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (isDemo) {
-                        toast.error(t('please_login_first') || '请先登录');
-                        return;
-                      }
+                      // Allow demo users to view the dialog
                       setShowManualBetDialog(true);
                     }}
                   >
