@@ -2577,7 +2577,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               e.stopPropagation();
               onFollowPlayerClick(player);
             }}
-            className="absolute -top-1 -right-1 text-primary text-sm font-bold leading-none"
+            className="absolute -top-1 right-0.5 text-primary text-sm font-bold leading-none"
           >
             +
           </button>
