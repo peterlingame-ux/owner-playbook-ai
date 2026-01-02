@@ -474,6 +474,10 @@ export const ar = {
     "select_avatar": "اختر الصورة الرمزية",
     "saving": "جاري الحفظ...",
     "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "follow_player_title": "متابعة اللاعب",
+    "follow_player_confirm": "هل أنت متأكد أنك تريد متابعة {{name}}؟",
+    "follow_success": "تمت متابعة {{name}} بنجاح",
     // الرسائل المباشرة
     "send_message": "رسالة",
     "no_messages_yet": "لا توجد رسائل بعد",

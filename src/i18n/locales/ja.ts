@@ -453,6 +453,10 @@ export const ja = {
     "select_avatar": "アバター選択",
     "saving": "保存中...",
     "cancel": "キャンセル",
+    "confirm": "確認",
+    "follow_player_title": "プレイヤーをフォロー",
+    "follow_player_confirm": "{{name}}さんをフォローしますか？",
+    "follow_success": "{{name}}さんをフォローしました",
     
     // Personal Center
     "personal_center": "パーソナルセンター",

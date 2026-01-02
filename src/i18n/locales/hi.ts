@@ -474,6 +474,10 @@ export const hi = {
     "select_avatar": "अवतार चुनें",
     "saving": "सहेज रहा है...",
     "cancel": "रद्द करें",
+    "confirm": "पुष्टि करें",
+    "follow_player_title": "खिलाड़ी को फॉलो करें",
+    "follow_player_confirm": "क्या आप {{name}} को फॉलो करना चाहते हैं?",
+    "follow_success": "{{name}} को फॉलो किया गया",
     // सीधे संदेश
     "send_message": "संदेश",
     "no_messages_yet": "अभी तक कोई संदेश नहीं",

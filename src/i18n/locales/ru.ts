@@ -474,6 +474,10 @@ export const ru = {
     "select_avatar": "Выбрать Аватар",
     "saving": "Сохранение...",
     "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "follow_player_title": "Подписаться на игрока",
+    "follow_player_confirm": "Вы уверены, что хотите подписаться на {{name}}?",
+    "follow_success": "Вы подписались на {{name}}",
     // Личные сообщения
     "send_message": "Сообщение",
     "no_messages_yet": "Пока нет сообщений",
