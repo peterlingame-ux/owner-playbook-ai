@@ -2571,15 +2571,15 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               {index + 1}
             </div>
           )}
-          {/* Follow Player Button */}
+          {/* Follow Player Button - positioned at top-right corner of avatar */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onFollowPlayerClick(player);
             }}
-            className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+            className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary/90 flex items-center justify-center text-primary-foreground"
           >
-            <span className="text-[10px] font-bold leading-none">+</span>
+            <span className="text-[9px] font-medium leading-none">+</span>
           </button>
         </div>
         <div className="flex-1 min-w-0 overflow-hidden">
