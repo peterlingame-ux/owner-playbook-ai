@@ -1,0 +1,241 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Crown, Camera, Eye, Sparkles, Star, MessageCircle, Check, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import hunterCoinIcon from "@/assets/hunter-coin-new.png";
+
+interface VipSubscriptionDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  isVipActive: boolean;
+  onVipPurchased?: () => void;
+}
+
+const VIP_COST = 999; // Hunter Coin cost for VIP
+const VIP_DURATION_DAYS = 30;
+
+const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased }: VipSubscriptionDialogProps) => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
+  const privileges = [
+    {
+      icon: Camera,
+      title: t('vip_privilege_avatar') || '自定义头像',
+      description: t('vip_privilege_avatar_desc') || '可上传并更换个性化自定义头像',
+      color: 'from-pink-500 to-rose-500',
+    },
+    {
+      icon: Eye,
+      title: t('vip_privilege_matches') || '免费观看比赛',
+      description: t('vip_privilege_matches_desc') || '免费查看所有比赛详细数据与分析',
+      color: 'from-blue-500 to-cyan-500',
+    },
+    {
+      icon: Sparkles,
+      title: t('vip_privilege_entrance') || '特效入场',
+      description: t('vip_privilege_entrance_desc') || '进入比赛聊天框时有炫酷特效入场效果',
+      color: 'from-purple-500 to-violet-500',
+    },
+    {
+      icon: Star,
+      title: t('vip_privilege_glow') || '名字发光',
+      description: t('vip_privilege_glow_desc') || '排行榜中名字会有闪亮发光效果',
+      color: 'from-yellow-500 to-amber-500',
+    },
+    {
+      icon: MessageCircle,
+      title: t('vip_privilege_dm') || '私信互动',
+      description: t('vip_privilege_dm_desc') || '可与其他玩家进行私信交流互动',
+      color: 'from-green-500 to-emerald-500',
+    },
+  ];
+
+  const handlePurchaseVip = async () => {
+    if (!user) {
+      toast.error(t('please_login') || '请先登录');
+      return;
+    }
+
+    setIsPurchasing(true);
+    try {
+      // Call the purchase_vip database function
+      const { data, error } = await supabase.rpc('purchase_vip', {
+        p_user_id: user.id,
+        p_cost: VIP_COST,
+        p_duration_days: VIP_DURATION_DAYS,
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string };
+      
+      if (result.success) {
+        toast.success(t('vip_purchase_success') || 'VIP开通成功！');
+        onVipPurchased?.();
+        onOpenChange(false);
+      } else {
+        toast.error(result.error || t('vip_purchase_failed') || '开通失败');
+      }
+    } catch (error: any) {
+      console.error('Error purchasing VIP:', error);
+      toast.error(error.message || t('vip_purchase_failed') || '开通失败');
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md p-0 overflow-hidden border-0 bg-gradient-to-b from-background via-background to-muted/30">
+        {/* Header with VIP Crown */}
+        <div className="relative px-6 pt-8 pb-6 text-center overflow-hidden">
+          {/* Background glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/20 blur-3xl rounded-full" />
+          
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", duration: 0.8 }}
+            className="relative inline-flex items-center justify-center w-20 h-20 rounded-full mb-4"
+            style={{
+              background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
+              boxShadow: '0 4px 20px rgba(80, 180, 220, 0.5), 0 0 40px rgba(100, 200, 255, 0.3)',
+            }}
+          >
+            <Crown className="w-10 h-10 text-white" />
+            {/* Shimmer effect */}
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+              }}
+              animate={{
+                x: ['-100%', '100%'],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          </motion.div>
+          
+          <DialogHeader className="relative">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              {isVipActive ? (t('vip_active') || 'VIP已激活') : (t('open_vip') || '开通VIP会员')}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-2">
+              {isVipActive 
+                ? (t('vip_enjoy_privileges') || '尊享以下专属特权')
+                : (t('vip_unlock_privileges') || '解锁专属特权，尊享VIP体验')
+              }
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Privileges List */}
+        <div className="px-6 pb-4 space-y-3">
+          {privileges.map((privilege, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="flex items-start gap-4 p-3 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors"
+            >
+              <div 
+                className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${privilege.color} flex items-center justify-center shadow-lg`}
+              >
+                <privilege.icon className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground">{privilege.title}</h3>
+                  {isVipActive && (
+                    <Check className="w-4 h-4 text-green-500" />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground mt-0.5">{privilege.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Price and Purchase Button */}
+        <div className="px-6 pb-6 pt-2">
+          {!isVipActive && (
+            <>
+              {/* Price Display */}
+              <div className="flex items-center justify-center gap-2 mb-4 p-3 rounded-xl bg-muted/50 border border-border/30">
+                <span className="text-muted-foreground">{t('vip_price') || '开通价格'}:</span>
+                <div className="flex items-center gap-1.5">
+                  <img src={hunterCoinIcon} alt="Hunter Coin" className="w-6 h-6" />
+                  <span className="text-2xl font-bold text-primary">{VIP_COST}</span>
+                </div>
+                <span className="text-muted-foreground text-sm">/ {VIP_DURATION_DAYS}{t('days') || '天'}</span>
+              </div>
+
+              {/* Purchase Button */}
+              <Button
+                onClick={handlePurchaseVip}
+                disabled={isPurchasing}
+                className="w-full h-12 text-lg font-bold relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 60%) 100%)',
+                  boxShadow: '0 4px 15px rgba(80, 180, 220, 0.4)',
+                }}
+              >
+                {isPurchasing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {t('processing') || '处理中...'}
+                  </>
+                ) : (
+                  <>
+                    <Crown className="w-5 h-5 mr-2" />
+                    {t('open_vip_now') || '立即开通VIP'}
+                  </>
+                )}
+                {/* Button shimmer */}
+                <motion.div
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+                  }}
+                  animate={{
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              </Button>
+            </>
+          )}
+
+          {isVipActive && (
+            <div className="text-center p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 border border-cyan-500/20">
+              <div className="flex items-center justify-center gap-2">
+                <Check className="w-5 h-5 text-green-500" />
+                <span className="font-semibold text-foreground">{t('vip_status_active') || 'VIP会员已激活'}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">{t('enjoy_all_privileges') || '尊享全部专属特权'}</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default VipSubscriptionDialog;

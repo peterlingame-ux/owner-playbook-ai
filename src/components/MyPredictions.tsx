@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
 import PlaceBetDialog from "./PlaceBetDialog";
 import DirectMessageDialog from "./DirectMessageDialog";
+import VipSubscriptionDialog from "./VipSubscriptionDialog";
 import { Settings, Send, History, Trophy, Share2, Check, Play, MoreVertical, ChevronRight, Crown, Copy, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Tooltip as ShadcnTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOnlineTracking } from "@/hooks/useOnlineTracking";
@@ -104,35 +105,36 @@ const MyPredictions = () => {
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
   const [isBetDialogOpen, setIsBetDialogOpen] = useState(false);
   const [isVipActive, setIsVipActive] = useState(false);
+  const [isVipDialogOpen, setIsVipDialogOpen] = useState(false);
   const [starCards, setStarCards] = useState<Array<{ id: string; card_name: string; card_image: string; rarity: string; obtained_at: string }>>([]);
   const [isLoadingStarCards, setIsLoadingStarCards] = useState(false);
 
   // Fetch VIP status
-  useEffect(() => {
-    const fetchVipStatus = async () => {
-      if (!user) {
-        setIsVipActive(false);
-        return;
-      }
-      
-      try {
-        const { data } = await supabase
-          .from('user_vip')
-          .select('is_active, expires_at')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        if (data && data.is_active && new Date(data.expires_at) > new Date()) {
-          setIsVipActive(true);
-        } else {
-          setIsVipActive(false);
-        }
-      } catch (error) {
-        console.error('Error fetching VIP status:', error);
-        setIsVipActive(false);
-      }
-    };
+  const fetchVipStatus = async () => {
+    if (!user) {
+      setIsVipActive(false);
+      return;
+    }
     
+    try {
+      const { data } = await supabase
+        .from('user_vip')
+        .select('is_active, expires_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (data && data.is_active && new Date(data.expires_at) > new Date()) {
+        setIsVipActive(true);
+      } else {
+        setIsVipActive(false);
+      }
+    } catch (error) {
+      console.error('Error fetching VIP status:', error);
+      setIsVipActive(false);
+    }
+  };
+
+  useEffect(() => {
     fetchVipStatus();
   }, [user]);
 
@@ -607,9 +609,10 @@ const MyPredictions = () => {
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
               {userProfile?.display_name || 'Player'}
             </h1>
-            {/* VIP Badge - Diamond shining when active, dark when inactive */}
-            <div 
-              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md relative overflow-hidden flex-shrink-0 ${isVipActive ? 'animate-pulse' : ''}`}
+            {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
+            <button 
+              onClick={() => setIsVipDialogOpen(true)}
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md relative overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
               style={isVipActive ? {
                 background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
                 boxShadow: '0 2px 12px rgba(80, 180, 220, 0.6), 0 0 20px rgba(100, 200, 255, 0.3)',
@@ -629,7 +632,7 @@ const MyPredictions = () => {
                 />
               )}
               <span className={`text-xs font-bold relative z-10 ${isVipActive ? 'text-white' : 'text-gray-400'}`}>VIP</span>
-            </div>
+            </button>
           </div>
 
         {/* Signature / Bio */}
@@ -1241,6 +1244,14 @@ const MyPredictions = () => {
       <PlaceBetDialog 
         open={isBetDialogOpen} 
         onOpenChange={setIsBetDialogOpen}
+      />
+      
+      {/* VIP Subscription Dialog */}
+      <VipSubscriptionDialog
+        open={isVipDialogOpen}
+        onOpenChange={setIsVipDialogOpen}
+        isVipActive={isVipActive}
+        onVipPurchased={fetchVipStatus}
       />
     </div>
   );
