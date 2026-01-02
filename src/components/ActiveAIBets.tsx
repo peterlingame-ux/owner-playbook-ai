@@ -918,16 +918,16 @@ const ActiveAIBets = () => {
         </div>
         
         {/* Auto/Manual Prediction Toggle */}
-        <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
-          <span className={`text-[10px] sm:text-xs font-medium transition-colors ${isAutoPrediction ? 'text-primary' : 'text-muted-foreground'}`}>
+        <div className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-4 bg-secondary/50 rounded-full px-4 py-2 border border-border">
+          <span className={`text-xs sm:text-sm font-semibold transition-colors ${isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('auto_prediction')}
           </span>
           <Switch
             checked={!isAutoPrediction}
             onCheckedChange={(checked) => setIsAutoPrediction(!checked)}
-            className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary"
+            className="h-6 w-12 data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary"
           />
-          <span className={`text-[10px] sm:text-xs font-medium transition-colors ${!isAutoPrediction ? 'text-primary' : 'text-muted-foreground'}`}>
+          <span className={`text-xs sm:text-sm font-semibold transition-colors ${!isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('manual_prediction')}
           </span>
         </div>
