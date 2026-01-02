@@ -147,7 +147,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
   
   return (
     <TiltCard
-      className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${theme.from} ${theme.to} backdrop-blur-sm border ${theme.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer`}
+      className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${theme.from} ${theme.to} backdrop-blur-sm border ${theme.border} hover:border-white/30 transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col`}
       onClick={handleCardClick}
       maxTilt={6}
       scale={1.02}
@@ -176,9 +176,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 p-1.5 sm:p-5">
+      <div className="relative z-10 p-2 sm:p-5 flex flex-col flex-1">
         {/* Header: Model Info + Points Badge */}
-        <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1.5 sm:mb-5">
+        <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1 sm:mb-5">
           {/* Model Icon & Name */}
           <div className="flex items-center gap-1 sm:gap-3 min-w-0 flex-1">
             <motion.div 
@@ -227,7 +227,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
         </div>
 
         {/* Win Rate Section */}
-        <div className="mb-1.5 sm:mb-5">
+        <div className="mb-1 sm:mb-5">
           <div className="flex items-center justify-between mb-0.5 sm:mb-2">
             <span className="text-[6px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium truncate">
               {t('win_rate') || '胜率'}
@@ -254,7 +254,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1.5 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-white/5 border border-white/5">
+        <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-white/5 border border-white/5">
           <div className="text-center min-w-0 overflow-hidden">
             <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t('correct_short') || t('correct')}</p>
             <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-success">
@@ -275,20 +275,22 @@ const ModelCard = ({ model }: ModelCardProps) => {
           </div>
         </div>
 
-        {/* Follow Button */}
-        <Button
-          variant={isFollowing ? "default" : "outline"}
-          size="sm"
-          className={`w-full h-6 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl ${
-            isFollowing 
-              ? 'bg-success/20 hover:bg-success/30 text-success border border-success/30 shadow-sm' 
-              : 'bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 shadow-sm'
-          }`}
-          onClick={handleFollowToggle}
-          disabled={followLoading}
-        >
-          {isFollowing ? t('following') : t('follow_model')}
-        </Button>
+        {/* Follow Button - Push to bottom */}
+        <div className="mt-auto pt-1 sm:pt-0">
+          <Button
+            variant={isFollowing ? "default" : "outline"}
+            size="sm"
+            className={`w-full h-5 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl ${
+              isFollowing 
+                ? 'bg-success/20 hover:bg-success/30 text-success border border-success/30 shadow-sm' 
+                : 'bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 shadow-sm'
+            }`}
+            onClick={handleFollowToggle}
+            disabled={followLoading}
+          >
+            {isFollowing ? t('following') : t('follow_model')}
+          </Button>
+        </div>
       </div>
     </TiltCard>
   );

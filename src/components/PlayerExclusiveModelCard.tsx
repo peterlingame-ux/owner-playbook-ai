@@ -638,7 +638,7 @@ const PlayerExclusiveModelCard = ({
   return (
     <>
       <TiltCard
-        className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer min-h-[180px] sm:min-h-[320px] ${className}`}
+        className={`group rounded-lg sm:rounded-2xl p-2 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col ${className}`}
         onClick={handleNextMatch}
         maxTilt={8}
         scale={1.02}
@@ -705,7 +705,7 @@ const PlayerExclusiveModelCard = ({
         )}
 
         {/* Content */}
-        <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
+        <div className="relative z-10 space-y-1 sm:space-y-4 overflow-hidden flex-1 flex flex-col">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`player-${matchIndex}`}
@@ -725,7 +725,7 @@ const PlayerExclusiveModelCard = ({
                 duration: 0.25, 
                 ease: "easeOut" 
               }}
-              className="space-y-1.5 sm:space-y-4"
+              className="space-y-1 sm:space-y-4 flex-1 flex flex-col"
             >
               {/* AI Model Header */}
               <div className="flex items-center justify-between">
