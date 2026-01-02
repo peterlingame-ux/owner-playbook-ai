@@ -910,10 +910,8 @@ const PlayerExclusiveModelCard = ({
                       </p>
                     </div>
                   
-                    {/* VS */}
-                    <div className="flex flex-col items-center gap-0.5 px-1 shrink-0">
-                      <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-                    </div>
+                    {/* Match Time Display - Same as auto prediction */}
+                    <MatchTimeDisplay match={confirmedManualBet.match} />
                   
                     {/* Away Team */}
                     <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
@@ -935,35 +933,54 @@ const PlayerExclusiveModelCard = ({
                     </div>
                   </div>
 
-                  {/* Manual Bet Details */}
+                  {/* Manual Bet Details - Handicap (Same style as auto prediction) */}
                   {confirmedManualBet.betType === 'handicap' && (
                     <div className="bg-white/5 rounded-lg p-2 space-y-1 border border-white/10">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90 uppercase">{t('handicap_bet')}</span>
+                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet')}</span>
                         <Badge variant="outline" className="text-[7px] sm:text-[9px] px-1.5 py-0.5 bg-success/20 text-success border-success/30">
                           Confirmed
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className={`p-1.5 rounded-lg border transition-all flex items-center gap-1 ${
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center gap-1 ${
                           confirmedManualBet.prediction === 'HOME' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
                         }`}>
+                          {confirmedManualBet.match.home_logo && (
+                            <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
+                              <AvatarImage src={confirmedManualBet.match.home_logo} />
+                              <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
+                            </Avatar>
+                          )}
                           <span className="text-[8px] sm:text-[10px] font-semibold truncate flex-1">{safeGetTeamName(confirmedManualBet.match, 'home')}</span>
-                          <span className="text-[8px] sm:text-[10px] font-mono font-bold text-primary">
+                          <span className={`text-[8px] sm:text-[10px] font-mono font-bold ${
+                            confirmedManualBet.prediction === 'HOME' ? 'text-primary' : 'text-muted-foreground'
+                          }`}>
                             {confirmedManualBet.handicapLine > 0 ? '+' : ''}{confirmedManualBet.handicapLine}
                           </span>
                         </div>
-                        <div className={`p-1.5 rounded-lg border transition-all flex items-center gap-1 ${
+                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center gap-1 ${
                           confirmedManualBet.prediction === 'AWAY' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
                         }`}>
+                          {confirmedManualBet.match.away_logo && (
+                            <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
+                              <AvatarImage src={confirmedManualBet.match.away_logo} />
+                              <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
+                            </Avatar>
+                          )}
                           <span className="text-[8px] sm:text-[10px] font-semibold truncate flex-1">{safeGetTeamName(confirmedManualBet.match, 'away')}</span>
-                          <span className="text-[8px] sm:text-[10px] font-mono font-bold text-muted-foreground">
+                          <span className={`text-[8px] sm:text-[10px] font-mono font-bold ${
+                            confirmedManualBet.prediction === 'AWAY' ? 'text-primary' : 'text-muted-foreground'
+                          }`}>
                             {-confirmedManualBet.handicapLine > 0 ? '+' : ''}{-confirmedManualBet.handicapLine}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between text-[8px] sm:text-[10px] pt-1 border-t border-white/10">
-                        <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{(confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                      <div className="flex items-center justify-between text-[8px] sm:text-[10px] pt-1.5 border-t border-white/10">
+                        <div className="flex items-center gap-2 sm:gap-4">
+                          <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                          <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{(confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                        </div>
                         <span className="font-mono font-bold text-success">${(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}</span>
                       </div>
                     </div>
@@ -972,20 +989,20 @@ const PlayerExclusiveModelCard = ({
                   {confirmedManualBet.betType === 'over_under' && (
                     <div className="bg-white/5 rounded-lg p-2 space-y-1 border border-white/10">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90 uppercase">{t('over_under_bet')}</span>
+                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet')}</span>
                         <Badge variant="outline" className="text-[7px] sm:text-[9px] px-1.5 py-0.5 bg-success/20 text-success border-success/30">
                           Confirmed
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className={`p-1.5 rounded-lg border transition-all flex items-center justify-center gap-1 ${
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
                           confirmedManualBet.overUnderPick === 'over' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
                         }`}>
                           <TrendingUp className="h-3 w-3" />
                           <span className="text-[8px] sm:text-[10px] font-semibold">{t('over')}</span>
                           <span className="text-[8px] sm:text-[10px] font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
                         </div>
-                        <div className={`p-1.5 rounded-lg border transition-all flex items-center justify-center gap-1 ${
+                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
                           confirmedManualBet.overUnderPick === 'under' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
                         }`}>
                           <TrendingUp className="h-3 w-3 rotate-180" />
@@ -993,8 +1010,11 @@ const PlayerExclusiveModelCard = ({
                           <span className="text-[8px] sm:text-[10px] font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between text-[8px] sm:text-[10px] pt-1 border-t border-white/10">
-                        <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{(confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                      <div className="flex items-center justify-between text-[8px] sm:text-[10px] pt-1.5 border-t border-white/10">
+                        <div className="flex items-center gap-2 sm:gap-4">
+                          <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                          <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{(confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                        </div>
                         <span className="font-mono font-bold text-success">${(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}</span>
                       </div>
                     </div>
