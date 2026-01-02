@@ -905,9 +905,9 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header */}
-      <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8">
-        <div className="relative">
-          <h2 className="text-sm sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
+      <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8 px-1">
+        <div className="relative max-w-full">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight truncate">
             {t('active_ai_predictions')}
           </h2>
           <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
@@ -1049,17 +1049,17 @@ const ActiveAIBets = () => {
                 </div>
               )}
 
-              {/* No Bets Indicator */}
-              {matchEntries.length === 0 && (
-                <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
-                  <Badge 
-                    variant="outline"
-                    className="text-[8px] sm:text-[10px] font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
-                  >
-                    {t('no_bets')}
-                  </Badge>
-                </div>
-              )}
+                              {/* No Bets Indicator */}
+                              {matchEntries.length === 0 && (
+                                <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
+                                  <Badge 
+                                    variant="outline"
+                                    className="text-[6px] sm:text-[10px] font-medium px-1 sm:px-2.5 py-0.5 sm:py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm max-w-[50px] sm:max-w-none truncate"
+                                  >
+                                    {t('no_bets')}
+                                  </Badge>
+                                </div>
+                              )}
 
               {/* Content */}
               <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
@@ -1101,13 +1101,13 @@ const ActiveAIBets = () => {
                           {/* Online Indicator */}
                           <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                         </div>
-                        <div className="flex flex-col">
-                          <span className={`text-[9px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent}`}>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className={`text-[8px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent} truncate max-w-[60px] sm:max-w-none`}>
                             {getModelDisplayName(aiModel)}
                           </span>
-                          <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5" />
-                            {balanceNumber}
+                          <span className="text-[7px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5 shrink-0" />
+                            <span className="truncate">{balanceNumber}</span>
                           </span>
                         </div>
                       </div>
@@ -1144,7 +1144,7 @@ const ActiveAIBets = () => {
                       <div className="space-y-1 sm:space-y-3">
                         {/* League Badge */}
                         <div className="flex items-center justify-center">
-                          <Badge className="text-[7px] sm:text-[11px] py-0 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
+                          <Badge className="text-[6px] sm:text-[11px] py-0 sm:py-1 px-1 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm max-w-full truncate">
                             {getLeagueName(currentMatchData.match)}
                           </Badge>
                         </div>
@@ -1152,8 +1152,8 @@ const ActiveAIBets = () => {
                         {/* Teams Display */}
                         <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
                           {/* Home Team */}
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
-                            <div className="relative">
+                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                            <div className="relative shrink-0">
                               {currentMatchData.match.home_logo ? (
                                 <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
@@ -1165,7 +1165,7 @@ const ActiveAIBets = () => {
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[6px] sm:text-xs text-center leading-tight truncate w-full max-w-[45px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'home')}
                             </p>
                           </div>
@@ -1174,8 +1174,8 @@ const ActiveAIBets = () => {
                           <MatchTimeDisplay match={currentMatchData.match} />
                         
                           {/* Away Team */}
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
-                            <div className="relative">
+                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                            <div className="relative shrink-0">
                               {currentMatchData.match.away_logo ? (
                                 <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
@@ -1187,19 +1187,19 @@ const ActiveAIBets = () => {
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[6px] sm:text-xs text-center leading-tight truncate w-full max-w-[45px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'away')}
                             </p>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center">
-                        <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3" />
-                        <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
+                      <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden">
+                        <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
+                        <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full">
                           {t('no_active_predictions')}
                         </p>
-                        <p className="text-[8px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block">
+                        <p className="text-[6px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block truncate max-w-full">
                           {t('no_bets_for_ai')}
                         </p>
                       </div>
