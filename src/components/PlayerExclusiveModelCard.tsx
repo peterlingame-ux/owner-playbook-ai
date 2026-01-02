@@ -1654,27 +1654,6 @@ const PlayerExclusiveModelCard = ({
                       </div>
                     </div>
                   )}
-
-                  {/* Bet Amount */}
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-2">{t('bet_amount') || '下注金额'}</p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[100, 200, 500, 1000].map((amt) => (
-                        <button
-                          key={amt}
-                          type="button"
-                          className={`py-2 rounded-lg text-sm font-medium transition-colors ${
-                            manualBetAmount === amt
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                          }`}
-                          onClick={() => setManualBetAmount(amt)}
-                        >
-                          {amt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
