@@ -90,7 +90,14 @@ const MatchCenter = () => {
         status = 'finished';
       } else if (fixtureData.status.short === 'LIVE' || fixtureData.status.short === 'HT' || fixtureData.status.short === '2H') {
         status = 'live';
-        minute = fixtureData.status.elapsed ? `${fixtureData.status.elapsed}'` : undefined;
+        if (fixtureData.status.elapsed) {
+          // 如果API返回的时间超过45分钟，减去中场休息的15分钟
+          const elapsed = fixtureData.status.elapsed;
+          const displayMinutes = elapsed > 45 ? elapsed - 15 : elapsed;
+          minute = `${displayMinutes}'`;
+        } else {
+          minute = undefined;
+        }
       }
     }
 
@@ -218,7 +225,12 @@ const MatchCenter = () => {
           const elapsedSeconds = now - matchTime;
           const elapsedMinutes = Math.floor(elapsedSeconds / 60);
           if (elapsedMinutes > 0 && elapsedMinutes <= 150) { // 最多150分钟（包含加时）
-            minute = `${elapsedMinutes}'`;
+            // 减去中场休息的15分钟
+            // 上半场：0-45分钟，显示原值
+            // 下半场：45-105分钟（实际时间），显示时减去15分钟（46'-90'）
+            // 加时赛：105分钟以上，也减去15分钟
+            const displayMinutes = elapsedMinutes > 45 ? elapsedMinutes - 15 : elapsedMinutes;
+            minute = `${displayMinutes}'`;
           }
         }
         // 根据 status_id 显示不同的分钟数标识
@@ -260,7 +272,9 @@ const MatchCenter = () => {
             status = 'live';
             const elapsedMinutes = Math.floor(elapsedSeconds / 60);
             if (elapsedMinutes > 0 && elapsedMinutes <= 150) {
-              minute = `${elapsedMinutes}'`;
+              // 减去中场休息的15分钟
+              const displayMinutes = elapsedMinutes > 45 ? elapsedMinutes - 15 : elapsedMinutes;
+              minute = `${displayMinutes}'`;
             }
           } else {
             status = 'finished';

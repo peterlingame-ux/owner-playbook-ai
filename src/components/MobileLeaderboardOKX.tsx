@@ -1175,8 +1175,18 @@ const MobileLeaderboardOKX = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-card/50 rounded-lg px-3 pt-3 pb-2 border border-border/30"
+            className="bg-card/50 rounded-lg px-3 pt-3 pb-2 border border-border/30 relative"
           >
+            {/* Rank Badge - Top Left of Card */}
+            {index < 3 && (
+              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold z-10 ${
+                index === 0 ? 'bg-yellow-500 text-yellow-950' :
+                index === 1 ? 'bg-gray-400 text-gray-900' :
+                'bg-amber-600 text-amber-950'
+              }`}>
+                {index + 1}
+              </div>
+            )}
             {/* Top: Icon + Name + Like Button + Action Buttons */}
             <div className="flex items-center gap-2.5 mb-2">
               <div className="relative flex-shrink-0">
@@ -1186,15 +1196,6 @@ const MobileLeaderboardOKX = () => {
                 >
                   <img src={getAIIcon(model.id)} alt={model.name} className="w-6 h-6 object-contain" />
                 </div>
-                {index < 3 && (
-                  <div className={`absolute -top-1 -left-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                    index === 0 ? 'bg-yellow-500 text-yellow-950' :
-                    index === 1 ? 'bg-gray-400 text-gray-900' :
-                    'bg-amber-600 text-amber-950'
-                  }`}>
-                    {index + 1}
-                  </div>
-                )}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 
@@ -2539,6 +2540,16 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
       onClick={onClick}
       className="bg-card/50 rounded-lg p-3 border border-border/30 cursor-pointer active:scale-[0.99] transition-transform relative overflow-hidden"
     >
+      {/* Rank Badge - Top Left of Card */}
+      {index < 3 && (
+        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold z-10 ${
+          index === 0 ? 'bg-yellow-500 text-yellow-950' :
+          index === 1 ? 'bg-gray-400 text-gray-900' :
+          'bg-amber-600 text-amber-950'
+        }`}>
+          {index + 1}
+        </div>
+      )}
       {/* Qualified Stamp - 已达标 */}
       {isQualified && (
         <div className="absolute top-1/2 right-24 -translate-y-1/2 rotate-[-12deg] pointer-events-none z-10">
@@ -2557,27 +2568,25 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
 
       {/* Top: Avatar + Name + Streak Badge + Action Buttons */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="relative flex-shrink-0">
-          <Avatar className="w-9 h-9 border border-border">
+        <div 
+          className="relative flex-shrink-0 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFollowPlayerClick(player);
+          }}
+        >
+          <Avatar className="w-9 h-9 border border-border hover:opacity-80 transition-opacity">
             <AvatarImage src={player.avatarUrl} alt={player.displayName} />
             <AvatarFallback className="text-xs">{player.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          {index < 3 && (
-            <div className={`absolute -top-1 -left-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-              index === 0 ? 'bg-yellow-500 text-yellow-950' :
-              index === 1 ? 'bg-gray-400 text-gray-900' :
-              'bg-amber-600 text-amber-950'
-            }`}>
-              {index + 1}
-            </div>
-          )}
-          {/* Follow Player Button - simple + icon */}
+          {/* Follow Player Button - Top Right of Avatar */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onFollowPlayerClick(player);
             }}
-            className="absolute -top-1 right-0.5 text-primary text-sm font-bold leading-none"
+            className="absolute -top-0.5 -right-0.5 text-primary text-sm font-bold leading-none z-10"
+            style={{ minWidth: 'auto', minHeight: 'auto' }}
           >
             +
           </button>
