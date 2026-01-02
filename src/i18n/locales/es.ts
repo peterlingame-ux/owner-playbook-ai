@@ -489,6 +489,8 @@ export const es = {
     "locked_model": "BLOQUEADO",
     "locked_model_message": "Este modelo está bloqueado.",
     "active_ai_predictions": "Predicciones de IA de Hoy",
+    "auto_prediction": "Auto",
+    "manual_prediction": "Manual",
     "view_analysis": "Análisis",
     "model_training": "Entrenamiento del Modelo",
     "data_feeding": "Alimentación de Datos",

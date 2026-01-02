@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
@@ -448,6 +449,9 @@ const ActiveAIBets = () => {
   // State for PK dialog
   const [pkDialogOpen, setPkDialogOpen] = useState(false);
   const [pkSelectedMatch, setPkSelectedMatch] = useState<DailyMatch | null>(null);
+
+  // State for prediction mode toggle (auto vs manual)
+  const [isAutoPrediction, setIsAutoPrediction] = useState(true);
 
   // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
@@ -905,12 +909,27 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header */}
-      <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8 px-1">
+      <div className="flex flex-col items-center mb-3 sm:mb-6 lg:mb-8 px-1">
         <div className="relative max-w-full">
           <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight truncate">
             {t('active_ai_predictions')}
           </h2>
           <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
+        </div>
+        
+        {/* Auto/Manual Prediction Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
+          <span className={`text-[10px] sm:text-xs font-medium transition-colors ${isAutoPrediction ? 'text-primary' : 'text-muted-foreground'}`}>
+            {t('auto_prediction')}
+          </span>
+          <Switch
+            checked={!isAutoPrediction}
+            onCheckedChange={(checked) => setIsAutoPrediction(!checked)}
+            className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary"
+          />
+          <span className={`text-[10px] sm:text-xs font-medium transition-colors ${!isAutoPrediction ? 'text-primary' : 'text-muted-foreground'}`}>
+            {t('manual_prediction')}
+          </span>
         </div>
       </div>
 
