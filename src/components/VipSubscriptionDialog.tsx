@@ -152,10 +152,7 @@ const VipSubscriptionDialog = ({ open, onOpenChange, isVipActive, onVipPurchased
                     {t('processing')}
                   </>
                 ) : (
-                  <>
-                    <Crown className="w-4 h-4 mr-2" />
-                    {t('open_vip_now')}
-                  </>
+                  t('open_vip_now')
                 )}
                 {/* Button shimmer */}
                 <motion.div
