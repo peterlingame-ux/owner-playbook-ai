@@ -854,23 +854,17 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
               ) : isManualPrediction && !manualBetConfirmed ? (
-                /* Manual Prediction Mode - Show AI Predict Button */
-                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center">
-                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3" />
-                  <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium mb-2 sm:mb-3">
-                    {t('manual_prediction_hint') || '选择比赛进行人工预测'}
-                  </p>
+                /* Manual Prediction Mode - Show Start Predict Button */
+                <div className="flex flex-col items-center justify-center py-3 sm:py-4 text-center">
                   <Button
                     size="sm"
-                    className="h-7 sm:h-9 px-3 sm:px-5 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-[10px] sm:text-sm"
+                    className="h-8 sm:h-10 px-4 sm:px-6 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs sm:text-sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Allow demo users to view the dialog
                       setShowManualBetDialog(true);
                     }}
                   >
-                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    {t('ai_predict_match') || 'AI预测比赛'}
+                    {t('start_prediction') || '开始预测'}
                   </Button>
                 </div>
               ) : manualBetConfirmed && confirmedManualBet ? (
