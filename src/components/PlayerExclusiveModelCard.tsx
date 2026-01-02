@@ -1473,129 +1473,131 @@ const PlayerExclusiveModelCard = ({
         </DialogContent>
       </Dialog>
 
-      {/* Manual Bet Dialog - Clean & Minimal */}
-      <Dialog open={showManualBetDialog} onOpenChange={setShowManualBetDialog}>
-        <DialogContent className="sm:max-w-[400px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 bg-[#141414] border-[#252525] rounded-xl">
-          {/* Header - Minimal */}
-          <div className="px-4 pt-4 pb-3">
-            <DialogTitle className="text-base font-semibold text-white">
-              {t('ai_predict_match') || 'AI Prediction'}
+      {/* Manual Bet Dialog */}
+      <Dialog open={showManualBetDialog} onOpenChange={(open) => {
+        setShowManualBetDialog(open);
+        if (!open) {
+          setSelectedMatch(null);
+          setManualPrediction('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md w-[calc(100%-32px)] max-h-[80vh] p-0 gap-0 bg-card border-border">
+          <DialogHeader className="p-4 pb-3 border-b border-border">
+            <DialogTitle className="text-base font-semibold">
+              {t('ai_predict_match') || 'AI预测比赛'}
             </DialogTitle>
-          </div>
+          </DialogHeader>
 
-          <ScrollArea className="flex-1 px-4 pb-4">
-            <div className="space-y-5">
-              {/* Match Selection - Clean Cards */}
-              <div className="space-y-3">
-                <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                  {t('select_match') || 'Select Match'}
-                </label>
+          <div className="overflow-y-auto max-h-[calc(80vh-120px)]">
+            <div className="p-4 space-y-4">
+              {/* Match List */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">{t('select_match') || '选择比赛'}</p>
                 <div className="space-y-2">
                   {matchesToShow.slice(0, 5).map((match: any) => {
                     const isSelected = selectedMatch?.mid === match.mid || selectedMatch?.fixture_id === match.fixture_id;
                     return (
                       <div
                         key={match.mid || match.fixture_id}
-                        className={`p-3 rounded-lg cursor-pointer transition-all ${
+                        className={`p-3 rounded-lg cursor-pointer transition-colors ${
                           isSelected
-                            ? 'bg-primary/10 ring-1 ring-primary/50'
-                            : 'bg-[#1c1c1c] hover:bg-[#222]'
+                            ? 'bg-primary/15 border border-primary/40'
+                            : 'bg-muted/50 border border-transparent hover:bg-muted'
                         }`}
                         onClick={() => {
                           setSelectedMatch(match);
                           setManualPrediction('');
                         }}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-white truncate flex-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium truncate max-w-[120px]">
                             {safeGetTeamName(match, 'home')}
                           </span>
-                          <span className="text-xs text-neutral-500 px-3">vs</span>
-                          <span className="text-sm font-medium text-white truncate flex-1 text-right">
+                          <span className="text-muted-foreground text-xs mx-2">vs</span>
+                          <span className="font-medium truncate max-w-[120px] text-right">
                             {safeGetTeamName(match, 'away')}
                           </span>
                         </div>
-                        <div className="text-center mt-1">
-                          <span className="text-[10px] text-neutral-600">{safeGetLeagueName(match)}</span>
-                        </div>
+                        <p className="text-[10px] text-muted-foreground text-center mt-1">
+                          {safeGetLeagueName(match)}
+                        </p>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Only show bet options after match is selected */}
+              {/* Bet Options - Only after match selected */}
               {selectedMatch && (
-                <>
-                  {/* Divider */}
-                  <div className="h-px bg-[#252525]" />
-
-                  {/* Bet Type Selection */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                      {t('bet_type') || 'Bet Type'}
-                    </label>
+                <div className="space-y-4 pt-2 border-t border-border">
+                  {/* Bet Type */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">{t('bet_type') || '投注类型'}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <button
-                        className={`h-10 rounded-lg text-sm font-medium transition-all ${
-                          manualBetType === 'handicap' 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                        type="button"
+                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          manualBetType === 'handicap'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                         onClick={() => setManualBetType('handicap')}
                       >
-                        {t('handicap_bet') || 'Handicap'}
+                        {t('handicap_bet') || '让分'}
                       </button>
                       <button
-                        className={`h-10 rounded-lg text-sm font-medium transition-all ${
-                          manualBetType === 'over_under' 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                        type="button"
+                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          manualBetType === 'over_under'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                         onClick={() => setManualBetType('over_under')}
                       >
-                        {t('over_under_bet') || 'Over/Under'}
+                        {t('over_under_bet') || '大小球'}
                       </button>
                     </div>
                   </div>
 
-                  {/* Handicap Options */}
+                  {/* Handicap */}
                   {manualBetType === 'handicap' && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                          {t('handicap_line') || 'Line'}
-                        </label>
-                        <div className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground">{t('handicap_line') || '让球盘口'}</span>
+                        <div className="flex items-center gap-2">
                           <button
-                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
+                            type="button"
+                            className="w-8 h-8 rounded-md bg-muted text-foreground flex items-center justify-center hover:bg-muted/80"
                             onClick={() => setManualHandicapLine(prev => prev - 0.5)}
                           >−</button>
-                          <span className="w-14 text-center font-mono font-semibold text-white">
+                          <span className="w-10 text-center font-mono font-semibold">
                             {manualHandicapLine > 0 ? '+' : ''}{manualHandicapLine}
                           </span>
                           <button
-                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
+                            type="button"
+                            className="w-8 h-8 rounded-md bg-muted text-foreground flex items-center justify-center hover:bg-muted/80"
                             onClick={() => setManualHandicapLine(prev => prev + 0.5)}
                           >+</button>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <button
-                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
-                            manualPrediction === 'HOME' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                          type="button"
+                          className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+                            manualPrediction === 'HOME'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                           onClick={() => setManualPrediction('HOME')}
                         >
                           {safeGetTeamName(selectedMatch, 'home')}
                         </button>
                         <button
-                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
-                            manualPrediction === 'AWAY' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                          type="button"
+                          className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+                            manualPrediction === 'AWAY'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                           onClick={() => setManualPrediction('AWAY')}
                         >
@@ -1605,93 +1607,94 @@ const PlayerExclusiveModelCard = ({
                     </div>
                   )}
 
-                  {/* Over/Under Options */}
+                  {/* Over/Under */}
                   {manualBetType === 'over_under' && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                          {t('over_under_line') || 'Total'}
-                        </label>
-                        <div className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground">{t('over_under_line') || '大小球盘口'}</span>
+                        <div className="flex items-center gap-2">
                           <button
-                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
+                            type="button"
+                            className="w-8 h-8 rounded-md bg-muted text-foreground flex items-center justify-center hover:bg-muted/80"
                             onClick={() => setManualOverUnderLine(prev => Math.max(0.5, prev - 0.5))}
                           >−</button>
-                          <span className="w-14 text-center font-mono font-semibold text-white">
+                          <span className="w-10 text-center font-mono font-semibold">
                             {manualOverUnderLine}
                           </span>
                           <button
-                            className="h-8 w-8 rounded-lg bg-[#1c1c1c] text-neutral-400 text-lg hover:bg-[#222]"
+                            type="button"
+                            className="w-8 h-8 rounded-md bg-muted text-foreground flex items-center justify-center hover:bg-muted/80"
                             onClick={() => setManualOverUnderLine(prev => prev + 0.5)}
                           >+</button>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <button
-                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
-                            manualOverUnderPick === 'over' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                          type="button"
+                          className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+                            manualOverUnderPick === 'over'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                           onClick={() => setManualOverUnderPick('over')}
                         >
-                          {t('over') || 'Over'} {manualOverUnderLine}
+                          {t('over') || '大'} {manualOverUnderLine}
                         </button>
                         <button
-                          className={`h-12 rounded-lg text-sm font-medium transition-all ${
-                            manualOverUnderPick === 'under' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                          type="button"
+                          className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+                            manualOverUnderPick === 'under'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                           onClick={() => setManualOverUnderPick('under')}
                         >
-                          {t('under') || 'Under'} {manualOverUnderLine}
+                          {t('under') || '小'} {manualOverUnderLine}
                         </button>
                       </div>
                     </div>
                   )}
 
                   {/* Bet Amount */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                      {t('bet_amount') || 'Amount'}
-                    </label>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">{t('bet_amount') || '下注金额'}</p>
                     <div className="grid grid-cols-4 gap-2">
-                      {[100, 200, 500, 1000].map((amount) => (
+                      {[100, 200, 500, 1000].map((amt) => (
                         <button
-                          key={amount}
-                          className={`h-10 rounded-lg text-sm font-medium transition-all ${
-                            manualBetAmount === amount 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-[#1c1c1c] text-neutral-400 hover:bg-[#222]'
+                          key={amt}
+                          type="button"
+                          className={`py-2 rounded-lg text-sm font-medium transition-colors ${
+                            manualBetAmount === amt
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
-                          onClick={() => setManualBetAmount(amount)}
+                          onClick={() => setManualBetAmount(amt)}
                         >
-                          {amount}
+                          {amt}
                         </button>
                       ))}
                     </div>
                   </div>
-
-                  {/* Submit Button */}
-                  <Button
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm rounded-lg mt-2"
-                    onClick={handleManualBetSubmit}
-                    disabled={isSubmittingBet || (manualBetType === 'handicap' && !manualPrediction)}
-                  >
-                    {isSubmittingBet ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        {t('submitting') || 'Submitting...'}
-                      </>
-                    ) : (
-                      t('confirm_prediction') || 'Confirm Prediction'
-                    )}
-                  </Button>
-                </>
+                </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
+
+          {/* Footer */}
+          {selectedMatch && (
+            <div className="p-4 border-t border-border">
+              <Button
+                className="w-full"
+                onClick={handleManualBetSubmit}
+                disabled={isSubmittingBet || (manualBetType === 'handicap' && !manualPrediction)}
+              >
+                {isSubmittingBet ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                {t('confirm_prediction') || '确认预测'}
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
