@@ -459,6 +459,15 @@ export const ja = {
     "follow_success": "{{name}}さんをフォローしました",
     "auto_prediction": "自動",
     "manual_prediction": "手動",
+    "potential_win": "予想収益",
+    "confirm_bet": "ベット確認",
+    "demo_prediction_success": "デモ予測成功",
+    "handicap_bet": "ハンディキャップ",
+    "over_under_bet": "オーバー/アンダー",
+    "over": "オーバー",
+    "under": "アンダー",
+    "bet_amount": "ベット金額",
+    "bet_success": "予測が成功しました",
     
     // Personal Center
     "personal_center": "パーソナルセンター",

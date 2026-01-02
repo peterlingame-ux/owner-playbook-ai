@@ -635,6 +635,15 @@ export const fr = {
     "follow_success": "Vous suivez maintenant {{name}}",
     "auto_prediction": "Auto",
     "manual_prediction": "Manuel",
+    "potential_win": "Gain potentiel",
+    "confirm_bet": "Confirmer le pari",
+    "demo_prediction_success": "Prédiction démo réussie",
+    "handicap_bet": "Handicap",
+    "over_under_bet": "Plus/Moins",
+    "over": "Plus",
+    "under": "Moins",
+    "bet_amount": "Montant du pari",
+    "bet_success": "Prédiction soumise avec succès",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

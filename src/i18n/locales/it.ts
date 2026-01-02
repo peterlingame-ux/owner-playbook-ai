@@ -459,6 +459,15 @@ export const it = {
     "follow_success": "Ora segui {{name}}",
     "auto_prediction": "Auto",
     "manual_prediction": "Manuale",
+    "potential_win": "Vincita potenziale",
+    "confirm_bet": "Conferma scommessa",
+    "demo_prediction_success": "Previsione demo riuscita",
+    "handicap_bet": "Handicap",
+    "over_under_bet": "Over/Under",
+    "over": "Over",
+    "under": "Under",
+    "bet_amount": "Importo scommessa",
+    "bet_success": "Previsione inviata con successo",
     
     // Personal Center
     "personal_center": "Centro Personale",
