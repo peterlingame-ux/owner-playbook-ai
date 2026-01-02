@@ -478,6 +478,8 @@ export const hi = {
     "follow_player_title": "खिलाड़ी को फॉलो करें",
     "follow_player_confirm": "क्या आप {{name}} को फॉलो करना चाहते हैं?",
     "follow_success": "{{name}} को फॉलो किया गया",
+    "auto_prediction": "स्वचालित",
+    "manual_prediction": "मैनुअल",
     // सीधे संदेश
     "send_message": "संदेश",
     "no_messages_yet": "अभी तक कोई संदेश नहीं",

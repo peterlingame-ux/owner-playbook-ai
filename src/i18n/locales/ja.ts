@@ -457,6 +457,8 @@ export const ja = {
     "follow_player_title": "プレイヤーをフォロー",
     "follow_player_confirm": "{{name}}さんをフォローしますか？",
     "follow_success": "{{name}}さんをフォローしました",
+    "auto_prediction": "自動",
+    "manual_prediction": "手動",
     
     // Personal Center
     "personal_center": "パーソナルセンター",

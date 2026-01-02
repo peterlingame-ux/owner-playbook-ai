@@ -457,6 +457,8 @@ export const it = {
     "follow_player_title": "Segui Giocatore",
     "follow_player_confirm": "Sei sicuro di voler seguire {{name}}?",
     "follow_success": "Ora segui {{name}}",
+    "auto_prediction": "Auto",
+    "manual_prediction": "Manuale",
     
     // Personal Center
     "personal_center": "Centro Personale",

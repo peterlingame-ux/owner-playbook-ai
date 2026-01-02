@@ -633,6 +633,8 @@ export const fr = {
     "follow_player_title": "Suivre le Joueur",
     "follow_player_confirm": "Êtes-vous sûr de vouloir suivre {{name}} ?",
     "follow_success": "Vous suivez maintenant {{name}}",
+    "auto_prediction": "Auto",
+    "manual_prediction": "Manuel",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
