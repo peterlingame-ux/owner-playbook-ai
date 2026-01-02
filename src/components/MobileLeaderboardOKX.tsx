@@ -363,10 +363,15 @@ const MobileLeaderboardOKX = () => {
   ];
 
   const mainTabs = [
-    { value: 'ai', label: t('ai_prediction_board') || 'AI预测排行榜' },
-    { value: 'accuracy', label: t('accuracy_board') || '预测者准确率' },
-    { value: 'copyTrade', label: t('copy_trading_board') || '预测者跟单' },
+    { value: 'ai', label: t('ai_prediction_board') || 'AI预测排行榜', navigateTo: '/leaderboard?tab=ai' },
+    { value: 'accuracy', label: t('accuracy_board') || '预测者准确率', navigateTo: '/leaderboard?tab=players' },
+    { value: 'copyTrade', label: t('copy_trading_board') || '预测者跟单', navigateTo: '/leaderboard?tab=copy' },
   ];
+
+  // Handle main tab click - navigate to PC-style page
+  const handleMainTabClick = (tab: MainTab, navigateTo: string) => {
+    navigate(navigateTo);
+  };
 
   const getSubTabs = () => {
     if (mainTab === 'ai') {

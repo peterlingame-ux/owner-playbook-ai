@@ -9,7 +9,6 @@ import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import PlayerLeaderboardTable from "@/components/PlayerLeaderboardTable";
 import PlayerCopyTradingBoard from "@/components/PlayerCopyTradingBoard";
-import MobileLeaderboardOKX from "@/components/MobileLeaderboardOKX";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,20 +22,7 @@ const Leaderboard = () => {
   const tabParam = searchParams.get('tab');
   const defaultTab = tabParam === 'copy' ? 'copy' : tabParam === 'ai' ? 'ai' : 'players';
   
-  // Mobile: Use OKX-style layout
-  if (isMobile) {
-    return (
-      <div className="min-h-screen bg-background">
-        <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
-        <Header />
-        <MobileLeaderboardOKX />
-        <MobileFooter />
-        <BottomNav />
-      </div>
-    );
-  }
-
-  // Desktop: Original layout
+  // Both mobile and desktop use the same layout with responsive styling
   return (
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
@@ -65,10 +51,10 @@ const Leaderboard = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
           >
-            <TabsList className="grid grid-cols-3 w-full max-w-lg h-10 p-1 gap-1">
-              <TabsTrigger value="ai" className="text-sm px-4 py-2 h-auto min-h-[36px] whitespace-normal leading-tight">{t('ai_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="players" className="text-sm px-4 py-2 h-auto min-h-[36px] whitespace-normal leading-tight">{t('player_leaderboard')}</TabsTrigger>
-              <TabsTrigger value="copy" className="text-sm px-4 py-2 h-auto min-h-[36px] whitespace-normal leading-tight">{t('copy_trading_board')}</TabsTrigger>
+            <TabsList className="grid grid-cols-3 w-full max-w-lg h-auto p-1 gap-1">
+              <TabsTrigger value="ai" className="text-xs sm:text-sm px-2 sm:px-4 py-2 h-auto min-h-[36px] whitespace-normal leading-tight">{t('ai_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="players" className="text-xs sm:text-sm px-2 sm:px-4 py-2 h-auto min-h-[36px] whitespace-normal leading-tight">{t('player_leaderboard')}</TabsTrigger>
+              <TabsTrigger value="copy" className="text-xs sm:text-sm px-2 sm:px-4 py-2 h-auto min-h-[36px] whitespace-normal leading-tight">{t('copy_trading_board')}</TabsTrigger>
             </TabsList>
           </motion.div>
           
@@ -92,7 +78,14 @@ const Leaderboard = () => {
         </Tabs>
       </motion.div>
       
-      <Footer />
+      {isMobile ? (
+        <>
+          <MobileFooter />
+          <BottomNav />
+        </>
+      ) : (
+        <Footer />
+      )}
     </div>
   );
 };
