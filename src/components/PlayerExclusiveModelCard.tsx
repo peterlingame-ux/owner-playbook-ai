@@ -1480,9 +1480,9 @@ const PlayerExclusiveModelCard = ({
           setManualPrediction('');
         }
       }}>
-        <DialogContent className="sm:max-w-md w-[calc(100%-32px)] max-h-[85vh] p-0 gap-0 bg-[#0d0d0d] border-[#1a1a1a]">
+        <DialogContent className="sm:max-w-md w-[calc(100%-32px)] max-h-[85vh] p-0 gap-0 bg-card border-border">
           {/* Header */}
-          <DialogHeader className="px-4 py-3 border-b border-[#1a1a1a] flex flex-row items-center justify-between">
+          <DialogHeader className="px-4 py-3 border-b border-border flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               {selectedMatch && (
                 <button
