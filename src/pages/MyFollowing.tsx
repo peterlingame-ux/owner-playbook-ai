@@ -158,6 +158,7 @@ const MyFollowing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <div className="pt-[50px] sm:pt-[70px]">
       
       <div className="container mx-auto px-4 py-6 safe-area-padding">
         {/* 返回按钮 */}
@@ -270,6 +271,7 @@ const MyFollowing = () => {
             </AnimatePresence>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -302,8 +302,10 @@ const PlayerDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <div className="pt-[50px] sm:pt-[70px]">
         <div className="container mx-auto px-4 py-16 text-center">
           <p className="text-muted-foreground mb-4">{t('loading')}</p>
+        </div>
         </div>
       </div>
     );
@@ -426,6 +428,7 @@ const PlayerDetail = () => {
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
+      <div className="pt-[50px] sm:pt-[70px]">
       
       <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-8 safe-area-padding">
         {/* 返回按钮 */}
@@ -815,6 +818,7 @@ const PlayerDetail = () => {
             )}
           </div>
         </Card>
+      </div>
       </div>
     </div>
   );

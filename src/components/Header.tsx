@@ -48,7 +48,7 @@ const Header = () => {
   };
   
   return (
-    <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 safe-area-top w-full max-w-full overflow-x-hidden">
+    <header className="border-b border-border bg-card/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 safe-area-top w-full max-w-full overflow-x-hidden">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 w-full max-w-full overflow-x-hidden">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: Logo + AI Button */}

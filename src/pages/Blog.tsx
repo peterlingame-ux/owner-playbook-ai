@@ -12,7 +12,7 @@ const Blog = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <CryptoTicker />
-      
+      <div className="pt-[50px] sm:pt-[70px]">
       {/* Hero Section with Image Background */}
       <div className="relative overflow-hidden">
         {/* Animated Background Elements */}
@@ -91,6 +91,7 @@ const Blog = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
       <Footer />
     </div>

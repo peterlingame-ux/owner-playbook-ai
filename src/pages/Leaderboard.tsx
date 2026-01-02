@@ -29,7 +29,9 @@ const Leaderboard = () => {
       <div className="min-h-screen bg-background">
         <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
         <Header />
-        <MobileLeaderboardOKX />
+        <div className="pt-[50px] sm:pt-[70px]">
+          <MobileLeaderboardOKX />
+        </div>
         <MobileFooter />
         <BottomNav />
       </div>
@@ -41,7 +43,7 @@ const Leaderboard = () => {
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
-      
+      <div className="pt-[50px] sm:pt-[70px]">
       {/* Challenge AI Banner */}
       <motion.div 
         className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4"
@@ -91,6 +93,7 @@ const Leaderboard = () => {
           </motion.div>
         </Tabs>
       </motion.div>
+      </div>
       
       <Footer />
     </div>

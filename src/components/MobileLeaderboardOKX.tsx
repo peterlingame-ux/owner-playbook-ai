@@ -116,6 +116,8 @@ const MobileLeaderboardOKX = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFollowersDialog, setShowFollowersDialog] = useState(false);
   const [selectedModelForFollowers, setSelectedModelForFollowers] = useState<string | null>(null);
+  const [showPlayerFollowersDialog, setShowPlayerFollowersDialog] = useState(false);
+  const [selectedPlayerForFollowers, setSelectedPlayerForFollowers] = useState<PlayerData | null>(null);
 
   // Fetch players data
   const fetchPlayers = useCallback(async () => {
@@ -430,12 +432,12 @@ const MobileLeaderboardOKX = () => {
       <div className="space-y-4">
         {/* Time Filter Tabs */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+          <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
             {timeFilters.map((filter) => (
               <button
                 key={filter.value}
                 onClick={() => setTimeFilter(filter.value as TimeFilter)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                className={`px-2 py-1 text-[10px] font-medium rounded-md transition-all ${
                   timeFilter === filter.value
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -615,12 +617,12 @@ const MobileLeaderboardOKX = () => {
       <div className="space-y-4">
         {/* Time Filter Tabs */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+          <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
             {timeFilters.map((filter) => (
               <button
                 key={filter.value}
                 onClick={() => setTimeFilter(filter.value as TimeFilter)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                className={`px-2 py-1 text-[10px] font-medium rounded-md transition-all ${
                   timeFilter === filter.value
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -645,7 +647,7 @@ const MobileLeaderboardOKX = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-card/50 rounded-lg p-3 border border-border/30"
+            className="bg-card/50 rounded-lg px-3 pt-3 pb-2 border border-border/30"
           >
             {/* Top: Icon + Name + Like Button + Action Buttons */}
             <div className="flex items-center gap-2.5 mb-2">
@@ -748,22 +750,22 @@ const MobileLeaderboardOKX = () => {
             </div>
 
             {/* Bottom Stats: Correct, Wrong, Win Rate, Followers */}
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
-              <div className="flex items-center gap-1.5">
-                <span className="flex items-center gap-0.5 text-success">
+            <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1.5 pb-0 border-t border-border/20">
+              <div className="flex items-center gap-1 min-w-0 overflow-hidden">
+                <span className="flex items-center gap-0.5 text-success flex-shrink-0">
                   <CheckCircle className="h-2.5 w-2.5" />
-                  {t('correct_matches_count', { count: model.correctPredictions }) || `正确${model.correctPredictions}场`}
+                  <span className="truncate">{model.correctPredictions}</span>
                 </span>
-                <span className="flex items-center gap-0.5 text-destructive">
+                <span className="flex items-center gap-0.5 text-destructive flex-shrink-0">
                   <XCircle className="h-2.5 w-2.5" />
-                  {t('wrong_matches_count', { count: model.wrongPredictions }) || `错误${model.wrongPredictions}场`}
+                  <span className="truncate">{model.wrongPredictions}</span>
                 </span>
-                <span className="text-success font-medium">
-                  {t('win_rate_prefix') || '胜率'}{model.winRate}%
+                <span className="text-success font-medium flex-shrink-0 whitespace-nowrap">
+                  {model.winRate}%
                 </span>
               </div>
               <button 
-                className="flex items-center gap-0.5 px-1.5 py-0.5 bg-primary/10 hover:bg-primary/20 text-primary rounded transition-colors cursor-pointer text-[10px] font-medium"
+                className="flex items-center gap-0.5 flex-shrink-0 text-[9px] font-medium hover:opacity-80 transition-opacity"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedModelForFollowers(model.id);
@@ -771,7 +773,7 @@ const MobileLeaderboardOKX = () => {
                 }}
               >
                 <Users className="h-2.5 w-2.5" />
-                {model.followers}{t('followers_suffix') || '跟单'}
+                <span className="truncate">{model.followers || 0}</span>
               </button>
             </div>
           </motion.div>
@@ -859,7 +861,7 @@ const MobileLeaderboardOKX = () => {
                 </button>
               ))}
             </div>
-            <span className="px-1.5 py-0.5 text-[9px] font-bold bg-warning/20 text-warning border border-warning/30 rounded flex-shrink-0">
+            <span className="px-1.5 py-0.5 text-[9px] font-bold bg-muted/30 text-muted-foreground rounded flex-shrink-0">
               TOP10
             </span>
           </div>
@@ -906,6 +908,10 @@ const MobileLeaderboardOKX = () => {
                     onClick={() => navigate(`/player/${player.id}`)}
                     subTab={subTab}
                     mainTab={mainTab}
+                    onFollowersClick={(player) => {
+                      setSelectedPlayerForFollowers(player);
+                      setShowPlayerFollowersDialog(true);
+                    }}
                   />
                 ))
               )}
@@ -1134,6 +1140,133 @@ const MobileLeaderboardOKX = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Player Followers Dialog */}
+      <Dialog open={showPlayerFollowersDialog} onOpenChange={setShowPlayerFollowersDialog}>
+        <DialogContent className="max-w-md w-[95vw] max-h-[85vh] p-0 bg-card border-primary/30 overflow-hidden">
+          <DialogHeader className="p-4 pb-3 border-b border-border/30">
+            <DialogTitle className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-lg font-bold">
+                  {selectedPlayerForFollowers && (
+                    <>
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={selectedPlayerForFollowers.avatarUrl} alt={selectedPlayerForFollowers.displayName} />
+                        <AvatarFallback className="text-xs">{selectedPlayerForFollowers.displayName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      {selectedPlayerForFollowers.displayName} - {t('followers') || '跟单者'}
+                    </>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('updated_at') || '更新于'} {new Date().toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              {selectedPlayerForFollowers && (
+                <div className="flex items-center gap-1 text-success">
+                  <span className="text-xs text-muted-foreground">{t('win_rate_prefix') || '胜率'}</span>
+                  <span className="text-lg font-bold">{selectedPlayerForFollowers.winRate}%</span>
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {/* Table Header */}
+          <div className="flex items-center justify-between px-4 py-2 bg-muted/20 text-xs text-muted-foreground border-b border-border/30">
+            <span>{t('rank') || '排名'}</span>
+            <span>{t('player_profit_volume') || '玩家收益 | 带单规模'}</span>
+          </div>
+          
+          {/* Followers List */}
+          <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-3 pt-3">
+            {(() => {
+              // Generate mock followers data
+              const mockFollowers = virtualPlayers.slice(0, 10).map((player, idx) => ({
+                id: player.id,
+                displayName: player.displayName.length > 5 
+                  ? player.displayName.substring(0, 3) + '***' + player.displayName.slice(-4) 
+                  : player.displayName,
+                avatarUrl: player.avatarUrl,
+                followCount: Math.floor(5 + Math.random() * 30),
+                profit: Math.round((Math.random() - 0.3) * 300 * 100) / 100,
+                volume: Math.round(500 + Math.random() * 1500 * 100) / 100,
+              }));
+              
+              return mockFollowers.map((follower, index) => (
+                <motion.div
+                  key={follower.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="flex items-center gap-3"
+                >
+                  {/* Rank Medal */}
+                  <div className="w-8 flex-shrink-0 flex justify-center">
+                    {index === 0 ? (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+                        <Trophy className="h-4 w-4 text-yellow-900" />
+                      </div>
+                    ) : index === 1 ? (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center shadow-lg">
+                        <Trophy className="h-4 w-4 text-gray-700" />
+                      </div>
+                    ) : index === 2 ? (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg">
+                        <Trophy className="h-4 w-4 text-amber-900" />
+                      </div>
+                    ) : (
+                      <span className="text-lg font-bold text-muted-foreground">{index + 1}</span>
+                    )}
+                  </div>
+                  
+                  {/* Avatar */}
+                  <Avatar className="w-12 h-12 border-2 border-border">
+                    <AvatarImage src={follower.avatarUrl} alt={follower.displayName} />
+                    <AvatarFallback>{follower.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Name & Follow Count */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-base text-foreground truncate">{follower.displayName}</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {t('followed_count', { count: follower.followCount }) || `已跟单${follower.followCount}次`}
+                    </p>
+                  </div>
+                  
+                  {/* Profit & Volume */}
+                  <div className="text-right flex-shrink-0">
+                    <p className={`text-lg font-bold flex items-center justify-end gap-0.5 ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
+                      <img src={hunterCoinIcon} alt="HC" className="w-4 h-4" />
+                    </p>
+                    <p className="text-sm text-muted-foreground flex items-center justify-end gap-0.5">
+                      {follower.volume.toFixed(2)}
+                      <img src={hunterCoinIcon} alt="HC" className="w-3.5 h-3.5" />
+                    </p>
+                  </div>
+                </motion.div>
+              ));
+            })()}
+          </div>
+          
+          {/* Close Button */}
+          <div className="p-4 border-t border-border/30">
+            <button 
+              onClick={() => setShowPlayerFollowersDialog(false)}
+              className="w-full py-3 bg-muted/50 hover:bg-muted rounded-lg text-foreground font-medium transition-colors"
+            >
+              {t('close') || '关闭'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -1146,9 +1279,10 @@ interface PlayerCardOKXProps {
   onClick: () => void;
   subTab: SubTab;
   mainTab: MainTab;
+  onFollowersClick: (player: PlayerData) => void;
 }
 
-const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab }: PlayerCardOKXProps) => {
+const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isPositive = player.changePercent >= 0;
@@ -1237,7 +1371,9 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               navigate(`/player/${player.id}?tab=history`);
             }}
           >
-            {t('history_short') || '历史'}
+            {mainTab === 'copyTrade' 
+              ? (t('history_record') || '历史记录')
+              : (t('history_record') || '历史记录')}
           </button>
           <button 
             className="px-1 py-0.5 text-[8px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors whitespace-nowrap"
@@ -1245,7 +1381,9 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
               e.stopPropagation();
             }}
           >
-            {t('today_short') || '今日'}
+            {mainTab === 'copyTrade' 
+              ? (t('today_copy_trade') || '今日跟单')
+              : (t('today_predictions') || '今日预测')}
           </button>
         </div>
       </div>
@@ -1302,17 +1440,24 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             <XCircle className="h-2.5 w-2.5" />
             <span className="truncate">{player.totalPredictions - player.correctPredictions}</span>
           </span>
-          <span className="flex items-center gap-0.5 flex-shrink-0">
-            <Users className="h-2.5 w-2.5" />
-            <span className="truncate">{player.followers || 0}</span>
+          <span className="text-success font-medium flex-shrink-0 whitespace-nowrap">
+            {player.winRate}%
           </span>
         </div>
-        <div className="text-success font-medium flex-shrink-0 whitespace-nowrap">
-          {player.winRate}%
-        </div>
+        <button 
+          className="flex items-center gap-0.5 flex-shrink-0 text-[9px] font-medium hover:opacity-80 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFollowersClick(player);
+          }}
+        >
+          <Users className="h-2.5 w-2.5" />
+          <span className="truncate">{player.followers || 0}</span>
+        </button>
       </div>
     </motion.div>
   );
 };
 
 export default MobileLeaderboardOKX;
+

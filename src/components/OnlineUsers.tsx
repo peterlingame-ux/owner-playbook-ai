@@ -41,48 +41,19 @@ const OnlineUsers = () => {
   };
 
   return (
-    <div className="relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-950/80 to-emerald-900/60 border border-emerald-500/30 backdrop-blur-sm">
-      {/* Live Indicator */}
-      <div className="flex items-center gap-1.5">
-        <div className="relative">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-400 animate-ping opacity-50" />
-          <div 
-            className="absolute inset-[-2px] rounded-full bg-emerald-400/30 animate-pulse"
-            style={{ filter: 'blur(3px)' }}
-          />
-        </div>
-        <span className="text-[10px] sm:text-xs font-bold tracking-wider text-emerald-400 uppercase">
-          {t('common.live', 'Live')}
-        </span>
-      </div>
-
-      {/* Divider */}
-      <div className="w-px h-4 bg-emerald-500/30" />
-
-      {/* Count Display */}
-      <div className="flex items-center gap-1.5">
-        <motion.span 
-          key={onlineCount}
-          initial={{ opacity: 0, y: onlineCount > prevCount ? -8 : 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="font-mono font-bold text-sm sm:text-base text-white tracking-tight"
-        >
-          {formatNumber(onlineCount)}
-        </motion.span>
-        <span className="text-[10px] sm:text-xs text-emerald-300/80 font-medium">
-          {t('common.online', 'online')}
-        </span>
-      </div>
-
-      {/* Glow Effect */}
-      <div 
-        className="absolute inset-0 rounded-full opacity-30 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
-        }}
-      />
+    <div className="flex items-center gap-1">
+      <motion.span 
+        key={onlineCount}
+        initial={{ opacity: 0, y: onlineCount > prevCount ? -8 : 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="font-mono font-medium text-xs sm:text-sm text-white tracking-tight"
+      >
+        {formatNumber(onlineCount)}
+      </motion.span>
+      <span className="text-xs sm:text-sm text-white">
+        online
+      </span>
     </div>
   );
 };

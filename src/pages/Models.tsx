@@ -11,9 +11,11 @@ export default function Models() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="container mx-auto px-2 sm:px-4 py-4 safe-area-padding flex-1">
+      <div className="pt-[50px] sm:pt-[70px] flex-1">
+      <main className="container mx-auto px-2 sm:px-4 py-4 safe-area-padding">
         <MatchCenter />
       </main>
+      </div>
       
       {/* Footer - hidden on mobile */}
       {!isMobile && <Footer />}

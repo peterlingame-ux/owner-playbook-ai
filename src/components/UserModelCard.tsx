@@ -218,10 +218,10 @@ const UserModelCard = () => {
           {/* Win Rate Section */}
           <div className="mb-1.5 sm:mb-5">
             <div className="flex items-center justify-between mb-0.5 sm:mb-2">
-              <span className="text-[7px] sm:text-xs text-amber-200/60 uppercase tracking-wider font-medium">
+              <span className="text-[6px] sm:text-xs text-amber-200/60 uppercase tracking-wider font-medium truncate">
                 {t("win_rate")}
               </span>
-              <span className="text-sm sm:text-3xl font-bold font-mono tabular-nums text-amber-300">
+              <span className="text-xs sm:text-3xl font-bold font-mono tabular-nums text-amber-300 flex-shrink-0">
                 {user ? `${animatedWinRate.toFixed(1)}%` : "--%"}
               </span>
             </div>
@@ -244,27 +244,21 @@ const UserModelCard = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1.5 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-amber-900/20 border border-amber-500/20">
-            <div className="text-center">
-              <p className="text-[6px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0 font-medium">
-                {t("correct")}
-              </p>
-              <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-success">
+            <div className="text-center min-w-0 overflow-hidden">
+              <p className="text-[5px] sm:text-[10px] text-amber-200/50 uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("correct_short") || t("correct")}</p>
+              <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-success">
                 {user ? stats.correctPredictions : "--"}
               </p>
             </div>
-            <div className="text-center border-x border-amber-500/20">
-              <p className="text-[6px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0 font-medium">
-                {t("total_predictions")}
-              </p>
-              <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-amber-300">
+            <div className="text-center border-x border-amber-500/20 min-w-0 overflow-hidden">
+              <p className="text-[5px] sm:text-[10px] text-amber-200/50 uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("predictions_short") || t("total_predictions")}</p>
+              <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-amber-300">
                 {user ? stats.totalPredictions : "--"}
               </p>
             </div>
-            <div className="text-center">
-              <p className="text-[6px] sm:text-[10px] text-amber-200/50 uppercase tracking-wider mb-0 font-medium">
-                {t("wrong")}
-              </p>
-              <p className="text-[10px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
+            <div className="text-center min-w-0 overflow-hidden">
+              <p className="text-[5px] sm:text-[10px] text-amber-200/50 uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("wrong_short") || t("wrong")}</p>
+              <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
                 {user ? wrongPredictions : "--"}
               </p>
             </div>

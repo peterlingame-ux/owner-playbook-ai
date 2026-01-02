@@ -139,6 +139,7 @@ const Index = () => {
       <Header />
       <CryptoTicker />
       </div>
+      <div className="pt-[50px] sm:pt-[70px]">
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
@@ -318,6 +319,7 @@ const Index = () => {
       
       {/* Mobile Bottom Navigation */}
       {isMobile && <BottomNav />}
+      </div>
     </div>
   );
 };

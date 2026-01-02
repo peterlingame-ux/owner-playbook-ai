@@ -566,7 +566,7 @@ const History = () => {
     <div className="min-h-screen bg-background">
       <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       <Header />
-      
+      <div className="pt-[50px] sm:pt-[70px]">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 safe-area-padding">
         {/* 返回按钮 */}
         <Button 
@@ -1237,6 +1237,7 @@ const History = () => {
       </div>
       {/* Footer - hidden on mobile */}
       {!isMobile && <Footer />}
+      </div>
       
       {/* Mobile Footer */}
       {isMobile && <MobileFooter />}
