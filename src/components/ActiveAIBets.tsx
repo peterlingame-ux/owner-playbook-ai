@@ -918,17 +918,17 @@ const ActiveAIBets = () => {
         </div>
         
         {/* Auto/Manual Prediction Toggle */}
-        <div className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-4 bg-secondary/50 rounded-full px-4 py-2 border border-border">
-          <span className={`text-xs sm:text-sm font-semibold transition-colors ${isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {t('auto_prediction')}
+        <div className="flex items-center justify-center gap-1.5 sm:gap-3 mt-2 sm:mt-4 bg-secondary/50 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 border border-border w-fit mx-auto">
+          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
+            {t('auto_prediction') || '自动'}
           </span>
           <Switch
             checked={!isAutoPrediction}
             onCheckedChange={(checked) => setIsAutoPrediction(!checked)}
-            className="h-6 w-12 data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary"
+            className="h-5 w-9 sm:h-6 sm:w-12 data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary shrink-0"
           />
-          <span className={`text-xs sm:text-sm font-semibold transition-colors ${!isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {t('manual_prediction')}
+          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${!isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
+            {t('manual_prediction') || '人工'}
           </span>
         </div>
       </div>
