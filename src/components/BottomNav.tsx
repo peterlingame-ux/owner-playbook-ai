@@ -14,11 +14,8 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
-      {/* Glassmorphism background */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/90 to-black/70 backdrop-blur-xl" />
-      
-      {/* Top border glow */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+      {/* Solid dark background matching AI prediction cards */}
+      <div className="absolute inset-0 bg-[#1a1f2e] border-t border-white/10" />
       
       <div className="relative flex items-stretch justify-around px-1 py-3 pb-4">
         {navItems.map((item) => {
