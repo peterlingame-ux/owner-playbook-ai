@@ -970,7 +970,7 @@ const PlayerExclusiveModelCard = ({
 
                   {/* Manual Bet Details - Handicap */}
                   {confirmedManualBet.betType === 'handicap' && (
-                    <div className="bg-white/5 rounded-lg p-2 sm:p-3 space-y-2 border border-white/10">
+                    <div className="bg-white/5 rounded-lg p-2 space-y-1.5 border border-white/10">
                       {/* Header */}
                       <div className="flex items-center justify-between">
                         <span className="text-[9px] sm:text-xs font-semibold text-foreground/90">{t('handicap_bet') || '让分'}</span>
@@ -980,9 +980,9 @@ const PlayerExclusiveModelCard = ({
                       </div>
                       
                       {/* Team Selection Grid */}
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                         {/* Home Team Option */}
-                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                        <div className={`p-2 rounded-lg border-2 transition-all ${
                           confirmedManualBet.prediction === 'HOME' 
                             ? 'bg-secondary/80 border-border' 
                             : 'bg-white/5 border-white/10 opacity-50'
@@ -1002,7 +1002,7 @@ const PlayerExclusiveModelCard = ({
                         </div>
                         
                         {/* Away Team Option */}
-                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                        <div className={`p-2 rounded-lg border-2 transition-all ${
                           confirmedManualBet.prediction === 'AWAY' 
                             ? 'bg-secondary/80 border-border' 
                             : 'bg-white/5 border-white/10 opacity-50'
@@ -1023,7 +1023,7 @@ const PlayerExclusiveModelCard = ({
                       </div>
                       
                       {/* Bottom Stats Row */}
-                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-2 border-t border-white/10">
+                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-1.5 border-t border-white/10">
                         <span className="text-muted-foreground">
                           {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
                           <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
@@ -1035,7 +1035,7 @@ const PlayerExclusiveModelCard = ({
 
                   {/* Manual Bet Details - Over/Under */}
                   {confirmedManualBet.betType === 'over_under' && (
-                    <div className="bg-white/5 rounded-lg p-2 sm:p-3 space-y-2 border border-white/10">
+                    <div className="bg-white/5 rounded-lg p-2 space-y-1.5 border border-white/10">
                       {/* Header */}
                       <div className="flex items-center justify-between">
                         <span className="text-[9px] sm:text-xs font-semibold text-foreground/90">{t('over_under_bet') || '大小球'}</span>
@@ -1045,8 +1045,8 @@ const PlayerExclusiveModelCard = ({
                       </div>
                       
                       {/* Selection Grid */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        <div className={`p-2 rounded-lg border-2 transition-all ${
                           confirmedManualBet.overUnderPick === 'over' 
                             ? 'bg-secondary/80 border-border' 
                             : 'bg-white/5 border-white/10 opacity-50'
@@ -1057,7 +1057,7 @@ const PlayerExclusiveModelCard = ({
                             <span className="text-[9px] sm:text-xs font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
                           </div>
                         </div>
-                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                        <div className={`p-2 rounded-lg border-2 transition-all ${
                           confirmedManualBet.overUnderPick === 'under' 
                             ? 'bg-secondary/80 border-border' 
                             : 'bg-white/5 border-white/10 opacity-50'
@@ -1071,7 +1071,7 @@ const PlayerExclusiveModelCard = ({
                       </div>
                       
                       {/* Bottom Stats Row */}
-                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-2 border-t border-white/10">
+                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-1.5 border-t border-white/10">
                         <span className="text-muted-foreground">
                           {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
                           <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
