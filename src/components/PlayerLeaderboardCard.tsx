@@ -212,38 +212,38 @@ export const PlayerLeaderboardCard = ({
       }`}
       onClick={onClick}
     >
-      {/* Mobile: Compact layout */}
+      {/* Mobile: Ultra Compact layout */}
       <div className="sm:hidden">
         {/* Row 1: Rank + Avatar + Name + Win Rate */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-1.5 mb-1.5">
           {/* Rank */}
-          <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+          <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
             index === 0 ? 'bg-yellow-500/20' :
             index === 1 ? 'bg-gray-400/20' :
             index === 2 ? 'bg-amber-600/20' :
             'bg-muted'
           }`}>
             {index < 3 ? (
-              <Trophy className={`h-3 w-3 ${
+              <Trophy className={`h-2.5 w-2.5 ${
                 index === 0 ? 'text-yellow-500' :
                 index === 1 ? 'text-gray-400' :
                 'text-amber-600'
               }`} />
             ) : (
-              <span className="text-[11px] font-bold text-muted-foreground">{index + 1}</span>
+              <span className="text-[10px] font-bold text-muted-foreground">{index + 1}</span>
             )}
           </div>
           {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <Avatar className={`w-9 h-9 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
+            <Avatar className={`w-7 h-7 border border-border ${player.isVip ? 'vip-avatar-glow' : ''}`}>
               <AvatarImage src={player.avatarUrl} alt={player.displayName} />
-              <AvatarFallback className="text-[10px]">{player.displayName.charAt(0)}</AvatarFallback>
+              <AvatarFallback className="text-[9px]">{player.displayName.charAt(0)}</AvatarFallback>
             </Avatar>
             {currentUserId !== player.id && (
               <button
                 onClick={handleFollowToggle}
                 disabled={isFollowLoading}
-                className={`absolute -top-0.5 -left-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all border shadow-sm ${
+                className={`absolute -top-0.5 -left-0.5 w-3 h-3 rounded-full flex items-center justify-center transition-all border shadow-sm ${
                   isFollowLoading ? 'opacity-50' : ''
                 } ${
                   isFollowing 
@@ -252,19 +252,19 @@ export const PlayerLeaderboardCard = ({
                 }`}
               >
                 {isFollowLoading ? (
-                  <Loader2 className="h-2 w-2 animate-spin" />
+                  <Loader2 className="h-1.5 w-1.5 animate-spin" />
                 ) : isFollowing ? (
-                  <UserCheck className="h-2 w-2" />
+                  <UserCheck className="h-1.5 w-1.5" />
                 ) : (
-                  <UserPlus className="h-2 w-2" />
+                  <UserPlus className="h-1.5 w-1.5" />
                 )}
               </button>
             )}
           </div>
           {/* Name + Streak */}
           <div className="flex-1 min-w-0 overflow-hidden">
-            <span className="font-bold text-sm text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
-            <div className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+            <span className="font-bold text-xs text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
+            <div className="text-[8px] text-muted-foreground flex items-center gap-0.5">
               {boardType === 'cold' ? (
                 <span>{t('lose_streak')} <span className="text-destructive font-bold">{player.worstStreak || 0}</span></span>
               ) : (
@@ -276,62 +276,53 @@ export const PlayerLeaderboardCard = ({
           <div className="text-right flex-shrink-0">
             <AnimatedWinRate 
               value={player.winRate}
-              className="text-base font-bold font-mono-data text-success"
+              className="text-sm font-bold font-mono-data text-success"
               trend={todayWinRate !== undefined ? todayWinRate - player.winRate : undefined}
               showTrend={todayWinRate !== undefined}
             />
           </div>
         </div>
         
-        {/* Row 2: Stats - 4 columns */}
-        <div className="grid grid-cols-4 gap-1 text-center mb-2 py-2 px-1 bg-muted/30 rounded-lg">
-          <div className="min-w-0">
-            <p className="text-[8px] text-muted-foreground mb-0.5">{t('predictions_short') || '预测'}</p>
-            <p className="text-xs font-bold text-foreground">{player.totalPredictions}</p>
+        {/* Row 2: Stats - 4 columns + Buttons in same row */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex-1 grid grid-cols-4 gap-0.5 text-center py-1 px-1 bg-muted/30 rounded">
+            <div className="min-w-0">
+              <p className="text-[7px] text-muted-foreground leading-none">{t('predictions_short') || '预测'}</p>
+              <p className="text-[10px] font-bold text-foreground">{player.totalPredictions}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[7px] text-muted-foreground leading-none">{t('correct_short') || '正确'}</p>
+              <p className="text-[10px] font-bold text-success">{player.correctPredictions}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[7px] text-muted-foreground leading-none">{t('profit_short') || '盈利'}</p>
+              <p className={`text-[10px] font-bold inline-flex items-center gap-0.5 justify-center ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {profitAmount >= 0 ? '+' : ''}{Math.abs(profitAmount) >= 1000 ? `${(profitAmount / 1000).toFixed(1)}k` : profitAmount}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[7px] text-muted-foreground leading-none">盈利率</p>
+              <p className={`text-[10px] font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-[8px] text-muted-foreground mb-0.5">{t('correct_short') || '正确'}</p>
-            <p className="text-xs font-bold text-success">{player.correctPredictions}</p>
-          </div>
-          <div className="min-w-0">
-            <p className="text-[8px] text-muted-foreground mb-0.5">{t('profit_short') || '盈利'}</p>
-            <p className={`text-xs font-bold inline-flex items-center gap-0.5 justify-center ${profitAmount >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitAmount >= 0 ? '+' : ''}{Math.abs(profitAmount).toLocaleString()}
-              <img src={hunterCoinIcon} alt="" className="w-3 h-3" />
-            </p>
-          </div>
-          <div className="min-w-0">
-            <p className="text-[8px] text-muted-foreground mb-0.5">盈利率</p>
-            <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
-            </p>
-          </div>
-        </div>
-        
-        {/* Row 3: Prize + Buttons */}
-        <div className="flex items-center justify-between gap-1">
-          {prize > 0 ? (
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold flex-shrink-0">
-              <AnimatedPrize value={prize} className="text-[9px] font-bold text-warning" duration={600} showLabel={true} />
-            </span>
-          ) : (
-            <span className="text-[9px] text-muted-foreground">{t('not_qualified_short') || '未达标'}</span>
-          )}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Buttons */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 navigate('/history');
               }}
-              className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
+              className="px-1.5 py-0.5 text-[8px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
             >
               历史
             </button>
             <button 
               onClick={onViewHistory}
-              className="px-2.5 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
+              className="px-2 py-0.5 text-[8px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
             >
-              今日推荐
+              推荐
             </button>
           </div>
         </div>
