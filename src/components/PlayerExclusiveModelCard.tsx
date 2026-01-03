@@ -925,7 +925,7 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 
                   {/* Teams Display */}
-                  <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
+                  <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0 relative -translate-y-1">
                     {/* Home Team */}
                     <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
                       <div className="relative">
@@ -984,7 +984,7 @@ const PlayerExclusiveModelCard = ({
                         {/* Home Team Option */}
                         <div className={`p-2 rounded-lg border-2 transition-all ${
                           confirmedManualBet.prediction === 'HOME' 
-                            ? 'bg-secondary/80 border-border' 
+                            ? 'bg-primary/15 border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_18px_hsl(var(--primary)/0.22)]'
                             : 'bg-white/5 border-white/10 opacity-50'
                         }`}>
                           <div className="flex items-center gap-1.5">
@@ -1004,7 +1004,7 @@ const PlayerExclusiveModelCard = ({
                         {/* Away Team Option */}
                         <div className={`p-2 rounded-lg border-2 transition-all ${
                           confirmedManualBet.prediction === 'AWAY' 
-                            ? 'bg-secondary/80 border-border' 
+                            ? 'bg-primary/15 border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_18px_hsl(var(--primary)/0.22)]'
                             : 'bg-white/5 border-white/10 opacity-50'
                         }`}>
                           <div className="flex items-center gap-1.5">
@@ -1617,7 +1617,7 @@ const PlayerExclusiveModelCard = ({
                       type="button"
                       className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'handicap' && manualPrediction === 'HOME'
-                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
                       }`}
                       onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); setManualHandicapLine(-0.5); }}
@@ -1637,7 +1637,7 @@ const PlayerExclusiveModelCard = ({
                       type="button"
                       className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'handicap' && manualPrediction === 'AWAY'
-                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
                       }`}
                       onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); setManualHandicapLine(-0.5); }}
@@ -1664,7 +1664,7 @@ const PlayerExclusiveModelCard = ({
                       type="button"
                       className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'over_under' && manualOverUnderPick === 'over'
-                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
                       }`}
                       onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); setManualOverUnderLine(2.5); }}
@@ -1681,7 +1681,7 @@ const PlayerExclusiveModelCard = ({
                       type="button"
                       className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'over_under' && manualOverUnderPick === 'under'
-                          ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
+                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
                       }`}
                       onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); setManualOverUnderLine(2.5); }}
