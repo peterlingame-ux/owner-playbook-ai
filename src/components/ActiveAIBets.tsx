@@ -1023,7 +1023,7 @@ const ActiveAIBets = () => {
           return (
             <TiltCard
               key={aiModel.id}
-              className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer`}
+              className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px]`}
               onClick={nextMatch}
               maxTilt={8}
               scale={1.02}
