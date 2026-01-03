@@ -954,12 +954,12 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header with Toggle */}
-      <div className="flex items-center justify-between mb-3 sm:mb-6 lg:mb-8 px-1">
-        <div className="relative">
-          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
+      <div className="flex flex-col items-center mb-3 sm:mb-6 lg:mb-8 px-1">
+        <div className="relative mb-2 sm:mb-3">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight text-center">
             {t('active_ai_predictions')}
           </h2>
-          <div className="absolute -bottom-1 sm:-bottom-2 left-0 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
+          <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
         {/* Auto/Manual Toggle - Simple Switch */}
