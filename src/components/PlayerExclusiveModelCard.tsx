@@ -968,88 +968,114 @@ const PlayerExclusiveModelCard = ({
                     </div>
                   </div>
 
-                  {/* Manual Bet Details - Handicap (Same style as auto prediction) */}
+                  {/* Manual Bet Details - Handicap */}
                   {confirmedManualBet.betType === 'handicap' && (
-                    <div className="bg-white/5 rounded-lg p-2 space-y-1 border border-white/10">
+                    <div className="bg-white/5 rounded-lg p-2 sm:p-3 space-y-2 border border-white/10">
+                      {/* Header */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet')}</span>
-                        <Badge variant="outline" className="text-[7px] sm:text-[9px] px-1.5 py-0.5 bg-success/20 text-success border-success/30">
+                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90">{t('handicap_bet') || '让分'}</span>
+                        <Badge variant="outline" className="text-[8px] sm:text-[10px] px-2 py-0.5 bg-success/20 text-success border-success/30 font-medium">
                           Confirmed
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center gap-1 ${
-                          confirmedManualBet.prediction === 'HOME' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
+                      
+                      {/* Team Selection Grid */}
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Home Team Option */}
+                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                          confirmedManualBet.prediction === 'HOME' 
+                            ? 'bg-secondary/80 border-border' 
+                            : 'bg-white/5 border-white/10 opacity-50'
                         }`}>
-                          {confirmedManualBet.match.home_logo && (
-                            <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
-                              <AvatarImage src={confirmedManualBet.match.home_logo} />
-                              <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
-                            </Avatar>
-                          )}
-                          <span className="text-[8px] sm:text-[10px] font-semibold truncate flex-1">{safeGetTeamName(confirmedManualBet.match, 'home')}</span>
-                          <span className={`text-[8px] sm:text-[10px] font-mono font-bold ${
-                            confirmedManualBet.prediction === 'HOME' ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
-                            {confirmedManualBet.handicapLine > 0 ? '+' : ''}{confirmedManualBet.handicapLine}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {confirmedManualBet.match.home_logo && (
+                              <Avatar className="h-4 w-4 sm:h-5 sm:w-5 shrink-0">
+                                <AvatarImage src={confirmedManualBet.match.home_logo} />
+                                <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
+                              </Avatar>
+                            )}
+                            <span className="text-[9px] sm:text-xs font-medium truncate">{safeGetTeamName(confirmedManualBet.match, 'home')}</span>
+                            <span className="text-[9px] sm:text-xs font-mono font-bold text-muted-foreground ml-auto shrink-0">
+                              {confirmedManualBet.handicapLine > 0 ? '+' : ''}{confirmedManualBet.handicapLine}
+                            </span>
+                          </div>
                         </div>
-                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center gap-1 ${
-                          confirmedManualBet.prediction === 'AWAY' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
+                        
+                        {/* Away Team Option */}
+                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                          confirmedManualBet.prediction === 'AWAY' 
+                            ? 'bg-secondary/80 border-border' 
+                            : 'bg-white/5 border-white/10 opacity-50'
                         }`}>
-                          {confirmedManualBet.match.away_logo && (
-                            <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
-                              <AvatarImage src={confirmedManualBet.match.away_logo} />
-                              <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
-                            </Avatar>
-                          )}
-                          <span className="text-[8px] sm:text-[10px] font-semibold truncate flex-1">{safeGetTeamName(confirmedManualBet.match, 'away')}</span>
-                          <span className={`text-[8px] sm:text-[10px] font-mono font-bold ${
-                            confirmedManualBet.prediction === 'AWAY' ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
-                            {-confirmedManualBet.handicapLine > 0 ? '+' : ''}{-confirmedManualBet.handicapLine}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {confirmedManualBet.match.away_logo && (
+                              <Avatar className="h-4 w-4 sm:h-5 sm:w-5 shrink-0">
+                                <AvatarImage src={confirmedManualBet.match.away_logo} />
+                                <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
+                              </Avatar>
+                            )}
+                            <span className="text-[9px] sm:text-xs font-medium truncate">{safeGetTeamName(confirmedManualBet.match, 'away')}</span>
+                            <span className="text-[9px] sm:text-xs font-mono font-bold text-muted-foreground ml-auto shrink-0">
+                              {-confirmedManualBet.handicapLine > 0 ? '+' : ''}{-confirmedManualBet.handicapLine}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between text-[8px] sm:text-[10px] pt-1.5 border-t border-white/10">
-                        <div className="flex items-center gap-2 sm:gap-4">
-                          <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
-                          <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{(confirmedManualBet.odds - 1).toFixed(2)}</span></span>
-                        </div>
+                      
+                      {/* Bottom Stats Row */}
+                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-2 border-t border-white/10">
+                        <span className="text-muted-foreground">
+                          {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
+                          <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
+                        </span>
                         <span className="font-mono font-bold text-success">${(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}</span>
                       </div>
                     </div>
                   )}
 
+                  {/* Manual Bet Details - Over/Under */}
                   {confirmedManualBet.betType === 'over_under' && (
-                    <div className="bg-white/5 rounded-lg p-2 space-y-1 border border-white/10">
+                    <div className="bg-white/5 rounded-lg p-2 sm:p-3 space-y-2 border border-white/10">
+                      {/* Header */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet')}</span>
-                        <Badge variant="outline" className="text-[7px] sm:text-[9px] px-1.5 py-0.5 bg-success/20 text-success border-success/30">
+                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90">{t('over_under_bet') || '大小球'}</span>
+                        <Badge variant="outline" className="text-[8px] sm:text-[10px] px-2 py-0.5 bg-success/20 text-success border-success/30 font-medium">
                           Confirmed
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
-                          confirmedManualBet.overUnderPick === 'over' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
+                      
+                      {/* Selection Grid */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                          confirmedManualBet.overUnderPick === 'over' 
+                            ? 'bg-secondary/80 border-border' 
+                            : 'bg-white/5 border-white/10 opacity-50'
                         }`}>
-                          <TrendingUp className="h-3 w-3" />
-                          <span className="text-[8px] sm:text-[10px] font-semibold">{t('over')}</span>
-                          <span className="text-[8px] sm:text-[10px] font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="text-[9px] sm:text-xs font-medium">{t('over') || '大球'}</span>
+                            <span className="text-[9px] sm:text-xs font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
+                          </div>
                         </div>
-                        <div className={`p-1.5 sm:p-2 rounded-lg border-2 transition-all flex items-center justify-center gap-1 ${
-                          confirmedManualBet.overUnderPick === 'under' ? 'bg-primary/20 border-primary/60' : 'bg-white/5 border-white/10 opacity-60'
+                        <div className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all ${
+                          confirmedManualBet.overUnderPick === 'under' 
+                            ? 'bg-secondary/80 border-border' 
+                            : 'bg-white/5 border-white/10 opacity-50'
                         }`}>
-                          <TrendingUp className="h-3 w-3 rotate-180" />
-                          <span className="text-[8px] sm:text-[10px] font-semibold">{t('under')}</span>
-                          <span className="text-[8px] sm:text-[10px] font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
+                            <span className="text-[9px] sm:text-xs font-medium">{t('under') || '小球'}</span>
+                            <span className="text-[9px] sm:text-xs font-mono font-bold">{confirmedManualBet.overUnderLine}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between text-[8px] sm:text-[10px] pt-1.5 border-t border-white/10">
-                        <div className="flex items-center gap-2 sm:gap-4">
-                          <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
-                          <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{(confirmedManualBet.odds - 1).toFixed(2)}</span></span>
-                        </div>
+                      
+                      {/* Bottom Stats Row */}
+                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-2 border-t border-white/10">
+                        <span className="text-muted-foreground">
+                          {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
+                          <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
+                        </span>
                         <span className="font-mono font-bold text-success">${(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}</span>
                       </div>
                     </div>
