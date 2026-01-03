@@ -861,15 +861,25 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
               ) : isManualPrediction && !manualBetConfirmed ? (
-                /* Manual Prediction Mode - Show placeholder matching other cards' no-data state */
+                /* Manual Prediction Mode - Exactly matching other cards' no-data state */
                 <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden">
                   <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
                   <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full">
                     {t('manual_prediction_hint') || '选择比赛进行人工预测'}
                   </p>
+                  <p 
+                    className="text-[6px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block truncate max-w-full cursor-pointer hover:text-primary/80 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowManualBetDialog(true);
+                    }}
+                  >
+                    {t('start_prediction') || '开始预测'}
+                  </p>
                   <Button
                     size="sm"
-                    className="h-6 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[8px] sm:text-xs backdrop-blur-sm transition-all duration-300 mt-1.5 sm:mt-3"
+                    variant="ghost"
+                    className="sm:hidden h-5 px-2 text-[6px] text-muted-foreground/60 mt-0.5"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowManualBetDialog(true);
