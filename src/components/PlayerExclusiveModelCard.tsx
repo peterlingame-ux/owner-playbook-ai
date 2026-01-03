@@ -916,9 +916,9 @@ const PlayerExclusiveModelCard = ({
                 </div>
               ) : manualBetConfirmed && confirmedManualBet ? (
                 /* Show confirmed manual bet */
-                <div className="space-y-1 sm:space-y-3">
+                <div className="space-y-1 sm:space-y-2">
                   {/* League Badge */}
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center -mt-0.5 sm:mt-0">
                     <Badge className="text-[7px] sm:text-[11px] py-0 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm">
                       {safeGetLeagueName(confirmedManualBet.match)}
                     </Badge>
@@ -927,7 +927,7 @@ const PlayerExclusiveModelCard = ({
                   {/* Teams Display */}
                   <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
                     {/* Home Team */}
-                    <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-1.5 flex-1 min-w-0">
                       <div className="relative">
                         {confirmedManualBet.match.home_logo ? (
                           <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
@@ -949,7 +949,7 @@ const PlayerExclusiveModelCard = ({
                     <MatchTimeDisplay match={confirmedManualBet.match} />
                   
                     {/* Away Team */}
-                    <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-1.5 flex-1 min-w-0">
                       <div className="relative">
                         {confirmedManualBet.match.away_logo ? (
                           <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
