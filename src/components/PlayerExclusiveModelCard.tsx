@@ -1535,34 +1535,36 @@ const PlayerExclusiveModelCard = ({
           setManualPrediction('');
         }
       }}>
-        <DialogContent className="sm:max-w-md w-[calc(100%-24px)] max-w-[360px] max-h-[80vh] p-0 gap-0 bg-card border-border rounded-xl">
-          <DialogHeader className="sr-only">
-            <DialogTitle>{t('select_match') || '选择比赛'}</DialogTitle>
+        <DialogContent className="sm:max-w-md w-[calc(100%-24px)] max-w-[360px] max-h-[80vh] p-0 gap-0 bg-background border-border rounded-xl overflow-hidden">
+          <DialogHeader className="px-4 py-3 border-b border-border">
+            <DialogTitle className="text-sm font-medium text-foreground">
+              {selectedMatch ? (t('place_bet') || '下注') : (t('select_match') || '选择比赛')}
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="overflow-y-auto max-h-[80vh] overscroll-contain">
+          <div className="overflow-y-auto max-h-[calc(80vh-60px)] overscroll-contain">
             {/* Step 1: Match Selection */}
             {!selectedMatch ? (
               <div className="p-3 space-y-2">
                 {matchesToShow.slice(0, 5).map((match: any) => (
                   <div
                     key={match.mid || match.fixture_id}
-                    className="p-3 sm:p-4 rounded-lg bg-secondary/50 hover:bg-secondary active:bg-secondary/80 cursor-pointer transition-colors border border-border hover:border-muted-foreground/30"
+                    className="p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors border border-border hover:border-primary/30"
                     onClick={() => {
                       setSelectedMatch(match);
                       setManualPrediction('');
                     }}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs sm:text-sm font-medium truncate flex-1 min-w-0">
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
                         {safeGetTeamName(match, 'home')}
                       </span>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">vs</span>
-                      <span className="text-xs sm:text-sm font-medium truncate flex-1 min-w-0 text-right">
+                      <span className="text-xs text-muted-foreground shrink-0">vs</span>
+                      <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
                         {safeGetTeamName(match, 'away')}
                       </span>
                     </div>
-                    <p className="text-[9px] sm:text-[10px] text-muted-foreground text-center mt-1.5 sm:mt-2">
+                    <p className="text-xs text-muted-foreground text-center mt-2">
                       {safeGetLeagueName(match)}
                     </p>
                   </div>
@@ -1570,14 +1572,20 @@ const PlayerExclusiveModelCard = ({
               </div>
             ) : (
               /* Step 2: Betting Options - Simplified */
-              <div className="p-3 sm:p-4 space-y-2.5 sm:space-y-3">
-                {/* Match Header */}
-                <div className="text-center pb-2 border-b border-border">
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-1">{safeGetLeagueName(selectedMatch)}</p>
-                  <div className="flex items-center justify-center gap-2 sm:gap-3">
-                    <span className="text-xs sm:text-sm font-semibold truncate max-w-[100px] sm:max-w-none">{safeGetTeamName(selectedMatch, 'home')}</span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">vs</span>
-                    <span className="text-xs sm:text-sm font-semibold truncate max-w-[100px] sm:max-w-none">{safeGetTeamName(selectedMatch, 'away')}</span>
+              <div className="p-4 space-y-3">
+                {/* Back Button + Match Header */}
+                <div className="text-center pb-3 border-b border-border">
+                  <button 
+                    onClick={() => setSelectedMatch(null)}
+                    className="absolute left-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <p className="text-xs text-muted-foreground mb-1.5">{safeGetLeagueName(selectedMatch)}</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">{safeGetTeamName(selectedMatch, 'home')}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">vs</span>
+                    <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">{safeGetTeamName(selectedMatch, 'away')}</span>
                   </div>
                 </div>
 
