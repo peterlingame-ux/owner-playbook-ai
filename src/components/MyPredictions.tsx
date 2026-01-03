@@ -1046,8 +1046,8 @@ const MyPredictions = () => {
                     </div>
                   </div>
                   
-                  {/* Bottom Row - Financial Stats - Responsive Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-zinc-700/50">
+                  {/* Middle Row - Financial Stats - Responsive Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-zinc-700/50 border-b border-zinc-700/50">
                     <div className="p-3 sm:p-4 text-center border-b sm:border-b-0 border-zinc-700/50">
                       <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2 truncate">{t('total_wagered') || 'Virtual Bet'}</p>
                       <div className="flex items-center justify-center gap-1">
@@ -1082,6 +1082,24 @@ const MyPredictions = () => {
                         }
                       </p>
                     </div>
+                  </div>
+                  
+                  {/* Bottom Row - Prize Share */}
+                  <div className="p-3 sm:p-4 text-center">
+                    <p className="text-[10px] sm:text-xs text-zinc-400 mb-1 sm:mb-2">{t('prize_share') || '平分奖金'}</p>
+                    {(stats?.winRate || 0) >= 60 ? (
+                      <div className="flex items-center justify-center gap-1">
+                        <p className="text-lg sm:text-2xl font-bold text-amber-400 animate-pulse">
+                          ${((1000000 / Math.max(1, Math.floor(Math.random() * 50) + 10))).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </p>
+                        <span className="text-[10px] sm:text-xs text-amber-400/70 ml-1">{t('estimated') || '预估'}</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="text-lg sm:text-2xl font-bold text-zinc-500">$0</p>
+                        <span className="text-[9px] sm:text-[10px] text-zinc-500">{t('reach_qualification_for_prize') || '达标后可参与奖金分配'}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
