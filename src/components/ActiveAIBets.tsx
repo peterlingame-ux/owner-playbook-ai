@@ -954,16 +954,16 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header with Toggle */}
-      <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8 px-1 gap-2 sm:gap-4">
+      <div className="relative flex items-center justify-center mb-3 sm:mb-6 lg:mb-8 px-1">
         <div className="relative">
-          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight text-center">
             {t('active_ai_predictions')}
           </h2>
           <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
-        {/* Auto/Manual Toggle - Simple Switch */}
-        <div className="flex items-center bg-secondary/80 rounded-full p-0.5">
+        {/* Auto/Manual Toggle - Positioned on the right */}
+        <div className="absolute right-1 flex items-center bg-secondary/80 rounded-full p-0.5">
           <button
             onClick={() => setIsAutoPrediction(true)}
             className={`px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
