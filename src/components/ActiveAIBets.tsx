@@ -917,24 +917,24 @@ const ActiveAIBets = () => {
           <div className="absolute -bottom-1 sm:-bottom-2 left-0 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
-        {/* Auto/Manual Prediction Toggle - Switch Style */}
-        <div className="flex items-center bg-muted/50 rounded-lg p-0.5 border border-border/50">
+        {/* Auto/Manual Toggle - Simple Switch */}
+        <div className="flex items-center bg-secondary/80 rounded-full p-0.5">
           <button
             onClick={() => setIsAutoPrediction(true)}
-            className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+            className={`px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
               isAutoPrediction 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-background text-foreground' 
+                : 'text-muted-foreground'
             }`}
           >
             {t('auto_prediction') || '自动预测'}
           </button>
           <button
             onClick={() => setIsAutoPrediction(false)}
-            className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
+            className={`px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
               !isAutoPrediction 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-background text-foreground' 
+                : 'text-muted-foreground'
             }`}
           >
             {t('manual_prediction') || '人工预测'}
