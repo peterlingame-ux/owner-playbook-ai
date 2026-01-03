@@ -1583,13 +1583,13 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
 
-                {/* Handicap Section - Single Option */}
+                {/* Handicap Section */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('handicap_bet') || '让分'}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">让分</span>
                   <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                     <button
                       type="button"
-                      className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'handicap' && manualPrediction === 'HOME'
                           ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
@@ -1597,19 +1597,19 @@ const PlayerExclusiveModelCard = ({
                       onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); setManualHandicapLine(-0.5); }}
                     >
                       {manualBetType === 'handicap' && manualPrediction === 'HOME' && (
-                        <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-primary-foreground" />
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
                         </div>
                       )}
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] sm:text-xs font-medium truncate flex-1 min-w-0">{safeGetTeamName(selectedMatch, 'home')}</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground shrink-0">-0.5</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'home')}</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">-0.5</span>
                       </div>
-                      <p className={`text-sm sm:text-base font-bold mt-0.5 sm:mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' ? 'text-primary' : 'text-foreground'}`}>1.85</p>
+                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' ? 'text-primary' : 'text-foreground'}`}>@1.85</p>
                     </button>
                     <button
                       type="button"
-                      className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'handicap' && manualPrediction === 'AWAY'
                           ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
@@ -1617,26 +1617,26 @@ const PlayerExclusiveModelCard = ({
                       onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); setManualHandicapLine(-0.5); }}
                     >
                       {manualBetType === 'handicap' && manualPrediction === 'AWAY' && (
-                        <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-primary-foreground" />
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
                         </div>
                       )}
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] sm:text-xs font-medium truncate flex-1 min-w-0">{safeGetTeamName(selectedMatch, 'away')}</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground shrink-0">+0.5</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">+0.5</span>
                       </div>
-                      <p className={`text-sm sm:text-base font-bold mt-0.5 sm:mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' ? 'text-primary' : 'text-foreground'}`}>1.95</p>
+                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' ? 'text-primary' : 'text-foreground'}`}>@1.95</p>
                     </button>
                   </div>
                 </div>
 
-                {/* Over/Under Section - Single Option */}
+                {/* Over/Under Section */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('over_under_bet') || '大小球'}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">大小球</span>
                   <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                     <button
                       type="button"
-                      className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'over_under' && manualOverUnderPick === 'over'
                           ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
@@ -1644,16 +1644,16 @@ const PlayerExclusiveModelCard = ({
                       onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); setManualOverUnderLine(2.5); }}
                     >
                       {manualBetType === 'over_under' && manualOverUnderPick === 'over' && (
-                        <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-primary-foreground" />
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
                         </div>
                       )}
-                      <span className="text-[10px] sm:text-xs font-medium">{t('over') || '大'} 2.5</span>
-                      <p className={`text-sm sm:text-base font-bold mt-0.5 sm:mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' ? 'text-primary' : 'text-foreground'}`}>1.88</p>
+                      <span className="text-xs sm:text-sm font-medium">大球 2.5</span>
+                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' ? 'text-primary' : 'text-foreground'}`}>@1.88</p>
                     </button>
                     <button
                       type="button"
-                      className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
                         manualBetType === 'over_under' && manualOverUnderPick === 'under'
                           ? 'bg-primary/20 border-primary shadow-[0_0_12px_rgba(var(--primary),0.3)] scale-[1.02]'
                           : 'bg-secondary/50 border-border active:bg-secondary/80'
@@ -1661,50 +1661,40 @@ const PlayerExclusiveModelCard = ({
                       onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); setManualOverUnderLine(2.5); }}
                     >
                       {manualBetType === 'over_under' && manualOverUnderPick === 'under' && (
-                        <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-primary-foreground" />
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
                         </div>
                       )}
-                      <span className="text-[10px] sm:text-xs font-medium">{t('under') || '小'} 2.5</span>
-                      <p className={`text-sm sm:text-base font-bold mt-0.5 sm:mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' ? 'text-primary' : 'text-foreground'}`}>1.92</p>
+                      <span className="text-xs sm:text-sm font-medium">小球 2.5</span>
+                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' ? 'text-primary' : 'text-foreground'}`}>@1.92</p>
                     </button>
                   </div>
                 </div>
 
                 {/* Bet Amount Input */}
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('bet_amount') || '下注金额'}</span>
-                  <div className="flex items-center gap-1">
-                    <img src={hunterCoinIcon} alt="" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <span className="text-xs sm:text-sm text-muted-foreground">投注猎人币</span>
+                  <div className="flex items-center gap-1.5">
+                    <img src={hunterCoinIcon} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
                     <input
                       type="number"
                       value={manualBetAmount}
                       onChange={(e) => setManualBetAmount(Math.max(10, parseInt(e.target.value) || 0))}
-                      className="w-20 sm:w-24 h-7 sm:h-8 px-2 rounded bg-secondary/50 border border-border text-right text-xs sm:text-sm font-mono focus:outline-none focus:border-primary transition-colors"
+                      className="w-20 sm:w-24 h-8 sm:h-9 px-2 rounded bg-secondary/50 border border-border text-right text-sm font-mono focus:outline-none focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
 
-                {/* Potential Win */}
-                {((manualBetType === 'handicap' && manualPrediction) || manualBetType === 'over_under') && (
-                  <div className="flex items-center justify-between py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg bg-success/10 border border-success/20 animate-fade-in">
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">{t('potential_win') || '预计收益'}</span>
-                    <span className="text-xs sm:text-sm font-bold text-success">
-                      +{(manualBetAmount * 0.9).toFixed(0)}
-                    </span>
-                  </div>
-                )}
-
                 {/* Submit Button */}
                 <Button
-                  className="w-full h-9 sm:h-11 text-xs sm:text-sm font-medium"
+                  className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium"
                   onClick={handleManualBetSubmit}
                   disabled={isSubmittingBet || (manualBetType === 'handicap' && !manualPrediction)}
                 >
                   {isSubmittingBet ? (
-                    <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin mr-2" />
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
-                  {t('confirm_bet') || '确认下注'} · {manualBetAmount}
+                  确认预测 · {manualBetAmount}
                 </Button>
               </div>
             )}
