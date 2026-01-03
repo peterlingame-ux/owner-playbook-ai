@@ -472,24 +472,24 @@ const MyPredictions = () => {
   const currentLevel = user ? level : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-8 sm:pb-24 overflow-x-hidden">
+    <div className="min-h-[calc(100vh-120px)] bg-background pb-20 sm:pb-24 overflow-x-hidden">
       {/* Profile Header - Matching Reference Design Exactly */}
-      <div className="relative px-3 sm:px-4 pt-4">
+      <div className="relative px-3 sm:px-4 pt-2 sm:pt-4">
 
-        {/* 3D Avatar Section with Sky Background */}
-        <div className="relative w-full max-w-[380px] mx-auto">
+        {/* 3D Avatar Section with Sky Background - Compact on mobile */}
+        <div className="relative w-full max-w-[280px] sm:max-w-[380px] mx-auto">
           {/* Avatar Container with special shape - rounded bottom-right with mask */}
           <div 
-            className="relative w-full aspect-[4/5] overflow-hidden"
+            className="relative w-full aspect-[5/4] sm:aspect-[4/5] overflow-hidden"
             style={{
-              borderRadius: '0 0 120px 0',
+              borderRadius: '0 0 80px 0',
             }}
           >
             {/* Sky Background */}
             <div 
               className="absolute inset-0 overflow-hidden"
               style={{
-                borderRadius: '0 0 120px 0',
+                borderRadius: '0 0 80px 0',
                 background: 'linear-gradient(180deg, hsl(205 70% 65%) 0%, hsl(205 60% 78%) 40%, hsl(205 50% 88%) 100%)',
               }}
             >
@@ -512,7 +512,7 @@ const MyPredictions = () => {
             <div 
               className="absolute inset-0 flex items-end justify-center overflow-hidden"
               style={{
-                borderRadius: '0 0 120px 0',
+                borderRadius: '0 0 80px 0',
               }}
             >
               <img 
@@ -531,7 +531,7 @@ const MyPredictions = () => {
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
               <button 
-                className="absolute left-0 bottom-0 w-14 h-14 rounded-full flex items-center justify-center z-20 hover:scale-105 transition-transform"
+                className="absolute left-0 bottom-0 w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-20 hover:scale-105 transition-transform"
                 style={{
                   background: 'hsl(70 65% 55%)',
                   boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
@@ -717,7 +717,7 @@ const MyPredictions = () => {
         </div>
 
         {/* Profile Info - Name, Pro Badge, Signature */}
-        <div className="mt-6 overflow-hidden">
+        <div className="mt-3 sm:mt-6 overflow-hidden">
           {/* Name + PRO Badge */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
@@ -755,7 +755,7 @@ const MyPredictions = () => {
         </p>
 
         {/* Level Display with Progress Bar */}
-        <div className="mt-4">
+        <div className="mt-2 sm:mt-4">
           <div className="flex items-center gap-3">
             {/* Level Badge - Different colors based on level range */}
             {(() => {
@@ -840,7 +840,7 @@ const MyPredictions = () => {
       </div>
 
         {/* Stats Row - Three Columns */}
-        <div className="flex items-stretch gap-1 sm:gap-2 mt-4 sm:mt-6">
+        <div className="flex items-stretch gap-1 sm:gap-2 mt-3 sm:mt-6">
           {/* Followers */}
           <button 
             onClick={() => navigate('/my-following')}
@@ -874,8 +874,8 @@ const MyPredictions = () => {
         </div>
 
         {/* Tabs - Responsive Scrollable */}
-        <div className="mt-5 sm:mt-6">
-          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
+        <div className="mt-3 sm:mt-6">
+          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1.5 sm:pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
             <button
               onClick={() => setActiveTab('history')}
               className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
