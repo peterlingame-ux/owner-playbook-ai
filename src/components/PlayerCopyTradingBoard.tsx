@@ -1200,8 +1200,8 @@ const PlayerCopyTradingBoard = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
                   <div className="text-left">
-                    <div className="text-sm font-bold text-foreground">预测者连红榜</div>
-                    <p className="text-[10px] text-muted-foreground">准确率最高预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                    <div className="text-sm font-bold text-foreground">{t('hot_streak_predictor')}</div>
+                    <p className="text-[10px] text-muted-foreground">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                   </div>
                 </div>
                 <button
@@ -1236,8 +1236,8 @@ const PlayerCopyTradingBoard = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                   <div className="text-left">
-                    <div className="text-sm font-bold text-foreground">预测者连黑榜</div>
-                    <p className="text-[10px] text-muted-foreground">准确率最低预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                    <div className="text-sm font-bold text-foreground">{t('cold_streak_predictor')}</div>
+                    <p className="text-[10px] text-muted-foreground">{t('needs_improvement')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                   </div>
                 </div>
                 <button
@@ -1277,8 +1277,8 @@ const PlayerCopyTradingBoard = () => {
               <div className="flex items-center gap-2">
                 <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
                 <div>
-                  <h3 className="text-sm sm:text-lg font-bold text-foreground">预测者连红榜</h3>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">准确率最高预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                  <h3 className="text-sm sm:text-lg font-bold text-foreground">{t('hot_streak_predictor')}</h3>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                 </div>
               </div>
               <button
@@ -1311,8 +1311,8 @@ const PlayerCopyTradingBoard = () => {
               <div className="flex items-center gap-2">
                 <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">预测者连黑榜</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">准确率最低预测者 · <span className="text-foreground font-medium">前10名</span></p>
+                  <h3 className="text-lg font-bold text-foreground">{t('cold_streak_predictor')}</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('needs_improvement')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                 </div>
               </div>
               <button
@@ -1934,7 +1934,7 @@ const PlayerCopyTradingBoard = () => {
           <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full" />
-              预测者连红榜 - {t('all_players') || '全部预测者'}
+              {t('hot_streak_predictor')} - {t('all_players')}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}
@@ -2069,7 +2069,7 @@ const PlayerCopyTradingBoard = () => {
           <DialogHeader className="pb-2 px-6 pt-6 flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-red-400 to-red-600 rounded-full" />
-              预测者连黑榜 - {t('all_players') || '全部预测者'}
+              {t('cold_streak_predictor')} - {t('all_players')}
             </DialogTitle>
           </DialogHeader>
           {/* 搜索框 */}

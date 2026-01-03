@@ -297,7 +297,7 @@ const ChallengeAIBanner = () => {
 
             const realPlayerData: PlayerData = {
               id: user.id,
-              displayName: user.user_metadata?.display_name || user.email || 'Player',
+              displayName: user.user_metadata?.display_name || user.email || t('player_default_name') || '玩家',
               avatarUrl: user.user_metadata?.avatar_url || '/avatars/avatar-1.png',
               totalPredictions,
               correctPredictions,
