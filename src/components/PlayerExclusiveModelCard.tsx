@@ -721,11 +721,11 @@ const PlayerExclusiveModelCard = ({
               className="space-y-1.5 sm:space-y-4"
             >
               {/* Header Row: Avatar + Name + Auto/Manual Toggle */}
-              <div className="flex items-center justify-between gap-1">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {/* Player Avatar & Info */}
-                <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
                   <div className="relative flex-shrink-0">
-                    <Avatar className={`h-7 w-7 sm:h-12 sm:w-12 shadow-lg ${isDemo ? 'border border-dashed sm:border-2 border-white/30' : 'ring-1 sm:ring-2 ring-white/20'}`}>
+                    <Avatar className={`h-6 w-6 sm:h-12 sm:w-12 shadow-lg ${isDemo ? 'border border-dashed sm:border-2 border-white/30' : 'ring-1 sm:ring-2 ring-white/20'}`}>
                       {!isDemo ? (
                         <>
                           <AvatarImage 
@@ -746,21 +746,12 @@ const PlayerExclusiveModelCard = ({
                       <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                     )}
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[9px] sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate">
-                      {displayName}
-                    </span>
-                    <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5">
-                      <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-5 sm:h-5 shrink-0" />
-                      <span className="truncate">{!isDemo ? (balanceValue || '10,000') : '--'}</span>
-                    </span>
-                  </div>
                 </div>
                 
-                {/* Auto/Manual Toggle - Inline on both mobile and desktop */}
+                {/* Auto/Manual Toggle - Takes priority in layout */}
                 {onToggleAutoPrediction ? (
                   <div 
-                    className="flex items-center bg-secondary/80 rounded-full p-0.5 backdrop-blur-sm flex-shrink-0"
+                    className="flex items-center bg-secondary/80 rounded-full p-0.5 backdrop-blur-sm ml-auto flex-shrink-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
@@ -768,7 +759,7 @@ const PlayerExclusiveModelCard = ({
                         e.stopPropagation();
                         onToggleAutoPrediction(true);
                       }}
-                      className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all whitespace-nowrap ${
+                      className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium transition-all whitespace-nowrap ${
                         isAutoPrediction 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground/80'
@@ -781,7 +772,7 @@ const PlayerExclusiveModelCard = ({
                         e.stopPropagation();
                         onToggleAutoPrediction(false);
                       }}
-                      className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all whitespace-nowrap ${
+                      className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium transition-all whitespace-nowrap ${
                         !isAutoPrediction 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground/80'
@@ -793,7 +784,7 @@ const PlayerExclusiveModelCard = ({
                 ) : bet && currentMatchData && onOpenAnalysis ? (
                   <Button
                     size="sm"
-                    className="hidden sm:flex h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300"
+                    className="hidden sm:flex h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300 ml-auto"
                     onClick={(e) => {
                       e.stopPropagation();
                       onOpenAnalysis(
