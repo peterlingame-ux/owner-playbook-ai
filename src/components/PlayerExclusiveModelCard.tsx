@@ -1019,22 +1019,15 @@ const PlayerExclusiveModelCard = ({
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-6 sm:py-10 text-center min-h-[100px] sm:min-h-[160px]">
-                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-2 sm:mb-4" />
-                  {isDemo ? (
-                    <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
-                      {t('login_to_create_model')}
-                    </p>
-                  ) : (
-                    <>
-                      <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
-                        {t('no_active_predictions')}
-                      </p>
-                      <p className="text-[8px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block">
-                        {t('no_bets_for_ai')}
-                      </p>
-                    </>
-                  )}
+                /* Auto Prediction Mode - No data state matching other cards exactly */
+                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden">
+                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
+                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full">
+                    {isDemo ? (t('login_to_create_model') || '登录后生成专属模型') : (t('no_active_predictions') || '当前没有活跃的预测')}
+                  </p>
+                  <p className="text-[6px] sm:text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 hidden sm:block truncate max-w-full">
+                    {t('no_bets_for_ai') || '该AI暂无预测记录'}
+                  </p>
                 </div>
               )}
 
