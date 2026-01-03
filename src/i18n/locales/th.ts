@@ -523,6 +523,11 @@ export const th = {
     
     // Wallet
     "hunter_coin_wallet": "กระเป๋า Hunter Coin",
+    
+    // Missing Personal Center keys
+    "player_default_name": "ผู้เล่น",
+    "prediction_expert": "ผู้เชี่ยวชาญการทำนาย",
+    
     "usdt_deposit": "ฝาก",
     "deposit_amount": "จำนวนฝาก",
     "wallet_address": "ที่อยู่กระเป๋า",

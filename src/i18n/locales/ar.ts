@@ -523,6 +523,11 @@ export const ar = {
     
     // Wallet
     "hunter_coin_wallet": "محفظة Hunter Coin",
+    
+    // Missing Personal Center keys
+    "player_default_name": "لاعب",
+    "prediction_expert": "خبير التوقعات",
+    
     "usdt_deposit": "إيداع",
     "deposit_amount": "مبلغ الإيداع",
     "wallet_address": "عنوان المحفظة",

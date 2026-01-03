@@ -523,6 +523,11 @@ export const hi = {
     
     // Wallet
     "hunter_coin_wallet": "Hunter Coin वॉलेट",
+    
+    // Missing Personal Center keys
+    "player_default_name": "खिलाड़ी",
+    "prediction_expert": "भविष्यवाणी विशेषज्ञ",
+    
     "usdt_deposit": "जमा करें",
     "deposit_amount": "जमा राशि",
     "wallet_address": "वॉलेट पता",

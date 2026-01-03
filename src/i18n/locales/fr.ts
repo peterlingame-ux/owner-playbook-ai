@@ -649,6 +649,10 @@ export const fr = {
     "follow_player_title": "Suivre le Joueur",
     "follow_player_confirm": "Êtes-vous sûr de vouloir suivre {{name}} ?",
     "follow_success": "Vous suivez maintenant {{name}}",
+    
+    // Missing Personal Center keys
+    "player_default_name": "Joueur",
+    "prediction_expert": "Expert en Prédictions",
     "auto_prediction": "Auto",
     "manual_prediction": "Manuel",
     "potential_win": "Gain potentiel",
