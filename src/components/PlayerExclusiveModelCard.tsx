@@ -1028,7 +1028,7 @@ const PlayerExclusiveModelCard = ({
                           {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
                           <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
                         </span>
-                        <span className="font-mono font-bold text-success flex items-center gap-0.5">${(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
+                        <span className="font-mono font-bold text-success flex items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
                       </div>
                     </div>
                   )}
@@ -1076,7 +1076,7 @@ const PlayerExclusiveModelCard = ({
                           {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
                           <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
                         </span>
-                        <span className="font-mono font-bold text-success flex items-center gap-0.5">${(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
+                        <span className="font-mono font-bold text-success flex items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
                       </div>
                     </div>
                   )}
