@@ -1051,7 +1051,7 @@ const ActiveAIBets = () => {
           return (
             <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
               <TiltCard
-                className={`group rounded-lg sm:rounded-2xl p-1 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[145px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
+                className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
                 onClick={nextMatch}
                 maxTilt={8}
                 scale={1.02}
@@ -1138,14 +1138,14 @@ const ActiveAIBets = () => {
                       duration: 0.25, 
                       ease: "easeOut" 
                     }}
-                    className="space-y-1 sm:space-y-4"
+                    className="space-y-1.5 sm:space-y-4"
                   >
                     {/* AI Model Header */}
                     <div className="flex items-center justify-between">
                      {/* AI Avatar & Info */}
-                      <div className="flex items-center gap-1 sm:gap-3">
+                      <div className="flex items-center gap-1.5 sm:gap-3">
                         <div className="relative">
-                          <Avatar className="h-6 w-6 sm:h-12 sm:w-12 ring-1 sm:ring-2 ring-white/20 shadow-lg">
+                          <Avatar className="h-7 w-7 sm:h-12 sm:w-12 ring-1 sm:ring-2 ring-white/20 shadow-lg">
                             <AvatarImage 
                               src={AI_ICONS[aiModel.id]} 
                               alt={aiModel.displayName} 
@@ -1155,14 +1155,14 @@ const ActiveAIBets = () => {
                             <AvatarFallback className="text-[8px] sm:text-sm font-bold bg-white/10">{aiModel.name[0]}</AvatarFallback>
                           </Avatar>
                           {/* Online Indicator */}
-                          <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                         </div>
                         <div className="flex flex-col min-w-0 flex-1">
-                          <span className={`text-[8px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent} truncate max-w-[60px] sm:max-w-none`}>
+                          <span className={`text-[9px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent} truncate max-w-[70px] sm:max-w-none`}>
                             {getModelDisplayName(aiModel)}
                           </span>
-                          <span className="text-[7px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5 shrink-0" />
+                          <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-5 sm:h-5 shrink-0" />
                             <span className="truncate">{balanceNumber}</span>
                           </span>
                         </div>
@@ -1197,31 +1197,31 @@ const ActiveAIBets = () => {
 
                     {/* Match Info */}
                     {currentMatchData ? (
-                      <div className="space-y-1 sm:space-y-3">
+                      <div className="space-y-1.5 sm:space-y-3">
                         {/* League Badge */}
                         <div className="flex items-center justify-center">
-                          <Badge className="text-[6px] sm:text-[11px] py-0 sm:py-1 px-1 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm max-w-full truncate">
+                          <Badge className="text-[7px] sm:text-[11px] py-0.5 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm max-w-full truncate">
                             {getLeagueName(currentMatchData.match)}
                           </Badge>
                         </div>
                       
                         {/* Teams Display */}
-                        <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
+                        <div className="flex items-center justify-between gap-1 sm:gap-2 px-0.5">
                           {/* Home Team */}
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                          <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                             <div className="relative shrink-0">
                               {currentMatchData.match.home_logo ? (
-                                <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
+                                <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                                  <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
+                                  <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
-                                  <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                                  <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[6px] sm:text-xs text-center leading-tight truncate w-full max-w-[45px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'home')}
                             </p>
                           </div>
@@ -1230,20 +1230,20 @@ const ActiveAIBets = () => {
                           <MatchTimeDisplay match={currentMatchData.match} />
                         
                           {/* Away Team */}
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                          <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                             <div className="relative shrink-0">
                               {currentMatchData.match.away_logo ? (
-                                <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
+                                <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                                  <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
+                                  <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
-                                  <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                                  <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[6px] sm:text-xs text-center leading-tight truncate w-full max-w-[45px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'away')}
                             </p>
                           </div>
