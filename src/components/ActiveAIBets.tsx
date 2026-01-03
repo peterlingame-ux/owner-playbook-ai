@@ -2,11 +2,10 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
@@ -453,6 +452,52 @@ const ActiveAIBets = () => {
   // State for prediction mode toggle (auto vs manual)
   const [isAutoPrediction, setIsAutoPrediction] = useState(true);
 
+  // Lock card height based on auto prediction layout so switching modes doesn't resize the grid
+  const [lockedCardHeight, setLockedCardHeight] = useState<number | null>(null);
+  const cardItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const registerCardRef = useCallback(
+    (key: string) => (el: HTMLDivElement | null) => {
+      cardItemRefs.current[key] = el;
+    },
+    []
+  );
+
+  const measureAndLockCardHeight = useCallback(() => {
+    const els = Object.values(cardItemRefs.current).filter(Boolean) as HTMLDivElement[];
+    if (!els.length) return;
+
+    const max = Math.ceil(Math.max(...els.map((el) => el.getBoundingClientRect().height)));
+    setLockedCardHeight((prev) => (prev ? Math.max(prev, max) : max));
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isAutoPrediction) return;
+
+    const raf1 = requestAnimationFrame(measureAndLockCardHeight);
+    // Re-measure once more after images/fonts have settled
+    const timeout = window.setTimeout(() => {
+      measureAndLockCardHeight();
+    }, 350);
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.clearTimeout(timeout);
+    };
+  }, [
+    isAutoPrediction,
+    measureAndLockCardHeight,
+    matches.length,
+    autoBets.length,
+    Object.keys(aiBalances).length,
+  ]);
+
+  useEffect(() => {
+    if (!isAutoPrediction) return;
+    const onResize = () => measureAndLockCardHeight();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isAutoPrediction, measureAndLockCardHeight]);
   // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
     const fetchData = async (isRefresh = false) => {
@@ -942,7 +987,14 @@ const ActiveAIBets = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 lg:gap-5 auto-rows-fr">
+      <div
+        className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 lg:gap-5 auto-rows-fr"
+        style={
+          lockedCardHeight
+            ? ({ ["--ai-card-h" as any]: `${lockedCardHeight}px` } as CSSProperties)
+            : undefined
+        }
+      >
         {activeAIs.map((aiModel) => {
           // Find this AI's bets from database, grouped by match
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
@@ -1021,15 +1073,15 @@ const ActiveAIBets = () => {
           const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
 
           return (
-            <TiltCard
-              key={aiModel.id}
-              className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px]`}
-              onClick={nextMatch}
-              maxTilt={8}
-              scale={1.02}
-              glare={false}
-              maxGlare={0}
-            >
+            <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
+              <TiltCard
+                className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
+                onClick={nextMatch}
+                maxTilt={8}
+                scale={1.02}
+                glare={false}
+                maxGlare={0}
+              >
               {/* Animated Background Pattern - Hidden on mobile for performance */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none hidden sm:block">
                 <motion.div 
@@ -1357,7 +1409,8 @@ const ActiveAIBets = () => {
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </TiltCard>
+              </TiltCard>
+            </div>
           );
         })}
         
@@ -1398,35 +1451,38 @@ const ActiveAIBets = () => {
           const balanceValue = balanceNumber;
 
           return (
-            <PlayerExclusiveModelCard
-              currentMatchData={currentMatchData as any}
-              moneylineBet={moneylineBet as any}
-              handicapBet={handicapBet as any}
-              overUnderBet={overUnderBet as any}
-              balanceValue={balanceValue}
-              matchIndex={matchIndex}
-              matchEntries={matchEntries as any}
-              onOpenPKDialog={handleOpenPKDialog}
-              onOpenAnalysis={getMatchAnalysisFromDB}
-              getTeamName={getTeamName}
-              getLeagueName={getLeagueName}
-              isManualPrediction={!isAutoPrediction}
-              availableMatches={matches}
-              onPrevMatch={(e) => {
-                e.stopPropagation();
-                setCurrentMatchIndex(prev => ({
-                  ...prev,
-                  'hunsoccermax': ((prev['hunsoccermax'] || 0) - 1 + matchEntries.length) % matchEntries.length
-                }));
-              }}
-              onNextMatch={(e) => {
-                e.stopPropagation();
-                setCurrentMatchIndex(prev => ({
-                  ...prev,
-                  'hunsoccermax': ((prev['hunsoccermax'] || 0) + 1) % matchEntries.length
-                }));
-              }}
-            />
+            <div ref={registerCardRef('hunsoccermax')} className="h-full">
+              <PlayerExclusiveModelCard
+                className={lockedCardHeight ? "h-[var(--ai-card-h)]" : undefined}
+                currentMatchData={currentMatchData as any}
+                moneylineBet={moneylineBet as any}
+                handicapBet={handicapBet as any}
+                overUnderBet={overUnderBet as any}
+                balanceValue={balanceValue}
+                matchIndex={matchIndex}
+                matchEntries={matchEntries as any}
+                onOpenPKDialog={handleOpenPKDialog}
+                onOpenAnalysis={getMatchAnalysisFromDB}
+                getTeamName={getTeamName}
+                getLeagueName={getLeagueName}
+                isManualPrediction={!isAutoPrediction}
+                availableMatches={matches}
+                onPrevMatch={(e) => {
+                  e.stopPropagation();
+                  setCurrentMatchIndex(prev => ({
+                    ...prev,
+                    'hunsoccermax': ((prev['hunsoccermax'] || 0) - 1 + matchEntries.length) % matchEntries.length
+                  }));
+                }}
+                onNextMatch={(e) => {
+                  e.stopPropagation();
+                  setCurrentMatchIndex(prev => ({
+                    ...prev,
+                    'hunsoccermax': ((prev['hunsoccermax'] || 0) + 1) % matchEntries.length
+                  }));
+                }}
+              />
+            </div>
           );
         })()}
       </div>
