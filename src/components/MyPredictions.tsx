@@ -951,7 +951,7 @@ const MyPredictions = () => {
                           {pred.match?.home_logo ? (
                             <img src={pred.match.home_logo} alt="" className="w-8 h-8 object-contain" />
                           ) : (
-                            <Trophy className="w-5 h-5 text-muted-foreground" />
+                            <div className="w-8 h-8 rounded-full bg-muted" />
                           )}
                         </div>
 
@@ -977,8 +977,9 @@ const MyPredictions = () => {
                               <Play className="w-4 h-4 text-muted-foreground" />
                             </button>
                           ) : (
-                            <div className={`text-sm font-bold ${isWin ? 'text-success' : 'text-destructive'}`}>
-                              {isWin ? '+' : ''}{profit}
+                            <div className={`flex items-center gap-1 text-sm font-bold ${isWin ? 'text-success' : 'text-destructive'}`}>
+                              <span>{isWin ? '+' : ''}{profit}</span>
+                              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                             </div>
                           )}
                           <button className="w-8 h-8 flex items-center justify-center">
