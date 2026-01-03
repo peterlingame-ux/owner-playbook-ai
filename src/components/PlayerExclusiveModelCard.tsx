@@ -1538,7 +1538,7 @@ const PlayerExclusiveModelCard = ({
         <DialogContent className="sm:max-w-md w-[calc(100%-24px)] max-w-[360px] max-h-[80vh] p-0 gap-0 bg-background border-border rounded-xl overflow-hidden">
           <DialogHeader className="px-4 py-3 border-b border-border">
             <DialogTitle className="text-sm font-medium text-foreground">
-              {selectedMatch ? (t('place_bet') || '下注') : (t('select_match') || '选择比赛')}
+              {selectedMatch ? '人工下注' : '选择比赛'}
             </DialogTitle>
           </DialogHeader>
 
