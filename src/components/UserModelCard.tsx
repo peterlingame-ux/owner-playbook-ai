@@ -151,17 +151,17 @@ const UserModelCard = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 p-2 sm:p-5 h-full flex flex-col">
+      <div className="relative z-10 p-3 sm:p-5 h-full flex flex-col">
           {/* Header: Model Info + Points Badge */}
-          <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1 sm:mb-5">
+          <div className="flex items-start justify-between gap-2 mb-2 sm:mb-5">
             {/* Avatar & Name */}
-            <div className="flex items-center gap-1 sm:gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <motion.div
                 className="relative shrink-0"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <div className="w-6 h-6 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-1 sm:ring-2 ring-amber-400/40 overflow-hidden">
+                <div className="w-8 h-8 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 backdrop-blur-sm flex items-center justify-center p-0.5 ring-1 sm:ring-2 ring-amber-400/40 overflow-hidden">
                   {user ? (
                     <Avatar className="w-full h-full">
                       <AvatarImage
@@ -169,7 +169,7 @@ const UserModelCard = () => {
                         alt={title}
                         className="object-cover"
                       />
-                      <AvatarFallback className="text-[8px] sm:text-sm font-bold bg-amber-900/50 text-amber-200">
+                      <AvatarFallback className="text-xs sm:text-sm font-bold bg-amber-900/50 text-amber-200">
                         {(userProfile?.display_name || "U")[0]}
                       </AvatarFallback>
                     </Avatar>
@@ -181,15 +181,15 @@ const UserModelCard = () => {
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <User className="h-3 w-3 sm:h-6 sm:w-6 text-amber-400" />
+                      <User className="h-4 w-4 sm:h-6 sm:w-6 text-amber-400" />
                     </motion.div>
                   )}
                 </div>
               </motion.div>
 
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h3
-                  className={`font-bold text-[9px] sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
+                  className={`font-bold text-xs sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate max-w-[80px] sm:max-w-none`}
                   title={title}
                 >
                   {title}
@@ -198,37 +198,37 @@ const UserModelCard = () => {
             </div>
 
             {/* Points Badge */}
-            <div className={`inline-flex items-center gap-0.5 px-0.5 sm:px-2.5 py-0.5 sm:py-1.5 rounded sm:rounded-lg shrink-0 ${
+            <div className={`inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg shrink-0 ${
               user
                 ? isPositive
                   ? "bg-success/20 border border-success/30"
                   : "bg-destructive/20 border border-destructive/30"
                 : "bg-amber-500/10 border border-amber-500/30"
             }`}>
-              <span className={`font-mono font-bold text-[8px] sm:text-sm tabular-nums leading-none ${
+              <span className={`font-mono font-bold text-[10px] sm:text-sm tabular-nums leading-none ${
                 user
                   ? isPositive ? "text-success" : "text-destructive"
                   : "text-amber-400/50"
               }`}>
                 {profitLabel}
               </span>
-              <img src={hunterCoinIcon} alt="猎人币" className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" />
+              <img src={hunterCoinIcon} alt="猎人币" className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
             </div>
           </div>
 
           {/* Win Rate Section */}
-          <div className="mb-1 sm:mb-5">
-            <div className="flex items-center justify-between mb-0.5 sm:mb-2">
-              <span className="text-[6px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium truncate">
+          <div className="mb-2 sm:mb-5">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium truncate">
                 {t("win_rate")}
               </span>
-              <span className="text-xs sm:text-3xl font-bold font-mono tabular-nums text-foreground flex-shrink-0">
+              <span className="text-sm sm:text-3xl font-bold font-mono tabular-nums text-foreground flex-shrink-0">
                 {user ? `${animatedWinRate.toFixed(1)}%` : "--%"}
               </span>
             </div>
 
-            {/* Progress Bar - Simplified on mobile */}
-            <div className="relative h-0.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
+            {/* Progress Bar */}
+            <div className="relative h-1 sm:h-2 bg-white/5 rounded-full overflow-hidden">
               <div
                 className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress} transition-all duration-500`}
                 style={{ width: `${user ? animatedWinRate : 0}%` }}
@@ -244,33 +244,33 @@ const UserModelCard = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-white/5 border border-white/5">
+          <div className="grid grid-cols-3 gap-1 sm:gap-3 mb-2 sm:mb-5 p-1.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/5 border border-white/5">
             <div className="text-center min-w-0 overflow-hidden">
-              <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("correct_short") || t("correct")}</p>
-              <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-success">
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0.5 font-medium truncate">{t("correct_short") || t("correct")}</p>
+              <p className="text-xs sm:text-xl font-bold font-mono tabular-nums text-success">
                 {user ? stats.correctPredictions : "--"}
               </p>
             </div>
             <div className="text-center border-x border-white/10 min-w-0 overflow-hidden">
-              <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("predictions_short") || t("total_predictions")}</p>
-              <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-foreground">
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0.5 font-medium truncate">{t("predictions_short") || t("total_predictions")}</p>
+              <p className="text-xs sm:text-xl font-bold font-mono tabular-nums text-foreground">
                 {user ? stats.totalPredictions : "--"}
               </p>
             </div>
             <div className="text-center min-w-0 overflow-hidden">
-              <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("wrong_short") || t("wrong")}</p>
-              <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
+              <p className="text-[8px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0.5 font-medium truncate">{t("wrong_short") || t("wrong")}</p>
+              <p className="text-xs sm:text-xl font-bold font-mono tabular-nums text-destructive">
                 {user ? wrongPredictions : "--"}
               </p>
             </div>
           </div>
 
           {/* Primary Button - Push to bottom */}
-          <div className="mt-auto pt-1 sm:pt-0">
+          <div className="mt-auto">
             <Button
               variant="outline"
               size="sm"
-              className="w-full h-5 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
+              className="w-full h-7 sm:h-10 text-[10px] sm:text-sm font-semibold transition-all duration-300 rounded-lg sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
               onClick={handlePrimaryAction}
             >
               {user ? t("my_predictions") : t("login_to_create_model")}
