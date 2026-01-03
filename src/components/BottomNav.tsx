@@ -31,14 +31,13 @@ const BottomNav = () => {
                 className="relative flex items-center justify-center py-2 px-1 rounded-xl min-h-[40px] w-full
                   active:scale-95 transition-all duration-150"
               >
-                {/* Active glow background */}
+                {/* Active gradient background - AI预测风格 */}
                 {isActive && (
                   <div 
-                    className={`absolute inset-0 rounded-xl ${
-                      item.isCenter 
-                        ? 'bg-gradient-to-br from-cyan-500/30 via-blue-500/30 to-purple-500/30' 
-                        : 'bg-cyan-500/15'
-                    }`}
+                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#4a5568] via-[#3d4a5c] to-[#2d3748] shadow-lg"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(79, 70, 229, 0.5) 50%, rgba(67, 56, 202, 0.6) 100%)',
+                    }}
                   />
                 )}
                 
@@ -46,9 +45,7 @@ const BottomNav = () => {
                 <span 
                   className={`relative z-10 text-[9px] xs:text-[10px] sm:text-xs font-medium transition-all duration-200 text-center leading-tight line-clamp-2 break-words px-0.5
                     ${isActive 
-                      ? item.isCenter
-                        ? 'text-white font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' 
-                        : 'text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]'
+                      ? 'text-white font-bold drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]' 
                       : 'text-white/40'
                     }`}
                 >
