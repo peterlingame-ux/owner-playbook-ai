@@ -728,10 +728,10 @@ const MatchCenter = () => {
 
         {/* Score - Compact for mobile - 与顶部比赛进行时间垂直对齐 */}
         <div className="flex-shrink-0 min-w-[44px] sm:min-w-[70px] flex flex-col items-center justify-center mx-auto">
-          {match.status === 'upcoming' || (match.homeScore === undefined && match.awayScore === undefined) ? (
+        {match.status === 'upcoming' || (match.homeScore === undefined && match.awayScore === undefined) ? (
             <div className="flex flex-col items-center">
               {activeTab === 'upcoming' && (
-                <span className="text-[7px] sm:text-[10px] text-muted-foreground/50 mb-0.5 uppercase tracking-wider hidden sm:block">Soon</span>
+                <span className="text-[7px] sm:text-[10px] text-muted-foreground/50 mb-0.5 uppercase tracking-wider hidden sm:block">{t('soon') || '即将'}</span>
               )}
               <span className="text-[10px] sm:text-sm text-muted-foreground/60 font-medium tracking-widest">vs</span>
             </div>
@@ -807,11 +807,11 @@ const MatchCenter = () => {
   );
 
   const tabs = [
-    { id: 'all' as TabType, label: 'All', labelZh: '全部', icon: Trophy },
-    { id: 'live' as TabType, label: 'Live', labelZh: '进行中', icon: Play },
-    { id: 'upcoming' as TabType, label: 'Upcoming', labelZh: '赛程', icon: Calendar },
-    { id: 'finished' as TabType, label: 'Results', labelZh: '赛果', icon: Clock },
-    { id: 'favorites' as TabType, label: 'Favorites', labelZh: '关注', icon: Star },
+    { id: 'all' as TabType, labelKey: 'match_tab_all', icon: Trophy },
+    { id: 'live' as TabType, labelKey: 'match_tab_live', icon: Play },
+    { id: 'upcoming' as TabType, labelKey: 'match_tab_upcoming', icon: Calendar },
+    { id: 'finished' as TabType, labelKey: 'match_tab_finished', icon: Clock },
+    { id: 'favorites' as TabType, labelKey: 'match_tab_favorites', icon: Star },
   ];
 
   return (
@@ -838,7 +838,7 @@ const MatchCenter = () => {
                   : "text-muted-foreground/70 hover:text-foreground/90"
               )}
             >
-              <span className="tracking-wide uppercase">{tab.labelZh}</span>
+              <span className="tracking-wide uppercase">{t(tab.labelKey)}</span>
               {tab.id === 'favorites' && favoritesCount > 0 && (
                 <span className="inline-flex items-center justify-center min-w-[14px] sm:min-w-[16px] h-[14px] sm:h-[16px] px-0.5 sm:px-1 text-[8px] sm:text-[9px] font-bold bg-emerald-500 text-white rounded-full">
                   {favoritesCount}
@@ -861,7 +861,7 @@ const MatchCenter = () => {
                 <Loader2 className="w-8 h-8 animate-spin text-emerald-400/60" />
                 <div className="absolute inset-0 blur-lg bg-emerald-400/20 rounded-full" />
               </div>
-              <span className="text-sm text-muted-foreground/70 tracking-wide">Loading matches...</span>
+              <span className="text-sm text-muted-foreground/70 tracking-wide">{t('loading_matches') || '加载比赛中...'}</span>
             </div>
           ) : matchesError ? (
             <div className="flex flex-col items-center justify-center py-20 px-4 gap-4">
@@ -869,14 +869,14 @@ const MatchCenter = () => {
                 <Trophy className="w-6 h-6 text-destructive/60" />
               </div>
               <div className="text-center">
-                <div className="text-sm text-destructive font-medium mb-1">Failed to load</div>
+                <div className="text-sm text-destructive font-medium mb-1">{t('load_failed') || '加载失败'}</div>
                 <div className="text-xs text-muted-foreground/60">{matchesError}</div>
               </div>
               <button
                 onClick={handleAllTabClick}
                 className="px-4 py-2 text-xs font-medium rounded-lg border border-border/50 hover:bg-muted/50 transition-colors tracking-wide uppercase"
               >
-                Retry
+                {t('retry') || '重试'}
               </button>
             </div>
           ) : filteredMatches.length > 0 ? (
@@ -888,7 +888,7 @@ const MatchCenter = () => {
               <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-muted-foreground/40" />
               </div>
-              <span className="text-sm text-muted-foreground/60 tracking-wide">No matches available</span>
+              <span className="text-sm text-muted-foreground/60 tracking-wide">{t('no_matches') || '暂无比赛'}</span>
             </div>
           )}
         </div>

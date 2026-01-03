@@ -1258,7 +1258,7 @@ const PlayerLeaderboardTable = () => {
                     <div className="text-sm font-bold text-foreground">
                       {t('hot_streak_board')}
                     </div>
-                    <p className="text-[10px] text-muted-foreground">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">前10名</span></p>
+                    <p className="text-[10px] text-muted-foreground">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                   </div>
                 </div>
                 <button
@@ -1347,7 +1347,7 @@ const PlayerLeaderboardTable = () => {
                     <div className="text-sm font-bold text-foreground">
                       {t('cold_streak_board')}
                     </div>
-                    <p className="text-[10px] text-muted-foreground">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
+                    <p className="text-[10px] text-muted-foreground">{t('worst_lose_streak')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                   </div>
                 </div>
                 <button
@@ -1440,7 +1440,7 @@ const PlayerLeaderboardTable = () => {
                   <CardTitle className="text-sm sm:text-lg font-bold text-foreground">
                     {t('hot_streak_board')}
                   </CardTitle>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">前10名</span></p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('highest_win_rate_players')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                 </div>
               </div>
               <button
@@ -1526,7 +1526,7 @@ const PlayerLeaderboardTable = () => {
                   <CardTitle className="text-sm sm:text-lg font-bold text-foreground">
                     {t('cold_streak_board')}
                   </CardTitle>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-foreground font-medium">前10名</span></p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">{t('worst_lose_streak')} · <span className="text-foreground font-medium">{t('top_10')}</span></p>
                 </div>
               </div>
               <button

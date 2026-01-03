@@ -721,7 +721,7 @@ const MyPredictions = () => {
           {/* Name + PRO Badge */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
-              {userProfile?.display_name || 'Player'}
+              {userProfile?.display_name || t('player_default_name') || '玩家'}
             </h1>
             {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
             <button 
@@ -958,7 +958,7 @@ const MyPredictions = () => {
                         {/* Match Info */}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground truncate">
-                            {pred.match?.home_team_name || 'Home'} vs {pred.match?.away_team_name || 'Away'}
+                            {pred.match?.home_team_name || t('prediction_home') || '主队'} vs {pred.match?.away_team_name || t('prediction_away') || '客队'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {pred.prediction
