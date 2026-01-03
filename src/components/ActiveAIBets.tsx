@@ -909,25 +909,25 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header */}
-      <div className="flex flex-col items-center mb-3 sm:mb-6 lg:mb-8 px-1">
-        <div className="relative max-w-full">
-          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight truncate">
+      <div className="flex items-center justify-between mb-3 sm:mb-6 lg:mb-8 px-1">
+        <div className="relative">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
             {t('active_ai_predictions')}
           </h2>
-          <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
+          <div className="absolute -bottom-1 sm:-bottom-2 left-0 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
-        {/* Auto/Manual Prediction Toggle */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-3 mt-2 sm:mt-4 bg-secondary/50 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 border border-border w-fit mx-auto">
-          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
+        {/* Auto/Manual Prediction Toggle - Minimal style */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <span className={`text-[9px] sm:text-xs transition-colors ${isAutoPrediction ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
             {t('auto_prediction') || '自动'}
           </span>
           <Switch
             checked={!isAutoPrediction}
             onCheckedChange={(checked) => setIsAutoPrediction(!checked)}
-            className="h-5 w-9 sm:h-6 sm:w-12 data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary shrink-0"
+            className="h-4 w-7 sm:h-5 sm:w-9 data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted shrink-0"
           />
-          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${!isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
+          <span className={`text-[9px] sm:text-xs transition-colors ${!isAutoPrediction ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
             {t('manual_prediction') || '人工'}
           </span>
         </div>
