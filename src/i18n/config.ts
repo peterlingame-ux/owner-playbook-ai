@@ -2461,7 +2461,7 @@ const resources = {
         "online": "在线",
         "get_it_on": "立即下载",
         "google_play": "Google Play",
-        "available_on": "下载于",
+        "available_on": "立即下载",
         "app_store": "App Store"
       },
       
