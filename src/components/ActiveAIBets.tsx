@@ -917,30 +917,24 @@ const ActiveAIBets = () => {
           <div className="absolute -bottom-1 sm:-bottom-2 left-0 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
-        {/* Auto/Manual Toggle - Animated Switch */}
-        <div className="relative flex items-center bg-secondary/80 rounded-full p-0.5">
-          {/* Sliding Background Indicator */}
-          <motion.div
-            className="absolute top-0.5 bottom-0.5 bg-background rounded-full shadow-sm"
-            initial={false}
-            animate={{
-              left: isAutoPrediction ? '2px' : '50%',
-              right: isAutoPrediction ? '50%' : '2px',
-            }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          />
+        {/* Auto/Manual Toggle - Simple Switch */}
+        <div className="flex items-center bg-secondary/80 rounded-full p-0.5">
           <button
             onClick={() => setIsAutoPrediction(true)}
-            className={`relative z-10 px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-colors ${
-              isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'
+            className={`px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
+              isAutoPrediction 
+                ? 'bg-background text-foreground' 
+                : 'text-muted-foreground'
             }`}
           >
             {t('auto_prediction') || '自动预测'}
           </button>
           <button
             onClick={() => setIsAutoPrediction(false)}
-            className={`relative z-10 px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-colors ${
-              !isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'
+            className={`px-2.5 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
+              !isAutoPrediction 
+                ? 'bg-background text-foreground' 
+                : 'text-muted-foreground'
             }`}
           >
             {t('manual_prediction') || '人工预测'}
