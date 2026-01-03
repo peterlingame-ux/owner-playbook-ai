@@ -908,22 +908,22 @@ const ActiveAIBets = () => {
         </div>
       )}
       
-      {/* Modern Section Header */}
-      <div className="flex flex-col items-center mb-3 sm:mb-6 lg:mb-8 px-1">
-        <div className="relative max-w-full">
-          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight truncate">
+      {/* Modern Section Header with Toggle */}
+      <div className="flex items-center justify-between mb-3 sm:mb-6 lg:mb-8 px-1">
+        <div className="relative">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">
             {t('active_ai_predictions')}
           </h2>
-          <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
+          <div className="absolute -bottom-1 sm:-bottom-2 left-0 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
-        {/* Auto/Manual Prediction Toggle - Minimalist Tab Style */}
-        <div className="flex items-center mt-2 sm:mt-4 bg-muted/40 rounded-lg p-0.5 sm:p-1 w-fit mx-auto">
+        {/* Auto/Manual Prediction Toggle - Switch Style */}
+        <div className="flex items-center bg-muted/50 rounded-lg p-0.5 border border-border/50">
           <button
             onClick={() => setIsAutoPrediction(true)}
-            className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-md text-[11px] sm:text-sm font-medium transition-all duration-200 ${
+            className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
               isAutoPrediction 
-                ? 'bg-background text-foreground shadow-sm' 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -931,9 +931,9 @@ const ActiveAIBets = () => {
           </button>
           <button
             onClick={() => setIsAutoPrediction(false)}
-            className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-md text-[11px] sm:text-sm font-medium transition-all duration-200 ${
+            className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all duration-200 ${
               !isAutoPrediction 
-                ? 'bg-background text-foreground shadow-sm' 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
