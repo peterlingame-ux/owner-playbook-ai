@@ -1573,14 +1573,8 @@ const PlayerExclusiveModelCard = ({
             ) : (
               /* Step 2: Betting Options - Simplified */
               <div className="p-4 space-y-3">
-                {/* Back Button + Match Header */}
+                {/* Match Header */}
                 <div className="text-center pb-3 border-b border-border">
-                  <button 
-                    onClick={() => setSelectedMatch(null)}
-                    className="absolute left-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
                   <p className="text-xs text-muted-foreground mb-1.5">{safeGetLeagueName(selectedMatch)}</p>
                   <div className="flex items-center justify-center gap-3">
                     <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">{safeGetTeamName(selectedMatch, 'home')}</span>
