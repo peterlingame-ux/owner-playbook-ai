@@ -160,6 +160,22 @@ export const es = {
     "legend_pass": "Líneas de Pase/Carrera",
     "total_predictions": "Predicciones Totales",
     
+    // Match Center
+    "loading_matches": "Cargando partidos...",
+    "no_matches": "No hay partidos disponibles",
+    "retry": "Reintentar",
+    "soon": "Pronto",
+    "match_tab_all": "Todos",
+    "match_tab_live": "En Vivo",
+    "match_tab_upcoming": "Próximos",
+    "match_tab_finished": "Resultados",
+    "match_tab_favorites": "Favoritos",
+    
+    // Prize
+    "prize_share": "Parte del Premio",
+    "estimated": "Estimado",
+    "reach_qualification_for_prize": "Califique para el premio",
+    
     // AI Chat
     "ai_assistant": "ROBOT HUNSOCCER",
     "ai_assistant_subtitle": "5 IA Análisis Completo, Mejora tu Tasa de Aciertos",

@@ -160,6 +160,22 @@ export const th = {
     "legend_pass": "เส้นทางส่ง/วิ่ง",
     "total_predictions": "การทำนายทั้งหมด",
     
+    // Match Center
+    "loading_matches": "กำลังโหลดแมตช์...",
+    "no_matches": "ไม่มีแมตช์",
+    "retry": "ลองใหม่",
+    "soon": "เร็วๆ นี้",
+    "match_tab_all": "ทั้งหมด",
+    "match_tab_live": "สด",
+    "match_tab_upcoming": "กำลังจะมา",
+    "match_tab_finished": "ผลลัพธ์",
+    "match_tab_favorites": "รายการโปรด",
+    
+    // Prize
+    "prize_share": "ส่วนแบ่งรางวัล",
+    "estimated": "ประมาณ",
+    "reach_qualification_for_prize": "ผ่านเกณฑ์เพื่อรับรางวัล",
+    
     // AI Chat
     "ai_assistant": "หุ่นยนต์ HUNSOCCER",
     "ai_assistant_subtitle": "5 AI วิเคราะห์ครบถ้วน",

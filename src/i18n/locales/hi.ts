@@ -160,6 +160,22 @@ export const hi = {
     "legend_pass": "पास/रन लाइन्स",
     "total_predictions": "कुल भविष्यवाणियां",
     
+    // Match Center
+    "loading_matches": "मैच लोड हो रहे हैं...",
+    "no_matches": "कोई मैच उपलब्ध नहीं",
+    "retry": "पुनः प्रयास करें",
+    "soon": "जल्द ही",
+    "match_tab_all": "सभी",
+    "match_tab_live": "लाइव",
+    "match_tab_upcoming": "आगामी",
+    "match_tab_finished": "परिणाम",
+    "match_tab_favorites": "पसंदीदा",
+    
+    // Prize
+    "prize_share": "पुरस्कार हिस्सा",
+    "estimated": "अनुमानित",
+    "reach_qualification_for_prize": "पुरस्कार के लिए योग्य हों",
+    
     // AI Chat
     "ai_assistant": "HUNSOCCER रोबोट",
     "ai_assistant_subtitle": "5 AI व्यापक विश्लेषण",
