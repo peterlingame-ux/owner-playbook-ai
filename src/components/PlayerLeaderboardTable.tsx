@@ -900,12 +900,12 @@ const PlayerLeaderboardTable = () => {
     const oldBalance = realBalance;
     
     if (copyBetAmount > realBalance) {
-      toast.error('余额不足，无法订阅');
+      toast.error(t('insufficient_balance_subscribe'));
       return;
     }
 
     if (copyBetAmount < 10) {
-      toast.error('最低订阅金额为 10 PTS');
+      toast.error(t('min_subscribe_amount'));
       return;
     }
 
@@ -937,14 +937,14 @@ const PlayerLeaderboardTable = () => {
 
         if (error) {
           console.error('Copy trade error:', error);
-          toast.error('订阅失败：' + error.message);
+          toast.error(t('subscribe_failed') + ': ' + error.message);
           return;
         }
 
         const result = data as { success: boolean; error?: string; new_balance?: number };
         
         if (!result.success) {
-          toast.error(result.error || '订阅失败');
+          toast.error(result.error || t('subscribe_failed'));
           return;
         }
 
@@ -954,7 +954,7 @@ const PlayerLeaderboardTable = () => {
       } else {
         // 演示模式：模拟延迟
         await new Promise(resolve => setTimeout(resolve, 500));
-        toast.success('演示模式：订阅成功');
+        toast.success(t('subscribe_success_demo'));
       }
       
       // 将该预测添加到已跟单列表，解锁显示
@@ -1821,22 +1821,22 @@ const PlayerLeaderboardTable = () => {
               {/* 内容 */}
               <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">解锁费用</span>
+                  <span className="text-muted-foreground">{t('unlock_cost')}</span>
                   <span className="inline-flex items-center gap-1.5 font-semibold">
-                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                    {unlockDialog.player.unlockPrice} 猎人币
+                    <img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-5 h-5" />
+                    {unlockDialog.player.unlockPrice} {t('hunter_coins_unit')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">当前余额</span>
+                  <span className="text-muted-foreground">{t('current_balance_short')}</span>
                   <span className={`inline-flex items-center gap-1.5 ${usdtBalance >= (unlockDialog.player.unlockPrice ?? 0) ? 'text-foreground' : 'text-destructive'}`}>
-                    <img src={hunterCoinIcon} alt="猎人币" className="w-5 h-5" />
-                    {usdtBalance.toFixed(2)} 猎人币
+                    <img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-5 h-5" />
+                    {usdtBalance.toFixed(2)} {t('hunter_coins_unit')}
                   </span>
                 </div>
                 
                 {usdtBalance < (unlockDialog.player.unlockPrice ?? 0) && (
-                  <p className="text-xs text-destructive">余额不足，请先充值</p>
+                  <p className="text-xs text-destructive">{t('insufficient_balance_subscribe')}</p>
                 )}
               </div>
               
@@ -1848,7 +1848,7 @@ const PlayerLeaderboardTable = () => {
                   className="flex-1"
                   onClick={() => setUnlockDialog(null)}
                 >
-                  取消
+                  {t('cancel')}
                 </Button>
                 <Button 
                   size="sm"
@@ -1856,7 +1856,7 @@ const PlayerLeaderboardTable = () => {
                   onClick={confirmUnlock}
                   disabled={isUnlocking || (user && usdtBalance < (unlockDialog.player.unlockPrice ?? 0))}
                 >
-                  {isUnlocking ? '处理中...' : (user ? '确认' : '演示解锁')}
+                  {isUnlocking ? t('processing') : (user ? t('confirm') : t('demo_mode'))}
                 </Button>
               </div>
             </>
@@ -1870,7 +1870,7 @@ const PlayerLeaderboardTable = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-primary" />
-              一键跟单
+              {t('one_click_copy')}
             </DialogTitle>
           </DialogHeader>
           
@@ -1885,11 +1885,11 @@ const PlayerLeaderboardTable = () => {
                 <div>
                   <p className="font-semibold">{maskPlayerName(copyTradeDialog.player.displayName)}</p>
                   <p className="text-xs text-muted-foreground">
-                    胜率: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
+                    {t('win_rate')}: <span className={copyTradeDialog.player.winRate >= 50 ? 'text-success' : 'text-destructive'}>
                       {copyTradeDialog.player.winRate.toFixed(1)}%
                     </span>
                     <span className="mx-2">|</span>
-                    连续正确: <span className="text-success">{copyTradeDialog.player.bestStreak || 0}场</span>
+                    {t('consecutive_correct')}: <span className="text-success">{copyTradeDialog.player.bestStreak || 0}{t('matches_unit')}</span>
                   </p>
                 </div>
               </div>
@@ -1899,8 +1899,8 @@ const PlayerLeaderboardTable = () => {
                 <div className="flex items-center justify-center gap-3 py-4">
                   <Lock className="h-8 w-8 text-muted-foreground" />
                   <div className="text-center">
-                    <p className="text-sm font-medium text-muted-foreground">比赛详情已锁定</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">确认订阅后解锁查看完整信息</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('subscribe_to_view')}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">{t('confirm')} {t('one_click_copy')}</p>
                   </div>
                 </div>
               </div>
@@ -1908,9 +1908,9 @@ const PlayerLeaderboardTable = () => {
               {/* 跟单金额设置 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">订阅金额</span>
+                  <span className="text-muted-foreground">{t('subscribe_amount')}</span>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    可用余额: <span className="text-foreground font-medium flex items-center gap-0.5">{realBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
+                    {t('available_balance')}: <span className="text-foreground font-medium flex items-center gap-0.5">{realBalance.toLocaleString()}<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-3 h-3" /></span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1922,7 +1922,7 @@ const PlayerLeaderboardTable = () => {
                       className="flex-1"
                       onClick={() => setCopyBetAmount(amount)}
                     >
-                      <span className="flex items-center gap-0.5">{amount}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
+                      <span className="flex items-center gap-0.5">{amount}<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-3 h-3" /></span>
                     </Button>
                   ))}
                 </div>
@@ -1945,7 +1945,7 @@ const PlayerLeaderboardTable = () => {
                     className="flex-1 h-8"
                     min={10}
                     max={realBalance}
-                    placeholder="输入金额"
+                    placeholder={t('enter_amount')}
                   />
                 </div>
                 
@@ -1953,13 +1953,13 @@ const PlayerLeaderboardTable = () => {
                 {copyBetAmount > realBalance && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span className="flex items-center gap-0.5">余额不足，当前可用余额为 {realBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
+                    <span className="flex items-center gap-0.5">{t('insufficient_balance_short')} {realBalance.toLocaleString()}<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-3 h-3" /></span>
                   </div>
                 )}
                 {copyBetAmount > 0 && copyBetAmount < 10 && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
                     <span>⚠️</span>
-                    <span className="flex items-center gap-0.5">最低订阅金额为 10<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
+                    <span className="flex items-center gap-0.5">{t('min_amount_hint')} 10<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-3 h-3" /></span>
                   </div>
                 )}
               </div>
@@ -1967,9 +1967,9 @@ const PlayerLeaderboardTable = () => {
               {/* 预期收益 */}
               <div className="p-3 rounded-lg bg-success/10 border border-success/20">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">预期收益</span>
+                  <span className="text-muted-foreground">{t('expected_profit_label')}</span>
                   <span className="font-bold text-success flex items-center gap-0.5">
-                    +{(copyBetAmount * 1.8).toFixed(0)}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" />
+                    +{(copyBetAmount * 1.8).toFixed(0)}<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-4 h-4" />
                   </span>
                 </div>
               </div>
@@ -1983,12 +1983,12 @@ const PlayerLeaderboardTable = () => {
                 {isCopying ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    订阅中...
+                    {t('processing')}
                   </div>
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    {user ? <span className="flex items-center gap-0.5">确认订阅 {copyBetAmount}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" /></span> : <span className="flex items-center gap-0.5">演示订阅 {copyBetAmount}<img src={hunterCoinIcon} alt="猎人币" className="w-4 h-4" /></span>}
+                    {user ? <span className="flex items-center gap-0.5">{t('confirm')} {copyBetAmount}<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-4 h-4" /></span> : <span className="flex items-center gap-0.5">{t('demo_mode')} {copyBetAmount}<img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className="w-4 h-4" /></span>}
                   </>
                 )}
               </Button>

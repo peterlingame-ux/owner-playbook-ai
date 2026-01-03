@@ -151,7 +151,7 @@ interface PlaceBetDialogProps {
 
 export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: PlaceBetDialogProps) => {
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   // 获取中文球队名
   const getTeamNameZh = (teamName: string): string => {
@@ -512,12 +512,12 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
               
               {/* 文字 */}
               <div className="text-center space-y-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <p className="text-base sm:text-lg font-bold">投注成功</p>
+                <p className="text-base sm:text-lg font-bold">{t('bet_success_title')}</p>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  投注 <span className="font-mono font-medium text-foreground">${successData.amount}</span>
+                  {t('bet_placed')} <span className="font-mono font-medium text-foreground">${successData.amount}</span>
                 </p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">
-                  预期返还 <span className="font-mono font-medium text-primary">${successData.payout.toFixed(2)}</span>
+                  {t('expected_return')} <span className="font-mono font-medium text-primary">${successData.payout.toFixed(2)}</span>
                 </p>
               </div>
             </div>
@@ -526,14 +526,14 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
         
         <DialogHeader className="pb-2">
           <DialogTitle className="text-base sm:text-lg font-bold">
-            {showMatchSelection ? "选择比赛" : "下注"}
+            {showMatchSelection ? t('select_match_title') : t('place_bet_title')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-2 sm:space-y-3">
           {/* 余额显示 */}
           <div className="flex items-center justify-between py-1.5 sm:py-2 px-2.5 sm:px-3 bg-muted/50 rounded-lg">
-            <span className="text-[10px] sm:text-xs text-muted-foreground">虚拟钱包余额</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{t('virtual_wallet_balance')}</span>
             <span className="text-base sm:text-lg font-bold font-mono">${userBalance.toFixed(0)}</span>
           </div>
 
@@ -542,19 +542,19 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
             <div className="space-y-1.5 sm:space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="text-xs sm:text-sm font-medium">挑战AI</span>
+                  <span className="text-xs sm:text-sm font-medium">{t('challenge_ai')}</span>
                   <span className="text-[9px] sm:text-[10px] text-muted-foreground px-1 sm:px-1.5 py-0.5 bg-muted rounded">
-                    {format(new Date(), 'MM月dd日')}
+                    {format(new Date(), i18n.language === 'zh' ? 'MM月dd日' : 'MMM dd')}
                   </span>
                 </div>
                 {isDemo && (
                   <Badge variant="outline" className="text-[9px] sm:text-[10px] text-amber-500 border-amber-500/30">
-                    演示
+                    {t('demo_mode')}
                   </Badge>
                 )}
               </div>
               <p className="text-[9px] sm:text-[10px] text-muted-foreground">
-                以下为今日AI预测比赛，每日更新
+                {t('ai_predictions_today')}
               </p>
               
               {isLoadingMatches ? (
@@ -602,7 +602,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                           <div className="flex items-center justify-between mb-1 sm:mb-1.5">
                             <span className="text-[9px] sm:text-[10px] text-muted-foreground truncate max-w-[45%]">{getLeagueNameZh(m.league_name)}</span>
                             <span className={`text-[9px] sm:text-[10px] font-mono ${isStarted ? 'text-amber-500' : 'text-muted-foreground'}`}>
-                              {isStarted ? '已开赛' : kickoffTime}
+                              {isStarted ? t('match_started') : kickoffTime}
                             </span>
                           </div>
                           
@@ -769,7 +769,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    让球
+                    {t('handicap_bet')}
                   </button>
                   <button
                     onClick={() => setSelectedBetType("over_under")}
@@ -779,7 +779,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    大小球
+                    {t('over_under_bet')}
                   </button>
                 </div>
 
@@ -815,9 +815,9 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 {/* 投注金额 */}
                 <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[10px] sm:text-xs text-muted-foreground">投注金额</Label>
+                    <Label className="text-[10px] sm:text-xs text-muted-foreground">{t('bet_amount')}</Label>
                     <span className="text-[9px] sm:text-[10px] text-muted-foreground">
-                      余额: <span className="font-mono">${userBalance.toFixed(0)}</span>
+                      {t('balance_label')}: <span className="font-mono">${userBalance.toFixed(0)}</span>
                     </span>
                   </div>
                   <div className="relative">
@@ -826,7 +826,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       type="number"
                       value={betAmount}
                       onChange={(e) => setBetAmount(e.target.value)}
-                      placeholder="输入金额"
+                      placeholder={t('enter_amount')}
                       className="h-9 sm:h-10 pl-6 sm:pl-7 text-right font-mono font-medium text-sm sm:text-base"
                     />
                   </div>
@@ -848,7 +848,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
 
                 {/* 收益预览 */}
                 <div className="flex items-center justify-between py-1.5 sm:py-2 px-2 sm:px-3 rounded bg-muted/50">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">预期返还</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('expected_return')}</span>
                   <span className="text-base sm:text-lg font-bold font-mono">
                     {selectedBetOption 
                       ? `$${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}`
@@ -863,7 +863,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                   disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0 || !selectedBetOption}
                   className="w-full h-9 sm:h-10 text-xs sm:text-sm font-medium"
                 >
-                  {isSubmitting ? "处理中..." : isDemo ? "体验投注" : "确认投注"}
+                  {isSubmitting ? t('processing') : isDemo ? t('try_bet') : t('confirm_bet_btn')}
                 </Button>
               </div>
             </>
