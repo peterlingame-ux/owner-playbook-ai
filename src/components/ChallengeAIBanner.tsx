@@ -357,7 +357,7 @@ const ChallengeAIBanner = () => {
 
   return (
     <Card className="border-border/50 overflow-hidden relative">
-      {/* 绿色草地背景图 - 手机端优化，自动适应屏幕 */}
+      {/* 绿色草地背景图 - 手机端优化，保持比例不拉伸 */}
       <div 
         className="absolute inset-0"
         style={{ 
@@ -370,8 +370,8 @@ const ChallengeAIBanner = () => {
       />
       {/* 手机端背景渐变遮罩 - 确保文字可读 */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/10 to-background/40 sm:from-background/20 sm:via-transparent sm:to-background/30" />
-      <CardContent className="p-3 sm:p-6 relative">
-        <div className="flex flex-col gap-2 sm:gap-5">
+      <CardContent className="p-2 sm:p-6 relative">
+        <div className="flex flex-col gap-1.5 sm:gap-5">
           {/* 主标题 - 手机端紧凑布局 */}
           <div className="text-center">
             <motion.div 
@@ -459,7 +459,7 @@ const ChallengeAIBanner = () => {
               </div>
             ) : (
               <div className="rounded-md sm:rounded-lg px-2 sm:px-4 py-1.5 sm:py-3 bg-muted/40 backdrop-blur-sm">
-                <div className="flex items-center justify-between gap-1">
+                <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 sm:gap-3">
                     <Avatar className="w-6 h-6 sm:w-10 sm:h-10 border sm:border-2 border-dashed border-white/30">
                       <AvatarFallback className="bg-white/5">
@@ -473,7 +473,7 @@ const ChallengeAIBanner = () => {
                   </div>
                   <button
                     onClick={() => navigate('/auth')}
-                    className="px-2 sm:px-4 py-1 sm:py-2 bg-primary text-primary-foreground rounded-md sm:rounded-lg text-[9px] sm:text-sm font-medium hover:bg-primary/90 transition-colors"
+                    className="px-2 sm:px-4 py-1 sm:py-2 bg-primary text-primary-foreground rounded-md text-[9px] sm:text-sm font-medium hover:bg-primary/90 transition-colors whitespace-nowrap shrink-0"
                   >
                     {t('login')}
                   </button>
