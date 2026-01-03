@@ -1556,33 +1556,13 @@ const PlayerExclusiveModelCard = ({
                     }}
                   >
                     <div className="flex items-center justify-center gap-3">
-                      {/* Home Team */}
-                      <div className="flex items-center gap-2 flex-1 justify-end">
-                        <span className="text-sm font-semibold text-foreground truncate max-w-[90px] text-right">
-                          {safeGetTeamName(match, 'home')}
-                        </span>
-                        <img 
-                          src={match.home_logo || '/placeholder.svg'} 
-                          alt="" 
-                          className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0"
-                          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-                        />
-                      </div>
-                      
-                      <span className="text-xs text-muted-foreground shrink-0 px-1">vs</span>
-                      
-                      {/* Away Team */}
-                      <div className="flex items-center gap-2 flex-1 justify-start">
-                        <img 
-                          src={match.away_logo || '/placeholder.svg'} 
-                          alt="" 
-                          className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0"
-                          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-                        />
-                        <span className="text-sm font-semibold text-foreground truncate max-w-[90px]">
-                          {safeGetTeamName(match, 'away')}
-                        </span>
-                      </div>
+                      <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
+                        {safeGetTeamName(match, 'home')}
+                      </span>
+                      <span className="text-xs text-muted-foreground shrink-0">vs</span>
+                      <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
+                        {safeGetTeamName(match, 'away')}
+                      </span>
                     </div>
                     <p className="text-xs text-muted-foreground text-center mt-2">
                       {safeGetLeagueName(match)}
@@ -1594,42 +1574,18 @@ const PlayerExclusiveModelCard = ({
               /* Step 2: Betting Options - Simplified */
               <div className="p-4 space-y-3">
                 {/* Back Button + Match Header */}
-                <div className="text-center pb-3 border-b border-border relative">
+                <div className="text-center pb-3 border-b border-border">
                   <button 
                     onClick={() => setSelectedMatch(null)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute left-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
-                  <p className="text-xs text-muted-foreground mb-2">{safeGetLeagueName(selectedMatch)}</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{safeGetLeagueName(selectedMatch)}</p>
                   <div className="flex items-center justify-center gap-3">
-                    {/* Home Team */}
-                    <div className="flex items-center gap-1.5 flex-1 justify-end">
-                      <span className="text-sm font-semibold text-foreground truncate max-w-[80px] text-right">
-                        {safeGetTeamName(selectedMatch, 'home')}
-                      </span>
-                      <img 
-                        src={selectedMatch?.home_logo || '/placeholder.svg'} 
-                        alt="" 
-                        className="w-7 h-7 object-contain shrink-0"
-                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-                      />
-                    </div>
-                    
+                    <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">{safeGetTeamName(selectedMatch, 'home')}</span>
                     <span className="text-xs text-muted-foreground shrink-0">vs</span>
-                    
-                    {/* Away Team */}
-                    <div className="flex items-center gap-1.5 flex-1 justify-start">
-                      <img 
-                        src={selectedMatch?.away_logo || '/placeholder.svg'} 
-                        alt="" 
-                        className="w-7 h-7 object-contain shrink-0"
-                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-                      />
-                      <span className="text-sm font-semibold text-foreground truncate max-w-[80px]">
-                        {safeGetTeamName(selectedMatch, 'away')}
-                      </span>
-                    </div>
+                    <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">{safeGetTeamName(selectedMatch, 'away')}</span>
                   </div>
                 </div>
 
