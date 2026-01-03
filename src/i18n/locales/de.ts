@@ -160,6 +160,22 @@ export const de = {
     "legend_pass": "Pass/Lauflinien",
     "total_predictions": "Gesamte Vorhersagen",
     
+    // Match Center
+    "loading_matches": "Spiele werden geladen...",
+    "no_matches": "Keine Spiele verfügbar",
+    "retry": "Erneut versuchen",
+    "soon": "Bald",
+    "match_tab_all": "Alle",
+    "match_tab_live": "Live",
+    "match_tab_upcoming": "Kommend",
+    "match_tab_finished": "Ergebnisse",
+    "match_tab_favorites": "Favoriten",
+    
+    // Prize
+    "prize_share": "Preisanteil",
+    "estimated": "Geschätzt",
+    "reach_qualification_for_prize": "Qualifizieren Sie sich für den Preis",
+    
     // AI Chat
     "ai_assistant": "HUNSOCCER ROBOTER",
     "ai_assistant_subtitle": "5 KI Umfassende Analyse",

@@ -160,6 +160,22 @@ export const ja = {
     "legend_pass": "パス/ランライン",
     "total_predictions": "総予測数",
     
+    // Match Center
+    "loading_matches": "試合を読み込み中...",
+    "no_matches": "試合がありません",
+    "retry": "再試行",
+    "soon": "まもなく",
+    "match_tab_all": "全て",
+    "match_tab_live": "ライブ",
+    "match_tab_upcoming": "予定",
+    "match_tab_finished": "結果",
+    "match_tab_favorites": "お気に入り",
+    
+    // Prize
+    "prize_share": "賞金シェア",
+    "estimated": "推定",
+    "reach_qualification_for_prize": "賞金を獲得するために達標してください",
+    
     // AI Chat
     "ai_assistant": "HUNSOCCERロボット",
     "ai_assistant_subtitle": "5つのAI総合分析",

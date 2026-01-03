@@ -160,6 +160,22 @@ export const ar = {
     "legend_pass": "خطوط التمرير/الجري",
     "total_predictions": "إجمالي التوقعات",
     
+    // Match Center
+    "loading_matches": "جاري تحميل المباريات...",
+    "no_matches": "لا توجد مباريات متاحة",
+    "retry": "إعادة المحاولة",
+    "soon": "قريباً",
+    "match_tab_all": "الكل",
+    "match_tab_live": "مباشر",
+    "match_tab_upcoming": "القادمة",
+    "match_tab_finished": "النتائج",
+    "match_tab_favorites": "المفضلة",
+    
+    // Prize
+    "prize_share": "حصة الجائزة",
+    "estimated": "المقدر",
+    "reach_qualification_for_prize": "تأهل للحصول على الجائزة",
+    
     // AI Chat
     "ai_assistant": "روبوت HUNSOCCER",
     "ai_assistant_subtitle": "5 ذكاء اصطناعي تحليل شامل",

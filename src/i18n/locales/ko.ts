@@ -162,6 +162,22 @@ export const ko = {
     "legend_pass": "패스/런 라인",
     "total_predictions": "총 예측 수",
     
+    // Match Center
+    "loading_matches": "경기 로딩 중...",
+    "no_matches": "경기가 없습니다",
+    "retry": "재시도",
+    "soon": "곧",
+    "match_tab_all": "전체",
+    "match_tab_live": "라이브",
+    "match_tab_upcoming": "예정",
+    "match_tab_finished": "결과",
+    "match_tab_favorites": "즐겨찾기",
+    
+    // Prize
+    "prize_share": "상금 분배",
+    "estimated": "예상",
+    "reach_qualification_for_prize": "상금을 받으려면 자격을 달성하세요",
+    
     // AI Chat
     "ai_assistant": "HUNSOCCER 로봇",
     "ai_assistant_subtitle": "5개 AI 종합 분석",

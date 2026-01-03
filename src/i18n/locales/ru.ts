@@ -160,6 +160,22 @@ export const ru = {
     "legend_pass": "Линии Передач/Бега",
     "total_predictions": "Всего Прогнозов",
     
+    // Match Center
+    "loading_matches": "Загрузка матчей...",
+    "no_matches": "Нет доступных матчей",
+    "retry": "Повторить",
+    "soon": "Скоро",
+    "match_tab_all": "Все",
+    "match_tab_live": "Лайв",
+    "match_tab_upcoming": "Предстоящие",
+    "match_tab_finished": "Результаты",
+    "match_tab_favorites": "Избранное",
+    
+    // Prize
+    "prize_share": "Доля Приза",
+    "estimated": "Ожидаемый",
+    "reach_qualification_for_prize": "Достигните квалификации для приза",
+    
     // AI Chat
     "ai_assistant": "РОБОТ HUNSOCCER",
     "ai_assistant_subtitle": "5 ИИ Комплексный Анализ",
