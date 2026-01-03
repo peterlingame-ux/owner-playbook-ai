@@ -643,7 +643,7 @@ const PlayerExclusiveModelCard = ({
   return (
     <>
       <TiltCard
-        className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className}`}
+        className={`group rounded-lg sm:rounded-2xl p-2 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[145px] sm:min-h-[320px] ${className}`}
         onClick={handleNextMatch}
         maxTilt={8}
         scale={1.02}
@@ -670,9 +670,9 @@ const PlayerExclusiveModelCard = ({
           />
         </div>
 
-        {/* Match Counter - Top Right */}
+        {/* Match Counter - Top Right - Desktop only */}
         {matchEntries.length > 1 && (
-          <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20 flex items-center gap-0.5 sm:gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20 hidden sm:flex items-center gap-0.5 sm:gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
             <Button
               size="sm"
               variant="ghost"
@@ -697,50 +697,6 @@ const PlayerExclusiveModelCard = ({
           </div>
         )}
 
-        {/* Auto/Manual Toggle - Top Right */}
-        <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
-          {onToggleAutoPrediction ? (
-            <div 
-              className="flex items-center bg-secondary/80 rounded-full p-0.5 backdrop-blur-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleAutoPrediction(true);
-                }}
-                className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all ${
-                  isAutoPrediction 
-                    ? 'bg-background text-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground/80'
-                }`}
-              >
-                {t('auto_prediction') || '自动预测'}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleAutoPrediction(false);
-                }}
-                className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all ${
-                  !isAutoPrediction 
-                    ? 'bg-background text-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground/80'
-                }`}
-              >
-                {t('manual_prediction') || '人工预测'}
-              </button>
-            </div>
-          ) : matchEntries.length === 0 ? (
-            <Badge 
-              variant="outline"
-              className="text-[8px] sm:text-[10px] font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
-            >
-              {t('no_bets')}
-            </Badge>
-          ) : null}
-        </div>
-
         {/* Content */}
         <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -764,12 +720,12 @@ const PlayerExclusiveModelCard = ({
               }}
               className="space-y-1.5 sm:space-y-4"
             >
-              {/* AI Model Header */}
-              <div className="flex items-center justify-between">
+              {/* Header Row: Avatar + Name + Auto/Manual Toggle */}
+              <div className="flex items-center justify-between gap-1">
                 {/* Player Avatar & Info */}
-                <div className="flex items-center gap-1 sm:gap-3">
-                  <div className="relative">
-                    <Avatar className={`h-6 w-6 sm:h-12 sm:w-12 shadow-lg ${isDemo ? 'border border-dashed sm:border-2 border-white/30' : 'ring-1 sm:ring-2 ring-white/20'}`}>
+                <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
+                  <div className="relative flex-shrink-0">
+                    <Avatar className={`h-7 w-7 sm:h-12 sm:w-12 shadow-lg ${isDemo ? 'border border-dashed sm:border-2 border-white/30' : 'ring-1 sm:ring-2 ring-white/20'}`}>
                       {!isDemo ? (
                         <>
                           <AvatarImage 
@@ -790,19 +746,51 @@ const PlayerExclusiveModelCard = ({
                       <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                     )}
                   </div>
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-[8px] sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate max-w-[60px] sm:max-w-none">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[9px] sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate">
                       {displayName}
                     </span>
-                    <span className="text-[7px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
-                      <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5 shrink-0" />
+                    <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5">
+                      <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-5 sm:h-5 shrink-0" />
                       <span className="truncate">{!isDemo ? (balanceValue || '10,000') : '--'}</span>
                     </span>
                   </div>
                 </div>
                 
-                {/* Action Button - Only show when has bets, hidden on mobile */}
-                {bet && currentMatchData && onOpenAnalysis && (
+                {/* Auto/Manual Toggle - Inline on both mobile and desktop */}
+                {onToggleAutoPrediction ? (
+                  <div 
+                    className="flex items-center bg-secondary/80 rounded-full p-0.5 backdrop-blur-sm flex-shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleAutoPrediction(true);
+                      }}
+                      className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all whitespace-nowrap ${
+                        isAutoPrediction 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground/80'
+                      }`}
+                    >
+                      {t('auto_prediction') || '自动预测'}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleAutoPrediction(false);
+                      }}
+                      className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all whitespace-nowrap ${
+                        !isAutoPrediction 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground/80'
+                      }`}
+                    >
+                      {t('manual_prediction') || '人工预测'}
+                    </button>
+                  </div>
+                ) : bet && currentMatchData && onOpenAnalysis ? (
                   <Button
                     size="sm"
                     className="hidden sm:flex h-7 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[10px] sm:text-xs backdrop-blur-sm transition-all duration-300"
@@ -820,7 +808,7 @@ const PlayerExclusiveModelCard = ({
                     <span className="sm:hidden">{t('view') || '查看'}</span>
                     <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 ml-1" />
                   </Button>
-                )}
+                ) : null}
               </div>
 
               {/* Training Badge - Show if has training, hidden on mobile */}
