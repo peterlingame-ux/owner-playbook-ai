@@ -964,7 +964,7 @@ const ActiveAIBets = () => {
       </div>
 
       <div
-        className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 lg:gap-5 auto-rows-fr"
+        className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-1.5 sm:gap-3 lg:gap-5 auto-rows-fr w-full max-w-full overflow-hidden"
         style={
           lockedCardHeight
             ? ({ ["--ai-card-h" as any]: `${lockedCardHeight}px` } as CSSProperties)
@@ -1051,7 +1051,7 @@ const ActiveAIBets = () => {
           return (
             <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
               <TiltCard
-                className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
+                className={`group rounded-lg sm:rounded-2xl p-1 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[145px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
                 onClick={nextMatch}
                 maxTilt={8}
                 scale={1.02}
@@ -1118,7 +1118,7 @@ const ActiveAIBets = () => {
                               )}
 
               {/* Content */}
-              <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
+              <div className="relative z-10 space-y-1 sm:space-y-4 overflow-hidden">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -1138,7 +1138,7 @@ const ActiveAIBets = () => {
                       duration: 0.25, 
                       ease: "easeOut" 
                     }}
-                    className="space-y-1.5 sm:space-y-4"
+                    className="space-y-1 sm:space-y-4"
                   >
                     {/* AI Model Header */}
                     <div className="flex items-center justify-between">
