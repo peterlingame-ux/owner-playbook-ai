@@ -917,19 +917,28 @@ const ActiveAIBets = () => {
           <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
         
-        {/* Auto/Manual Prediction Toggle */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-3 mt-2 sm:mt-4 bg-secondary/50 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 border border-border w-fit mx-auto">
-          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {t('auto_prediction') || '自动'}
-          </span>
-          <Switch
-            checked={!isAutoPrediction}
-            onCheckedChange={(checked) => setIsAutoPrediction(!checked)}
-            className="h-5 w-9 sm:h-6 sm:w-12 data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary shrink-0"
-          />
-          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${!isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {t('manual_prediction') || '人工'}
-          </span>
+        {/* Auto/Manual Prediction Toggle - Minimalist Tab Style */}
+        <div className="flex items-center mt-2 sm:mt-4 bg-muted/40 rounded-lg p-0.5 sm:p-1 w-fit mx-auto">
+          <button
+            onClick={() => setIsAutoPrediction(true)}
+            className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-md text-[11px] sm:text-sm font-medium transition-all duration-200 ${
+              isAutoPrediction 
+                ? 'bg-background text-foreground shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {t('auto_prediction') || '自动预测'}
+          </button>
+          <button
+            onClick={() => setIsAutoPrediction(false)}
+            className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-md text-[11px] sm:text-sm font-medium transition-all duration-200 ${
+              !isAutoPrediction 
+                ? 'bg-background text-foreground shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {t('manual_prediction') || '人工预测'}
+          </button>
         </div>
       </div>
 
