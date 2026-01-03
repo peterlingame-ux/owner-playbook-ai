@@ -108,7 +108,7 @@ const UserModelCard = () => {
   return (
     <div>
       <TiltCard
-        className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border sm:border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_15px_-5px_rgba(245,158,11,0.25)] sm:shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_25px_-5px_rgba(245,158,11,0.4)]`}
+        className={`group rounded-lg sm:rounded-2xl bg-gradient-to-br ${USER_THEME.from} ${USER_THEME.to} backdrop-blur-sm border sm:border-2 ${USER_THEME.border} hover:border-amber-400/60 transition-all duration-300 overflow-hidden cursor-pointer shadow-[0_0_15px_-5px_rgba(245,158,11,0.25)] sm:shadow-[0_0_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_0_25px_-5px_rgba(245,158,11,0.4)] h-full min-h-[160px] sm:min-h-[320px]`}
         onClick={handleCardClick}
         maxTilt={6}
         scale={1.02}
@@ -152,9 +152,9 @@ const UserModelCard = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 p-1.5 sm:p-5">
+        <div className="relative z-10 p-2 sm:p-5 h-full flex flex-col">
           {/* Header: Model Info + Points Badge */}
-          <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1.5 sm:mb-5">
+          <div className="flex items-start justify-between gap-0.5 sm:gap-2 mb-1 sm:mb-5">
             {/* Avatar & Name */}
             <div className="flex items-center gap-1 sm:gap-3 min-w-0">
               <motion.div
@@ -216,7 +216,7 @@ const UserModelCard = () => {
           </div>
 
           {/* Win Rate Section */}
-          <div className="mb-1.5 sm:mb-5">
+          <div className="mb-1 sm:mb-5">
             <div className="flex items-center justify-between mb-0.5 sm:mb-2">
               <span className="text-[6px] sm:text-xs text-amber-200/60 uppercase tracking-wider font-medium truncate">
                 {t("win_rate")}
@@ -243,7 +243,7 @@ const UserModelCard = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1.5 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-amber-900/20 border border-amber-500/20">
+          <div className="grid grid-cols-3 gap-0.5 sm:gap-3 mb-1 sm:mb-5 p-1 sm:p-3 rounded sm:rounded-xl bg-amber-900/20 border border-amber-500/20">
             <div className="text-center min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-amber-200/50 uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("correct_short") || t("correct")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-success">
@@ -264,15 +264,17 @@ const UserModelCard = () => {
             </div>
           </div>
 
-          {/* Primary Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full h-6 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
-            onClick={handlePrimaryAction}
-          >
-            {user ? t("my_predictions") : t("login_to_create_model")}
-          </Button>
+          {/* Primary Button - Push to bottom */}
+          <div className="mt-auto pt-1 sm:pt-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full h-5 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black border-0 shadow-lg shadow-amber-500/25"
+              onClick={handlePrimaryAction}
+            >
+              {user ? t("my_predictions") : t("login_to_create_model")}
+            </Button>
+          </div>
         </div>
       </TiltCard>
     </div>
