@@ -135,11 +135,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-full">
-      <div className="w-full max-w-full overflow-x-hidden">
       <Header />
-      <CryptoTicker />
-      </div>
-      <div className="pt-[50px] sm:pt-[70px]">
+      <div className="pt-[50px] sm:pt-[70px] w-full max-w-full overflow-x-hidden">
+        <CryptoTicker />
 
       {/* Welcome Dialog */}
       <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
@@ -310,6 +308,7 @@ const Index = () => {
           />
         </section>
       </div>
+      </div>
 
       {/* Footer - hidden on mobile when bottom nav is shown */}
       {!isMobile && <Footer />}
@@ -319,7 +318,6 @@ const Index = () => {
       
       {/* Mobile Bottom Navigation */}
       {isMobile && <BottomNav />}
-      </div>
     </div>
   );
 };
