@@ -888,6 +888,10 @@ export const es = {
     "cancel": "Cancelar",
     "confirm": "Confirmar",
     
+    // Missing Personal Center keys
+    "player_default_name": "Jugador",
+    "prediction_expert": "Experto en Predicciones",
+    
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>
   }

@@ -444,6 +444,8 @@ export const ru = {
     // My Predictions / Personal Center
     "my_predictions": "Мои Прогнозы",
     "personal_center": "Личный Кабинет",
+    "player_default_name": "Игрок",
+    "prediction_expert": "Эксперт по Прогнозам",
     "level": "Уровень",
     "current_level": "Текущий Уровень",
     "next_level": "Следующий Уровень",
