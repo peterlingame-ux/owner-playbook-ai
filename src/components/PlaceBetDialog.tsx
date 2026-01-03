@@ -684,18 +684,6 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           {/* 下注界面 */}
           {!showMatchSelection && selectedMatch && (
             <>
-              {/* 返回按钮 */}
-              {!match && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleBackToSelection}
-                  className="h-7 px-2 text-xs"
-                >
-                  <ArrowLeft className="h-3 w-3 mr-1" />
-                  返回
-                </Button>
-              )}
 
               {/* 当前选中的比赛 - 球场背景 */}
               <div 
