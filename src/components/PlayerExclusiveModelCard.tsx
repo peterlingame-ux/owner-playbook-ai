@@ -85,6 +85,9 @@ interface PlayerExclusiveModelCardProps {
   // Manual prediction mode
   isManualPrediction?: boolean;
   availableMatches?: any[];
+  // Auto/Manual toggle
+  isAutoPrediction?: boolean;
+  onToggleAutoPrediction?: (value: boolean) => void;
 }
 
 // Common football-related keywords to extract
@@ -220,7 +223,9 @@ const PlayerExclusiveModelCard = ({
   onPrevMatch,
   onNextMatch,
   isManualPrediction = false,
-  availableMatches = []
+  availableMatches = [],
+  isAutoPrediction = true,
+  onToggleAutoPrediction
 }: PlayerExclusiveModelCardProps) => {
   const { t } = useTranslation();
   const { user, userProfile } = useAuth();
@@ -692,17 +697,49 @@ const PlayerExclusiveModelCard = ({
           </div>
         )}
 
-        {/* No Bets Indicator */}
-        {matchEntries.length === 0 && (
-          <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
+        {/* Auto/Manual Toggle - Top Right */}
+        <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
+          {onToggleAutoPrediction ? (
+            <div 
+              className="flex items-center bg-secondary/80 rounded-full p-0.5 backdrop-blur-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleAutoPrediction(true);
+                }}
+                className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all ${
+                  isAutoPrediction 
+                    ? 'bg-background text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground/80'
+                }`}
+              >
+                {t('auto_prediction') || '自动预测'}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleAutoPrediction(false);
+                }}
+                className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium transition-all ${
+                  !isAutoPrediction 
+                    ? 'bg-background text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground/80'
+                }`}
+              >
+                {t('manual_prediction') || '人工预测'}
+              </button>
+            </div>
+          ) : matchEntries.length === 0 ? (
             <Badge 
               variant="outline"
               className="text-[8px] sm:text-[10px] font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-white/10 border-white/20 text-foreground/80 backdrop-blur-sm"
             >
               {t('no_bets')}
             </Badge>
-          </div>
-        )}
+          ) : null}
+        </div>
 
         {/* Content */}
         <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
