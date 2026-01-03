@@ -638,7 +638,7 @@ const PlayerExclusiveModelCard = ({
   return (
     <>
       <TiltCard
-        className={`group rounded-lg sm:rounded-2xl p-2 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className}`}
+        className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className}`}
         onClick={handleNextMatch}
         maxTilt={8}
         scale={1.02}
@@ -705,10 +705,10 @@ const PlayerExclusiveModelCard = ({
         )}
 
         {/* Content */}
-        <div className="relative z-10 space-y-1 sm:space-y-4 overflow-hidden h-full">
+        <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={`player-${matchIndex}`}
+              key={`player-${matchIndex}-${isManualPrediction ? 'manual' : 'auto'}`}
               initial={{ 
                 opacity: 0, 
                 x: slideDirection === 'right' ? 80 : -80 
@@ -725,7 +725,7 @@ const PlayerExclusiveModelCard = ({
                 duration: 0.25, 
                 ease: "easeOut" 
               }}
-              className="space-y-1 sm:space-y-4"
+              className="space-y-1.5 sm:space-y-4"
             >
               {/* AI Model Header */}
               <div className="flex items-center justify-between">
@@ -753,13 +753,13 @@ const PlayerExclusiveModelCard = ({
                       <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                     )}
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[9px] sm:text-sm font-bold tracking-wide uppercase text-slate-200">
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-[8px] sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate max-w-[60px] sm:max-w-none">
                       {displayName}
                     </span>
-                    <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5">
-                      <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5" />
-                      {!isDemo ? (balanceValue || '10,000') : '--'}
+                    <span className="text-[7px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
+                      <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5 shrink-0" />
+                      <span className="truncate">{!isDemo ? (balanceValue || '10,000') : '--'}</span>
                     </span>
                   </div>
                 </div>
@@ -861,18 +861,17 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
               ) : isManualPrediction && !manualBetConfirmed ? (
-                /* Manual Prediction Mode - Show AI Predict Button */
-                <div className="flex flex-col items-center justify-center py-6 sm:py-10 text-center min-h-[100px] sm:min-h-[160px]">
-                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-2 sm:mb-4" />
-                  <p className="text-[9px] sm:text-sm text-muted-foreground/80 font-medium">
+                /* Manual Prediction Mode - Show placeholder matching other cards' no-data state */
+                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden">
+                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
+                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full">
                     {t('manual_prediction_hint') || '选择比赛进行人工预测'}
                   </p>
                   <Button
                     size="sm"
-                    className="h-7 sm:h-9 px-3 sm:px-5 rounded-full bg-white hover:bg-white/90 text-slate-900 font-medium text-[10px] sm:text-sm mt-2 sm:mt-4"
+                    className="h-6 sm:h-8 px-2.5 sm:px-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-foreground font-medium text-[8px] sm:text-xs backdrop-blur-sm transition-all duration-300 mt-1.5 sm:mt-3"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Allow demo users to view the dialog
                       setShowManualBetDialog(true);
                     }}
                   >
