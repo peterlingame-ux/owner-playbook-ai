@@ -1319,8 +1319,8 @@ const MobileLeaderboardOKX = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Challenge AI Banner - Compact on mobile */}
-      <div className="w-full overflow-hidden">
+      {/* Challenge AI Banner - Compact on mobile with proper spacing */}
+      <div className="w-full px-2 pt-2">
         <ChallengeAIBanner />
       </div>
 
