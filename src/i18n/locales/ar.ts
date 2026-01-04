@@ -641,7 +641,7 @@ export const ar = {
       "online": "متصل",
       "get_it_on": "تحميل من",
       "google_play": "Google Play",
-      "available_on": "متوفر على",
+      "available_on": "حمّل الآن",
       "app_store": "App Store"
     },
     

@@ -880,7 +880,7 @@ export const es = {
       "online": "en línea",
       "get_it_on": "DESCARGAR EN",
       "google_play": "Google Play",
-      "available_on": "Disponible en",
+      "available_on": "Descargar ahora",
       "app_store": "App Store"
     },
     

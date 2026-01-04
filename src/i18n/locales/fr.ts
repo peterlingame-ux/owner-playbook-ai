@@ -639,7 +639,7 @@ export const fr = {
       "online": "en ligne",
       "get_it_on": "TÉLÉCHARGER SUR",
       "google_play": "Google Play",
-      "available_on": "Disponible sur",
+      "available_on": "Télécharger",
       "app_store": "App Store"
     },
     

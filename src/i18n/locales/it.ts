@@ -617,7 +617,7 @@ export const it = {
       "online": "online",
       "get_it_on": "SCARICA SU",
       "google_play": "Google Play",
-      "available_on": "Disponibile su",
+      "available_on": "Scarica ora",
       "app_store": "App Store"
     },
     

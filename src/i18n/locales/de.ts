@@ -640,7 +640,7 @@ export const de = {
       "online": "online",
       "get_it_on": "JETZT BEI",
       "google_play": "Google Play",
-      "available_on": "Erhältlich im",
+      "available_on": "Jetzt laden",
       "app_store": "App Store"
     },
     

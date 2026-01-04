@@ -641,7 +641,7 @@ export const hi = {
       "online": "ऑनलाइन",
       "get_it_on": "डाउनलोड करें",
       "google_play": "Google Play",
-      "available_on": "उपलब्ध है",
+      "available_on": "अभी डाउनलोड करें",
       "app_store": "App Store"
     },
     
