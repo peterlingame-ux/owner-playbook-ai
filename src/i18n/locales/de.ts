@@ -160,6 +160,22 @@ export const de = {
     "legend_pass": "Pass/Lauflinien",
     "total_predictions": "Gesamte Vorhersagen",
     
+    // Match Center
+    "loading_matches": "Spiele werden geladen...",
+    "no_matches": "Keine Spiele verfügbar",
+    "retry": "Erneut versuchen",
+    "soon": "Bald",
+    "match_tab_all": "Alle",
+    "match_tab_live": "Live",
+    "match_tab_upcoming": "Kommend",
+    "match_tab_finished": "Ergebnisse",
+    "match_tab_favorites": "Favoriten",
+    
+    // Prize
+    "prize_share": "Preisanteil",
+    "estimated": "Geschätzt",
+    "reach_qualification_for_prize": "Qualifizieren Sie sich für den Preis",
+    
     // AI Chat
     "ai_assistant": "HUNSOCCER ROBOTER",
     "ai_assistant_subtitle": "5 KI Umfassende Analyse",
@@ -590,6 +606,29 @@ export const de = {
     "star_cards_earned": "{{count}} Karten verdient",
     "total_invited": "{{count}} eingeladen",
     
+    // VIP Dialog
+    "open_vip": "VIP-Mitglied Aktivieren",
+    "vip_unlock_privileges": "Exklusive Vorteile freischalten und VIP-Erlebnis genießen",
+    "vip_enjoy_privileges": "Exklusive Vorteile genießen",
+    "vip_active": "VIP Aktiv",
+    "vip_privilege_avatar": "Benutzerdefinierter Avatar",
+    "vip_privilege_avatar_desc": "Laden Sie Ihren eigenen Avatar hoch und ändern Sie ihn",
+    "vip_privilege_matches": "Kostenloser Spielzugang",
+    "vip_privilege_matches_desc": "Kostenloser Zugang zu allen Spieldaten und Analysen",
+    "vip_privilege_entrance": "Spezieller Eingangseffekt",
+    "vip_privilege_entrance_desc": "Cooler Effekt beim Betreten des Spielchats",
+    "vip_privilege_glow": "Leuchtender Name",
+    "vip_privilege_glow_desc": "Ihr Name leuchtet in der Rangliste",
+    "vip_privilege_dm": "Private Nachrichten",
+    "vip_privilege_dm_desc": "Privat mit anderen Spielern chatten",
+    "vip_price": "Aktivierungspreis",
+    "open_vip_now": "Jetzt VIP Aktivieren",
+    "vip_purchase_success": "VIP Erfolgreich Aktiviert!",
+    "vip_purchase_failed": "Aktivierung Fehlgeschlagen",
+    "vip_status_active": "VIP-Mitglied Aktiv",
+    "enjoy_all_privileges": "Genießen Sie alle exklusiven Vorteile",
+    "please_login": "Bitte zuerst anmelden",
+    
     "platform_disclaimer": "Haftungsausschluss",
     "platform_disclaimer_content": "HUNSOCCER dient nur zur Demonstration von KI-Analysen und bietet keine Wettdienste an.",
     "disclaimer_text": "Alle HUNSOCCER-Inhalte sind simulierte Analyseergebnisse, nur für KI-Forschung.",
@@ -601,7 +640,7 @@ export const de = {
       "online": "online",
       "get_it_on": "JETZT BEI",
       "google_play": "Google Play",
-      "available_on": "Erhältlich im",
+      "available_on": "Jetzt laden",
       "app_store": "App Store"
     },
     

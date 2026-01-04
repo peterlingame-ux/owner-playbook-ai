@@ -1318,20 +1318,20 @@ const MobileLeaderboardOKX = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Challenge AI Banner - Auto fit screen - Sticky below header */}
-      <div className="sticky top-[69px] sm:top-[70px] z-40 w-full overflow-hidden">
+    <div className="min-h-screen bg-background pb-24">
+      {/* Challenge AI Banner - Compact on mobile with proper spacing */}
+      <div className="w-full px-2 pt-2">
         <ChallengeAIBanner />
       </div>
 
-      {/* Main Tabs - OKX Style - Positioned below banner (header ~69px + banner ~180px) */}
-      <div className="sticky top-[249px] sm:top-[290px] z-30 bg-background border-b border-border/30">
-        <div className="flex items-center gap-2 px-3 pt-2 overflow-x-auto scrollbar-hide">
+      {/* Main Tabs - OKX Style */}
+      <div className="sticky top-[50px] z-30 bg-background border-b border-border/30">
+        <div className="flex items-center gap-2 px-3 pt-1.5 overflow-x-auto scrollbar-hide">
           {mainTabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setMainTab(tab.value as MainTab)}
-              className={`relative py-3 text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+              className={`relative py-2 text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 mainTab === tab.value
                   ? 'text-foreground'
                   : 'text-muted-foreground'
@@ -1349,9 +1349,9 @@ const MobileLeaderboardOKX = () => {
         </div>
       </div>
 
-      {/* Sub Tabs - Show for all tabs - Positioned below main tabs (main tab ~52px height) */}
-      <div className="sticky top-[301px] sm:top-[342px] z-20 bg-background">
-        <div className="flex items-center gap-2 px-3 py-2 overflow-x-auto scrollbar-hide">
+      {/* Sub Tabs - Show for all tabs */}
+      <div className="sticky top-[90px] z-20 bg-background">
+        <div className="flex items-center gap-2 px-3 py-1.5 overflow-x-auto scrollbar-hide">
           {subTabs.map((tab) => (
             <button
               key={tab.value}
@@ -1366,7 +1366,7 @@ const MobileLeaderboardOKX = () => {
               {subTab === tab.value && (
                 <motion.div
                   layoutId="subTabIndicator"
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-foreground rounded-full"
+                  className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-foreground rounded-full"
                 />
               )}
             </button>
@@ -1376,14 +1376,14 @@ const MobileLeaderboardOKX = () => {
 
       {/* Time Filter & All Predictors - For accuracy and copyTrade tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border/20 gap-2">
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/20 gap-2">
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink">
             <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
               {timeFilters.map((filter) => (
                 <button
                   key={filter.value}
                   onClick={() => setTimeFilter(filter.value as TimeFilter)}
-                  className={`px-2 py-1 text-[10px] font-medium rounded-md transition-all ${
+                  className={`px-2 py-0.5 text-[10px] font-medium rounded-md transition-all ${
                     timeFilter === filter.value
                       ? 'bg-primary text-primary-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -1398,7 +1398,7 @@ const MobileLeaderboardOKX = () => {
             </span>
           </div>
           <button 
-            className="px-2 py-1 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
+            className="px-2 py-0.5 text-[10px] font-medium bg-muted/50 hover:bg-muted rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
             onClick={() => setShowAllPredictors(true)}
           >
             <Users className="h-3 w-3" />
@@ -1409,7 +1409,7 @@ const MobileLeaderboardOKX = () => {
       )}
 
       {/* Content Area */}
-      <div className="px-4 py-2 space-y-3 pb-20">
+      <div className="px-3 py-1.5 space-y-2 pb-24">
         <AnimatePresence mode="wait">
           {isLoading && mainTab !== 'ai' ? (
             <motion.div

@@ -1,4 +1,5 @@
 import { useCountAnimation } from "@/hooks/useCountAnimation";
+import { useTranslation } from "react-i18next";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 
 interface AnimatedAmountProps {
@@ -20,6 +21,7 @@ export const AnimatedAmount = ({
   showIcon = true,
   iconSize = "w-4 h-4"
 }: AnimatedAmountProps) => {
+  const { t } = useTranslation();
   const animatedValue = useCountAnimation(Math.abs(value), {
     duration,
     startValue: 0
@@ -29,7 +31,7 @@ export const AnimatedAmount = ({
     <span className={`inline-flex items-center gap-1 ${className || ''}`}>
       {prefix}{Math.round(animatedValue).toLocaleString()}
       {showIcon ? (
-        <img src={hunterCoinIcon} alt="猎人币" className={iconSize} />
+        <img src={hunterCoinIcon} alt={t('hunter_coins_unit')} className={iconSize} />
       ) : (
         ' PTS'
       )}

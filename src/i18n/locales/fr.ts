@@ -160,6 +160,22 @@ export const fr = {
     "legend_pass": "Lignes de Passe/Course",
     "total_predictions": "Prédictions Totales",
     
+    // Match Center
+    "loading_matches": "Chargement des matchs...",
+    "no_matches": "Aucun match disponible",
+    "retry": "Réessayer",
+    "soon": "Bientôt",
+    "match_tab_all": "Tous",
+    "match_tab_live": "En Direct",
+    "match_tab_upcoming": "À Venir",
+    "match_tab_finished": "Résultats",
+    "match_tab_favorites": "Favoris",
+    
+    // Prize
+    "prize_share": "Part du Prix",
+    "estimated": "Estimé",
+    "reach_qualification_for_prize": "Qualifiez-vous pour le prix",
+    
     // AI Chat
     "ai_assistant": "ROBOT HUNSOCCER",
     "ai_assistant_subtitle": "5 IA Analyse Complète, Améliorez votre Taux",
@@ -623,7 +639,7 @@ export const fr = {
       "online": "en ligne",
       "get_it_on": "TÉLÉCHARGER SUR",
       "google_play": "Google Play",
-      "available_on": "Disponible sur",
+      "available_on": "Télécharger",
       "app_store": "App Store"
     },
     
@@ -633,6 +649,10 @@ export const fr = {
     "follow_player_title": "Suivre le Joueur",
     "follow_player_confirm": "Êtes-vous sûr de vouloir suivre {{name}} ?",
     "follow_success": "Vous suivez maintenant {{name}}",
+    
+    // Personal Center keys
+    "player_default_name": "Joueur",
+    "prediction_expert": "Expert en Prédictions",
     "auto_prediction": "Auto",
     "manual_prediction": "Manuel",
     "potential_win": "Gain potentiel",
@@ -643,7 +663,63 @@ export const fr = {
     "over": "Plus",
     "under": "Moins",
     "bet_amount": "Montant du pari",
-    "bet_success": "Prédiction soumise avec succès",
+    // Wallets
+    "wallets": "Portefeuilles",
+    "virtual_balance": "Solde Virtuel",
+    "view_arrow": "Voir →",
+    "prediction_history_title": "Historique des Prédictions",
+    "no_predictions_yet": "Pas encore de prédictions",
+    "won_status": "Gagné",
+    "lost_status": "Perdu",
+    "subscriptions": "Abonnements",
+    
+    // Stats
+    "top_percent_players": "Top {{percent}}% des joueurs",
+    "total_bets_label": "Total des Paris",
+    "wins_label": "Victoires",
+    "pnl_label": "G/P",
+    "roi_label": "ROI",
+    "betting_summary": "Résumé des Paris",
+    "win_statistics": "Statistiques de Victoire",
+    "wins_total_ratio": "Victoires / Total",
+    "pnl_details": "Détails Gains et Pertes",
+    "starting_balance": "Solde Initial",
+    "current_balance_label": "Solde Actuel",
+    "total_pnl": "G/P Total",
+    "roi_details": "Retour sur Investissement",
+    "initial_investment": "Investissement Initial",
+    "profit_loss_label_detail": "Gain/Perte",
+    "roi_formula": "ROI = (Gain / Investissement) × 100",
+    
+    // Referral
+    "referral_code": "Code de Parrainage",
+    "invited_label": "Invités",
+    "referral_bonus_text": "Invitez 5 amis et obtenez 1 mois de VIP gratuit",
+    "start_predicting": "Commencer à Prédire",
+    "upgrade_to_vip": "Passer au VIP",
+    "vip_feature_free_access": "Accès Gratuit à Tous les Matchs",
+    "vip_feature_free_access_desc": "Consultez toutes les prédictions et analyses gratuitement",
+    "vip_feature_ai_reports": "Rapports IA Exclusifs",
+    "vip_feature_ai_reports_desc": "Obtenez des analyses de matchs détaillées par l'IA",
+    "vip_feature_alerts": "Alertes des Top Prédicteurs",
+    "vip_feature_alerts_desc": "Notifications prioritaires des meilleurs",
+    "vip_feature_badge": "Badge VIP",
+    "vip_feature_badge_desc": "Démarquez-vous avec un badge exclusif",
+    "thirty_day_vip": "VIP 30 Jours",
+    "coins_unit": "Pièces",
+    "your_balance": "Votre Solde",
+    "confirm_upgrade": "Confirmer la Mise à Niveau",
+    "invited_users": "Utilisateurs Invités",
+    "no_invited_users_yet": "Pas encore d'utilisateurs invités",
+    "joined_date": "Inscrit le",
+    
+    // Additional keys
+    "invitation_code_tab": "Code d'Invitation",
+    "history_records": "Historique",
+    "your_invitation_code": "Votre Code d'Invitation",
+    "invited_count": "Invités",
+    "to_next_level": "jusqu'au prochain niveau",
+    "max_level": "MAX",
     
     "teams": {} as Record<string, string>,
     "leagues": {} as Record<string, string>

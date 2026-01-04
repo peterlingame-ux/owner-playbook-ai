@@ -134,63 +134,65 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-4 flex-wrap">
+      <DialogContent className="w-[95vw] max-w-4xl max-h-[85vh] overflow-y-auto p-3 sm:p-6">
+        <DialogHeader className="pb-2 sm:pb-4">
+          <DialogTitle className="text-base sm:text-2xl flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <span>{t("AI今日推荐比赛")}</span>
-            {userBalance && (
-              <Badge className="text-base px-4 py-1" variant="default">
-                <Coins className="h-4 w-4 mr-2" />
-                {t("余额")}: {userBalance.balance.toFixed(2)}
-              </Badge>
-            )}
-            {winRate !== null && (
-              <Badge className="text-base px-4 py-1" variant="secondary">
-                {t("我的胜率")}: {winRate}%
-              </Badge>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              {userBalance && (
+                <Badge className="text-xs sm:text-base px-2 sm:px-4 py-0.5 sm:py-1" variant="default">
+                  <Coins className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  {t("余额")}: {userBalance.balance.toFixed(2)}
+                </Badge>
+              )}
+              {winRate !== null && (
+                <Badge className="text-xs sm:text-base px-2 sm:px-4 py-0.5 sm:py-1" variant="secondary">
+                  {t("我的胜率")}: {winRate}%
+                </Badge>
+              )}
+            </div>
           </DialogTitle>
         </DialogHeader>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin" />
+          <div className="flex items-center justify-center py-8 sm:py-12">
+            <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin" />
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {matches.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
+              <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm sm:text-base">
                 {t("今日暂无推荐比赛")}
               </p>
             ) : (
               <>
-                <div className="grid gap-3">
+                <div className="grid gap-2 sm:gap-3">
                   {matches.map((match) => (
                     <Card
                       key={match.id}
-                      className={`p-4 cursor-pointer transition-all hover:border-primary ${
+                      className={`p-2.5 sm:p-4 cursor-pointer transition-all hover:border-primary ${
                         selectedMatch?.id === match.id ? "border-primary bg-primary/5" : ""
                       }`}
                       onClick={() => setSelectedMatch(match)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-4">
-                            <div className="text-right flex-1">
-                              <p className="font-medium">
+                          <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="text-right flex-1 min-w-0">
+                              <p className="font-medium text-xs sm:text-base truncate">
                                 {i18n.language === 'zh' ? match.homeTeamZh || match.homeTeam : match.homeTeam}
                               </p>
                             </div>
-                            <div className="text-center px-4">
-                              <Badge variant="outline">VS</Badge>
+                            <div className="text-center px-2 sm:px-4 shrink-0">
+                              <Badge variant="outline" className="text-[10px] sm:text-sm px-1.5 sm:px-2.5">VS</Badge>
                             </div>
-                            <div className="text-left flex-1">
-                              <p className="font-medium">
+                            <div className="text-left flex-1 min-w-0">
+                              <p className="font-medium text-xs sm:text-base truncate">
                                 {i18n.language === 'zh' ? match.awayTeamZh || match.awayTeam : match.awayTeam}
                               </p>
                             </div>
                           </div>
-                          <div className="text-center text-sm text-muted-foreground mt-2">
+                          <div className="text-center text-[10px] sm:text-sm text-muted-foreground mt-1.5 sm:mt-2">
                             {match.date} {match.time}
                           </div>
                         </div>
@@ -200,8 +202,8 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                 </div>
 
                 {selectedMatch && (
-                  <Card className="p-6 mt-6 bg-secondary/20">
-                    <h3 className="font-semibold mb-4">{t("选择预测类型")}</h3>
+                  <Card className="p-3 sm:p-6 mt-3 sm:mt-6 bg-secondary/20">
+                    <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("选择预测类型")}</h3>
                     
                     <RadioGroup value={predictionType} onValueChange={(v) => {
                       setPredictionType(v as any);
@@ -209,22 +211,22 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                     }}>
                       <div className="flex items-center space-x-2 mb-2">
                         <RadioGroupItem value="handicap" id="handicap" />
-                        <Label htmlFor="handicap">{t("让球")}</Label>
+                        <Label htmlFor="handicap" className="text-sm sm:text-base">{t("让球")}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="over_under" id="over_under" />
-                        <Label htmlFor="over_under">{t("大小球")}</Label>
+                        <Label htmlFor="over_under" className="text-sm sm:text-base">{t("大小球")}</Label>
                       </div>
                     </RadioGroup>
 
-                    <div className="mt-4">
-                      <h4 className="font-medium mb-3">{t("选择预测结果")}</h4>
+                    <div className="mt-3 sm:mt-4">
+                      <h4 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">{t("选择预测结果")}</h4>
                       <RadioGroup value={prediction} onValueChange={setPrediction}>
                         {predictionType === "handicap" && (
                           <>
                             <div className="flex items-center space-x-2 mb-2">
                               <RadioGroupItem value="HOME_COVER" id="home_cover" />
-                              <Label htmlFor="home_cover">
+                              <Label htmlFor="home_cover" className="text-xs sm:text-base">
                                 {i18n.language === 'zh' 
                                   ? selectedMatch.homeTeamZh || selectedMatch.homeTeam 
                                   : selectedMatch.homeTeam} {t("让分成功")}
@@ -232,7 +234,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="AWAY_COVER" id="away_cover" />
-                              <Label htmlFor="away_cover">
+                              <Label htmlFor="away_cover" className="text-xs sm:text-base">
                                 {i18n.language === 'zh' 
                                   ? selectedMatch.awayTeamZh || selectedMatch.awayTeam 
                                   : selectedMatch.awayTeam} {t("让分成功")}
@@ -244,30 +246,29 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                           <>
                             <div className="flex items-center space-x-2 mb-2">
                               <RadioGroupItem value="OVER" id="over" />
-                              <Label htmlFor="over">{t("大球 (总进球数多)")}</Label>
+                              <Label htmlFor="over" className="text-xs sm:text-base">{t("大球 (总进球数多)")}</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="UNDER" id="under" />
-                              <Label htmlFor="under">{t("小球 (总进球数少)")}</Label>
+                              <Label htmlFor="under" className="text-xs sm:text-base">{t("小球 (总进球数少)")}</Label>
                             </div>
                           </>
                         )}
                       </RadioGroup>
                     </div>
 
-                    <div className="mt-6 space-y-4">
+                    <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                       <div>
-                        <Label className="text-base font-semibold mb-3 block">{t("下注金额")}</Label>
-                        <div className="flex items-center gap-4">
+                        <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">{t("下注金额")}</Label>
+                        <div className="flex items-center gap-2 sm:gap-4">
                           <Input
                             type="number"
                             value={betAmount}
                             onChange={(e) => setBetAmount(Math.max(0, parseFloat(e.target.value) || 0))}
                             min={0}
-                            max={userBalance?.balance || 10000}
-                            className="text-lg font-medium"
+                            className="text-base sm:text-lg font-medium flex-1"
                           />
-                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                          <span className="text-[10px] sm:text-sm text-muted-foreground whitespace-nowrap shrink-0">
                             {t("最大")}: {userBalance?.balance.toFixed(2) || 0}
                           </span>
                         </div>
@@ -276,16 +277,16 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                           onValueChange={(value) => setBetAmount(value[0])}
                           max={userBalance?.balance || 10000}
                           step={50}
-                          className="mt-4"
+                          className="mt-3 sm:mt-4"
                         />
-                        <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                        <div className="flex justify-between mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-muted-foreground">
                           <span>0</span>
                           <span>{((userBalance?.balance || 10000) / 2).toFixed(0)}</span>
                           <span>{userBalance?.balance.toFixed(0) || 10000}</span>
                         </div>
-                        <div className="mt-3 p-3 bg-primary/10 rounded-lg">
-                          <p className="text-sm">
-                            {t("预计赔付")}: <span className="font-bold text-lg text-primary">{(betAmount * 2).toFixed(2)}</span>
+                        <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-primary/10 rounded-lg">
+                          <p className="text-xs sm:text-sm">
+                            {t("预计赔付")}: <span className="font-bold text-base sm:text-lg text-primary">{(betAmount * 2).toFixed(2)}</span>
                           </p>
                         </div>
                       </div>
@@ -293,12 +294,12 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
 
                     <Button 
                       onClick={handleSubmitPrediction} 
-                      className="w-full mt-6 text-lg h-12"
+                      className="w-full mt-4 sm:mt-6 text-sm sm:text-lg h-10 sm:h-12"
                       disabled={!prediction || submitting || betAmount <= 0}
                     >
                       {submitting ? (
                         <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-spin" />
                           {t("提交中...")}
                         </>
                       ) : (

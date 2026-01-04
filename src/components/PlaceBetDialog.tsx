@@ -151,7 +151,7 @@ interface PlaceBetDialogProps {
 
 export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: PlaceBetDialogProps) => {
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   // 获取中文球队名
   const getTeamNameZh = (teamName: string): string => {
@@ -496,15 +496,15 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       }
       onOpenChange(isOpen);
     }}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto p-4">
+      <DialogContent className="w-[95vw] max-w-md max-h-[90vh] overflow-y-auto p-3 sm:p-4">
         {/* 成功动画覆盖层 */}
         {showSuccess && successData && (
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 animate-fade-in">
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-3 sm:gap-4">
               {/* 成功图标 */}
               <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
-                  <CheckCircle className="w-10 h-10 text-primary" strokeWidth={2} />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
+                  <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-primary" strokeWidth={2} />
                 </div>
                 {/* 扩散圆环 */}
                 <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
@@ -512,12 +512,12 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
               
               {/* 文字 */}
               <div className="text-center space-y-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <p className="text-lg font-bold">投注成功</p>
-                <p className="text-sm text-muted-foreground">
-                  投注 <span className="font-mono font-medium text-foreground">${successData.amount}</span>
+                <p className="text-base sm:text-lg font-bold">{t('bet_success_title')}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {t('bet_placed')} <span className="font-mono font-medium text-foreground">${successData.amount}</span>
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  预期返还 <span className="font-mono font-medium text-primary">${successData.payout.toFixed(2)}</span>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  {t('expected_return')} <span className="font-mono font-medium text-primary">${successData.payout.toFixed(2)}</span>
                 </p>
               </div>
             </div>
@@ -525,49 +525,49 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
         )}
         
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg font-bold">
-            {showMatchSelection ? "选择比赛" : "下注"}
+          <DialogTitle className="text-base sm:text-lg font-bold">
+            {showMatchSelection ? t('select_match_title') : t('place_bet_title')}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {/* 余额显示 */}
-          <div className="flex items-center justify-between py-2 px-3 bg-muted/50 rounded-lg">
-            <span className="text-xs text-muted-foreground">虚拟钱包余额</span>
-            <span className="text-lg font-bold font-mono">${userBalance.toFixed(0)}</span>
+          <div className="flex items-center justify-between py-1.5 sm:py-2 px-2.5 sm:px-3 bg-muted/50 rounded-lg">
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{t('virtual_wallet_balance')}</span>
+            <span className="text-base sm:text-lg font-bold font-mono">${userBalance.toFixed(0)}</span>
           </div>
 
           {/* 比赛选择列表 */}
           {showMatchSelection && (
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">挑战AI</span>
-                  <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 bg-muted rounded">
-                    {format(new Date(), 'MM月dd日')}
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-xs sm:text-sm font-medium">{t('challenge_ai')}</span>
+                  <span className="text-[9px] sm:text-[10px] text-muted-foreground px-1 sm:px-1.5 py-0.5 bg-muted rounded">
+                    {format(new Date(), i18n.language === 'zh' ? 'MM月dd日' : 'MMM dd')}
                   </span>
                 </div>
                 {isDemo && (
-                  <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">
-                    演示
+                  <Badge variant="outline" className="text-[9px] sm:text-[10px] text-amber-500 border-amber-500/30">
+                    {t('demo_mode')}
                   </Badge>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">
-                以下为今日AI预测比赛，每日更新
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">
+                {t('ai_predictions_today')}
               </p>
               
               {isLoadingMatches ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <div className="flex items-center justify-center py-6 sm:py-8">
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-primary" />
                 </div>
               ) : aiMatches.length === 0 ? (
-                <div className="py-6 text-center text-sm text-muted-foreground">
+                <div className="py-4 sm:py-6 text-center text-xs sm:text-sm text-muted-foreground">
                   暂无比赛
                 </div>
               ) : (
-                <ScrollArea className="h-[320px]">
-                  <div className="space-y-1.5 pr-2">
+                <ScrollArea className="h-[280px] sm:h-[320px]">
+                  <div className="space-y-1 sm:space-y-1.5 pr-2">
                     {aiMatches.map((m) => {
                       const kickoffTimestamp = new Date(m.kickoff_at).getTime();
                       const now = Date.now();
@@ -595,32 +595,32 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       return (
                         <div 
                           key={m.fixture_id}
-                          className="p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                          className="p-2 sm:p-2.5 rounded-lg border border-border cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
                           onClick={() => handleSelectMatch(m)}
                         >
                           {/* 联赛和时间 */}
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] text-muted-foreground">{getLeagueNameZh(m.league_name)}</span>
-                            <span className={`text-[10px] font-mono ${isStarted ? 'text-amber-500' : 'text-muted-foreground'}`}>
-                              {isStarted ? '已开赛' : kickoffTime}
+                          <div className="flex items-center justify-between mb-1 sm:mb-1.5">
+                            <span className="text-[9px] sm:text-[10px] text-muted-foreground truncate max-w-[45%]">{getLeagueNameZh(m.league_name)}</span>
+                            <span className={`text-[9px] sm:text-[10px] font-mono ${isStarted ? 'text-amber-500' : 'text-muted-foreground'}`}>
+                              {isStarted ? t('match_started') : kickoffTime}
                             </span>
                           </div>
                           
                           {/* 球队对阵 */}
-                          <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center justify-between gap-1 sm:gap-2">
                             {/* 主队 */}
-                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0">
                               {m.home_logo && (
-                                <img src={m.home_logo} alt="" className="w-5 h-5 object-contain shrink-0" />
+                                <img src={m.home_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                               )}
-                              <span className="text-xs font-medium truncate">{getTeamNameZh(m.home_team_name)}</span>
+                              <span className="text-[10px] sm:text-xs font-medium truncate">{getTeamNameZh(m.home_team_name)}</span>
                             </div>
                             
                             {/* VS - 包含AI图标在下方 */}
-                            <div className="flex flex-col items-center justify-center gap-1 shrink-0">
-                              <span className="text-[10px] text-muted-foreground px-2">vs</span>
+                            <div className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 shrink-0 px-1 sm:px-2">
+                              <span className="text-[9px] sm:text-[10px] text-muted-foreground">vs</span>
                               {!isStarted && (
-                                <span className="text-[9px] text-muted-foreground">{countdown}</span>
+                                <span className="text-[8px] sm:text-[9px] text-muted-foreground whitespace-nowrap">{countdown}</span>
                               )}
                               {/* AI图标 - 居中显示在VS下方 */}
                               <div className="flex items-center justify-center gap-0.5 mt-0.5">
@@ -656,7 +656,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                                       key={idx}
                                       src={getAIIcon(model)} 
                                       alt={model}
-                                      className="w-3.5 h-3.5 rounded-full object-cover border border-border/30"
+                                      className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full object-cover border border-border/30"
                                       title={model}
                                     />
                                   );
@@ -665,10 +665,10 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                             </div>
                             
                             {/* 客队 */}
-                            <div className="flex items-center justify-end gap-1.5 flex-1 min-w-0">
-                              <span className="text-xs font-medium truncate text-right">{getTeamNameZh(m.away_team_name)}</span>
+                            <div className="flex items-center justify-end gap-1 sm:gap-1.5 flex-1 min-w-0">
+                              <span className="text-[10px] sm:text-xs font-medium truncate text-right">{getTeamNameZh(m.away_team_name)}</span>
                               {m.away_logo && (
-                                <img src={m.away_logo} alt="" className="w-5 h-5 object-contain shrink-0" />
+                                <img src={m.away_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                               )}
                             </div>
                           </div>
@@ -684,18 +684,6 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
           {/* 下注界面 */}
           {!showMatchSelection && selectedMatch && (
             <>
-              {/* 返回按钮 */}
-              {!match && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleBackToSelection}
-                  className="h-7 px-2 text-xs"
-                >
-                  <ArrowLeft className="h-3 w-3 mr-1" />
-                  返回
-                </Button>
-              )}
 
               {/* 当前选中的比赛 - 球场背景 */}
               <div 
@@ -707,22 +695,22 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 }}
               >
                 <div className="absolute inset-0 bg-black/40" />
-                <div className="relative p-4">
+                <div className="relative p-2.5 sm:p-4">
                   {/* 联赛信息 */}
-                  <div className="text-center mb-3">
-                    <span className="text-[10px] text-white/70 bg-black/30 px-2 py-0.5 rounded">
+                  <div className="text-center mb-2 sm:mb-3">
+                    <span className="text-[9px] sm:text-[10px] text-white/70 bg-black/30 px-1.5 sm:px-2 py-0.5 rounded">
                       {getLeagueNameZh(selectedMatch.league_name)}
                     </span>
                   </div>
                   
                   {/* 球队对阵 */}
-                  <div className="flex items-center justify-between gap-6 px-4">
+                  <div className="flex items-center justify-between gap-2 sm:gap-6 px-1 sm:px-4">
                     {/* 主队 */}
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
                       {selectedMatch.home_logo && (
-                        <img src={selectedMatch.home_logo} alt="" className="w-12 h-12 object-contain" />
+                        <img src={selectedMatch.home_logo} alt="" className="w-8 h-8 sm:w-12 sm:h-12 object-contain" />
                       )}
-                      <span className="text-white font-medium text-sm">{getTeamNameZh(selectedMatch.home_team_name)}</span>
+                      <span className="text-white font-medium text-[10px] sm:text-sm truncate max-w-full text-center">{getTeamNameZh(selectedMatch.home_team_name)}</span>
                     </div>
                     
                     {/* VS 和倒计时 */}
@@ -743,11 +731,11 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         
                         if (hours > 24) {
                           const days = Math.floor(hours / 24);
-                          return <span className="text-white/70 text-xs">{days}天后开赛</span>;
+                          return <span className="text-white/70 text-[10px] sm:text-xs">{days}天后开赛</span>;
                         }
                         
                         return (
-                          <span className={`text-xs font-mono ${isUrgent ? 'text-destructive animate-pulse font-bold' : 'text-primary'}`}>
+                          <span className={`text-[10px] sm:text-xs font-mono ${isUrgent ? 'text-destructive animate-pulse font-bold' : 'text-primary'}`}>
                             {hours > 0 
                               ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
                               : `${minutes}:${seconds.toString().padStart(2, '0')}`
@@ -755,48 +743,48 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                           </span>
                         );
                       })()}
-                      <div className="text-white font-bold text-lg">VS</div>
+                      <div className="text-white font-bold text-sm sm:text-lg">VS</div>
                     </div>
                     
                     {/* 客队 */}
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex flex-col items-center gap-0.5 sm:gap-1 flex-1 min-w-0">
                       {selectedMatch.away_logo && (
-                        <img src={selectedMatch.away_logo} alt="" className="w-12 h-12 object-contain" />
+                        <img src={selectedMatch.away_logo} alt="" className="w-8 h-8 sm:w-12 sm:h-12 object-contain" />
                       )}
-                      <span className="text-white font-medium text-sm">{getTeamNameZh(selectedMatch.away_team_name)}</span>
+                      <span className="text-white font-medium text-[10px] sm:text-sm truncate max-w-full text-center">{getTeamNameZh(selectedMatch.away_team_name)}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* 盘口市场选择 */}
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {/* 市场标签 */}
                 <div className="flex border-b border-border">
                   <button
                     onClick={() => setSelectedBetType("handicap")}
-                    className={`px-4 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition-colors border-b-2 -mb-px ${
                       selectedBetType === "handicap"
                         ? 'border-foreground text-foreground'
                         : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    让球
+                    {t('handicap_bet')}
                   </button>
                   <button
                     onClick={() => setSelectedBetType("over_under")}
-                    className={`px-4 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition-colors border-b-2 -mb-px ${
                       selectedBetType === "over_under"
                         ? 'border-foreground text-foreground'
                         : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    大小球
+                    {t('over_under_bet')}
                   </button>
                 </div>
 
                 {/* 盘口选项 */}
-                <div className="space-y-1.5">
+                <div className="space-y-1 sm:space-y-1.5">
                   {getBetOptions().map((option) => {
                     const isSelected = selectedBetOption === option.value;
                     
@@ -804,14 +792,14 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       <div
                         key={option.value}
                         onClick={() => setSelectedBetOption(option.value)}
-                        className={`flex items-center justify-between p-3 rounded border cursor-pointer transition-all ${
+                        className={`flex items-center justify-between p-2 sm:p-3 rounded border cursor-pointer transition-all ${
                           isSelected 
                             ? 'border-foreground bg-foreground/5' 
                             : 'border-border hover:border-muted-foreground'
                         }`}
                       >
-                        <span className="text-sm font-medium">{option.label}</span>
-                        <span className={`text-sm font-mono font-bold ${
+                        <span className="text-xs sm:text-sm font-medium">{option.label}</span>
+                        <span className={`text-xs sm:text-sm font-mono font-bold ${
                           isSelected ? 'text-foreground' : 'text-muted-foreground'
                         }`}>
                           @{option.odds.toFixed(2)}
@@ -823,35 +811,33 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
               </div>
 
               {/* 投注面板 - 默认显示 */}
-              <div className="space-y-3 pt-3 border-t border-border">
+              <div className="space-y-2 sm:space-y-3 pt-2 sm:pt-3 border-t border-border">
                 {/* 投注金额 */}
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground">投注金额</Label>
-                    <span className="text-[10px] text-muted-foreground">
-                      余额: <span className="font-mono">${userBalance.toFixed(0)}</span>
+                    <Label className="text-[10px] sm:text-xs text-muted-foreground">{t('bet_amount')}</Label>
+                    <span className="text-[9px] sm:text-[10px] text-muted-foreground">
+                      {t('balance_label')}: <span className="font-mono">${userBalance.toFixed(0)}</span>
                     </span>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                    <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-muted-foreground">$</span>
                     <Input
                       type="number"
                       value={betAmount}
                       onChange={(e) => setBetAmount(e.target.value)}
-                      placeholder="0"
-                      min="1"
-                      max={userBalance}
-                      className="h-10 pl-7 text-right font-mono font-medium"
+                      placeholder={t('enter_amount')}
+                      className="h-9 sm:h-10 pl-6 sm:pl-7 text-right font-mono font-medium text-sm sm:text-base"
                     />
                   </div>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-1 sm:gap-1.5">
                     {[100, 500, 1000, 2000].map((amount) => (
                       <Button
                         key={amount}
                         variant={betAmount === amount.toString() ? "default" : "outline"}
                         size="sm"
                         onClick={() => setBetAmount(amount.toString())}
-                        className="h-7 text-[10px] font-mono"
+                        className="h-6 sm:h-7 text-[9px] sm:text-[10px] font-mono px-1"
                         disabled={amount > userBalance}
                       >
                         {amount}
@@ -861,9 +847,9 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 </div>
 
                 {/* 收益预览 */}
-                <div className="flex items-center justify-between py-2 px-3 rounded bg-muted/50">
-                  <span className="text-xs text-muted-foreground">预期返还</span>
-                  <span className="text-lg font-bold font-mono">
+                <div className="flex items-center justify-between py-1.5 sm:py-2 px-2 sm:px-3 rounded bg-muted/50">
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('expected_return')}</span>
+                  <span className="text-base sm:text-lg font-bold font-mono">
                     {selectedBetOption 
                       ? `$${((parseFloat(betAmount) || 0) * getCurrentOdds()).toFixed(2)}`
                       : "$0.00"
@@ -875,9 +861,9 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 <Button
                   onClick={handlePlaceBet}
                   disabled={isSubmitting || !betAmount || parseFloat(betAmount) <= 0 || !selectedBetOption}
-                  className="w-full h-10 text-sm font-medium"
+                  className="w-full h-9 sm:h-10 text-xs sm:text-sm font-medium"
                 >
-                  {isSubmitting ? "处理中..." : isDemo ? "体验投注" : "确认投注"}
+                  {isSubmitting ? t('processing') : isDemo ? t('try_bet') : t('confirm_bet_btn')}
                 </Button>
               </div>
             </>

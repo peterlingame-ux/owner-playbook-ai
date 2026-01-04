@@ -2,11 +2,10 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, Clock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
@@ -453,6 +452,52 @@ const ActiveAIBets = () => {
   // State for prediction mode toggle (auto vs manual)
   const [isAutoPrediction, setIsAutoPrediction] = useState(true);
 
+  // Lock card height based on auto prediction layout so switching modes doesn't resize the grid
+  const [lockedCardHeight, setLockedCardHeight] = useState<number | null>(null);
+  const cardItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const registerCardRef = useCallback(
+    (key: string) => (el: HTMLDivElement | null) => {
+      cardItemRefs.current[key] = el;
+    },
+    []
+  );
+
+  const measureAndLockCardHeight = useCallback(() => {
+    const els = Object.values(cardItemRefs.current).filter(Boolean) as HTMLDivElement[];
+    if (!els.length) return;
+
+    const max = Math.ceil(Math.max(...els.map((el) => el.getBoundingClientRect().height)));
+    setLockedCardHeight((prev) => (prev ? Math.max(prev, max) : max));
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isAutoPrediction) return;
+
+    const raf1 = requestAnimationFrame(measureAndLockCardHeight);
+    // Re-measure once more after images/fonts have settled
+    const timeout = window.setTimeout(() => {
+      measureAndLockCardHeight();
+    }, 350);
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.clearTimeout(timeout);
+    };
+  }, [
+    isAutoPrediction,
+    measureAndLockCardHeight,
+    matches.length,
+    autoBets.length,
+    Object.keys(aiBalances).length,
+  ]);
+
+  useEffect(() => {
+    if (!isAutoPrediction) return;
+    const onResize = () => measureAndLockCardHeight();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isAutoPrediction, measureAndLockCardHeight]);
   // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
     const fetchData = async (isRefresh = false) => {
@@ -909,31 +954,23 @@ const ActiveAIBets = () => {
       )}
       
       {/* Modern Section Header */}
-      <div className="flex flex-col items-center mb-3 sm:mb-6 lg:mb-8 px-1">
-        <div className="relative max-w-full">
-          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight truncate">
+      <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8 px-1">
+        <div className="relative">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight text-center">
             {t('active_ai_predictions')}
           </h2>
           <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
         </div>
-        
-        {/* Auto/Manual Prediction Toggle */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-3 mt-2 sm:mt-4 bg-secondary/50 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 border border-border w-fit mx-auto">
-          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {t('auto_prediction') || '自动'}
-          </span>
-          <Switch
-            checked={!isAutoPrediction}
-            onCheckedChange={(checked) => setIsAutoPrediction(!checked)}
-            className="h-5 w-9 sm:h-6 sm:w-12 data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary shrink-0"
-          />
-          <span className={`text-[10px] sm:text-sm font-semibold transition-colors whitespace-nowrap ${!isAutoPrediction ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {t('manual_prediction') || '人工'}
-          </span>
-        </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 lg:gap-5 auto-rows-fr">
+      <div
+        className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-1.5 sm:gap-3 lg:gap-5 auto-rows-fr w-full max-w-full overflow-hidden"
+        style={
+          lockedCardHeight
+            ? ({ ["--ai-card-h" as any]: `${lockedCardHeight}px` } as CSSProperties)
+            : undefined
+        }
+      >
         {activeAIs.map((aiModel) => {
           // Find this AI's bets from database, grouped by match
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
@@ -1012,15 +1049,15 @@ const ActiveAIBets = () => {
           const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
 
           return (
-            <TiltCard
-              key={aiModel.id}
-              className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer`}
-              onClick={nextMatch}
-              maxTilt={8}
-              scale={1.02}
-              glare={false}
-              maxGlare={0}
-            >
+            <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
+              <TiltCard
+                className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
+                onClick={nextMatch}
+                maxTilt={8}
+                scale={1.02}
+                glare={false}
+                maxGlare={0}
+              >
               {/* Animated Background Pattern - Hidden on mobile for performance */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none hidden sm:block">
                 <motion.div 
@@ -1081,7 +1118,7 @@ const ActiveAIBets = () => {
                               )}
 
               {/* Content */}
-              <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
+              <div className="relative z-10 space-y-1 sm:space-y-4 overflow-hidden">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -1106,9 +1143,9 @@ const ActiveAIBets = () => {
                     {/* AI Model Header */}
                     <div className="flex items-center justify-between">
                      {/* AI Avatar & Info */}
-                      <div className="flex items-center gap-1 sm:gap-3">
+                      <div className="flex items-center gap-1.5 sm:gap-3">
                         <div className="relative">
-                          <Avatar className="h-6 w-6 sm:h-12 sm:w-12 ring-1 sm:ring-2 ring-white/20 shadow-lg">
+                          <Avatar className="h-7 w-7 sm:h-12 sm:w-12 ring-1 sm:ring-2 ring-white/20 shadow-lg">
                             <AvatarImage 
                               src={AI_ICONS[aiModel.id]} 
                               alt={aiModel.displayName} 
@@ -1118,14 +1155,14 @@ const ActiveAIBets = () => {
                             <AvatarFallback className="text-[8px] sm:text-sm font-bold bg-white/10">{aiModel.name[0]}</AvatarFallback>
                           </Avatar>
                           {/* Online Indicator */}
-                          <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                         </div>
                         <div className="flex flex-col min-w-0 flex-1">
-                          <span className={`text-[8px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent} truncate max-w-[60px] sm:max-w-none`}>
+                          <span className={`text-[9px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent} truncate max-w-[70px] sm:max-w-none`}>
                             {getModelDisplayName(aiModel)}
                           </span>
-                          <span className="text-[7px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
-                            <img src={hunterCoinIcon} alt="猎人币" className="w-2.5 h-2.5 sm:w-5 sm:h-5 shrink-0" />
+                          <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
+                            <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-5 sm:h-5 shrink-0" />
                             <span className="truncate">{balanceNumber}</span>
                           </span>
                         </div>
@@ -1160,31 +1197,31 @@ const ActiveAIBets = () => {
 
                     {/* Match Info */}
                     {currentMatchData ? (
-                      <div className="space-y-1 sm:space-y-3">
+                      <div className="space-y-1.5 sm:space-y-3">
                         {/* League Badge */}
                         <div className="flex items-center justify-center">
-                          <Badge className="text-[6px] sm:text-[11px] py-0 sm:py-1 px-1 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm max-w-full truncate">
+                          <Badge className="text-[7px] sm:text-[11px] py-0.5 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm max-w-full truncate">
                             {getLeagueName(currentMatchData.match)}
                           </Badge>
                         </div>
                       
                         {/* Teams Display */}
-                        <div className="flex items-center justify-between gap-0.5 sm:gap-2 px-0">
+                        <div className="flex items-center justify-between gap-1 sm:gap-2 px-0.5">
                           {/* Home Team */}
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                          <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                             <div className="relative shrink-0">
                               {currentMatchData.match.home_logo ? (
-                                <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
+                                <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                                  <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
+                                  <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
-                                  <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                                  <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[6px] sm:text-xs text-center leading-tight truncate w-full max-w-[45px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'home')}
                             </p>
                           </div>
@@ -1193,20 +1230,20 @@ const ActiveAIBets = () => {
                           <MatchTimeDisplay match={currentMatchData.match} />
                         
                           {/* Away Team */}
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                          <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                             <div className="relative shrink-0">
                               {currentMatchData.match.away_logo ? (
-                                <Avatar className="h-5 w-5 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
+                                <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
                                   <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                                  <AvatarFallback><Shield className="h-2 w-2 sm:h-4 sm:w-4" /></AvatarFallback>
+                                  <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="h-5 w-5 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
-                                  <Shield className="h-2 w-2 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                                  <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
-                            <p className="font-semibold text-[6px] sm:text-xs text-center leading-tight truncate w-full max-w-[45px] sm:max-w-[100px]">
+                            <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
                               {getTeamName(currentMatchData.match, 'away')}
                             </p>
                           </div>
@@ -1348,7 +1385,8 @@ const ActiveAIBets = () => {
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </TiltCard>
+              </TiltCard>
+            </div>
           );
         })}
         
@@ -1389,35 +1427,40 @@ const ActiveAIBets = () => {
           const balanceValue = balanceNumber;
 
           return (
-            <PlayerExclusiveModelCard
-              currentMatchData={currentMatchData as any}
-              moneylineBet={moneylineBet as any}
-              handicapBet={handicapBet as any}
-              overUnderBet={overUnderBet as any}
-              balanceValue={balanceValue}
-              matchIndex={matchIndex}
-              matchEntries={matchEntries as any}
-              onOpenPKDialog={handleOpenPKDialog}
-              onOpenAnalysis={getMatchAnalysisFromDB}
-              getTeamName={getTeamName}
-              getLeagueName={getLeagueName}
-              isManualPrediction={!isAutoPrediction}
-              availableMatches={matches}
-              onPrevMatch={(e) => {
-                e.stopPropagation();
-                setCurrentMatchIndex(prev => ({
-                  ...prev,
-                  'hunsoccermax': ((prev['hunsoccermax'] || 0) - 1 + matchEntries.length) % matchEntries.length
-                }));
-              }}
-              onNextMatch={(e) => {
-                e.stopPropagation();
-                setCurrentMatchIndex(prev => ({
-                  ...prev,
-                  'hunsoccermax': ((prev['hunsoccermax'] || 0) + 1) % matchEntries.length
-                }));
-              }}
-            />
+            <div ref={registerCardRef('hunsoccermax')} className="h-full">
+              <PlayerExclusiveModelCard
+                className={lockedCardHeight ? "h-[var(--ai-card-h)]" : undefined}
+                currentMatchData={currentMatchData as any}
+                moneylineBet={moneylineBet as any}
+                handicapBet={handicapBet as any}
+                overUnderBet={overUnderBet as any}
+                balanceValue={balanceValue}
+                matchIndex={matchIndex}
+                matchEntries={matchEntries as any}
+                onOpenPKDialog={handleOpenPKDialog}
+                onOpenAnalysis={getMatchAnalysisFromDB}
+                getTeamName={getTeamName}
+                getLeagueName={getLeagueName}
+                isManualPrediction={!isAutoPrediction}
+                availableMatches={matches}
+                isAutoPrediction={isAutoPrediction}
+                onToggleAutoPrediction={setIsAutoPrediction}
+                onPrevMatch={(e) => {
+                  e.stopPropagation();
+                  setCurrentMatchIndex(prev => ({
+                    ...prev,
+                    'hunsoccermax': ((prev['hunsoccermax'] || 0) - 1 + matchEntries.length) % matchEntries.length
+                  }));
+                }}
+                onNextMatch={(e) => {
+                  e.stopPropagation();
+                  setCurrentMatchIndex(prev => ({
+                    ...prev,
+                    'hunsoccermax': ((prev['hunsoccermax'] || 0) + 1) % matchEntries.length
+                  }));
+                }}
+              />
+            </div>
           );
         })()}
       </div>

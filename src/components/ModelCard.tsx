@@ -276,11 +276,11 @@ const ModelCard = ({ model }: ModelCardProps) => {
         </div>
 
         {/* Follow Button - Push to bottom */}
-        <div className="mt-auto pt-1 sm:pt-0">
+        <div className="mt-auto pt-0.5 sm:pt-0">
           <Button
             variant={isFollowing ? "default" : "outline"}
             size="sm"
-            className={`w-full h-5 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded sm:rounded-xl ${
+            className={`w-full h-5 sm:h-10 text-[8px] sm:text-sm font-semibold transition-all duration-300 rounded-md sm:rounded-xl px-1.5 sm:px-4 leading-none ${
               isFollowing 
                 ? 'bg-success/20 hover:bg-success/30 text-success border border-success/30 shadow-sm' 
                 : 'bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 shadow-sm'
