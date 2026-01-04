@@ -156,12 +156,13 @@ const decompressGzipData = async (compressedData: string): Promise<unknown> => {
   }
 };
 
-// 获取比赛详细赔率信息
+// 获取比赛详细赔率信息（带重试机制）
 const fetchMatchOddsInfo = async (
   ybtyToken: string,
   mid: string,
   mcid: string = "0",
   cuid: string = "529524126471950857",
+  retries: number = 2,
 ): Promise<unknown | null> => {
   const url = `https://api.j7nwyhqg.com/yewu11/v1/m/matchDetail/getMatchOddsInfoPB?mcid=${mcid}&mid=${mid}&cuid=${cuid}`;
   
@@ -174,46 +175,105 @@ const fetchMatchOddsInfo = async (
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
   };
 
-  try {
-    console.log(`[fetchMatchOddsInfo] 请求URL: ${url}`);
-    const response = await fetch(url, {
-      method: "GET",
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '无法读取错误信息');
-      console.warn(`[fetchMatchOddsInfo] 获取比赛 ${mid} 的赔率信息失败: HTTP ${response.status}, ${errorText.substring(0, 200)}`);
-      return null;
-    }
-
-    const result = await response.json();
-    console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的API响应类型: ${typeof result}, 包含字段: ${result ? Object.keys(result).join(', ') : 'null'}`);
-
-    // 如果 data 是 base64 编码的 gzip 压缩字符串，解压缩它
-    if (result && typeof result === "object" && "data" in result) {
-      const data = result.data;
-      if (typeof data === "string" && data.startsWith("H4sI")) {
-        console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是gzip压缩的，正在解压...`);
-        result.data = await decompressGzipData(data);
-        console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据解压完成`);
-      } else if (Array.isArray(data)) {
-        console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是数组，包含 ${data.length} 个元素`);
-      } else if (typeof data === "object" && data !== null) {
-        console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是对象，包含字段: ${Object.keys(data).join(', ')}`);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 0) {
+        // 重试前等待，延迟时间递增并添加随机性：1-1.5秒、2-2.5秒
+        const baseDelay = attempt * 1000;
+        const randomDelay = Math.floor(Math.random() * 500); // 0-500ms 随机
+        const delay = baseDelay + randomDelay;
+        console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 重试 ${attempt}/${retries}，等待 ${delay}ms 后重试...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
-    } else {
-      console.warn(`[fetchMatchOddsInfo] 比赛 ${mid} 的响应格式异常，缺少 data 字段`);
-    }
 
-    return result;
-  } catch (error) {
-    console.error(`[fetchMatchOddsInfo] 获取比赛 ${mid} 的赔率信息出错:`, error);
-    if (error instanceof Error) {
-      console.error(`[fetchMatchOddsInfo] 错误详情: ${error.message}, 堆栈: ${error.stack}`);
+      console.log(`[fetchMatchOddsInfo] 请求URL: ${url}${attempt > 0 ? ` (重试 ${attempt})` : ''}`);
+      const response = await fetch(url, {
+        method: "GET",
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '无法读取错误信息');
+        console.warn(`[fetchMatchOddsInfo] 获取比赛 ${mid} 的赔率信息失败: HTTP ${response.status}, ${errorText.substring(0, 200)}`);
+        // 如果是最后一次尝试，返回 null
+        if (attempt >= retries) {
+          return null;
+        }
+        continue; // 继续重试
+      }
+
+      const result = await response.json();
+      
+      // 检查错误码
+      if (result && typeof result === "object" && "code" in result) {
+        const code = result.code;
+        // 检查是否是限流错误 "0401038"
+        if (code === "0401038") {
+          console.warn(`[fetchMatchOddsInfo] 比赛 ${mid} 遇到限流错误 (code: ${code})，${attempt < retries ? '将重试' : '已达到最大重试次数'}`);
+          // 如果是最后一次尝试，返回 null
+          if (attempt >= retries) {
+            return null;
+          }
+          // 限流错误需要更长的等待时间（带随机性：2-3秒、4-5秒递增）
+          const baseDelay = (attempt + 1) * 2000;
+          const randomDelay = Math.floor(Math.random() * 1000); // 0-1000ms 随机
+          const delay = baseDelay + randomDelay;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue; // 继续重试
+        }
+        
+        // 如果 code 是 "0000000"（成功）
+        if (code === "0000000") {
+          // 如果 data 为 null，可能是请求过快导致，尝试重试一次
+          if ((result.data === null || result.data === undefined) && attempt < retries) {
+            console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 请求成功但 data 为 null，可能是请求过快，将重试一次...`);
+            // 等待一段时间后重试（随机延迟 800-1500ms）
+            const retryDelay = Math.floor(Math.random() * 700) + 800;
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            continue; // 继续重试
+          } else if (result.data === null || result.data === undefined) {
+            console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 请求成功但 data 为 null（重试后仍为 null，可能是比赛确实没有赔率数据）`);
+          }
+          // 继续执行，返回结果（无论 data 是否为 null）
+        } else {
+          // 其他错误码，记录日志但不重试（除非是明确的临时错误）
+          console.warn(`[fetchMatchOddsInfo] 比赛 ${mid} 返回错误码: ${code}, msg: ${(result as { msg?: string }).msg || '未知错误'}`);
+        }
+      }
+
+      console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的API响应类型: ${typeof result}, 包含字段: ${result ? Object.keys(result).join(', ') : 'null'}`);
+
+      // 如果 data 是 base64 编码的 gzip 压缩字符串，解压缩它
+      if (result && typeof result === "object" && "data" in result) {
+        const data = result.data;
+        if (typeof data === "string" && data.startsWith("H4sI")) {
+          console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是gzip压缩的，正在解压...`);
+          result.data = await decompressGzipData(data);
+          console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据解压完成`);
+        } else if (Array.isArray(data)) {
+          console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是数组，包含 ${data.length} 个元素`);
+        } else if (typeof data === "object" && data !== null) {
+          console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是对象，包含字段: ${Object.keys(data).join(', ')}`);
+        }
+      } else {
+        console.warn(`[fetchMatchOddsInfo] 比赛 ${mid} 的响应格式异常，缺少 data 字段`);
+      }
+
+      return result;
+    } catch (error) {
+      console.error(`[fetchMatchOddsInfo] 获取比赛 ${mid} 的赔率信息出错:`, error);
+      if (error instanceof Error) {
+        console.error(`[fetchMatchOddsInfo] 错误详情: ${error.message}, 堆栈: ${error.stack}`);
+      }
+      // 如果是最后一次尝试，返回 null
+      if (attempt >= retries) {
+        return null;
+      }
+      // 继续重试
     }
-    return null;
   }
+
+  return null;
 };
 
 // 调用 YBTY API 获取比赛列表
@@ -652,78 +712,87 @@ const upsertSportsApiMatches = async (
   
   // 限制并发数，避免 API 限流
   const BATCH_SIZE = 5; // 每批处理5个
+  // 请求之间的随机延迟（毫秒）- 600-1200ms 随机范围，模拟人类行为
+  const getRequestDelay = () => Math.floor(Math.random() * 600) + 600; // 600-1200ms
+  // 批次之间的随机延迟（毫秒）- 1500-2500ms 随机范围
+  const getBatchDelay = () => Math.floor(Math.random() * 1000) + 1500; // 1500-2500ms
   const records: Record<string, unknown>[] = [];
   
   for (let i = 0; i < uniqueMatches.length; i += BATCH_SIZE) {
     const batch = uniqueMatches.slice(i, i + BATCH_SIZE);
     console.log(`[upsertSportsApiMatches] 处理批次 ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(uniqueMatches.length / BATCH_SIZE)} (${batch.length} 场比赛)`);
     
-    const batchRecords = await Promise.all(
-      batch.map(async (match, index) => {
-        let oddsInfo: unknown | null = null;
-        
-        if (fetchOdds && ybtyToken && match.mid) {
-          try {
-            console.log(`[upsertSportsApiMatches] 正在获取比赛 ${match.mid} 的赔率信息...`);
-            oddsInfo = await fetchMatchOddsInfo(
-              ybtyToken,
-              match.mid,
-              match.mcid || "0",
-            );
-            if (oddsInfo) {
-              console.log(`[upsertSportsApiMatches] ✓ 成功获取比赛 ${match.mid} 的赔率信息`);
-              // 验证数据结构
-              if (typeof oddsInfo === 'object' && oddsInfo !== null) {
-                const oddsObj = oddsInfo as Record<string, unknown>;
-                if (oddsObj.data) {
-                  console.log(`[upsertSportsApiMatches] 比赛 ${match.mid} 的赔率数据包含 data 字段`);
-                } else {
-                  console.warn(`[upsertSportsApiMatches] 比赛 ${match.mid} 的赔率数据缺少 data 字段:`, Object.keys(oddsObj));
-                }
+    // 改为串行处理，而不是并行，以更好地控制请求速率
+    const batchRecords: Record<string, unknown>[] = [];
+    for (let j = 0; j < batch.length; j++) {
+      const match = batch[j];
+      let oddsInfo: unknown | null = null;
+      
+      if (fetchOdds && ybtyToken && match.mid) {
+        try {
+          console.log(`[upsertSportsApiMatches] 正在获取比赛 ${match.mid} 的赔率信息... (${j + 1}/${batch.length})`);
+          oddsInfo = await fetchMatchOddsInfo(
+            ybtyToken,
+            match.mid,
+            "0", // 统一使用默认值 0
+          );
+          if (oddsInfo) {
+            console.log(`[upsertSportsApiMatches] ✓ 成功获取比赛 ${match.mid} 的赔率信息`);
+            // 验证数据结构
+            if (typeof oddsInfo === 'object' && oddsInfo !== null) {
+              const oddsObj = oddsInfo as Record<string, unknown>;
+              if (oddsObj.data) {
+                console.log(`[upsertSportsApiMatches] 比赛 ${match.mid} 的赔率数据包含 data 字段`);
+              } else {
+                console.warn(`[upsertSportsApiMatches] 比赛 ${match.mid} 的赔率数据缺少 data 字段:`, Object.keys(oddsObj));
               }
-            } else {
-              console.warn(`[upsertSportsApiMatches] ✗ 比赛 ${match.mid} 的赔率信息为空`);
             }
-          } catch (error) {
-            console.error(`[upsertSportsApiMatches] ✗ 获取比赛 ${match.mid} 的赔率信息失败:`, error);
+          } else {
+            console.warn(`[upsertSportsApiMatches] ✗ 比赛 ${match.mid} 的赔率信息为空`);
           }
-        } else {
-          if (!fetchOdds) {
-            // 刷新模式下，使用已有的 odds_info（如果存在）
-            if (match.mid && existingOddsInfoMap.has(match.mid)) {
-              oddsInfo = existingOddsInfoMap.get(match.mid)!;
-              console.log(`[upsertSportsApiMatches] 刷新模式：保留比赛 ${match.mid} 的已有赔率信息`);
-            } else {
-              console.log(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (fetchOdds=false)`);
-            }
-          } else if (!ybtyToken) {
-            console.warn(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (ybtyToken缺失)`);
-          } else if (!match.mid) {
-            console.warn(`[upsertSportsApiMatches] 跳过比赛赔率获取 (mid缺失)`);
+        } catch (error) {
+          console.error(`[upsertSportsApiMatches] ✗ 获取比赛 ${match.mid} 的赔率信息失败:`, error);
+        }
+      } else {
+        if (!fetchOdds) {
+          // 刷新模式下，使用已有的 odds_info（如果存在）
+          if (match.mid && existingOddsInfoMap.has(match.mid)) {
+            oddsInfo = existingOddsInfoMap.get(match.mid)!;
+            console.log(`[upsertSportsApiMatches] 刷新模式：保留比赛 ${match.mid} 的已有赔率信息`);
+          } else {
+            console.log(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (fetchOdds=false)`);
           }
+        } else if (!ybtyToken) {
+          console.warn(`[upsertSportsApiMatches] 跳过比赛 ${match.mid} 的赔率获取 (ybtyToken缺失)`);
+        } else if (!match.mid) {
+          console.warn(`[upsertSportsApiMatches] 跳过比赛赔率获取 (mid缺失)`);
         }
-        
-        // 添加小延迟避免请求过快
-        if (index < batch.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200)); // 200ms 延迟
-        }
-        
-        const record = convertSportsApiMatchToRecord(match, date, oddsInfo);
-        
-        // 在刷新模式下，如果 oddsInfo 为 null（即没有新的赔率且没有已有的赔率），则删除 odds_info 字段，避免覆盖
-        if (!fetchOdds && oddsInfo === null) {
-          delete record.odds_info;
-        }
-        
-        return record;
-      })
-    );
+      }
+      
+      const record = convertSportsApiMatchToRecord(match, date, oddsInfo);
+      
+      // 在刷新模式下，如果 oddsInfo 为 null（即没有新的赔率且没有已有的赔率），则删除 odds_info 字段，避免覆盖
+      if (!fetchOdds && oddsInfo === null) {
+        delete record.odds_info;
+      }
+      
+      batchRecords.push(record);
+      
+      // 请求之间添加随机延迟（最后一个请求不需要延迟）
+      if (j < batch.length - 1 && fetchOdds && ybtyToken && match.mid) {
+        const delay = getRequestDelay();
+        console.log(`[upsertSportsApiMatches] 等待 ${delay}ms 后再请求下一个比赛...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
     
     records.push(...batchRecords);
     
-    // 批次之间添加延迟
+    // 批次之间添加随机延迟（最后一个批次不需要延迟）
     if (i + BATCH_SIZE < uniqueMatches.length) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms 延迟
+      const delay = getBatchDelay();
+      console.log(`[upsertSportsApiMatches] 批次完成，等待 ${delay}ms 后再处理下一批次...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
   
