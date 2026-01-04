@@ -1212,7 +1212,7 @@ const resources = {
         "online": "online",
         "get_it_on": "GET IT ON",
         "google_play": "Google Play",
-        "available_on": "Available on the",
+        "available_on": "Download Now",
         "app_store": "App Store"
       },
       

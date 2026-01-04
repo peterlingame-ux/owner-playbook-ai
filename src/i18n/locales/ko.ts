@@ -686,6 +686,11 @@ export const ko = {
     "enjoy_all_privileges": "모든 독점 혜택을 즐기세요",
     "please_login": "먼저 로그인하세요",
     
+    // Download buttons
+    "get_it_on": "지금 다운로드",
+    "google_play": "Google Play",
+    "available_on": "지금 다운로드",
+    "app_store": "App Store",
     
     // Countries
     "select_country": "국가 선택",

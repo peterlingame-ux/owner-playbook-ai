@@ -641,7 +641,7 @@ export const th = {
       "online": "ออนไลน์",
       "get_it_on": "ดาวน์โหลดจาก",
       "google_play": "Google Play",
-      "available_on": "มีให้บริการบน",
+      "available_on": "ดาวน์โหลดเลย",
       "app_store": "App Store"
     },
     

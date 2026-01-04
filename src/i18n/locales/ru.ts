@@ -638,7 +638,7 @@ export const ru = {
       "online": "онлайн",
       "get_it_on": "СКАЧАТЬ В",
       "google_play": "Google Play",
-      "available_on": "Доступно в",
+      "available_on": "Скачать сейчас",
       "app_store": "App Store"
     },
     

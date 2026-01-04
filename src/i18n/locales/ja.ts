@@ -593,7 +593,7 @@ export const ja = {
       "online": "オンライン",
       "get_it_on": "今すぐ入手",
       "google_play": "Google Play",
-      "available_on": "入手先",
+      "available_on": "今すぐダウンロード",
       "app_store": "App Store"
     },
     
