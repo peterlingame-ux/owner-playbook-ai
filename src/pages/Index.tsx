@@ -90,44 +90,96 @@ const Index = () => {
     setShowWelcomeDialog(false);
   };
   
-  // 使用模拟数据生成AI模型统计（相关表不存在）
+  // 从数据库获取真实AI模型统计数据
   useEffect(() => {
-    const generateAIStats = () => {
-        setIsLoadingModels(true);
+    const fetchAIStats = async () => {
+      setIsLoadingModels(true);
       const INITIAL_BALANCE = 10000;
       
-      const updatedModels = aiModels.map(model => {
-        // 使用模型ID生成稳定的随机种子
-        const seed = model.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        
-        // 生成稳定的胜率（55%-75%之间）
-        const baseWinRate = 55 + (seed % 20);
-        const winRate = baseWinRate + (Math.sin(seed) * 5);
-        const totalPredictions = 50 + (seed % 30);
-        const correctPredictions = Math.round(totalPredictions * (winRate / 100));
-        
-        // 计算模拟收益
-        const profitRate = (winRate - 50) / 50;
-        const profit = Math.round(INITIAL_BALANCE * profitRate * (0.3 + Math.random() * 0.2));
-        const currentValue = INITIAL_BALANCE + profit;
-            const changePercent = (profit / INITIAL_BALANCE) * 100;
-          
+      try {
+        // 并行获取胜率统计和余额数据
+        const [winRatesResult, balancesResult] = await Promise.all([
+          supabase
+            .from('ai_win_rates_overall' as any)
+            .select('ai_id, total_predictions, correct_predictions, win_rate'),
+          supabase
+            .from('ai_balances' as any)
+            .select('ai_id, available_balance, locked_balance')
+        ]);
+
+        const { data: winRatesData, error: winRatesError } = winRatesResult;
+        const { data: balancesData, error: balancesError } = balancesResult;
+
+        if (winRatesError) {
+          console.error('Error fetching win rates:', winRatesError);
+        }
+        if (balancesError) {
+          console.error('Error fetching balances:', balancesError);
+        }
+
+        // 创建数据映射
+        const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
+        if (winRatesData) {
+          winRatesData.forEach((item: any) => {
+            winRatesMap.set(item.ai_id, {
+              total_predictions: item.total_predictions || 0,
+              correct_predictions: item.correct_predictions || 0,
+              win_rate: item.win_rate || 0
+            });
+          });
+        }
+
+        const balancesMap = new Map<string, { available_balance: number; locked_balance: number }>();
+        if (balancesData) {
+          balancesData.forEach((item: any) => {
+            balancesMap.set(item.ai_id, {
+              available_balance: item.available_balance || 0,
+              locked_balance: item.locked_balance || 0
+            });
+          });
+        }
+
+        // 更新模型数据
+        const updatedModels = aiModels.map(model => {
+          const winRateData = winRatesMap.get(model.id);
+          const balanceData = balancesMap.get(model.id);
+
+          // 使用真实数据，如果没有则使用默认值
+          const totalPredictions = winRateData?.total_predictions || 0;
+          const correctPredictions = winRateData?.correct_predictions || 0;
+          const winRate = winRateData?.win_rate || 0;
+
+          // 计算余额和收益
+          const totalBalance = balanceData 
+            ? (balanceData.available_balance || 0) + (balanceData.locked_balance || 0)
+            : INITIAL_BALANCE;
+          const profit = totalBalance - INITIAL_BALANCE;
+          const changePercent = (profit / INITIAL_BALANCE) * 100;
+
           return {
             ...model,
-          winRate: Math.round(winRate * 10) / 10,
-          totalPredictions,
-          correctPredictions,
-            currentValue: `$${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-            change: profit >= 0 ? `+$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            totalPredictions,
+            correctPredictions,
+            winRate: Math.round(winRate * 10) / 10,
+            currentValue: `$${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            change: profit >= 0 
+              ? `+$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+              : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
             changePercent: Math.round(changePercent * 100) / 100,
           };
         });
-        
+
         setModelsWithRealData(updatedModels);
+      } catch (error) {
+        console.error('Error fetching AI stats:', error);
+        // 如果出错，使用默认数据
+        setModelsWithRealData(aiModels);
+      } finally {
         setIsLoadingModels(false);
+      }
     };
 
-    generateAIStats();
+    fetchAIStats();
   }, []);
 
   // Sort models by win rate

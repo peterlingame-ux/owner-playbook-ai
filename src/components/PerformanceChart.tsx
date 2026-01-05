@@ -329,17 +329,18 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
   return (
     <Card className="p-3 sm:p-6 lg:p-8 bg-card/50 backdrop-blur-sm border-border/20">
       {/* Header - Minimalist */}
-      <div className="mb-4 sm:mb-6 lg:mb-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+      <div className="mb-4 sm:mb-6 lg:mb-8 shrink-0">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 shrink-0">
           <h2 className="text-sm sm:text-lg lg:text-xl font-semibold tracking-tight text-foreground text-center sm:text-left">
             {t('performance_over_time')}
           </h2>
           
           {/* Time Range Tabs - Pill style */}
-          <div className="flex bg-muted/30 rounded-full p-0.5 sm:p-1">
+          <div className="flex bg-muted/30 rounded-full p-0.5 sm:p-1 shrink-0">
             <button
+              type="button"
               onClick={() => setTimeRange('7d')}
-              className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
+              className={`!px-2.5 sm:!px-4 !py-1 sm:!py-1.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-xs font-medium transition-all shrink-0 whitespace-nowrap touch-manipulation ${
                 timeRange === '7d'
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -348,8 +349,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
               7D
             </button>
             <button 
+              type="button"
               onClick={() => setTimeRange('24h')}
-              className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
+              className={`!px-2.5 sm:!px-4 !py-1 sm:!py-1.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-xs font-medium transition-all shrink-0 whitespace-nowrap touch-manipulation ${
                 timeRange === '24h' 
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -358,8 +360,9 @@ const PerformanceChart = ({ onChartClick }: PerformanceChartProps) => {
               24H
             </button>
             <button 
+              type="button"
               onClick={() => setTimeRange('72h')}
-              className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all ${
+              className={`!px-2.5 sm:!px-4 !py-1 sm:!py-1.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-xs font-medium transition-all shrink-0 whitespace-nowrap touch-manipulation ${
                 timeRange === '72h' 
                   ? 'bg-foreground text-background shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'

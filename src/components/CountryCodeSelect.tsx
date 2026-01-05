@@ -49,13 +49,13 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex items-center gap-1 sm:gap-1.5 h-10 sm:h-12 px-2 sm:px-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/15 transition-colors min-w-[80px] sm:min-w-[110px]"
+          className="flex items-center gap-1 sm:gap-1.5 !h-9 sm:!h-11 !px-2 sm:!px-3 !py-0 !min-w-0 !min-h-0 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/15 transition-colors min-w-[80px] sm:min-w-[110px] shrink-0 whitespace-nowrap touch-manipulation"
         >
-          <span className="text-xs sm:text-sm font-medium">
+          <span className="text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap">
             {currentCountry.code === "+86" ? "CN" : currentCountry.flag}
           </span>
-          <span className="text-xs sm:text-sm font-medium">{currentCountry.code}</span>
-          <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white/60 ml-auto" />
+          <span className="text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap">{currentCountry.code}</span>
+          <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white/60 ml-auto shrink-0" />
         </button>
       </PopoverTrigger>
       <PopoverContent 
@@ -81,7 +81,7 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
                 key={`${country.code}-${index}`}
                 type="button"
                 onClick={() => handleSelect(country)}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left transition-colors ${
+                className={`w-full flex items-center gap-2.5 !px-2.5 !py-2 !min-w-0 !min-h-0 rounded-md text-left transition-colors shrink-0 whitespace-nowrap touch-manipulation ${
                   country.code === value
                     ? "bg-teal-500/20 text-teal-400"
                     : "text-white hover:bg-white/10"

@@ -13,7 +13,6 @@ import CountryCodeSelect from "@/components/CountryCodeSelect";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import logo from "@/assets/hunnsoccer-alpha-logo.png";
 import authBg from "@/assets/auth-football-bg.jpg";
 import aiBluewhale from "@/assets/ai-icon-bluewhale.png";
 import aiGemini from "@/assets/ai-icon-gemini.png";
@@ -69,6 +68,20 @@ const Auth = () => {
       return () => clearTimeout(timer);
     }
   }, [countdown]);
+
+  // 禁用页面滚动，防止背景露出
+  useEffect(() => {
+    // 禁用 body 滚动
+    document.body.style.overflow = 'hidden';
+    // 禁用 html 滚动（某些浏览器需要）
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      // 组件卸载时恢复滚动
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
 
   const normalizedCountryCode = useMemo(
     () => (countryCode.startsWith("+") ? countryCode : `+${countryCode}`),
@@ -577,7 +590,7 @@ const Auth = () => {
 
   return (
     <div 
-      className="h-[100dvh] relative flex flex-col overflow-hidden bg-cover bg-center"
+      className="fixed inset-0 h-screen w-screen relative flex flex-col overflow-hidden bg-cover bg-center"
       style={{ 
         backgroundImage: `url(${authBg})`
       }}
@@ -587,12 +600,13 @@ const Auth = () => {
 
       {/* 顶部导航栏 - 紧凑 */}
       <header className="relative z-20 w-full px-2 py-1.5 sm:px-4 sm:py-3 flex items-center justify-between bg-black/20 backdrop-blur-md border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => step === "otp" || step === "set-password" || step === "forgot-password" ? handleBackToPhone() : navigate("/")}
-            className="text-white/80 hover:text-white hover:bg-white/10 transition-all h-7 px-2 text-[10px] sm:text-sm sm:h-9 sm:px-3"
+            className="text-white/80 hover:text-white hover:bg-white/10 transition-all h-7 px-2 text-[10px] sm:text-sm sm:h-9 sm:px-3 shrink-0 whitespace-nowrap touch-manipulation"
           >
             {step === "phone" ? (
               <>
@@ -614,17 +628,15 @@ const Auth = () => {
       </header>
 
       {/* 主内容区域 - 固定高度不滚动 */}
-      <div className="flex-1 flex items-center justify-center px-2 sm:px-4 py-2 sm:py-10 overflow-hidden">
+      <div className="flex-1 flex items-center justify-center px-2 sm:px-4 py-2 sm:py-10 overflow-hidden shrink-0">
         {/* 主卡片 - 透明玻璃效果 */}
         <Card className="w-full max-w-md relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20 max-h-full overflow-y-auto">
         <CardHeader className="text-center space-y-1 sm:space-y-6 pb-2 sm:pb-6 pt-3 sm:pt-12 px-3 sm:px-6">
-          {/* Logo - 手机端更小 */}
-          <div className="flex justify-center h-10 sm:h-32 overflow-visible">
-            <img
-              src={logo}
-              alt="Logo"
-              className="h-full w-auto object-contain scale-[1.2] sm:scale-[2] origin-center"
-            />
+          {/* Logo - 文本标题 */}
+          <div className="flex justify-center">
+            <h1 className="font-pixel text-[10px] sm:text-xs md:text-base lg:text-lg text-foreground hover:text-primary transition-colors tracking-wider leading-tight">
+              HUNSOCCER
+            </h1>
           </div>
           
           <div className="space-y-0 sm:space-y-2">
@@ -637,14 +649,14 @@ const Auth = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-2 sm:space-y-6 px-3 sm:px-8 pb-3 sm:pb-10">
+        <CardContent className="space-y-2 sm:space-y-6 px-3 sm:px-8 pb-3 sm:pb-10 shrink-0">
           {step === "phone" && (
             <form onSubmit={loginMethod === "password" ? handlePasswordLogin : handleSendCode} className="space-y-2 sm:space-y-6">
               <div className="space-y-1 sm:space-y-2">
                 <Label htmlFor="phone" className="text-white/90 text-[10px] sm:text-sm font-medium">
                   {t("auth.phone_number")}
                 </Label>
-                <div className="flex gap-1 sm:gap-2">
+                <div className="flex gap-1 sm:gap-2 shrink-0">
                   <CountryCodeSelect
                     value={countryCode}
                     onChange={setCountryCode}
@@ -658,7 +670,7 @@ const Auth = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={15}
-                    className="flex-1 h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="flex-1 h-9 sm:h-11 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
@@ -760,7 +772,7 @@ const Auth = () => {
               </Button>
 
               {/* 切换登录方式和忘记密码 */}
-              <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -768,7 +780,7 @@ const Auth = () => {
                     setPassword("");
                     setConfirmPassword("");
                   }}
-                  className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-sm text-teal-400 hover:text-teal-300 font-medium"
+                  className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-sm text-teal-400 hover:text-teal-300 font-medium shrink-0 whitespace-nowrap touch-manipulation"
                 >
                   {loginMethod === "sms" ? (
                     <>
@@ -794,7 +806,7 @@ const Auth = () => {
                       setStep("forgot-password");
                       setPassword("");
                     }}
-                    className="text-[10px] sm:text-sm text-white/60 hover:text-white/80"
+                    className="text-[10px] sm:text-sm text-white/60 hover:text-white/80 shrink-0 whitespace-nowrap touch-manipulation"
                   >
                     {t("auth.forgot_password_link")}
                   </button>
@@ -803,12 +815,12 @@ const Auth = () => {
 
               <div className="text-center space-y-1 sm:space-y-2">
                 {loginMethod === "sms" && (
-                  <p className="text-[10px] sm:text-sm text-white/70">
+                  <p className="text-[10px] sm:text-sm text-white/70 shrink-0 whitespace-nowrap">
                     {isSignUp ? t("auth.have_account") : t("auth.no_account")}{" "}
                     <button
                       type="button"
                       onClick={() => setIsSignUp(!isSignUp)}
-                      className="text-teal-400 hover:text-teal-300 font-medium"
+                      className="text-teal-400 hover:text-teal-300 font-medium shrink-0 whitespace-nowrap touch-manipulation"
                     >
                       {isSignUp ? t("auth.login_now") : t("auth.register_now")}
                     </button>
@@ -934,11 +946,11 @@ const Auth = () => {
                 {loading ? t("auth.setting") : t("auth.confirm_set")}
               </Button>
 
-              <div className="text-center">
+              <div className="text-center shrink-0">
                 <button
                   type="button"
                   onClick={handleSkipSetPassword}
-                  className="text-[11px] sm:text-sm text-white/60 hover:text-white/80"
+                  className="text-[11px] sm:text-sm text-white/60 hover:text-white/80 shrink-0 whitespace-nowrap touch-manipulation"
                 >
                   {t("auth.skip_set_later")}
                 </button>
@@ -953,7 +965,7 @@ const Auth = () => {
                 <Label htmlFor="forgot-phone" className="text-white/90 text-[11px] sm:text-sm font-medium">
                   {t("auth.phone_number")}
                 </Label>
-                <div className="flex gap-1.5 sm:gap-2">
+                <div className="flex gap-1.5 sm:gap-2 shrink-0">
                   <CountryCodeSelect
                     value={countryCode}
                     onChange={setCountryCode}
@@ -967,7 +979,7 @@ const Auth = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={15}
-                    className="flex-1 h-10 sm:h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
+                    className="flex-1 h-9 sm:h-11 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg"
                   />
                 </div>
               </div>
@@ -980,7 +992,7 @@ const Auth = () => {
                 {loading ? t("auth.sending") : t("auth.send_code")}
               </Button>
 
-              <div className="text-center">
+              <div className="text-center shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -988,7 +1000,7 @@ const Auth = () => {
                     setLoginMethod("password");
                     setForgotPasswordPhone("");
                   }}
-                  className="text-[11px] sm:text-sm text-teal-400 hover:text-teal-300"
+                  className="text-[11px] sm:text-sm text-teal-400 hover:text-teal-300 shrink-0 whitespace-nowrap touch-manipulation"
                 >
                   {t("auth.back_to_login")}
                 </button>

@@ -531,7 +531,8 @@ const MyPredictions = () => {
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
               <button 
-                className="absolute left-0 bottom-0 w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-20 hover:scale-105 transition-transform"
+                type="button"
+                className="absolute left-0 bottom-0 !w-10 sm:!w-14 !h-10 sm:!h-14 !min-w-0 !min-h-0 rounded-full flex items-center justify-center z-20 hover:scale-105 transition-transform shrink-0 whitespace-nowrap touch-manipulation"
                 style={{
                   background: 'hsl(70 65% 55%)',
                   boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
@@ -660,8 +661,9 @@ const MyPredictions = () => {
                     {/* Show custom avatar as first option if exists */}
                     {customAvatarUrl && (
                       <button
+                        type="button"
                         onClick={() => setSelectedAvatar(customAvatarUrl)}
-                        className={`relative aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
+                        className={`relative aspect-square !min-w-0 !min-h-0 rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all shrink-0 whitespace-nowrap touch-manipulation ${
                           selectedAvatar === customAvatarUrl 
                             ? 'border-cyan-400 ring-2 ring-cyan-400/20' 
                             : 'border-cyan-500/30 hover:border-cyan-400/50'
@@ -682,9 +684,10 @@ const MyPredictions = () => {
                     )}
                     {AVATAR_OPTIONS.map((avatar) => (
                       <button
+                        type="button"
                         key={avatar}
                         onClick={() => setSelectedAvatar(avatar)}
-                        className={`relative aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
+                        className={`relative aspect-square !min-w-0 !min-h-0 rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all shrink-0 whitespace-nowrap touch-manipulation ${
                           selectedAvatar === avatar 
                             ? 'border-primary ring-2 ring-primary/20' 
                             : 'border-border hover:border-muted-foreground'
@@ -725,8 +728,9 @@ const MyPredictions = () => {
             </h1>
             {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
             <button 
+              type="button"
               onClick={() => setIsVipDialogOpen(true)}
-              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md relative overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
+              className={`flex items-center gap-1 !px-2 sm:!px-2.5 !py-1 !min-w-0 !min-h-0 rounded-md relative overflow-hidden shrink-0 whitespace-nowrap touch-manipulation cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
               style={isVipActive ? {
                 background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
                 boxShadow: '0 2px 12px rgba(80, 180, 220, 0.6), 0 0 20px rgba(100, 200, 255, 0.3)',
@@ -840,25 +844,27 @@ const MyPredictions = () => {
       </div>
 
         {/* Stats Row - Three Columns */}
-        <div className="flex items-stretch gap-1 sm:gap-2 mt-3 sm:mt-6">
+        <div className="flex items-stretch gap-1 sm:gap-2 mt-3 sm:mt-6 shrink-0">
           {/* Followers */}
           <button 
+            type="button"
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0 overflow-hidden"
+            className="flex-1 !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 whitespace-nowrap touch-manipulation"
           >
-            <p className="text-base sm:text-2xl font-bold text-foreground">
+            <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">
               {followersList.length >= 1000 ? `${(followersList.length / 1000).toFixed(1)}K` : followersList.length}
             </p>
-            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('followers_label') || '粉丝'}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('followers_label') || '粉丝'}</p>
           </button>
           
           {/* Following */}
           <button 
+            type="button"
             onClick={() => navigate('/my-following')}
-            className="flex-1 py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors min-w-0 overflow-hidden"
+            className="flex-1 !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 whitespace-nowrap touch-manipulation"
           >
-            <p className="text-base sm:text-2xl font-bold text-foreground">{followingList.length}</p>
-            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('following_label') || '关注'}</p>
+            <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">{followingList.length}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('following_label') || '关注'}</p>
           </button>
           
           {/* Hunter Coin Balance */}
@@ -874,11 +880,12 @@ const MyPredictions = () => {
         </div>
 
         {/* Tabs - Responsive Scrollable */}
-        <div className="mt-3 sm:mt-6">
-          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1.5 sm:pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
+        <div className="mt-3 sm:mt-6 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1.5 sm:pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4 shrink-0">
             <button
+              type="button"
               onClick={() => setActiveTab('history')}
-              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
                 activeTab === 'history' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -887,8 +894,9 @@ const MyPredictions = () => {
               {t('history_records') || 'History'}
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('records')}
-              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
                 activeTab === 'records' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -897,8 +905,9 @@ const MyPredictions = () => {
               {t('personal_records') || 'Records'}
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('invite')}
-              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
                 activeTab === 'invite' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -907,8 +916,9 @@ const MyPredictions = () => {
               {t('invitation_code_tab') || 'Invite'}
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('starcard')}
-              className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
                 activeTab === 'starcard' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -920,7 +930,7 @@ const MyPredictions = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="mt-4">
+        <div className="mt-4 shrink-0">
           <AnimatePresence mode="wait">
             {activeTab === 'history' && (
               <motion.div
@@ -973,7 +983,7 @@ const MyPredictions = () => {
                         {/* Result / Play Button */}
                         <div className="flex items-center gap-2">
                           {isPending ? (
-                            <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            <button type="button" className="!w-8 !h-8 !min-w-0 !min-h-0 rounded-full bg-muted flex items-center justify-center shrink-0 whitespace-nowrap touch-manipulation">
                               <Play className="w-4 h-4 text-muted-foreground" />
                             </button>
                           ) : (
@@ -982,7 +992,7 @@ const MyPredictions = () => {
                               <img src={hunterCoinIcon} alt="Hunter Coin" className="w-4 h-4" />
                             </div>
                           )}
-                          <button className="w-8 h-8 flex items-center justify-center">
+                          <button type="button" className="!w-8 !h-8 !min-w-0 !min-h-0 flex items-center justify-center shrink-0 whitespace-nowrap touch-manipulation">
                             <MoreVertical className="w-4 h-4 text-muted-foreground" />
                           </button>
                         </div>
@@ -994,7 +1004,8 @@ const MyPredictions = () => {
                     <History className="w-12 h-12 mx-auto mb-3 opacity-30" />
                     <p>{t('no_predictions_yet') || 'No predictions yet'}</p>
                     <Button 
-                      className="mt-4" 
+                      type="button"
+                      className="mt-4 !px-4 sm:!px-6 !py-2 sm:!py-3 !min-w-0 !min-h-0 shrink-0 whitespace-nowrap touch-manipulation" 
                       onClick={() => setIsBetDialogOpen(true)}
                     >
                       {t('start_predicting') || 'Start Predicting'}
@@ -1126,8 +1137,9 @@ const MyPredictions = () => {
                       </p>
                     </div>
                     <button 
+                      type="button"
                       onClick={copyInvitationCode}
-                      className="w-12 h-12 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 transition-colors flex items-center justify-center"
+                      className="!w-12 !h-12 !min-w-0 !min-h-0 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 transition-colors flex items-center justify-center shrink-0 whitespace-nowrap touch-manipulation"
                     >
                       <Copy className="w-5 h-5 text-amber-400" />
                     </button>

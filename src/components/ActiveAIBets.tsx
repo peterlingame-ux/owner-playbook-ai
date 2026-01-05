@@ -132,7 +132,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
         <>
           {/* 未开赛：显示 VS 和倒计时 */}
           <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[6px] sm:text-[8px] text-muted-foreground font-medium hidden sm:block">
+          <span className="text-[6px] sm:text-[8px] text-muted-foreground font-medium">
             {t('until_match_starts') || '距离比赛开始'}
           </span>
           <span className="text-[7px] sm:text-[9px] text-foreground/70 font-mono font-semibold">
