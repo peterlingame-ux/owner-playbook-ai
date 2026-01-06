@@ -878,13 +878,14 @@ const PlayerExclusiveModelCard = ({
                 </div>
               ) : isManualPrediction && !manualBetConfirmed ? (
                 /* Manual Prediction Mode - Matching other cards' no-data state with prominent button */
-                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden">
+                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden shrink-0">
                   <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
-                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full">
+                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full shrink-0">
                     {t('manual_prediction_hint') || '选择比赛进行人工预测'}
                   </p>
                   <button
-                    className="text-[6px] sm:text-xs mt-0.5 sm:mt-1 truncate max-w-full cursor-pointer px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 hover:border-primary/50 transition-all duration-200 font-medium"
+                    type="button"
+                    className="text-[6px] sm:text-xs mt-0.5 sm:mt-1 !px-2 sm:!px-3 !py-0.5 sm:!py-1 !min-w-0 !min-h-0 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 hover:border-primary/50 transition-all duration-200 font-medium shrink-0 whitespace-nowrap touch-manipulation cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowManualBetDialog(true);

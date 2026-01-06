@@ -822,10 +822,8 @@ const upsertSportsApiMatches = async (
   console.log(`[upsertSportsApiMatches] 成功写入 ${records.length} 条记录到数据库`);
 };
 
-// 已完成比赛状态（用于判断是否需要刷新）
-const COMPLETED_STATUSES = new Set(["FT", "AET", "PEN", "CANC", "ABD", "AWD", "WO"]);
-
 // 获取需要刷新的比赛 mid 列表（今天和昨天的未完成比赛）
+// 判断逻辑：met = 0 表示比赛未结束，需要刷新；met != 0 表示比赛已结束，不需要刷新
 const getMatchesToRefresh = async (
   dates: string[],
 ): Promise<Set<string>> => {
@@ -835,7 +833,7 @@ const getMatchesToRefresh = async (
 
   const { data, error } = await supabase
     .from("daily_matches")
-    .select("mid, mst")
+    .select("mid, met")
     .in("date", dates);
 
   if (error) {
@@ -843,13 +841,17 @@ const getMatchesToRefresh = async (
     return new Set();
   }
 
-  // 过滤出未完成的比赛（状态不是已完成）
+  // 过滤出未完成的比赛（met = 0 表示比赛未结束）
   const activeMatches = new Set<string>();
 
   if (data) {
     for (const match of data) {
-      // 如果没有状态或状态不是已完成，则需要刷新
-      if (!match.mst || !COMPLETED_STATUSES.has(match.mst)) {
+      // met = 0 或 met 为 null/undefined 表示比赛未结束，需要刷新
+      // met != 0 表示比赛已结束，不需要刷新
+      const met = match.met;
+      const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
+      
+      if (metValue === 0) {
         if (match.mid) {
           activeMatches.add(match.mid);
         }

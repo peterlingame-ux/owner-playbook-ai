@@ -18,10 +18,13 @@ interface UserPrediction {
 }
 
 interface Match {
-  fixture_id: number;
-  goals_home: number;
-  goals_away: number;
-  status_short: string;
+  fixture_id?: number;
+  mid?: string;
+  goals_home?: number;
+  goals_away?: number;
+  mhs?: number; // 主队得分（新字段名）
+  mas?: number; // 客队得分（新字段名）
+  status_short?: string;
 }
 
 Deno.serve(async (req) => {
@@ -36,14 +39,15 @@ Deno.serve(async (req) => {
 
     console.log('Starting user bet settlement process...');
 
-    // 获取所有已完成但未结算的比赛
-    const completedStatuses = ['FT', 'AET', 'PEN'];
+    // 获取所有已完成但未结算的比赛（使用 met 字段判断）
+    // met != 0 且 met 不为 null 表示比赛已结束
     const { data: completedMatches, error: matchesError } = await supabase
       .from('daily_matches')
       .select('*')
-      .in('status_short', completedStatuses)
-      .not('goals_home', 'is', null)
-      .not('goals_away', 'is', null);
+      .neq('met', 0) // met != 0 表示比赛已结束
+      .not('met', 'is', null) // 排除 met 为 null 的情况
+      .not('mhs', 'is', null) // 确保有主队得分
+      .not('mas', 'is', null); // 确保有客队得分
 
     if (matchesError) {
       console.error('Error fetching completed matches:', matchesError);
@@ -60,7 +64,8 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${completedMatches.length} completed matches`);
 
-    const matchIds = completedMatches.map(m => m.fixture_id.toString());
+    // 使用 mid 字段（TEXT 类型）而不是 fixture_id
+    const matchIds = completedMatches.map(m => m.mid || String(m.fixture_id || ''));
     
     // 获取这些比赛的待结算用户投注
     const { data: pendingBets, error: betsError } = await supabase
@@ -90,7 +95,11 @@ Deno.serve(async (req) => {
     // 处理每个投注
     for (const bet of pendingBets as unknown as UserPrediction[]) {
       try {
-        const match = completedMatches.find(m => m.fixture_id.toString() === bet.match_id) as unknown as Match;
+        // 使用 mid 字段匹配（mid 是 TEXT 类型）
+        const match = completedMatches.find(m => 
+          (m.mid && m.mid === bet.match_id) || 
+          (m.fixture_id && String(m.fixture_id) === bet.match_id)
+        ) as unknown as Match;
         if (!match) continue;
 
         const result = determineBetResult(bet, match);
@@ -195,8 +204,9 @@ Deno.serve(async (req) => {
 
 // 判断投注结果
 function determineBetResult(bet: UserPrediction, match: Match): 'win' | 'loss' | 'push' {
-  const homeScore = match.goals_home;
-  const awayScore = match.goals_away;
+  // 优先使用新字段名，兼容旧字段名
+  const homeScore = match.mhs ?? match.goals_home ?? 0;
+  const awayScore = match.mas ?? match.goals_away ?? 0;
   
   if (bet.prediction_type === 'moneyline') {
     // 独赢盘
@@ -238,7 +248,10 @@ function determineBetResult(bet: UserPrediction, match: Match): 'win' | 'loss' |
 
 // 获取比赛结果
 function getMatchResult(match: Match): string {
-  if (match.goals_home > match.goals_away) return 'HOME_WIN';
-  if (match.goals_away > match.goals_home) return 'AWAY_WIN';
+  // 优先使用新字段名，兼容旧字段名
+  const homeScore = match.mhs ?? match.goals_home ?? 0;
+  const awayScore = match.mas ?? match.goals_away ?? 0;
+  if (homeScore > awayScore) return 'HOME_WIN';
+  if (awayScore > homeScore) return 'AWAY_WIN';
   return 'DRAW';
 }

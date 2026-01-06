@@ -340,22 +340,15 @@ const getTodayMatches = async () => {
   
   console.log(`[getTodayMatches] 查询比赛: 昨天=${yesterdayStr}, 今天=${today}`);
   
-  // 查询比赛，过滤未完成的比赛（基于 mst 状态字段）
-  // mst 可能的值需要根据实际 API 文档确定，这里使用更宽泛的过滤
-  // 排除已完成状态：FT, AET, PEN, CANC, ABD, AWD, WO 等
-  const completedStatuses = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
-  
-  let query = supabase
+  // 查询比赛，过滤未完成的比赛（基于 met 字段）
+  // met = 0 或 met 为 null 表示比赛未结束，需要查询
+  // met != 0 表示比赛已结束，不需要查询
+  const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select('*')
-    .in('date', [yesterdayStr, today]);
-  
-  // 使用链式 not 操作符排除已完成状态
-  for (const status of completedStatuses) {
-    query = query.not('mst', 'eq', status);
-  }
-  
-  const { data, error } = await query.order('mgt', { ascending: true }); // 使用 mgt (比赛开始时间戳) 排序
+    .in('date', [yesterdayStr, today])
+    .or('met.is.null,met.eq.0') // met 为 null 或 0 表示未结束
+    .order('mgt', { ascending: true }); // 使用 mgt (比赛开始时间戳) 排序
 
   if (error) {
     console.error('[getTodayMatches] 查询失败:', error);
@@ -693,6 +686,29 @@ const persistAnalyses = async (
 
   console.log(`[persistAnalyses] 准备保存分析记录: matchId=${matchId}, aiId=${aiId}, aiDisplayName=${aiDisplayName}, rows=${rows.length}`);
   console.log(`[persistAnalyses] 分析结果: ${analyses.map(a => `${a.id}(${a.analysis ? '有分析' : '无分析'}, ${a.error ? '有错误' : '无错误'})`).join(', ')}`);
+
+  // 在保存之前，再次检查是否已有分析记录（防止竞态条件导致的重复插入）
+  if (matchId && aiId) {
+    const today = getUTC8DateString(new Date());
+    const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
+    const { data: existingData } = await supabase
+      .from(ANALYSIS_TABLE)
+      .select('id, provider_model_id, analysis')
+      .eq('match_id', matchId)
+      .eq('ai_id', aiId)
+      .gte('inserted_at', todayStartUTC8)
+      .order('inserted_at', { ascending: false })
+      .limit(1);
+    
+    if (existingData && existingData.length > 0 && existingData[0].analysis) {
+      // 已有分析记录，返回已有记录的引用
+      console.log(`[persistAnalyses] 发现已有分析记录，跳过重复保存: matchId=${matchId}, aiId=${aiId}, existingId=${existingData[0].id}`);
+      return [{
+        id: existingData[0].id,
+        modelId: existingData[0].provider_model_id || rows[0]?.provider_model_id || aiId,
+      }];
+    }
+  }
 
   const { data, error } = await supabase
     .from(ANALYSIS_TABLE)
@@ -1578,6 +1594,82 @@ serve(async (req) => {
           }
           
           // 没有已有分析，进行新分析
+          // 在分析之前，再次检查是否已有分析（防止竞态条件）
+          const doubleCheckAnalysis = await checkExistingAnalysis(match.matchId, aiId);
+          if (doubleCheckAnalysis && doubleCheckAnalysis.length > 0) {
+            // 在检查和分析之间，其他请求已经创建了分析，直接使用已有分析
+            console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 在分析前发现已有分析记录，跳过重复分析`);
+            if (!supabase) {
+              return {
+                match,
+                analyses: [],
+                analysisRefs: doubleCheckAnalysis,
+              };
+            }
+            
+            const { data: existingData } = await supabase
+              .from(ANALYSIS_TABLE)
+              .select('analysis, bet_snapshot')
+              .eq('id', doubleCheckAnalysis[0].id)
+              .single();
+            
+            if (existingData && existingData.analysis) {
+              const existingAnalysis: ModelAnalysisResult = {
+                ...modelConfig,
+                analysis: existingData.analysis,
+                latencyMs: 0,
+              };
+              
+              const betSnapshot = existingData.bet_snapshot as any;
+              let moneylineBetInfo: BetInfo | null = null;
+              let overUnderBetInfo: BetInfo | null = null;
+              let handicapBetInfo: BetInfo | null = null;
+              
+              if (betSnapshot) {
+                if (betSnapshot.primaryBet) {
+                  const primary = betSnapshot.primaryBet;
+                  if (primary.betType === 'over_under') {
+                    overUnderBetInfo = primary;
+                  } else if (primary.betType === 'handicap') {
+                    handicapBetInfo = primary;
+                  }
+                }
+                
+                if (betSnapshot.overUnder) {
+                  overUnderBetInfo = {
+                    betType: 'over_under',
+                    prediction: betSnapshot.overUnder.prediction,
+                    confidence: betSnapshot.overUnder.confidence,
+                    odds: betSnapshot.overUnder.odds || 1.9,
+                    betAmount: 0,
+                    overUnderLine: betSnapshot.overUnder.line,
+                    overUnderPick: betSnapshot.overUnder.prediction.toLowerCase(),
+                  };
+                }
+                
+                if (betSnapshot.handicap) {
+                  handicapBetInfo = {
+                    betType: 'handicap',
+                    prediction: betSnapshot.handicap.prediction,
+                    confidence: betSnapshot.handicap.confidence,
+                    odds: betSnapshot.handicap.odds || 1.9,
+                    betAmount: 0,
+                    handicapLine: betSnapshot.handicap.line,
+                  };
+                }
+              }
+              
+              return {
+                match,
+                analyses: [existingAnalysis],
+                analysisRefs: doubleCheckAnalysis,
+                moneylineBetInfo,
+                overUnderBetInfo,
+                handicapBetInfo,
+              };
+            }
+          }
+          
           // 在分析之前，从数据库获取市场赔率（只读取大小球和让球盘）
           const matchMid = match.matchId ? String(match.matchId) : undefined;
           const marketOdds = matchMid ? await getAllMarketOdds(matchMid) : null;

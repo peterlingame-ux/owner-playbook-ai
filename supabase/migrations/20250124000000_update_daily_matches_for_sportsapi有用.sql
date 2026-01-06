@@ -153,3 +153,22 @@ COMMENT ON COLUMN public.daily_matches.msc IS '比分数据数组';
 -- 为 odds_info 创建 GIN 索引以支持 JSONB 查询
 CREATE INDEX IF NOT EXISTS idx_daily_matches_odds_info ON public.daily_matches USING GIN(odds_info);
 
+-- 创建函数自动更新 updated_at
+CREATE OR REPLACE FUNCTION public.update_daily_matches_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 创建触发器（如果不存在）
+DROP TRIGGER IF EXISTS update_daily_matches_updated_at_trigger ON public.daily_matches;
+CREATE TRIGGER update_daily_matches_updated_at_trigger
+  BEFORE UPDATE ON public.daily_matches
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_daily_matches_updated_at();
+
+-- 添加注释
+COMMENT ON FUNCTION public.update_daily_matches_updated_at() IS '自动更新 daily_matches 表的 updated_at 字段';
+

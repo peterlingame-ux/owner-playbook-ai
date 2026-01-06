@@ -41,43 +41,53 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
 
   useEffect(() => {
     const updateTime = () => {
-      const status = match.status_short?.trim() || '';
+      // 使用 cmec 字段判断比赛状态
+      const cmec = match.cmec?.trim() || '';
       const kickoffTime = getKickoffDate(match);
       
-      // 已开赛的状态列表
-      const startedStatuses = ['LIVE', '1H', '2H', 'ET', 'HT', 'P', 'BREAK', 'FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
+      // cmec 字段包含的值表示比赛进行中的状态
+      const liveStatuses = ['attack', 'plays_coming', 'half_time', 'ball_safe', 'match_status', 
+                           'system_message', 'dangerous_attack', 'injury', 'dang_poss', 'clockChange'];
       
-      // 如果状态是已开赛，显示相应信息
-      if (startedStatuses.includes(status)) {
+      // 如果 cmec 有值，说明比赛在进行中或即将开始
+      if (cmec && liveStatuses.includes(cmec)) {
         setShowCountdown(false);
         
         // 中场休息
-        if (status === 'HT') {
+        if (cmec === 'half_time') {
           setMatchStatus('half_time');
           setTimeDisplay(t('half_time_break') || '中场休息');
           return;
         }
         
-        // 比赛进行中：LIVE, 1H, 2H, ET
-        if (['LIVE', '1H', '2H', 'ET'].includes(status)) {
-          setMatchStatus('live');
-          const elapsed = match.status_elapsed;
-          setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
-          return;
-        }
-        
-        // 其他已开赛状态
-        setMatchStatus('other');
-        switch (status) {
-          case 'P':
-            setTimeDisplay('PEN');
-            break;
-          case 'BREAK':
-            setTimeDisplay('BREAK');
-            break;
-          default:
-            setTimeDisplay(status);
-            break;
+        // 比赛进行中：其他所有 cmec 值都表示比赛在进行中
+        setMatchStatus('live');
+        const elapsed = match.status_elapsed;
+        // 根据不同的 cmec 值显示不同的文本，如果没有 elapsed 则显示状态
+        if (elapsed !== null && elapsed !== undefined) {
+          setTimeDisplay(`${elapsed}'`);
+        } else {
+          // 根据 cmec 值显示友好的文本
+          switch (cmec) {
+            case 'attack':
+              setTimeDisplay('进攻中');
+              break;
+            case 'plays_coming':
+              setTimeDisplay('即将开始');
+              break;
+            case 'ball_safe':
+              setTimeDisplay('进行中');
+              break;
+            case 'dangerous_attack':
+              setTimeDisplay('危险进攻');
+              break;
+            case 'injury':
+              setTimeDisplay('伤停');
+              break;
+            default:
+              setTimeDisplay('进行中');
+              break;
+          }
         }
         return;
       }
@@ -124,7 +134,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
     const interval = setInterval(updateTime, 1000);
     
     return () => clearInterval(interval);
-  }, [match.status_short, match.status_elapsed, match.mgt, t]);
+  }, [match.cmec, match.status_elapsed, match.mgt, t]);
 
   return (
     <div className="flex flex-col items-center gap-0 sm:gap-0.5 px-0.5 sm:px-1 shrink-0">
@@ -276,6 +286,7 @@ type DailyMatch = {
   goals_away: number | null;
   status_short: string;
   status_elapsed?: number | null;
+  cmec?: string | null; // 比赛状态枚举代码
   home_logo?: string | null;
   away_logo?: string | null;
   // 兼容 sports API 原始字段
@@ -342,6 +353,7 @@ const normalizeDailyMatch = (match: any): DailyMatch => {
     goals_away: match.goals_away ?? match.mas ?? null,
     status_short: match.status_short ?? match.mst ?? '',
     status_elapsed: match.status_elapsed ?? match.mle ?? null,
+    cmec: match.cmec ?? null,
     home_logo: getHomeLogo(),
     away_logo: getAwayLogo(),
     mhn: match.mhn ?? null,
@@ -524,21 +536,22 @@ const ActiveAIBets = () => {
         const yesterdayDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const yesterdayStr = getUTC8DateString(yesterdayDate);
         
-        // Completed statuses that should be excluded (same as fetch-daily-matches)
-        const COMPLETED_STATUSES = ['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO'];
-
         // Fetch yesterday's and today's matches (live or upcoming) - exclude completed matches
-        // Use client-side filtering to avoid missing any active status values from API
+        // Use met field to filter: met = 0 or met is null means match not finished
         const { data: matchesData, error: matchesError } = await supabase
           .from('daily_matches' as any)
           .select('*')
           .in('date', [yesterdayStr, today])
+          .or('met.is.null,met.eq.0') // met 为 null 或 0 表示未结束
           .order('mgt', { ascending: true });
         
-        // Filter out completed matches on client side (same logic as fetch-daily-matches)
-        const activeMatches = (matchesData || []).filter((match: any) => 
-          !match.status_short || !COMPLETED_STATUSES.includes(match.status_short)
-        );
+        // Filter out completed matches on client side (using met field)
+        // met = 0 or met is null means match not finished
+        const activeMatches = (matchesData || []).filter((match: any) => {
+          const met = match.met;
+          const metValue = typeof met === 'string' ? parseInt(met) : (met ?? 0);
+          return metValue === 0; // 只保留未结束的比赛
+        });
 
         if (matchesError) {
           console.error('Error fetching matches:', matchesError);

@@ -76,7 +76,8 @@ const AI_BALANCE_LEDGER_TABLE = "ai_balance_ledger";
 const AUTO_BET_TABLE = "ai_auto_bets";
 const DAILY_MATCHES_TABLE = "daily_matches";
 
-const COMPLETED_STATUSES = new Set(["FT", "AET", "PEN", "CANC", "ABD", "AWD", "WO"]);
+// 不再使用 COMPLETED_STATUSES，改用 met 字段判断
+// met != 0 且 met 不为 null 表示比赛已结束
 
 const VALID_RESULTS: SettlementResult[] = [
   "win",
@@ -285,7 +286,7 @@ const fetchOpenPositions = async (matchIds?: number[]) => {
   return (data || []) as PositionRow[];
 };
 
-// 查询已完成的比赛
+// 查询已完成的比赛（使用 met 字段判断）
 const fetchCompletedMatches = async (matchIds: number[]) => {
   if (!supabase) {
     throw new Error("Supabase client not initialized");
@@ -295,17 +296,27 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
     return [] as MatchResult[];
   }
 
+  // 将 matchIds 转换为字符串数组（因为 mid 是 TEXT 类型）
+  const matchIdsStr = matchIds.map(id => String(id));
+
   const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
-    .select("fixture_id, goals_home, goals_away, status_short")
-    .in("fixture_id", matchIds)
-    .in("status_short", Array.from(COMPLETED_STATUSES));
+    .select("mid, mhs, mas, met")
+    .in("mid", matchIdsStr)
+    .neq("met", 0) // met != 0 表示比赛已结束
+    .not("met", "is", null); // 排除 met 为 null 的情况
 
   if (error) {
     throw error;
   }
 
-  return (data || []) as MatchResult[];
+  // 转换数据格式以保持兼容性
+  return (data || []).map((match: any) => ({
+    fixture_id: match.mid ? parseInt(match.mid) || 0 : 0,
+    goals_home: match.mhs ?? null,
+    goals_away: match.mas ?? null,
+    status_short: match.met ? "FT" : null, // 保持兼容性，但实际不再使用
+  })) as MatchResult[];
 };
 
 // 根据投注类型和比赛结果计算输赢

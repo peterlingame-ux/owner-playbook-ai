@@ -8,7 +8,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type ModelAnalysis = {
   id: string;
@@ -110,25 +109,10 @@ export const MatchAnalysisDialog = ({
             </div>
           ) : hasMultiModels && activeModelId ? (
             <div className="space-y-4">
-              <Tabs
-                value={activeModelId}
-                onValueChange={(value) => setActiveModelId(value)}
-              >
-                <TabsList className="w-full flex-wrap">
-                  {analyses.map((model) => (
-                    <TabsTrigger
-                      key={model.id}
-                      value={model.id}
-                      disabled={!model.analysis}
-                      className="text-xs sm:text-sm"
-                    >
-                      {model.displayName}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-
-                {analyses.map((model) => (
-                  <TabsContent key={model.id} value={model.id}>
+              {analyses
+                .filter((model) => model.id === activeModelId)
+                .map((model) => (
+                  <div key={model.id}>
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                       <span>{model.model}</span>
                       {typeof model.latencyMs === "number" && (
@@ -142,9 +126,8 @@ export const MatchAnalysisDialog = ({
                         {model.error || "该模型未返回分析结果"}
                       </div>
                     )}
-                  </TabsContent>
+                  </div>
                 ))}
-              </Tabs>
             </div>
           ) : fallbackAnalysis ? (
             renderAnalysisContent(analysis)
