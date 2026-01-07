@@ -299,7 +299,8 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
   // 将 matchIds 转换为字符串数组（因为 mid 是 TEXT 类型）
   const matchIdsStr = matchIds.map(id => String(id));
 
-  const { data, error } = await supabase
+  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select("mid, mhs, mas, met")
     .in("mid", matchIdsStr)
@@ -310,8 +311,15 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
     throw error;
   }
 
+  // 过滤：只保留当前时间 > met 的比赛（确保比赛确实已经结束）
+  const completedMatches = (allMatches || []).filter((match: any) => {
+    const met = match.met;
+    const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
+    return metValue !== 0 && metValue <= now; // met != 0 且 当前时间 >= met
+  });
+
   // 转换数据格式以保持兼容性
-  return (data || []).map((match: any) => ({
+  return completedMatches.map((match: any) => ({
     fixture_id: match.mid ? parseInt(match.mid) || 0 : 0,
     goals_home: match.mhs ?? null,
     goals_away: match.mas ?? null,

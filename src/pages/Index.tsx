@@ -92,9 +92,12 @@ const Index = () => {
   
   // 从数据库获取真实AI模型统计数据
   useEffect(() => {
-    const fetchAIStats = async () => {
-      setIsLoadingModels(true);
-      const INITIAL_BALANCE = 10000;
+    const INITIAL_BALANCE = 10000;
+    
+    const fetchAIStats = async (isRefresh = false) => {
+      if (!isRefresh) {
+        setIsLoadingModels(true);
+      }
       
       try {
         // 并行获取胜率统计和余额数据
@@ -172,14 +175,47 @@ const Index = () => {
         setModelsWithRealData(updatedModels);
       } catch (error) {
         console.error('Error fetching AI stats:', error);
-        // 如果出错，使用默认数据
-        setModelsWithRealData(aiModels);
+        // 如果出错，使用默认数据（仅在首次加载时）
+        if (!isRefresh) {
+          setModelsWithRealData(aiModels);
+        }
       } finally {
-        setIsLoadingModels(false);
+        if (!isRefresh) {
+          setIsLoadingModels(false);
+        }
       }
     };
 
-    fetchAIStats();
+    // 初始加载
+    fetchAIStats(false);
+
+    // 每60秒自动刷新数据（静默刷新）
+    const interval = setInterval(() => fetchAIStats(true), 60000);
+
+    // 订阅 ai_balances 表的变化，实时更新余额
+    const balancesChannel = supabase
+      .channel('ai-balances-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'ai_balances',
+        },
+        (payload) => {
+          console.log('AI balance updated, refreshing stats:', payload);
+          fetchAIStats(true);
+        }
+      )
+      .subscribe();
+
+    // 订阅 ai_win_rates_overall 视图的变化（如果支持）
+    // 注意：视图可能不支持实时订阅，所以主要依赖定时刷新
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(balancesChannel);
+    };
   }, []);
 
   // Sort models by win rate

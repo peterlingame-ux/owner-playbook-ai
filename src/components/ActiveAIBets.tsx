@@ -41,58 +41,9 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
 
   useEffect(() => {
     const updateTime = () => {
-      // 使用 cmec 字段判断比赛状态
-      const cmec = match.cmec?.trim() || '';
       const kickoffTime = getKickoffDate(match);
       
-      // cmec 字段包含的值表示比赛进行中的状态
-      const liveStatuses = ['attack', 'plays_coming', 'half_time', 'ball_safe', 'match_status', 
-                           'system_message', 'dangerous_attack', 'injury', 'dang_poss', 'clockChange'];
-      
-      // 如果 cmec 有值，说明比赛在进行中或即将开始
-      if (cmec && liveStatuses.includes(cmec)) {
-        setShowCountdown(false);
-        
-        // 中场休息
-        if (cmec === 'half_time') {
-          setMatchStatus('half_time');
-          setTimeDisplay(t('half_time_break') || '中场休息');
-          return;
-        }
-        
-        // 比赛进行中：其他所有 cmec 值都表示比赛在进行中
-        setMatchStatus('live');
-        const elapsed = match.status_elapsed;
-        // 根据不同的 cmec 值显示不同的文本，如果没有 elapsed 则显示状态
-        if (elapsed !== null && elapsed !== undefined) {
-          setTimeDisplay(`${elapsed}'`);
-        } else {
-          // 根据 cmec 值显示友好的文本
-          switch (cmec) {
-            case 'attack':
-              setTimeDisplay('进攻中');
-              break;
-            case 'plays_coming':
-              setTimeDisplay('即将开始');
-              break;
-            case 'ball_safe':
-              setTimeDisplay('进行中');
-              break;
-            case 'dangerous_attack':
-              setTimeDisplay('危险进攻');
-              break;
-            case 'injury':
-              setTimeDisplay('伤停');
-              break;
-            default:
-              setTimeDisplay('进行中');
-              break;
-          }
-        }
-        return;
-      }
-      
-      // 如果状态不是已开赛，根据比赛时间判断
+      // 如果没有开赛时间，显示默认值
       if (!kickoffTime) {
         setMatchStatus('not_started');
         setShowCountdown(true);
@@ -101,26 +52,63 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       }
       
       const now = new Date();
-      const diff = kickoffTime.getTime() - now.getTime();
+      const diff = now.getTime() - kickoffTime.getTime(); // 当前时间 - 开赛时间
       
-      // 如果比赛时间还未到，显示倒计时
+      // 如果当前时间大于开赛时间（diff > 0），说明比赛正在进行中
       if (diff > 0) {
-        setMatchStatus('not_started');
-        setShowCountdown(true);
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setShowCountdown(false);
         
-        // 显示时分秒格式：HH:MM:SS
-        setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        // 使用 cmec 字段判断是否中场休息
+        const cmec = match.cmec?.trim() || '';
+        if (cmec === 'half_time') {
+          setMatchStatus('half_time');
+          setTimeDisplay(t('half_time_break') || '中场休息');
+          return;
+        }
+        
+        // 计算比赛进行时间（分钟）
+        const elapsedMinutes = Math.floor(diff / (1000 * 60));
+        
+        // 优先使用 status_elapsed（如果存在且大于 0），否则使用计算出的分钟数
+        // 如果 status_elapsed 为 0，但比赛已经开始，使用计算值
+        let displayMinutes: number;
+        if (match.status_elapsed !== null && match.status_elapsed !== undefined && match.status_elapsed > 0) {
+          displayMinutes = match.status_elapsed;
+        } else {
+          displayMinutes = elapsedMinutes;
+        }
+        
+        // 如果显示分钟数为 0，但比赛已经开始（diff > 0），至少显示 1 分钟
+        // 或者如果 diff 很小（小于 60 秒），显示秒数
+        if (displayMinutes === 0 && diff > 0) {
+          const elapsedSeconds = Math.floor(diff / 1000);
+          if (elapsedSeconds < 60) {
+            // 如果小于 60 秒，显示秒数
+            setMatchStatus('live');
+            setTimeDisplay(`${elapsedSeconds}''`);
+            return;
+          } else {
+            // 如果大于等于 60 秒，至少显示 1 分钟
+            displayMinutes = 1;
+          }
+        }
+        
+        setMatchStatus('live');
+        setTimeDisplay(`${displayMinutes}'`);
         return;
       }
       
-      // 如果比赛时间已过但状态不是已开赛，显示"即将开始"或比赛时间
-      if (diff <= 0 && diff > -300000) { // 5分钟内
+      // 如果比赛时间还未到（diff <= 0），显示倒计时
+      if (diff <= 0) {
         setMatchStatus('not_started');
-        setShowCountdown(false);
-        setTimeDisplay(t('starting_soon') || '即将开始');
+        setShowCountdown(true);
+        const absDiff = Math.abs(diff);
+        const hours = Math.floor(absDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+        
+        // 显示时分秒格式：HH:MM:SS
+        setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
         return;
       }
       
@@ -546,11 +534,16 @@ const ActiveAIBets = () => {
           .order('mgt', { ascending: true });
         
         // Filter out completed matches on client side (using met field)
-        // met = 0 or met is null means match not finished
+        // 比赛结束逻辑：met != 0 并且 当前时间 > met的时间
+        const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
         const activeMatches = (matchesData || []).filter((match: any) => {
           const met = match.met;
           const metValue = typeof met === 'string' ? parseInt(met) : (met ?? 0);
-          return metValue === 0; // 只保留未结束的比赛
+          // 只保留未结束的比赛：met = 0 或 met 为 null，或者 met != 0 但当前时间 < met
+          if (metValue === 0 || met === null || met === undefined) {
+            return true; // 未结束
+          }
+          return now < metValue; // 当前时间 < met，比赛还未结束
         });
 
         if (matchesError) {
@@ -932,9 +925,46 @@ const ActiveAIBets = () => {
   };
 
   // Get matches with bets (live or upcoming)
+  // First, get all unique match_ids from bets
+  const betMatchIds = new Set(autoBets.map(bet => bet.match_id?.toString()).filter(Boolean));
+  
+  // Then, get matches that have bets from the active matches list
   const matchesWithBets = matches.filter(match => 
-    autoBets.some(bet => bet.match_id?.toString() === match.mid)
+    betMatchIds.has(match.mid)
   );
+  
+  // State to store missing matches (matches that have bets but are not in active matches list)
+  const [missingMatches, setMissingMatches] = useState<DailyMatch[]>([]);
+  
+  // Fetch missing matches that have bets but are not in the active matches list
+  useEffect(() => {
+    const fetchMissingMatches = async () => {
+      const missingMatchIds = Array.from(betMatchIds).filter(mid => 
+        !matches.some(m => m.mid === mid)
+      );
+      
+      if (missingMatchIds.length > 0) {
+        const { data: missingMatchesData } = await supabase
+          .from('daily_matches' as any)
+          .select('*')
+          .in('mid', missingMatchIds);
+        
+        if (missingMatchesData) {
+          const normalizedMissing = (missingMatchesData || []).map(normalizeDailyMatch) as DailyMatch[];
+          setMissingMatches(normalizedMissing);
+        } else {
+          setMissingMatches([]);
+        }
+      } else {
+        setMissingMatches([]);
+      }
+    };
+    
+    fetchMissingMatches();
+  }, [betMatchIds.size, matches.length, autoBets.length]);
+  
+  // Combine active matches and missing matches
+  const allMatchesWithBets = [...matchesWithBets, ...missingMatches];
   
   // Only show loading state on initial load, not on refresh
   if (isInitialLoading) {
@@ -988,7 +1018,7 @@ const ActiveAIBets = () => {
           // Find this AI's bets from database, grouped by match
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
-          matchesWithBets.forEach(match => {
+          allMatchesWithBets.forEach(match => {
             const matchBets = autoBets
               .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
               .map(bet => convertBet(bet, match));
@@ -1400,7 +1430,7 @@ const ActiveAIBets = () => {
           // Find hunsoccermax bets from database, grouped by match
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
-          matchesWithBets.forEach(match => {
+          allMatchesWithBets.forEach(match => {
             const matchBets = autoBets
               .filter(b => b.match_id?.toString() === match.mid && b.ai_id === 'hunsoccermax')
               .map(bet => convertBet(bet, match));
@@ -1426,6 +1456,8 @@ const ActiveAIBets = () => {
             ? (balance.available_balance + balance.locked_balance).toLocaleString()
             : hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(hunsoccermaxModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
           const balanceValue = balanceNumber;
+          // Available balance = available_balance (locked_balance is already bet, so we can only use available_balance)
+          const availableBalance = balance ? balance.available_balance : undefined;
 
           return (
             <div ref={registerCardRef('hunsoccermax')} className="h-full">
@@ -1436,6 +1468,7 @@ const ActiveAIBets = () => {
                 handicapBet={handicapBet as any}
                 overUnderBet={overUnderBet as any}
                 balanceValue={balanceValue}
+                availableBalance={availableBalance}
                 matchIndex={matchIndex}
                 matchEntries={matchEntries as any}
                 onOpenPKDialog={handleOpenPKDialog}

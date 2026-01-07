@@ -74,6 +74,7 @@ interface PlayerExclusiveModelCardProps {
   handicapBet?: BetData | null;
   overUnderBet?: BetData | null;
   balanceValue?: string;
+  availableBalance?: number; // 可用余额（总余额 - 已下注金额）
   matchIndex?: number;
   matchEntries?: Array<{ match: any; bets: BetData[] }>;
   onOpenPKDialog?: (match: any) => void;
@@ -214,6 +215,7 @@ const PlayerExclusiveModelCard = ({
   handicapBet,
   overUnderBet,
   balanceValue,
+  availableBalance,
   matchIndex = 0,
   matchEntries = [],
   onOpenPKDialog,
@@ -244,7 +246,32 @@ const PlayerExclusiveModelCard = ({
   const [showManualBetDialog, setShowManualBetDialog] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [manualBetType, setManualBetType] = useState<'handicap' | 'over_under'>('handicap');
+  
+  // Calculate available balance (use availableBalance prop if provided, otherwise parse from balanceValue)
+  // Available balance = available_balance (locked_balance is already bet, so we can only use available_balance)
+  const maxBetAmount = useMemo(() => {
+    if (availableBalance !== undefined) {
+      return availableBalance;
+    }
+    // Fallback: try to parse from balanceValue string (remove commas and convert to number)
+    // Note: This is total balance, not available balance, so it's less accurate
+    if (balanceValue) {
+      const parsed = parseInt(balanceValue.replace(/,/g, ''), 10);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }, [availableBalance, balanceValue]);
+
+  // Initialize bet amount based on available balance
   const [manualBetAmount, setManualBetAmount] = useState(100);
+  
+  // Update bet amount when maxBetAmount changes (ensure it doesn't exceed available balance)
+  useEffect(() => {
+    if (maxBetAmount > 0 && manualBetAmount > maxBetAmount) {
+      setManualBetAmount(Math.min(100, maxBetAmount));
+    }
+  }, [maxBetAmount, manualBetAmount]);
+  
   const [manualHandicapLine, setManualHandicapLine] = useState(0);
   const [manualOverUnderLine, setManualOverUnderLine] = useState(2.5);
   const [manualPrediction, setManualPrediction] = useState<string>('');
@@ -285,8 +312,42 @@ const PlayerExclusiveModelCard = ({
     },
   ], []);
 
-  // Use available matches or demo matches
-  const matchesToShow = availableMatches.length > 0 ? availableMatches : demoMatches;
+  // Get matches from matchEntries (current model's AI bets) for manual prediction dialog
+  const matchesFromBets = useMemo(() => {
+    // Priority 1: If matchEntries has data, extract unique matches from it (matches with AI bets)
+    if (matchEntries && matchEntries.length > 0) {
+      const uniqueMatches = new Map<string, any>();
+      matchEntries.forEach(entry => {
+        if (entry && entry.match && entry.match.mid) {
+          uniqueMatches.set(entry.match.mid, entry.match);
+        }
+      });
+      const extractedMatches = Array.from(uniqueMatches.values());
+      if (extractedMatches.length > 0) {
+        return extractedMatches;
+      }
+    }
+    // Priority 2: Fallback to availableMatches (real matches from database) if matchEntries is empty
+    // This ensures we show real data instead of demo data when there are no AI bets yet
+    if (availableMatches && availableMatches.length > 0) {
+      return availableMatches;
+    }
+    // Return empty array if no real data is available (do not use demo data)
+    return [];
+  }, [matchEntries, availableMatches]);
+  
+  const matchesToShow = matchesFromBets;
+  
+  // Debug: Log what data source is being used
+  useEffect(() => {
+    if (showManualBetDialog) {
+      console.log('[PlayerExclusiveModelCard] Manual bet dialog opened');
+      console.log('[PlayerExclusiveModelCard] matchEntries:', matchEntries?.length || 0);
+      console.log('[PlayerExclusiveModelCard] availableMatches:', availableMatches?.length || 0);
+      console.log('[PlayerExclusiveModelCard] matchesToShow:', matchesToShow.length);
+      console.log('[PlayerExclusiveModelCard] matchesToShow sample:', matchesToShow.slice(0, 2));
+    }
+  }, [showManualBetDialog, matchEntries, availableMatches, matchesToShow]);
 
   const trainingSteps = [
     { icon: Database, label: '数据解析', description: '正在分析输入内容...' },
@@ -560,6 +621,20 @@ const PlayerExclusiveModelCard = ({
 
   // Handle manual bet submission
   const handleManualBetSubmit = async () => {
+    // Validate bet amount doesn't exceed available balance
+    if (manualBetAmount > maxBetAmount) {
+      toast.error(t('insufficient_balance') || '余额不足', {
+        description: t('bet_amount_exceeds_balance') || `下注金额不能超过可用余额 ${maxBetAmount.toLocaleString()}`,
+      });
+      return;
+    }
+    
+    if (manualBetAmount < 10) {
+      toast.error(t('invalid_bet_amount') || '下注金额无效', {
+        description: t('minimum_bet_amount') || '最小下注金额为 10',
+      });
+      return;
+    }
     if (!selectedMatch) {
       toast.error(t('please_select_match') || '请选择比赛');
       return;
@@ -950,65 +1025,62 @@ const PlayerExclusiveModelCard = ({
 
                   {/* Manual Bet Details - Handicap */}
                   {confirmedManualBet.betType === 'handicap' && (
-                    <div className="bg-white/5 rounded-lg p-2 space-y-1.5 border border-white/10">
-                      {/* Header */}
+                    <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
+                      {/* Bet Type Header */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] sm:text-xs font-semibold text-foreground/90">{t('handicap_bet') || '让分'}</span>
-                        <Badge variant="outline" className="text-[8px] sm:text-[10px] px-2 py-0.5 bg-success/20 text-success border-success/30 font-medium">
-                          已确认
+                        <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet') || '让分'}</span>
+                        <Badge 
+                          variant="outline"
+                          className={`text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 ${confirmedManualBet.confirmed ? "bg-success/20 text-success border-success/30" : "bg-white/5 text-muted-foreground border-white/10"}`}
+                        >
+                          {confirmedManualBet.confirmed ? "已确认" : "待确认"}
                         </Badge>
                       </div>
                       
-                      {/* Team Selection Grid */}
+                      {/* Selection Grid */}
                       <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                        {/* Home Team Option */}
-                        <div className={`p-2 rounded-lg border-2 transition-all ${
-                          confirmedManualBet.prediction === 'HOME' 
-                            ? 'bg-primary/15 border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_18px_hsl(var(--primary)/0.22)]'
-                            : 'bg-white/5 border-white/10 opacity-50'
+                        <div className={`p-1.5 sm:p-2.5 rounded-lg border-2 transition-all flex items-center gap-1 sm:gap-2 ${
+                          confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN"
+                            ? "bg-primary/20 border-primary/60" 
+                            : "bg-white/5 border-white/10 opacity-60"
                         }`}>
-                          <div className="flex items-center gap-1.5">
-                            {confirmedManualBet.match.home_logo && (
-                              <Avatar className="h-4 w-4 sm:h-5 sm:w-5 shrink-0">
-                                <AvatarImage src={confirmedManualBet.match.home_logo} />
-                                <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
-                              </Avatar>
-                            )}
-                            <span className="text-[9px] sm:text-xs font-medium truncate">{safeGetTeamName(confirmedManualBet.match, 'home')}</span>
-                            <span className="text-[9px] sm:text-xs font-mono font-bold text-muted-foreground ml-auto shrink-0">
-                              {confirmedManualBet.handicapLine > 0 ? '+' : ''}{confirmedManualBet.handicapLine}
+                          <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 whitespace-nowrap">{safeGetTeamName(confirmedManualBet.match, 'home')}</span>
+                          {confirmedManualBet.handicapLine !== undefined && (
+                            <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
+                              confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN" ? "text-primary" : "text-muted-foreground"
+                            }`}>
+                              {((confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine) > 0 ? '+' : ''}
+                              {(confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine}
                             </span>
-                          </div>
+                          )}
                         </div>
-                        
-                        {/* Away Team Option */}
-                        <div className={`p-2 rounded-lg border-2 transition-all ${
-                          confirmedManualBet.prediction === 'AWAY' 
-                            ? 'bg-primary/15 border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_18px_hsl(var(--primary)/0.22)]'
-                            : 'bg-white/5 border-white/10 opacity-50'
+                        <div className={`p-1.5 sm:p-2.5 rounded-lg border-2 transition-all flex items-center gap-1 sm:gap-2 ${
+                          confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN"
+                            ? "bg-primary/20 border-primary/60" 
+                            : "bg-white/5 border-white/10 opacity-60"
                         }`}>
-                          <div className="flex items-center gap-1.5">
-                            {confirmedManualBet.match.away_logo && (
-                              <Avatar className="h-4 w-4 sm:h-5 sm:w-5 shrink-0">
-                                <AvatarImage src={confirmedManualBet.match.away_logo} />
-                                <AvatarFallback><Shield className="h-2 w-2 sm:h-3 sm:w-3" /></AvatarFallback>
-                              </Avatar>
-                            )}
-                            <span className="text-[9px] sm:text-xs font-medium truncate">{safeGetTeamName(confirmedManualBet.match, 'away')}</span>
-                            <span className="text-[9px] sm:text-xs font-mono font-bold text-muted-foreground ml-auto shrink-0">
-                              {-confirmedManualBet.handicapLine > 0 ? '+' : ''}{-confirmedManualBet.handicapLine}
+                          <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 whitespace-nowrap">{safeGetTeamName(confirmedManualBet.match, 'away')}</span>
+                          {confirmedManualBet.handicapLine !== undefined && (
+                            <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
+                              confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN" ? "text-primary" : "text-muted-foreground"
+                            }`}>
+                              {((confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine) > 0 ? '+' : ''}
+                              {(confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine}
                             </span>
-                          </div>
+                          )}
                         </div>
                       </div>
                       
-                      {/* Bottom Stats Row */}
-                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-1.5 border-t border-white/10">
-                        <span className="text-muted-foreground">
-                          {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
-                          <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
+                      {/* Stats Row */}
+                      <div className="flex items-center justify-between text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
+                        <div className="flex items-center gap-2 sm:gap-4">
+                          <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                          <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                        </div>
+                        <span className="font-mono font-bold text-success flex items-center gap-0.5">
+                          <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                          {(confirmedManualBet.betAmount * confirmedManualBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </span>
-                        <span className="font-mono font-bold text-success flex items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
                       </div>
                     </div>
                   )}
@@ -1544,29 +1616,48 @@ const PlayerExclusiveModelCard = ({
             {/* Step 1: Match Selection */}
             {!selectedMatch ? (
               <div className="p-3 space-y-2">
-                {matchesToShow.slice(0, 5).map((match: any) => (
-                  <div
-                    key={match.mid || match.fixture_id}
-                    className="p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors border border-border hover:border-primary/30"
-                    onClick={() => {
-                      setSelectedMatch(match);
-                      setManualPrediction('');
-                    }}
-                  >
-                    <div className="flex items-center justify-center gap-3">
-                      <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
-                        {safeGetTeamName(match, 'home')}
-                      </span>
-                      <span className="text-xs text-muted-foreground shrink-0">vs</span>
-                      <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
-                        {safeGetTeamName(match, 'away')}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center mt-2">
-                      {safeGetLeagueName(match)}
-                    </p>
+                {matchesToShow.length > 0 ? (
+                  matchesToShow.map((match: any) => {
+                    // Find the bet entry for this match to show bet info
+                    const matchEntry = matchEntries?.find(entry => entry.match?.mid === match.mid);
+                    const hasBets = matchEntry && matchEntry.bets && matchEntry.bets.length > 0;
+                    
+                    return (
+                      <div
+                        key={match.mid || match.fixture_id}
+                        className="p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors border border-border hover:border-primary/30"
+                        onClick={() => {
+                          setSelectedMatch(match);
+                          setManualPrediction('');
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-3">
+                          <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
+                            {safeGetTeamName(match, 'home')}
+                          </span>
+                          <span className="text-xs text-muted-foreground shrink-0">vs</span>
+                          <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
+                            {safeGetTeamName(match, 'away')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center mt-2">
+                          {safeGetLeagueName(match)}
+                        </p>
+                        {hasBets && (
+                          <div className="flex items-center justify-center gap-2 mt-2 pt-2 border-t border-border/50">
+                            <span className="text-[10px] text-muted-foreground">
+                              AI已下注 · {matchEntry.bets.length}项
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    {t('no_matches_available') || '暂无可用比赛'}
                   </div>
-                ))}
+                )}
               </div>
             ) : (
               /* Step 2: Betting Options - Simplified */
@@ -1676,10 +1767,22 @@ const PlayerExclusiveModelCard = ({
                     <img src={hunterCoinIcon} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
                     <input
                       type="number"
+                      min={10}
+                      max={maxBetAmount}
                       value={manualBetAmount}
-                      onChange={(e) => setManualBetAmount(Math.max(10, parseInt(e.target.value) || 0))}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        // Clamp value between 10 and maxBetAmount
+                        const clampedValue = Math.max(10, Math.min(value, maxBetAmount));
+                        setManualBetAmount(clampedValue);
+                      }}
                       className="w-20 sm:w-24 h-8 sm:h-9 px-2 rounded bg-secondary/50 border border-border text-right text-sm font-mono focus:outline-none focus:border-primary transition-colors"
                     />
+                    {maxBetAmount > 0 && (
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        最多 {maxBetAmount.toLocaleString()}
+                      </span>
+                    )}
                   </div>
                 </div>
 

@@ -648,13 +648,49 @@ const convertSportsApiMatchToRecord = (
   };
 };
 
+// 调用 settle-sim-positions Edge Function 进行自动结算
+const triggerSettlement = async (matchIds: number[]): Promise<void> => {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || matchIds.length === 0) {
+    return;
+  }
+
+  try {
+    console.log(`[fetch-daily-matches] 触发结算：${matchIds.length} 场比赛`);
+    
+    const settleUrl = `${SUPABASE_URL}/functions/v1/settle-sim-positions`;
+    const response = await fetch(settleUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        autoSettle: true,
+        matchIds: matchIds,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "无法读取错误信息");
+      console.warn(`[fetch-daily-matches] 结算请求失败: HTTP ${response.status}, ${errorText.substring(0, 200)}`);
+      return;
+    }
+
+    const result = await response.json();
+    console.log(`[fetch-daily-matches] 结算完成:`, JSON.stringify(result).substring(0, 300));
+  } catch (error) {
+    console.error(`[fetch-daily-matches] 触发结算时出错:`, error);
+    // 不抛出错误，避免影响主流程
+  }
+};
+
 // 批量插入番茄体育 API 数据
 const upsertSportsApiMatches = async (
   date: string,
   matches: SportsApiMatch[],
   ybtyToken?: string,
   fetchOdds: boolean = false,
-) => {
+): Promise<{ completedMatchIds: number[] }> => {
   if (!supabase) {
     throw new Error("Supabase 客户端未初始化，无法写入数据");
   }
@@ -820,6 +856,27 @@ const upsertSportsApiMatches = async (
   }
   
   console.log(`[upsertSportsApiMatches] 成功写入 ${records.length} 条记录到数据库`);
+  
+  // 返回已完成的比赛 ID 列表（用于触发结算）
+  // 比赛结束逻辑：met != 0 并且 当前时间 > met的时间
+  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const completedMatchIds: number[] = [];
+  for (const record of records) {
+    const met = record.met;
+    const metValue = typeof met === "string" ? parseInt(met, 10) : (typeof met === "number" ? met : 0);
+    // met != 0 且 当前时间 >= met 表示比赛已结束
+    if (metValue !== 0 && met !== null && met !== undefined && typeof metValue === "number" && metValue <= now) {
+      const mid = record.mid;
+      if (mid && typeof mid === "string") {
+        const matchId = parseInt(mid);
+        if (!isNaN(matchId)) {
+          completedMatchIds.push(matchId);
+        }
+      }
+    }
+  }
+  
+  return { completedMatchIds };
 };
 
 // 获取需要刷新的比赛 mid 列表（今天和昨天的未完成比赛）
@@ -841,21 +898,29 @@ const getMatchesToRefresh = async (
     return new Set();
   }
 
-  // 过滤出未完成的比赛（met = 0 表示比赛未结束）
+  // 过滤出未完成的比赛
+  // 比赛结束逻辑：met != 0 并且 当前时间 > met的时间
+  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
   const activeMatches = new Set<string>();
 
   if (data) {
     for (const match of data) {
-      // met = 0 或 met 为 null/undefined 表示比赛未结束，需要刷新
-      // met != 0 表示比赛已结束，不需要刷新
       const met = match.met;
       const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
       
-      if (metValue === 0) {
+      // 只保留未结束的比赛：met = 0 或 met 为 null，或者 met != 0 但当前时间 < met
+      if (metValue === 0 || met === null || met === undefined) {
+        // met = 0 或 null，比赛未结束
+        if (match.mid) {
+          activeMatches.add(match.mid);
+        }
+      } else if (now < metValue) {
+        // met != 0 但当前时间 < met，比赛还未结束
         if (match.mid) {
           activeMatches.add(match.mid);
         }
       }
+      // 如果 met != 0 且 now >= metValue，比赛已结束，不添加到 activeMatches
     }
   }
 
@@ -940,12 +1005,21 @@ const refreshExistingMatches = async (
     }
   }
 
-  // 分别更新每个日期的比赛
+      // 分别更新每个日期的比赛
   let totalRefreshed = 0;
+  const allCompletedMatchIds: number[] = [];
+  
   for (const [date, matches] of matchesByDate.entries()) {
     console.log(`[fetch-daily-matches] 更新 ${date} 的 ${matches.length} 场比赛`);
-    await upsertSportsApiMatches(date, matches, ybtyToken, fetchOdds);
+    const { completedMatchIds } = await upsertSportsApiMatches(date, matches, ybtyToken, fetchOdds);
+    allCompletedMatchIds.push(...completedMatchIds);
     totalRefreshed += matches.length;
+  }
+
+  // 如果有已完成的比赛，触发自动结算
+  if (allCompletedMatchIds.length > 0) {
+    console.log(`[fetch-daily-matches] 发现 ${allCompletedMatchIds.length} 场已完成的比赛，触发自动结算`);
+    await triggerSettlement(allCompletedMatchIds);
   }
 
   return { refreshed: totalRefreshed, total: filteredByLeague.length };
@@ -978,7 +1052,7 @@ serve(async (req) => {
 
     console.log(`[fetch-daily-matches] processing matches for date: ${targetDate}, mode: ${isRefresh ? "refresh" : "normal"}`);
 
-    // 如果提供了 matches 数据（番茄体育 API 格式），直接处理
+      // 如果提供了 matches 数据（番茄体育 API 格式），直接处理
     if (matches && Array.isArray(matches)) {
       console.log(`[fetch-daily-matches] received ${matches.length} matches from SportsApi`);
       
@@ -991,13 +1065,20 @@ serve(async (req) => {
         console.warn("[fetch-daily-matches] 无法获取 token，将跳过赔率信息获取:", error);
       }
       
-      await upsertSportsApiMatches(targetDate, matches as SportsApiMatch[], ybtyToken, true);
+      const { completedMatchIds } = await upsertSportsApiMatches(targetDate, matches as SportsApiMatch[], ybtyToken, true);
+      
+      // 如果有已完成的比赛，触发自动结算
+      if (completedMatchIds.length > 0) {
+        console.log(`[fetch-daily-matches] 发现 ${completedMatchIds.length} 场已完成的比赛，触发自动结算`);
+        await triggerSettlement(completedMatchIds);
+      }
 
       return new Response(
         JSON.stringify({
           success: true,
           date: targetDate,
           count: matches.length,
+          completedMatches: completedMatchIds.length,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1073,8 +1154,14 @@ serve(async (req) => {
 
       // 7. 存储到数据库（同时获取赔率信息）
       if (todayMatches.length > 0) {
-        await upsertSportsApiMatches(targetDate, todayMatches, ybtyToken, true);
+        const { completedMatchIds } = await upsertSportsApiMatches(targetDate, todayMatches, ybtyToken, true);
         console.log(`[fetch-daily-matches] 成功存储 ${todayMatches.length} 场比赛（包含赔率信息）`);
+        
+        // 如果有已完成的比赛，触发自动结算
+        if (completedMatchIds.length > 0) {
+          console.log(`[fetch-daily-matches] 发现 ${completedMatchIds.length} 场已完成的比赛，触发自动结算`);
+          await triggerSettlement(completedMatchIds);
+        }
       }
 
       return new Response(

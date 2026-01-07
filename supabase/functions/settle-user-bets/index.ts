@@ -40,14 +40,27 @@ Deno.serve(async (req) => {
     console.log('Starting user bet settlement process...');
 
     // 获取所有已完成但未结算的比赛（使用 met 字段判断）
-    // met != 0 且 met 不为 null 表示比赛已结束
-    const { data: completedMatches, error: matchesError } = await supabase
+    // 比赛结束逻辑：met != 0 并且 当前时间 > met的时间
+    const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+    const { data: allMatches, error: matchesError } = await supabase
       .from('daily_matches')
       .select('*')
       .neq('met', 0) // met != 0 表示比赛已结束
       .not('met', 'is', null) // 排除 met 为 null 的情况
       .not('mhs', 'is', null) // 确保有主队得分
       .not('mas', 'is', null); // 确保有客队得分
+
+    if (matchesError) {
+      console.error('Error fetching matches:', matchesError);
+      throw matchesError;
+    }
+
+    // 过滤：只保留当前时间 > met 的比赛（确保比赛确实已经结束）
+    const completedMatches = (allMatches || []).filter((match: any) => {
+      const met = match.met;
+      const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
+      return metValue !== 0 && metValue <= now; // met != 0 且 当前时间 >= met
+    });
 
     if (matchesError) {
       console.error('Error fetching completed matches:', matchesError);

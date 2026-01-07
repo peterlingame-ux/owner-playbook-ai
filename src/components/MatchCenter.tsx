@@ -308,50 +308,81 @@ const MatchCenter = () => {
     let awayScore: number | undefined;
     let statusText: string | undefined;
     
-    // 直接使用索引0的值
-    if (homeScores.length > 0 && homeScores[0] !== undefined) {
-      homeScore = homeScores[0];
+    // 直接使用索引0的值，确保是有效数字
+    if (homeScores.length > 0 && homeScores[0] !== undefined && homeScores[0] !== null) {
+      const score = Number(homeScores[0]);
+      if (!isNaN(score) && score >= 0) {
+        homeScore = score;
+      }
     }
-    if (awayScores.length > 0 && awayScores[0] !== undefined) {
-      awayScore = awayScores[0];
-    }
-    
-    // 如果有点球大战比分，在 statusText 中显示
-    if (homeScores.length > 6 && homeScores[6] !== undefined && homeScores[6] >= 0 &&
-        awayScores.length > 6 && awayScores[6] !== undefined && awayScores[6] >= 0) {
-      const penaltyHome = homeScores[6];
-      const penaltyAway = awayScores[6];
-      statusText = `点球 ${penaltyHome}-${penaltyAway}`;
+    if (awayScores.length > 0 && awayScores[0] !== undefined && awayScores[0] !== null) {
+      const score = Number(awayScores[0]);
+      if (!isNaN(score) && score >= 0) {
+        awayScore = score;
+      }
     }
     
-    // 获取半场比分（索引 1）
-    const halfTimeScore = (homeScores.length > 1 && homeScores[1] !== undefined && homeScores[1] >= 0) &&
-                          (awayScores.length > 1 && awayScores[1] !== undefined && awayScores[1] >= 0)
-      ? `${homeScores[1]}-${awayScores[1]}`
+    // 如果有点球大战比分，在 statusText 中显示，确保是有效数字
+    if (homeScores.length > 6 && awayScores.length > 6) {
+      const penaltyHome = Number(homeScores[6]);
+      const penaltyAway = Number(awayScores[6]);
+      if (!isNaN(penaltyHome) && !isNaN(penaltyAway) && penaltyHome >= 0 && penaltyAway >= 0) {
+        statusText = `点球 ${penaltyHome}-${penaltyAway}`;
+      }
+    }
+    
+    // 获取半场比分（索引 1），确保是有效数字
+    const halfTimeScore = (() => {
+      if (homeScores.length > 1 && awayScores.length > 1) {
+        const homeHT = Number(homeScores[1]);
+        const awayHT = Number(awayScores[1]);
+        if (!isNaN(homeHT) && !isNaN(awayHT) && homeHT >= 0 && awayHT >= 0) {
+          return `${homeHT}-${awayHT}`;
+        }
+      }
+      return undefined;
+    })();
+    
+    // 获取红牌（索引 2），确保是有效数字
+    const homeRedCards = (homeScores.length > 2 && homeScores[2] !== undefined && homeScores[2] !== null) 
+      ? (() => {
+          const value = Number(homeScores[2]);
+          return (!isNaN(value) && value >= 0) ? value : undefined;
+        })()
+      : undefined;
+    const awayRedCards = (awayScores.length > 2 && awayScores[2] !== undefined && awayScores[2] !== null) 
+      ? (() => {
+          const value = Number(awayScores[2]);
+          return (!isNaN(value) && value >= 0) ? value : undefined;
+        })()
       : undefined;
     
-    // 获取红牌（索引 2）
-    const homeRedCards = (homeScores.length > 2 && homeScores[2] !== undefined && homeScores[2] >= 0) 
-      ? homeScores[2] 
+    // 获取黄牌（索引 3），确保是有效数字
+    const homeYellowCards = (homeScores.length > 3 && homeScores[3] !== undefined && homeScores[3] !== null) 
+      ? (() => {
+          const value = Number(homeScores[3]);
+          return (!isNaN(value) && value >= 0) ? value : undefined;
+        })()
       : undefined;
-    const awayRedCards = (awayScores.length > 2 && awayScores[2] !== undefined && awayScores[2] >= 0) 
-      ? awayScores[2] 
-      : undefined;
-    
-    // 获取黄牌（索引 3）
-    const homeYellowCards = (homeScores.length > 3 && homeScores[3] !== undefined && homeScores[3] >= 0) 
-      ? homeScores[3] 
-      : undefined;
-    const awayYellowCards = (awayScores.length > 3 && awayScores[3] !== undefined && awayScores[3] >= 0) 
-      ? awayScores[3] 
+    const awayYellowCards = (awayScores.length > 3 && awayScores[3] !== undefined && awayScores[3] !== null) 
+      ? (() => {
+          const value = Number(awayScores[3]);
+          return (!isNaN(value) && value >= 0) ? value : undefined;
+        })()
       : undefined;
     
-    // 获取角球（索引 4），-1表示没有角球数据
-    const homeCorners = (homeScores.length > 4 && homeScores[4] !== undefined && homeScores[4] >= 0) 
-      ? homeScores[4] 
+    // 获取角球（索引 4），-1表示没有角球数据，确保是有效数字
+    const homeCorners = (homeScores.length > 4 && homeScores[4] !== undefined && homeScores[4] !== null) 
+      ? (() => {
+          const value = Number(homeScores[4]);
+          return (!isNaN(value) && value >= 0) ? value : undefined;
+        })()
       : undefined;
-    const awayCorners = (awayScores.length > 4 && awayScores[4] !== undefined && awayScores[4] >= 0) 
-      ? awayScores[4] 
+    const awayCorners = (awayScores.length > 4 && awayScores[4] !== undefined && awayScores[4] !== null) 
+      ? (() => {
+          const value = Number(awayScores[4]);
+          return (!isNaN(value) && value >= 0) ? value : undefined;
+        })()
       : undefined;
     
     // 格式化角球显示
@@ -399,12 +430,18 @@ const MatchCenter = () => {
       timestamp: match.match_time || 0, // 保存时间戳用于排序
       isHidden, // 标记是否需要隐藏（status_id === 0）
       homeTeam: homeTeam?.name || '未知主队',
-      homeRank: match.home_position ? parseInt(match.home_position) : undefined,
+      homeRank: match.home_position ? (() => {
+        const parsed = parseInt(match.home_position, 10);
+        return isNaN(parsed) ? undefined : parsed;
+      })() : undefined,
       homeScore,
       homeYellowCards,
       homeRedCards,
       awayTeam: awayTeam?.name || '未知客队',
-      awayRank: match.away_position ? parseInt(match.away_position) : undefined,
+      awayRank: match.away_position ? (() => {
+        const parsed = parseInt(match.away_position, 10);
+        return isNaN(parsed) ? undefined : parsed;
+      })() : undefined,
       awayScore,
       awayYellowCards,
       awayRedCards,
@@ -687,7 +724,7 @@ const MatchCenter = () => {
       </div>
 
       {/* Match content - Responsive layout */}
-      <div className="flex items-center gap-1 sm:gap-3">
+      <div className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-1 sm:gap-3">
         {/* Favorite button */}
         <button 
           onClick={(e) => toggleFavorite(match.id, e)}
@@ -705,7 +742,7 @@ const MatchCenter = () => {
         </button>
 
         {/* Home team */}
-        <div className="flex-1 flex items-center justify-end gap-0.5 sm:gap-2 min-w-0 overflow-hidden">
+        <div className="flex items-center justify-end gap-0.5 sm:gap-2 min-w-0 overflow-hidden">
           <div className="flex items-center gap-0.5 flex-shrink-0">
             {match.homeRedCards !== undefined && match.homeRedCards > 0 && (
               <span className="inline-flex items-center justify-center w-3 h-3 sm:w-5 sm:h-5 text-[8px] sm:text-xs font-bold bg-red-500 text-white rounded">
@@ -718,7 +755,7 @@ const MatchCenter = () => {
               </span>
             )}
           </div>
-          {match.homeRank && (
+          {match.homeRank !== undefined && !isNaN(match.homeRank) && (
             <span className="text-[7px] sm:text-[10px] text-muted-foreground/50 font-medium hidden xs:inline">[{match.homeRank}]</span>
           )}
           <span className="text-[10px] sm:text-sm font-medium text-foreground/90 truncate group-hover:text-foreground transition-colors">
@@ -727,7 +764,7 @@ const MatchCenter = () => {
         </div>
 
         {/* Score - Compact for mobile - 与顶部比赛进行时间垂直对齐 */}
-        <div className="flex-shrink-0 min-w-[44px] sm:min-w-[70px] flex flex-col items-center justify-center mx-auto">
+        <div className="flex-shrink-0 min-w-[44px] sm:min-w-[70px] flex flex-col items-center justify-center">
         {match.status === 'upcoming' || (match.homeScore === undefined && match.awayScore === undefined) ? (
             <div className="flex flex-col items-center">
               {activeTab === 'upcoming' && (
@@ -748,14 +785,14 @@ const MatchCenter = () => {
                   "text-[11px] sm:text-base font-bold tabular-nums",
                   match.status === 'live' ? "text-emerald-400" : "text-foreground"
                 )}>
-                  {match.homeScore !== undefined ? match.homeScore : 0}
+                  {match.homeScore !== undefined && !isNaN(match.homeScore) ? match.homeScore : 0}
                 </span>
                 <span className="text-muted-foreground/50 text-[10px] sm:text-base">-</span>
                 <span className={cn(
                   "text-[11px] sm:text-base font-bold tabular-nums",
                   match.status === 'live' ? "text-emerald-400" : "text-foreground"
                 )}>
-                  {match.awayScore !== undefined ? match.awayScore : 0}
+                  {match.awayScore !== undefined && !isNaN(match.awayScore) ? match.awayScore : 0}
                 </span>
               </div>
               {((match.halfTimeScore && match.halfTimeScore !== '0-0') || match.corners) && (
@@ -770,11 +807,11 @@ const MatchCenter = () => {
         </div>
 
         {/* Away team */}
-        <div className="flex-1 flex items-center gap-0.5 sm:gap-2 min-w-0 overflow-hidden">
+        <div className="flex items-center gap-0.5 sm:gap-2 min-w-0 overflow-hidden">
           <span className="text-[10px] sm:text-sm font-medium text-foreground/90 truncate group-hover:text-foreground transition-colors">
             {match.awayTeam}
           </span>
-          {match.awayRank && (
+          {match.awayRank !== undefined && !isNaN(match.awayRank) && (
             <span className="text-[7px] sm:text-[10px] text-muted-foreground/50 font-medium hidden xs:inline">[{match.awayRank}]</span>
           )}
           <div className="flex items-center gap-0.5 flex-shrink-0">
@@ -791,17 +828,21 @@ const MatchCenter = () => {
           </div>
         </div>
 
-        {/* Video button - hidden on very small screens */}
-        {match.hasVideo && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/10 hidden xs:flex items-center justify-center hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
-          >
-            <Play className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-emerald-400 fill-emerald-400" />
-          </button>
-        )}
+        {/* Video button or placeholder - hidden on very small screens */}
+        <div className="flex-shrink-0 hidden xs:block">
+          {match.hasVideo ? (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
+            >
+              <Play className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-emerald-400 fill-emerald-400" />
+            </button>
+          ) : (
+            <div className="w-6 h-6 sm:w-8 sm:h-8" />
+          )}
+        </div>
       </div>
     </div>
   );
