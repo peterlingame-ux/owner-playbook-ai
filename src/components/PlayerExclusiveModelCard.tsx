@@ -101,105 +101,156 @@ const FOOTBALL_KEYWORDS = [
   '爆冷', '热门', '冷门', '稳胆', '单关', '串关', '比分', '净胜', '总进球', '半全场'
 ];
 
+// 统一获取开赛时间，使用 mgt 毫秒时间戳（兼容 kickoff_at）
+const getKickoffDateForMatch = (match: any): Date | null => {
+  // 优先使用 mgt（毫秒时间戳）
+  if (match.mgt !== undefined && match.mgt !== null && match.mgt !== 0) {
+    const parsed = typeof match.mgt === 'string' ? Number(match.mgt) : match.mgt;
+    if (!Number.isNaN(parsed) && parsed > 0) {
+      const MIN_VALID_TIMESTAMP = 946684800000; // 2000-01-01 00:00:00 UTC
+      if (parsed >= MIN_VALID_TIMESTAMP) {
+        return new Date(parsed);
+      }
+    }
+  }
+  
+  // 回退到 kickoff_at（如果存在）
+  if (match.kickoff_at) {
+    const kickoffDate = new Date(match.kickoff_at);
+    if (!Number.isNaN(kickoffDate.getTime())) {
+      return kickoffDate;
+    }
+  }
+  
+  return null;
+};
+
 // MatchTimeDisplay component for PlayerExclusiveModelCard
 const MatchTimeDisplay = ({ match }: { match: any }) => {
   const { t } = useTranslation();
   const [timeDisplay, setTimeDisplay] = useState<string>('');
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
-  const [isLive, setIsLive] = useState<boolean>(false);
+  const [matchStatus, setMatchStatus] = useState<'not_started' | 'live' | 'half_time' | 'other'>('not_started');
 
   useEffect(() => {
     const updateTime = () => {
-      const status = match.status_short;
+      const kickoffTime = getKickoffDateForMatch(match);
       
-      if (status !== 'NS') {
+      // 如果没有开赛时间，显示默认值
+      if (!kickoffTime) {
+        setMatchStatus('not_started');
+        setShowCountdown(true);
+        setTimeDisplay('--:--:--');
+        return;
+      }
+      
+      const now = new Date();
+      const diff = now.getTime() - kickoffTime.getTime(); // 当前时间 - 开赛时间
+      
+      // 如果当前时间大于开赛时间（diff > 0），说明比赛正在进行中
+      if (diff > 0) {
         setShowCountdown(false);
-        const showScoreAndTimeStatuses = ['LIVE', '1H', 'HT', '2H', 'ET'];
-        const shouldShowScore = showScoreAndTimeStatuses.includes(status);
-        setIsLive(shouldShowScore);
         
-        if (shouldShowScore) {
-          const elapsed = match.status_elapsed;
-          switch (status) {
-            case 'HT':
-              setTimeDisplay(t('half_time') || '半场');
-              break;
-            case '1H':
-            case '2H':
-            case 'ET':
-            case 'LIVE':
-              setTimeDisplay(elapsed !== null && elapsed !== undefined ? `${elapsed}'` : status);
-              break;
-            default:
-              setTimeDisplay(status);
-              break;
-          }
+        // 使用 cmec 字段判断是否中场休息
+        const cmec = match.cmec?.trim() || '';
+        if (cmec === 'half_time') {
+          setMatchStatus('half_time');
+          setTimeDisplay(t('half_time_break') || '中场休息');
+          return;
+        }
+        
+        // 计算比赛进行时间（分钟）
+        const elapsedMinutes = Math.floor(diff / (1000 * 60));
+        
+        // 优先使用 status_elapsed（如果存在且大于 0），否则使用计算出的分钟数
+        // 如果 status_elapsed 为 0，但比赛已经开始，使用计算值
+        let displayMinutes: number;
+        if (match.status_elapsed !== null && match.status_elapsed !== undefined && match.status_elapsed > 0) {
+          displayMinutes = match.status_elapsed;
         } else {
-          setIsLive(false);
-          switch (status) {
-            case 'P':
-              setTimeDisplay('PEN');
-              break;
-            case 'BREAK':
-              setTimeDisplay('BREAK');
-              break;
-            default:
-              setTimeDisplay(status);
-              break;
+          displayMinutes = elapsedMinutes;
+        }
+        
+        // 如果显示分钟数为 0，但比赛已经开始（diff > 0），至少显示 1 分钟
+        // 或者如果 diff 很小（小于 60 秒），显示秒数
+        if (displayMinutes === 0 && diff > 0) {
+          const elapsedSeconds = Math.floor(diff / 1000);
+          if (elapsedSeconds < 60) {
+            // 如果小于 60 秒，显示秒数
+            setMatchStatus('live');
+            setTimeDisplay(`${elapsedSeconds}''`);
+            return;
+          } else {
+            // 如果大于等于 60 秒，至少显示 1 分钟
+            displayMinutes = 1;
           }
         }
+        
+        setMatchStatus('live');
+        setTimeDisplay(`${displayMinutes}'`);
         return;
       }
       
-      setIsLive(false);
-      setShowCountdown(true);
-      const kickoffTime = new Date(match.kickoff_at);
-      const now = new Date();
-      const diff = kickoffTime.getTime() - now.getTime();
-      
+      // 如果比赛时间还未到（diff <= 0），显示倒计时
       if (diff <= 0) {
-        setTimeDisplay(t('starting_soon') || '即将开始');
+        setMatchStatus('not_started');
+        setShowCountdown(true);
+        const absDiff = Math.abs(diff);
+        const hours = Math.floor(absDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+        
+        // 显示时分秒格式：HH:MM:SS
+        setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
         return;
       }
       
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      // 其他情况，显示空
+      setMatchStatus('other');
+      setShowCountdown(false);
+      setTimeDisplay('');
     };
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
     
     return () => clearInterval(interval);
-  }, [match.status_short, match.status_elapsed, match.kickoff_at, t]);
-
-  const homeScore = match.goals_home ?? 0;
-  const awayScore = match.goals_away ?? 0;
+  }, [match.cmec, match.status_elapsed, match.mgt, match.kickoff_at, t]);
 
   return (
-    <div className="flex flex-col items-center gap-0.5 px-1 sm:px-1 shrink-0">
-      {isLive ? (
+    <div className="flex flex-col items-center gap-0 sm:gap-0.5 px-0.5 sm:px-1 shrink-0">
+      {matchStatus === 'not_started' ? (
         <>
-          <div className="flex items-center gap-1 sm:gap-1">
-            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{homeScore}</span>
-            <span className="text-[9px] sm:text-[9px] text-muted-foreground">-</span>
-            <span className="text-sm sm:text-sm font-bold font-mono-data text-success">{awayScore}</span>
-          </div>
-          <span className="text-[7px] sm:text-[7px] text-success font-bold font-mono uppercase">
+          {/* 未开赛：显示 VS 和倒计时 */}
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[6px] sm:text-[8px] text-muted-foreground font-medium">
+            {t('until_match_starts') || '距离比赛开始'}
+          </span>
+          <span className="text-[7px] sm:text-[9px] text-foreground/70 font-mono font-semibold">
+            {timeDisplay}
+          </span>
+        </>
+      ) : matchStatus === 'live' ? (
+        <>
+          {/* 开赛：显示 VS 和比赛时间 */}
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[8px] sm:text-[10px] text-success font-bold font-mono">
+            {timeDisplay}
+          </span>
+        </>
+      ) : matchStatus === 'half_time' ? (
+        <>
+          {/* 中场休息：显示 VS 和"中场休息" */}
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[7px] sm:text-[9px] text-muted-foreground font-bold">
             {timeDisplay}
           </span>
         </>
       ) : (
         <>
-          <span className="text-[9px] sm:text-[9px] text-muted-foreground font-bold">VS</span>
-          {showCountdown && (
-            <span className="text-[6px] sm:text-[7px] text-muted-foreground/70">
-              {t('until_match_starts') || '距离比赛开始'}
-            </span>
-          )}
-          <span className="text-[7px] sm:text-[7px] text-muted-foreground font-mono">
+          {/* 其他状态 */}
+          <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
+          <span className="text-[7px] sm:text-[9px] text-muted-foreground font-mono font-semibold">
             {timeDisplay}
           </span>
         </>
@@ -280,6 +331,8 @@ const PlayerExclusiveModelCard = ({
   const [manualBetConfirmed, setManualBetConfirmed] = useState(false);
   const [confirmedManualBet, setConfirmedManualBet] = useState<any>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [hasManualBet, setHasManualBet] = useState(false); // 是否有数据库中的手动下注
+  const [isCheckingManualBet, setIsCheckingManualBet] = useState(false); // 是否正在检查手动下注
 
   // Demo matches for manual prediction when no real matches available
   const demoMatches = useMemo(() => [
@@ -647,8 +700,38 @@ const PlayerExclusiveModelCard = ({
 
     setIsSubmittingBet(true);
 
-    // Calculate odds (demo calculation)
-    const odds = 1.85 + Math.random() * 0.3;
+    // Calculate odds based on selected bet type and option
+    // Get real odds from AI bets - no fallback to defaults
+    let odds: number | null = null;
+    const matchEntry = matchEntries?.find(entry => entry.match?.mid === selectedMatch?.mid);
+    
+    if (manualBetType === 'handicap') {
+      const handicapBet = matchEntry?.bets?.find((b: any) => b.betType === 'handicap');
+      // Only use real odds if AI bet exists and matches the selection
+      if (manualPrediction === 'HOME' && handicapBet && (handicapBet.prediction === 'HOME' || handicapBet.prediction === 'HOME_WIN')) {
+        odds = handicapBet.odds;
+      } else if (manualPrediction === 'AWAY' && handicapBet && (handicapBet.prediction === 'AWAY' || handicapBet.prediction === 'AWAY_WIN')) {
+        odds = handicapBet.odds;
+      }
+    } else {
+      const overUnderBet = matchEntry?.bets?.find((b: any) => b.betType === 'over_under');
+      // Only use real odds if AI bet exists and matches the selection
+      if (manualOverUnderPick === 'over' && overUnderBet && overUnderBet.overUnderPick === 'over') {
+        odds = overUnderBet.odds;
+      } else if (manualOverUnderPick === 'under' && overUnderBet && overUnderBet.overUnderPick === 'under') {
+        odds = overUnderBet.odds;
+      }
+    }
+    
+    // If no real odds found, show error and return
+    if (!odds || odds <= 0) {
+      toast.error(t('odds_not_available') || '赔率数据不可用', {
+        description: t('please_select_another_option') || '请选择其他选项或稍后再试',
+      });
+      setIsSubmittingBet(false);
+      return;
+    }
+    
     const potentialPayout = manualBetAmount * odds;
 
     // If user is logged in, save to database
@@ -707,11 +790,67 @@ const PlayerExclusiveModelCard = ({
     }, 2500);
   };
 
+  // Check if user has manual bet for current match (from database)
+  useEffect(() => {
+    const checkManualBet = async () => {
+      // Only check in manual prediction mode, when user is logged in, and when there is a current match
+      if (!isManualPrediction || !user || !currentMatchData?.match?.mid) {
+        setHasManualBet(false);
+        return;
+      }
+
+      setIsCheckingManualBet(true);
+      try {
+        const { data, error } = await supabase
+          .from('user_predictions')
+          .select('id, match_id, prediction_type, prediction, bet_amount, potential_payout, handicap_line, over_under_line, confidence, result, created_at')
+          .eq('user_id', user.id)
+          .eq('match_id', currentMatchData.match.mid)
+          .eq('result', 'pending') // Only check pending bets (not settled)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error('Error checking manual bet:', error);
+          setHasManualBet(false);
+        } else if (data && data.length > 0) {
+          // User has a pending manual bet for this match
+          setHasManualBet(true);
+          // Optionally, set confirmedManualBet from database data
+          const bet = data[0];
+          setConfirmedManualBet({
+            match: currentMatchData.match,
+            betType: bet.prediction_type,
+            prediction: bet.prediction,
+            betAmount: bet.bet_amount,
+            odds: bet.potential_payout ? bet.potential_payout / bet.bet_amount : 1.85,
+            confidence: bet.confidence || 75,
+            handicapLine: bet.handicap_line,
+            overUnderLine: bet.over_under_line,
+            overUnderPick: bet.prediction === 'OVER' ? 'over' : bet.prediction === 'UNDER' ? 'under' : undefined,
+            confirmed: true,
+          });
+          setManualBetConfirmed(true);
+        } else {
+          setHasManualBet(false);
+        }
+      } catch (err) {
+        console.error('Error checking manual bet:', err);
+        setHasManualBet(false);
+      } finally {
+        setIsCheckingManualBet(false);
+      }
+    };
+
+    checkManualBet();
+  }, [isManualPrediction, user, currentMatchData?.match?.mid]);
+
   // Reset manual bet when switching modes
   useEffect(() => {
     if (!isManualPrediction) {
       setManualBetConfirmed(false);
       setConfirmedManualBet(null);
+      setHasManualBet(false);
     }
   }, [isManualPrediction]);
 
@@ -745,8 +884,8 @@ const PlayerExclusiveModelCard = ({
           />
         </div>
 
-        {/* Match Counter - Bottom Right */}
-        {matchEntries.length > 1 && (
+        {/* Match Counter - Bottom Right - Only show if not in manual prediction mode without manual bet */}
+        {matchEntries.length > 1 && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
           <div className="absolute bottom-0.5 sm:bottom-1.5 right-1.5 sm:right-3 z-20 flex items-center gap-0.5 sm:gap-1 opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
             <button
               type="button"
@@ -898,7 +1037,26 @@ const PlayerExclusiveModelCard = ({
               <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
               {/* Match Info */}
-              {currentMatchData ? (
+              {/* In manual prediction mode, show "Start Prediction" button if there is no manual bet, regardless of AI auto bets */}
+              {isManualPrediction && !hasManualBet && !manualBetConfirmed ? (
+                /* Manual Prediction Mode - Show "Start Prediction" button when no bets exist */
+                <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden shrink-0">
+                  <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
+                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full shrink-0">
+                    {t('manual_prediction_hint') || '选择比赛进行人工预测'}
+                  </p>
+                  <button
+                    type="button"
+                    className="text-[6px] sm:text-xs mt-0.5 sm:mt-1 !px-2 sm:!px-3 !py-0.5 sm:!py-1 !min-w-0 !min-h-0 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 hover:border-primary/50 transition-all duration-200 font-medium shrink-0 whitespace-nowrap touch-manipulation cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowManualBetDialog(true);
+                    }}
+                  >
+                    {t('start_prediction') || '开始预测'}
+                  </button>
+                </div>
+              ) : currentMatchData ? (
                 <div className="space-y-1.5 sm:space-y-3">
                   {/* League Badge */}
                   <div className="flex items-center justify-center">
@@ -1146,8 +1304,8 @@ const PlayerExclusiveModelCard = ({
                 </div>
               )}
 
-              {/* Handicap Bet - Modern Style */}
-              {handicapBet && currentMatchData && (
+              {/* Handicap Bet - Modern Style - Only show if not in manual prediction mode without manual bet */}
+              {handicapBet && currentMatchData && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
                 <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                   {/* Bet Type Header */}
                   <div className="flex items-center justify-between">
@@ -1208,8 +1366,8 @@ const PlayerExclusiveModelCard = ({
                 </div>
               )}
 
-              {/* Over/Under Bet - Modern Style */}
-              {overUnderBet && currentMatchData && (
+              {/* Over/Under Bet - Modern Style - Only show if not in manual prediction mode without manual bet */}
+              {overUnderBet && currentMatchData && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
                 <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                   {/* Bet Type Header */}
                   <div className="flex items-center justify-between">
@@ -1675,89 +1833,169 @@ const PlayerExclusiveModelCard = ({
                 {/* Handicap Section */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] sm:text-xs text-muted-foreground">让分</span>
-                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                    <button
-                      type="button"
-                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                        manualBetType === 'handicap' && manualPrediction === 'HOME'
-                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
-                          : 'bg-secondary/50 border-border active:bg-secondary/80'
-                      }`}
-                      onClick={() => { setManualBetType('handicap'); setManualPrediction('HOME'); setManualHandicapLine(-0.5); }}
-                    >
-                      {manualBetType === 'handicap' && manualPrediction === 'HOME' && (
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                  {(() => {
+                    // Get real odds from AI bets - only show if we have real data
+                    const matchEntry = matchEntries?.find(entry => entry.match?.mid === selectedMatch?.mid);
+                    const handicapBet = matchEntry?.bets?.find((b: any) => b.betType === 'handicap');
+                    
+                    if (!handicapBet || !handicapBet.odds || !handicapBet.handicapLine) {
+                      return (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          暂无让分赔率数据
                         </div>
-                      )}
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'home')}</span>
-                        <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">-0.5</span>
+                      );
+                    }
+                    
+                    const handicapLine = handicapBet.handicapLine;
+                    const homeOdds = (handicapBet.prediction === 'HOME' || handicapBet.prediction === 'HOME_WIN') 
+                      ? handicapBet.odds 
+                      : null;
+                    const awayOdds = (handicapBet.prediction === 'AWAY' || handicapBet.prediction === 'AWAY_WIN') 
+                      ? handicapBet.odds 
+                      : null;
+                    
+                    return (
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        <button
+                          type="button"
+                          className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                            manualBetType === 'handicap' && manualPrediction === 'HOME'
+                              ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
+                              : 'bg-secondary/50 border-border active:bg-secondary/80'
+                          }`}
+                          onClick={() => { 
+                            setManualBetType('handicap'); 
+                            setManualPrediction('HOME'); 
+                            setManualHandicapLine(handicapLine); 
+                          }}
+                          disabled={!homeOdds}
+                        >
+                          {manualBetType === 'handicap' && manualPrediction === 'HOME' && (
+                            <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                              <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'home')}</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{handicapLine < 0 ? handicapLine : handicapLine > 0 ? `+${handicapLine}` : handicapLine}</span>
+                          </div>
+                          {homeOdds ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' ? 'text-primary' : 'text-foreground'}`}>@{homeOdds.toFixed(2)}</p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                            manualBetType === 'handicap' && manualPrediction === 'AWAY'
+                              ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
+                              : 'bg-secondary/50 border-border active:bg-secondary/80'
+                          }`}
+                          onClick={() => { 
+                            setManualBetType('handicap'); 
+                            setManualPrediction('AWAY'); 
+                            setManualHandicapLine(handicapLine); 
+                          }}
+                          disabled={!awayOdds}
+                        >
+                          {manualBetType === 'handicap' && manualPrediction === 'AWAY' && (
+                            <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                              <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{-handicapLine < 0 ? -handicapLine : -handicapLine > 0 ? `+${-handicapLine}` : -handicapLine}</span>
+                          </div>
+                          {awayOdds ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' ? 'text-primary' : 'text-foreground'}`}>@{awayOdds.toFixed(2)}</p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                          )}
+                        </button>
                       </div>
-                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' ? 'text-primary' : 'text-foreground'}`}>@1.85</p>
-                    </button>
-                    <button
-                      type="button"
-                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                        manualBetType === 'handicap' && manualPrediction === 'AWAY'
-                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
-                          : 'bg-secondary/50 border-border active:bg-secondary/80'
-                      }`}
-                      onClick={() => { setManualBetType('handicap'); setManualPrediction('AWAY'); setManualHandicapLine(-0.5); }}
-                    >
-                      {manualBetType === 'handicap' && manualPrediction === 'AWAY' && (
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
-                        <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">+0.5</span>
-                      </div>
-                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' ? 'text-primary' : 'text-foreground'}`}>@1.95</p>
-                    </button>
-                  </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Over/Under Section */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] sm:text-xs text-muted-foreground">大小球</span>
-                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                    <button
-                      type="button"
-                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                        manualBetType === 'over_under' && manualOverUnderPick === 'over'
-                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
-                          : 'bg-secondary/50 border-border active:bg-secondary/80'
-                      }`}
-                      onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('over'); setManualOverUnderLine(2.5); }}
-                    >
-                      {manualBetType === 'over_under' && manualOverUnderPick === 'over' && (
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                  {(() => {
+                    // Get real odds from AI bets - only show if we have real data
+                    const matchEntry = matchEntries?.find(entry => entry.match?.mid === selectedMatch?.mid);
+                    const overUnderBet = matchEntry?.bets?.find((b: any) => b.betType === 'over_under');
+                    
+                    if (!overUnderBet || !overUnderBet.odds || overUnderBet.overUnderLine === undefined || overUnderBet.overUnderLine === null) {
+                      return (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          暂无大小球赔率数据
                         </div>
-                      )}
-                      <span className="text-xs sm:text-sm font-medium">大球 2.5</span>
-                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' ? 'text-primary' : 'text-foreground'}`}>@1.88</p>
-                    </button>
-                    <button
-                      type="button"
-                      className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                        manualBetType === 'over_under' && manualOverUnderPick === 'under'
-                          ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
-                          : 'bg-secondary/50 border-border active:bg-secondary/80'
-                      }`}
-                      onClick={() => { setManualBetType('over_under'); setManualOverUnderPick('under'); setManualOverUnderLine(2.5); }}
-                    >
-                      {manualBetType === 'over_under' && manualOverUnderPick === 'under' && (
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="h-2.5 w-2.5 text-primary-foreground" />
-                        </div>
-                      )}
-                      <span className="text-xs sm:text-sm font-medium">小球 2.5</span>
-                      <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' ? 'text-primary' : 'text-foreground'}`}>@1.92</p>
-                    </button>
-                  </div>
+                      );
+                    }
+                    
+                    const overUnderLine = overUnderBet.overUnderLine;
+                    const overOdds = overUnderBet.overUnderPick === 'over' ? overUnderBet.odds : null;
+                    const underOdds = overUnderBet.overUnderPick === 'under' ? overUnderBet.odds : null;
+                    
+                    return (
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        <button
+                          type="button"
+                          className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                            manualBetType === 'over_under' && manualOverUnderPick === 'over'
+                              ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
+                              : 'bg-secondary/50 border-border active:bg-secondary/80'
+                          }`}
+                          onClick={() => { 
+                            setManualBetType('over_under'); 
+                            setManualOverUnderPick('over'); 
+                            setManualOverUnderLine(overUnderLine); 
+                          }}
+                          disabled={!overOdds}
+                        >
+                          {manualBetType === 'over_under' && manualOverUnderPick === 'over' && (
+                            <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                              <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                          <span className="text-xs sm:text-sm font-medium">大球 {overUnderLine}</span>
+                          {overOdds ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' ? 'text-primary' : 'text-foreground'}`}>@{overOdds.toFixed(2)}</p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
+                            manualBetType === 'over_under' && manualOverUnderPick === 'under'
+                              ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
+                              : 'bg-secondary/50 border-border active:bg-secondary/80'
+                          }`}
+                          onClick={() => { 
+                            setManualBetType('over_under'); 
+                            setManualOverUnderPick('under'); 
+                            setManualOverUnderLine(overUnderLine); 
+                          }}
+                          disabled={!underOdds}
+                        >
+                          {manualBetType === 'over_under' && manualOverUnderPick === 'under' && (
+                            <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                              <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                          <span className="text-xs sm:text-sm font-medium">小球 {overUnderLine}</span>
+                          {underOdds ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' ? 'text-primary' : 'text-foreground'}`}>@{underOdds.toFixed(2)}</p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Bet Amount Input */}

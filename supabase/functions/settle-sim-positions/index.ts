@@ -286,7 +286,39 @@ const fetchOpenPositions = async (matchIds?: number[]) => {
   return (data || []) as PositionRow[];
 };
 
+// 查询所有已结束的比赛（不限制 matchIds）
+const fetchAllCompletedMatches = async () => {
+  if (!supabase) {
+    throw new Error("Supabase client not initialized");
+  }
+
+  const now = Date.now();
+  const { data: allMatches, error } = await supabase
+    .from(DAILY_MATCHES_TABLE)
+    .select("mid, mhs, mas, met")
+    .neq("met", 0)
+    .not("met", "is", null);
+
+  if (error) {
+    throw error;
+  }
+
+  const completedMatches = (allMatches || []).filter((match: any) => {
+    const met = match.met;
+    const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
+    return metValue !== 0 && metValue <= now;
+  });
+
+  return completedMatches.map((match: any) => ({
+    fixture_id: match.mid ? parseInt(match.mid) || 0 : 0,
+    goals_home: match.mhs !== null && match.mhs !== undefined ? match.mhs : 0,
+    goals_away: match.mas !== null && match.mas !== undefined ? match.mas : 0,
+    status_short: match.met ? "FT" : null,
+  })) as MatchResult[];
+};
+
 // 查询已完成的比赛（使用 met 字段判断）
+// 比赛结束逻辑：met != 0 并且 当前时间 > met
 const fetchCompletedMatches = async (matchIds: number[]) => {
   if (!supabase) {
     throw new Error("Supabase client not initialized");
@@ -299,30 +331,34 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
   // 将 matchIds 转换为字符串数组（因为 mid 是 TEXT 类型）
   const matchIdsStr = matchIds.map(id => String(id));
 
-  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  // met 字段是毫秒级时间戳，now 也使用毫秒级
+  const now = Date.now(); // 当前时间戳（毫秒）
   const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select("mid, mhs, mas, met")
     .in("mid", matchIdsStr)
     .neq("met", 0) // met != 0 表示比赛已结束
     .not("met", "is", null); // 排除 met 为 null 的情况
+    // 移除对 mhs 和 mas 的限制，允许比分为 null 的比赛也能结算（使用默认值 0）
 
   if (error) {
     throw error;
   }
 
   // 过滤：只保留当前时间 > met 的比赛（确保比赛确实已经结束）
+  // 比赛结束逻辑：met != 0 并且 当前时间 > met（毫秒级比较）
   const completedMatches = (allMatches || []).filter((match: any) => {
     const met = match.met;
     const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
-    return metValue !== 0 && metValue <= now; // met != 0 且 当前时间 >= met
+    // met != 0 且 当前时间 >= met，比赛已结束（毫秒级比较）
+    return metValue !== 0 && metValue <= now;
   });
 
   // 转换数据格式以保持兼容性
   return completedMatches.map((match: any) => ({
     fixture_id: match.mid ? parseInt(match.mid) || 0 : 0,
-    goals_home: match.mhs ?? null,
-    goals_away: match.mas ?? null,
+    goals_home: match.mhs !== null && match.mhs !== undefined ? match.mhs : 0, // 如果比分为 null，使用默认值 0
+    goals_away: match.mas !== null && match.mas !== undefined ? match.mas : 0, // 如果比分为 null，使用默认值 0
     status_short: match.met ? "FT" : null, // 保持兼容性，但实际不再使用
   })) as MatchResult[];
 };
@@ -336,8 +372,9 @@ const calculateBetResult = (
   const betType = position.bet_type;
   const prediction = position.prediction;
 
-  const homeScore = matchResult.goals_home ?? 0;
-  const awayScore = matchResult.goals_away ?? 0;
+  // 如果比分为 null，使用默认值 0（允许比分为 null 的比赛也能结算）
+  const homeScore = matchResult.goals_home !== null && matchResult.goals_home !== undefined ? matchResult.goals_home : 0;
+  const awayScore = matchResult.goals_away !== null && matchResult.goals_away !== undefined ? matchResult.goals_away : 0;
   const totalGoals = homeScore + awayScore;
 
   // 如果比赛被取消或无效，返回 void
@@ -421,56 +458,105 @@ const autoSettlePositions = async (matchIds?: number[]) => {
     throw new Error("Supabase 服务未配置，无法自动结算");
   }
 
+  console.log(`[settle-sim-positions] 开始自动结算，指定比赛ID: ${matchIds ? JSON.stringify(matchIds.slice(0, 10)) + (matchIds.length > 10 ? `... (共 ${matchIds.length} 场)` : '') : '全部'}`);
+
+  let completedMatches: MatchResult[];
+  let matchIdsToCheck: number[];
+
+  // 如果没有指定 matchIds，先查询所有已结束的比赛，然后找到这些比赛的 open 仓位
+  if (!matchIds || matchIds.length === 0) {
+    console.log(`[settle-sim-positions] 未指定比赛ID，查询所有已结束的比赛...`);
+    completedMatches = await fetchAllCompletedMatches();
+    console.log(`[settle-sim-positions] 查询到 ${completedMatches.length} 场已结束的比赛`);
+    
+    if (completedMatches.length === 0) {
+      console.log(`[settle-sim-positions] 没有已结束的比赛，结束自动结算`);
+      return {
+        settlements: [],
+        message: "没有已结束的比赛",
+      };
+    }
+
+    matchIdsToCheck = completedMatches.map(m => m.fixture_id).filter(id => id > 0);
+    console.log(`[settle-sim-positions] 从已结束比赛中提取到 ${matchIdsToCheck.length} 个有效的 match_id`);
+  } else {
+    // 如果指定了 matchIds，使用原有逻辑
+    matchIdsToCheck = matchIds;
+    console.log(`[settle-sim-positions] 步骤2: 查询已完成的比赛（met != 0 且 当前时间 >= met）...`);
+    completedMatches = await fetchCompletedMatches(matchIdsToCheck);
+    console.log(`[settle-sim-positions] 查询到 ${completedMatches.length} 场已完成的比赛（共检查 ${matchIdsToCheck.length} 场）`);
+    
+    if (completedMatches.length === 0) {
+      console.log(`[settle-sim-positions] 没有已完成的比赛，结束自动结算`);
+      return {
+        settlements: [],
+        message: `没有已完成的比赛（检查了 ${matchIdsToCheck.length} 场比赛）`,
+      };
+    }
+  }
+
   // 1. 查询所有状态为 open 的仓位
-  const openPositions = await fetchOpenPositions(matchIds);
+  console.log(`[settle-sim-positions] 步骤1: 查询所有状态为 open 的仓位...`);
+  const openPositions = await fetchOpenPositions(matchIdsToCheck.length > 0 ? matchIdsToCheck : undefined);
+  console.log(`[settle-sim-positions] 查询到 ${openPositions.length} 个 open 状态的仓位`);
   
   if (openPositions.length === 0) {
+    console.log(`[settle-sim-positions] 没有需要结算的仓位，结束自动结算`);
     return {
       settlements: [],
       message: "没有需要结算的仓位",
     };
   }
 
-  // 2. 获取所有相关的 match_id
-  const matchIdsToCheck = Array.from(
-    new Set(
-      openPositions
-        .map((p) => p.match_id)
-        .filter((id): id is number => id !== null),
-    ),
-  );
+  // 打印仓位详情
+  const positionDetails = openPositions.slice(0, 5).map(p => ({
+    id: p.id,
+    match_id: p.match_id,
+    ai_id: p.ai_id,
+    bet_type: p.bet_type,
+    prediction: p.prediction
+  }));
+  console.log(`[settle-sim-positions] 仓位详情（前5个）:`, JSON.stringify(positionDetails, null, 2));
 
-  if (matchIdsToCheck.length === 0) {
-    return {
-      settlements: [],
-      message: "没有有效的比赛ID",
-    };
-  }
+  // 打印已完成比赛详情（此时 completedMatches 已经确定被赋值）
+  const matchDetails = (completedMatches || []).slice(0, 5).map(m => ({
+    fixture_id: m.fixture_id,
+    goals_home: m.goals_home,
+    goals_away: m.goals_away,
+    status_short: m.status_short
+  }));
+  console.log(`[settle-sim-positions] 已完成比赛详情（前5场）:`, JSON.stringify(matchDetails, null, 2));
 
-  // 3. 查询已完成的比赛
-  const completedMatches = await fetchCompletedMatches(matchIdsToCheck);
   const matchMap = new Map<number, MatchResult>();
-  completedMatches.forEach((match) => {
+  (completedMatches || []).forEach((match) => {
     matchMap.set(match.fixture_id, match);
   });
 
   // 4. 为每个仓位计算结算结果
+  console.log(`[settle-sim-positions] 步骤4: 为每个仓位计算结算结果...`);
   const settlements: SettlementItem[] = [];
+  let skippedCount = 0;
+  let noMatchResultCount = 0;
 
   for (const position of openPositions) {
     if (!position.match_id) {
+      skippedCount++;
+      console.log(`[settle-sim-positions] 跳过仓位 ${position.id}: match_id 为 null`);
       continue;
     }
 
     const matchResult = matchMap.get(position.match_id);
     if (!matchResult) {
       // 比赛尚未完成，跳过
+      noMatchResultCount++;
       continue;
     }
 
     const result = calculateBetResult(position, matchResult);
     const homeScore = matchResult.goals_home ?? 0;
     const awayScore = matchResult.goals_away ?? 0;
+
+    console.log(`[settle-sim-positions] 仓位 ${position.id} 结算结果: match_id=${position.match_id}, bet_type=${position.bet_type}, prediction=${position.prediction}, 比分=${homeScore}-${awayScore}, 结果=${result}`);
 
     settlements.push({
       positionId: position.id,
@@ -482,6 +568,8 @@ const autoSettlePositions = async (matchIds?: number[]) => {
       },
     });
   }
+
+  console.log(`[settle-sim-positions] 自动结算完成: 总计 ${openPositions.length} 个仓位，成功计算 ${settlements.length} 个，跳过 ${skippedCount} 个（无 match_id），${noMatchResultCount} 个比赛未完成`);
 
   return {
     settlements,
@@ -500,12 +588,25 @@ serve(async (req) => {
     }
 
     const body = await req.json() as SettlementRequest;
+    console.log(`[settle-sim-positions] 收到结算请求:`, JSON.stringify({
+      autoSettle: body.autoSettle,
+      matchIds_count: body.matchIds?.length || 0,
+      settlements_count: body.settlements?.length || 0,
+      dryRun: body.dryRun
+    }, null, 2));
     
     // 自动结算模式
     if (body.autoSettle) {
+      console.log(`[settle-sim-positions] 自动结算模式已启用，开始自动结算...`);
       const autoSettleResult = await autoSettlePositions(body.matchIds);
       
+      console.log(`[settle-sim-positions] 自动结算结果:`, JSON.stringify({
+        message: autoSettleResult.message,
+        settlements_count: autoSettleResult.settlements.length
+      }, null, 2));
+      
       if (autoSettleResult.settlements.length === 0) {
+        console.log(`[settle-sim-positions] 没有需要结算的仓位，返回空结果`);
         return new Response(
           JSON.stringify({
             message: autoSettleResult.message,
@@ -518,6 +619,7 @@ serve(async (req) => {
 
       // 使用自动生成的结算数据继续处理
       body.settlements = autoSettleResult.settlements;
+      console.log(`[settle-sim-positions] 使用自动生成的结算数据继续处理，共 ${body.settlements.length} 个结算项`);
     }
 
     if (!Array.isArray(body.settlements) || body.settlements.length === 0) {
@@ -581,15 +683,26 @@ serve(async (req) => {
       error?: unknown;
     }> = [];
 
+    console.log(`[settle-sim-positions] 开始处理 ${body.settlements.length} 个结算项...`);
+    let processedCount = 0;
+    let skippedCount = 0;
+    let failedCount = 0;
+    let settledCount = 0;
+
     for (const settlement of body.settlements) {
+      processedCount++;
       const position = positionMap.get(settlement.positionId)!;
 
+      console.log(`[settle-sim-positions] 处理结算项 ${processedCount}/${body.settlements.length}: position_id=${settlement.positionId}, result=${settlement.result}`);
+
       if (position.status !== "open") {
+        console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 跳过（状态=${position.status}，非 open）`);
         outcomes.push({
           positionId: position.id,
           status: "skipped",
           reason: "仓位非 open 状态",
         });
+        skippedCount++;
         continue;
       }
 
@@ -597,17 +710,21 @@ serve(async (req) => {
       const balance = balanceMap.get(balanceKey);
 
       if (!balance) {
+        console.warn(`[settle-sim-positions] 仓位 ${settlement.positionId}: 跳过（未找到余额账户，ai_id=${position.ai_id}, ai_display_name=${position.ai_display_name}）`);
         outcomes.push({
           positionId: position.id,
           status: "skipped",
           reason: "未找到对应余额账户",
         });
+        skippedCount++;
         continue;
       }
 
       const { payout, pnl, status } = computePayout(settlement, position);
+      console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 计算结果 - payout=${payout}, pnl=${pnl}, status=${status}, stake_amount=${position.stake_amount}, odds=${position.odds}`);
 
       if (body.dryRun) {
+        console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 试运行模式，跳过实际更新`);
         outcomes.push({
           positionId: position.id,
           status: "dry_run",
@@ -617,6 +734,7 @@ serve(async (req) => {
         continue;
       }
 
+      console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 开始更新仓位记录...`);
       const positionUpdate = await updatePosition(
         position,
         settlement,
@@ -625,28 +743,44 @@ serve(async (req) => {
         status,
       );
       if (positionUpdate.error) {
+        console.error(`[settle-sim-positions] 仓位 ${settlement.positionId}: 更新仓位记录失败`, positionUpdate.error);
         outcomes.push({
           positionId: position.id,
           status: "failed",
           error: positionUpdate.error,
         });
+        failedCount++;
         continue;
       }
+      console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 仓位记录更新成功`);
 
-      const autoBetUpdate = await updateAutoBetStatus(
-        position.auto_bet_id,
-        status,
-        pnl,
-      );
-      if (autoBetUpdate.error) {
-        outcomes.push({
-          positionId: position.id,
-          status: "failed",
-          error: autoBetUpdate.error,
-        });
-        continue;
+      if (position.auto_bet_id) {
+        console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 开始更新 AI 自动下注记录 (auto_bet_id=${position.auto_bet_id})...`);
+        const autoBetUpdate = await updateAutoBetStatus(
+          position.auto_bet_id,
+          status,
+          pnl,
+        );
+        if (autoBetUpdate.error) {
+          console.error(`[settle-sim-positions] 仓位 ${settlement.positionId}: 更新 AI 自动下注记录失败`, autoBetUpdate.error);
+          outcomes.push({
+            positionId: position.id,
+            status: "failed",
+            error: autoBetUpdate.error,
+          });
+          failedCount++;
+          continue;
+        }
+        console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: AI 自动下注记录更新成功`);
       }
 
+      const oldBalance = balance.available_balance;
+      const oldLocked = balance.locked_balance;
+      const newBalance = oldBalance + payout;
+      const newLocked = Math.max(oldLocked - position.stake_amount, 0);
+      
+      console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 开始更新余额 (ai_id=${balance.ai_id}) - 旧可用余额=${oldBalance}, 新可用余额=${newBalance}, 旧锁定余额=${oldLocked}, 新锁定余额=${newLocked}`);
+      
       const balanceUpdate = await updateBalances(
         balance,
         position,
@@ -654,21 +788,33 @@ serve(async (req) => {
         settlement,
       );
       if (balanceUpdate.error) {
+        console.error(`[settle-sim-positions] 仓位 ${settlement.positionId}: 更新余额失败`, balanceUpdate.error);
         outcomes.push({
           positionId: position.id,
           status: "failed",
           error: balanceUpdate.error,
         });
+        failedCount++;
         continue;
       }
+      console.log(`[settle-sim-positions] 仓位 ${settlement.positionId}: 余额更新成功`);
 
+      settledCount++;
       outcomes.push({
         positionId: position.id,
         status: "settled",
         payout,
         pnl,
       });
+      console.log(`[settle-sim-positions] 仓位 ${settlement.positionId} 结算完成: status=settled, payout=${payout}, pnl=${pnl}, 进度=${settledCount}/${body.settlements.length}`);
     }
+
+    console.log(`[settle-sim-positions] ========== 结算处理完成 ==========`);
+    console.log(`[settle-sim-positions] 总计: ${body.settlements.length} 个结算项`);
+    console.log(`[settle-sim-positions] 成功结算: ${settledCount}`);
+    console.log(`[settle-sim-positions] 跳过: ${skippedCount}`);
+    console.log(`[settle-sim-positions] 失败: ${failedCount}`);
+    console.log(`[settle-sim-positions] 试运行: ${outcomes.filter(o => o.status === 'dry_run').length}`);
 
     return new Response(
       JSON.stringify({ outcomes }),

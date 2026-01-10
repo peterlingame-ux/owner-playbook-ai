@@ -86,7 +86,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
             // 如果小于 60 秒，显示秒数
             setMatchStatus('live');
             setTimeDisplay(`${elapsedSeconds}''`);
-            return;
+        return;
           } else {
             // 如果大于等于 60 秒，至少显示 1 分钟
             displayMinutes = 1;
@@ -523,7 +523,7 @@ const ActiveAIBets = () => {
         // 计算昨天的日期（UTC+8）
         const yesterdayDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const yesterdayStr = getUTC8DateString(yesterdayDate);
-        
+
         // Fetch yesterday's and today's matches (live or upcoming) - exclude completed matches
         // Use met field to filter: met = 0 or met is null means match not finished
         const { data: matchesData, error: matchesError } = await supabase
@@ -1030,7 +1030,28 @@ const ActiveAIBets = () => {
 
           // Get current match index for this AI (default to 0)
           const matchIndex = currentMatchIndex[aiModel.id] || 0;
-          const matchEntries = Array.from(betsByMatch.values());
+          // Sort matchEntries: started matches (live) first, then upcoming matches
+          // Within each group, sort by mgt (kickoff time)
+          const now = Date.now();
+          const matchEntries = Array.from(betsByMatch.values()).sort((a, b) => {
+            const aKickoff = a.match.mgt || 0;
+            const bKickoff = b.match.mgt || 0;
+            const aStarted = aKickoff > 0 && now > aKickoff;
+            const bStarted = bKickoff > 0 && now > bKickoff;
+            
+            // Started matches come first
+            if (aStarted && !bStarted) return -1;
+            if (!aStarted && bStarted) return 1;
+            
+            // Within the same group (both started or both not started), sort by kickoff time
+            // For started matches: later kickoff time first (more recent matches first)
+            // For upcoming matches: earlier kickoff time first (earlier matches first)
+            if (aStarted && bStarted) {
+              return bKickoff - aKickoff; // Descending (more recent first)
+            } else {
+              return aKickoff - bKickoff; // Ascending (earlier first)
+            }
+          });
           const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
           
           // Separate bets by type: moneyline (胜负), handicap (让球), and over_under (大小球)
@@ -1442,7 +1463,28 @@ const ActiveAIBets = () => {
 
           // Get current match index for hunsoccermax
           const matchIndex = currentMatchIndex['hunsoccermax'] || 0;
-          const matchEntries = Array.from(betsByMatch.values());
+          // Sort matchEntries: started matches (live) first, then upcoming matches
+          // Within each group, sort by mgt (kickoff time)
+          const now = Date.now();
+          const matchEntries = Array.from(betsByMatch.values()).sort((a, b) => {
+            const aKickoff = a.match.mgt || 0;
+            const bKickoff = b.match.mgt || 0;
+            const aStarted = aKickoff > 0 && now > aKickoff;
+            const bStarted = bKickoff > 0 && now > bKickoff;
+            
+            // Started matches come first
+            if (aStarted && !bStarted) return -1;
+            if (!aStarted && bStarted) return 1;
+            
+            // Within the same group (both started or both not started), sort by kickoff time
+            // For started matches: later kickoff time first (more recent matches first)
+            // For upcoming matches: earlier kickoff time first (earlier matches first)
+            if (aStarted && bStarted) {
+              return bKickoff - aKickoff; // Descending (more recent first)
+            } else {
+              return aKickoff - bKickoff; // Ascending (earlier first)
+            }
+          });
           const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
           
           // Separate bets by type
