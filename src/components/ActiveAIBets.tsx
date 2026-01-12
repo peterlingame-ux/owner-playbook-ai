@@ -38,91 +38,139 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
   const [timeDisplay, setTimeDisplay] = useState<string>('');
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
   const [matchStatus, setMatchStatus] = useState<'not_started' | 'live' | 'half_time' | 'other'>('not_started');
+  
+  // 使用 ref 来存储最新的 match 对象，确保 updateTime 函数总是使用最新的值
+  const matchRef = useRef(match);
+  useEffect(() => {
+    matchRef.current = match;
+  }, [match]);
 
   useEffect(() => {
     const updateTime = () => {
-      const kickoffTime = getKickoffDate(match);
+      // 从 ref 中获取最新的 match 对象，确保使用最新的值
+      const currentMatch = matchRef.current;
       
-      // 如果没有开赛时间，显示默认值
-      if (!kickoffTime) {
+      // 只使用 match_live_data 中的 score_kickoff_time（秒级时间戳）
+      // 如果没有 match_live_data 数据，显示默认值
+      if (!currentMatch.live_kickoff_time || currentMatch.live_status_id === null || currentMatch.live_status_id === undefined) {
         setMatchStatus('not_started');
         setShowCountdown(true);
         setTimeDisplay('--:--:--');
         return;
       }
       
-      const now = new Date();
-      const diff = now.getTime() - kickoffTime.getTime(); // 当前时间 - 开赛时间
-      
-      // 如果当前时间大于开赛时间（diff > 0），说明比赛正在进行中
-      if (diff > 0) {
+      // 优先使用 live_status_id 判断状态（最准确）
+      // live_status_id: 2 = 上半场, 3 = 中场休息, 4 = 下半场
+      if (currentMatch.live_status_id === 3) {
+        // 中场休息
+        setMatchStatus('half_time');
         setShowCountdown(false);
-        
-        // 使用 cmec 字段判断是否中场休息
-        const cmec = match.cmec?.trim() || '';
-        if (cmec === 'half_time') {
-          setMatchStatus('half_time');
-          setTimeDisplay(t('half_time_break') || '中场休息');
-          return;
-        }
-        
-        // 计算比赛进行时间（分钟）
-        const elapsedMinutes = Math.floor(diff / (1000 * 60));
-        
-        // 优先使用 status_elapsed（如果存在且大于 0），否则使用计算出的分钟数
-        // 如果 status_elapsed 为 0，但比赛已经开始，使用计算值
-        let displayMinutes: number;
-        if (match.status_elapsed !== null && match.status_elapsed !== undefined && match.status_elapsed > 0) {
-          displayMinutes = match.status_elapsed;
-        } else {
-          displayMinutes = elapsedMinutes;
-        }
-        
-        // 如果显示分钟数为 0，但比赛已经开始（diff > 0），至少显示 1 分钟
-        // 或者如果 diff 很小（小于 60 秒），显示秒数
-        if (displayMinutes === 0 && diff > 0) {
-          const elapsedSeconds = Math.floor(diff / 1000);
-          if (elapsedSeconds < 60) {
-            // 如果小于 60 秒，显示秒数
-            setMatchStatus('live');
-            setTimeDisplay(`${elapsedSeconds}''`);
-        return;
-          } else {
-            // 如果大于等于 60 秒，至少显示 1 分钟
-            displayMinutes = 1;
-          }
-        }
-        
-        setMatchStatus('live');
-        setTimeDisplay(`${displayMinutes}'`);
+        setTimeDisplay(t('half_time_break') || '中场休息');
         return;
       }
       
-      // 如果比赛时间还未到（diff <= 0），显示倒计时
-      if (diff <= 0) {
+      // match_live_data 中的 score_kickoff_time 是秒级时间戳
+      const kickoffTimeSeconds = typeof currentMatch.live_kickoff_time === 'string' 
+        ? Number(currentMatch.live_kickoff_time) 
+        : currentMatch.live_kickoff_time;
+      
+      if (Number.isNaN(kickoffTimeSeconds) || kickoffTimeSeconds <= 0) {
         setMatchStatus('not_started');
         setShowCountdown(true);
-        const absDiff = Math.abs(diff);
-        const hours = Math.floor(absDiff / (1000 * 60 * 60));
-        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
-        
-        // 显示时分秒格式：HH:MM:SS
-        setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        setTimeDisplay('--:--:--');
         return;
       }
       
-      // 其他情况，显示空
-      setMatchStatus('other');
-      setShowCountdown(false);
-      setTimeDisplay('');
+      // 每次调用都获取最新的当前时间，确保时间实时更新
+      const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+      
+      // 计算比赛进行时间（分钟）
+      // 只使用 match_live_data 中的实时数据计算
+      let displayMinutes: number;
+      
+      if (currentMatch.live_status_id === 2) {
+        // 上半场：比赛进行分钟数 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
+        const elapsedSeconds = now - kickoffTimeSeconds;
+        if (elapsedSeconds > 0) {
+          displayMinutes = Math.floor(elapsedSeconds / 60) + 1;
+          // 上半场最多显示45分钟
+          if (displayMinutes > 45) {
+            displayMinutes = 45;
+          }
+        } else {
+          // 比赛还没开始
+          setMatchStatus('not_started');
+          setShowCountdown(true);
+          const kickoffTime = new Date(kickoffTimeSeconds * 1000);
+          const diff = kickoffTime.getTime() - Date.now();
+          const absDiff = Math.abs(diff);
+          const hours = Math.floor(absDiff / (1000 * 60 * 60));
+          const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+          setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+          return;
+        }
+      } else if (currentMatch.live_status_id === 4) {
+        // 下半场：比赛进行分钟数 = (当前时间戳 - 下半场开球时间戳) / 60 + 45 + 1
+        // 下半场开球时间通常是上半场开球时间 + 60分钟（45分钟上半场 + 15分钟中场休息）
+        const secondHalfKickoffTime = kickoffTimeSeconds + 60 * 60; // 下半场开球时间戳（秒）= 上半场开球时间 + 3600秒
+        const elapsedSeconds = now - secondHalfKickoffTime;
+        
+        // 如果 elapsedSeconds <= 0，说明下半场还没开始，但 live_status_id === 4 表示已经是下半场
+        // 这种情况下，使用总时间来计算，确保时间能够实时更新
+        if (elapsedSeconds > 0) {
+          // 下半场：比赛进行分钟数 = (当前时间戳 - 下半场开球时间戳) / 60 + 45 + 1
+          displayMinutes = Math.floor(elapsedSeconds / 60) + 45 + 1;
+        } else {
+          // 如果 elapsedSeconds <= 0，使用总时间计算，确保时间能够实时更新
+          // 总时间 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
+          const totalElapsedSeconds = now - kickoffTimeSeconds;
+          if (totalElapsedSeconds > 0) {
+            displayMinutes = Math.floor(totalElapsedSeconds / 60) + 1;
+            // 确保至少显示46分钟（下半场刚开始）
+            if (displayMinutes < 46) {
+              displayMinutes = 46;
+            }
+          } else {
+            displayMinutes = 46;
+          }
+        }
+      } else {
+        // 其他状态（完场、取消等），显示默认值
+        setMatchStatus('other');
+        setShowCountdown(false);
+        setTimeDisplay('');
+        return;
+      }
+        
+      // 确保分钟数不为负数
+      if (displayMinutes < 0) {
+        displayMinutes = 0;
+      }
+      
+      // 如果显示分钟数为 0，显示秒数
+      if (displayMinutes === 0) {
+        const elapsedSeconds = now - kickoffTimeSeconds;
+        if (elapsedSeconds > 0 && elapsedSeconds < 60) {
+          // 如果小于 60 秒，显示秒数
+          setMatchStatus('live');
+          setTimeDisplay(`${elapsedSeconds}''`);
+          return;
+        } else {
+          // 如果大于等于 60 秒，至少显示 1 分钟
+          displayMinutes = 1;
+        }
+      }
+      
+      setMatchStatus('live');
+      setTimeDisplay(`${displayMinutes}'`);
     };
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
     
     return () => clearInterval(interval);
-  }, [match.cmec, match.status_elapsed, match.mgt, t]);
+  }, [match.live_kickoff_time, match.live_status_id, t]);
 
   return (
     <div className="flex flex-col items-center gap-0 sm:gap-0.5 px-0.5 sm:px-1 shrink-0">
@@ -149,8 +197,8 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
         <>
           {/* 中场休息：显示 VS 和"中场休息" */}
           <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[7px] sm:text-[9px] text-muted-foreground font-bold">
-            {timeDisplay}
+          <span className="text-[7px] sm:text-[10px] text-warning font-bold">
+            {timeDisplay || t('half_time_break') || '中场休息'}
           </span>
         </>
       ) : (
@@ -277,18 +325,16 @@ type DailyMatch = {
   cmec?: string | null; // 比赛状态枚举代码
   home_logo?: string | null;
   away_logo?: string | null;
-  // 兼容 sports API 原始字段
-  mhn?: string | null;
-  man?: string | null;
-  mhlu?: string[] | null;
-  malu?: string[] | null;
-  tn?: string | null;
-  tnjc?: string | null;
+  // match_live_data 相关字段（用于实时时间计算）
+  live_kickoff_time?: number | null; // 来自 match_live_data.score_kickoff_time（秒级时间戳）
+  live_status_id?: number | null; // 来自 match_live_data.score_status
 };
 
-// 兼容 sports API 记录，统一成组件使用的字段
-const normalizeDailyMatch = (match: any): DailyMatch => {
-  const mid = match.mid?.toString() ?? match.id?.toString() ?? '';
+// 根据迁移文件，将数据库记录转换为组件使用的字段
+// liveData: 来自 match_live_data 表的实时数据（可选）
+const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
+  // 根据迁移文件，数据库字段是 match_id（INTEGER），前端组件使用 mid（string）
+  const mid = match.match_id?.toString() ?? '';
   
   // 为 logo URL 添加前缀（如果是相对路径）
   const addLogoPrefix = (url: string | null | undefined): string | null => {
@@ -305,51 +351,115 @@ const normalizeDailyMatch = (match: any): DailyMatch => {
     return `${prefix}${path}`;
   };
   
-  // 提取主队 logo：优先使用 mhlut（文本格式），其次使用 mhlu 数组的第一个元素
-  const getHomeLogo = () => {
-    if (match.home_logo) return addLogoPrefix(match.home_logo);
-    if (match.mhlut && typeof match.mhlut === 'string' && match.mhlut.trim()) return addLogoPrefix(match.mhlut);
-    if (Array.isArray(match.mhlu) && match.mhlu.length > 0 && match.mhlu[0]) return addLogoPrefix(match.mhlu[0]);
-    return null;
+  // 根据 status_id 转换为 status_short
+  // status_id 状态码映射（参考 MatchCenter.tsx）：
+  // 0: 比赛异常, 1: 未开赛, 2: 上半场, 3: 中场, 4: 下半场, 5: 加时赛, 6: 加时赛(弃用)
+  // 7: 点球决战, 8: 完场, 9: 推迟, 10: 中断, 11: 腰斩, 12: 取消, 13: 待定
+  const getStatusShort = (statusId: number | null | undefined): string => {
+    if (statusId === null || statusId === undefined) return '';
+    const statusMap: Record<number, string> = {
+      0: '', // 比赛异常
+      1: '', // 未开赛
+      2: 'LIVE', // 上半场
+      3: 'HT', // 中场
+      4: 'LIVE', // 下半场
+      5: 'ET', // 加时赛
+      6: 'ET', // 加时赛(弃用)
+      7: 'PEN', // 点球决战
+      8: 'FT', // 完场
+      9: 'POST', // 推迟
+      10: 'SUSP', // 中断
+      11: 'FT', // 腰斩
+      12: 'CANC', // 取消
+      13: 'POST', // 待定
+    };
+    return statusMap[statusId] || '';
   };
   
-  // 提取客队 logo：优先使用 malut（文本格式），其次使用 malu 数组的第一个元素
-  const getAwayLogo = () => {
-    if (match.away_logo) return addLogoPrefix(match.away_logo);
-    if (match.malut && typeof match.malut === 'string' && match.malut.trim()) return addLogoPrefix(match.malut);
-    if (Array.isArray(match.malu) && match.malu.length > 0 && match.malu[0]) return addLogoPrefix(match.malu[0]);
-    return null;
-  };
+  // 处理 mgt：从 match_time（秒级时间戳）转换为毫秒时间戳
+  // 只使用 liveData 中的 score_kickoff_time
+  // 根据迁移文件：match_time BIGINT, -- 开球时间戳（秒）
+  // 组件内部使用 mgt 作为毫秒时间戳
+  let mgtValue: number = 0;
+  if (liveData?.score_kickoff_time) {
+    const parsedTime = typeof liveData.score_kickoff_time === 'string' ? Number(liveData.score_kickoff_time) : liveData.score_kickoff_time;
+    if (!Number.isNaN(parsedTime) && parsedTime > 0) {
+      // 时间戳是秒级，转换为毫秒
+      mgtValue = parsedTime * 1000;
+    }
+  }
   
-  // 处理 mgt：确保是有效的毫秒时间戳
-  const mgtValue = match.mgt;
-  const parsedMgt = typeof mgtValue === 'string' ? Number(mgtValue) : mgtValue;
-  const validMgt = (parsedMgt && !Number.isNaN(parsedMgt) && parsedMgt > 0) ? parsedMgt : 0;
+  // 只使用 liveData 中的实时比分
+  const goalsHome = liveData?.score_home_scores?.[0] ?? null;
+  const goalsAway = liveData?.score_away_scores?.[0] ?? null;
+  
+  // 只使用 liveData 中的状态
+  const statusId = liveData?.score_status ?? null;
+  const statusShort = getStatusShort(statusId) || '';
+  
+  // 计算比赛进行时间（分钟）
+  // 根据 status_id 判断是上半场还是下半场
+  // status_id: 2 = 上半场, 3 = 中场休息, 4 = 下半场
+  let statusElapsed: number | null = null;
+  if (liveData?.score_kickoff_time && statusId) {
+    // 比赛进行中（上半场或下半场）
+    const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+    const kickoffTime = liveData.score_kickoff_time; // 上半场开球时间戳（秒）
+    
+    if (statusId === 2) {
+      // 上半场：比赛进行分钟数 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
+      const elapsedSeconds = now - kickoffTime;
+      if (elapsedSeconds > 0) {
+        statusElapsed = Math.floor(elapsedSeconds / 60) + 1;
+        // 上半场最多显示45分钟
+        if (statusElapsed > 45) {
+          statusElapsed = 45;
+        }
+      }
+    } else if (statusId === 4) {
+      // 下半场：比赛进行分钟数 = (当前时间戳 - 下半场开球时间戳) / 60 + 45 + 1
+      // 下半场开球时间通常是上半场开球时间 + 60分钟（45分钟上半场 + 15分钟中场休息）
+      const secondHalfKickoffTime = kickoffTime + 60 * 60; // 下半场开球时间戳（秒）= 上半场开球时间 + 3600秒
+      const elapsedSeconds = now - secondHalfKickoffTime;
+      if (elapsedSeconds > 0) {
+        statusElapsed = Math.floor(elapsedSeconds / 60) + 45 + 1;
+      }
+      // 如果下半场还没开始（elapsedSeconds <= 0），不设置 statusElapsed
+      // 让前端组件根据 status_id = 3 或 status_short = 'HT' 判断是否中场休息
+    }
+    // statusId === 3 是中场休息，不计算 statusElapsed，让前端显示"中场休息"
+  }
+  
+  // 判断是否中场休息
+  // 只根据 liveData 中的 status_id 判断，不再使用 status_short
+  let cmec: string | null = null;
+  if (statusId === 3) {
+    cmec = 'half_time';
+  } else if (match.raw?.cmec) {
+    cmec = match.raw.cmec;
+  }
   
   return {
     mid,
     date: match.date,
-    mgt: validMgt,
-    league_id: match.league_id ?? match.tid ?? null,
-    league_name: match.league_name ?? match.tn ?? match.tnjc ?? '',
-    league_logo: addLogoPrefix(match.league_logo ?? match.lurl ?? null),
-    home_team_id: match.home_team_id ?? (match.mhid ? Number(match.mhid) || match.mhid : null),
-    home_team_name: match.home_team_name ?? match.mhn ?? '',
-    away_team_id: match.away_team_id ?? (match.maid ? Number(match.maid) || match.maid : null),
-    away_team_name: match.away_team_name ?? match.man ?? '',
-    goals_home: match.goals_home ?? match.mhs ?? null,
-    goals_away: match.goals_away ?? match.mas ?? null,
-    status_short: match.status_short ?? match.mst ?? '',
-    status_elapsed: match.status_elapsed ?? match.mle ?? null,
-    cmec: match.cmec ?? null,
-    home_logo: getHomeLogo(),
-    away_logo: getAwayLogo(),
-    mhn: match.mhn ?? null,
-    man: match.man ?? null,
-    mhlu: match.mhlu ?? null,
-    malu: match.malu ?? null,
-    tn: match.tn ?? null,
-    tnjc: match.tnjc ?? null,
+    mgt: mgtValue,
+    league_id: match.competition_id ?? null,
+    league_name: match.competition_name_zh ?? match.competition_name ?? '',
+    league_logo: addLogoPrefix(match.competition_logo ?? null),
+    home_team_id: match.home_team_id ?? null,
+    home_team_name: match.home_team_name_zh ?? match.home_team_name ?? '',
+    away_team_id: match.away_team_id ?? null,
+    away_team_name: match.away_team_name_zh ?? match.away_team_name ?? '',
+    goals_home: goalsHome,
+    goals_away: goalsAway,
+    status_short: statusShort,
+    status_elapsed: statusElapsed,
+    cmec: cmec,
+    home_logo: addLogoPrefix(match.home_team_logo ?? null),
+    away_logo: addLogoPrefix(match.away_team_logo ?? null),
+    // 保存 match_live_data 中的实时数据，供 MatchTimeDisplay 使用
+    live_kickoff_time: liveData?.score_kickoff_time ?? null,
+    live_status_id: liveData?.score_status ?? null,
   };
 };
 
@@ -525,25 +635,47 @@ const ActiveAIBets = () => {
         const yesterdayStr = getUTC8DateString(yesterdayDate);
 
         // Fetch yesterday's and today's matches (live or upcoming) - exclude completed matches
-        // Use met field to filter: met = 0 or met is null means match not finished
+        // Use ended field and status_id to filter: 
+        // - ended 是秒级时间戳，null 或 0 表示未结束，> 0 表示已结束
+        // - status_id = 8 表示完场，status_id = 11 表示腰斩
+        // According to migration: ended INTEGER (秒级时间戳), status_id INTEGER
+        // 查询条件：ended 为 null 或 0，且 status_id 不是 8（完场）或 11（腰斩）
+        // 注意：Supabase 的 .not() 不支持多个值的组合，所以需要在客户端再次过滤
         const { data: matchesData, error: matchesError } = await supabase
           .from('daily_matches' as any)
           .select('*')
           .in('date', [yesterdayStr, today])
-          .or('met.is.null,met.eq.0') // met 为 null 或 0 表示未结束
-          .order('mgt', { ascending: true });
+          .or('ended.is.null,ended.eq.0') // ended 为 null 或 0 表示未结束（ended 是秒级时间戳）
+          .order('match_time', { ascending: true }); // 使用 match_time 字段排序（秒级时间戳）
         
-        // Filter out completed matches on client side (using met field)
-        // 比赛结束逻辑：met != 0 并且 当前时间 > met的时间
-        const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+        // Filter out completed matches on client side (using ended field and status_id)
+        // 比赛结束逻辑：根据 ended 字段和 status_id 判断
+        // ended 是秒级时间戳，> 0 表示已结束；status_id = 8 表示完场
         const activeMatches = (matchesData || []).filter((match: any) => {
-          const met = match.met;
-          const metValue = typeof met === 'string' ? parseInt(met) : (met ?? 0);
-          // 只保留未结束的比赛：met = 0 或 met 为 null，或者 met != 0 但当前时间 < met
-          if (metValue === 0 || met === null || met === undefined) {
-            return true; // 未结束
+          const ended = match.ended;
+          // 确保 ended 转换为数字进行比较
+          const endedValue = ended !== null && ended !== undefined 
+            ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+            : 0;
+          
+          // 确保 status_id 转换为数字进行比较
+          const statusId = match.status_id !== null && match.status_id !== undefined
+            ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+            : null;
+          
+          // 过滤掉已结束的比赛：
+          // 1. ended > 0 表示已结束（ended 是秒级时间戳）
+          // 2. status_id = 8 表示完场
+          // 3. status_id = 11 表示腰斩（也算结束）
+          if (!isNaN(endedValue) && endedValue > 0) {
+            return false; // ended > 0，比赛已结束
           }
-          return now < metValue; // 当前时间 < met，比赛还未结束
+          if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) {
+            return false; // status_id = 8（完场）或 11（腰斩），比赛已结束
+          }
+          
+          // 只保留未结束的比赛：ended 为 null、undefined 或 0，且 status_id 不是完场或腰斩
+          return true;
         });
 
         if (matchesError) {
@@ -556,7 +688,38 @@ const ActiveAIBets = () => {
             });
           }
         } else {
-          const matchesList = (activeMatches || []).map(normalizeDailyMatch) as DailyMatch[];
+          // 获取实时比赛数据（match_live_data 表）
+          const matchIds = (activeMatches || []).map((m: any) => m.match_id).filter((id: any) => id != null);
+          let liveDataMap: Record<number, any> = {};
+          
+          if (matchIds.length > 0) {
+            try {
+              const { data: liveDataArray, error: liveDataError } = await supabase
+                .from('match_live_data' as any)
+                .select('*')
+                .in('match_id', matchIds);
+              
+              if (liveDataError) {
+                console.warn('Error fetching live data:', liveDataError);
+              } else if (liveDataArray) {
+                // 构建 match_id -> liveData 的映射
+                liveDataArray.forEach((liveData: any) => {
+                  if (liveData.match_id) {
+                    liveDataMap[liveData.match_id] = liveData;
+                  }
+                });
+              }
+            } catch (error) {
+              console.warn('Error fetching live data:', error);
+            }
+          }
+          
+          // 合并实时数据到比赛数据中
+          const matchesList = (activeMatches || []).map((match: any) => {
+            const liveData = match.match_id ? liveDataMap[match.match_id] : undefined;
+            return normalizeDailyMatch(match, liveData);
+          }) as DailyMatch[];
+          
           setMatches(matchesList);
         }
 
@@ -665,6 +828,35 @@ const ActiveAIBets = () => {
         }
       )
       .subscribe();
+    
+    // 订阅 match_live_data 表的变化，实时更新比赛比分、状态等
+    const liveDataChannel = supabase
+      .channel('match-live-data-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'match_live_data',
+        },
+        (payload) => {
+          console.log('Live data updated, refreshing matches:', payload);
+          fetchData(true);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'match_live_data',
+        },
+        (payload) => {
+          console.log('New live data inserted, refreshing matches:', payload);
+          fetchData(true);
+        }
+      )
+      .subscribe();
 
     // 订阅 ai_auto_bets 表的变化，实时显示新投注和状态变化
     const autoBetsChannel = supabase
@@ -699,6 +891,7 @@ const ActiveAIBets = () => {
       clearInterval(interval);
       supabase.removeChannel(matchesChannel);
       supabase.removeChannel(autoBetsChannel);
+      supabase.removeChannel(liveDataChannel);
     };
   }, []); // Only run on mount, not on language change
 
@@ -944,14 +1137,45 @@ const ActiveAIBets = () => {
       );
       
       if (missingMatchIds.length > 0) {
-        const { data: missingMatchesData } = await supabase
-          .from('daily_matches' as any)
-          .select('*')
-          .in('mid', missingMatchIds);
+        // 将字符串 ID 转换为数字（数据库中的 match_id 是 INTEGER 类型）
+        const numericMatchIds = missingMatchIds.map(id => {
+          const numId = parseInt(id);
+          return isNaN(numId) ? null : numId;
+        }).filter((id): id is number => id !== null);
         
-        if (missingMatchesData) {
-          const normalizedMissing = (missingMatchesData || []).map(normalizeDailyMatch) as DailyMatch[];
-          setMissingMatches(normalizedMissing);
+        if (numericMatchIds.length > 0) {
+          const { data: missingMatchesData } = await supabase
+            .from('daily_matches' as any)
+            .select('*')
+            .in('match_id', numericMatchIds) // 使用数据库字段名 match_id，不是 mid
+            .or('ended.is.null,ended.eq.0'); // 只获取未结束的比赛（ended 为 null 或 0）
+          
+          if (missingMatchesData) {
+            // 再次过滤已结束的比赛（客户端过滤）
+            const filteredMissing = (missingMatchesData || []).filter((match: any) => {
+              const ended = match.ended;
+              const endedValue = ended !== null && ended !== undefined 
+                ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+                : 0;
+              const statusId = match.status_id !== null && match.status_id !== undefined
+                ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+                : null;
+              
+              // 过滤掉已结束的比赛
+              if (!isNaN(endedValue) && endedValue > 0) {
+                return false;
+              }
+              if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) {
+                return false;
+              }
+              return true;
+            });
+            
+            const normalizedMissing = filteredMissing.map(normalizeDailyMatch) as DailyMatch[];
+            setMissingMatches(normalizedMissing);
+          } else {
+            setMissingMatches([]);
+          }
         } else {
           setMissingMatches([]);
         }
@@ -1271,14 +1495,13 @@ const ActiveAIBets = () => {
                           <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                             <div className="relative shrink-0">
                               {currentMatchData.match.home_logo ? (
-                                <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
-                                  <AvatarImage src={currentMatchData.match.home_logo} alt={getTeamName(currentMatchData.match, 'home')} />
-                                  <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
-                                </Avatar>
+                                <img 
+                                  src={currentMatchData.match.home_logo} 
+                                  alt={getTeamName(currentMatchData.match, 'home')}
+                                  className="h-6 w-6 sm:h-10 sm:w-10 object-cover"
+                                />
                               ) : (
-                                <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
-                                  <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                                </div>
+                                <Shield className="h-6 w-6 sm:h-10 sm:w-10 text-muted-foreground" />
                               )}
                             </div>
                             <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">
@@ -1286,21 +1509,35 @@ const ActiveAIBets = () => {
                             </p>
                           </div>
                         
-                          {/* Match Time Display */}
-                          <MatchTimeDisplay match={currentMatchData.match} />
+                          {/* Match Time Display & Score */}
+                          <div className="flex flex-col items-center gap-0 sm:gap-0.5 shrink-0">
+                            {/* 比分显示（如果有比分，显示在VS上面） */}
+                            {(currentMatchData.match.goals_home !== null && currentMatchData.match.goals_home !== undefined) || 
+                             (currentMatchData.match.goals_away !== null && currentMatchData.match.goals_away !== undefined) ? (
+                              <div className="flex items-center gap-0.5 sm:gap-1">
+                                <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">
+                                  {currentMatchData.match.goals_home ?? 0}
+                                </span>
+                                <span className="text-[8px] sm:text-xs text-muted-foreground/70 font-medium">-</span>
+                                <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">
+                                  {currentMatchData.match.goals_away ?? 0}
+                                </span>
+                              </div>
+                            ) : null}
+                            <MatchTimeDisplay match={currentMatchData.match} />
+                          </div>
                         
                           {/* Away Team */}
                           <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                             <div className="relative shrink-0">
                               {currentMatchData.match.away_logo ? (
-                                <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
-                                  <AvatarImage src={currentMatchData.match.away_logo} alt={getTeamName(currentMatchData.match, 'away')} />
-                                  <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
-                                </Avatar>
+                                <img 
+                                  src={currentMatchData.match.away_logo} 
+                                  alt={getTeamName(currentMatchData.match, 'away')}
+                                  className="h-6 w-6 sm:h-10 sm:w-10 object-cover"
+                                />
                               ) : (
-                                <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
-                                  <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                                </div>
+                                <Shield className="h-6 w-6 sm:h-10 sm:w-10 text-muted-foreground" />
                               )}
                             </div>
                             <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">

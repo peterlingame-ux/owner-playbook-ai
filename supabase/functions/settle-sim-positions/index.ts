@@ -76,8 +76,8 @@ const AI_BALANCE_LEDGER_TABLE = "ai_balance_ledger";
 const AUTO_BET_TABLE = "ai_auto_bets";
 const DAILY_MATCHES_TABLE = "daily_matches";
 
-// 不再使用 COMPLETED_STATUSES，改用 met 字段判断
-// met != 0 且 met 不为 null 表示比赛已结束
+// 使用新的数据库字段判断比赛是否结束：
+// ended > 0（秒级时间戳）或 status_id = 8（完场）表示比赛已结束
 
 const VALID_RESULTS: SettlementResult[] = [
   "win",
@@ -287,38 +287,45 @@ const fetchOpenPositions = async (matchIds?: number[]) => {
 };
 
 // 查询所有已结束的比赛（不限制 matchIds）
+// 使用新的数据库字段：match_id, home_scores, away_scores, ended
 const fetchAllCompletedMatches = async () => {
   if (!supabase) {
     throw new Error("Supabase client not initialized");
   }
 
-  const now = Date.now();
+  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
   const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
-    .select("mid, mhs, mas, met")
-    .neq("met", 0)
-    .not("met", "is", null);
+    .select("match_id, home_scores, away_scores, ended, status_id")
+    .or("ended.gt.0,status_id.eq.8"); // ended > 0 或 status_id = 8（完场）
 
   if (error) {
     throw error;
   }
 
   const completedMatches = (allMatches || []).filter((match: any) => {
-    const met = match.met;
-    const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
-    return metValue !== 0 && metValue <= now;
+    const ended = match.ended;
+    const endedValue = ended !== null && ended !== undefined 
+      ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+      : 0;
+    const statusId = match.status_id !== null && match.status_id !== undefined
+      ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+      : null;
+    
+    // 比赛已结束：ended > 0（秒级时间戳）或 status_id = 8（完场）
+    return (!isNaN(endedValue) && endedValue > 0) || (!isNaN(statusId) && statusId === 8);
   });
 
   return completedMatches.map((match: any) => ({
-    fixture_id: match.mid ? parseInt(match.mid) || 0 : 0,
-    goals_home: match.mhs !== null && match.mhs !== undefined ? match.mhs : 0,
-    goals_away: match.mas !== null && match.mas !== undefined ? match.mas : 0,
-    status_short: match.met ? "FT" : null,
+    fixture_id: match.match_id ?? 0,
+    goals_home: match.home_scores?.[0] ?? 0, // home_scores[0] 是常规时间比分
+    goals_away: match.away_scores?.[0] ?? 0, // away_scores[0] 是常规时间比分
+    status_short: match.status_id === 8 ? "FT" : null,
   })) as MatchResult[];
 };
 
-// 查询已完成的比赛（使用 met 字段判断）
-// 比赛结束逻辑：met != 0 并且 当前时间 > met
+// 查询已完成的比赛（使用 ended 字段和 status_id 判断）
+// 比赛结束逻辑：ended > 0（秒级时间戳）或 status_id = 8（完场）
 const fetchCompletedMatches = async (matchIds: number[]) => {
   if (!supabase) {
     throw new Error("Supabase client not initialized");
@@ -328,38 +335,39 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
     return [] as MatchResult[];
   }
 
-  // 将 matchIds 转换为字符串数组（因为 mid 是 TEXT 类型）
-  const matchIdsStr = matchIds.map(id => String(id));
-
-  // met 字段是毫秒级时间戳，now 也使用毫秒级
-  const now = Date.now(); // 当前时间戳（毫秒）
+  // match_id 是 INTEGER 类型，直接使用数字数组
+  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
   const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
-    .select("mid, mhs, mas, met")
-    .in("mid", matchIdsStr)
-    .neq("met", 0) // met != 0 表示比赛已结束
-    .not("met", "is", null); // 排除 met 为 null 的情况
-    // 移除对 mhs 和 mas 的限制，允许比分为 null 的比赛也能结算（使用默认值 0）
+    .select("match_id, home_scores, away_scores, ended, status_id")
+    .in("match_id", matchIds)
+    .or("ended.gt.0,status_id.eq.8"); // ended > 0 或 status_id = 8（完场）
 
   if (error) {
     throw error;
   }
 
-  // 过滤：只保留当前时间 > met 的比赛（确保比赛确实已经结束）
-  // 比赛结束逻辑：met != 0 并且 当前时间 > met（毫秒级比较）
+  // 过滤：只保留已结束的比赛
+  // 比赛结束逻辑：ended > 0（秒级时间戳）或 status_id = 8（完场）
   const completedMatches = (allMatches || []).filter((match: any) => {
-    const met = match.met;
-    const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
-    // met != 0 且 当前时间 >= met，比赛已结束（毫秒级比较）
-    return metValue !== 0 && metValue <= now;
+    const ended = match.ended;
+    const endedValue = ended !== null && ended !== undefined 
+      ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+      : 0;
+    const statusId = match.status_id !== null && match.status_id !== undefined
+      ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+      : null;
+    
+    // 比赛已结束：ended > 0（秒级时间戳）或 status_id = 8（完场）
+    return (!isNaN(endedValue) && endedValue > 0) || (!isNaN(statusId) && statusId === 8);
   });
 
   // 转换数据格式以保持兼容性
   return completedMatches.map((match: any) => ({
-    fixture_id: match.mid ? parseInt(match.mid) || 0 : 0,
-    goals_home: match.mhs !== null && match.mhs !== undefined ? match.mhs : 0, // 如果比分为 null，使用默认值 0
-    goals_away: match.mas !== null && match.mas !== undefined ? match.mas : 0, // 如果比分为 null，使用默认值 0
-    status_short: match.met ? "FT" : null, // 保持兼容性，但实际不再使用
+    fixture_id: match.match_id ?? 0,
+    goals_home: match.home_scores?.[0] ?? 0, // home_scores[0] 是常规时间比分
+    goals_away: match.away_scores?.[0] ?? 0, // away_scores[0] 是常规时间比分
+    status_short: match.status_id === 8 ? "FT" : null,
   })) as MatchResult[];
 };
 

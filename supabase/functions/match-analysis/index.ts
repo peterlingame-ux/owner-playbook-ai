@@ -70,6 +70,7 @@ type AllPredictions = {
     odds?: number;
   };
   primaryBet?: BetInfo; // 主要投注（用于下注决策）
+  allMarketOdds?: MarketOdds; // 所有市场赔率（大小球和让球盘的所有盘口）
 };
 
 type StrategyConfig = {
@@ -187,17 +188,16 @@ const buildSystemPrompt = (userTrainingData?: string[]) => {
 };
 
 type MarketOdds = {
-  overUnder?: Array<{ line: number; over: number; under: number }>;
+  overUnder?: Array<{ line: number | string; over: number; under: number }>; // line 可以是数字或字符串（如 "2.5/3", "2/2.5"）
   handicap?: Array<{ line: number | string; home: number; away: number }>; // line 可以是数字或字符串（如 "-1/1.5"）
 };
 
-// 赔率范围限制：只选择 1.65 - 2.3 范围内的赔率
-const MIN_ODDS = 1.65;
-const MAX_ODDS = 2.3;
+// 赔率范围限制：只选择大于等于 1.7 的赔率（无上限）
+const MIN_ODDS = 1.7;
 
-// 检查赔率是否在有效范围内
+// 检查赔率是否在有效范围内（只检查最小值，无上限）
 const isOddsInRange = (odds: number): boolean => {
-  return odds >= MIN_ODDS && odds <= MAX_ODDS;
+  return odds >= MIN_ODDS;
 };
 
 const buildUserPrompt = (
@@ -340,15 +340,15 @@ const getTodayMatches = async () => {
   
   console.log(`[getTodayMatches] 查询比赛: 昨天=${yesterdayStr}, 今天=${today}`);
   
-  // 查询比赛，过滤未完成的比赛（基于 met 字段）
-  // met = 0 或 met 为 null 表示比赛未结束，需要查询
-  // met != 0 表示比赛已结束，不需要查询
+  // 查询比赛，过滤未完成的比赛（基于 ended 字段）
+  // ended = 0 或 ended 为 null 表示比赛未结束，需要查询
+  // ended = 1 表示比赛已结束，不需要查询
   const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select('*')
     .in('date', [yesterdayStr, today])
-    .or('met.is.null,met.eq.0') // met 为 null 或 0 表示未结束
-    .order('mgt', { ascending: true }); // 使用 mgt (比赛开始时间戳) 排序
+    .or('ended.is.null,ended.eq.0') // ended 为 null 或 0 表示未结束
+    .order('match_time', { ascending: true }); // 使用 match_time (比赛开始时间戳，秒) 排序
 
   if (error) {
     console.error('[getTodayMatches] 查询失败:', error);
@@ -357,7 +357,7 @@ const getTodayMatches = async () => {
 
   console.log(`[getTodayMatches] 查询成功: 找到 ${data?.length || 0} 场比赛`);
   if (data && data.length > 0) {
-    console.log(`[getTodayMatches] 比赛详情: ${data.map((m: any) => `mid=${m.mid}, ${m.mhn || 'N/A'} vs ${m.man || 'N/A'}, status=${m.mst || 'N/A'}`).join('; ')}`);
+    console.log(`[getTodayMatches] 比赛详情: ${data.map((m: any) => `match_id=${m.match_id}, ${m.home_team_name || 'N/A'} vs ${m.away_team_name || 'N/A'}, status_id=${m.status_id || 'N/A'}`).join('; ')}`);
   }
 
   return data || [];
@@ -365,15 +365,11 @@ const getTodayMatches = async () => {
 
 // 为比赛生成默认的 betInfo（基于 AI 预测）
 const generateDefaultBetInfo = (prediction: string, confidence: number): BetInfo => {
-  // 根据置信度计算合理的赔率
-  // 公式：odds = 3.0 - (confidence / 100) * 2.0
-  const calculatedOdds = Math.max(1.1, Math.min(3.0, 3.0 - (confidence / 100) * 2.0));
-  
   return {
     betType: 'over_under', // 默认使用大小球类型
     prediction: prediction.toUpperCase(),
     confidence: confidence,
-    odds: calculatedOdds,
+    odds: 0, // 默认值为 0，将从数据库 odds_info 中获取真实赔率
     betAmount: 0, // 初始为 0，由策略计算
   };
 };
@@ -390,21 +386,22 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
   if (Array.isArray(body.matches) && body.matches.length > 0) {
     // 验证比赛是否是昨天或今天的（通过检查 matchId 是否在昨天和今天的比赛中）
     if (supabase) {
-      // matchId 可能是 number (旧格式) 或 string (新格式 mid)
+      // matchId 是 number 格式（纳米数据API的match_id）
       const matchIds = body.matches.map(m => m.matchId).filter(Boolean);
       if (matchIds.length > 0) {
-        // 尝试作为 mid (TEXT) 查询
+        // 作为 match_id (INTEGER) 查询
         const { data: todayMatches } = await supabase
           .from(DAILY_MATCHES_TABLE)
-          .select('mid')
+          .select('match_id')
           .in('date', [yesterdayStr, today])
-          .in('mid', matchIds.map(id => String(id)));
+          .in('match_id', matchIds.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id)));
         
-        const validMatchIds = new Set((todayMatches || []).map((m: any) => m.mid));
+        const validMatchIds = new Set((todayMatches || []).map((m: any) => m.match_id));
         const filteredMatches = body.matches.filter(m => {
           if (!m.matchId) return true;
-          // 支持 number 和 string 格式的 matchId
-          return validMatchIds.has(String(m.matchId));
+          // 支持 number 格式的 matchId
+          const matchIdNum = typeof m.matchId === 'string' ? parseInt(m.matchId) : m.matchId;
+          return !isNaN(matchIdNum) && validMatchIds.has(matchIdNum);
         });
         
         if (filteredMatches.length === 0) {
@@ -423,10 +420,11 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
   // 如果提供了 matchInfo 和 betInfo，验证是否是昨天或今天的比赛
   if (body.matchInfo && body.betInfo) {
     if (body.matchId && supabase) {
+      const matchIdNum = typeof body.matchId === 'string' ? parseInt(body.matchId) : body.matchId;
       const { data: matchData } = await supabase
         .from(DAILY_MATCHES_TABLE)
         .select('date')
-        .eq('mid', String(body.matchId))
+        .eq('match_id', matchIdNum)
         .single();
       
       if (matchData && matchData.date !== today && matchData.date !== yesterdayStr) {
@@ -477,12 +475,12 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
       const matchesByHour = new Map<string, any[]>();
       
       for (const match of todayMatches) {
-        // 使用 mgt (毫秒时间戳) 而不是 kickoff_at
-        if (!match.mgt) continue;
+        // 使用 match_time (秒级时间戳) 而不是 mgt
+        if (!match.match_time) continue;
         
         try {
-          // mgt 是毫秒时间戳，直接转换为 Date
-          const kickoffDate = new Date(typeof match.mgt === 'string' ? parseInt(match.mgt) : match.mgt);
+          // match_time 是秒级时间戳，需要转换为毫秒
+          const kickoffDate = new Date((typeof match.match_time === 'string' ? parseInt(match.match_time) : match.match_time) * 1000);
           // 使用 UTC+8 时区获取日期和小时（与数据库存储时区一致）
           // 使用 Intl.DateTimeFormat 获取 UTC+8 时区的各个部分
           const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -508,7 +506,7 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
           }
           matchesByHour.get(dateHourKey)!.push(match);
         } catch (error) {
-          console.warn(`[normalizeMatchesPayload] 解析比赛时间失败: ${match.mgt}`, error);
+          console.warn(`[normalizeMatchesPayload] 解析比赛时间失败: ${match.match_time}`, error);
           // 如果解析失败，跳过该比赛
           continue;
         }
@@ -520,11 +518,11 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
       
       for (const hourKey of sortedHours) {
         const matchesInHour = matchesByHour.get(hourKey)!;
-        // 按 mgt (毫秒时间戳) 排序，选择最早的那场
+        // 按 match_time (秒级时间戳) 排序，选择最早的那场
         const sortedMatches = matchesInHour.sort((a, b) => {
           try {
-            const timeA = typeof a.mgt === 'string' ? parseInt(a.mgt) : (a.mgt || 0);
-            const timeB = typeof b.mgt === 'string' ? parseInt(b.mgt) : (b.mgt || 0);
+            const timeA = typeof a.match_time === 'string' ? parseInt(a.match_time) : (a.match_time || 0);
+            const timeB = typeof b.match_time === 'string' ? parseInt(b.match_time) : (b.match_time || 0);
             return timeA - timeB;
           } catch {
             return 0;
@@ -547,15 +545,24 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
 
     // 为每场比赛生成默认的 MatchRequest
     const matches: MatchRequest[] = selectedMatches.map((match) => {
-      // 判断比赛状态：根据 mst 字段判断是否为进行中
-      const isLive = match.mst && ['LIVE', 'HT', '2H', 'ET', 'P', 'BREAK'].includes(match.mst);
+      // 判断比赛状态：根据 status_id 字段判断是否为进行中
+      // status_id: 0-未开始, 1-进行中, 2-暂停, 3-已结束, 4-取消, 5-延期
+      const isLive = match.status_id === 1 || match.status_id === 2;
+      
+      // 获取比分：home_scores[0] 和 away_scores[0] 是常规时间比分
+      const homeScore = (match.home_scores && Array.isArray(match.home_scores) && match.home_scores.length > 0) 
+        ? match.home_scores[0] 
+        : 0;
+      const awayScore = (match.away_scores && Array.isArray(match.away_scores) && match.away_scores.length > 0) 
+        ? match.away_scores[0] 
+        : 0;
       
       const matchInfo: MatchInfo = {
-        league: match.tn || match.tnjc || 'Unknown League',
-        homeTeam: match.mhn || 'Unknown Home Team',
-        awayTeam: match.man || 'Unknown Away Team',
-        homeScore: match.mhs ?? 0,
-        awayScore: match.mas ?? 0,
+        league: match.competition_name || match.competition_name_zh || 'Unknown League',
+        homeTeam: match.home_team_name || match.home_team_name_zh || 'Unknown Home Team',
+        awayTeam: match.away_team_name || match.away_team_name_zh || 'Unknown Away Team',
+        homeScore: homeScore,
+        awayScore: awayScore,
         status: isLive ? 'live' : 'upcoming',
       };
 
@@ -568,13 +575,8 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
         autoBet: body.autoBet ?? false,
       }));
 
-      // matchId 使用 mid，但需要转换为 number（如果可能）以保持兼容性
-      // 如果 mid 是纯数字字符串，转换为 number；否则保持为 string
-      let matchId: number | undefined;
-      if (match.mid) {
-        const midNum = parseInt(match.mid);
-        matchId = isNaN(midNum) ? undefined : midNum;
-      }
+      // matchId 使用 match_id (number)
+      const matchId: number | undefined = match.match_id;
 
       return {
         matchId,
@@ -622,10 +624,15 @@ const checkExistingAnalysis = async (
     // 查询今天是否有该AI对该比赛的分析记录
     // 注意：inserted_at 是 TIMESTAMPTZ，需要转换为 UTC+8 时区的开始时间
     const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
+    // matchId 现在是 number 类型（纳米数据API的match_id）
+    const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
+    if (isNaN(matchIdNum)) {
+      return null;
+    }
     const { data, error } = await supabase
       .from(ANALYSIS_TABLE)
       .select('id, provider_model_id, analysis, bet_snapshot')
-      .eq('match_id', matchId)
+      .eq('match_id', matchIdNum)
       .eq('ai_id', aiId)
       .gte('inserted_at', todayStartUTC8)
       .order('inserted_at', { ascending: false })
@@ -664,11 +671,14 @@ const persistAnalyses = async (
     return analyses.map((item) => ({ id: null, modelId: item.id }));
   }
 
-  // 构建完整的 bet_snapshot，包含所有预测类型
+  // 构建完整的 bet_snapshot，包含所有预测类型（格式1：完整预测信息）
+  // 确保始终使用完整格式，如果没有提供 allPredictions，创建一个最小结构
   const betSnapshot = allPredictions ? {
     ...allPredictions,
     primaryBet: betInfo, // 主要投注信息
-  } : betInfo; // 如果没有提供完整预测，则使用原来的 betInfo
+  } : {
+    primaryBet: betInfo, // 如果没有提供完整预测，至少包含主要投注信息
+  };
 
   const rows = analyses.map((item) => ({
     match_id: matchId ?? null,
@@ -691,10 +701,15 @@ const persistAnalyses = async (
   if (matchId && aiId) {
     const today = getUTC8DateString(new Date());
     const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
+    // matchId 现在是 number 类型（纳米数据API的match_id）
+    const matchIdNum = typeof matchId === 'string' ? parseInt(matchId) : matchId;
+    if (isNaN(matchIdNum)) {
+      return analyses.map((item) => ({ id: null, modelId: item.id }));
+    }
     const { data: existingData } = await supabase
       .from(ANALYSIS_TABLE)
       .select('id, provider_model_id, analysis')
-      .eq('match_id', matchId)
+      .eq('match_id', matchIdNum)
       .eq('ai_id', aiId)
       .gte('inserted_at', todayStartUTC8)
       .order('inserted_at', { ascending: false })
@@ -1269,8 +1284,9 @@ serve(async (req) => {
         const todayBetsCount = await getTodayBetsCount(aiId);
         const strategy = resolveStrategy(body.strategy);
         
-        // 从数据库的 odds_info 字段解析大小球和让球盘赔率
-        // 实际数据结构：{ ts, msg, code, data: [{ hpt, hpn, hl: [{ hv, ol: [{ ot, ov, ov2 }] }] }] }
+        // 从数据库获取赔率信息（纳米数据API的diary接口不包含赔率，需要从其他API获取）
+        // 注意：当前实现中，daily_matches表不包含odds_info字段，赔率信息需要从其他API获取
+        // 如果需要赔率信息，可以调用纳米数据API的odds相关接口
         const parseOddsInfoFromDB = (oddsInfo: unknown): MarketOdds | null => {
           if (!oddsInfo || typeof oddsInfo !== 'object') {
             return null;
@@ -1290,40 +1306,31 @@ serve(async (req) => {
             }
 
             // 解析大小球赔率（Over/Under）
-            // hpt=5 表示大小球市场，hpn 包含"大小"或"Over/Under"
+            // hpt=5 且 hpn="全场大小" 或 hpn="全场大小-附加盘"
             const overUnderMarkets = markets.filter((market: any) => {
               const marketType = market.hpt || market.marketType || market.market_type;
-              const marketName = (market.hpn || market.name || market.marketName || '').toLowerCase();
-              // hpt=5 是大小球，或者名称包含"大小"
-              return marketType === 5 || marketName.includes('大小') || 
-                     marketName.includes('over') || marketName.includes('under') ||
-                     marketName.includes('goals');
+              const marketName = market.hpn || market.name || market.marketName || '';
+              // 严格限制：只接受 hpt=5，且 hpn 精确匹配"全场大小"或"全场大小-附加盘"
+              if (marketType === 5) {
+                return marketName === '全场大小' || marketName === '全场大小-附加盘';
+              }
+              return false;
             });
 
             if (overUnderMarkets.length > 0) {
-              const overUnderMap = new Map<number, { over?: number; under?: number }>();
+              // 使用 string | number 作为 key，保留原始格式（如 "2.5/3", "2/2.5"）
+              const overUnderMap = new Map<string | number, { over?: number; under?: number }>();
               
               for (const market of overUnderMarkets) {
                 const hl = market.hl || market.handicapLines || [];
                 
                 for (const lineData of hl) {
-                  // hv 是盘口值，如 "3", "3.5", "2.5" 等
+                  // hv 是盘口值，如 "3", "3.5", "2.5", "2.5/3", "2/2.5" 等
                   const hv = lineData.hv || lineData.handicapValue || lineData.line;
-                  if (!hv) continue;
+                  if (hv === null || hv === undefined || hv === '') continue;
                   
-                  // 解析盘口值（处理 "3", "3.5", "2/2.5" 等格式）
-                  // 对于 "2/2.5" 这种格式，取平均值或第一个值
-                  let line: number;
-                  if (typeof hv === 'number') {
-                    line = hv;
-                  } else if (typeof hv === 'string') {
-                    // 处理 "2/2.5" 格式，取第一个数字
-                    const lineMatch = hv.match(/(\d+\.?\d*)/);
-                    if (!lineMatch) continue;
-                    line = parseFloat(lineMatch[1]);
-                  } else {
-                    continue;
-                  }
+                  // 保留原始格式：如果是数字则保持数字，如果是字符串则保持字符串（包括 "2.5/3" 等格式）
+                  const line: string | number = typeof hv === 'number' ? hv : String(hv);
                   
                   const ol = lineData.ol || lineData.outcomes || lineData.options || [];
                   
@@ -1352,7 +1359,7 @@ serve(async (req) => {
                 }
               }
 
-              // 转换为数组格式，只保留同时有 over 和 under 的，且两个赔率都在1.65-2.3范围内
+              // 转换为数组格式，只保留同时有 over 和 under 的，且两个赔率都大于等于1.7
               marketOdds.overUnder = Array.from(overUnderMap.entries())
                 .filter(([_, odds]) => {
                   if (!odds.over || !odds.under) return false;
@@ -1363,7 +1370,15 @@ serve(async (req) => {
                   over: odds.over!,
                   under: odds.under!,
                 }))
-                .sort((a, b) => a.line - b.line);
+                .sort((a, b) => {
+                  // 排序：数字优先，然后按字符串排序
+                  const aNum = typeof a.line === 'number' ? a.line : parseFloat(String(a.line)) || Infinity;
+                  const bNum = typeof b.line === 'number' ? b.line : parseFloat(String(b.line)) || Infinity;
+                  if (aNum !== Infinity && bNum !== Infinity) {
+                    return aNum - bNum;
+                  }
+                  return String(a.line).localeCompare(String(b.line));
+                });
               
               if (marketOdds.overUnder.length > 0) {
                 console.log(`[parseOddsInfoFromDB] 解析到 ${marketOdds.overUnder.length} 个大小球盘口`);
@@ -1371,14 +1386,15 @@ serve(async (req) => {
             }
 
             // 解析让球盘赔率（Asian Handicap）
-            // hpt=2 或 4 表示让球盘市场，hpn 包含"让球"或"Handicap"
+            // hpt=2 且 hpn="全场让球" 或 hpn="全场让球-附加盘"
             const handicapMarkets = markets.filter((market: any) => {
               const marketType = market.hpt || market.marketType || market.market_type;
-              const marketName = (market.hpn || market.name || market.marketName || '').toLowerCase();
-              // hpt=2 或 4 是让球盘，或者名称包含"让球"
-              return marketType === 2 || marketType === 4 || 
-                     marketName.includes('让球') || marketName.includes('handicap') ||
-                     marketName.includes('asian');
+              const marketName = market.hpn || market.name || market.marketName || '';
+              // 严格限制：只接受 hpt=2，且 hpn 精确匹配"全场让球"或"全场让球-附加盘"
+              if (marketType === 2) {
+                return marketName === '全场让球' || marketName === '全场让球-附加盘';
+              }
+              return false;
             });
 
             if (handicapMarkets.length > 0) {
@@ -1425,7 +1441,7 @@ serve(async (req) => {
                 }
               }
 
-              // 转换为数组格式，只保留同时有 home 和 away 的，且两个赔率都在1.65-2.3范围内
+              // 转换为数组格式，只保留同时有 home 和 away 的，且两个赔率都大于等于1.7
               marketOdds.handicap = Array.from(handicapMap.entries())
                 .filter(([_, odds]) => {
                   if (!odds.home || !odds.away) return false;
@@ -1464,31 +1480,210 @@ serve(async (req) => {
           }
         };
 
-        // 从数据库获取所有可用的市场赔率（只读取大小球和让球盘）
-        const getAllMarketOdds = async (matchMid?: string): Promise<MarketOdds | null> => {
-          if (!matchMid || !supabase) return null;
-          
-          try {
-            const { data: matchData, error } = await supabase
-              .from(DAILY_MATCHES_TABLE)
-              .select('odds_info')
-              .eq('mid', matchMid)
-              .single();
+        // 解析所有赔率信息（不过滤赔率范围，用于保存到 bet_snapshot）
+        const parseAllOddsInfoFromDB = (oddsInfo: unknown): MarketOdds | null => {
+          if (!oddsInfo || typeof oddsInfo !== 'object') {
+            return null;
+          }
 
-            if (error || !matchData || !matchData.odds_info) {
-              console.warn(`[getAllMarketOdds] 比赛 ${matchMid} 没有赔率信息`);
+          const marketOdds: MarketOdds = {};
+          const oddsData = oddsInfo as any;
+
+          try {
+            // 检查数据结构：可能是 { data: [...] } 或直接是数组
+            const markets = Array.isArray(oddsData.data) ? oddsData.data : 
+                           Array.isArray(oddsData) ? oddsData : [];
+
+            if (markets.length === 0) {
               return null;
             }
 
-            const parsedOdds = parseOddsInfoFromDB(matchData.odds_info);
-            if (parsedOdds) {
-              console.log(`[getAllMarketOdds] 从数据库成功读取比赛 ${matchMid} 的赔率信息`);
-              return parsedOdds;
+            // 解析大小球赔率（Over/Under）
+            // hpt=5 且 hpn="全场大小" 或 hpn="全场大小-附加盘"
+            const overUnderMarkets = markets.filter((market: any) => {
+              const marketType = market.hpt || market.marketType || market.market_type;
+              const marketName = market.hpn || market.name || market.marketName || '';
+              if (marketType === 5) {
+                return marketName === '全场大小' || marketName === '全场大小-附加盘';
+              }
+              return false;
+            });
+
+            if (overUnderMarkets.length > 0) {
+              const overUnderMap = new Map<string | number, { over?: number; under?: number }>();
+              
+              for (const market of overUnderMarkets) {
+                const hl = market.hl || market.handicapLines || [];
+                
+                for (const lineData of hl) {
+                  const hv = lineData.hv || lineData.handicapValue || lineData.line;
+                  if (hv === null || hv === undefined || hv === '') continue;
+                  
+                  const line: string | number = typeof hv === 'number' ? hv : String(hv);
+                  const ol = lineData.ol || lineData.outcomes || lineData.options || [];
+                  
+                  for (const outcome of ol) {
+                    const ot = outcome.ot || outcome.outcomeType || outcome.type || '';
+                    const ovRaw = outcome.ov || outcome.odds || outcome.price || 0;
+                    const odd = typeof ovRaw === 'number' ? ovRaw / 100000 : parseFloat(ovRaw) / 100000;
+                    
+                    if (isNaN(odd) || odd <= 0) continue;
+
+                    if (!overUnderMap.has(line)) {
+                      overUnderMap.set(line, {});
+                    }
+                    
+                    const entry = overUnderMap.get(line)!;
+                    const otLower = String(ot).toLowerCase();
+                    
+                    if (otLower === 'over' || otLower.includes('大')) {
+                      entry.over = odd;
+                    } else if (otLower === 'under' || otLower.includes('小')) {
+                      entry.under = odd;
+                    }
+                  }
+                }
+              }
+
+              // 转换为数组格式，只保留同时有 over 和 under 的，不做赔率范围过滤
+              marketOdds.overUnder = Array.from(overUnderMap.entries())
+                .filter(([_, odds]) => {
+                  return odds.over && odds.under;
+                })
+                .map(([line, odds]) => ({
+                  line,
+                  over: odds.over!,
+                  under: odds.under!,
+                }))
+                .sort((a, b) => {
+                  const aNum = typeof a.line === 'number' ? a.line : parseFloat(String(a.line)) || Infinity;
+                  const bNum = typeof b.line === 'number' ? b.line : parseFloat(String(b.line)) || Infinity;
+                  if (aNum !== Infinity && bNum !== Infinity) {
+                    return aNum - bNum;
+                  }
+                  return String(a.line).localeCompare(String(b.line));
+                });
             }
 
-            return null;
+            // 解析让球盘赔率（Asian Handicap）
+            // hpt=2 且 hpn="全场让球" 或 hpn="全场让球-附加盘"
+            const handicapMarkets = markets.filter((market: any) => {
+              const marketType = market.hpt || market.marketType || market.market_type;
+              const marketName = market.hpn || market.name || market.marketName || '';
+              if (marketType === 2) {
+                return marketName === '全场让球' || marketName === '全场让球-附加盘';
+              }
+              return false;
+            });
+
+            if (handicapMarkets.length > 0) {
+              const handicapMap = new Map<string | number, { home?: number; away?: number }>();
+              
+              for (const market of handicapMarkets) {
+                const hl = market.hl || market.handicapLines || [];
+                
+                for (const lineData of hl) {
+                  const hv = lineData.hv || lineData.handicapValue || lineData.line;
+                  if (hv === null || hv === undefined || hv === '') continue;
+                  
+                  const line: string | number = typeof hv === 'number' ? hv : String(hv);
+                  const ol = lineData.ol || lineData.outcomes || lineData.options || [];
+                  
+                  for (const outcome of ol) {
+                    const ot = outcome.ot || outcome.outcomeType || outcome.type || '';
+                    const ovRaw = outcome.ov || outcome.odds || outcome.price || 0;
+                    const odd = typeof ovRaw === 'number' ? ovRaw / 100000 : parseFloat(ovRaw) / 100000;
+                    
+                    if (isNaN(odd) || odd <= 0) continue;
+
+                    if (!handicapMap.has(line)) {
+                      handicapMap.set(line, {});
+                    }
+                    
+                    const entry = handicapMap.get(line)!;
+                    const otStr = String(ot);
+                    
+                    if (otStr === '1' || otStr.toLowerCase().includes('home') || otStr.includes('主')) {
+                      entry.home = odd;
+                    } else if (otStr === '2' || otStr.toLowerCase().includes('away') || otStr.includes('客')) {
+                      entry.away = odd;
+                    }
+                  }
+                }
+              }
+
+              // 转换为数组格式，只保留同时有 home 和 away 的，不做赔率范围过滤
+              marketOdds.handicap = Array.from(handicapMap.entries())
+                .filter(([_, odds]) => {
+                  return odds.home && odds.away;
+                })
+                .map(([line, odds]) => ({
+                  line,
+                  home: odds.home!,
+                  away: odds.away!,
+                }))
+                .sort((a, b) => {
+                  const aNum = typeof a.line === 'number' ? a.line : parseFloat(String(a.line)) || Infinity;
+                  const bNum = typeof b.line === 'number' ? b.line : parseFloat(String(b.line)) || Infinity;
+                  if (aNum !== Infinity && bNum !== Infinity) {
+                    return aNum - bNum;
+                  }
+                  return String(a.line).localeCompare(String(b.line));
+                });
+            }
+
+            return (marketOdds.overUnder && marketOdds.overUnder.length > 0) || 
+                   (marketOdds.handicap && marketOdds.handicap.length > 0)
+              ? marketOdds
+              : null;
           } catch (error) {
-            console.error(`[getAllMarketOdds] 从数据库读取赔率信息失败:`, error);
+            console.error(`[parseAllOddsInfoFromDB] 解析赔率信息出错:`, error);
+            return null;
+          }
+        };
+
+        // 从数据库获取所有可用的市场赔率（只读取大小球和让球盘）
+        // 从 daily_matches 表的 odds_info 字段读取赔率信息（从番茄体育API获取）
+        const getAllMarketOdds = async (matchId?: number, includeAllOdds: boolean = false): Promise<MarketOdds | null> => {
+          if (!matchId || !supabase) return null;
+          
+          try {
+            // 从 daily_matches 表查询 odds_info 字段
+            const { data: matchData, error } = await supabase
+              .from(DAILY_MATCHES_TABLE)
+              .select('odds_info')
+              .eq('match_id', matchId)
+              .not('odds_info', 'is', null)
+              .single();
+
+            if (error) {
+              console.warn(`[getAllMarketOdds] 查询比赛 ${matchId} 的赔率信息失败:`, error.message);
+              return null;
+            }
+
+            if (!matchData || !matchData.odds_info) {
+              console.warn(`[getAllMarketOdds] 比赛 ${matchId} 没有赔率信息（odds_info 为空）`);
+              return null;
+            }
+
+            // 根据 includeAllOdds 参数选择使用过滤或不过滤的解析函数
+            const parsedOdds = includeAllOdds 
+              ? parseAllOddsInfoFromDB(matchData.odds_info)
+              : parseOddsInfoFromDB(matchData.odds_info);
+            
+            if (parsedOdds) {
+              console.log(`[getAllMarketOdds] 从数据库成功读取比赛 ${matchId} 的赔率信息`);
+              console.log(`[getAllMarketOdds] 大小球盘口: ${parsedOdds.overUnder?.length || 0} 个, 让球盘盘口: ${parsedOdds.handicap?.length || 0} 个`);
+              return parsedOdds;
+            } else {
+              console.warn(`[getAllMarketOdds] 比赛 ${matchId} 的赔率信息解析失败或格式不正确`);
+              return null;
+            }
+          } catch (error) {
+            console.error(`[getAllMarketOdds] 从数据库读取比赛 ${matchId} 的赔率信息失败:`, error);
+            if (error instanceof Error) {
+              console.error(`[getAllMarketOdds] 错误详情: ${error.message}, 堆栈: ${error.stack}`);
+            }
             return null;
           }
         };
@@ -1560,7 +1755,7 @@ serve(async (req) => {
                     betType: 'over_under',
                     prediction: betSnapshot.overUnder.prediction,
                     confidence: betSnapshot.overUnder.confidence,
-                    odds: betSnapshot.overUnder.odds || 1.9,
+                    odds: betSnapshot.overUnder.odds || 0,
                     betAmount: 0,
                     overUnderLine: betSnapshot.overUnder.line,
                     overUnderPick: betSnapshot.overUnder.prediction.toLowerCase(),
@@ -1572,7 +1767,7 @@ serve(async (req) => {
                     betType: 'handicap',
                     prediction: betSnapshot.handicap.prediction,
                     confidence: betSnapshot.handicap.confidence,
-                    odds: betSnapshot.handicap.odds || 1.9,
+                    odds: betSnapshot.handicap.odds || 0,
                     betAmount: 0,
                     handicapLine: betSnapshot.handicap.line,
                   };
@@ -1640,7 +1835,7 @@ serve(async (req) => {
                     betType: 'over_under',
                     prediction: betSnapshot.overUnder.prediction,
                     confidence: betSnapshot.overUnder.confidence,
-                    odds: betSnapshot.overUnder.odds || 1.9,
+                    odds: betSnapshot.overUnder.odds || 0,
                     betAmount: 0,
                     overUnderLine: betSnapshot.overUnder.line,
                     overUnderPick: betSnapshot.overUnder.prediction.toLowerCase(),
@@ -1652,7 +1847,7 @@ serve(async (req) => {
                     betType: 'handicap',
                     prediction: betSnapshot.handicap.prediction,
                     confidence: betSnapshot.handicap.confidence,
-                    odds: betSnapshot.handicap.odds || 1.9,
+                    odds: betSnapshot.handicap.odds || 0,
                     betAmount: 0,
                     handicapLine: betSnapshot.handicap.line,
                   };
@@ -1671,8 +1866,18 @@ serve(async (req) => {
           }
           
           // 在分析之前，从数据库获取市场赔率（只读取大小球和让球盘）
-          const matchMid = match.matchId ? String(match.matchId) : undefined;
-          const marketOdds = matchMid ? await getAllMarketOdds(matchMid) : null;
+          // 从 daily_matches 表的 odds_info 字段读取（从番茄体育API获取）
+          const matchMid = match.matchId;
+          // 获取过滤后的赔率（用于投注决策）
+          const marketOdds = matchMid ? await getAllMarketOdds(matchMid, false) : null;
+          // 获取所有赔率（不过滤，用于保存到 bet_snapshot）
+          const allMarketOdds = matchMid ? await getAllMarketOdds(matchMid, true) : null;
+          
+          if (marketOdds) {
+            console.log(`[${aiDisplayName}] 比赛 ${matchMid} 获取到赔率信息: 大小球=${marketOdds.overUnder?.length || 0}个, 让球盘=${marketOdds.handicap?.length || 0}个`);
+          } else {
+            console.warn(`[${aiDisplayName}] 比赛 ${matchMid} 没有可用的赔率信息，将使用默认赔率`);
+          }
           
           // 调用当前 AI 模型进行分析（只调用自己的模型）
           const analysis = await analyzeWithSingleModel(
@@ -1688,10 +1893,14 @@ serve(async (req) => {
           const successfulAnalysis = analysis.analysis && !analysis.error ? analysis : null;
           
           // 保存 marketOdds 以便后续使用
-          const savedMarketOdds = marketOdds;
+          const savedMarketOdds = marketOdds; // 用于投注决策的过滤后赔率
+          const savedAllMarketOdds = allMarketOdds; // 所有赔率（用于保存到 bet_snapshot）
           
           if (!successfulAnalysis) {
-            // 保存失败的分析记录
+            // 保存失败的分析记录（使用完整格式，即使分析失败也保存结构）
+            const emptyPredictions: AllPredictions = {
+              primaryBet: defaultBetInfo,
+            };
             const analysisRefs = await persistAnalyses(
               match.matchId,
               aiId,
@@ -1699,6 +1908,7 @@ serve(async (req) => {
               matchInfo,
               defaultBetInfo,
               analyses,
+              emptyPredictions, // 使用完整格式
             );
             return {
               match,
@@ -1710,6 +1920,10 @@ serve(async (req) => {
           // 从分析结果中提取预测
           const analysisText = successfulAnalysis.analysis;
           if (!analysisText) {
+            // 保存没有分析文本的记录（使用完整格式）
+            const emptyPredictions: AllPredictions = {
+              primaryBet: defaultBetInfo,
+            };
             const analysisRefs = await persistAnalyses(
               match.matchId,
               aiId,
@@ -1717,6 +1931,7 @@ serve(async (req) => {
               matchInfo,
               defaultBetInfo,
               analyses,
+              emptyPredictions, // 使用完整格式
             );
             return {
               match,
@@ -1768,7 +1983,7 @@ serve(async (req) => {
                 betType: 'moneyline',
                 prediction: moneylinePick, // HOME_WIN, AWAY_WIN, 或 DRAW
                 confidence: moneylineConfidence,
-                odds: 1.9, // 使用默认值
+                odds: 0, // 使用默认值
                 betAmount: 0,
               }
             : null;
@@ -1791,7 +2006,7 @@ serve(async (req) => {
                 betType: 'over_under',
                 prediction: overUnderPick,
                 confidence: overUnderConfidence,
-                odds: overUnderRealOdds || 1.9, // 使用数据库赔率，如果没找到则使用默认值
+                odds: overUnderRealOdds || 0, // 使用数据库赔率，如果没找到则使用默认值
                 betAmount: 0,
                 overUnderLine,
                 overUnderPick: overUnderPick.toLowerCase(),
@@ -1836,7 +2051,7 @@ serve(async (req) => {
                 betType: 'handicap',
                 prediction: handicapPick, // HOME 或 AWAY
                 confidence: handicapConfidence,
-                odds: handicapRealOdds || 1.9, // 使用真实赔率，如果获取失败则使用默认值
+                odds: handicapRealOdds || 0, // 使用真实赔率，如果获取失败则使用默认值
                 betAmount: 0,
                 handicapLine,
               }
@@ -1845,7 +2060,7 @@ serve(async (req) => {
           // 保存分析记录（使用大小球或让球盘作为主要记录，优先级：大小球 > 让球盘，投注时不考虑输赢）
           const finalBetInfo: BetInfo = overUnderBetInfo || handicapBetInfo || defaultBetInfo;
           
-          // 构建完整的预测信息，包含所有三种预测类型
+          // 构建完整的预测信息，包含所有三种预测类型和所有市场赔率
           const allPredictions: AllPredictions = {
             moneyline: moneylineBetInfo ? {
               prediction: moneylineBetInfo.prediction,
@@ -1865,6 +2080,7 @@ serve(async (req) => {
               odds: handicapBetInfo.odds,
             } : undefined,
             primaryBet: finalBetInfo,
+            allMarketOdds: savedAllMarketOdds || undefined, // 记录所有市场赔率（包括所有盘口，不过滤）
           };
           
           const analysisRefs = await persistAnalyses(

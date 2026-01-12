@@ -1553,7 +1553,7 @@ export default function MatchDetail() {
     }
 
     const status = live.score.status;
-    const kickoffTime = live.score.kickoffTime;
+    const kickoffTime = live.score.kickoffTime; // 上半场开球时间戳（秒）
     const now = Math.floor(Date.now() / 1000);
 
     // 根据状态码判断是上半场还是下半场
@@ -1562,10 +1562,11 @@ export default function MatchDetail() {
       // 上半场：比赛进行分钟数=(当前时间戳-上半场开球时间戳) / 60 + 1
       const elapsedMinutes = Math.floor((now - kickoffTime) / 60) + 1;
       return `${elapsedMinutes}'`;
-    } else if (status === 4 || status === 5) {
+    } else if (status === 4) {
       // 下半场：比赛进行分钟数=(当前时间戳-下半场开球时间戳) / 60 + 45 + 1
-      // 注意：这里假设 kickoffTime 是下半场开球时间
-      const elapsedMinutes = Math.floor((now - kickoffTime) / 60) + 45 + 1;
+      // 下半场开球时间通常是上半场开球时间 + 60分钟（45分钟上半场 + 15分钟中场休息）
+      const secondHalfKickoffTime = kickoffTime + 60 * 60; // 下半场开球时间戳（秒）= 上半场开球时间 + 3600秒
+      const elapsedMinutes = Math.floor((now - secondHalfKickoffTime) / 60) + 45 + 1;
       return `${elapsedMinutes}'`;
     } else if (status === 3) {
       return 'HT';

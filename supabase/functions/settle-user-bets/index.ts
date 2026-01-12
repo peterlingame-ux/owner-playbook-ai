@@ -18,13 +18,19 @@ interface UserPrediction {
 }
 
 interface Match {
+  match_id?: number; // 新的字段名（INTEGER）
+  home_scores?: number[]; // 主队得分数组 [常规时间比分, 半场比分, ...]
+  away_scores?: number[]; // 客队得分数组 [常规时间比分, 半场比分, ...]
+  ended?: number; // 结束时间戳（秒级）
+  status_id?: number; // 比赛状态ID
+  status_short?: string;
+  // 兼容旧字段（如果存在）
   fixture_id?: number;
   mid?: string;
   goals_home?: number;
   goals_away?: number;
-  mhs?: number; // 主队得分（新字段名）
-  mas?: number; // 客队得分（新字段名）
-  status_short?: string;
+  mhs?: number;
+  mas?: number;
 }
 
 Deno.serve(async (req) => {
@@ -39,47 +45,51 @@ Deno.serve(async (req) => {
 
     console.log('Starting user bet settlement process...');
 
-    // 获取所有已完成但未结算的比赛（使用 met 字段判断）
-    // 比赛结束逻辑：met != 0 并且 当前时间 > met的时间
-    // met 字段是毫秒级时间戳，now 也使用毫秒级
-    const now = Date.now(); // 当前时间戳（毫秒）
-    console.log(`[settle-user-bets] 开始自动结算用户下注，当前时间戳（毫秒）: ${now}`);
+    // 获取所有已完成但未结算的比赛（使用 ended 字段和 status_id 判断）
+    // 比赛结束逻辑：ended > 0（秒级时间戳）或 status_id = 8（完场）
+    const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+    console.log(`[settle-user-bets] 开始自动结算用户下注，当前时间戳（秒）: ${now}`);
     
-    console.log(`[settle-user-bets] 步骤1: 查询所有 met != 0 的比赛...`);
+    console.log(`[settle-user-bets] 步骤1: 查询所有已结束的比赛（ended > 0 或 status_id = 8）...`);
     const { data: allMatches, error: matchesError } = await supabase
       .from('daily_matches')
-      .select('*')
-      .neq('met', 0) // met != 0 表示比赛已结束
-      .not('met', 'is', null); // 排除 met 为 null 的情况
-      // 移除对 mhs 和 mas 的限制，允许比分为 null 的比赛也能结算（使用默认值 0）
+      .select('match_id, home_scores, away_scores, ended, status_id, home_team_name, away_team_name, home_team_name_zh, away_team_name_zh')
+      .or('ended.gt.0,status_id.eq.8'); // ended > 0 或 status_id = 8（完场）
 
     if (matchesError) {
       console.error('[settle-user-bets] Error fetching matches:', matchesError);
       throw matchesError;
     }
 
-    console.log(`[settle-user-bets] 查询到 ${allMatches?.length || 0} 场 met != 0 的比赛`);
+    console.log(`[settle-user-bets] 查询到 ${allMatches?.length || 0} 场已结束的比赛`);
 
-    // 过滤：只保留当前时间 >= met 的比赛（确保比赛确实已经结束）
-    // 比赛结束逻辑：met != 0 并且 当前时间 > met（毫秒级比较）
-    console.log(`[settle-user-bets] 步骤2: 过滤当前时间 >= met 的比赛...`);
+    // 过滤：只保留已结束的比赛
+    // 比赛结束逻辑：ended > 0（秒级时间戳）或 status_id = 8（完场）
+    console.log(`[settle-user-bets] 步骤2: 过滤已结束的比赛...`);
     const completedMatches = (allMatches || []).filter((match: any) => {
-      const met = match.met;
-      const metValue = typeof met === "string" ? parseInt(met) : (met ?? 0);
-      // met != 0 且 当前时间 >= met，比赛已结束（毫秒级比较）
-      return metValue !== 0 && metValue <= now;
+      const ended = match.ended;
+      const endedValue = ended !== null && ended !== undefined 
+        ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+        : 0;
+      const statusId = match.status_id !== null && match.status_id !== undefined
+        ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : (typeof match.status_id === 'number' ? match.status_id : null))
+        : null;
+      
+      // 比赛已结束：ended > 0（秒级时间戳）或 status_id = 8（完场）
+      return (!isNaN(endedValue) && endedValue > 0) || (!isNaN(statusId) && statusId === 8);
     });
 
-    console.log(`[settle-user-bets] 过滤后得到 ${completedMatches.length} 场已完成的比赛（当前时间 >= met）`);
+    console.log(`[settle-user-bets] 过滤后得到 ${completedMatches.length} 场已完成的比赛`);
 
     if (completedMatches.length > 0) {
       const matchDetails = completedMatches.slice(0, 5).map((m: any) => ({
-        mid: m.mid,
-        met: m.met,
-        mhs: m.mhs,
-        mas: m.mas,
-        home_team: m.home_team_name || m.mhn,
-        away_team: m.away_team_name || m.man
+        match_id: m.match_id,
+        ended: m.ended,
+        status_id: m.status_id,
+        home_scores: m.home_scores,
+        away_scores: m.away_scores,
+        home_team: m.home_team_name_zh || m.home_team_name,
+        away_team: m.away_team_name_zh || m.away_team_name
       }));
       console.log(`[settle-user-bets] 已完成比赛详情（前5场）:`, JSON.stringify(matchDetails, null, 2));
     }
@@ -94,8 +104,8 @@ Deno.serve(async (req) => {
 
     console.log(`[settle-user-bets] Found ${completedMatches.length} completed matches`);
 
-    // 使用 mid 字段（TEXT 类型）而不是 fixture_id
-    const matchIds = completedMatches.map(m => m.mid || String(m.fixture_id || ''));
+    // 使用 match_id 字段（INTEGER 类型），转换为字符串数组（因为 user_predictions.match_id 是 TEXT 类型）
+    const matchIds = completedMatches.map(m => String(m.match_id || '')).filter(id => id !== '');
     console.log(`[settle-user-bets] 步骤3: 提取比赛 ID，共 ${matchIds.length} 场: ${matchIds.slice(0, 10).join(', ')}${matchIds.length > 10 ? '...' : ''}`);
     
     // 获取这些比赛的待结算用户投注
@@ -140,10 +150,9 @@ Deno.serve(async (req) => {
       try {
         console.log(`[settle-user-bets] 处理投注 ${bet.id}: user_id=${bet.user_id}, match_id=${bet.match_id}, prediction_type=${bet.prediction_type}, prediction=${bet.prediction}`);
         
-        // 使用 mid 字段匹配（mid 是 TEXT 类型）
+        // 使用 match_id 字段匹配（match_id 是 INTEGER 类型，需要转换为字符串比较）
         const match = completedMatches.find(m => 
-          (m.mid && m.mid === bet.match_id) || 
-          (m.fixture_id && String(m.fixture_id) === bet.match_id)
+          m.match_id && String(m.match_id) === bet.match_id
         ) as unknown as Match;
         
         if (!match) {
@@ -151,8 +160,10 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        const homeScore = match.mhs !== null && match.mhs !== undefined ? match.mhs : (match.goals_home ?? 0);
-        const awayScore = match.mas !== null && match.mas !== undefined ? match.mas : (match.goals_away ?? 0);
+        // 优先使用新字段：home_scores[0] 和 away_scores[0]
+        // 兼容旧字段：mhs, mas, goals_home, goals_away
+        const homeScore = match.home_scores?.[0] ?? match.mhs ?? match.goals_home ?? 0;
+        const awayScore = match.away_scores?.[0] ?? match.mas ?? match.goals_away ?? 0;
         console.log(`[settle-user-bets] 投注 ${bet.id}: 找到匹配的比赛，比分=${homeScore}-${awayScore}`);
 
         const result = determineBetResult(bet, match);
@@ -291,10 +302,11 @@ Deno.serve(async (req) => {
 
 // 判断投注结果
 function determineBetResult(bet: UserPrediction, match: Match): 'win' | 'loss' | 'push' {
-  // 优先使用新字段名，兼容旧字段名
+  // 优先使用新字段：home_scores[0] 和 away_scores[0]
+  // 兼容旧字段：mhs, mas, goals_home, goals_away
   // 如果比分为 null，使用默认值 0（允许比分为 null 的比赛也能结算）
-  const homeScore = match.mhs !== null && match.mhs !== undefined ? match.mhs : (match.goals_home !== null && match.goals_home !== undefined ? match.goals_home : 0);
-  const awayScore = match.mas !== null && match.mas !== undefined ? match.mas : (match.goals_away !== null && match.goals_away !== undefined ? match.goals_away : 0);
+  const homeScore = match.home_scores?.[0] ?? match.mhs ?? match.goals_home ?? 0;
+  const awayScore = match.away_scores?.[0] ?? match.mas ?? match.goals_away ?? 0;
   
   if (bet.prediction_type === 'moneyline') {
     // 独赢盘
@@ -336,10 +348,11 @@ function determineBetResult(bet: UserPrediction, match: Match): 'win' | 'loss' |
 
 // 获取比赛结果
 function getMatchResult(match: Match): string {
-  // 优先使用新字段名，兼容旧字段名
+  // 优先使用新字段：home_scores[0] 和 away_scores[0]
+  // 兼容旧字段：mhs, mas, goals_home, goals_away
   // 如果比分为 null，使用默认值 0（允许比分为 null 的比赛也能结算）
-  const homeScore = match.mhs !== null && match.mhs !== undefined ? match.mhs : (match.goals_home !== null && match.goals_home !== undefined ? match.goals_home : 0);
-  const awayScore = match.mas !== null && match.mas !== undefined ? match.mas : (match.goals_away !== null && match.goals_away !== undefined ? match.goals_away : 0);
+  const homeScore = match.home_scores?.[0] ?? match.mhs ?? match.goals_home ?? 0;
+  const awayScore = match.away_scores?.[0] ?? match.mas ?? match.goals_away ?? 0;
   if (homeScore > awayScore) return 'HOME_WIN';
   if (awayScore > homeScore) return 'AWAY_WIN';
   return 'DRAW';
