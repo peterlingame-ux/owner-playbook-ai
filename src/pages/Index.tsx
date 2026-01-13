@@ -120,14 +120,19 @@ const Index = () => {
           console.error('Error fetching balances:', balancesError);
         }
 
-        // 创建数据映射
+        // 创建数据映射（使用真实数据）
         const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
         if (winRatesData) {
           winRatesData.forEach((item: any) => {
-            winRatesMap.set(item.ai_id, {
-              total_predictions: item.total_predictions || 0,
-              correct_predictions: item.correct_predictions || 0,
-              win_rate: item.win_rate || 0
+            // 确保数据类型正确转换
+            const totalPredictions = Number(item.total_predictions) || 0;
+            const correctPredictions = Number(item.correct_predictions) || 0;
+            const winRate = Number(item.win_rate) || 0;
+            
+            winRatesMap.set(String(item.ai_id), {
+              total_predictions: totalPredictions,
+              correct_predictions: correctPredictions,
+              win_rate: winRate
             });
           });
         }
@@ -135,48 +140,73 @@ const Index = () => {
         const balancesMap = new Map<string, { available_balance: number; locked_balance: number }>();
         if (balancesData) {
           balancesData.forEach((item: any) => {
-            balancesMap.set(item.ai_id, {
-              available_balance: item.available_balance || 0,
-              locked_balance: item.locked_balance || 0
+            // 确保数据类型正确转换
+            const availableBalance = Number(item.available_balance) || 0;
+            const lockedBalance = Number(item.locked_balance) || 0;
+            
+            balancesMap.set(String(item.ai_id), {
+              available_balance: availableBalance,
+              locked_balance: lockedBalance
             });
           });
         }
 
-        // 更新模型数据
+        // 更新模型数据（使用真实数据）
         const updatedModels = aiModels.map(model => {
           const winRateData = winRatesMap.get(model.id);
           const balanceData = balancesMap.get(model.id);
 
-          // 使用真实数据，如果没有则使用默认值
-          const totalPredictions = winRateData?.total_predictions || 0;
-          const correctPredictions = winRateData?.correct_predictions || 0;
-          const winRate = winRateData?.win_rate || 0;
+          // 使用真实数据，如果没有则使用默认值（来自 mockData）
+          const totalPredictions = winRateData?.total_predictions ?? model.totalPredictions ?? 0;
+          const correctPredictions = winRateData?.correct_predictions ?? model.correctPredictions ?? 0;
+          // 如果有真实数据，使用真实胜率；否则使用计算值或默认值
+          const winRate = winRateData 
+            ? (winRateData.win_rate > 0 ? winRateData.win_rate : 0)
+            : (model.winRate ?? 0);
 
-          // 计算余额和收益
+          // 计算余额和收益（使用真实余额数据）
           const totalBalance = balanceData 
-            ? (balanceData.available_balance || 0) + (balanceData.locked_balance || 0)
-            : INITIAL_BALANCE;
+            ? (balanceData.available_balance + balanceData.locked_balance)
+            : (model.currentValue ? parseFloat(model.currentValue.replace(/[$,]/g, '')) : INITIAL_BALANCE);
           const profit = totalBalance - INITIAL_BALANCE;
-          const changePercent = (profit / INITIAL_BALANCE) * 100;
+          const changePercent = INITIAL_BALANCE > 0 ? (profit / INITIAL_BALANCE) * 100 : 0;
 
           return {
             ...model,
             totalPredictions,
             correctPredictions,
-            winRate: Math.round(winRate * 10) / 10,
+            winRate: Math.round(winRate * 10) / 10, // 保留一位小数
             currentValue: `$${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
             change: profit >= 0 
-              ? `+$${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+              ? `+$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
               : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
             changePercent: Math.round(changePercent * 100) / 100,
           };
         });
 
         setModelsWithRealData(updatedModels);
+        
+        // 调试日志：显示加载的真实数据
+        if (!isRefresh) {
+          console.log('[Index] AI模型真实数据加载完成:', {
+            winRatesCount: winRatesMap.size,
+            balancesCount: balancesMap.size,
+            modelsUpdated: updatedModels.length,
+            sampleModel: updatedModels[0] ? {
+              id: updatedModels[0].id,
+              totalPredictions: updatedModels[0].totalPredictions,
+              correctPredictions: updatedModels[0].correctPredictions,
+              winRate: updatedModels[0].winRate,
+              currentValue: updatedModels[0].currentValue,
+              change: updatedModels[0].change
+            } : null
+          });
+        }
       } catch (error) {
         console.error('Error fetching AI stats:', error);
         // 如果出错，使用默认数据（仅在首次加载时）
         if (!isRefresh) {
+          console.warn('[Index] 使用默认模型数据（mockData）');
           setModelsWithRealData(aiModels);
         }
       } finally {

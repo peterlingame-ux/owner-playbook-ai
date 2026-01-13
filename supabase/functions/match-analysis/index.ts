@@ -343,11 +343,13 @@ const getTodayMatches = async () => {
   // 查询比赛，过滤未完成的比赛（基于 ended 字段）
   // ended = 0 或 ended 为 null 表示比赛未结束，需要查询
   // ended = 1 表示比赛已结束，不需要查询
+  // 只查询有赔率信息的比赛（odds_info 不为 null）
   const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select('*')
     .in('date', [yesterdayStr, today])
     .or('ended.is.null,ended.eq.0') // ended 为 null 或 0 表示未结束
+    .not('odds_info', 'is', null) // 只查询有赔率信息的比赛
     .order('match_time', { ascending: true }); // 使用 match_time (比赛开始时间戳，秒) 排序
 
   if (error) {

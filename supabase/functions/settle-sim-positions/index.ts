@@ -28,11 +28,14 @@ type SettlementRequest = {
   matchIds?: number[]; // 可选：指定要结算的比赛ID
 };
 
+// 根据 supabase/migrations/20250125000000_redesign_daily_matches_for_sportnanoapi.sql 定义
+// match_id 是 INTEGER 类型（纳米数据API的比赛ID）
+// home_scores 和 away_scores 是 INTEGER[] 数组，[0] 是常规时间比分
 type MatchResult = {
-  fixture_id: number;
-  goals_home: number | null;
-  goals_away: number | null;
-  status_short: string | null;
+  match_id: number; // 使用 match_id 而不是 fixture_id，与数据库表结构一致
+  goals_home: number | null; // 来自 home_scores[0]
+  goals_away: number | null; // 来自 away_scores[0]
+  status_short: string | null; // 根据 status_id 计算得出
 };
 
 type PositionRow = {
@@ -317,7 +320,7 @@ const fetchAllCompletedMatches = async () => {
   });
 
   return completedMatches.map((match: any) => ({
-    fixture_id: match.match_id ?? 0,
+    match_id: match.match_id ?? 0, // 使用 match_id 与数据库表结构一致
     goals_home: match.home_scores?.[0] ?? 0, // home_scores[0] 是常规时间比分
     goals_away: match.away_scores?.[0] ?? 0, // away_scores[0] 是常规时间比分
     status_short: match.status_id === 8 ? "FT" : null,
@@ -364,7 +367,7 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
 
   // 转换数据格式以保持兼容性
   return completedMatches.map((match: any) => ({
-    fixture_id: match.match_id ?? 0,
+    match_id: match.match_id ?? 0, // 使用 match_id 与数据库表结构一致
     goals_home: match.home_scores?.[0] ?? 0, // home_scores[0] 是常规时间比分
     goals_away: match.away_scores?.[0] ?? 0, // away_scores[0] 是常规时间比分
     status_short: match.status_id === 8 ? "FT" : null,
@@ -485,7 +488,7 @@ const autoSettlePositions = async (matchIds?: number[]) => {
       };
     }
 
-    matchIdsToCheck = completedMatches.map(m => m.fixture_id).filter(id => id > 0);
+    matchIdsToCheck = completedMatches.map(m => m.match_id).filter(id => id > 0);
     console.log(`[settle-sim-positions] 从已结束比赛中提取到 ${matchIdsToCheck.length} 个有效的 match_id`);
   } else {
     // 如果指定了 matchIds，使用原有逻辑
@@ -528,7 +531,7 @@ const autoSettlePositions = async (matchIds?: number[]) => {
 
   // 打印已完成比赛详情（此时 completedMatches 已经确定被赋值）
   const matchDetails = (completedMatches || []).slice(0, 5).map(m => ({
-    fixture_id: m.fixture_id,
+    match_id: m.match_id,
     goals_home: m.goals_home,
     goals_away: m.goals_away,
     status_short: m.status_short
@@ -537,7 +540,7 @@ const autoSettlePositions = async (matchIds?: number[]) => {
 
   const matchMap = new Map<number, MatchResult>();
   (completedMatches || []).forEach((match) => {
-    matchMap.set(match.fixture_id, match);
+    matchMap.set(match.match_id, match);
   });
 
   // 4. 为每个仓位计算结算结果
