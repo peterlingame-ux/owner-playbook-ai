@@ -50,40 +50,24 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       // 从 ref 中获取最新的 match 对象，确保使用最新的值
       const currentMatch = matchRef.current;
       
-      // 先查询 daily_matches 表中的 status_id
-      // status_id: 1 = 未开赛, 2 = 上半场, 3 = 中场休息, 4 = 下半场, 8 = 完场
-      const dailyStatusId = currentMatch.status_id;
       const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
       
-      // 如果 status_id === 1（未开始）并且当前时间小于 match_time，使用 match_time 显示倒计时
-      if (dailyStatusId === 1) {
-        const matchTime = currentMatch.match_time;
-        if (matchTime && typeof matchTime === 'number' && matchTime > 0) {
-          // 检查当前时间是否小于 match_time
-          if (now < matchTime) {
-            // 比赛还未开始，显示倒计时
-            const diff = matchTime - now;
-            setMatchStatus('not_started');
-            setShowCountdown(true);
-            const hours = Math.floor(diff / 3600);
-            const minutes = Math.floor((diff % 3600) / 60);
-            const seconds = diff % 60;
-            setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-            return;
-          } else {
-            // 当前时间已经大于等于 match_time，但 status_id 还是 1，可能状态还没更新
-            // 显示即将开始或使用 match_live_data 的数据
-            setMatchStatus('not_started');
-            setShowCountdown(false);
-            setTimeDisplay(t('starting_soon') || '即将开始');
-            return;
-          }
+      // 首先检查当前时间是否小于 daily_matches 里面的比赛开始时间（match_time）
+      const matchTime = currentMatch.match_time;
+      if (matchTime && typeof matchTime === 'number' && matchTime > 0) {
+        // 检查当前时间是否小于 match_time
+        if (now < matchTime) {
+          // 比赛还未开始，显示倒计时
+          const diff = matchTime - now;
+          setMatchStatus('not_started');
+          setShowCountdown(true);
+          const hours = Math.floor(diff / 3600);
+          const minutes = Math.floor((diff % 3600) / 60);
+          const seconds = diff % 60;
+          setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+          return;
         }
-        // 如果 match_time 无效，显示默认值
-        setMatchStatus('not_started');
-        setShowCountdown(true);
-        setTimeDisplay('--:--:--');
-        return;
+        // 如果当前时间大于等于 match_time，继续执行后面的逻辑（计算比赛进行时间）
       }
       
       // 否则使用 match_live_data 里面的数据

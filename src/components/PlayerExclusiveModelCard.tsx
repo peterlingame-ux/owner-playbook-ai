@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -126,96 +126,154 @@ const getKickoffDateForMatch = (match: any): Date | null => {
 };
 
 // MatchTimeDisplay component for PlayerExclusiveModelCard
+// 参考 ActiveAIBets 中的 MatchTimeDisplay 逻辑
 const MatchTimeDisplay = ({ match }: { match: any }) => {
   const { t } = useTranslation();
   const [timeDisplay, setTimeDisplay] = useState<string>('');
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
   const [matchStatus, setMatchStatus] = useState<'not_started' | 'live' | 'half_time' | 'other'>('not_started');
+  
+  // 使用 ref 来存储最新的 match 对象，确保 updateTime 函数总是使用最新的值
+  const matchRef = useRef(match);
+  useEffect(() => {
+    matchRef.current = match;
+  }, [match]);
 
   useEffect(() => {
     const updateTime = () => {
-      const kickoffTime = getKickoffDateForMatch(match);
+      // 从 ref 中获取最新的 match 对象，确保使用最新的值
+      const currentMatch = matchRef.current;
       
-      // 如果没有开赛时间，显示默认值
-      if (!kickoffTime) {
+      // 先查询 daily_matches 表中的 status_id
+      // status_id: 1 = 未开赛, 2 = 上半场, 3 = 中场休息, 4 = 下半场, 8 = 完场
+      const dailyStatusId = currentMatch.status_id;
+      const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+      
+      // 如果 status_id === 1（未开始）并且当前时间小于 match_time，使用 match_time 显示倒计时
+      if (dailyStatusId === 1) {
+        // 优先使用 match_time（秒级时间戳），如果没有则使用 mgt（毫秒时间戳）转换为秒
+        let matchTime: number | null = null;
+        if (currentMatch.match_time && typeof currentMatch.match_time === 'number' && currentMatch.match_time > 0) {
+          matchTime = currentMatch.match_time;
+        } else if (currentMatch.mgt && typeof currentMatch.mgt === 'number' && currentMatch.mgt > 0) {
+          // mgt 是毫秒时间戳，转换为秒
+          matchTime = Math.floor(currentMatch.mgt / 1000);
+        }
+        
+        if (matchTime && matchTime > 0) {
+          // 检查当前时间是否小于 match_time
+          if (now < matchTime) {
+            // 比赛还未开始，显示倒计时
+            const diff = matchTime - now;
+            setMatchStatus('not_started');
+            setShowCountdown(true);
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
+            setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+            return;
+          } else {
+            // 当前时间已经大于等于 match_time，但 status_id 还是 1，可能状态还没更新
+            // 显示即将开始或使用 match_live_data 的数据
+            setMatchStatus('not_started');
+            setShowCountdown(false);
+            setTimeDisplay(t('starting_soon') || '即将开始');
+            return;
+          }
+        }
+        // 如果 match_time 无效，显示默认值
         setMatchStatus('not_started');
         setShowCountdown(true);
         setTimeDisplay('--:--:--');
         return;
       }
       
-      const now = new Date();
-      const diff = now.getTime() - kickoffTime.getTime(); // 当前时间 - 开赛时间
+      // 否则使用 match_live_data 里面的数据
+      // 检查是否有比分数据：如果有比分，说明比赛已开始，即使状态字段缺失
+      const hasScore = (currentMatch.goals_home !== null && currentMatch.goals_home !== undefined) ||
+                       (currentMatch.goals_away !== null && currentMatch.goals_away !== undefined) ||
+                       (currentMatch.mhs !== null && currentMatch.mhs !== undefined) ||
+                       (currentMatch.mas !== null && currentMatch.mas !== undefined);
       
-      // 如果当前时间大于开赛时间（diff > 0），说明比赛正在进行中
-      if (diff > 0) {
-        setShowCountdown(false);
-        
-        // 使用 cmec 字段判断是否中场休息
-        const cmec = match.cmec?.trim() || '';
-        if (cmec === 'half_time') {
-          setMatchStatus('half_time');
-          setTimeDisplay(t('half_time_break') || '中场休息');
-          return;
-        }
-        
-        // 计算比赛进行时间（分钟）
-        const elapsedMinutes = Math.floor(diff / (1000 * 60));
-        
-        // 优先使用 status_elapsed（如果存在且大于 0），否则使用计算出的分钟数
-        // 如果 status_elapsed 为 0，但比赛已经开始，使用计算值
-        let displayMinutes: number;
-        if (match.status_elapsed !== null && match.status_elapsed !== undefined && match.status_elapsed > 0) {
-          displayMinutes = match.status_elapsed;
-        } else {
-          displayMinutes = elapsedMinutes;
-        }
-        
-        // 如果显示分钟数为 0，但比赛已经开始（diff > 0），至少显示 1 分钟
-        // 或者如果 diff 很小（小于 60 秒），显示秒数
-        if (displayMinutes === 0 && diff > 0) {
-          const elapsedSeconds = Math.floor(diff / 1000);
-          if (elapsedSeconds < 60) {
-            // 如果小于 60 秒，显示秒数
-            setMatchStatus('live');
-            setTimeDisplay(`${elapsedSeconds}''`);
-            return;
-          } else {
-            // 如果大于等于 60 秒，至少显示 1 分钟
-            displayMinutes = 1;
-          }
-        }
-        
-        setMatchStatus('live');
-        setTimeDisplay(`${displayMinutes}'`);
-        return;
+      // 获取开球时间：使用 live_kickoff_time（来自 match_live_data）
+      let kickoffTimeSeconds: number | null = null;
+      if (currentMatch.live_kickoff_time) {
+        kickoffTimeSeconds = typeof currentMatch.live_kickoff_time === 'string' 
+          ? Number(currentMatch.live_kickoff_time) 
+          : currentMatch.live_kickoff_time;
       }
       
-      // 如果比赛时间还未到（diff <= 0），显示倒计时
-      if (diff <= 0) {
+      // 如果既没有开球时间，也没有比分数据，显示默认值
+      if ((!kickoffTimeSeconds || Number.isNaN(kickoffTimeSeconds) || kickoffTimeSeconds <= 0) && !hasScore) {
         setMatchStatus('not_started');
         setShowCountdown(true);
-        const absDiff = Math.abs(diff);
-        const hours = Math.floor(absDiff / (1000 * 60 * 60));
-        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
-        
-        // 显示时分秒格式：HH:MM:SS
-        setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        setTimeDisplay('--:--:--');
         return;
       }
       
-      // 其他情况，显示空
-      setMatchStatus('other');
-      setShowCountdown(false);
-      setTimeDisplay('');
+      // 如果有比分但没有状态数据，推断比赛正在进行中
+      if (hasScore && (!currentMatch.live_kickoff_time || currentMatch.live_status_id === null || currentMatch.live_status_id === undefined)) {
+        setMatchStatus('live');
+        setShowCountdown(false);
+        // 显示"进行中"或使用默认时间显示
+        setTimeDisplay(t('in_progress') || '进行中');
+        return;
+      }
+      
+      // 使用 live_status_id 判断状态（来自 match_live_data）
+      // live_status_id: 2 = 上半场, 3 = 中场休息, 4 = 下半场
+      const liveStatusId = currentMatch.live_status_id;
+      
+      if (liveStatusId === 3) {
+        // 中场休息
+        setMatchStatus('half_time');
+        setShowCountdown(false);
+        setTimeDisplay(t('half_time_break') || '中场休息');
+        return;
+      }
+      
+      // 如果开球时间无效，无法计算
+      if (!kickoffTimeSeconds || Number.isNaN(kickoffTimeSeconds) || kickoffTimeSeconds <= 0) {
+        if (hasScore) {
+          setMatchStatus('live');
+          setShowCountdown(false);
+          setTimeDisplay(t('in_progress') || '进行中');
+        } else {
+          setMatchStatus('not_started');
+          setShowCountdown(true);
+          setTimeDisplay('--:--:--');
+        }
+        return;
+      }
+      
+      // 计算比赛进行时间（分钟）
+      // 使用 match_live_data 中的实时数据计算
+      let displayMinutes: number;
+      
+      if (liveStatusId === 2) {
+        // 上半场：比赛进行分钟数 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
+        const elapsedSeconds = now - kickoffTimeSeconds;
+        displayMinutes = Math.floor(elapsedSeconds / 60) + 1;
+      } else if (liveStatusId === 4) {
+        // 下半场比赛进行分钟数=(当前时间戳-下半场开球时间戳) / 60 + 45 + 1
+        const totalElapsedSeconds = now - kickoffTimeSeconds; 
+        displayMinutes = Math.floor(totalElapsedSeconds / 60) + 45 + 1;
+      } else {
+        // 其他状态（完场、取消等），显示默认值
+        setMatchStatus('other');
+        setShowCountdown(false);
+        setTimeDisplay('');
+        return;
+      }
+      setMatchStatus('live');
+      setTimeDisplay(`${displayMinutes}'`);
     };
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
     
     return () => clearInterval(interval);
-  }, [match.cmec, match.status_elapsed, match.mgt, match.kickoff_at, t]);
+  }, [match.live_kickoff_time, match.live_status_id, match.match_time, match.status_id, match.goals_home, match.goals_away, match.mhs, match.mas, match.mgt, t]);
 
   return (
     <div className="flex flex-col items-center gap-0 sm:gap-0.5 px-0.5 sm:px-1 shrink-0">
@@ -242,7 +300,7 @@ const MatchTimeDisplay = ({ match }: { match: any }) => {
         <>
           {/* 中场休息：显示 VS 和"中场休息" */}
           <span className="text-[8px] sm:text-[11px] text-foreground/80 font-bold">VS</span>
-          <span className="text-[7px] sm:text-[9px] text-muted-foreground font-bold">
+          <span className="text-[7px] sm:text-[10px] text-warning font-bold">
             {timeDisplay}
           </span>
         </>
@@ -333,11 +391,26 @@ const PlayerExclusiveModelCard = ({
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [hasManualBet, setHasManualBet] = useState(false); // 是否有数据库中的手动下注
   const [isCheckingManualBet, setIsCheckingManualBet] = useState(false); // 是否正在检查手动下注
+  
+  // Market odds from ai_match_analyses.bet_snapshot.allMarketOdds
+  type MarketOdds = {
+    overUnder?: Array<{ line: number | string; over: number; under: number }>;
+    handicap?: Array<{ line: number | string; home: number; away: number }>;
+  };
+  const [marketOdds, setMarketOdds] = useState<MarketOdds | null>(null);
+  const [isLoadingMarketOdds, setIsLoadingMarketOdds] = useState(false);
 
   // Demo matches for manual prediction when no real matches available
   const demoMatches = useMemo(() => [
     {
       mid: 'demo_1',
+      // 根据 SQL 迁移文件更新字段：使用新字段名
+      mhn: 'Manchester United',
+      man: 'Liverpool',
+      mhlu: ['https://media.api-sports.io/football/teams/33.png'],
+      malu: ['https://media.api-sports.io/football/teams/40.png'],
+      tn: 'Premier League',
+      // 保留旧字段作为兼容
       home_team_name: 'Manchester United',
       away_team_name: 'Liverpool',
       home_logo: 'https://media.api-sports.io/football/teams/33.png',
@@ -347,6 +420,13 @@ const PlayerExclusiveModelCard = ({
     },
     {
       mid: 'demo_2',
+      // 根据 SQL 迁移文件更新字段：使用新字段名
+      mhn: 'Barcelona',
+      man: 'Real Madrid',
+      mhlu: ['https://media.api-sports.io/football/teams/529.png'],
+      malu: ['https://media.api-sports.io/football/teams/541.png'],
+      tn: 'La Liga',
+      // 保留旧字段作为兼容
       home_team_name: 'Barcelona',
       away_team_name: 'Real Madrid',
       home_logo: 'https://media.api-sports.io/football/teams/529.png',
@@ -356,6 +436,13 @@ const PlayerExclusiveModelCard = ({
     },
     {
       mid: 'demo_3',
+      // 根据 SQL 迁移文件更新字段：使用新字段名
+      mhn: 'Bayern Munich',
+      man: 'Dortmund',
+      mhlu: ['https://media.api-sports.io/football/teams/157.png'],
+      malu: ['https://media.api-sports.io/football/teams/165.png'],
+      tn: 'Bundesliga',
+      // 保留旧字段作为兼容
       home_team_name: 'Bayern Munich',
       away_team_name: 'Dortmund',
       home_logo: 'https://media.api-sports.io/football/teams/157.png',
@@ -392,15 +479,63 @@ const PlayerExclusiveModelCard = ({
   const matchesToShow = matchesFromBets;
   
   // Debug: Log what data source is being used
+  // Fetch market odds from ai_match_analyses when dialog opens and match is selected
   useEffect(() => {
-    if (showManualBetDialog) {
-      console.log('[PlayerExclusiveModelCard] Manual bet dialog opened');
-      console.log('[PlayerExclusiveModelCard] matchEntries:', matchEntries?.length || 0);
-      console.log('[PlayerExclusiveModelCard] availableMatches:', availableMatches?.length || 0);
-      console.log('[PlayerExclusiveModelCard] matchesToShow:', matchesToShow.length);
-      console.log('[PlayerExclusiveModelCard] matchesToShow sample:', matchesToShow.slice(0, 2));
-    }
-  }, [showManualBetDialog, matchEntries, availableMatches, matchesToShow]);
+    const fetchMarketOdds = async () => {
+      if (!showManualBetDialog || !selectedMatch) {
+        setMarketOdds(null);
+        return;
+      }
+
+      setIsLoadingMarketOdds(true);
+      try {
+        // Get match_id from selectedMatch (优先使用 mid，回退到 match_id)
+        // 根据 SQL 迁移文件，mid 是番茄体育格式的比赛ID
+        const matchId = selectedMatch.mid || selectedMatch.match_id;
+        if (!matchId) {
+          console.warn('[PlayerExclusiveModelCard] No match_id found in selectedMatch');
+          setMarketOdds(null);
+          return;
+        }
+
+        // Query ai_match_analyses table for bet_snapshot.allMarketOdds
+        const { data: analysesData, error } = await supabase
+          .from('ai_match_analyses' as any)
+          .select('bet_snapshot')
+          .eq('match_id', matchId)
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error('[PlayerExclusiveModelCard] Error fetching market odds:', error);
+          setMarketOdds(null);
+          return;
+        }
+
+        // Type assertion for bet_snapshot (analysesData may be null)
+        if (analysesData) {
+          const betSnapshot = (analysesData as any)?.bet_snapshot;
+          if (betSnapshot?.allMarketOdds) {
+            setMarketOdds(betSnapshot.allMarketOdds);
+            console.log('[PlayerExclusiveModelCard] Market odds loaded:', betSnapshot.allMarketOdds);
+          } else {
+            console.warn('[PlayerExclusiveModelCard] No allMarketOdds found in bet_snapshot');
+            setMarketOdds(null);
+          }
+        } else {
+          console.warn('[PlayerExclusiveModelCard] No analysis data found for match_id:', matchId);
+          setMarketOdds(null);
+        }
+      } catch (error) {
+        console.error('[PlayerExclusiveModelCard] Unexpected error fetching market odds:', error);
+        setMarketOdds(null);
+      } finally {
+        setIsLoadingMarketOdds(false);
+      }
+    };
+
+    fetchMarketOdds();
+  }, [showManualBetDialog, selectedMatch]);
 
   const trainingSteps = [
     { icon: Database, label: '数据解析', description: '正在分析输入内容...' },
@@ -647,14 +782,32 @@ const PlayerExclusiveModelCard = ({
   };
 
   // Helper functions with fallbacks
+  // 根据 SQL 迁移文件更新字段：mhn (主队名称), man (客队名称), tn (联赛名称)
   const safeGetTeamName = (match: any, team: 'home' | 'away') => {
     if (getTeamName) return getTeamName(match, team);
-    return team === 'home' ? (match?.home_team_name || '主队') : (match?.away_team_name || '客队');
+    // 优先使用新字段 mhn/man，回退到旧字段 home_team_name/away_team_name
+    if (team === 'home') {
+      return match?.mhn || match?.home_team_name || '主队';
+    } else {
+      return match?.man || match?.away_team_name || '客队';
+    }
   };
 
   const safeGetLeagueName = (match: any) => {
     if (getLeagueName) return getLeagueName(match);
-    return match?.league_name || '联赛';
+    // 优先使用新字段 tn，回退到旧字段 league_name 或 competition_name
+    return match?.tn || match?.league_name || match?.competition_name || '联赛';
+  };
+
+  // 获取球队 logo，优先使用新字段 mhlu/malu (数组)，回退到 mhlut/malut (文本)，最后回退到旧字段
+  const safeGetTeamLogo = (match: any, team: 'home' | 'away') => {
+    if (team === 'home') {
+      // 优先使用 mhlu[0] (数组第一个)，然后是 mhlut (文本)，最后是 home_logo
+      return match?.mhlu?.[0] || match?.mhlut || match?.home_logo || null;
+    } else {
+      // 优先使用 malu[0] (数组第一个)，然后是 malut (文本)，最后是 away_logo
+      return match?.malu?.[0] || match?.malut || match?.away_logo || null;
+    }
   };
 
   const bet = handicapBet || overUnderBet || moneylineBet;
@@ -741,7 +894,8 @@ const PlayerExclusiveModelCard = ({
 
         const { data, error } = await supabase.rpc('place_bet', {
           p_user_id: user.id,
-          p_match_id: selectedMatch.mid || selectedMatch.fixture_id?.toString(),
+          // 根据 SQL 迁移文件，优先使用 mid (番茄体育格式的比赛ID)
+          p_match_id: selectedMatch.mid || selectedMatch.match_id || selectedMatch.fixture_id?.toString(),
           p_match_date: matchDate,
           p_prediction: manualBetType === 'handicap' ? manualPrediction : manualOverUnderPick.toUpperCase(),
           p_prediction_type: manualBetType,
@@ -1070,13 +1224,14 @@ const PlayerExclusiveModelCard = ({
                     {/* Home Team */}
                     <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                       <div className="relative shrink-0">
-                        {currentMatchData.match.home_logo ? (
-                          <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
-                            <AvatarImage src={currentMatchData.match.home_logo} alt={safeGetTeamName(currentMatchData.match, 'home')} />
-                            <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
-                          </Avatar>
+                        {safeGetTeamLogo(currentMatchData.match, 'home') ? (
+                          <img 
+                            src={safeGetTeamLogo(currentMatchData.match, 'home')} 
+                            alt={safeGetTeamName(currentMatchData.match, 'home')}
+                            className="h-6 w-6 sm:h-10 sm:w-10 object-contain"
+                          />
                         ) : (
-                          <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                          <div className="h-6 w-6 sm:h-10 sm:w-10 flex items-center justify-center">
                             <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                           </div>
                         )}
@@ -1086,19 +1241,37 @@ const PlayerExclusiveModelCard = ({
                       </p>
                     </div>
                   
-                    {/* Match Time Display */}
-                    <MatchTimeDisplay match={currentMatchData.match} />
+                    {/* Match Time Display & Score */}
+                    <div className="flex flex-col items-center gap-0 sm:gap-0.5 shrink-0">
+                      {/* 比分显示（如果有比分，显示在VS上面） */}
+                      {(currentMatchData.match.goals_home !== null && currentMatchData.match.goals_home !== undefined) || 
+                       (currentMatchData.match.goals_away !== null && currentMatchData.match.goals_away !== undefined) ||
+                       (currentMatchData.match.mhs !== null && currentMatchData.match.mhs !== undefined) ||
+                       (currentMatchData.match.mas !== null && currentMatchData.match.mas !== undefined) ? (
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">
+                            {currentMatchData.match.goals_home ?? currentMatchData.match.mhs ?? 0}
+                          </span>
+                          <span className="text-[8px] sm:text-xs text-muted-foreground/70 font-medium">-</span>
+                          <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">
+                            {currentMatchData.match.goals_away ?? currentMatchData.match.mas ?? 0}
+                          </span>
+                        </div>
+                      ) : null}
+                      <MatchTimeDisplay match={currentMatchData.match} />
+                    </div>
                   
                     {/* Away Team */}
                     <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                       <div className="relative shrink-0">
-                        {currentMatchData.match.away_logo ? (
-                          <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
-                            <AvatarImage src={currentMatchData.match.away_logo} alt={safeGetTeamName(currentMatchData.match, 'away')} />
-                            <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
-                          </Avatar>
+                        {safeGetTeamLogo(currentMatchData.match, 'away') ? (
+                          <img 
+                            src={safeGetTeamLogo(currentMatchData.match, 'away')} 
+                            alt={safeGetTeamName(currentMatchData.match, 'away')}
+                            className="h-6 w-6 sm:h-10 sm:w-10 object-contain"
+                          />
                         ) : (
-                          <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                          <div className="h-6 w-6 sm:h-10 sm:w-10 flex items-center justify-center">
                             <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                           </div>
                         )}
@@ -1142,13 +1315,14 @@ const PlayerExclusiveModelCard = ({
                     {/* Home Team */}
                     <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                       <div className="relative shrink-0">
-                        {confirmedManualBet.match.home_logo ? (
-                          <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
-                            <AvatarImage src={confirmedManualBet.match.home_logo} alt={safeGetTeamName(confirmedManualBet.match, 'home')} />
-                            <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
-                          </Avatar>
+                        {safeGetTeamLogo(confirmedManualBet.match, 'home') ? (
+                          <img 
+                            src={safeGetTeamLogo(confirmedManualBet.match, 'home')} 
+                            alt={safeGetTeamName(confirmedManualBet.match, 'home')}
+                            className="h-6 w-6 sm:h-10 sm:w-10 object-contain"
+                          />
                         ) : (
-                          <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                          <div className="h-6 w-6 sm:h-10 sm:w-10 flex items-center justify-center">
                             <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                           </div>
                         )}
@@ -1158,19 +1332,37 @@ const PlayerExclusiveModelCard = ({
                       </p>
                     </div>
                   
-                    {/* Match Time Display - Same as auto prediction */}
-                    <MatchTimeDisplay match={confirmedManualBet.match} />
+                    {/* Match Time Display & Score - Same as auto prediction */}
+                    <div className="flex flex-col items-center gap-0 sm:gap-0.5 shrink-0">
+                      {/* 比分显示（如果有比分，显示在VS上面） */}
+                      {(confirmedManualBet.match.goals_home !== null && confirmedManualBet.match.goals_home !== undefined) || 
+                       (confirmedManualBet.match.goals_away !== null && confirmedManualBet.match.goals_away !== undefined) ||
+                       (confirmedManualBet.match.mhs !== null && confirmedManualBet.match.mhs !== undefined) ||
+                       (confirmedManualBet.match.mas !== null && confirmedManualBet.match.mas !== undefined) ? (
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">
+                            {confirmedManualBet.match.goals_home ?? confirmedManualBet.match.mhs ?? 0}
+                          </span>
+                          <span className="text-[8px] sm:text-xs text-muted-foreground/70 font-medium">-</span>
+                          <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">
+                            {confirmedManualBet.match.goals_away ?? confirmedManualBet.match.mas ?? 0}
+                          </span>
+                        </div>
+                      ) : null}
+                      <MatchTimeDisplay match={confirmedManualBet.match} />
+                    </div>
                   
                     {/* Away Team */}
                     <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
                       <div className="relative shrink-0">
-                        {confirmedManualBet.match.away_logo ? (
-                          <Avatar className="h-6 w-6 sm:h-10 sm:w-10 ring-1 sm:ring-2 ring-white/10 shadow-md">
-                            <AvatarImage src={confirmedManualBet.match.away_logo} alt={safeGetTeamName(confirmedManualBet.match, 'away')} />
-                            <AvatarFallback><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4" /></AvatarFallback>
-                          </Avatar>
+                        {safeGetTeamLogo(confirmedManualBet.match, 'away') ? (
+                          <img 
+                            src={safeGetTeamLogo(confirmedManualBet.match, 'away')} 
+                            alt={safeGetTeamName(confirmedManualBet.match, 'away')}
+                            className="h-6 w-6 sm:h-10 sm:w-10 object-contain"
+                          />
                         ) : (
-                          <div className="h-6 w-6 sm:h-10 sm:w-10 rounded-full bg-white/10 flex items-center justify-center ring-1 sm:ring-2 ring-white/10">
+                          <div className="h-6 w-6 sm:h-10 sm:w-10 flex items-center justify-center">
                             <Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" />
                           </div>
                         )}
@@ -1284,7 +1476,7 @@ const PlayerExclusiveModelCard = ({
                       <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-1.5 border-t border-white/10">
                         <span className="text-muted-foreground">
                           {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
-                          <span className="ml-2 font-mono">@{confirmedManualBet.odds.toFixed(2)}</span>
+                          <span className="ml-2 font-mono">@{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span>
                         </span>
                         <span className="font-mono font-bold text-success flex items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
                       </div>
@@ -1782,7 +1974,8 @@ const PlayerExclusiveModelCard = ({
                     
                     return (
                       <div
-                        key={match.mid || match.fixture_id}
+                        // 根据 SQL 迁移文件，优先使用 mid (番茄体育格式的比赛ID)
+                        key={match.mid || match.match_id || match.fixture_id}
                         className="p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors border border-border hover:border-primary/30"
                         onClick={() => {
                           setSelectedMatch(match);
@@ -1830,36 +2023,48 @@ const PlayerExclusiveModelCard = ({
                   </div>
                 </div>
 
-                {/* Handicap Section */}
+                {/* Handicap Section - Use allMarketOdds from ai_match_analyses */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] sm:text-xs text-muted-foreground">让分</span>
                   {(() => {
-                    // Get real odds from AI bets - only show if we have real data
-                    const matchEntry = matchEntries?.find(entry => entry.match?.mid === selectedMatch?.mid);
-                    const handicapBet = matchEntry?.bets?.find((b: any) => b.betType === 'handicap');
-                    
-                    if (!handicapBet || !handicapBet.odds || !handicapBet.handicapLine) {
+                    if (isLoadingMarketOdds) {
+                      return (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          加载中...
+                        </div>
+                      );
+                    }
+
+                    // Use marketOdds from ai_match_analyses.bet_snapshot.allMarketOdds
+                    if (!marketOdds?.handicap || marketOdds.handicap.length === 0) {
                       return (
                         <div className="p-4 text-center text-sm text-muted-foreground">
                           暂无让分赔率数据
                         </div>
                       );
                     }
-                    
-                    const handicapLine = handicapBet.handicapLine;
-                    const homeOdds = (handicapBet.prediction === 'HOME' || handicapBet.prediction === 'HOME_WIN') 
-                      ? handicapBet.odds 
-                      : null;
-                    const awayOdds = (handicapBet.prediction === 'AWAY' || handicapBet.prediction === 'AWAY_WIN') 
-                      ? handicapBet.odds 
-                      : null;
-                    
+
+                    // Display all handicap options from allMarketOdds
+                    // For now, show the first available handicap line (can be enhanced to show all)
+                    const firstHandicap = marketOdds.handicap[0];
+                    const handicapLine = typeof firstHandicap.line === 'number' ? firstHandicap.line : parseFloat(String(firstHandicap.line)) || 0;
+                    const homeOdds = firstHandicap.home;
+                    const awayOdds = firstHandicap.away;
+
+                    // Format line display
+                    const formatLine = (line: number | string): string => {
+                      if (typeof line === 'number') {
+                        return line < 0 ? line.toString() : line > 0 ? `+${line}` : '0';
+                      }
+                      return String(line);
+                    };
+
                     return (
                       <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                         <button
                           type="button"
                           className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                            manualBetType === 'handicap' && manualPrediction === 'HOME'
+                            manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine
                               ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                               : 'bg-secondary/50 border-border active:bg-secondary/80'
                           }`}
@@ -1868,19 +2073,19 @@ const PlayerExclusiveModelCard = ({
                             setManualPrediction('HOME'); 
                             setManualHandicapLine(handicapLine); 
                           }}
-                          disabled={!homeOdds}
+                          disabled={!homeOdds || homeOdds <= 0}
                         >
-                          {manualBetType === 'handicap' && manualPrediction === 'HOME' && (
+                          {manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine && (
                             <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'home')}</span>
-                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{handicapLine < 0 ? handicapLine : handicapLine > 0 ? `+${handicapLine}` : handicapLine}</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{formatLine(firstHandicap.line)}</span>
                           </div>
-                          {homeOdds ? (
-                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' ? 'text-primary' : 'text-foreground'}`}>@{homeOdds.toFixed(2)}</p>
+                          {homeOdds && homeOdds > 0 ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, homeOdds - 1).toFixed(2)}</p>
                           ) : (
                             <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
                           )}
@@ -1888,7 +2093,7 @@ const PlayerExclusiveModelCard = ({
                         <button
                           type="button"
                           className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                            manualBetType === 'handicap' && manualPrediction === 'AWAY'
+                            manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine
                               ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                               : 'bg-secondary/50 border-border active:bg-secondary/80'
                           }`}
@@ -1897,19 +2102,19 @@ const PlayerExclusiveModelCard = ({
                             setManualPrediction('AWAY'); 
                             setManualHandicapLine(handicapLine); 
                           }}
-                          disabled={!awayOdds}
+                          disabled={!awayOdds || awayOdds <= 0}
                         >
-                          {manualBetType === 'handicap' && manualPrediction === 'AWAY' && (
+                          {manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine && (
                             <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
-                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{-handicapLine < 0 ? -handicapLine : -handicapLine > 0 ? `+${-handicapLine}` : -handicapLine}</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{formatLine(typeof firstHandicap.line === 'number' ? -firstHandicap.line : `-${firstHandicap.line}`)}</span>
                           </div>
-                          {awayOdds ? (
-                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' ? 'text-primary' : 'text-foreground'}`}>@{awayOdds.toFixed(2)}</p>
+                          {awayOdds && awayOdds > 0 ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, awayOdds - 1).toFixed(2)}</p>
                           ) : (
                             <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
                           )}
@@ -1919,32 +2124,40 @@ const PlayerExclusiveModelCard = ({
                   })()}
                 </div>
 
-                {/* Over/Under Section */}
+                {/* Over/Under Section - Use allMarketOdds from ai_match_analyses */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] sm:text-xs text-muted-foreground">大小球</span>
                   {(() => {
-                    // Get real odds from AI bets - only show if we have real data
-                    const matchEntry = matchEntries?.find(entry => entry.match?.mid === selectedMatch?.mid);
-                    const overUnderBet = matchEntry?.bets?.find((b: any) => b.betType === 'over_under');
-                    
-                    if (!overUnderBet || !overUnderBet.odds || overUnderBet.overUnderLine === undefined || overUnderBet.overUnderLine === null) {
+                    if (isLoadingMarketOdds) {
+                      return (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          加载中...
+                        </div>
+                      );
+                    }
+
+                    // Use marketOdds from ai_match_analyses.bet_snapshot.allMarketOdds
+                    if (!marketOdds?.overUnder || marketOdds.overUnder.length === 0) {
                       return (
                         <div className="p-4 text-center text-sm text-muted-foreground">
                           暂无大小球赔率数据
                         </div>
                       );
                     }
-                    
-                    const overUnderLine = overUnderBet.overUnderLine;
-                    const overOdds = overUnderBet.overUnderPick === 'over' ? overUnderBet.odds : null;
-                    const underOdds = overUnderBet.overUnderPick === 'under' ? overUnderBet.odds : null;
-                    
+
+                    // Display all over/under options from allMarketOdds
+                    // For now, show the first available over/under line (can be enhanced to show all)
+                    const firstOverUnder = marketOdds.overUnder[0];
+                    const overUnderLine = typeof firstOverUnder.line === 'number' ? firstOverUnder.line : parseFloat(String(firstOverUnder.line)) || 2.5;
+                    const overOdds = firstOverUnder.over;
+                    const underOdds = firstOverUnder.under;
+
                     return (
                       <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                         <button
                           type="button"
                           className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                            manualBetType === 'over_under' && manualOverUnderPick === 'over'
+                            manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === overUnderLine
                               ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                               : 'bg-secondary/50 border-border active:bg-secondary/80'
                           }`}
@@ -1953,16 +2166,16 @@ const PlayerExclusiveModelCard = ({
                             setManualOverUnderPick('over'); 
                             setManualOverUnderLine(overUnderLine); 
                           }}
-                          disabled={!overOdds}
+                          disabled={!overOdds || overOdds <= 0}
                         >
-                          {manualBetType === 'over_under' && manualOverUnderPick === 'over' && (
+                          {manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === overUnderLine && (
                             <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
                           <span className="text-xs sm:text-sm font-medium">大球 {overUnderLine}</span>
-                          {overOdds ? (
-                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' ? 'text-primary' : 'text-foreground'}`}>@{overOdds.toFixed(2)}</p>
+                          {overOdds && overOdds > 0 ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === overUnderLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, overOdds - 1).toFixed(2)}</p>
                           ) : (
                             <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
                           )}
@@ -1970,7 +2183,7 @@ const PlayerExclusiveModelCard = ({
                         <button
                           type="button"
                           className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                            manualBetType === 'over_under' && manualOverUnderPick === 'under'
+                            manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === overUnderLine
                               ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                               : 'bg-secondary/50 border-border active:bg-secondary/80'
                           }`}
@@ -1979,16 +2192,16 @@ const PlayerExclusiveModelCard = ({
                             setManualOverUnderPick('under'); 
                             setManualOverUnderLine(overUnderLine); 
                           }}
-                          disabled={!underOdds}
+                          disabled={!underOdds || underOdds <= 0}
                         >
-                          {manualBetType === 'over_under' && manualOverUnderPick === 'under' && (
+                          {manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === overUnderLine && (
                             <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
                           <span className="text-xs sm:text-sm font-medium">小球 {overUnderLine}</span>
-                          {underOdds ? (
-                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' ? 'text-primary' : 'text-foreground'}`}>@{underOdds.toFixed(2)}</p>
+                          {underOdds && underOdds > 0 ? (
+                            <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === overUnderLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, underOdds - 1).toFixed(2)}</p>
                           ) : (
                             <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
                           )}
