@@ -782,17 +782,26 @@ const createSimPosition = async (
   return data?.id ?? null;
 };
 
+// 更新余额（锁定投注金额），返回更新结果
 const updateBalanceWithStake = async (
   balance: BalanceRecord,
   stake: number,
   positionId: number | null,
-) => {
-  if (!supabase) return false;
+): Promise<{ success: boolean; error?: string }> => {
+  if (!supabase) {
+    return { success: false, error: "Supabase 未配置" };
+  }
+
+  // 检查余额是否充足（双重检查，防止并发问题）
+  if ((balance.available_balance ?? 0) < stake) {
+    return { success: false, error: "余额不足" };
+  }
 
   const newAvailable = (balance.available_balance ?? 0) - stake;
   const newLocked = (balance.locked_balance ?? 0) + stake;
 
-  const { error } = await supabase
+  // 使用乐观锁：检查余额是否被其他操作修改
+  const { data: updatedBalance, error } = await supabase
     .from(AI_BALANCES_TABLE)
     .update({
       available_balance: newAvailable,
@@ -800,14 +809,23 @@ const updateBalanceWithStake = async (
       updated_at: new Date().toISOString(),
       last_position_id: positionId,
     })
-    .eq("id", balance.id);
+    .eq("id", balance.id)
+    .eq("available_balance", balance.available_balance) // 乐观锁：确保余额未被其他操作修改
+    .select()
+    .single();
 
   if (error) {
     console.error("[match-analysis] 更新余额失败", error);
-    return false;
+    return { success: false, error: error.message || "更新余额失败" };
   }
 
-  return true;
+  if (!updatedBalance) {
+    // 余额被其他操作修改，更新失败
+    console.warn(`[match-analysis] 余额更新冲突: balance_id=${balance.id}, 余额可能已被其他操作修改`);
+    return { success: false, error: "余额更新冲突，请重试" };
+  }
+
+  return { success: true };
 };
 
 const createAutoBet = async (
@@ -897,22 +915,68 @@ const createAutoBet = async (
     };
   }
 
-  const positionId = await createSimPosition(
-    matchId,
-    aiId,
-    aiDisplayName,
-    betInfo,
-    stake,
-  );
+  // 使用数据库事务确保创建仓位和更新余额的原子性
+  try {
+    // 先创建仓位
+    const positionId = await createSimPosition(
+      matchId,
+      aiId,
+      aiDisplayName,
+      betInfo,
+      stake,
+    );
 
-  await updateBalanceWithStake(balance, stake, positionId);
+    if (!positionId) {
+      console.error(`[match-analysis] 创建仓位失败，回滚自动下注记录 ${data?.id}`);
+      // 删除已创建的自动下注记录
+      if (data?.id) {
+        await supabase.from(AUTO_BET_TABLE).delete().eq('id', data.id);
+      }
+      return {
+        placed: false,
+        reason: "创建仓位失败",
+      };
+    }
 
-  return {
-    placed: true,
-    recordId: data?.id,
-    stake,
-    positionId,
-  };
+    // 更新余额（锁定投注金额）
+    const balanceUpdateResult = await updateBalanceWithStake(balance, stake, positionId);
+    
+    if (!balanceUpdateResult.success) {
+      console.error(`[match-analysis] 更新余额失败，回滚仓位 ${positionId} 和自动下注记录 ${data?.id}`);
+      // 回滚：删除仓位和自动下注记录
+      if (positionId) {
+        await supabase.from(SIM_POSITIONS_TABLE).delete().eq('id', positionId);
+      }
+      if (data?.id) {
+        await supabase.from(AUTO_BET_TABLE).delete().eq('id', data.id);
+      }
+      return {
+        placed: false,
+        reason: balanceUpdateResult.error || "更新余额失败",
+      };
+    }
+
+    console.log(`[match-analysis] 成功下注: match_id=${matchId}, ai_id=${aiId}, bet_type=${betInfo.betType}, stake=${stake}, position_id=${positionId}`);
+    
+    return {
+      placed: true,
+      recordId: data?.id,
+      stake,
+      positionId,
+    };
+  } catch (error) {
+    console.error(`[match-analysis] 下注过程中发生错误:`, error);
+    // 回滚：删除已创建的记录
+    if (data?.id) {
+      await supabase.from(AUTO_BET_TABLE).delete().eq('id', data.id).catch(err => {
+        console.error(`[match-analysis] 回滚自动下注记录失败:`, err);
+      });
+    }
+    return {
+      placed: false,
+      reason: error instanceof Error ? error.message : "下注过程中发生未知错误",
+    };
+  }
 };
 
 // 获取用户的训练数据
@@ -1940,38 +2004,103 @@ serve(async (req) => {
             };
           }
           
-          // 解析输赢预测
-          const moneylineMatch = analysisText.match(/PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s*(\d+)/i);
+          // 解析输赢预测（增加容错性，支持多种格式）
+          const moneylinePatterns = [
+            /PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s*(\d+)/i,
+            /MONEYLINE[:\s]+(HOME_WIN|AWAY_WIN|DRAW)[:\s]+(\d+)/i,
+            /输赢[预测预测结果]*[:\s]+(HOME_WIN|AWAY_WIN|DRAW)[:\s]+(\d+)/i,
+          ];
           let moneylinePick: string | undefined;
           let moneylineConfidence: number | undefined;
-
+          let moneylineMatch: RegExpMatchArray | null = null;
+          
+          for (const pattern of moneylinePatterns) {
+            moneylineMatch = analysisText.match(pattern);
+            if (moneylineMatch) break;
+          }
+          
           if (moneylineMatch) {
             moneylinePick = moneylineMatch[1].toUpperCase();
             moneylineConfidence = parseInt(moneylineMatch[2]);
+            if (isNaN(moneylineConfidence) || moneylineConfidence < 0 || moneylineConfidence > 100) {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 输赢预测置信度无效: ${moneylineMatch[2]}`);
+              moneylineConfidence = undefined;
+            }
           }
 
-          // 解析大小球预测
-          const overUnderMatch = analysisText.match(/PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s*([\d.]+)\s*(\d+)/i);
+          // 解析大小球预测（增加容错性，支持多种格式）
+          const overUnderPatterns = [
+            /PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s*([\d.]+)\s*(\d+)/i,
+            /OVER_UNDER[:\s]+(OVER|UNDER)[:\s]+([\d.]+)[:\s]+(\d+)/i,
+            /大小球[预测预测结果]*[:\s]+(OVER|UNDER|大|小)[:\s]+([\d.]+)[:\s]+(\d+)/i,
+          ];
           let overUnderPick: string | undefined;
           let overUnderLine: number | undefined;
           let overUnderConfidence: number | undefined;
-
+          let overUnderMatch: RegExpMatchArray | null = null;
+          
+          for (const pattern of overUnderPatterns) {
+            overUnderMatch = analysisText.match(pattern);
+            if (overUnderMatch) break;
+          }
+          
           if (overUnderMatch) {
             overUnderPick = overUnderMatch[1].toUpperCase();
+            // 处理中文"大"/"小"
+            if (overUnderPick === '大') overUnderPick = 'OVER';
+            if (overUnderPick === '小') overUnderPick = 'UNDER';
+            
             overUnderLine = parseFloat(overUnderMatch[2]);
+            if (isNaN(overUnderLine) || overUnderLine <= 0) {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测line值无效: ${overUnderMatch[2]}`);
+              overUnderLine = undefined;
+            }
+            
             overUnderConfidence = parseInt(overUnderMatch[3]);
+            if (isNaN(overUnderConfidence) || overUnderConfidence < 0 || overUnderConfidence > 100) {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测置信度无效: ${overUnderMatch[3]}`);
+              overUnderConfidence = undefined;
+            }
           }
 
-          // 解析让球盘预测
-          const handicapMatch = analysisText.match(/PREDICTION_HANDICAP:\s*(HOME|AWAY)\s*([-\d.]+)\s*(\d+)/i);
+          // 解析让球盘预测（增加容错性，支持多种格式）
+          const handicapPatterns = [
+            /PREDICTION_HANDICAP:\s*(HOME|AWAY)\s*([-\d.]+)\s*(\d+)/i,
+            /HANDICAP[:\s]+(HOME|AWAY|主|客)[:\s]+([-\d.]+)[:\s]+(\d+)/i,
+            /让球[盘预测预测结果]*[:\s]+(HOME|AWAY|主|客)[:\s]+([-\d.]+)[:\s]+(\d+)/i,
+          ];
           let handicapPick: string | undefined;
           let handicapLine: number | undefined;
           let handicapConfidence: number | undefined;
-
+          let handicapMatch: RegExpMatchArray | null = null;
+          
+          for (const pattern of handicapPatterns) {
+            handicapMatch = analysisText.match(pattern);
+            if (handicapMatch) break;
+          }
+          
           if (handicapMatch) {
             handicapPick = handicapMatch[1].toUpperCase();
+            // 处理中文"主"/"客"
+            if (handicapPick === '主') handicapPick = 'HOME';
+            if (handicapPick === '客') handicapPick = 'AWAY';
+            
             handicapLine = parseFloat(handicapMatch[2]);
+            if (isNaN(handicapLine)) {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测line值无效: ${handicapMatch[2]}`);
+              handicapLine = undefined;
+            }
+            
             handicapConfidence = parseInt(handicapMatch[3]);
+            if (isNaN(handicapConfidence) || handicapConfidence < 0 || handicapConfidence > 100) {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测置信度无效: ${handicapMatch[3]}`);
+              handicapConfidence = undefined;
+            }
+          }
+          
+          // 如果所有预测都解析失败，记录警告
+          if (!moneylinePick && !overUnderPick && !handicapPick) {
+            console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 未能从AI分析中解析出任何有效预测，分析文本长度: ${analysisText.length}`);
           }
 
           // 保存分析记录（包含输赢、大小球和让球盘预测）
@@ -2001,17 +2130,23 @@ serve(async (req) => {
             }
           }
 
-          const overUnderBetInfo: BetInfo | null = overUnderPick && overUnderLine && overUnderConfidence
+          // 只有在赔率匹配成功且有效时才创建betInfo，否则跳过该投注
+          const overUnderBetInfo: BetInfo | null = overUnderPick && overUnderLine && overUnderConfidence && overUnderRealOdds && overUnderRealOdds > 0 && isOddsInRange(overUnderRealOdds)
             ? {
                 betType: 'over_under',
                 prediction: overUnderPick,
                 confidence: overUnderConfidence,
-                odds: overUnderRealOdds || 0, // 使用数据库赔率，如果没找到则使用默认值
+                odds: overUnderRealOdds, // 使用匹配成功的真实赔率
                 betAmount: 0,
                 overUnderLine,
                 overUnderPick: overUnderPick.toLowerCase(),
               }
             : null;
+          
+          // 如果AI选择了不存在的line值，记录警告日志
+          if (overUnderPick && overUnderLine && overUnderConfidence && (!overUnderRealOdds || overUnderRealOdds <= 0 || !isOddsInRange(overUnderRealOdds))) {
+            console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测匹配失败: AI选择了line=${overUnderLine}，但在市场赔率中不存在或赔率无效，跳过该投注`);
+          }
 
           // 从数据库市场赔率中获取让球盘真实赔率
           let handicapRealOdds: number | null = null;
@@ -2046,16 +2181,22 @@ serve(async (req) => {
             }
           }
 
-          const handicapBetInfo: BetInfo | null = handicapPick && handicapLine !== undefined && handicapConfidence
+          // 只有在赔率匹配成功且有效时才创建betInfo，否则跳过该投注
+          const handicapBetInfo: BetInfo | null = handicapPick && handicapLine !== undefined && handicapConfidence && handicapRealOdds && handicapRealOdds > 0 && isOddsInRange(handicapRealOdds)
             ? {
                 betType: 'handicap',
                 prediction: handicapPick, // HOME 或 AWAY
                 confidence: handicapConfidence,
-                odds: handicapRealOdds || 0, // 使用真实赔率，如果获取失败则使用默认值
+                odds: handicapRealOdds, // 使用匹配成功的真实赔率
                 betAmount: 0,
                 handicapLine,
               }
             : null;
+          
+          // 如果AI选择了不存在的line值，记录警告日志
+          if (handicapPick && handicapLine !== undefined && handicapConfidence && (!handicapRealOdds || handicapRealOdds <= 0 || !isOddsInRange(handicapRealOdds))) {
+            console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测匹配失败: AI选择了line=${handicapLine}，但在市场赔率中不存在或赔率无效，跳过该投注`);
+          }
 
           // 保存分析记录（使用大小球或让球盘作为主要记录，优先级：大小球 > 让球盘，投注时不考虑输赢）
           const finalBetInfo: BetInfo = overUnderBetInfo || handicapBetInfo || defaultBetInfo;

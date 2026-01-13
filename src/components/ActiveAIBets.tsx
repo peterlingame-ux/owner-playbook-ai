@@ -50,12 +50,24 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       // 从 ref 中获取最新的 match 对象，确保使用最新的值
       const currentMatch = matchRef.current;
       
-      // 只使用 match_live_data 中的 score_kickoff_time（秒级时间戳）
-      // 如果没有 match_live_data 数据，显示默认值
-      if (!currentMatch.live_kickoff_time || currentMatch.live_status_id === null || currentMatch.live_status_id === undefined) {
+      // 检查是否有比分数据：如果有比分，说明比赛已开始，即使状态字段缺失
+      const hasScore = (currentMatch.goals_home !== null && currentMatch.goals_home !== undefined) ||
+                       (currentMatch.goals_away !== null && currentMatch.goals_away !== undefined);
+      
+      // 如果既没有 live_kickoff_time/live_status_id，也没有比分数据，显示倒计时
+      if ((!currentMatch.live_kickoff_time || currentMatch.live_status_id === null || currentMatch.live_status_id === undefined) && !hasScore) {
         setMatchStatus('not_started');
         setShowCountdown(true);
         setTimeDisplay('--:--:--');
+        return;
+      }
+      
+      // 如果有比分但没有状态数据，推断比赛正在进行中
+      if (hasScore && (!currentMatch.live_kickoff_time || currentMatch.live_status_id === null || currentMatch.live_status_id === undefined)) {
+        setMatchStatus('live');
+        setShowCountdown(false);
+        // 显示"进行中"或使用默认时间显示
+        setTimeDisplay(t('in_progress') || '进行中');
         return;
       }
       
@@ -394,7 +406,13 @@ const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
   const goalsAway = liveData?.score_away_scores?.[0] ?? null;
   
   // 只使用 liveData 中的状态
-  const statusId = liveData?.score_status ?? null;
+  // 如果有比分但状态为 null，推断状态为进行中（status_id = 2 表示上半场）
+  let statusId = liveData?.score_status ?? null;
+  if ((goalsHome !== null || goalsAway !== null) && statusId === null) {
+    // 有比分但状态缺失，推断为进行中（默认上半场）
+    statusId = 2;
+    console.warn(`[normalizeDailyMatch] 比赛 ${match.match_id} 有比分但状态缺失，推断为进行中（status_id=2）`);
+  }
   const statusShort = getStatusShort(statusId) || '';
   
   // 计算比赛进行时间（分钟）
@@ -438,7 +456,16 @@ const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
   } else if (match.raw?.cmec) {
     cmec = match.raw.cmec;
   }
-  
+
+  // 保存 match_live_data 中的实时数据，供 MatchTimeDisplay 使用
+  // 如果有比分但 score_kickoff_time 缺失，使用 match_time（秒级时间戳）作为备用
+  let liveKickoffTime = liveData?.score_kickoff_time ?? null;
+  if ((goalsHome !== null || goalsAway !== null) && !liveKickoffTime && match.match_time) {
+    // 有比分但开球时间缺失，使用 match_time 作为备用
+    liveKickoffTime = typeof match.match_time === 'string' ? parseInt(match.match_time, 10) : match.match_time;
+    console.warn(`[normalizeDailyMatch] 比赛 ${match.match_id} 有比分但开球时间缺失，使用 match_time 作为备用`);
+  }
+
   return {
     mid,
     date: match.date,
@@ -458,8 +485,8 @@ const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
     home_logo: addLogoPrefix(match.home_team_logo ?? null),
     away_logo: addLogoPrefix(match.away_team_logo ?? null),
     // 保存 match_live_data 中的实时数据，供 MatchTimeDisplay 使用
-    live_kickoff_time: liveData?.score_kickoff_time ?? null,
-    live_status_id: liveData?.score_status ?? null,
+    live_kickoff_time: liveKickoffTime,
+    live_status_id: statusId, // 使用推断后的状态
   };
 };
 

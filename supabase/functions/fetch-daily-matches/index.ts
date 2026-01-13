@@ -1133,7 +1133,7 @@ const fetchMatchLiveData = async (): Promise<{
   }
 };
 
-// 保存实时比赛数据到数据库
+// 保存实时比赛数据到数据库（优化：批量更新，只更新进行中的比赛）
 const saveMatchLiveData = async (
   liveDataArray: Array<{
     id: number;
@@ -1154,50 +1154,116 @@ const saveMatchLiveData = async (
     throw new Error("Supabase 客户端未初始化");
   }
 
-  let savedCount = 0;
+  // 过滤：只处理进行中的比赛（status 2 = 上半场, 4 = 下半场）
+  // status 3 = 中场休息，也需要更新
+  // status 8 = 完场，不需要更新
+  const activeStatuses = [2, 3, 4]; // 进行中或中场休息
+  const activeMatches = liveDataArray.filter(liveData => {
+    const status = liveData.score?.status;
+    return status !== undefined && activeStatuses.includes(status);
+  });
 
-  for (const liveData of liveDataArray) {
-    try {
-      const matchId = liveData.id || liveData.score.id;
-      if (!matchId) {
-        console.warn('[saveMatchLiveData] 跳过无效的比赛数据（缺少 match_id）:', liveData);
+  if (activeMatches.length === 0) {
+    console.log(`[saveMatchLiveData] 没有进行中的比赛需要更新`);
+    return 0;
+  }
+
+  console.log(`[saveMatchLiveData] 过滤后剩余 ${activeMatches.length} 场进行中的比赛（共 ${liveDataArray.length} 场）`);
+
+  // 批量准备数据
+  const rowsToUpsert: Array<{
+    match_id: number;
+    score_status: number;
+    score_home_scores: number[];
+    score_away_scores: number[];
+    score_kickoff_time: number;
+    score_note: string | null;
+    stats: Array<{ type: number; home: number; away: number }> | null;
+    incidents: Array<any> | null;
+    tlive: Array<any> | null;
+    raw: any;
+  }> = [];
+
+  for (const liveData of activeMatches) {
+    const matchId = liveData.id || liveData.score.id;
+    if (!matchId) {
+      console.warn('[saveMatchLiveData] 跳过无效的比赛数据（缺少 match_id）:', liveData);
       continue;
     }
 
-      // 准备插入/更新的数据
-      // JSONB 字段可以直接接受对象，Supabase 会自动转换为 JSONB
-      const rowData = {
-        match_id: matchId,
-        score_status: liveData.score.status,
-        score_home_scores: liveData.score.homeScores,
-        score_away_scores: liveData.score.awayScores,
-        score_kickoff_time: liveData.score.kickoffTime,
-        score_note: liveData.score.note || null,
-        stats: liveData.stats || null,
-        incidents: liveData.incidents || null,
-        tlive: liveData.tlive || null,
-        raw: liveData, // 存储完整的原始数据（Supabase 会自动转换为 JSONB）
-      };
-
-      // 使用 upsert 操作（如果 match_id 已存在则更新，否则插入）
-      const { error } = await supabase
-        .from('match_live_data')
-        .upsert(rowData, {
-          onConflict: 'match_id',
-          ignoreDuplicates: false,
-        });
-
-      if (error) {
-        console.error(`[saveMatchLiveData] 保存比赛 ${matchId} 的实时数据失败:`, error);
-      } else {
-        savedCount++;
-      }
-    } catch (error) {
-      console.error(`[saveMatchLiveData] 处理实时比赛数据时出错:`, error);
-    }
+    rowsToUpsert.push({
+      match_id: matchId,
+      score_status: liveData.score.status,
+      score_home_scores: liveData.score.homeScores,
+      score_away_scores: liveData.score.awayScores,
+      score_kickoff_time: liveData.score.kickoffTime,
+      score_note: liveData.score.note || null,
+      stats: liveData.stats || null,
+      incidents: liveData.incidents || null,
+      tlive: liveData.tlive || null,
+      raw: liveData, // 存储完整的原始数据（Supabase 会自动转换为 JSONB）
+    });
   }
 
-  return savedCount;
+  if (rowsToUpsert.length === 0) {
+    return 0;
+  }
+
+  // 批量更新（使用批量 upsert 提高效率）
+  try {
+    const { error, count } = await supabase
+      .from('match_live_data')
+      .upsert(rowsToUpsert, {
+        onConflict: 'match_id',
+        ignoreDuplicates: false,
+      })
+      .select();
+
+    if (error) {
+      console.error(`[saveMatchLiveData] 批量更新失败:`, error);
+      // 如果批量更新失败，尝试逐个更新（降级处理）
+      console.log(`[saveMatchLiveData] 尝试逐个更新...`);
+      let fallbackCount = 0;
+      for (const rowData of rowsToUpsert) {
+        const { error: singleError } = await supabase
+          .from('match_live_data')
+          .upsert(rowData, {
+            onConflict: 'match_id',
+            ignoreDuplicates: false,
+          });
+        if (!singleError) {
+          fallbackCount++;
+        } else {
+          console.error(`[saveMatchLiveData] 保存比赛 ${rowData.match_id} 失败:`, singleError);
+        }
+      }
+      return fallbackCount;
+    }
+
+    const savedCount = count || rowsToUpsert.length;
+    console.log(`[saveMatchLiveData] 成功批量更新 ${savedCount} 场进行中的比赛`);
+    return savedCount;
+  } catch (error) {
+    console.error(`[saveMatchLiveData] 批量更新时发生错误:`, error);
+    // 降级处理：逐个更新
+    let fallbackCount = 0;
+    for (const rowData of rowsToUpsert) {
+      try {
+        const { error: singleError } = await supabase
+          .from('match_live_data')
+          .upsert(rowData, {
+            onConflict: 'match_id',
+            ignoreDuplicates: false,
+          });
+        if (!singleError) {
+          fallbackCount++;
+        }
+      } catch (singleError) {
+        console.error(`[saveMatchLiveData] 保存比赛 ${rowData.match_id} 失败:`, singleError);
+      }
+    }
+    return fallbackCount;
+  }
 };
 
 serve(async (req) => {
@@ -1234,7 +1300,7 @@ serve(async (req) => {
         if (liveData && liveData.results && liveData.results.length > 0) {
           console.log(`[fetch-daily-matches] 获取到 ${liveData.results.length} 场实时比赛数据`);
           liveDataCount = await saveMatchLiveData(liveData.results);
-          console.log(`[fetch-daily-matches] 成功保存 ${liveDataCount} 场实时比赛数据`);
+          console.log(`[fetch-daily-matches] 成功保存 ${liveDataCount} 场进行中的比赛数据（已过滤已结束的比赛）`);
       } else {
           console.log(`[fetch-daily-matches] 未获取到实时比赛数据`);
       }
@@ -1312,15 +1378,33 @@ serve(async (req) => {
         );
     console.log(`[fetch-daily-matches] 匹配联赛后剩余 ${filteredMatches.length} 场比赛`);
 
-    if (filteredMatches.length === 0) {
-      console.log(`[fetch-daily-matches] 没有匹配的比赛需要存储`);
+    // 优化：过滤掉已完成的比赛（非 refresh 模式）
+    // 只处理未开始（status_id = 1）或进行中（status_id = 2, 3, 4）的比赛
+    // status_id: 1=未开赛, 2=上半场, 3=中场, 4=下半场, 8=完场, 11=腰斩
+    const activeStatusIds = [1, 2, 3, 4]; // 未开始或进行中
+    const activeMatches = filteredMatches.filter(match => {
+      const statusId = match.status_id;
+      return statusId !== undefined && activeStatusIds.includes(statusId);
+    });
+    
+    if (activeMatches.length < filteredMatches.length) {
+      const completedCount = filteredMatches.length - activeMatches.length;
+      console.log(`[fetch-daily-matches] 过滤掉 ${completedCount} 场已完成的比赛，剩余 ${activeMatches.length} 场活跃比赛`);
+    }
+
+    // 使用过滤后的活跃比赛
+    const matchesToProcess = activeMatches.length > 0 ? activeMatches : filteredMatches;
+    
+    if (matchesToProcess.length === 0) {
+      console.log(`[fetch-daily-matches] 没有需要处理的比赛（已过滤已完成的比赛）`);
         return new Response(
           JSON.stringify({
             success: true,
           mode: "normal",
             date: targetDate,
           total: matches.length,
-          matchedLeagues: 0,
+          matchedLeagues: filteredMatches.length,
+          activeMatches: activeMatches.length,
           saved: 0,
           }),
           {
@@ -1344,9 +1428,10 @@ serve(async (req) => {
     }
 
     // 存储到数据库（同时获取赔率信息）
+    // 使用过滤后的活跃比赛，跳过已完成的比赛
     const { completedMatchIds } = await upsertMatches(
       targetDate,
-      filteredMatches,
+      matchesToProcess,
       competitions,
       teams,
       ybtyToken,
@@ -1368,7 +1453,8 @@ serve(async (req) => {
           date: targetDate,
         total: matches.length,
         matchedLeagues: filteredMatches.length,
-        saved: filteredMatches.length,
+        activeMatches: matchesToProcess.length,
+        saved: matchesToProcess.length,
         completedMatches: completedMatchIds.length,
       }),
       {
