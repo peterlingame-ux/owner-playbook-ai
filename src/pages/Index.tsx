@@ -185,23 +185,6 @@ const Index = () => {
         });
 
         setModelsWithRealData(updatedModels);
-        
-        // 调试日志：显示加载的真实数据
-        if (!isRefresh) {
-          console.log('[Index] AI模型真实数据加载完成:', {
-            winRatesCount: winRatesMap.size,
-            balancesCount: balancesMap.size,
-            modelsUpdated: updatedModels.length,
-            sampleModel: updatedModels[0] ? {
-              id: updatedModels[0].id,
-              totalPredictions: updatedModels[0].totalPredictions,
-              correctPredictions: updatedModels[0].correctPredictions,
-              winRate: updatedModels[0].winRate,
-              currentValue: updatedModels[0].currentValue,
-              change: updatedModels[0].change
-            } : null
-          });
-        }
       } catch (error) {
         console.error('Error fetching AI stats:', error);
         // 如果出错，使用默认数据（仅在首次加载时）

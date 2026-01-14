@@ -590,9 +590,14 @@ const Auth = () => {
 
   return (
     <div 
-      className="fixed inset-0 h-screen w-screen relative flex flex-col overflow-hidden bg-cover bg-center"
+      className="fixed inset-0 w-screen relative flex flex-col overflow-hidden auth-bg-container"
       style={{ 
-        backgroundImage: `url(${authBg})`
+        backgroundImage: `url(${authBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#000000' // 后备颜色，防止背景图片未加载时显示灰色
       }}
     >
       {/* 深色叠加层 */}
@@ -1032,6 +1037,22 @@ const Auth = () => {
         
         .animate-float-delayed {
           animation: float-delayed 25s ease-in-out infinite;
+        }
+        
+        /* 确保背景完全覆盖，包括移动设备的安全区域 */
+        .auth-bg-container {
+          height: 100vh;
+          height: 100dvh; /* 使用动态视口高度，适配移动设备 */
+          min-height: 100vh;
+          min-height: 100dvh;
+        }
+        
+        /* 确保背景延伸到安全区域 */
+        @supports (height: 100dvh) {
+          .auth-bg-container {
+            height: 100dvh;
+            min-height: 100dvh;
+          }
         }
       `}</style>
     </div>

@@ -17,6 +17,7 @@ interface UserStats {
   correctPredictions: number;
   winRate: number;
   profit: number;
+  totalBalance: number;
 }
 
 const USER_THEME = {
@@ -37,37 +38,71 @@ const UserModelCard = () => {
     correctPredictions: 0,
     winRate: 0,
     profit: 0,
+    totalBalance: 0,
   });
 
+  // 从数据库获取 hunsoccermax 模型的统计数据
   useEffect(() => {
-    if (!user) return;
+    const fetchHunsoccermaxStats = async () => {
+      try {
+        // 从 ai_win_rates_overall 视图获取 hunsoccermax 模型的统计数据
+        const { data: winRateData, error: winRateError } = await supabase
+          .from('ai_win_rates_overall' as any)
+          .select('total_predictions, correct_predictions, win_rate')
+          .eq('ai_id', 'hunsoccermax')
+          .single();
 
-    const fetchStats = async () => {
-      const { data: predictions } = await supabase
-        .from("user_predictions")
-        .select("*")
-        .eq("user_id", user.id);
+        if (winRateError) {
+          console.error('Error fetching hunsoccermax win rates:', winRateError);
+          // 如果查询失败，保持默认值
+          return;
+        }
 
-      if (!predictions || predictions.length === 0) {
-        setStats({ totalPredictions: 0, correctPredictions: 0, winRate: 0, profit: 0 });
-        return;
+        if (winRateData) {
+          const winRateDataTyped = winRateData as any;
+          const totalPredictions = Number(winRateDataTyped.total_predictions) || 0;
+          const correctPredictions = Number(winRateDataTyped.correct_predictions) || 0;
+          const winRate = Number(winRateDataTyped.win_rate) || 0;
+
+          // 获取余额数据来计算收益
+          const { data: balanceData, error: balanceError } = await supabase
+            .from('ai_balances' as any)
+            .select('available_balance, locked_balance')
+            .eq('ai_id', 'hunsoccermax')
+            .single();
+
+          const INITIAL_BALANCE = 10000;
+          let profit = 0;
+          let totalBalance = INITIAL_BALANCE;
+
+          if (!balanceError && balanceData) {
+            const balanceDataTyped = balanceData as any;
+            totalBalance = (Number(balanceDataTyped.available_balance) || 0) + (Number(balanceDataTyped.locked_balance) || 0);
+            profit = totalBalance - INITIAL_BALANCE;
+          }
+
+          setStats({
+            totalPredictions,
+            correctPredictions,
+            winRate,
+            profit,
+            totalBalance,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching hunsoccermax stats:', error);
       }
-
-      const total = predictions.length;
-      const correct = predictions.filter((p) => p.result === "win").length;
-      const totalPayout = predictions.reduce((sum, p) => sum + (p.actual_payout || 0), 0);
-      const totalWagered = predictions.reduce((sum, p) => sum + (p.bet_amount || 0), 0);
-
-      setStats({
-        totalPredictions: total,
-        correctPredictions: correct,
-        winRate: total > 0 ? (correct / total) * 100 : 0,
-        profit: totalPayout - totalWagered,
-      });
     };
 
-    fetchStats();
-  }, [user]);
+    fetchHunsoccermaxStats();
+
+    // 每60秒自动刷新数据
+    const interval = setInterval(() => {
+      fetchHunsoccermaxStats();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const animatedWinRate = useCountAnimation(stats.winRate, {
     duration: 1500,
@@ -101,8 +136,9 @@ const UserModelCard = () => {
     ? userProfile?.display_name || t("my_exclusive_model")
     : t("demo_player");
 
-  const profitLabel = user
-    ? `${isPositive ? "+" : "-"}${Math.abs(stats.profit).toFixed(0)}`
+  // 显示当前模型的总钱数
+  const totalBalanceLabel = stats.totalPredictions > 0
+    ? stats.totalBalance.toLocaleString()
     : "--";
 
   return (
@@ -199,18 +235,16 @@ const UserModelCard = () => {
 
             {/* Points Badge */}
             <div className={`inline-flex items-center gap-0.5 px-0.5 sm:px-2.5 py-0.5 sm:py-1.5 rounded sm:rounded-lg shrink-0 ${
-              user
-                ? isPositive
-                  ? "bg-success/20 border border-success/30"
-                  : "bg-destructive/20 border border-destructive/30"
+              stats.totalPredictions > 0
+                ? "bg-amber-500/20 border border-amber-500/30"
                 : "bg-amber-500/10 border border-amber-500/30"
             }`}>
               <span className={`font-mono font-bold text-[8px] sm:text-sm tabular-nums leading-none ${
-                user
-                  ? isPositive ? "text-success" : "text-destructive"
+                stats.totalPredictions > 0
+                  ? "text-foreground"
                   : "text-amber-400/50"
               }`}>
-                {profitLabel}
+                {totalBalanceLabel}
               </span>
               <img src={hunterCoinIcon} alt="猎人币" className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" />
             </div>
@@ -223,7 +257,7 @@ const UserModelCard = () => {
                 {t("win_rate")}
               </span>
               <span className="text-xs sm:text-3xl font-bold font-mono tabular-nums text-foreground flex-shrink-0">
-                {user ? `${animatedWinRate.toFixed(1)}%` : "--%"}
+                {stats.totalPredictions > 0 ? `${animatedWinRate.toFixed(1)}%` : "--%"}
               </span>
             </div>
 
@@ -231,7 +265,7 @@ const UserModelCard = () => {
             <div className="relative h-0.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
               <div
                 className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress} transition-all duration-500`}
-                style={{ width: `${user ? animatedWinRate : 0}%` }}
+                style={{ width: `${stats.totalPredictions > 0 ? animatedWinRate : 0}%` }}
               />
               {/* Animated shine effect - Desktop only */}
               <motion.div
@@ -248,19 +282,19 @@ const UserModelCard = () => {
             <div className="text-center min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("correct_short") || t("correct")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-success">
-                {user ? stats.correctPredictions : "--"}
+                {stats.totalPredictions > 0 ? stats.correctPredictions : "--"}
               </p>
             </div>
             <div className="text-center border-x border-white/10 min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("predictions_short") || t("total_predictions")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-foreground">
-                {user ? stats.totalPredictions : "--"}
+                {stats.totalPredictions > 0 ? stats.totalPredictions : "--"}
               </p>
             </div>
             <div className="text-center min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("wrong_short") || t("wrong")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
-                {user ? wrongPredictions : "--"}
+                {stats.totalPredictions > 0 ? wrongPredictions : "--"}
               </p>
             </div>
           </div>

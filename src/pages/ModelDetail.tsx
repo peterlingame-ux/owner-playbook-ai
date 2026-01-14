@@ -115,7 +115,11 @@ const ModelDetail = () => {
         if (positionsError) {
           console.error('Error fetching positions:', positionsError);
           setModelPredictions([]);
+          setIsLoading(false);
+          return;
         }
+        
+        console.log(`[ModelDetail] Fetched ${positionsData?.length || 0} positions for model ${modelId}`);
 
         // 处理余额数据（与首页逻辑一致）
         const INITIAL_BALANCE = 10000;
@@ -150,15 +154,32 @@ const ModelDetail = () => {
         // 查询比赛信息
         let matchesMap = new Map();
         if (matchIds.length > 0) {
-          const { data: matchesData, error: matchesError } = await supabase
-            .from('daily_matches' as any)
-            .select('*')
-            .in('fixture_id', matchIds);
-  
-          if (!matchesError && matchesData) {
-            matchesData.forEach((match: any) => {
-              matchesMap.set(match.fixture_id, match);
-            });
+          // 将 match_id 转换为数字（如果它们是字符串）
+          const numericMatchIds = matchIds.map(id => {
+            const numId = typeof id === 'string' ? parseInt(id, 10) : id;
+            return isNaN(numId) ? null : numId;
+          }).filter(Boolean);
+          
+          if (numericMatchIds.length > 0) {
+            const { data: matchesData, error: matchesError } = await supabase
+              .from('daily_matches' as any)
+              .select('*')
+              .in('match_id', numericMatchIds);
+    
+            if (matchesError) {
+              console.error('Error fetching matches:', matchesError);
+            } else {
+              console.log(`[ModelDetail] Fetched ${matchesData?.length || 0} matches for ${numericMatchIds.length} match IDs`);
+              if (matchesData) {
+                matchesData.forEach((match: any) => {
+                  // 使用 match_id 作为 key，确保类型一致
+                  const matchIdKey = match.match_id?.toString() || match.match_id;
+                  matchesMap.set(matchIdKey, match);
+                });
+              }
+            }
+          } else {
+            console.warn('[ModelDetail] No valid numeric match IDs to query');
           }
         }
   
@@ -189,17 +210,25 @@ const ModelDetail = () => {
           const overUnderPick = metadata.over_under_pick ?? metadata.overUnderPick;
           
           // 获取比赛信息
-          const match = position.match_id ? matchesMap.get(position.match_id) : null;
+          // 确保 match_id 类型一致（转换为字符串或数字）
+          const matchIdKey = position.match_id?.toString() || position.match_id;
+          const match = matchIdKey ? matchesMap.get(matchIdKey) : null;
           
           // 计算实际结果（从比赛比分推断）
+          // daily_matches 表使用 home_scores[0] 和 away_scores[0] 作为常规时间比分
           let actualResult: "HOME_WIN" | "AWAY_WIN" | "DRAW" | undefined;
-          if (match && match.goals_home !== null && match.goals_away !== null) {
-            if (match.goals_home > match.goals_away) {
-              actualResult = "HOME_WIN";
-            } else if (match.goals_away > match.goals_home) {
-              actualResult = "AWAY_WIN";
-            } else {
-              actualResult = "DRAW";
+          if (match) {
+            const goalsHome = match.home_scores?.[0] ?? match.goals_home ?? null;
+            const goalsAway = match.away_scores?.[0] ?? match.goals_away ?? null;
+            
+            if (goalsHome !== null && goalsAway !== null) {
+              if (goalsHome > goalsAway) {
+                actualResult = "HOME_WIN";
+              } else if (goalsAway > goalsHome) {
+                actualResult = "AWAY_WIN";
+              } else {
+                actualResult = "DRAW";
+              }
             }
           }
           
@@ -230,18 +259,19 @@ const ModelDetail = () => {
             betAmount,
             profit,
             match: match ? {
-              id: match.fixture_id?.toString() || '',
+              id: match.match_id?.toString() || '',
               homeTeam: match.home_team_name || '',
               awayTeam: match.away_team_name || '',
-              homeScore: match.goals_home,
-              awayScore: match.goals_away,
-              homeLogo: match.home_logo || undefined,
-              awayLogo: match.away_logo || undefined,
-              league: match.league_name || undefined,
+              homeScore: match.home_scores?.[0] ?? match.goals_home ?? undefined,
+              awayScore: match.away_scores?.[0] ?? match.goals_away ?? undefined,
+              homeLogo: match.home_team_logo || match.home_logo || undefined,
+              awayLogo: match.away_team_logo || match.away_logo || undefined,
+              league: match.competition_name || match.competition_name_zh || match.league_name || undefined,
             } : undefined,
           };
         });
   
+        console.log(`[ModelDetail] Processed ${records.length} prediction records`);
         setModelPredictions(records);
       } catch (error) {
         console.error('Error fetching model history:', error);
@@ -511,7 +541,8 @@ const ModelDetail = () => {
 
         {/* 预测历史表格 */}
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* 桌面端表格 */}
+          <div className="hidden sm:block overflow-x-auto">
             <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
@@ -541,15 +572,13 @@ const ModelDetail = () => {
                 ) : (
                   filteredPredictions.map((prediction) => {
                     const match = prediction.match;
-                    if (!match) return null;
-                    
                     const profit = calculateProfit(prediction);
                     
                     return (
                       <TableRow 
                         key={prediction.id}
-                        className="hover:bg-muted/50 cursor-pointer"
-                        onClick={() => navigate(`/match/${match.id}`)}
+                        className={`hover:bg-muted/50 ${match ? 'cursor-pointer' : ''}`}
+                        onClick={() => match && navigate(`/match/${match.id}`)}
                       >
                         <TableCell className="font-medium text-[10px] sm:text-xs px-2 py-2">
                           <div className="truncate max-w-[60px] sm:max-w-none">
@@ -557,58 +586,64 @@ const ModelDetail = () => {
                           </div>
                         </TableCell>
                         <TableCell className="px-2 py-2">
-                          <div className="flex items-center gap-1.5 sm:gap-2">
-                            {match.homeLogo && (
-                              <img 
-                                src={match.homeLogo} 
-                                alt={getTeamName(match, 'home')}
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-[11px] sm:text-sm font-medium truncate">
-                                {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
+                          {match ? (
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              {match.homeLogo && (
+                                <img 
+                                  src={match.homeLogo} 
+                                  alt={getTeamName(match, 'home')}
+                                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[11px] sm:text-sm font-medium truncate">
+                                  {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
+                                </div>
+                                <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                                  {match.homeScore !== undefined && match.awayScore !== undefined && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                      {match.homeScore} - {match.awayScore}
+                                    </span>
+                                  )}
+                                  {match.league && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                                      • {match.league}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
-                                {match.homeScore !== undefined && match.awayScore !== undefined && (
-                                  <span className="text-[10px] sm:text-xs text-muted-foreground">
-                                    {match.homeScore} - {match.awayScore}
-                                  </span>
-                                )}
-                                {match.league && (
-                                  <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                                    • {match.league}
-                                  </span>
-                                )}
-                              </div>
+                              {match.awayLogo && (
+                                <img 
+                                  src={match.awayLogo} 
+                                  alt={getTeamName(match, 'away')}
+                                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              )}
                             </div>
-                            {match.awayLogo && (
-                              <img 
-                                src={match.awayLogo} 
-                                alt={getTeamName(match, 'away')}
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            )}
-                          </div>
+                          ) : (
+                            <div className="text-[11px] sm:text-sm text-muted-foreground">
+                              Match ID: {prediction.matchId || 'N/A'}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-[11px] sm:text-sm font-medium px-2 py-2">
                           <div className="truncate max-w-[100px]">
-                            {getPredictionLabel(prediction, match)}
+                            {getPredictionLabel(prediction, match || { homeTeam: '', awayTeam: '' } as any)}
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell text-[11px] sm:text-sm px-2 py-2">
                           <div className="truncate max-w-[120px]">
-                            {getBetTypeLabel(prediction.betType, prediction, match)}
+                            {getBetTypeLabel(prediction.betType, prediction, match || { homeTeam: '', awayTeam: '' } as any)}
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono text-[11px] sm:text-sm px-2 py-2">
-                          @{prediction.odds.toFixed(2)}
+                          @{(prediction.odds - 1).toFixed(2)}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell text-right font-mono text-[11px] sm:text-sm px-2 py-2">
                           ${prediction.betAmount.toFixed(2)}
@@ -639,6 +674,108 @@ const ModelDetail = () => {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* 移动端卡片列表 */}
+          <div className="sm:hidden">
+            {isLoading ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                {t('loading') || '加载中...'}
+              </div>
+            ) : filteredPredictions.length === 0 ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                {t('no_predictions')}
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {filteredPredictions.map((prediction) => {
+                  const match = prediction.match;
+                  const profit = calculateProfit(prediction);
+                  
+                  return (
+                    <div 
+                      key={prediction.id}
+                      className={`p-2.5 active:bg-muted/50 ${match ? 'cursor-pointer' : ''}`}
+                      onClick={() => match && navigate(`/match/${match.id}`)}
+                    >
+                      {/* 第一行：日期和结果 */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] text-muted-foreground">{prediction.date}</span>
+                        {prediction.correct ? (
+                          <Badge className="gap-0.5 bg-success/20 text-success border-success/30 text-[9px] px-1.5 py-0 h-4">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            ✓
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="gap-0.5 text-[9px] px-1.5 py-0 h-4">
+                            <XCircle className="h-2.5 w-2.5" />
+                            ✗
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* 第二行：比赛信息 */}
+                      {match ? (
+                        <>
+                          <div className="flex items-center gap-1.5 mb-1">
+                            {match.homeLogo && (
+                              <img 
+                                src={match.homeLogo} 
+                                alt={getTeamName(match, 'home')}
+                                className="w-4 h-4 object-contain shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <span className="text-[11px] font-medium truncate flex-1">
+                              {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
+                            </span>
+                            {match.awayLogo && (
+                              <img 
+                                src={match.awayLogo} 
+                                alt={getTeamName(match, 'away')}
+                                className="w-4 h-4 object-contain shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                            {match.homeScore !== undefined && match.awayScore !== undefined && (
+                              <span className="text-[10px] font-semibold ml-1">
+                                {match.homeScore}-{match.awayScore}
+                              </span>
+                            )}
+                          </div>
+                          {match.league && (
+                            <div className="text-[9px] text-muted-foreground mb-1.5 truncate">
+                              {match.league}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-[11px] text-muted-foreground mb-1.5">
+                          Match ID: {prediction.matchId || 'N/A'}
+                        </div>
+                      )}
+                      
+                      {/* 第三行：投注类型、赔率、盈亏 */}
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-muted-foreground truncate max-w-[50%]">
+                          {getBetTypeLabel(prediction.betType, prediction, match || { homeTeam: '', awayTeam: '' } as any)}
+                        </span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-muted-foreground font-mono">@{(prediction.odds - 1).toFixed(2)}</span>
+                          <span className={`font-mono font-bold ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </Card>
       </div>

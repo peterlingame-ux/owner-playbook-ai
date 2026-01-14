@@ -37,7 +37,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
   const { t } = useTranslation();
   const [timeDisplay, setTimeDisplay] = useState<string>('');
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
-  const [matchStatus, setMatchStatus] = useState<'not_started' | 'live' | 'half_time' | 'other'>('not_started');
+  const [matchStatus, setMatchStatus] = useState<'not_started' | 'live' | 'half_time' | 'other' | 'postponed'>('not_started');
   
   // 使用 ref 来存储最新的 match 对象，确保 updateTime 函数总是使用最新的值
   const matchRef = useRef(match);
@@ -138,7 +138,14 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
         // 下半场比赛进行分钟数=(当前时间戳-下半场开球时间戳) / 60 + 45 + 1
         const totalElapsedSeconds = now - kickoffTimeSeconds; 
         displayMinutes = Math.floor(totalElapsedSeconds / 60) + 45 + 1;
-      } else {
+      }
+      else if (liveStatusId === 9) {
+        // 推迟
+        setMatchStatus('postponed');
+        setShowCountdown(false);
+        setTimeDisplay(t('postponed') || '推迟');
+        return;
+      }else {
         // 其他状态（完场、取消等），显示默认值
         setMatchStatus('other');
         setShowCountdown(false);
@@ -678,7 +685,7 @@ const ActiveAIBets = () => {
         const yesterdayDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const yesterdayStr = getUTC8DateString(yesterdayDate);
 
-        // Fetch yesterday's and today's matches (live or upcoming) - exclude completed matches
+        // Fetch yesterday's and today's matches (live or upcoming) - exclude completed madao'j
         // Use ended field and status_id to filter: 
         // - ended 是秒级时间戳，null 或 0 表示未结束，> 0 表示已结束
         // - status_id = 8 表示完场，status_id = 11 表示腰斩

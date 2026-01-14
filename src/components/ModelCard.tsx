@@ -212,9 +212,9 @@ const ModelCard = ({ model }: ModelCardProps) => {
               isPositive ? 'text-success' : 'text-destructive'
             }`}>
               {(() => {
-                const numValue = parseFloat(model.change.replace(/[\$,]/g, ''));
-                const sign = numValue >= 0 ? '+' : '';
-                return sign + Math.abs(numValue).toLocaleString();
+                // 显示当前总额，去掉美元符号和逗号，只显示数字
+                const numValue = parseFloat(model.currentValue.replace(/[\$,]/g, ''));
+                return isNaN(numValue) ? '0' : numValue.toLocaleString();
               })()}
             </span>
             <img 

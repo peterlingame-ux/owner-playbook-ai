@@ -2045,12 +2045,6 @@ const PlayerExclusiveModelCard = ({
                     }
 
                     // Display all handicap options from allMarketOdds
-                    // For now, show the first available handicap line (can be enhanced to show all)
-                    const firstHandicap = marketOdds.handicap[0];
-                    const handicapLine = typeof firstHandicap.line === 'number' ? firstHandicap.line : parseFloat(String(firstHandicap.line)) || 0;
-                    const homeOdds = firstHandicap.home;
-                    const awayOdds = firstHandicap.away;
-
                     // Format line display
                     const formatLine = (line: number | string): string => {
                       if (typeof line === 'number') {
@@ -2058,6 +2052,13 @@ const PlayerExclusiveModelCard = ({
                       }
                       return String(line);
                     };
+
+                    // Display all handicap options - show first one by default, but allow selection
+                    // For better UX, we'll show the first available handicap line
+                    const firstHandicap = marketOdds.handicap[0];
+                    const handicapLine = typeof firstHandicap.line === 'number' ? firstHandicap.line : parseFloat(String(firstHandicap.line)) || 0;
+                    const homeOdds = firstHandicap.home;
+                    const awayOdds = firstHandicap.away;
 
                     return (
                       <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
@@ -2084,6 +2085,7 @@ const PlayerExclusiveModelCard = ({
                             <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'home')}</span>
                             <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{formatLine(firstHandicap.line)}</span>
                           </div>
+                          {/* 从 allMarketOdds 获取的赔率是欧洲盘，显示时减1转为亚洲盘 */}
                           {homeOdds && homeOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, homeOdds - 1).toFixed(2)}</p>
                           ) : (
@@ -2113,6 +2115,7 @@ const PlayerExclusiveModelCard = ({
                             <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
                             <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{formatLine(typeof firstHandicap.line === 'number' ? -firstHandicap.line : `-${firstHandicap.line}`)}</span>
                           </div>
+                          {/* 从 allMarketOdds 获取的赔率是欧洲盘，显示时减1转为亚洲盘 */}
                           {awayOdds && awayOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, awayOdds - 1).toFixed(2)}</p>
                           ) : (
@@ -2146,9 +2149,10 @@ const PlayerExclusiveModelCard = ({
                     }
 
                     // Display all over/under options from allMarketOdds
-                    // For now, show the first available over/under line (can be enhanced to show all)
+                    // Show the first available over/under line from allMarketOdds
                     const firstOverUnder = marketOdds.overUnder[0];
                     const overUnderLine = typeof firstOverUnder.line === 'number' ? firstOverUnder.line : parseFloat(String(firstOverUnder.line)) || 2.5;
+                    // 从 allMarketOdds 获取赔率，显示时减1（欧洲盘转亚洲盘）
                     const overOdds = firstOverUnder.over;
                     const underOdds = firstOverUnder.under;
 
@@ -2174,6 +2178,7 @@ const PlayerExclusiveModelCard = ({
                             </div>
                           )}
                           <span className="text-xs sm:text-sm font-medium">大球 {overUnderLine}</span>
+                          {/* 从 allMarketOdds 获取的赔率是欧洲盘，显示时减1转为亚洲盘 */}
                           {overOdds && overOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === overUnderLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, overOdds - 1).toFixed(2)}</p>
                           ) : (
@@ -2200,6 +2205,7 @@ const PlayerExclusiveModelCard = ({
                             </div>
                           )}
                           <span className="text-xs sm:text-sm font-medium">小球 {overUnderLine}</span>
+                          {/* 从 allMarketOdds 获取的赔率是欧洲盘，显示时减1转为亚洲盘 */}
                           {underOdds && underOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === overUnderLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, underOdds - 1).toFixed(2)}</p>
                           ) : (

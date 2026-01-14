@@ -1934,6 +1934,7 @@ const resources = {
       "today_record": "今日战绩",
       "no_predictions_today": "今日暂无预测记录",
       "not_started": "未开始",
+      "postponed": "推迟",
       "total_predictions_count": "总预测",
       "correct_count": "正确",
       "wrong_count": "错误",
