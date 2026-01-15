@@ -202,6 +202,24 @@ const updateBalances = async (
     return { error };
   }
 
+  // 检查是否已经存在该仓位的结算记录，防止重复插入
+  if (position.id) {
+    const { data: existingLedger, error: checkError } = await supabase
+      .from(AI_BALANCE_LEDGER_TABLE)
+      .select("id")
+      .eq("position_id", position.id)
+      .eq("change_type", "settlement")
+      .limit(1);
+
+    if (checkError) {
+      console.warn(`[settle-sim-positions] 检查余额流水记录失败: ${checkError.message}`);
+      // 继续执行插入，因为检查失败不应该阻止结算
+    } else if (existingLedger && existingLedger.length > 0) {
+      console.log(`[settle-sim-positions] 仓位 ${position.id} 的结算记录已存在，跳过重复插入`);
+      return { error: null }; // 已存在记录，返回成功（避免重复插入）
+    }
+  }
+
   const ledgerEntry = {
     balance_id: balance.id,
     ai_id: balance.ai_id,

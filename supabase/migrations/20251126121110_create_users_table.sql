@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name TEXT NOT NULL,
   avatar_url TEXT NOT NULL DEFAULT '/avatars/avatar-1.png',
+  signature TEXT DEFAULT '预测玩家',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
@@ -63,11 +64,12 @@ BEGIN
   random_avatar_num := 1 + FLOOR(RANDOM() * 6);
   
   -- Insert new user profile with random username and avatar
-  INSERT INTO public.users (id, display_name, avatar_url)
+  INSERT INTO public.users (id, display_name, avatar_url, signature)
   VALUES (
     NEW.id,
     generate_random_username(),
-    '/avatars/avatar-' || random_avatar_num || '.png'
+    '/avatars/avatar-' || random_avatar_num || '.png',
+    '预测玩家'
   );
   
   RETURN NEW;

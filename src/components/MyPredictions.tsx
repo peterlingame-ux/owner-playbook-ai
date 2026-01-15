@@ -436,10 +436,29 @@ const MyPredictions = () => {
     
     setIsSaving(true);
     try {
-      const { error } = await supabase
+      // 构建更新对象，只包含需要更新的字段
+      const updateData: { display_name: string; avatar_url: string; signature?: string } = {
+        display_name: editDisplayName,
+        avatar_url: selectedAvatar,
+      };
+      
+      // 只有在 signature 字段存在时才添加（避免 schema cache 未刷新导致的错误）
+      // 先尝试更新包含 signature，如果失败则只更新其他字段
+      const updateWithSignature = { ...updateData, signature: editSignature };
+      
+      let { error } = await supabase
         .from('users')
-        .update({ display_name: editDisplayName, avatar_url: selectedAvatar, signature: editSignature })
+        .update(updateWithSignature)
         .eq('id', user.id);
+
+      // 如果更新失败且错误提示 signature 字段不存在，则只更新其他字段
+      if (error && (error.message?.includes('signature') || error.code === 'PGRST204' || error.code === '42703')) {
+        console.warn('signature field not found, updating without signature:', error);
+        ({ error } = await supabase
+          .from('users')
+          .update(updateData)
+          .eq('id', user.id));
+      }
 
       if (error) throw error;
       setUserProfile(prev => ({ ...prev, display_name: editDisplayName, avatar_url: selectedAvatar, signature: editSignature }) as UserProfile);

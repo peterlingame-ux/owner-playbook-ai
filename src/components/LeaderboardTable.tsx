@@ -542,7 +542,7 @@ const LeaderboardTable = () => {
         .from('user_balances')
         .select('balance')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (balanceError || !balanceData) {
         toast({

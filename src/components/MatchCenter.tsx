@@ -284,17 +284,6 @@ const MatchCenter = () => {
     const homeScores = match.home_scores || [];
     const awayScores = match.away_scores || [];
     
-    // 调试：打印原始数据
-    console.log('Score parsing for match:', {
-      matchId: match.id,
-      status: status,
-      statusId: match.status_id,
-      homeScores: homeScores,
-      awayScores: awayScores,
-      homeScoresLength: homeScores.length,
-      awayScoresLength: awayScores.length
-    });
-    
     // 直接使用数组第一位的值作为比分
     // home_scores/away_scores 数组说明：
     // [0]: 比分(常规时间) - 直接使用这个值
@@ -393,20 +382,6 @@ const MatchCenter = () => {
     // 从 teams 数组中查找球队信息
     const homeTeam = teams.find(t => t.id === match.home_team_id);
     const awayTeam = teams.find(t => t.id === match.away_team_id);
-    
-    // 调试：打印最终比分（在球队信息获取后）
-    console.log('Final score for match:', {
-      matchId: match.id,
-      homeTeam: homeTeam?.name,
-      awayTeam: awayTeam?.name,
-      homeScore,
-      awayScore,
-      status,
-      statusId: match.status_id,
-      homeScores,
-      awayScores
-    });
-    
     // 使用 match.competition_id 从 competitions 数组中查找对应的联赛信息
     const competition = competitions.find(c => c.id === match.competition_id);
     
@@ -513,33 +488,6 @@ const MatchCenter = () => {
       const teams = Array.isArray(response.results.team) ? response.results.team : [];
       const competitions = Array.isArray(response.results.competition) ? response.results.competition : [];
       
-      // 调试日志
-      console.log('API response data:', {
-        teamsCount: teams.length,
-        competitionsCount: competitions.length,
-        matchesCount: response.results.match?.length || 0,
-        sampleCompetition: competitions[0],
-        sampleTeam: teams[0]
-      });
-      
-      // 调试：检查前几个 match 的 competition_id
-      if (response.results.match && response.results.match.length > 0) {
-        const sampleMatches = response.results.match.slice(0, 3) as DiaryMatch[];
-        console.log('Sample matches data:', sampleMatches.map(m => {
-          const foundCompetition = competitions.find(c => c.id === m.competition_id);
-          return {
-            matchId: m.id,
-            competitionId: m.competition_id,
-            matchTime: m.match_time,
-            matchTimeFormatted: new Date(m.match_time * 1000).toLocaleString('zh-CN'),
-            foundCompetition: foundCompetition ? {
-              id: foundCompetition.id,
-              name: foundCompetition.name
-            } : null
-          };
-        }));
-      }
-      
       // 转换为界面需要的格式（直接传入数组，在函数内部查找）
       const convertedMatches = response.results.match
         .filter((match: DiaryMatch) => match && match.id)
@@ -601,16 +549,7 @@ const MatchCenter = () => {
   // 只在切换到 live 标签时输出统计信息
   useEffect(() => {
     if (activeTab === 'live') {
-      console.log('Match status counts:', statusCounts);
       const liveMatches = matches.filter(m => m.status === 'live');
-      console.log('Live matches details:', liveMatches.map(m => ({
-        id: m.id,
-        homeTeam: m.homeTeam,
-        awayTeam: m.awayTeam,
-        time: m.time,
-        minute: m.minute,
-        status: m.status
-      })));
     }
   }, [activeTab, matches]);
 

@@ -289,7 +289,7 @@ const ChallengeAIBanner = () => {
               .from('user_balances')
               .select('balance')
               .eq('user_id', user.id)
-              .single();
+              .maybeSingle();
 
             const initialBalance = 10000 * 100; // 初始余额10000美元 = 1000000分
             const currentBalance = balanceData?.balance || initialBalance;
