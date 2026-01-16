@@ -374,7 +374,7 @@ const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
   };
   
   // 处理 mgt：从 match_time（秒级时间戳）转换为毫秒时间戳
-  // 只使用 liveData 中的 score_kickoff_time
+  // 优先使用 liveData 中的 score_kickoff_time，如果没有则使用 match_time 作为备用
   // 根据迁移文件：match_time BIGINT, -- 开球时间戳（秒）
   // 组件内部使用 mgt 作为毫秒时间戳
   let mgtValue: number = 0;
@@ -383,6 +383,14 @@ const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
     if (!Number.isNaN(parsedTime) && parsedTime > 0) {
       // 时间戳是秒级，转换为毫秒
       mgtValue = parsedTime * 1000;
+    }
+  }
+  // 如果 liveData 中没有 score_kickoff_time，使用 match_time 作为备用（用于排序）
+  if (mgtValue === 0 && match.match_time) {
+    const parsedMatchTime = typeof match.match_time === 'string' ? parseInt(match.match_time, 10) : match.match_time;
+    if (!Number.isNaN(parsedMatchTime) && parsedMatchTime > 0) {
+      // match_time 是秒级，转换为毫秒
+      mgtValue = parsedMatchTime * 1000;
     }
   }
   
@@ -1366,8 +1374,8 @@ const ActiveAIBets = () => {
           
           // Sort matchEntries with priority:
           // 1. Started matches (live) first, then upcoming matches
-          // 2. Within same time group, top 5 leagues first
-          // 3. Within same league priority, sort by kickoff time
+          // 2. Within same time group, sort by kickoff time (earlier first)
+          // 3. For matches at the same time, prioritize top 5 leagues
           const now = Date.now();
           const matchEntries = Array.from(betsByMatch.values())
             .filter(entry => {
@@ -1388,30 +1396,39 @@ const ActiveAIBets = () => {
               return true;
             })
             .sort((a, b) => {
-              const aKickoff = a.match.mgt || 0;
-              const bKickoff = b.match.mgt || 0;
-              const aStarted = aKickoff > 0 && now > aKickoff;
-              const bStarted = bKickoff > 0 && now > bKickoff;
+              // 获取有效的开球时间：优先使用 mgt（毫秒），如果没有则使用 match_time（秒级转毫秒）
+              const aKickoff = a.match.mgt && a.match.mgt > 0 
+                ? a.match.mgt 
+                : (a.match.match_time ? (typeof a.match.match_time === 'string' ? parseInt(a.match.match_time, 10) * 1000 : a.match.match_time * 1000) : 0);
+              const bKickoff = b.match.mgt && b.match.mgt > 0 
+                ? b.match.mgt 
+                : (b.match.match_time ? (typeof b.match.match_time === 'string' ? parseInt(b.match.match_time, 10) * 1000 : b.match.match_time * 1000) : 0);
               
-              // 1. Started matches come first
+              const aStarted = aKickoff > 0 && now > aKickoff; // 比赛已开始
+              const bStarted = bKickoff > 0 && now > bKickoff; // 比赛已开始
+              
+              // 1. 已开始的比赛优先显示
               if (aStarted && !bStarted) return -1;
               if (!aStarted && bStarted) return 1;
               
-              // 2. Within the same time group, top 5 leagues first
-              const aLeaguePriority = getLeaguePriority(a.match.league_name);
-              const bLeaguePriority = getLeaguePriority(b.match.league_name);
-              if (aLeaguePriority !== bLeaguePriority) {
-                return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前
+              // 2. 在同一组（都已开始或都未开始）内，按开球时间排序（早的在前）
+              if (aKickoff === 0 && bKickoff === 0) {
+                // 两者都无效，按联赛优先级排序
+                const aLeaguePriority = getLeaguePriority(a.match.league_name);
+                const bLeaguePriority = getLeaguePriority(b.match.league_name);
+                return aLeaguePriority - bLeaguePriority;
+              }
+              if (aKickoff === 0) return 1; // a 无效，排在后面
+              if (bKickoff === 0) return -1; // b 无效，排在后面
+              
+              if (aKickoff !== bKickoff) {
+                return aKickoff - bKickoff; // 早的在前
               }
               
-              // 3. Within same league priority, sort by kickoff time
-              // For started matches: later kickoff time first (more recent matches first)
-              // For upcoming matches: earlier kickoff time first (earlier matches first)
-              if (aStarted && bStarted) {
-                return bKickoff - aKickoff; // Descending (more recent first)
-              } else {
-                return aKickoff - bKickoff; // Ascending (earlier first)
-              }
+              // 3. 对于相同时间的比赛，优先显示五大联赛
+              const aLeaguePriority = getLeaguePriority(a.match.league_name);
+              const bLeaguePriority = getLeaguePriority(b.match.league_name);
+              return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前（五大联赛）
             })
             .slice(0, 5); // 限制最多显示5场比赛
           
@@ -1962,8 +1979,8 @@ const ActiveAIBets = () => {
           
           // Sort matchEntries with priority:
           // 1. Started matches (live) first, then upcoming matches
-          // 2. Within same time group, top 5 leagues first
-          // 3. Within same league priority, sort by kickoff time
+          // 2. Within same time group, sort by kickoff time (earlier first)
+          // 3. For matches at the same time, prioritize top 5 leagues
           const now = Date.now();
           const matchEntries = Array.from(betsByMatch.values())
             .filter(entry => {
@@ -1984,30 +2001,39 @@ const ActiveAIBets = () => {
               return true;
             })
             .sort((a, b) => {
-              const aKickoff = a.match.mgt || 0;
-              const bKickoff = b.match.mgt || 0;
-              const aStarted = aKickoff > 0 && now > aKickoff;
-              const bStarted = bKickoff > 0 && now > bKickoff;
+              // 获取有效的开球时间：优先使用 mgt（毫秒），如果没有则使用 match_time（秒级转毫秒）
+              const aKickoff = a.match.mgt && a.match.mgt > 0 
+                ? a.match.mgt 
+                : (a.match.match_time ? (typeof a.match.match_time === 'string' ? parseInt(a.match.match_time, 10) * 1000 : a.match.match_time * 1000) : 0);
+              const bKickoff = b.match.mgt && b.match.mgt > 0 
+                ? b.match.mgt 
+                : (b.match.match_time ? (typeof b.match.match_time === 'string' ? parseInt(b.match.match_time, 10) * 1000 : b.match.match_time * 1000) : 0);
               
-              // 1. Started matches come first
+              const aStarted = aKickoff > 0 && now > aKickoff; // 比赛已开始
+              const bStarted = bKickoff > 0 && now > bKickoff; // 比赛已开始
+              
+              // 1. 已开始的比赛优先显示
               if (aStarted && !bStarted) return -1;
               if (!aStarted && bStarted) return 1;
               
-              // 2. Within the same time group, top 5 leagues first
-              const aLeaguePriority = getLeaguePriority(a.match.league_name);
-              const bLeaguePriority = getLeaguePriority(b.match.league_name);
-              if (aLeaguePriority !== bLeaguePriority) {
-                return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前
+              // 2. 在同一组（都已开始或都未开始）内，按开球时间排序（早的在前）
+              if (aKickoff === 0 && bKickoff === 0) {
+                // 两者都无效，按联赛优先级排序
+                const aLeaguePriority = getLeaguePriority(a.match.league_name);
+                const bLeaguePriority = getLeaguePriority(b.match.league_name);
+                return aLeaguePriority - bLeaguePriority;
+              }
+              if (aKickoff === 0) return 1; // a 无效，排在后面
+              if (bKickoff === 0) return -1; // b 无效，排在后面
+              
+              if (aKickoff !== bKickoff) {
+                return aKickoff - bKickoff; // 早的在前
               }
               
-              // 3. Within same league priority, sort by kickoff time
-              // For started matches: later kickoff time first (more recent matches first)
-              // For upcoming matches: earlier kickoff time first (earlier matches first)
-              if (aStarted && bStarted) {
-                return bKickoff - aKickoff; // Descending (more recent first)
-              } else {
-                return aKickoff - bKickoff; // Ascending (earlier first)
-              }
+              // 3. 对于相同时间的比赛，优先显示五大联赛
+              const aLeaguePriority = getLeaguePriority(a.match.league_name);
+              const bLeaguePriority = getLeaguePriority(b.match.league_name);
+              return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前（五大联赛）
             })
             .slice(0, 5); // 限制最多显示5场比赛
           
