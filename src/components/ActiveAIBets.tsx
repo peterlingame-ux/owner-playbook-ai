@@ -129,15 +129,30 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       // 计算比赛进行时间（分钟）
       // 使用 match_live_data 中的实时数据计算
       let displayMinutes: number;
+      let timeDisplayStr: string;
       
       if (liveStatusId === 2) {
         // 上半场：比赛进行分钟数 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
         const elapsedSeconds = now - kickoffTimeSeconds;
         displayMinutes = Math.floor(elapsedSeconds / 60) + 1;
+        
+        // 格式化显示：如果大于45且状态不是中场，显示 45' + 具体时间
+        if (displayMinutes > 45) {
+          timeDisplayStr = `45'+${displayMinutes - 45}'`;
+        } else {
+          timeDisplayStr = `${displayMinutes}'`;
+        }
       } else if (liveStatusId === 4) {
         // 下半场比赛进行分钟数=(当前时间戳-下半场开球时间戳) / 60 + 45 + 1
         const totalElapsedSeconds = now - kickoffTimeSeconds; 
         displayMinutes = Math.floor(totalElapsedSeconds / 60) + 45 + 1;
+        
+        // 格式化显示：如果大于90，显示 90' + 具体时间
+        if (displayMinutes > 90) {
+          timeDisplayStr = `90'+${displayMinutes - 90}'`;
+        } else {
+          timeDisplayStr = `${displayMinutes}'`;
+        }
       }
       else if (liveStatusId === 9) {
         // 推迟
@@ -153,7 +168,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
         return;
       }
       setMatchStatus('live');
-      setTimeDisplay(`${displayMinutes}'`);
+      setTimeDisplay(timeDisplayStr);
     };
 
     updateTime();
@@ -586,6 +601,12 @@ const ActiveAIBets = () => {
   const [autoBets, setAutoBets] = useState<AutoBet[]>([]);
   const [aiBalances, setAiBalances] = useState<Record<string, AIBalance>>({});
   const [moneylinePredictions, setMoneylinePredictions] = useState<Record<string, { prediction: string; confidence: number; odds: number }>>({});
+  // Market odds from ai_match_analyses.bet_snapshot.allMarketOdds
+  type MarketOdds = {
+    overUnder?: Array<{ line: number | string; over: number; under: number }>;
+    handicap?: Array<{ line: number | string; home: number; away: number }>;
+  };
+  const [marketOddsMap, setMarketOddsMap] = useState<Record<string, MarketOdds>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   // Track if this is the first mount to avoid showing loading on language change
@@ -803,19 +824,28 @@ const ActiveAIBets = () => {
             
             if (analysesData) {
               const predictionsMap: Record<string, { prediction: string; confidence: number; odds: number }> = {};
+              const marketOddsMapNew: Record<string, MarketOdds> = {};
               
               analysesData.forEach((analysis: any) => {
+                const key = `${analysis.match_id}_${analysis.ai_id}`;
+                
+                // Extract moneyline prediction
                 if (analysis.bet_snapshot && analysis.bet_snapshot.moneyline) {
-                  const key = `${analysis.match_id}_${analysis.ai_id}`;
                   predictionsMap[key] = {
                     prediction: analysis.bet_snapshot.moneyline.prediction,
                     confidence: analysis.bet_snapshot.moneyline.confidence || 0,
                     odds: analysis.bet_snapshot.moneyline.odds || 1.9,
                   };
                 }
+                
+                // Extract allMarketOdds for handicap and over/under
+                if (analysis.bet_snapshot && analysis.bet_snapshot.allMarketOdds) {
+                  marketOddsMapNew[key] = analysis.bet_snapshot.allMarketOdds;
+                }
               });
               
               setMoneylinePredictions(predictionsMap);
+              setMarketOddsMap(marketOddsMapNew);
             }
           }
         }
@@ -1173,8 +1203,9 @@ const ActiveAIBets = () => {
   const betMatchIds = new Set(autoBets.map(bet => bet.match_id?.toString()).filter(Boolean));
   
   // Then, get matches that have bets from the active matches list
+  // Only show matches that have odds_info (赔率信息)
   const matchesWithBets = matches.filter(match => 
-    betMatchIds.has(match.mid)
+    betMatchIds.has(match.mid) && match.odds_info !== null && match.odds_info !== undefined
   );
   
   // State to store missing matches (matches that have bets but are not in active matches list)
@@ -1219,6 +1250,12 @@ const ActiveAIBets = () => {
               if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) {
                 return false;
               }
+              
+              // 过滤掉没有赔率信息的比赛
+              if (!match.odds_info || match.odds_info === null || match.odds_info === undefined) {
+                return false;
+              }
+              
               return true;
             });
             
@@ -1294,6 +1331,11 @@ const ActiveAIBets = () => {
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
           allMatchesWithBets.forEach(match => {
+            // 只处理有赔率信息的比赛
+            if (!match.odds_info || match.odds_info === null || match.odds_info === undefined) {
+              return;
+            }
+            
             const matchBets = autoBets
               .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
               .map(bet => convertBet(bet, match));
@@ -1305,38 +1347,93 @@ const ActiveAIBets = () => {
 
           // Get current match index for this AI (default to 0)
           const matchIndex = currentMatchIndex[aiModel.id] || 0;
-          // Sort matchEntries: started matches (live) first, then upcoming matches
-          // Within each group, sort by mgt (kickoff time)
+          
+          // 五大联赛优先级定义（按优先级排序）
+          const top5Leagues = [
+            '英格兰超级联赛',
+            '德国甲级联赛',
+            '西班牙甲级联赛',
+            '意大利甲级联赛',
+            '法国甲级联赛'
+          ];
+          
+          // 获取联赛优先级（数字越小优先级越高）
+          const getLeaguePriority = (leagueName: string | null | undefined): number => {
+            if (!leagueName) return 999; // 没有联赛信息的排在最后
+            const index = top5Leagues.indexOf(leagueName);
+            return index === -1 ? 100 : index; // 五大联赛返回0-4，其他联赛返回100
+          };
+          
+          // Sort matchEntries with priority:
+          // 1. Started matches (live) first, then upcoming matches
+          // 2. Within same time group, top 5 leagues first
+          // 3. Within same league priority, sort by kickoff time
           const now = Date.now();
-          const matchEntries = Array.from(betsByMatch.values()).sort((a, b) => {
-            const aKickoff = a.match.mgt || 0;
-            const bKickoff = b.match.mgt || 0;
-            const aStarted = aKickoff > 0 && now > aKickoff;
-            const bStarted = bKickoff > 0 && now > bKickoff;
-            
-            // Started matches come first
-            if (aStarted && !bStarted) return -1;
-            if (!aStarted && bStarted) return 1;
-            
-            // Within the same group (both started or both not started), sort by kickoff time
-            // For started matches: later kickoff time first (more recent matches first)
-            // For upcoming matches: earlier kickoff time first (earlier matches first)
-            if (aStarted && bStarted) {
-              return bKickoff - aKickoff; // Descending (more recent first)
-            } else {
-              return aKickoff - bKickoff; // Ascending (earlier first)
-            }
-          });
-          const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
+          const matchEntries = Array.from(betsByMatch.values())
+            .filter(entry => {
+              // 过滤掉已结束的比赛
+              const match = entry.match;
+              const ended = match.ended;
+              const endedValue = ended !== null && ended !== undefined
+                ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+                : 0;
+              const statusId = match.status_id !== null && match.status_id !== undefined
+                ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+                : null;
+              
+              // 排除已结束的比赛
+              if (!isNaN(endedValue) && endedValue > 0) return false;
+              if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) return false;
+              
+              return true;
+            })
+            .sort((a, b) => {
+              const aKickoff = a.match.mgt || 0;
+              const bKickoff = b.match.mgt || 0;
+              const aStarted = aKickoff > 0 && now > aKickoff;
+              const bStarted = bKickoff > 0 && now > bKickoff;
+              
+              // 1. Started matches come first
+              if (aStarted && !bStarted) return -1;
+              if (!aStarted && bStarted) return 1;
+              
+              // 2. Within the same time group, top 5 leagues first
+              const aLeaguePriority = getLeaguePriority(a.match.league_name);
+              const bLeaguePriority = getLeaguePriority(b.match.league_name);
+              if (aLeaguePriority !== bLeaguePriority) {
+                return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前
+              }
+              
+              // 3. Within same league priority, sort by kickoff time
+              // For started matches: later kickoff time first (more recent matches first)
+              // For upcoming matches: earlier kickoff time first (earlier matches first)
+              if (aStarted && bStarted) {
+                return bKickoff - aKickoff; // Descending (more recent first)
+              } else {
+                return aKickoff - bKickoff; // Ascending (earlier first)
+              }
+            })
+            .slice(0, 5); // 限制最多显示5场比赛
+          
+          // 如果当前索引超出范围，重置为0
+          const validMatchIndex = matchIndex >= matchEntries.length ? 0 : matchIndex;
+          if (validMatchIndex !== matchIndex) {
+            setCurrentMatchIndex(prev => ({ ...prev, [aiModel.id]: 0 }));
+          }
+          
+          const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
           
           // Separate bets by type: moneyline (胜负), handicap (让球), and over_under (大小球)
           let moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
-          const handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
-          const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          let handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
+          let overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          
+          // Get market odds from ai_match_analyses.bet_snapshot.allMarketOdds
+          const predictionKey = currentMatchData?.match ? `${currentMatchData.match.mid}_${aiModel.id}` : '';
+          const marketOdds = predictionKey ? marketOddsMap[predictionKey] : null;
           
           // 如果没有 moneylineBet，从 moneylinePredictions 状态中获取输赢预测
           if (!moneylineBet && currentMatchData && currentMatchData.match) {
-          const predictionKey = `${currentMatchData.match.mid}_${aiModel.id}`;
             const moneylinePrediction = moneylinePredictions[predictionKey];
             
             if (moneylinePrediction) {
@@ -1352,6 +1449,42 @@ const ActiveAIBets = () => {
                 overUnderLine: undefined,
                 overUnderPick: undefined,
                 confirmed: false,
+              };
+            }
+          }
+          
+          // 如果让分投注存在，使用 allMarketOdds 中的赔率数据
+          if (handicapBet && marketOdds?.handicap && marketOdds.handicap.length > 0) {
+            const handicapLine = handicapBet.handicapLine;
+            const matchingHandicap = marketOdds.handicap.find(h => {
+              const hLine = typeof h.line === 'number' ? h.line : parseFloat(String(h.line)) || 0;
+              return Math.abs(hLine - (handicapLine || 0)) < 0.01; // 允许小的浮点数误差
+            });
+            
+            if (matchingHandicap) {
+              // 根据预测方向选择对应的赔率
+              const isHome = handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME";
+              handicapBet = {
+                ...handicapBet,
+                odds: isHome ? matchingHandicap.home : matchingHandicap.away,
+              };
+            }
+          }
+          
+          // 如果大小球投注存在，使用 allMarketOdds 中的赔率数据
+          if (overUnderBet && marketOdds?.overUnder && marketOdds.overUnder.length > 0) {
+            const overUnderLine = overUnderBet.overUnderLine;
+            const matchingOverUnder = marketOdds.overUnder.find(ou => {
+              const ouLine = typeof ou.line === 'number' ? ou.line : parseFloat(String(ou.line)) || 0;
+              return Math.abs(ouLine - (overUnderLine || 0)) < 0.01; // 允许小的浮点数误差
+            });
+            
+            if (matchingOverUnder) {
+              // 根据预测方向选择对应的赔率
+              const isOver = overUnderBet.overUnderPick === "over";
+              overUnderBet = {
+                ...overUnderBet,
+                odds: isOver ? matchingOverUnder.over : matchingOverUnder.under,
               };
             }
           }
@@ -1630,7 +1763,7 @@ const ActiveAIBets = () => {
                           ? "bg-primary/20 border-primary/60" 
                           : "bg-white/5 border-white/10 opacity-60"
                       }`}>
-                        <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 whitespace-nowrap">{getTeamName(currentMatchData!.match, 'home')}</span>
+                        <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 truncate">{getTeamName(currentMatchData!.match, 'home')}</span>
                         {handicapBet.handicapLine !== undefined && (
                           <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                             handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
@@ -1645,7 +1778,7 @@ const ActiveAIBets = () => {
                           ? "bg-primary/20 border-primary/60" 
                           : "bg-white/5 border-white/10 opacity-60"
                       }`}>
-                        <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 whitespace-nowrap">{getTeamName(currentMatchData!.match, 'away')}</span>
+                        <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 truncate">{getTeamName(currentMatchData!.match, 'away')}</span>
                         {handicapBet.handicapLine !== undefined && (
                           <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                             handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
@@ -1740,6 +1873,11 @@ const ActiveAIBets = () => {
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
           allMatchesWithBets.forEach(match => {
+            // 只处理有赔率信息的比赛
+            if (!match.odds_info || match.odds_info === null || match.odds_info === undefined) {
+              return;
+            }
+            
             const matchBets = autoBets
               .filter(b => b.match_id?.toString() === match.mid && b.ai_id === 'hunsoccermax')
               .map(bet => convertBet(bet, match));
@@ -1751,29 +1889,81 @@ const ActiveAIBets = () => {
 
           // Get current match index for hunsoccermax
           const matchIndex = currentMatchIndex['hunsoccermax'] || 0;
-          // Sort matchEntries: started matches (live) first, then upcoming matches
-          // Within each group, sort by mgt (kickoff time)
+          
+          // 五大联赛优先级定义（按优先级排序）
+          const top5Leagues = [
+            '英格兰超级联赛',
+            '德国甲级联赛',
+            '西班牙甲级联赛',
+            '意大利甲级联赛',
+            '法国甲级联赛'
+          ];
+          
+          // 获取联赛优先级（数字越小优先级越高）
+          const getLeaguePriority = (leagueName: string | null | undefined): number => {
+            if (!leagueName) return 999; // 没有联赛信息的排在最后
+            const index = top5Leagues.indexOf(leagueName);
+            return index === -1 ? 100 : index; // 五大联赛返回0-4，其他联赛返回100
+          };
+          
+          // Sort matchEntries with priority:
+          // 1. Started matches (live) first, then upcoming matches
+          // 2. Within same time group, top 5 leagues first
+          // 3. Within same league priority, sort by kickoff time
           const now = Date.now();
-          const matchEntries = Array.from(betsByMatch.values()).sort((a, b) => {
-            const aKickoff = a.match.mgt || 0;
-            const bKickoff = b.match.mgt || 0;
-            const aStarted = aKickoff > 0 && now > aKickoff;
-            const bStarted = bKickoff > 0 && now > bKickoff;
-            
-            // Started matches come first
-            if (aStarted && !bStarted) return -1;
-            if (!aStarted && bStarted) return 1;
-            
-            // Within the same group (both started or both not started), sort by kickoff time
-            // For started matches: later kickoff time first (more recent matches first)
-            // For upcoming matches: earlier kickoff time first (earlier matches first)
-            if (aStarted && bStarted) {
-              return bKickoff - aKickoff; // Descending (more recent first)
-            } else {
-              return aKickoff - bKickoff; // Ascending (earlier first)
-            }
-          });
-          const currentMatchData = matchEntries.length > 0 ? matchEntries[matchIndex] : null;
+          const matchEntries = Array.from(betsByMatch.values())
+            .filter(entry => {
+              // 过滤掉已结束的比赛
+              const match = entry.match;
+              const ended = match.ended;
+              const endedValue = ended !== null && ended !== undefined
+                ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
+                : 0;
+              const statusId = match.status_id !== null && match.status_id !== undefined
+                ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+                : null;
+              
+              // 排除已结束的比赛
+              if (!isNaN(endedValue) && endedValue > 0) return false;
+              if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) return false;
+              
+              return true;
+            })
+            .sort((a, b) => {
+              const aKickoff = a.match.mgt || 0;
+              const bKickoff = b.match.mgt || 0;
+              const aStarted = aKickoff > 0 && now > aKickoff;
+              const bStarted = bKickoff > 0 && now > bKickoff;
+              
+              // 1. Started matches come first
+              if (aStarted && !bStarted) return -1;
+              if (!aStarted && bStarted) return 1;
+              
+              // 2. Within the same time group, top 5 leagues first
+              const aLeaguePriority = getLeaguePriority(a.match.league_name);
+              const bLeaguePriority = getLeaguePriority(b.match.league_name);
+              if (aLeaguePriority !== bLeaguePriority) {
+                return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前
+              }
+              
+              // 3. Within same league priority, sort by kickoff time
+              // For started matches: later kickoff time first (more recent matches first)
+              // For upcoming matches: earlier kickoff time first (earlier matches first)
+              if (aStarted && bStarted) {
+                return bKickoff - aKickoff; // Descending (more recent first)
+              } else {
+                return aKickoff - bKickoff; // Ascending (earlier first)
+              }
+            })
+            .slice(0, 5); // 限制最多显示5场比赛
+          
+          // 如果当前索引超出范围，重置为0
+          const validMatchIndex = matchIndex >= matchEntries.length ? 0 : matchIndex;
+          if (validMatchIndex !== matchIndex) {
+            setCurrentMatchIndex(prev => ({ ...prev, ['hunsoccermax']: 0 }));
+          }
+          
+          const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
           
           // Separate bets by type
           const moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;

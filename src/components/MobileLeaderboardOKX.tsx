@@ -138,6 +138,11 @@ const MobileLeaderboardOKX = () => {
   const [showFollowPlayerDialog, setShowFollowPlayerDialog] = useState(false);
   const [playerToFollow, setPlayerToFollow] = useState<PlayerData | null>(null);
   
+  // Like states for AI models
+  const [likedModels, setLikedModels] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
+  const [isLiking, setIsLiking] = useState<Set<string>>(new Set()); // 防止重复点击
+  
   // History and Copy Trade states
   interface TodayPrediction {
     id: string;
@@ -383,6 +388,160 @@ const MobileLeaderboardOKX = () => {
   useEffect(() => {
     fetchPlayers();
   }, [fetchPlayers]);
+
+  // 从数据库获取AI模型点赞数和用户点赞状态
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        // 获取所有AI模型的点赞数
+        const modelIds = aiModels.map(m => m.id);
+        const { data: likeCountsData, error: countsError } = await supabase
+          .from('like_counts')
+          .select('entity_id, like_count')
+          .eq('entity_type', 'ai_model')
+          .in('entity_id', modelIds);
+
+        if (countsError) {
+          console.error('[MobileLeaderboardOKX] 获取点赞数失败:', countsError);
+        } else {
+          const countsMap = new Map<string, number>();
+          if (likeCountsData) {
+            likeCountsData.forEach(item => {
+              countsMap.set(item.entity_id, item.like_count || 0);
+            });
+          }
+          // 为没有点赞记录的模型设置默认值0
+          modelIds.forEach(modelId => {
+            if (!countsMap.has(modelId)) {
+              countsMap.set(modelId, 0);
+            }
+          });
+          setLikeCounts(countsMap);
+        }
+
+        // 如果用户已登录，获取用户的点赞状态
+        if (user) {
+          const { data: userLikesData, error: userLikesError } = await supabase
+            .from('likes')
+            .select('entity_id')
+            .eq('entity_type', 'ai_model')
+            .eq('user_id', user.id)
+            .in('entity_id', modelIds);
+
+          if (userLikesError) {
+            console.error('[MobileLeaderboardOKX] 获取用户点赞状态失败:', userLikesError);
+          } else {
+            const likedSet = new Set<string>();
+            if (userLikesData) {
+              userLikesData.forEach(item => {
+                likedSet.add(item.entity_id);
+              });
+            }
+            setLikedModels(likedSet);
+          }
+        }
+      } catch (error) {
+        console.error('[MobileLeaderboardOKX] 获取点赞数据失败:', error);
+      }
+    };
+
+    fetchLikes();
+  }, [user]);
+
+  // 处理AI模型点赞/取消点赞
+  const handleAIModelLike = async (modelId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!user) {
+      toast.error(t('login_first') || '请先登录', {
+        description: t('login_to_like') || '登录后即可点赞',
+      });
+      return;
+    }
+
+    if (isLiking.has(modelId)) {
+      return;
+    }
+
+    setIsLiking(prev => new Set(prev).add(modelId));
+
+    const isCurrentlyLiked = likedModels.has(modelId);
+
+    try {
+      if (isCurrentlyLiked) {
+        // 取消点赞 - 删除数据库记录
+        const { error: deleteError } = await supabase
+          .from('likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('entity_type', 'ai_model')
+          .eq('entity_id', modelId);
+
+        if (deleteError) {
+          console.error('[MobileLeaderboardOKX] 取消点赞失败:', deleteError);
+          toast.error('取消点赞失败，请重试');
+          setIsLiking(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(modelId);
+            return newSet;
+          });
+          return;
+        }
+
+        // 更新本地状态
+        setLikedModels(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(modelId);
+          return newSet;
+        });
+        setLikeCounts(prev => {
+          const newMap = new Map(prev);
+          const currentCount = newMap.get(modelId) || 0;
+          newMap.set(modelId, Math.max(0, currentCount - 1));
+          return newMap;
+        });
+      } else {
+        // 点赞 - 插入数据库记录
+        const { error: insertError } = await supabase
+          .from('likes')
+          .insert({
+            user_id: user.id,
+            entity_type: 'ai_model',
+            entity_id: modelId,
+          });
+
+        if (insertError) {
+          console.error('[MobileLeaderboardOKX] 点赞失败:', insertError);
+          toast.error('点赞失败，请重试');
+          setIsLiking(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(modelId);
+            return newSet;
+          });
+          return;
+        }
+
+        // 更新本地状态
+        setLikedModels(prev => new Set(prev).add(modelId));
+        setLikeCounts(prev => {
+          const newMap = new Map(prev);
+          const currentCount = newMap.get(modelId) || 0;
+          newMap.set(modelId, currentCount + 1);
+          return newMap;
+        });
+      }
+    } catch (error) {
+      console.error('[MobileLeaderboardOKX] 处理点赞时出错:', error);
+      toast.error('操作失败，请重试');
+    } finally {
+      // 清除loading状态
+      setIsLiking(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(modelId);
+        return newSet;
+      });
+    }
+  };
 
   // 根据时间筛选器获取 AI 模型统计数据
   useEffect(() => {
@@ -1444,13 +1603,17 @@ const MobileLeaderboardOKX = () => {
                 >
                   {model.name}
                   <button 
-                    className="flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
+                    className={`flex items-center gap-0.5 px-1 py-0.5 transition-colors ${
+                      likedModels.has(model.id)
+                        ? 'text-primary hover:text-primary/80'
+                        : 'text-muted-foreground hover:text-primary'
+                    } ${isLiking.has(model.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={(e) => handleAIModelLike(model.id, e)}
+                    disabled={isLiking.has(model.id)}
+                    title={likedModels.has(model.id) ? '取消点赞' : '点赞'}
                   >
-                    <ThumbsUp className="h-3 w-3 text-primary" />
-                    <span className="text-[10px] font-medium text-primary">{model.likes}</span>
+                    <ThumbsUp className={`h-3 w-3 ${likedModels.has(model.id) ? 'fill-current' : ''}`} />
+                    <span className="text-[10px] font-medium">{likeCounts.get(model.id) ?? 0}</span>
                   </button>
                 </h3>
                 <p className="text-[10px] text-muted-foreground">

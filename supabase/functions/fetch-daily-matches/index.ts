@@ -1335,9 +1335,60 @@ const triggerUserBetsSettlement = async (): Promise<void> => {
 };
 
 // 同时触发 AI 和用户下注结算
+const triggerAIAutoBetsSettlement = async (): Promise<void> => {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn(`[fetch-daily-matches] SUPABASE_URL 或 SERVICE_ROLE_KEY 未配置，跳过 AI 自动下注结算`);
+    return;
+  }
+
+  try {
+    console.log(`[fetch-daily-matches] ========== 开始触发 AI 自动下注结算 ==========`);
+
+    const functionName = "settle-ai-auto-bets";
+    const functionUrl = `${SUPABASE_URL}/functions/v1/${functionName}`;
+
+    console.log(`[fetch-daily-matches] 调用函数: ${functionName}`);
+    console.log(`[fetch-daily-matches] URL: ${functionUrl}`);
+
+    const response = await fetch(functionUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+      },
+    });
+
+    const status = response.status;
+    let data: any;
+
+    try {
+      const text = await response.text();
+      data = text ? JSON.parse(text) : null;
+    } catch (parseError) {
+      console.warn(`[fetch-daily-matches] 响应解析失败:`, parseError);
+      try {
+        const errorText = await response.text();
+        data = { raw: errorText || "无法读取响应" };
+      } catch {
+        data = { raw: "无法读取响应" };
+      }
+    }
+
+    if (status === 200 || status === 201) {
+      console.log(`[fetch-daily-matches] AI 自动下注结算成功:`, JSON.stringify(data, null, 2));
+    } else {
+      console.error(`[fetch-daily-matches] AI 自动下注结算失败 (状态码: ${status}):`, data);
+    }
+  } catch (error) {
+    console.error(`[fetch-daily-matches] 触发 AI 自动下注结算时出错:`, error);
+  }
+};
+
 const triggerAllSettlements = async (matchIds?: number[]): Promise<void> => {
   await Promise.allSettled([
     triggerAISettlement(matchIds),
+    triggerAIAutoBetsSettlement(),
     triggerUserBetsSettlement(),
   ]);
 };

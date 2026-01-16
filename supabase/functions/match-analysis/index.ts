@@ -248,7 +248,7 @@ const buildUserPrompt = (
 
 请从老板层面、技术层面、赔率层面进行全面分析，并给出最终投注建议。
 
-IMPORTANT: 在分析的最后，请提供你的预测，格式如下（必须同时提供输赢、大小球和让球盘预测）：
+IMPORTANT: 在分析的最后，请直接提供你的预测（不要添加任何标题如"### 最后的预测输出"），格式如下（必须同时提供输赢、大小球和让球盘预测）：
 
 1. 输赢预测：
 PREDICTION_MONEYLINE: [HOME_WIN/AWAY_WIN/DRAW] [confidence 0-100]
@@ -276,7 +276,8 @@ PREDICTION_HANDICAP: AWAY -0.5 65
 - 输赢预测：HOME_WIN 表示主队获胜，AWAY_WIN 表示客队获胜，DRAW 表示平局
 - 大小球的 line 值必须从上面提供的市场赔率中选择
 - 让球盘的 line 值必须从上面提供的市场赔率中选择
-- HOME 表示主队让球，AWAY 表示客队让球`;
+- HOME 表示主队让球，AWAY 表示客队让球
+- 请直接在分析内容后输出预测，不要添加任何标题或分隔符`;
   }
 
   return `${basePrompt}
@@ -290,6 +291,108 @@ PREDICTION_HANDICAP: AWAY -0.5 65
 - 投注金额：${betInfo.betAmount}
 
 请从老板层面、技术层面、赔率层面进行全面分析，并给出最终投注建议。`;
+};
+
+// 格式化分析结果：去除"### 最后的预测输出"部分，只保留置信度最高的预测，用中文显示
+const formatAnalysisResult = (
+  analysis: string | null,
+  allPredictions?: AllPredictions
+): string | null => {
+  if (!analysis) {
+    return null;
+  }
+
+  // 去除 "### 最后的预测输出" 及其之后的内容
+  const lines = analysis.split('\n');
+  let formattedLines: string[] = [];
+  let foundPredictionSection = false;
+
+  for (const line of lines) {
+    // 检查是否是 "### 最后的预测输出" 或类似标题
+    if (line.trim().match(/^###\s*最后的预测输出/i) || 
+        line.trim().match(/^###\s*预测输出/i) ||
+        line.trim().match(/^##\s*最后的预测输出/i) ||
+        line.trim().match(/^##\s*预测输出/i)) {
+      foundPredictionSection = true;
+      break;
+    }
+    formattedLines.push(line);
+  }
+
+  // 如果找到了预测部分，使用格式化后的内容；否则使用原始内容
+  let baseAnalysis = foundPredictionSection 
+    ? formattedLines.join('\n').trim()
+    : analysis.trim();
+
+  // 如果有预测信息，添加置信度最高的预测（中文显示）
+  if (allPredictions) {
+    const predictions: Array<{
+      type: string;
+      prediction: string;
+      confidence: number;
+      line?: number | string;
+    }> = [];
+
+    if (allPredictions.overUnder) {
+      predictions.push({
+        type: '大小球',
+        prediction: allPredictions.overUnder.prediction === 'OVER' ? '大' : '小',
+        confidence: allPredictions.overUnder.confidence,
+        line: allPredictions.overUnder.line,
+      });
+    }
+
+    if (allPredictions.handicap) {
+      predictions.push({
+        type: '让球盘',
+        prediction: allPredictions.handicap.prediction === 'HOME' ? '主队' : '客队',
+        confidence: allPredictions.handicap.confidence,
+        line: allPredictions.handicap.line,
+      });
+    }
+
+    if (allPredictions.moneyline) {
+      let moneylinePrediction = '';
+      if (allPredictions.moneyline.prediction === 'HOME_WIN') {
+        moneylinePrediction = '主队胜';
+      } else if (allPredictions.moneyline.prediction === 'AWAY_WIN') {
+        moneylinePrediction = '客队胜';
+      } else if (allPredictions.moneyline.prediction === 'DRAW') {
+        moneylinePrediction = '平局';
+      }
+      
+      if (moneylinePrediction) {
+        predictions.push({
+          type: '输赢',
+          prediction: moneylinePrediction,
+          confidence: allPredictions.moneyline.confidence,
+        });
+      }
+    }
+
+    // 选择置信度最高的预测
+    if (predictions.length > 0) {
+      const bestPrediction = predictions.reduce((best, current) => 
+        current.confidence > best.confidence ? current : best
+      );
+
+      // 格式化预测文本
+      let predictionText = '';
+      if (bestPrediction.type === '大小球') {
+        predictionText = `大小球：${bestPrediction.prediction} ${bestPrediction.line}，置信度：${bestPrediction.confidence}%`;
+      } else if (bestPrediction.type === '让球盘') {
+        predictionText = `让球盘：${bestPrediction.prediction} ${bestPrediction.line}，置信度：${bestPrediction.confidence}%`;
+      } else if (bestPrediction.type === '输赢') {
+        predictionText = `输赢：${bestPrediction.prediction}，置信度：${bestPrediction.confidence}%`;
+      }
+
+      if (predictionText) {
+        return `${baseAnalysis}\n\n${predictionText}`;
+      }
+    }
+  }
+
+  return baseAnalysis;
 };
 
 const DEFAULT_STRATEGY: Required<Pick<StrategyConfig, "minConfidence" | "baseStake">> &
@@ -396,7 +499,7 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
           .from(DAILY_MATCHES_TABLE)
           .select('match_id')
           .in('date', [yesterdayStr, today])
-          .in('match_id', matchIds.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id)));
+          .in('match_id', matchIds.map(id => typeof id === 'string' ? parseInt(id) : id).filter((id): id is number => typeof id === 'number' && !isNaN(id)));
         
         const validMatchIds = new Set((todayMatches || []).map((m: any) => m.match_id));
         const filteredMatches = body.matches.filter(m => {
@@ -2121,8 +2224,13 @@ serve(async (req) => {
 
           // 从数据库市场赔率中获取大小球真实赔率
           let overUnderRealOdds: number | null = null;
-          if (overUnderPick && overUnderLine && savedMarketOdds?.overUnder) {
-            const matchedOdds = savedMarketOdds.overUnder.find(ou => Math.abs(ou.line - overUnderLine) < 0.01);
+          if (overUnderPick && overUnderLine !== undefined && savedMarketOdds?.overUnder) {
+            const matchedOdds = savedMarketOdds.overUnder.find(ou => {
+              const lineDiff = typeof ou.line === 'number' && typeof overUnderLine === 'number' 
+                ? Math.abs(ou.line - overUnderLine) 
+                : Infinity;
+              return lineDiff < 0.01;
+            });
             if (matchedOdds) {
               const selectedOdds = overUnderPick.toUpperCase() === 'OVER' ? matchedOdds.over : matchedOdds.under;
               // 确保选择的赔率在范围内
@@ -2244,6 +2352,7 @@ serve(async (req) => {
             moneylineBetInfo,
             overUnderBetInfo,
             handicapBetInfo,
+            allPredictions, // 添加完整预测信息
           };
         });
 
@@ -2425,13 +2534,14 @@ serve(async (req) => {
               reason = `置信度(${betType}: ${maxConfidence}%) 未达到下注标准或未被选中`;
             }
             
+            const rawAnalysis = matchAnalysis.analyses.find((a) => a.analysis)?.analysis ?? null;
             aiResults.push({
               matchId: matchAnalysis.match.matchId,
               aiId,
               aiDisplayName,
               analyses: matchAnalysis.analyses,
               analysisRefs: matchAnalysis.analysisRefs,
-              primaryAnalysis: matchAnalysis.analyses.find((a) => a.analysis)?.analysis ?? null,
+              primaryAnalysis: formatAnalysisResult(rawAnalysis, matchAnalysis.allPredictions),
               autoBet: {
                 placed: false,
                 reason,

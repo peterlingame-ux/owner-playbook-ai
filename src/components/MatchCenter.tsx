@@ -8,8 +8,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import {
   fetchFixtures,
+  fetchMatchLive,
 } from "@/lib/sportnanoapi";
-import type { FixtureResponse, Competition, DiaryMatch, DiaryTeam, FixturesListResponse } from "@/types/footballApi";
+import type { FixtureResponse, Competition, DiaryMatch, DiaryTeam, FixturesListResponse, MatchLiveData } from "@/types/footballApi";
 
 // 比赛数据接口
 interface VirtualMatch {
@@ -57,6 +58,7 @@ const MatchCenter = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [isLoadingMatches, setIsLoadingMatches] = useState(false);
   const [matchesError, setMatchesError] = useState<string | null>(null);
+  const [liveDataMap, setLiveDataMap] = useState<Map<number, MatchLiveData>>(new Map());
 
   const toggleFavorite = (matchId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -213,26 +215,85 @@ const MatchCenter = () => {
       case 10:
         // 上半场、中场、下半场、加时赛、点球决战、中断 -> 进行中
         status = 'live';
-        // 计算比赛进行时间（分钟）
-        if (matchTime > 0) {
-          const elapsedSeconds = now - matchTime;
-          const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-          if (elapsedMinutes > 0 && elapsedMinutes <= 150) { // 最多150分钟（包含加时）
-            minute = `${elapsedMinutes}'`;
+        
+        // 优先使用实时数据计算比赛时间
+        const liveData = liveDataMap.get(match.id);
+        if (liveData && liveData.score) {
+          const liveKickoffTime = liveData.score.kickoffTime;
+          const liveStatusId = liveData.score.status;
+          
+          if (liveKickoffTime && liveKickoffTime > 0) {
+            let displayMinutes: number;
+            
+            if (liveStatusId === 3) {
+              // 中场休息
+              minute = 'HT';
+            } else if (liveStatusId === 2) {
+              // 上半场：比赛进行分钟数 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
+              const elapsedSeconds = now - liveKickoffTime;
+              displayMinutes = Math.floor(elapsedSeconds / 60) + 1;
+              
+              // 格式化显示：如果大于45且状态不是中场，显示 45' + 具体时间
+              if (displayMinutes > 45) {
+                minute = `45'+${displayMinutes - 45}'`;
+              } else {
+                minute = `${displayMinutes}'`;
+              }
+            } else if (liveStatusId === 4) {
+              // 下半场：比赛进行分钟数 = (当前时间戳 - 下半场开球时间戳) / 60 + 45 + 1
+              const totalElapsedSeconds = now - liveKickoffTime;
+              displayMinutes = Math.floor(totalElapsedSeconds / 60) + 45 + 1;
+              
+              // 格式化显示：如果大于90，显示 90' + 具体时间
+              if (displayMinutes > 90) {
+                minute = `90'+${displayMinutes - 90}'`;
+              } else {
+                minute = `${displayMinutes}'`;
+              }
+            } else {
+              // 其他状态，使用默认逻辑
+              if (statusId === 5 || statusId === 6) {
+                minute = 'ET';
+              } else if (statusId === 7) {
+                minute = 'PEN';
+              } else if (statusId === 10) {
+                minute = '中断';
+              }
+            }
+          } else {
+            // 实时数据无效，使用默认逻辑
+            if (statusId === 3) {
+              minute = 'HT';
+            } else if (statusId === 5 || statusId === 6) {
+              minute = 'ET';
+            } else if (statusId === 7) {
+              minute = 'PEN';
+            } else if (statusId === 10) {
+              minute = '中断';
+            }
           }
-        }
-        // 根据 status_id 显示不同的分钟数标识
-        if (statusId === 3) {
-          minute = 'HT'; // 中场
-        } else if (statusId === 5 || statusId === 6) {
-          // 加时赛，可以显示 ET (Extra Time)
-          if (!minute) minute = 'ET';
-        } else if (statusId === 7) {
-          // 点球决战
-          if (!minute) minute = 'PEN';
-        } else if (statusId === 10) {
-          // 中断
-          if (!minute) minute = '中断';
+        } else {
+          // 没有实时数据，使用默认逻辑计算比赛进行时间（分钟）
+          if (matchTime > 0) {
+            const elapsedSeconds = now - matchTime;
+            const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+            if (elapsedMinutes > 0 && elapsedMinutes <= 150) { // 最多150分钟（包含加时）
+              minute = `${elapsedMinutes}'`;
+            }
+          }
+          // 根据 status_id 显示不同的分钟数标识
+          if (statusId === 3) {
+            minute = 'HT'; // 中场
+          } else if (statusId === 5 || statusId === 6) {
+            // 加时赛，可以显示 ET (Extra Time)
+            if (!minute) minute = 'ET';
+          } else if (statusId === 7) {
+            // 点球决战
+            if (!minute) minute = 'PEN';
+          } else if (statusId === 10) {
+            // 中断
+            if (!minute) minute = '中断';
+          }
         }
         break;
       case 8:
@@ -433,6 +494,85 @@ const MatchCenter = () => {
     };
   };
 
+  // 获取实时比赛数据
+  const fetchLiveData = async () => {
+    try {
+      const liveResponse = await fetchMatchLive();
+      if (liveResponse && liveResponse.results) {
+        const liveMap = new Map<number, MatchLiveData>();
+        liveResponse.results.forEach((live) => {
+          liveMap.set(live.id, live);
+        });
+        setLiveDataMap(liveMap);
+        return liveMap;
+      }
+    } catch (error) {
+      console.error('Failed to fetch live data:', error);
+      // 实时数据获取失败不影响主流程，只记录错误
+    }
+    return new Map<number, MatchLiveData>();
+  };
+
+  // 更新已开始比赛的时间显示
+  const updateLiveMatchesTime = (liveMap: Map<number, MatchLiveData>) => {
+    setMatches(prevMatches => {
+      return prevMatches.map(match => {
+        if (match.status !== 'live') {
+          return match;
+        }
+
+        const liveData = liveMap.get(parseInt(match.id));
+        if (!liveData || !liveData.score) {
+          return match;
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const kickoffTime = liveData.score.kickoffTime;
+        const liveStatusId = liveData.score.status;
+
+        if (!kickoffTime || kickoffTime <= 0) {
+          return match;
+        }
+
+        let displayMinutes: number;
+        let minute: string | undefined;
+
+        if (liveStatusId === 3) {
+          // 中场休息
+          minute = 'HT';
+        } else if (liveStatusId === 2) {
+          // 上半场：比赛进行分钟数 = (当前时间戳 - 上半场开球时间戳) / 60 + 1
+          const elapsedSeconds = now - kickoffTime;
+          displayMinutes = Math.floor(elapsedSeconds / 60) + 1;
+          
+          // 格式化显示：如果大于45且状态不是中场，显示 45' + 具体时间
+          if (displayMinutes > 45) {
+            minute = `45'+${displayMinutes - 45}'`;
+          } else {
+            minute = `${displayMinutes}'`;
+          }
+        } else if (liveStatusId === 4) {
+          // 下半场：比赛进行分钟数 = (当前时间戳 - 下半场开球时间戳) / 60 + 45 + 1
+          const totalElapsedSeconds = now - kickoffTime;
+          displayMinutes = Math.floor(totalElapsedSeconds / 60) + 45 + 1;
+          
+          // 格式化显示：如果大于90，显示 90' + 具体时间
+          if (displayMinutes > 90) {
+            minute = `90'+${displayMinutes - 90}'`;
+          } else {
+            minute = `${displayMinutes}'`;
+          }
+        }
+
+        if (minute) {
+          return { ...match, minute };
+        }
+
+        return match;
+      });
+    });
+  };
+
   // 获取比赛数据的函数
   const fetchMatches = async () => {
     // 如果正在加载中，不重复请求
@@ -488,11 +628,19 @@ const MatchCenter = () => {
       const teams = Array.isArray(response.results.team) ? response.results.team : [];
       const competitions = Array.isArray(response.results.competition) ? response.results.competition : [];
       
+      // 先获取实时数据
+      const liveMap = await fetchLiveData();
+      
       // 转换为界面需要的格式（直接传入数组，在函数内部查找）
       const convertedMatches = response.results.match
         .filter((match: DiaryMatch) => match && match.id)
         .map((match: DiaryMatch) => convertDiaryMatchToMatch(match, teams, competitions));
       setMatches(convertedMatches);
+      
+      // 如果有实时数据，更新已开始比赛的时间
+      if (liveMap.size > 0) {
+        updateLiveMatchesTime(liveMap);
+      }
       
       // 更新收藏状态
       const favoriteIds = new Set(convertedMatches.filter(m => m.isFavorite).map(m => m.id));
@@ -528,6 +676,23 @@ const MatchCenter = () => {
     // 清理定时器
     return () => clearInterval(interval);
   }, [isLoadingMatches]); // 依赖 isLoadingMatches，确保使用最新的状态
+
+  // 每10秒更新实时数据和时间显示（仅针对已开始的比赛）
+  useEffect(() => {
+    const hasLiveMatches = matches.some(m => m.status === 'live');
+    if (!hasLiveMatches) {
+      return;
+    }
+
+    const updateInterval = setInterval(async () => {
+      const liveMap = await fetchLiveData();
+      if (liveMap.size > 0) {
+        updateLiveMatchesTime(liveMap);
+      }
+    }, 10000); // 每10秒更新一次
+
+    return () => clearInterval(updateInterval);
+  }, [matches]); // 依赖 matches，当比赛列表变化时重新设置定时器
 
   const handleAllTabClick = async () => {
     setActiveTab('all');
