@@ -1456,36 +1456,90 @@ const ActiveAIBets = () => {
           // 如果让分投注存在，使用 allMarketOdds 中的赔率数据
           if (handicapBet && marketOdds?.handicap && marketOdds.handicap.length > 0) {
             const handicapLine = handicapBet.handicapLine;
-            const matchingHandicap = marketOdds.handicap.find(h => {
-              const hLine = typeof h.line === 'number' ? h.line : parseFloat(String(h.line)) || 0;
-              return Math.abs(hLine - (handicapLine || 0)) < 0.01; // 允许小的浮点数误差
+            
+            // 精确匹配：先尝试字符串完全匹配，再尝试数字匹配
+            let matchingHandicap = marketOdds.handicap.find(h => {
+              // 如果 line 是字符串，直接比较字符串
+              if (typeof h.line === 'string' && typeof handicapLine === 'number') {
+                // 将数字转换为字符串进行比较（例如 -2 转换为 "-2"）
+                return h.line === String(handicapLine);
+              }
+              // 如果都是数字，直接比较
+              if (typeof h.line === 'number' && typeof handicapLine === 'number') {
+                return Math.abs(h.line - handicapLine) < 0.01;
+              }
+              // 如果都是字符串，直接比较
+              if (typeof h.line === 'string' && typeof handicapLine === 'string') {
+                return h.line === handicapLine;
+              }
+              return false;
             });
+            
+            // 如果精确匹配失败，尝试数字匹配（兼容旧数据）
+            if (!matchingHandicap && typeof handicapLine === 'number') {
+              matchingHandicap = marketOdds.handicap.find(h => {
+                const hLine = typeof h.line === 'number' ? h.line : parseFloat(String(h.line)) || 0;
+                // 只有当解析后的值完全相等时才匹配（避免 '-2/2.5' 被误匹配为 -2）
+                return !isNaN(hLine) && Math.abs(hLine - handicapLine) < 0.01 && 
+                       (typeof h.line === 'number' || String(h.line) === String(handicapLine));
+              });
+            }
             
             if (matchingHandicap) {
               // 根据预测方向选择对应的赔率
               const isHome = handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME";
-              handicapBet = {
-                ...handicapBet,
-                odds: isHome ? matchingHandicap.home : matchingHandicap.away,
-              };
+              const matchedOdds = isHome ? matchingHandicap.home : matchingHandicap.away;
+              if (matchedOdds && matchedOdds > 0) {
+                handicapBet = {
+                  ...handicapBet,
+                  odds: matchedOdds,
+                };
+              }
             }
           }
           
           // 如果大小球投注存在，使用 allMarketOdds 中的赔率数据
           if (overUnderBet && marketOdds?.overUnder && marketOdds.overUnder.length > 0) {
             const overUnderLine = overUnderBet.overUnderLine;
-            const matchingOverUnder = marketOdds.overUnder.find(ou => {
-              const ouLine = typeof ou.line === 'number' ? ou.line : parseFloat(String(ou.line)) || 0;
-              return Math.abs(ouLine - (overUnderLine || 0)) < 0.01; // 允许小的浮点数误差
+            
+            // 精确匹配：先尝试字符串完全匹配，再尝试数字匹配
+            let matchingOverUnder = marketOdds.overUnder.find(ou => {
+              // 如果 line 是字符串，直接比较字符串
+              if (typeof ou.line === 'string' && typeof overUnderLine === 'number') {
+                // 将数字转换为字符串进行比较（例如 2.5 转换为 "2.5"）
+                return ou.line === String(overUnderLine);
+              }
+              // 如果都是数字，直接比较
+              if (typeof ou.line === 'number' && typeof overUnderLine === 'number') {
+                return Math.abs(ou.line - overUnderLine) < 0.01;
+              }
+              // 如果都是字符串，直接比较
+              if (typeof ou.line === 'string' && typeof overUnderLine === 'string') {
+                return ou.line === overUnderLine;
+              }
+              return false;
             });
+            
+            // 如果精确匹配失败，尝试数字匹配（兼容旧数据）
+            if (!matchingOverUnder && typeof overUnderLine === 'number') {
+              matchingOverUnder = marketOdds.overUnder.find(ou => {
+                const ouLine = typeof ou.line === 'number' ? ou.line : parseFloat(String(ou.line)) || 0;
+                // 只有当解析后的值完全相等时才匹配（避免 '2.5/3' 被误匹配为 2.5）
+                return !isNaN(ouLine) && Math.abs(ouLine - overUnderLine) < 0.01 && 
+                       (typeof ou.line === 'number' || String(ou.line) === String(overUnderLine));
+              });
+            }
             
             if (matchingOverUnder) {
               // 根据预测方向选择对应的赔率
               const isOver = overUnderBet.overUnderPick === "over";
-              overUnderBet = {
-                ...overUnderBet,
-                odds: isOver ? matchingOverUnder.over : matchingOverUnder.under,
-              };
+              const matchedOdds = isOver ? matchingOverUnder.over : matchingOverUnder.under;
+              if (matchedOdds && matchedOdds > 0) {
+                overUnderBet = {
+                  ...overUnderBet,
+                  odds: matchedOdds,
+                };
+              }
             }
           }
           
@@ -1966,9 +2020,103 @@ const ActiveAIBets = () => {
           const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
           
           // Separate bets by type
-          const moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
-          const handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
-          const overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          let moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+          let handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
+          let overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+          
+          // Get market odds from ai_match_analyses.bet_snapshot.allMarketOdds
+          const predictionKey = currentMatchData?.match ? `${currentMatchData.match.mid}_hunsoccermax` : '';
+          const marketOdds = predictionKey ? marketOddsMap[predictionKey] : null;
+          
+          // 如果让分投注存在，使用 allMarketOdds 中的赔率数据
+          if (handicapBet && marketOdds?.handicap && marketOdds.handicap.length > 0) {
+            const handicapLine = handicapBet.handicapLine;
+            
+            // 精确匹配：先尝试字符串完全匹配，再尝试数字匹配
+            let matchingHandicap = marketOdds.handicap.find(h => {
+              // 如果 line 是字符串，直接比较字符串
+              if (typeof h.line === 'string' && typeof handicapLine === 'number') {
+                // 将数字转换为字符串进行比较（例如 -2 转换为 "-2"）
+                return h.line === String(handicapLine);
+              }
+              // 如果都是数字，直接比较
+              if (typeof h.line === 'number' && typeof handicapLine === 'number') {
+                return Math.abs(h.line - handicapLine) < 0.01;
+              }
+              // 如果都是字符串，直接比较
+              if (typeof h.line === 'string' && typeof handicapLine === 'string') {
+                return h.line === handicapLine;
+              }
+              return false;
+            });
+            
+            // 如果精确匹配失败，尝试数字匹配（兼容旧数据）
+            if (!matchingHandicap && typeof handicapLine === 'number') {
+              matchingHandicap = marketOdds.handicap.find(h => {
+                const hLine = typeof h.line === 'number' ? h.line : parseFloat(String(h.line)) || 0;
+                // 只有当解析后的值完全相等时才匹配（避免 '-2/2.5' 被误匹配为 -2）
+                return !isNaN(hLine) && Math.abs(hLine - handicapLine) < 0.01 && 
+                       (typeof h.line === 'number' || String(h.line) === String(handicapLine));
+              });
+            }
+            
+            if (matchingHandicap) {
+              // 根据预测方向选择对应的赔率
+              const isHome = handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME";
+              const matchedOdds = isHome ? matchingHandicap.home : matchingHandicap.away;
+              if (matchedOdds && matchedOdds > 0) {
+                handicapBet = {
+                  ...handicapBet,
+                  odds: matchedOdds,
+                };
+              }
+            }
+          }
+          
+          // 如果大小球投注存在，使用 allMarketOdds 中的赔率数据
+          if (overUnderBet && marketOdds?.overUnder && marketOdds.overUnder.length > 0) {
+            const overUnderLine = overUnderBet.overUnderLine;
+            
+            // 精确匹配：先尝试字符串完全匹配，再尝试数字匹配
+            let matchingOverUnder = marketOdds.overUnder.find(ou => {
+              // 如果 line 是字符串，直接比较字符串
+              if (typeof ou.line === 'string' && typeof overUnderLine === 'number') {
+                // 将数字转换为字符串进行比较（例如 2.5 转换为 "2.5"）
+                return ou.line === String(overUnderLine);
+              }
+              // 如果都是数字，直接比较
+              if (typeof ou.line === 'number' && typeof overUnderLine === 'number') {
+                return Math.abs(ou.line - overUnderLine) < 0.01;
+              }
+              // 如果都是字符串，直接比较
+              if (typeof ou.line === 'string' && typeof overUnderLine === 'string') {
+                return ou.line === overUnderLine;
+              }
+              return false;
+            });
+            
+            // 如果精确匹配失败，尝试数字匹配（兼容旧数据）
+            if (!matchingOverUnder && typeof overUnderLine === 'number') {
+              matchingOverUnder = marketOdds.overUnder.find(ou => {
+                const ouLine = typeof ou.line === 'number' ? ou.line : parseFloat(String(ou.line)) || 0;
+                // 只有当解析后的值完全相等时才匹配（避免 '2.5/3' 被误匹配为 2.5）
+                return !isNaN(ouLine) && Math.abs(ouLine - overUnderLine) < 0.01 && 
+                       (typeof ou.line === 'number' || String(ou.line) === String(overUnderLine));
+              });
+            }
+            
+            if (matchingOverUnder) {
+              // 根据预测方向选择对应的赔率
+              const isOver = overUnderBet.overUnderPick === "over";
+              const matchedOdds = isOver ? matchingOverUnder.over : matchingOverUnder.under;
+              if (matchedOdds && matchedOdds > 0) {
+                overUnderBet = {
+                  ...overUnderBet,
+                  odds: matchedOdds,
+                };
+              }
+            }
+          }
           
           // Get AI balance
           const balance = aiBalances['hunsoccermax'];
