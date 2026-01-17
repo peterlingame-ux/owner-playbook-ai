@@ -1418,8 +1418,8 @@ const PlayerExclusiveModelCard = ({
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {((confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine) > 0 ? '+' : ''}
-                              {(confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine}
+                              {confirmedManualBet.handicapLine > 0 ? '+' : ''}
+                              {confirmedManualBet.handicapLine}
                             </span>
                           )}
                         </div>
@@ -1433,8 +1433,8 @@ const PlayerExclusiveModelCard = ({
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {((confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine) > 0 ? '+' : ''}
-                              {(confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN") ? confirmedManualBet.handicapLine : -confirmedManualBet.handicapLine}
+                              {-confirmedManualBet.handicapLine > 0 ? '+' : ''}
+                              {-confirmedManualBet.handicapLine}
                             </span>
                           )}
                         </div>
@@ -1541,8 +1541,8 @@ const PlayerExclusiveModelCard = ({
                         <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                           handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
                         }`}>
-                          {((handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
-                          {(handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                          {handicapBet.handicapLine > 0 ? '+' : ''}
+                          {handicapBet.handicapLine}
                         </span>
                       )}
                     </div>
@@ -1556,8 +1556,8 @@ const PlayerExclusiveModelCard = ({
                         <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                           handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
                         }`}>
-                          {((handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine) > 0 ? '+' : ''}
-                          {(handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY") ? handicapBet.handicapLine : -handicapBet.handicapLine}
+                          {-handicapBet.handicapLine > 0 ? '+' : ''}
+                          {-handicapBet.handicapLine}
                         </span>
                       )}
                     </div>
