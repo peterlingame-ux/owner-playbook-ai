@@ -564,6 +564,7 @@ type MatchAnalysis = {
   model_identifier?: string;
   analysis_text?: string;
   analysis?: string; // 数据库可能返回 analysis 字段
+  bet_snapshot?: any; // bet_snapshot 包含预测信息
   created_at?: string;
   inserted_at?: string;
 };
@@ -1039,15 +1040,305 @@ const ActiveAIBets = () => {
         return;
       }
 
+      // 解析分析文本，提取结构化信息
+      const parseAnalysisText = (content: string) => {
+        const result = {
+          ownerAnalysis: '',
+          playerAnalysis: '',
+          oddsAnalysis: '',
+        };
+
+        if (!content) return result;
+
+        const lines = content.split('\n');
+        let currentSection: 'owner' | 'player' | 'odds' | 'other' = 'other';
+        let currentContent: string[] = [];
+
+        // 预测行已经在 filterAnalysisText 中处理过了（转换为中文）
+        // 这里只需要跳过预测行，不归类到任何章节
+        const predictionPatterns = [
+          /PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s+([\d.]+)\s+(\d+)/i,
+          /PREDICTION_HANDICAP:\s*(HOME|AWAY)\s+([-\d.]+)\s+(\d+)/i,
+          /PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s+(\d+)/i, // 也过滤掉 MONEYLINE
+          /^预测(胜负|大小球|让球):/i, // 也匹配已转换的中文预测行
+        ];
+
+        // 直接使用所有行进行解析（预测行会在后面被跳过）
+        const processedLines = lines;
+
+        // 使用处理后的行继续解析结构化信息
+        for (const line of processedLines) {
+          const trimmed = line.trim();
+          
+          // 跳过预测行（预测行会在最后单独处理，不归类到任何章节）
+          const isPredictionLine = /^预测(胜负|大小球|让球):/i.test(trimmed) || 
+                                   predictionPatterns.some(pattern => pattern.test(trimmed));
+          if (isPredictionLine) {
+            continue; // 完全跳过预测行，不添加到任何章节
+          }
+
+          if (!trimmed) {
+            // 保留空行，但只在有内容时才添加
+            if (currentContent.length > 0) {
+              currentContent.push('');
+            }
+            continue;
+          }
+
+          // 识别章节标题（支持多种格式：**标题**、# 标题、纯文本标题）
+          // 球队老板层面分析
+          const isOwnerSection = /^[*#]{1,3}\s*球队老板层面分析|^[*#]{1,3}\s*老板层面分析|^[*#]{1,3}\s*老板/i.test(trimmed) ||
+                                 /^\*\*球队老板层面分析\*\*$/i.test(trimmed) ||
+                                 trimmed === '球队老板层面分析' ||
+                                 (trimmed.includes('老板') && trimmed.includes('层面') && trimmed.includes('分析') && trimmed.length < 30);
+          
+          // 球员技术面拆解
+          const isPlayerSection = /^[*#]{1,3}\s*球员技术面拆解|^[*#]{1,3}\s*球员技术|^[*#]{1,3}\s*技术面/i.test(trimmed) ||
+                                 /^\*\*球员技术面拆解\*\*$/i.test(trimmed) ||
+                                 trimmed === '球员技术面拆解' ||
+                                 (trimmed.includes('球员') && trimmed.includes('技术') && trimmed.includes('拆解') && trimmed.length < 30);
+          
+          // 异常赔率监测
+          const isOddsSection = /^[*#]{1,3}\s*异常赔率监测|^[*#]{1,3}\s*赔率监测|^[*#]{1,3}\s*异常赔率/i.test(trimmed) ||
+                               /^\*\*异常赔率监测\*\*$/i.test(trimmed) ||
+                               trimmed === '异常赔率监测' ||
+                               (trimmed.includes('赔率') && trimmed.includes('异常') && trimmed.includes('监测') && trimmed.length < 30);
+
+          if (isOwnerSection) {
+            // 保存当前章节内容
+            if (currentContent.length > 0) {
+              if (currentSection === 'owner') result.ownerAnalysis += currentContent.join('\n') + '\n';
+              else if (currentSection === 'player') result.playerAnalysis += currentContent.join('\n') + '\n';
+              else if (currentSection === 'odds') result.oddsAnalysis += currentContent.join('\n') + '\n';
+            }
+            // 切换到新章节
+            currentSection = 'owner';
+            currentContent = [];
+            continue; // 跳过标题行本身
+          }
+          
+          if (isPlayerSection) {
+            // 保存当前章节内容
+            if (currentContent.length > 0) {
+              if (currentSection === 'owner') result.ownerAnalysis += currentContent.join('\n') + '\n';
+              else if (currentSection === 'player') result.playerAnalysis += currentContent.join('\n') + '\n';
+              else if (currentSection === 'odds') result.oddsAnalysis += currentContent.join('\n') + '\n';
+            }
+            // 切换到新章节
+            currentSection = 'player';
+            currentContent = [];
+            continue; // 跳过标题行本身
+          }
+          
+          if (isOddsSection) {
+            // 保存当前章节内容
+            if (currentContent.length > 0) {
+              if (currentSection === 'owner') result.ownerAnalysis += currentContent.join('\n') + '\n';
+              else if (currentSection === 'player') result.playerAnalysis += currentContent.join('\n') + '\n';
+              else if (currentSection === 'odds') result.oddsAnalysis += currentContent.join('\n') + '\n';
+            }
+            // 切换到新章节
+            currentSection = 'odds';
+            currentContent = [];
+            continue; // 跳过标题行本身
+          }
+
+          // 普通内容行，添加到当前章节
+          currentContent.push(line);
+        }
+
+        // 处理最后一部分内容
+        if (currentContent.length > 0) {
+          if (currentSection === 'owner') result.ownerAnalysis += currentContent.join('\n');
+          else if (currentSection === 'player') result.playerAnalysis += currentContent.join('\n');
+          else if (currentSection === 'odds') result.oddsAnalysis += currentContent.join('\n');
+        }
+
+        // 清理空白内容
+        result.ownerAnalysis = result.ownerAnalysis.trim();
+        result.playerAnalysis = result.playerAnalysis.trim();
+        result.oddsAnalysis = result.oddsAnalysis.trim();
+
+        return result;
+      };
+
+      // 从 bet_snapshot 中提取最高置信度预测
+      // 优先在 PREDICTION_OVER_UNDER 和 PREDICTION_HANDICAP 之间选择置信度更高的
+      const extractHighestConfidencePrediction = (betSnapshot: any) => {
+        if (!betSnapshot) return undefined;
+
+        const predictions = [];
+        
+        // 优先提取 handicap 和 overUnder 预测（这两个字段中选择置信度高的）
+        if (betSnapshot.handicap) {
+          predictions.push({
+            type: 'handicap',
+            prediction: betSnapshot.handicap.prediction,
+            confidence: betSnapshot.handicap.confidence || 0,
+            odds: betSnapshot.handicap.odds,
+            handicapLine: betSnapshot.handicap.line,
+          });
+        }
+        if (betSnapshot.overUnder) {
+          predictions.push({
+            type: 'over_under',
+            prediction: betSnapshot.overUnder.prediction,
+            confidence: betSnapshot.overUnder.confidence || 0,
+            odds: betSnapshot.overUnder.odds,
+            overUnderLine: betSnapshot.overUnder.line,
+            overUnderPick: betSnapshot.overUnder.prediction === 'OVER' ? 'over' : 'under',
+          });
+        }
+
+        // 如果 handicap 和 overUnder 都不存在，才考虑 moneyline
+        if (predictions.length === 0 && betSnapshot.moneyline) {
+          predictions.push({
+            type: 'moneyline',
+            prediction: betSnapshot.moneyline.prediction,
+            confidence: betSnapshot.moneyline.confidence || 0,
+            odds: betSnapshot.moneyline.odds,
+          });
+        }
+
+        // 找到置信度最高的预测
+        if (predictions.length === 0) return undefined;
+        const highest = predictions.reduce((max, pred) => 
+          (pred.confidence > max.confidence) ? pred : max
+        );
+
+        return highest;
+      };
+
+      // 将预测行转换为中文
+      const convertPredictionToChinese = (predictionLine: string): string => {
+        const trimmed = predictionLine.trim();
+        
+        // PREDICTION_MONEYLINE: HOME_WIN 63
+        const moneylineMatch = trimmed.match(/PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s+(\d+)/i);
+        if (moneylineMatch) {
+          const prediction = moneylineMatch[1];
+          const confidence = moneylineMatch[2];
+          const predictionZh = prediction === 'HOME_WIN' ? '主队胜' : 
+                               prediction === 'AWAY_WIN' ? '客队胜' : '平局';
+          return `预测胜负: ${predictionZh} ${confidence}%`;
+        }
+        
+        // PREDICTION_OVER_UNDER: OVER 2.5 60
+        const overUnderMatch = trimmed.match(/PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s+([\d.]+)\s+(\d+)/i);
+        if (overUnderMatch) {
+          const pick = overUnderMatch[1];
+          const line = overUnderMatch[2];
+          const confidence = overUnderMatch[3];
+          const pickZh = pick === 'OVER' ? '大球' : '小球';
+          return `预测大小球: ${pickZh} ${line} ${confidence}%`;
+        }
+        
+        // PREDICTION_HANDICAP: HOME 0.5 65
+        const handicapMatch = trimmed.match(/PREDICTION_HANDICAP:\s*(HOME|AWAY)\s+([-\d.]+)\s+(\d+)/i);
+        if (handicapMatch) {
+          const team = handicapMatch[1];
+          const line = handicapMatch[2];
+          const confidence = handicapMatch[3];
+          const teamZh = team === 'HOME' ? '主队' : '客队';
+          const lineStr = parseFloat(line) > 0 ? `+${line}` : line;
+          return `预测让球: ${teamZh} ${lineStr} ${confidence}%`;
+        }
+        
+        // 如果无法匹配，返回原行
+        return predictionLine;
+      };
+
+      // 过滤分析文本，只保留置信度最高的预测行并转换为中文
+      // 只在 PREDICTION_OVER_UNDER 和 PREDICTION_HANDICAP 之间选择置信度更高的
+      // PREDICTION_MONEYLINE 会被过滤掉，不显示
+      const filterAnalysisText = (content: string) => {
+        if (!content) return content;
+
+        const lines = content.split('\n');
+        // 只处理 OVER_UNDER 和 HANDICAP 预测，不处理 MONEYLINE
+        const predictionPatterns = [
+          /PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s+([\d.]+)\s+(\d+)/i,
+          /PREDICTION_HANDICAP:\s*(HOME|AWAY)\s+([-\d.]+)\s+(\d+)/i,
+        ];
+        // MONEYLINE 模式，用于识别和过滤（不加入 predictions）
+        const moneylinePattern = /PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s+(\d+)/i;
+
+        let predictions: Array<{ line: string; confidence: number; originalLine: string }> = [];
+        const filteredLines: string[] = [];
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          let isPredictionLine = false;
+
+          // 先检查是否是 MONEYLINE（需要过滤掉）
+          if (moneylinePattern.test(trimmed)) {
+            isPredictionLine = true; // 标记为预测行，但不加入 predictions，直接跳过
+          } else {
+            // 检查是否是 OVER_UNDER 或 HANDICAP 预测
+            for (const pattern of predictionPatterns) {
+              const match = trimmed.match(pattern);
+              if (match) {
+                const confidence = parseInt(match[match.length - 1], 10);
+                if (!isNaN(confidence)) {
+                  predictions.push({
+                    line: trimmed,
+                    confidence,
+                    originalLine: line,
+                  });
+                  isPredictionLine = true;
+                  break;
+                }
+              }
+            }
+          }
+
+          // 如果不是预测行，保留原行
+          if (!isPredictionLine) {
+            filteredLines.push(line);
+          }
+        }
+
+        // 找到置信度最高的预测，转换为中文后添加到文本末尾
+        if (predictions.length > 0) {
+          const highestPrediction = predictions.reduce((max, pred) => 
+            pred.confidence > max.confidence ? pred : max
+          );
+          // 将最高置信度的预测行转换为中文后添加到文本末尾
+          const chinesePrediction = convertPredictionToChinese(highestPrediction.originalLine);
+          // 在文本末尾添加预测行（如果文本不为空，先添加换行）
+          if (filteredLines.length > 0 && filteredLines[filteredLines.length - 1].trim()) {
+            filteredLines.push('');
+          }
+          filteredLines.push(chinesePrediction);
+        }
+
+        return filteredLines.join('\n');
+      };
+
       // 转换分析数据格式
       const analyses: ModelAnalysis[] = (analysisData as unknown as MatchAnalysis[]).map((analysisItem) => {
-        const analysisText = analysisItem.analysis_text || analysisItem.analysis || '';
+        const originalAnalysisText = analysisItem.analysis_text || analysisItem.analysis || '';
+        
+        // 过滤分析文本，只保留置信度最高的预测行
+        const filteredAnalysisText = filterAnalysisText(originalAnalysisText);
+        
+        // 解析分析文本，提取结构化信息（使用过滤后的文本）
+        const structuredAnalysis = parseAnalysisText(filteredAnalysisText);
+        
+        // 从 bet_snapshot 中提取最高置信度预测
+        const highestConfidencePrediction = extractHighestConfidencePrediction(
+          analysisItem.bet_snapshot
+        );
         
         return {
           id: analysisItem.provider_model_id || analysisItem.ai_id || 'unknown',
           displayName: aiModel.displayName,
           model: analysisItem.provider_model_id || analysisItem.model_identifier || 'unknown',
-          analysis: analysisText,
+          analysis: filteredAnalysisText, // 使用过滤后的文本
+          structuredAnalysis: structuredAnalysis.ownerAnalysis || structuredAnalysis.playerAnalysis || structuredAnalysis.oddsAnalysis
+            ? structuredAnalysis
+            : undefined,
+          highestConfidencePrediction,
         };
       });
 

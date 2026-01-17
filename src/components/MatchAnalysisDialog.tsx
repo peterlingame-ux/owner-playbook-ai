@@ -16,6 +16,22 @@ export type ModelAnalysis = {
   analysis?: string;
   error?: string;
   latencyMs?: number;
+  // 结构化分析数据
+  structuredAnalysis?: {
+    ownerAnalysis?: string;      // 球队老板层面分析
+    playerAnalysis?: string;     // 球员技术面拆解
+    oddsAnalysis?: string;       // 异常赔率监测
+  };
+  // 最高置信度预测
+  highestConfidencePrediction?: {
+    type: string;               // 预测类型 (moneyline/handicap/over_under)
+    prediction: string;         // 预测结果
+    confidence: number;         // 置信度
+    odds?: number;              // 赔率
+    handicapLine?: number;      // 让分线
+    overUnderLine?: number;     // 大小球线
+    overUnderPick?: string;     // 大小球选择
+  };
 };
 
 interface MatchAnalysisDialogProps {
@@ -30,6 +46,7 @@ interface MatchAnalysisDialogProps {
     league: string;
   };
 }
+
 
 const renderAnalysisContent = (content: string) => (
   <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -62,6 +79,41 @@ const renderAnalysisContent = (content: string) => (
         </p>
       );
     })}
+  </div>
+);
+
+// 渲染结构化分析内容
+const renderStructuredAnalysis = (structured: ModelAnalysis['structuredAnalysis']) => (
+  <div className="space-y-6">
+    {/* 球队老板层面分析 */}
+    {structured?.ownerAnalysis && (
+      <div className="space-y-2">
+        <h3 className="text-base font-bold text-primary">球队老板层面分析</h3>
+        <div className="rounded-md border border-border/50 bg-muted/20 p-4">
+          {renderAnalysisContent(structured.ownerAnalysis)}
+        </div>
+      </div>
+    )}
+
+    {/* 球员技术面拆解 */}
+    {structured?.playerAnalysis && (
+      <div className="space-y-2">
+        <h3 className="text-base font-bold text-primary">球员技术面拆解</h3>
+        <div className="rounded-md border border-border/50 bg-muted/20 p-4">
+          {renderAnalysisContent(structured.playerAnalysis)}
+        </div>
+      </div>
+    )}
+
+    {/* 异常赔率监测 */}
+    {structured?.oddsAnalysis && (
+      <div className="space-y-2">
+        <h3 className="text-base font-bold text-primary">异常赔率监测</h3>
+        <div className="rounded-md border border-border/50 bg-muted/20 p-4">
+          {renderAnalysisContent(structured.oddsAnalysis)}
+        </div>
+      </div>
+    )}
   </div>
 );
 
@@ -120,7 +172,11 @@ export const MatchAnalysisDialog = ({
                       )}
                     </div>
                     {model.analysis ? (
-                      renderAnalysisContent(model.analysis)
+                      model.structuredAnalysis ? (
+                        renderStructuredAnalysis(model.structuredAnalysis)
+                      ) : (
+                        renderAnalysisContent(model.analysis)
+                      )
                     ) : (
                       <div className="rounded-md border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
                         {model.error || "该模型未返回分析结果"}
