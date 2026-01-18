@@ -1647,26 +1647,32 @@ const ActiveAIBets = () => {
           // Get current match index for this AI (default to 0)
           const matchIndex = currentMatchIndex[aiModel.id] || 0;
           
-          // 五大联赛优先级定义（按优先级排序）
+          // 优先联赛列表（按优先级排序）
           const top5Leagues = [
             '英格兰超级联赛',
             '德国甲级联赛',
             '西班牙甲级联赛',
             '意大利甲级联赛',
-            '法国甲级联赛'
+            '法国甲级联赛',
+            '荷兰甲级联赛',
+            '葡萄牙超级联赛',
+            '西班牙乙级联赛',
+            '意大利乙级联赛',
+            '土耳其超级联赛',
+            '德国乙级联赛',
           ];
           
           // 获取联赛优先级（数字越小优先级越高）
           const getLeaguePriority = (leagueName: string | null | undefined): number => {
             if (!leagueName) return 999; // 没有联赛信息的排在最后
             const index = top5Leagues.indexOf(leagueName);
-            return index === -1 ? 100 : index; // 五大联赛返回0-4，其他联赛返回100
+            return index === -1 ? 100 : index; // 优先联赛返回0-10，其他联赛返回100
           };
           
           // Sort matchEntries with priority:
           // 1. Started matches (live) first, then upcoming matches
           // 2. Within same time group, sort by kickoff time (earlier first)
-          // 3. For matches at the same time, prioritize top 5 leagues
+          // 3. For matches at the same time, prioritize top leagues
           const now = Date.now();
           const matchEntries = Array.from(betsByMatch.values())
             .filter(entry => {
@@ -2252,26 +2258,32 @@ const ActiveAIBets = () => {
           // Get current match index for hunsoccermax
           const matchIndex = currentMatchIndex['hunsoccermax'] || 0;
           
-          // 五大联赛优先级定义（按优先级排序）
+          // 优先联赛列表（按优先级排序）
           const top5Leagues = [
             '英格兰超级联赛',
             '德国甲级联赛',
             '西班牙甲级联赛',
             '意大利甲级联赛',
-            '法国甲级联赛'
+            '法国甲级联赛',
+            '荷兰甲级联赛',
+            '葡萄牙超级联赛',
+            '西班牙乙级联赛',
+            '意大利乙级联赛',
+            '土耳其超级联赛',
+            '德国乙级联赛',
           ];
           
           // 获取联赛优先级（数字越小优先级越高）
           const getLeaguePriority = (leagueName: string | null | undefined): number => {
             if (!leagueName) return 999; // 没有联赛信息的排在最后
             const index = top5Leagues.indexOf(leagueName);
-            return index === -1 ? 100 : index; // 五大联赛返回0-4，其他联赛返回100
+            return index === -1 ? 100 : index; // 优先联赛返回0-10，其他联赛返回100
           };
           
           // Sort matchEntries with priority:
           // 1. Started matches (live) first, then upcoming matches
           // 2. Within same time group, sort by kickoff time (earlier first)
-          // 3. For matches at the same time, prioritize top 5 leagues
+          // 3. For matches at the same time, prioritize top leagues
           const now = Date.now();
           const matchEntries = Array.from(betsByMatch.values())
             .filter(entry => {

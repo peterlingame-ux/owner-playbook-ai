@@ -22,6 +22,9 @@ const AI_BALANCES_TABLE = "ai_balances";
 const SIM_POSITIONS_TABLE = "sim_positions";
 const DAILY_MATCHES_TABLE = "daily_matches";
 
+// 番茄体育API相关常量
+const FQTY_API_BASE_URL = "https://api.j7nwyhqg.com/yewu11/v1/m/matchDetail";
+
 // AI 虚拟资金初始值
 const INITIAL_AI_BALANCE = 10000;
 
@@ -443,16 +446,26 @@ const getTodayMatches = async () => {
   
   console.log(`[getTodayMatches] 查询比赛: 昨天=${yesterdayStr}, 今天=${today}`);
   
+  // 计算时间范围：当前时间往后120分钟内
+  const nowSeconds = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const maxTimeSeconds = nowSeconds + (120 * 60); // 当前时间 + 120分钟（秒）
+  
+  console.log(`[getTodayMatches] 时间范围: 当前=${nowSeconds} (${new Date(nowSeconds * 1000).toISOString()}), 最大=${maxTimeSeconds} (${new Date(maxTimeSeconds * 1000).toISOString()})`);
+  
   // 查询比赛，过滤未完成的比赛（基于 ended 字段）
   // ended = 0 或 ended 为 null 表示比赛未结束，需要查询
   // ended = 1 表示比赛已结束，不需要查询
-  // 只查询有赔率信息的比赛（odds_info 不为 null）
+  // 不再过滤赔率信息，将在 AI 分析之前获取赔率
+  // 只查询当前时间往后120分钟内的比赛
+  // 排除推迟的比赛：status_id = 9（推迟）或 13（待定）
   const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select('*')
     .in('date', [yesterdayStr, today])
     .or('ended.is.null,ended.eq.0') // ended 为 null 或 0 表示未结束
-    .not('odds_info', 'is', null) // 只查询有赔率信息的比赛
+    .gte('match_time', nowSeconds) // match_time >= 当前时间
+    .lte('match_time', maxTimeSeconds) // match_time <= 当前时间 + 120分钟
+    .not('status_id', 'in', '(9,13)') // 排除推迟（9）和待定（13）的比赛
     .order('match_time', { ascending: true }); // 使用 match_time (比赛开始时间戳，秒) 排序
 
   if (error) {
@@ -460,13 +473,337 @@ const getTodayMatches = async () => {
     throw error;
   }
 
-  console.log(`[getTodayMatches] 查询成功: 找到 ${data?.length || 0} 场比赛`);
-  if (data && data.length > 0) {
-    console.log(`[getTodayMatches] 比赛详情: ${data.map((m: any) => `match_id=${m.match_id}, ${m.home_team_name || 'N/A'} vs ${m.away_team_name || 'N/A'}, status_id=${m.status_id || 'N/A'}`).join('; ')}`);
+  // 额外过滤：确保排除推迟的比赛（双重保险）
+  const filteredData = (data || []).filter((m: any) => {
+    const statusId = m.status_id;
+    // status_id = 9（推迟）或 13（待定）的比赛不分析
+    if (statusId === 9 || statusId === 13) {
+      console.log(`[getTodayMatches] 跳过推迟的比赛: match_id=${m.match_id}, status_id=${statusId}`);
+      return false;
+    }
+    return true;
+  });
+
+  console.log(`[getTodayMatches] 查询成功: 找到 ${filteredData.length} 场比赛（当前时间往后120分钟内，已排除推迟的比赛）`);
+  if (filteredData.length > 0) {
+    console.log(`[getTodayMatches] 比赛详情: ${filteredData.map((m: any) => {
+      const matchTime = m.match_time ? new Date(m.match_time * 1000).toISOString() : 'N/A';
+      return `match_id=${m.match_id}, ${m.home_team_name || 'N/A'} vs ${m.away_team_name || 'N/A'}, match_time=${matchTime}, status_id=${m.status_id || 'N/A'}`;
+    }).join('; ')}`);
   }
 
-  return data || [];
+  return filteredData;
 };
+
+// ========== 赔率获取相关函数（从 fetch-daily-matches/index.ts 复制）==========
+
+// 指数退避重试工具函数
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000,
+  operationName: string = '操作'
+): Promise<T> => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) {
+        console.error(`[retryWithBackoff] ${operationName} 重试 ${maxRetries} 次后仍然失败:`, error);
+        throw error;
+      }
+      const delay = baseDelay * Math.pow(2, i) + Math.random() * 1000;
+      console.warn(`[retryWithBackoff] ${operationName} 失败，${delay}ms 后重试 (${i + 1}/${maxRetries})...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error(`${operationName} 重试次数超限`);
+};
+
+// 从缓存获取 token
+const getTokensFromCache = async (): Promise<{
+  fqty_token?: string;
+  ybty_token?: string;
+} | null> => {
+  if (!supabase) {
+    throw new Error("Supabase 客户端未初始化");
+  }
+
+  const { data, error } = await supabase
+    .from("app_cache")
+    .select("value")
+    .eq("key", "ybty_token_cache")
+    .single();
+
+  if (error || !data) {
+    console.warn("[match-analysis] 无法从缓存获取 token:", error?.message);
+    return null;
+  }
+
+  // 检查是否过期
+  const { data: cacheData } = await supabase
+    .from("app_cache")
+    .select("expires_at")
+    .eq("key", "ybty_token_cache")
+    .single();
+
+  if (cacheData && cacheData.expires_at) {
+    const expiresAt = new Date(cacheData.expires_at);
+    if (expiresAt < new Date()) {
+      console.warn("[match-analysis] Token 缓存已过期");
+      return null;
+    }
+  }
+
+  return data.value as { fqty_token?: string; ybty_token?: string };
+};
+
+// 解压缩 base64 编码的 gzip 数据
+const decompressGzipData = async (compressedData: string): Promise<unknown> => {
+  try {
+    // 解码 base64
+    const binaryString = atob(compressedData);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // 使用 Deno 的 gzip 解压缩
+    const decompressed = await new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      }).pipeThrough(new DecompressionStream("gzip"))
+    ).arrayBuffer();
+
+    const text = new TextDecoder().decode(decompressed);
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("[match-analysis] 解压缩数据失败:", error);
+    throw error;
+  }
+};
+
+// 获取比赛详细赔率信息（从番茄体育API）
+const fetchMatchOddsInfo = async (
+  ybtyToken: string,
+  mid: string,
+  mcid: string = "0",
+  cuid: string = "529524126471950857",
+  retries: number = 2,
+): Promise<unknown | null> => {
+  const url = `${FQTY_API_BASE_URL}/getMatchOddsInfoPB?mcid=${mcid}&mid=${mid}&cuid=${cuid}`;
+  
+  const headers = {
+    "requestid": ybtyToken,
+    "lang": "zh",
+    "origin": "https://www.fqty18.com:35522",
+    "referer": "https://www.fqty18.com:35522/",
+    "accept": "application/json, text/plain, */*",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+  };
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 0) {
+        const baseDelay = attempt * 1000;
+        const randomDelay = Math.floor(Math.random() * 500);
+        const delay = baseDelay + randomDelay;
+        console.log(`[match-analysis] [fetchMatchOddsInfo] 比赛 ${mid} 重试 ${attempt}/${retries}，等待 ${delay}ms 后重试...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '无法读取错误信息');
+        console.warn(`[match-analysis] [fetchMatchOddsInfo] 获取比赛 ${mid} 的赔率信息失败: HTTP ${response.status}, ${errorText.substring(0, 200)}`);
+        if (attempt >= retries) {
+          return null;
+        }
+        continue;
+      }
+
+      const result = await response.json();
+      
+      // 检查错误码
+      if (result && typeof result === "object" && "code" in result) {
+        const code = result.code;
+        if (code === "0401038") {
+          console.warn(`[match-analysis] [fetchMatchOddsInfo] 比赛 ${mid} 遇到限流错误 (code: ${code})，${attempt < retries ? '将重试' : '已达到最大重试次数'}`);
+          if (attempt >= retries) {
+            return null;
+          }
+          const baseDelay = (attempt + 1) * 2000;
+          const randomDelay = Math.floor(Math.random() * 1000);
+          const delay = baseDelay + randomDelay;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        
+        if (code === "0000000") {
+          if ((result.data === null || result.data === undefined) && attempt < retries) {
+            console.log(`[match-analysis] [fetchMatchOddsInfo] 比赛 ${mid} 请求成功但 data 为 null，将重试一次...`);
+            const retryDelay = Math.floor(Math.random() * 700) + 800;
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            continue;
+          }
+        } else {
+          console.warn(`[match-analysis] [fetchMatchOddsInfo] 比赛 ${mid} 返回错误码: ${code}, msg: ${(result as { msg?: string }).msg || '未知错误'}`);
+        }
+      }
+
+      // 如果 data 是 base64 编码的 gzip 压缩字符串，解压缩它
+      if (result && typeof result === "object" && "data" in result) {
+        const data = result.data;
+        if (typeof data === "string" && data.startsWith("H4sI")) {
+          console.log(`[match-analysis] [fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是gzip压缩的，正在解压...`);
+          result.data = await decompressGzipData(data);
+          console.log(`[match-analysis] [fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据解压完成`);
+        }
+      }
+
+      return result;
+    } catch (error) {
+      console.error(`[match-analysis] [fetchMatchOddsInfo] 获取比赛 ${mid} 的赔率信息出错:`, error);
+      if (attempt >= retries) {
+        return null;
+      }
+    }
+  }
+
+  return null;
+};
+
+// 调用番茄体育API获取比赛列表
+const fetchFqtyMatches = async (ybtyToken: string): Promise<Array<{
+  mid: string;
+  mhn?: string;
+  man?: string;
+  mgt?: number;
+  [key: string]: unknown;
+}>> => {
+  const url = "https://api.j7nwyhqg.com/yewu11/v1/m/matchesPB";
+  
+  const headers = {
+    "Content-Type": "application/json",
+    "requestid": ybtyToken,
+    "lang": "zh",
+    "origin": "https://www.fqty18.com:35522",
+    "referer": "https://www.fqty18.com:35522/",
+    "accept": "application/json, text/plain, */*",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+  };
+
+  const params = {
+    euid: "20203",
+    sort: 2,
+    type: 3,
+    cuid: "529524126471950857",
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`番茄体育API请求失败: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // 如果 data 是 base64 编码的 gzip 压缩字符串，解压缩它
+    if (result && typeof result === "object" && "data" in result) {
+      const data = result.data;
+      if (typeof data === "string" && data.startsWith("H4sI")) {
+        result.data = await decompressGzipData(data);
+      }
+    }
+
+    // 提取 matches 数组
+    let matches: Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }> = [];
+    
+    if (result && result.data) {
+      if (typeof result.data === "object" && "matches" in result.data && Array.isArray(result.data.matches)) {
+        matches = result.data.matches as Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>;
+      } else if (Array.isArray(result.data)) {
+        matches = result.data as Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>;
+      }
+    } else if (result && "matches" in result && Array.isArray(result.matches)) {
+      matches = result.matches as Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>;
+    }
+
+    return matches;
+  } catch (error) {
+    console.error("[match-analysis] [fetchFqtyMatches] 获取番茄体育比赛列表失败:", error);
+    throw error;
+  }
+};
+
+// 通过球队名称和比赛时间从缓存的比赛列表中匹配番茄体育API的比赛ID（mid）
+const findFqtyMatchIdFromCache = (
+  homeTeamName: string,
+  awayTeamName: string,
+  matchTime: number, // 纳米数据API的时间戳（秒）
+  fqtyMatches: Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>,
+): string | null => {
+  // 匹配逻辑：
+  // 1. 时间匹配：允许±2小时的误差（因为时区或数据更新延迟）
+  const timeTolerance = 2 * 60 * 60; // 2小时（秒）
+  const matchTimeMs = matchTime * 1000; // 转换为毫秒（番茄体育API使用毫秒时间戳）
+  
+  // 2. 球队名称匹配：使用模糊匹配（包含关系）
+  const normalizeTeamName = (name: string): string => {
+    // 移除空格、转换为小写、移除特殊字符
+    return name.toLowerCase().replace(/\s+/g, '').replace(/[^\w\u4e00-\u9fa5]/g, '');
+  };
+  
+  const normalizedHomeTeam = normalizeTeamName(homeTeamName);
+  const normalizedAwayTeam = normalizeTeamName(awayTeamName);
+  
+  // 查找匹配的比赛
+  for (const fqtyMatch of fqtyMatches) {
+    if (!fqtyMatch.mid || !fqtyMatch.mhn || !fqtyMatch.man) {
+      continue;
+    }
+    
+    // 时间匹配
+    const fqtyMatchTime = typeof fqtyMatch.mgt === "string" ? parseInt(fqtyMatch.mgt) : (fqtyMatch.mgt || 0);
+    const timeDiff = Math.abs(fqtyMatchTime - matchTimeMs);
+    
+    if (timeDiff > timeTolerance * 1000) {
+      continue; // 时间差异太大，跳过
+    }
+    
+    // 球队名称匹配
+    const normalizedFqtyHome = normalizeTeamName(fqtyMatch.mhn);
+    const normalizedFqtyAway = normalizeTeamName(fqtyMatch.man);
+    
+    // 检查主队和客队是否匹配（允许部分匹配）
+    const homeMatch = normalizedFqtyHome.includes(normalizedHomeTeam) || 
+                     normalizedHomeTeam.includes(normalizedFqtyHome);
+    const awayMatch = normalizedFqtyAway.includes(normalizedAwayTeam) || 
+                 normalizedAwayTeam.includes(normalizedFqtyAway);
+    
+    if (homeMatch && awayMatch) {
+      console.log(`[match-analysis] [findFqtyMatchIdFromCache] 找到匹配: 纳米数据 ${homeTeamName} vs ${awayTeamName} (${matchTime}) -> 番茄体育 mid=${fqtyMatch.mid}`);
+      return fqtyMatch.mid;
+    }
+  }
+  
+  console.warn(`[match-analysis] [findFqtyMatchIdFromCache] 未找到匹配: 纳米数据 ${homeTeamName} vs ${awayTeamName} (${matchTime})`);
+  return null;
+};
+
+// ========== 赔率获取相关函数结束 ==========
 
 // 为比赛生成默认的 betInfo（基于 AI 预测）
 const generateDefaultBetInfo = (prediction: string, confidence: number): BetInfo => {
@@ -569,84 +906,15 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
       };
     }
 
-    // 如果比赛数量过多，按时间段每个小时挑选一场比赛
-    const MAX_MATCHES = 15;
-    let selectedMatches = todayMatches;
-    
+    // 限制同时处理的比赛数量，避免 CPU 时间超限
+    // Supabase Edge Functions 默认 CPU 时间限制为 60 秒
+    // 每场比赛需要调用多个 AI 模型，限制为最多 10 场比赛
+    const MAX_MATCHES = 10;
+    const selectedMatches = todayMatches.slice(0, MAX_MATCHES);
     if (todayMatches.length > MAX_MATCHES) {
-      console.log(`[normalizeMatchesPayload] 比赛数量过多(${todayMatches.length}场)，按时间段每个小时挑选一场比赛`);
-      
-      // 按小时分组比赛
-      const matchesByHour = new Map<string, any[]>();
-      
-      for (const match of todayMatches) {
-        // 使用 match_time (秒级时间戳) 而不是 mgt
-        if (!match.match_time) continue;
-        
-        try {
-          // match_time 是秒级时间戳，需要转换为毫秒
-          const kickoffDate = new Date((typeof match.match_time === 'string' ? parseInt(match.match_time) : match.match_time) * 1000);
-          // 使用 UTC+8 时区获取日期和小时（与数据库存储时区一致）
-          // 使用 Intl.DateTimeFormat 获取 UTC+8 时区的各个部分
-          const formatter = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Asia/Shanghai',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            hour12: false,
-          });
-          
-          const parts = formatter.formatToParts(kickoffDate);
-          const year = parts.find(p => p.type === 'year')?.value || '';
-          const month = parts.find(p => p.type === 'month')?.value || '';
-          const day = parts.find(p => p.type === 'day')?.value || '';
-          const hour = parts.find(p => p.type === 'hour')?.value || '';
-          
-          // 获取日期和小时，格式：YYYY-MM-DD-HH (例如：2025-11-21-14)
-          const dateHourKey = `${year}-${month}-${day}-${hour}`;
-          
-          if (!matchesByHour.has(dateHourKey)) {
-            matchesByHour.set(dateHourKey, []);
-          }
-          matchesByHour.get(dateHourKey)!.push(match);
-        } catch (error) {
-          console.warn(`[normalizeMatchesPayload] 解析比赛时间失败: ${match.match_time}`, error);
-          // 如果解析失败，跳过该比赛
-          continue;
-        }
-      }
-      
-      // 每个小时选择一场比赛（选择最早的那场）
-      selectedMatches = [];
-      const sortedHours = Array.from(matchesByHour.keys()).sort();
-      
-      for (const hourKey of sortedHours) {
-        const matchesInHour = matchesByHour.get(hourKey)!;
-        // 按 match_time (秒级时间戳) 排序，选择最早的那场
-        const sortedMatches = matchesInHour.sort((a, b) => {
-          try {
-            const timeA = typeof a.match_time === 'string' ? parseInt(a.match_time) : (a.match_time || 0);
-            const timeB = typeof b.match_time === 'string' ? parseInt(b.match_time) : (b.match_time || 0);
-            return timeA - timeB;
-          } catch {
-            return 0;
-          }
-        });
-        
-        if (sortedMatches.length > 0) {
-          selectedMatches.push(sortedMatches[0]);
-        }
-      }
-      
-      console.log(`[normalizeMatchesPayload] 按小时分组后选出 ${selectedMatches.length} 场比赛`);
-      
-      // 如果按小时分组后仍然超过限制，再应用最大数量限制
-      if (selectedMatches.length > MAX_MATCHES) {
-        selectedMatches = selectedMatches.slice(0, MAX_MATCHES);
-        console.log(`[normalizeMatchesPayload] 按小时分组后仍然超过限制，限制为前${MAX_MATCHES}场`);
-      }
+      console.warn(`[normalizeMatchesPayload] 比赛数量 ${todayMatches.length} 超过限制 ${MAX_MATCHES}，只处理前 ${MAX_MATCHES} 场`);
     }
+    console.log(`[normalizeMatchesPayload] 处理 ${selectedMatches.length} 场比赛（共 ${todayMatches.length} 场）`);
 
     // 为每场比赛生成默认的 MatchRequest
     const matches: MatchRequest[] = selectedMatches.map((match) => {
@@ -1128,8 +1396,16 @@ const analyzeWithSingleModel = async (
   const userPrompt = buildUserPrompt(matchInfo, betInfo, modelConfig.displayName, isDefaultBetInfo, marketOdds);
   
   const startedAt = performance.now();
+  const API_TIMEOUT = 10000; // 10 秒超时
+  
   try {
-    const response = await fetch(OPENROUTER_API_URL, {
+    // 创建超时 Promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(`AI API 调用超时 (${API_TIMEOUT}ms)`)), API_TIMEOUT);
+    });
+    
+    // 创建 API 请求 Promise
+    const fetchPromise = fetch(OPENROUTER_API_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
@@ -1145,6 +1421,9 @@ const analyzeWithSingleModel = async (
         ],
       }),
     });
+    
+    // 使用 Promise.race 实现超时控制
+    const response = await Promise.race([fetchPromise, timeoutPromise]);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -1858,17 +2137,205 @@ serve(async (req) => {
         };
 
 
-        // 限制处理的比赛数量，避免超时
-        const MAX_MATCHES_PER_AI = 12;
-        const limitedMatches = matchesPayload.slice(0, MAX_MATCHES_PER_AI);
-        if (matchesPayload.length > MAX_MATCHES_PER_AI) {
-          console.log(`[${aiDisplayName}] 比赛数量过多(${matchesPayload.length}场)，限制为前${MAX_MATCHES_PER_AI}场`);
+        // 处理所有比赛，不进行数量限制
+        console.log(`[${aiDisplayName}] 开始处理 ${matchesPayload.length} 场比赛`);
+        
+        // 优化：批量预获取赔率（在分析开始前）
+        const preFetchOddsForMatches = async (matchIds: number[]) => {
+          if (!supabase || matchIds.length === 0) return;
+          
+          try {
+            // 1. 查询哪些比赛没有赔率
+            const { data: matchesWithoutOdds } = await supabase
+              .from(DAILY_MATCHES_TABLE)
+              .select('match_id, home_team_name, away_team_name, match_time, odds_info, odds_requested')
+              .in('match_id', matchIds)
+              .or('odds_info.is.null,odds_requested.eq.false');
+            
+            if (!matchesWithoutOdds || matchesWithoutOdds.length === 0) {
+              console.log(`[${aiDisplayName}] 所有比赛已有赔率信息，跳过预获取`);
+              return;
+            }
+            
+            console.log(`[${aiDisplayName}] 发现 ${matchesWithoutOdds.length} 场比赛需要获取赔率，开始批量预获取...`);
+            
+            // 2. 获取 token 和比赛列表缓存
+            const tokens = await getTokensFromCache();
+            const ybtyToken = tokens?.ybty_token;
+            
+            if (!ybtyToken) {
+              console.warn(`[${aiDisplayName}] 无法获取 token，跳过赔率预获取`);
+              return;
+            }
+            
+            // 优化：先从缓存读取比赛列表
+            let fqtyMatchesCache: Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }> | null = null;
+            if (supabase) {
+              try {
+                const { data: cache } = await supabase
+                  .from('app_cache')
+                  .select('value, expires_at')
+                  .eq('key', 'fqty_matches_cache')
+                  .gt('expires_at', new Date().toISOString())
+                  .single();
+                
+                if (cache && cache.value) {
+                  fqtyMatchesCache = cache.value as Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>;
+                  console.log(`[${aiDisplayName}] 从缓存读取到 ${fqtyMatchesCache.length} 场番茄体育比赛`);
+                }
+              } catch (cacheError) {
+                console.warn(`[${aiDisplayName}] 读取比赛列表缓存失败:`, cacheError);
+              }
+            }
+            
+            // 如果缓存不存在或已过期，从API获取
+            if (!fqtyMatchesCache) {
+              console.log(`[${aiDisplayName}] 缓存不存在或已过期，从API获取比赛列表...`);
+              fqtyMatchesCache = await fetchFqtyMatches(ybtyToken);
+              console.log(`[${aiDisplayName}] 从API获取到 ${fqtyMatchesCache.length} 场番茄体育比赛`);
+              
+              // 更新缓存
+              if (supabase && fqtyMatchesCache && fqtyMatchesCache.length > 0) {
+                try {
+                  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+                  await supabase.from('app_cache').upsert({
+                    key: 'fqty_matches_cache',
+                    value: fqtyMatchesCache,
+                    expires_at: expiresAt,
+                  }, { onConflict: 'key' });
+                } catch (cacheError) {
+                  console.warn(`[${aiDisplayName}] 更新比赛列表缓存失败:`, cacheError);
+                }
+              }
+            }
+            
+            // 3. 批量获取赔率（限制并发和总数，避免超时）
+            // 限制最多预获取 20 场比赛的赔率，避免消耗过多时间
+            const MAX_ODDS_PREFETCH = 20;
+            const matchesToFetch = matchesWithoutOdds.slice(0, MAX_ODDS_PREFETCH);
+            if (matchesWithoutOdds.length > MAX_ODDS_PREFETCH) {
+              console.warn(`[${aiDisplayName}] 需要获取赔率的比赛数量 ${matchesWithoutOdds.length} 超过限制 ${MAX_ODDS_PREFETCH}，只预获取前 ${MAX_ODDS_PREFETCH} 场`);
+            }
+            
+            const BATCH_SIZE = 3; // 降低并发数，避免限流
+            const getRequestDelay = () => Math.floor(Math.random() * 800) + 800; // 800-1600ms
+            
+            for (let i = 0; i < matchesToFetch.length; i += BATCH_SIZE) {
+              const batch = matchesToFetch.slice(i, i + BATCH_SIZE);
+              console.log(`[${aiDisplayName}] 批量预获取赔率: 批次 ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(matchesToFetch.length / BATCH_SIZE)} (${batch.length} 场比赛)`);
+              
+              const batchPromises = batch.map(async (matchData) => {
+                if (!matchData.match_id || !matchData.home_team_name || !matchData.away_team_name || !matchData.match_time) {
+                  return;
+                }
+                
+                try {
+                  // 查找匹配的番茄体育比赛ID
+                  const fqtyMatchId = findFqtyMatchIdFromCache(
+                    matchData.home_team_name,
+                    matchData.away_team_name,
+                    matchData.match_time,
+                    fqtyMatchesCache || [],
+                  );
+                  
+                  if (fqtyMatchId) {
+                    // 获取赔率信息
+                    const oddsInfo = await fetchMatchOddsInfo(ybtyToken, fqtyMatchId, "0");
+                    
+                    if (oddsInfo) {
+                      // 更新数据库
+                      await supabase
+                        .from(DAILY_MATCHES_TABLE)
+                        .update({
+                          odds_info: oddsInfo,
+                          odds_requested: true,
+                        })
+                        .eq('match_id', matchData.match_id);
+                      
+                      console.log(`[${aiDisplayName}] ✓ 预获取比赛 ${matchData.match_id} 的赔率成功`);
+                    } else {
+                      // 即使获取失败，也设置 odds_requested = true
+                      await supabase
+                        .from(DAILY_MATCHES_TABLE)
+                        .update({
+                          odds_requested: true,
+                        })
+                        .eq('match_id', matchData.match_id);
+                    }
+                  }
+                } catch (error) {
+                  console.error(`[${aiDisplayName}] ✗ 预获取比赛 ${matchData.match_id} 的赔率失败:`, error);
+                  // 设置 odds_requested = true，避免重复尝试
+                  if (supabase && matchData.match_id) {
+                    await supabase
+                      .from(DAILY_MATCHES_TABLE)
+                      .update({
+                        odds_requested: true,
+                      })
+                      .eq('match_id', matchData.match_id);
+                  }
+                }
+              });
+              
+              await Promise.all(batchPromises);
+              
+              // 批次之间添加延迟
+              if (i + BATCH_SIZE < matchesWithoutOdds.length) {
+                const delay = getRequestDelay();
+                await new Promise(resolve => setTimeout(resolve, delay));
+              }
+            }
+            
+            console.log(`[${aiDisplayName}] 批量预获取赔率完成`);
+          } catch (error) {
+            console.error(`[${aiDisplayName}] 批量预获取赔率失败:`, error);
+          }
+        };
+        
+        // 提取所有比赛ID
+        const allMatchIds = matchesPayload
+          .map(m => m.matchId)
+          .filter((id): id is number => id !== undefined && typeof id === 'number');
+        
+        // 批量预获取赔率
+        if (allMatchIds.length > 0) {
+          await preFetchOddsForMatches(allMatchIds);
         }
         
-        console.log(`[${aiDisplayName}] 开始处理 ${limitedMatches.length} 场比赛`);
+        // 第一步：分批并行分析比赛，避免同时处理太多比赛导致超时
+        // 每批最多处理 5 场比赛，确保在时间限制内完成
+        const BATCH_SIZE_ANALYSIS = 5;
+        const matchBatches: MatchRequest[][] = [];
+        for (let i = 0; i < matchesPayload.length; i += BATCH_SIZE_ANALYSIS) {
+          matchBatches.push(matchesPayload.slice(i, i + BATCH_SIZE_ANALYSIS));
+        }
         
-        // 第一步：并行分析所有比赛（大幅提升性能）
-        const analysisPromises = limitedMatches.map(async (match) => {
+        console.log(`[${aiDisplayName}] 将 ${matchesPayload.length} 场比赛分成 ${matchBatches.length} 批处理，每批最多 ${BATCH_SIZE_ANALYSIS} 场`);
+        
+        const allMatchAnalyses: Array<{
+          match: MatchRequest;
+          analyses: ModelAnalysisResult[];
+          analysisRefs: StoredAnalysisResult[];
+          moneylineBetInfo: BetInfo | null;
+          overUnderBetInfo: BetInfo | null;
+          handicapBetInfo: BetInfo | null;
+          allPredictions?: AllPredictions;
+        }> = [];
+        
+        // 分批处理比赛
+        for (let batchIndex = 0; batchIndex < matchBatches.length; batchIndex++) {
+          const batch = matchBatches[batchIndex];
+          console.log(`[${aiDisplayName}] 处理批次 ${batchIndex + 1}/${matchBatches.length} (${batch.length} 场比赛)`);
+          
+          const analysisPromises: Promise<{
+            match: MatchRequest;
+            analyses: ModelAnalysisResult[];
+            analysisRefs: StoredAnalysisResult[];
+            moneylineBetInfo: BetInfo | null;
+            overUnderBetInfo: BetInfo | null;
+            handicapBetInfo: BetInfo | null;
+            allPredictions?: AllPredictions;
+          }>[] = batch.map(async (match) => {
           const matchInfo = match.matchInfo;
           const defaultBetInfo = generateDefaultBetInfo('OVER', 50);
           
@@ -1884,6 +2351,9 @@ serve(async (req) => {
                 match,
                 analyses: [],
                 analysisRefs: existingAnalysisRefs,
+                moneylineBetInfo: null,
+                overUnderBetInfo: null,
+                handicapBetInfo: null,
               };
             }
             
@@ -1968,6 +2438,9 @@ serve(async (req) => {
                 match,
                 analyses: [],
                 analysisRefs: doubleCheckAnalysis,
+                moneylineBetInfo: null,
+                overUnderBetInfo: null,
+                handicapBetInfo: null,
               };
             }
             
@@ -2034,9 +2507,127 @@ serve(async (req) => {
             }
           }
           
-          // 在分析之前，从数据库获取市场赔率（只读取大小球和让球盘）
-          // 从 daily_matches 表的 odds_info 字段读取（从番茄体育API获取）
+          // 在分析之前，检查并获取市场赔率
           const matchMid = match.matchId;
+          
+          // 首先检查比赛是否有赔率信息
+          if (matchMid && supabase) {
+            const { data: matchData } = await supabase
+              .from(DAILY_MATCHES_TABLE)
+              .select('odds_info, home_team_name, away_team_name, match_time, odds_requested')
+              .eq('match_id', matchMid)
+              .single();
+            
+            // 如果没有赔率信息，尝试从番茄体育API获取
+            if (matchData && (!matchData.odds_info || matchData.odds_info === null)) {
+              console.log(`[${aiDisplayName}] 比赛 ${matchMid} 没有赔率信息，尝试从番茄体育API获取...`);
+              
+              try {
+                // 获取 ybty_token
+                const tokens = await getTokensFromCache();
+                const ybtyToken = tokens?.ybty_token;
+                
+                if (ybtyToken && matchData.home_team_name && matchData.away_team_name && matchData.match_time) {
+                  // 优化：先从缓存读取比赛列表
+                  let fqtyMatchesCache: Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }> | null = null;
+                  
+                  if (supabase) {
+                    try {
+                      const { data: cache } = await supabase
+                        .from('app_cache')
+                        .select('value, expires_at')
+                        .eq('key', 'fqty_matches_cache')
+                        .gt('expires_at', new Date().toISOString())
+                        .single();
+                      
+                      if (cache && cache.value) {
+                        fqtyMatchesCache = cache.value as Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>;
+                        console.log(`[${aiDisplayName}] 从缓存读取到 ${fqtyMatchesCache.length} 场番茄体育比赛`);
+                      }
+                    } catch (cacheError) {
+                      console.warn(`[${aiDisplayName}] 读取比赛列表缓存失败:`, cacheError);
+                    }
+                  }
+                  
+                  // 如果缓存不存在或已过期，从API获取
+                  if (!fqtyMatchesCache) {
+                    console.log(`[${aiDisplayName}] 缓存不存在或已过期，从API获取比赛列表...`);
+                    fqtyMatchesCache = await fetchFqtyMatches(ybtyToken);
+                    console.log(`[${aiDisplayName}] 从API获取到 ${fqtyMatchesCache.length} 场番茄体育比赛`);
+                    
+                    // 更新缓存
+                    if (supabase && fqtyMatchesCache && fqtyMatchesCache.length > 0) {
+                      try {
+                        const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+                        await supabase.from('app_cache').upsert({
+                          key: 'fqty_matches_cache',
+                          value: fqtyMatchesCache,
+                          expires_at: expiresAt,
+                        }, { onConflict: 'key' });
+                      } catch (cacheError) {
+                        console.warn(`[${aiDisplayName}] 更新比赛列表缓存失败:`, cacheError);
+                      }
+                    }
+                  }
+                  
+                  // 查找匹配的番茄体育比赛ID
+                  const fqtyMatchId = findFqtyMatchIdFromCache(
+                    matchData.home_team_name,
+                    matchData.away_team_name,
+                    matchData.match_time,
+                    fqtyMatchesCache || [],
+                  );
+                  
+                  if (fqtyMatchId) {
+                    console.log(`[${aiDisplayName}] 找到比赛 ${matchMid} 对应的番茄体育ID: ${fqtyMatchId}`);
+                    
+                    // 获取赔率信息
+                    const oddsInfo = await fetchMatchOddsInfo(ybtyToken, fqtyMatchId, "0");
+                    
+                    if (oddsInfo) {
+                      console.log(`[${aiDisplayName}] ✓ 成功获取比赛 ${matchMid} 的赔率信息`);
+                      
+                      // 更新数据库中的 odds_info 和 odds_requested
+                      await supabase
+                        .from(DAILY_MATCHES_TABLE)
+                        .update({
+                          odds_info: oddsInfo,
+                          odds_requested: true,
+                        })
+                        .eq('match_id', matchMid);
+                      
+                      console.log(`[${aiDisplayName}] ✓ 成功更新比赛 ${matchMid} 的赔率信息到数据库`);
+                    } else {
+                      console.warn(`[${aiDisplayName}] ✗ 比赛 ${matchMid} 的赔率信息为空`);
+                      // 即使获取失败，也设置 odds_requested = true（表示已尝试过）
+                      await supabase
+                        .from(DAILY_MATCHES_TABLE)
+                        .update({
+                          odds_requested: true,
+                        })
+                        .eq('match_id', matchMid);
+                    }
+                  } else {
+                    console.warn(`[${aiDisplayName}] 无法找到比赛 ${matchMid} 对应的番茄体育比赛ID`);
+                    // 设置 odds_requested = true，避免重复尝试
+                    await supabase
+                      .from(DAILY_MATCHES_TABLE)
+                      .update({
+                        odds_requested: true,
+                      })
+                      .eq('match_id', matchMid);
+                  }
+                } else {
+                  console.warn(`[${aiDisplayName}] 无法获取赔率：缺少 token 或比赛信息`);
+                }
+              } catch (error) {
+                console.error(`[${aiDisplayName}] ✗ 获取比赛 ${matchMid} 的赔率信息失败:`, error);
+              }
+            }
+          }
+          
+          // 从数据库获取市场赔率（只读取大小球和让球盘）
+          // 从 daily_matches 表的 odds_info 字段读取（可能刚从API获取）
           // 获取过滤后的赔率（用于投注决策）
           const marketOdds = matchMid ? await getAllMarketOdds(matchMid, false) : null;
           // 获取所有赔率（不过滤，用于保存到 bet_snapshot）
@@ -2083,6 +2674,9 @@ serve(async (req) => {
               match,
               analyses,
               analysisRefs,
+              moneylineBetInfo: null,
+              overUnderBetInfo: null,
+              handicapBetInfo: null,
             };
           }
 
@@ -2106,6 +2700,9 @@ serve(async (req) => {
               match,
               analyses,
               analysisRefs,
+              moneylineBetInfo: null,
+              overUnderBetInfo: null,
+              handicapBetInfo: null,
             };
           }
           
@@ -2356,8 +2953,17 @@ serve(async (req) => {
           };
         });
 
-        // 等待所有分析完成
-        const matchAnalyses = await Promise.all(analysisPromises);
+          // 等待当前批次的所有分析完成
+          const batchAnalyses = await Promise.all(analysisPromises);
+          allMatchAnalyses.push(...batchAnalyses);
+          
+          // 批次之间添加短暂延迟，避免 API 限流
+          if (batchIndex < matchBatches.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+        
+        const matchAnalyses = allMatchAnalyses;
 
         // 第二步：为每场比赛选择置信度最高的一个投注（只考虑大小球或让球盘，不考虑输赢预测）
         // 注意：虽然AI会预测输赢（moneyline），但在投注决策时不使用输赢预测
@@ -2557,12 +3163,27 @@ serve(async (req) => {
       }
     };
 
-    console.log(`[match-analysis] 开始并行处理 ${MODEL_CONFIGS.length} 个 AI 模型`);
+    console.log(`[match-analysis] 开始处理 ${MODEL_CONFIGS.length} 个 AI 模型`);
     
-    // 并行处理所有 AI 模型（大幅提升性能）
-    const allResults = await Promise.all(
-      MODEL_CONFIGS.map(modelConfig => processAIModel(modelConfig))
-    );
+    // 优化：限制并发模型数量，避免同时处理太多导致超时
+    // 每次最多并行处理 3 个模型
+    const MAX_CONCURRENT_MODELS = 3;
+    const allResults: any[][] = [];
+    
+    for (let i = 0; i < MODEL_CONFIGS.length; i += MAX_CONCURRENT_MODELS) {
+      const modelBatch = MODEL_CONFIGS.slice(i, i + MAX_CONCURRENT_MODELS);
+      console.log(`[match-analysis] 处理模型批次 ${Math.floor(i / MAX_CONCURRENT_MODELS) + 1}/${Math.ceil(MODEL_CONFIGS.length / MAX_CONCURRENT_MODELS)} (${modelBatch.length} 个模型)`);
+      
+      const batchResults = await Promise.all(
+        modelBatch.map(modelConfig => processAIModel(modelConfig))
+      );
+      allResults.push(...batchResults);
+      
+      // 批次之间添加短暂延迟
+      if (i + MAX_CONCURRENT_MODELS < MODEL_CONFIGS.length) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
 
     console.log(`[match-analysis] 所有 AI 模型处理完成，结果数量: ${allResults.map(r => r.length).join(', ')}`);
 

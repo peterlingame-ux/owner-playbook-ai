@@ -72,6 +72,18 @@ const getYesterdayDate = (timezone = DEFAULT_TIMEZONE): string => {
     );
 };
 
+// 统一比赛状态判断函数
+// 判断比赛是否已结束
+const isMatchCompleted = (match: {
+  ended?: number | null;
+  status_id?: number;
+}): boolean => {
+  // ended 是秒级时间戳，> 0 表示已结束
+  // status_id = 8 表示完场
+  return (match.ended !== null && match.ended !== undefined && match.ended > 0) 
+      || match.status_id === 8;
+};
+
 // 将日期转换为纳米数据API格式（yyyymmdd）
 const formatDateForAPI = (date: string): string => {
   return date.replace(/-/g, "");
@@ -168,7 +180,6 @@ const fetchMatchOddsInfo = async (
         const baseDelay = attempt * 1000;
         const randomDelay = Math.floor(Math.random() * 500);
         const delay = baseDelay + randomDelay;
-        console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 重试 ${attempt}/${retries}，等待 ${delay}ms 后重试...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
@@ -205,7 +216,6 @@ const fetchMatchOddsInfo = async (
         
         if (code === "0000000") {
           if ((result.data === null || result.data === undefined) && attempt < retries) {
-            console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 请求成功但 data 为 null，将重试一次...`);
             const retryDelay = Math.floor(Math.random() * 700) + 800;
             await new Promise(resolve => setTimeout(resolve, retryDelay));
             continue;
@@ -219,9 +229,7 @@ const fetchMatchOddsInfo = async (
       if (result && typeof result === "object" && "data" in result) {
         const data = result.data;
         if (typeof data === "string" && data.startsWith("H4sI")) {
-          console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据是gzip压缩的，正在解压...`);
           result.data = await decompressGzipData(data);
-          console.log(`[fetchMatchOddsInfo] 比赛 ${mid} 的赔率数据解压完成`);
         }
       }
 
@@ -351,7 +359,6 @@ const findFqtyMatchIdFromCache = (
                      normalizedAwayTeam.includes(normalizedFqtyAway);
     
     if (homeMatch && awayMatch) {
-      console.log(`[findFqtyMatchIdFromCache] 找到匹配: 纳米数据 ${homeTeamName} vs ${awayTeamName} (${matchTime}) -> 番茄体育 mid=${fqtyMatch.mid}`);
       return fqtyMatch.mid;
     }
   }
@@ -454,7 +461,6 @@ const fetchSportNanoAPIDiary = async (
     // 不添加 limit 参数（参考 sportnanoapi.ts 注释）
   });
 
-  console.log(`[fetchSportNanoAPIDiary] 通过代理API请求: ${url}?date=${dateParam}`);
 
   const response = await fetch(`${url}?${params.toString()}`, {
     method: "GET",
@@ -488,15 +494,6 @@ const fetchSportNanoAPIDiary = async (
     throw new Error(`纳米数据API返回错误: code=${data.code} - ${errorMsg}`);
   }
 
-  // 记录响应结构以便调试
-  console.log(`[fetchSportNanoAPIDiary] API响应结构:`, {
-    hasCode: 'code' in data,
-    code: data.code,
-    hasQuery: 'query' in data,
-    hasResults: 'results' in data,
-    hasData: 'data' in data,
-    keys: Object.keys(data),
-  });
 
   // 参考 sportnanoapi.ts 的实现，直接返回数据（类型断言）
   // 响应格式应该是：{ code: 0, query: {...}, results: { match: [], competition: [], team: [] } }
@@ -525,7 +522,6 @@ const fetchSportNanoAPIDiary = async (
     responseData.results.team = [];
   }
 
-  console.log(`[fetchSportNanoAPIDiary] 解析成功: match=${responseData.results.match.length}, competition=${responseData.results.competition.length}, team=${responseData.results.team.length}`);
 
   return responseData;
 };
@@ -755,8 +751,6 @@ const upsertMatches = async (
           existingOddsRequestedMap.set(record.match_id, record.odds_requested === true);
         }
       }
-      console.log(`[upsertMatches] 从数据库读取到 ${existingOddsInfoMap.size} 条已有赔率信息`);
-      console.log(`[upsertMatches] 从数据库读取到 ${existingOddsRequestedMap.size} 条记录的赔率请求状态`);
     }
   }
 
@@ -777,19 +771,32 @@ const upsertMatches = async (
           }
         }
       }
-      console.log(`[upsertMatches] 发现 ${predictedMatchIds.size} 场比赛已有 AI 分析记录，将保留其 odds_info`);
     } catch (error) {
       console.warn(`[upsertMatches] 检查 AI 分析记录失败:`, error);
     }
   }
 
   // 如果需要获取赔率，先获取所有番茄体育比赛列表（只获取一次）
+  // 优化：缓存到 app_cache，供 match-analysis 复用
   let fqtyMatchesCache: Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }> | null = null;
   if (fetchOdds && ybtyToken) {
     try {
-      console.log(`[upsertMatches] 开始获取番茄体育比赛列表（用于匹配）...`);
       fqtyMatchesCache = await fetchFqtyMatches(ybtyToken);
-      console.log(`[upsertMatches] 获取到 ${fqtyMatchesCache.length} 场番茄体育比赛`);
+      
+      // 缓存到 app_cache，设置5分钟过期时间
+      if (fqtyMatchesCache && fqtyMatchesCache.length > 0 && supabase) {
+        try {
+          const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+          await supabase.from('app_cache').upsert({
+            key: 'fqty_matches_cache',
+            value: fqtyMatchesCache,
+            expires_at: expiresAt,
+          }, { onConflict: 'key' });
+          console.log(`[upsertMatches] 已缓存番茄体育比赛列表到 app_cache，过期时间: ${expiresAt}`);
+        } catch (cacheError) {
+          console.warn(`[upsertMatches] 缓存比赛列表失败:`, cacheError);
+        }
+      }
     } catch (error) {
       console.error(`[upsertMatches] 获取番茄体育比赛列表失败:`, error);
       fqtyMatchesCache = null;
@@ -801,12 +808,11 @@ const upsertMatches = async (
   const getRequestDelay = () => Math.floor(Math.random() * 600) + 600; // 600-1200ms
   const getBatchDelay = () => Math.floor(Math.random() * 1000) + 1500; // 1500-2500ms
   const records: Record<string, unknown>[] = [];
-  // 收集成功获取赔率的比赛ID，用于后续调用 match-analysis
+  // 收集成功获取赔率的比赛ID
   const matchesWithOdds: number[] = [];
   
   for (let i = 0; i < matches.length; i += BATCH_SIZE) {
     const batch = matches.slice(i, i + BATCH_SIZE);
-    console.log(`[upsertMatches] 处理批次 ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(matches.length / BATCH_SIZE)} (${batch.length} 场比赛)`);
     
     const batchRecords: Record<string, unknown>[] = [];
     for (let j = 0; j < batch.length; j++) {
@@ -852,23 +858,17 @@ const upsertMatches = async (
             }
           }
         } catch (error) {
-          console.error(`[upsertMatches] ✗ 获取比赛 ${match.id} 的赔率信息失败:`, error);
+          // 静默处理单个比赛的赔率获取失败
         }
       } else if (isPredicted) {
         // 已被预测过的比赛，使用已有的 odds_info（如果存在）
         if (match.id && existingOddsInfoMap.has(match.id)) {
           oddsInfo = existingOddsInfoMap.get(match.id)!;
-          console.log(`[upsertMatches] 比赛 ${match.id} 已有 AI 分析记录，保留现有 odds_info`);
-      } else {
-          console.log(`[upsertMatches] 比赛 ${match.id} 已有 AI 分析记录，但数据库中没有 odds_info，跳过更新`);
         }
       } else if (alreadyRequestedOdds) {
         // 非 refresh 模式下，如果已经请求过赔率，使用已有的 odds_info（如果存在），但不更新
         if (match.id && existingOddsInfoMap.has(match.id)) {
           oddsInfo = existingOddsInfoMap.get(match.id)!;
-          console.log(`[upsertMatches] 比赛 ${match.id} 已请求过赔率（odds_requested=true），保留现有 odds_info，不更新`);
-        } else {
-          console.log(`[upsertMatches] 比赛 ${match.id} 已请求过赔率但无 odds_info，跳过更新 odds_info`);
         }
       } else if (!fetchOdds) {
         // 刷新模式下，使用已有的 odds_info（如果存在）
@@ -888,13 +888,9 @@ const upsertMatches = async (
       if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted) {
         // 实际尝试请求了赔率信息（无论成功与否，只要尝试了就算请求过）
         oddsRequested = true;
-        console.log(`[upsertMatches] 比赛 ${match.id} 已请求赔率信息，设置 odds_requested = true`);
       } else if (match.id && existingOddsRequestedMap.has(match.id)) {
         // 刷新模式下，保留已有的请求状态（无论是否有赔率信息）
         oddsRequested = existingOddsRequestedMap.get(match.id)!;
-        if (oddsRequested) {
-          console.log(`[upsertMatches] 比赛 ${match.id} 保留原有赔率请求状态: true`);
-        }
       } else if (isPredicted && match.id && existingOddsRequestedMap.has(match.id)) {
         // 已被预测过的比赛，保留已有的请求状态
         oddsRequested = existingOddsRequestedMap.get(match.id)!;
@@ -908,13 +904,11 @@ const upsertMatches = async (
       // 如果比赛已被预测过，但 oddsInfo 为 null（数据库中没有 odds_info），则删除 odds_info 字段，避免覆盖
       if (isPredicted && oddsInfo === null) {
         delete record.odds_info;
-        console.log(`[upsertMatches] 比赛 ${match.id} 已有 AI 分析记录，但无 odds_info，跳过更新 odds_info 字段`);
       }
       
       // 在非 refresh 模式下，如果已经请求过赔率（odds_requested=true），不更新 odds_info 字段
       if (fetchOdds && alreadyRequestedOdds) {
         delete record.odds_info;
-        console.log(`[upsertMatches] 比赛 ${match.id} 已请求过赔率（odds_requested=true），跳过更新 odds_info 字段，只更新其他数据`);
       }
       
       // 在刷新模式下，如果 oddsInfo 为 null（即没有新的赔率且没有已有的赔率），则删除 odds_info 字段，避免覆盖
@@ -940,7 +934,6 @@ const upsertMatches = async (
     }
   }
   
-  console.log(`[upsertMatches] 准备写入 ${records.length} 条记录到数据库`);
 
   // 批量插入或更新
   const { error } = await supabase
@@ -952,7 +945,6 @@ const upsertMatches = async (
     throw error;
   }
   
-  console.log(`[upsertMatches] 成功写入 ${records.length} 条记录到数据库`);
 
   // 识别已完成的比赛（ended 是秒级时间戳，> 0 表示已结束）
   const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
@@ -964,97 +956,155 @@ const upsertMatches = async (
     const matchTime = record.match_time as number;
     const statusId = record.status_id as number;
 
-    // 判断比赛是否已结束：
-    // 1. ended 有值且 > 0 表示已结束（ended 是秒级时间戳）
-    // 2. status_id = 3 表示已结束（中场休息，但比赛未完全结束，不算完成）
-    // 3. status_id = 8 表示完场
-    // 注意：status_id = 3 是中场休息，不是比赛结束，所以不在这里判断
-    if ((ended !== null && ended !== undefined && ended > 0) || statusId === 8) {
-          completedMatchIds.push(matchId);
+    // 使用统一的比赛状态判断函数
+    if (isMatchCompleted({ ended, status_id: statusId })) {
+      completedMatchIds.push(matchId);
     }
   }
 
-  console.log(`[upsertMatches] 识别到 ${completedMatchIds.length} 场已完成比赛`);
-  console.log(`[upsertMatches] 成功获取赔率的比赛数量: ${matchesWithOdds.length}`);
   if (matchesWithOdds.length > 0) {
-    console.log(`[upsertMatches] 成功获取赔率的比赛ID列表: ${matchesWithOdds.join(', ')}`);
+    console.log(`[upsertMatches] 成功获取 ${matchesWithOdds.length} 场比赛的赔率信息`);
   }
   
   return { completedMatchIds, matchesWithOdds };
 };
 
-// 调用 match-analysis Edge Function 进行 AI 分析
-// 参考 test-function 的实现方式
-const triggerMatchAnalysis = async (matchIds?: number[]): Promise<void> => {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn(`[fetch-daily-matches] SUPABASE_URL 或 SERVICE_ROLE_KEY 未配置，跳过 AI 分析`);
-    return;
+
+// 从 match_live_data 表同步已完结的比赛到 daily_matches 表
+// 检查 match_live_data 中已完结（status = 8）但 daily_matches 未更新的比赛
+const syncCompletedMatchesFromLiveDataTable = async (
+  predictedMatchIdsWithOdds?: Set<number>
+): Promise<number[]> => {
+  if (!supabase) {
+    throw new Error("Supabase 客户端未初始化");
   }
 
   try {
-    console.log(`[fetch-daily-matches] ========== 开始触发 AI 比赛分析 ==========`);
-    if (matchIds && matchIds.length > 0) {
-      console.log(`[fetch-daily-matches] 比赛数量: ${matchIds.length}`);
-    } else {
-      console.log(`[fetch-daily-matches] 未指定比赛ID，将分析所有当天比赛`);
+    // 1. 查询 match_live_data 表中已完结的比赛（score_status = 8）
+    let liveDataQuery = supabase
+      .from('match_live_data' as any)
+      .select('match_id, score_status, score_home_scores, score_away_scores')
+      .eq('score_status', 8); // 完场状态
+    
+    // 如果提供了预测比赛ID集合，只处理这些比赛
+    if (predictedMatchIdsWithOdds && predictedMatchIdsWithOdds.size > 0) {
+      const matchIdsArray = Array.from(predictedMatchIdsWithOdds);
+      liveDataQuery = liveDataQuery.in('match_id', matchIdsArray);
     }
-
-    const functionName = "match-analysis";
-    const functionUrl = `${SUPABASE_URL}/functions/v1/${functionName}`;
-    // match-analysis 可以接收空对象，会自动查询当天比赛
-    // 如果只传递 matchId 而没有 matchInfo，会导致错误
-    // 所以这里传递空对象，让 match-analysis 自动查询当天比赛
-    // match-analysis 会自动过滤有赔率的比赛（通过检查 odds_info 字段）
-    const payload = {};
-
-    console.log(`[fetch-daily-matches] 调用函数: ${functionName}`);
-    console.log(`[fetch-daily-matches] URL: ${functionUrl}`);
-    console.log(`[fetch-daily-matches] Payload: ${JSON.stringify(payload)}`);
-
-    const response = await fetch(functionUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        apikey: SUPABASE_SERVICE_ROLE_KEY,
-      },
-      body: JSON.stringify(payload),
+    
+    const { data: completedLiveData, error: liveDataError } = await liveDataQuery;
+    
+    if (liveDataError) {
+      console.error(`[syncCompletedMatchesFromLiveDataTable] 查询 match_live_data 失败:`, liveDataError);
+      return [];
+    }
+    
+    if (!completedLiveData || completedLiveData.length === 0) {
+      console.log(`[syncCompletedMatchesFromLiveDataTable] match_live_data 表中没有已完结的比赛`);
+      return [];
+    }
+    
+    console.log(`[syncCompletedMatchesFromLiveDataTable] 在 match_live_data 中发现 ${completedLiveData.length} 场已完结的比赛`);
+    
+    // 2. 查询对应的 daily_matches 记录，检查是否已更新
+    const matchIds = completedLiveData.map((item: any) => item.match_id).filter((id: any) => id != null);
+    
+    if (matchIds.length === 0) {
+      return [];
+    }
+    
+    const { data: dailyMatchesData, error: dailyMatchesError } = await supabase
+      .from('daily_matches' as any)
+      .select('match_id, date, status_id, ended, home_scores, away_scores')
+      .in('match_id', matchIds);
+    
+    if (dailyMatchesError) {
+      console.error(`[syncCompletedMatchesFromLiveDataTable] 查询 daily_matches 失败:`, dailyMatchesError);
+      return [];
+    }
+    
+    // 3. 找出需要同步的比赛（match_live_data 已完结，但 daily_matches 未更新）
+    const now = Math.floor(Date.now() / 1000);
+    const matchesToSync: Array<{
+      match_id: number;
+      date: string;
+      status_id: number;
+      ended: number;
+      home_scores: number[];
+      away_scores: number[];
+    }> = [];
+    
+    const dailyMatchesMap = new Map<number, any>();
+    (dailyMatchesData || []).forEach((match: any) => {
+      if (match.match_id) {
+        dailyMatchesMap.set(match.match_id, match);
+      }
     });
-
-    const status = response.status;
-    let data: any;
-
-    try {
-      const text = await response.text();
-      data = text ? JSON.parse(text) : null;
-    } catch (parseError) {
-      console.warn(`[fetch-daily-matches] 响应解析失败:`, parseError);
-      try {
-        const errorText = await response.text();
-        data = { raw: errorText || "无法读取响应" };
-      } catch {
-        data = { raw: "无法读取响应" };
+    
+    for (const liveData of completedLiveData) {
+      const matchId = liveData.match_id;
+      if (!matchId) continue;
+      
+      const dailyMatch = dailyMatchesMap.get(matchId);
+      if (!dailyMatch) {
+        console.warn(`[syncCompletedMatchesFromLiveDataTable] 比赛 ${matchId} 在 daily_matches 中不存在，跳过同步`);
+        continue;
+      }
+      
+      // 检查 daily_matches 是否已更新为完结状态
+      const isAlreadyCompleted = isMatchCompleted({
+        ended: dailyMatch.ended as number | null,
+        status_id: dailyMatch.status_id as number | null,
+      });
+      
+      if (!isAlreadyCompleted) {
+        // 需要同步：match_live_data 已完结，但 daily_matches 未更新
+        matchesToSync.push({
+          match_id: matchId,
+          date: dailyMatch.date,
+          status_id: 8, // 完场
+          ended: now,
+          home_scores: liveData.score_home_scores || [],
+          away_scores: liveData.score_away_scores || [],
+        });
       }
     }
-
-    if (!response.ok) {
-      console.error(
-        `[fetch-daily-matches] AI 分析请求失败: ${functionName}, 状态码: ${status}`,
-        data,
-      );
-      const errorMsg = data?.error || data?.message || `HTTP ${status}`;
-      console.error(`[fetch-daily-matches] 错误详情: ${errorMsg}`);
-      return;
+    
+    if (matchesToSync.length === 0) {
+      return [];
     }
-
-    console.log(`[fetch-daily-matches] AI 比赛分析完成`);
-    console.log(`[fetch-daily-matches] 分析结果:`, JSON.stringify({
-      message: data?.message,
-      results_count: data?.results?.length || 0,
-      status,
-    }, null, 2));
+    
+    
+    // 4. 批量更新 daily_matches 表
+    let successCount = 0;
+    for (const update of matchesToSync) {
+      const { error: updateError } = await supabase
+        .from('daily_matches')
+        .update({
+          status_id: update.status_id,
+          ended: update.ended ?? undefined, // 将 null 转换为 undefined
+          home_scores: update.home_scores,
+          away_scores: update.away_scores,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('date', update.date)
+        .eq('match_id', update.match_id);
+      
+      if (updateError) {
+        console.error(`[syncCompletedMatchesFromLiveDataTable] 更新比赛 ${update.match_id} 失败:`, updateError);
+      } else {
+        successCount++;
+      }
+    }
+    
+    if (successCount > 0) {
+      console.log(`[syncCompletedMatchesFromLiveDataTable] 同步完成：成功 ${successCount}/${matchesToSync.length} 场`);
+    }
+    
+    return matchesToSync.map(m => m.match_id);
   } catch (error) {
-    console.error(`[fetch-daily-matches] 触发 AI 分析时出错:`, error);
+    console.error(`[syncCompletedMatchesFromLiveDataTable] 同步过程中发生错误:`, error);
+    return [];
   }
 };
 
@@ -1080,30 +1130,93 @@ const updateCompletedMatchesFromLiveData = async (
   }
 
   // 过滤：找出已结束的比赛（status = 8 表示完场）
+  // 同时检测推迟的比赛（status = 9 或 13），需要更新到数据库
   // 如果提供了 predictedMatchIdsWithOdds，只处理这些比赛
-  const completedMatches = liveDataArray.filter(liveData => {
+  const completedMatches: typeof liveDataArray = [];
+  const postponedMatches: typeof liveDataArray = [];
+  
+  liveDataArray.forEach(liveData => {
     const status = liveData.score?.status;
     const matchId = liveData.id || liveData.score.id;
     
-    // 首先检查状态是否为已结束
-    if (status !== 8) {
-      return false;
+    // 检测推迟的比赛（status = 9 或 13）
+    if (status === 9 || status === 13) {
+      // 如果提供了预测比赛ID集合，只处理这些比赛
+      if (predictedMatchIdsWithOdds && matchId && predictedMatchIdsWithOdds.has(matchId)) {
+        postponedMatches.push(liveData);
+      } else if (!predictedMatchIdsWithOdds) {
+        postponedMatches.push(liveData);
+      }
+      return;
+    }
+    
+    // 使用统一判断函数检查是否已结束
+    if (!isMatchCompleted({ status_id: status })) {
+      return;
     }
     
     // 如果提供了预测比赛ID集合，只处理这些比赛
     if (predictedMatchIdsWithOdds && matchId) {
-      return predictedMatchIdsWithOdds.has(matchId);
+      if (predictedMatchIdsWithOdds.has(matchId)) {
+        completedMatches.push(liveData);
+      }
+    } else {
+      completedMatches.push(liveData);
     }
-    
-    return true;
   });
+  
+  // 处理推迟的比赛：更新 daily_matches 表的状态
+  if (postponedMatches.length > 0) {
+    const now = Math.floor(Date.now() / 1000);
+    
+    for (const liveData of postponedMatches) {
+      const matchId = liveData.id || liveData.score.id;
+      if (!matchId) continue;
+      
+      try {
+        // 查询该比赛的 date
+        const { data: existingMatch, error: queryError } = await supabase
+          .from("daily_matches")
+          .select("date, match_id, status_id")
+          .eq("match_id", matchId)
+          .limit(1)
+          .single();
+
+        if (queryError || !existingMatch) {
+          console.warn(`[updateCompletedMatchesFromLiveData] 未找到比赛 ${matchId} 的记录，跳过更新`);
+          continue;
+        }
+
+        // 检查是否已经是推迟状态
+        const currentStatusId = existingMatch.status_id as number | null;
+        if (currentStatusId === 9 || currentStatusId === 13) {
+          continue;
+        }
+
+        // 更新为推迟状态
+        const { error: updateError } = await supabase
+          .from("daily_matches")
+          .update({
+            status_id: liveData.score?.status || 9, // 9=推迟, 13=待定
+            updated_at: new Date().toISOString(),
+          })
+          .eq("date", existingMatch.date)
+          .eq("match_id", matchId);
+
+        if (updateError) {
+          console.error(`[updateCompletedMatchesFromLiveData] 更新比赛 ${matchId} 为推迟状态失败:`, updateError);
+        } else {
+        }
+      } catch (error) {
+        console.error(`[updateCompletedMatchesFromLiveData] 处理推迟比赛 ${matchId} 时出错:`, error);
+      }
+    }
+  }
 
   if (completedMatches.length === 0) {
-    console.log(`[updateCompletedMatchesFromLiveData] 没有已结束的比赛需要更新`);
     return [];
   }
 
-  console.log(`[updateCompletedMatchesFromLiveData] 发现 ${completedMatches.length} 场已结束的比赛（共 ${liveDataArray.length} 场）`);
 
   const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
   const completedMatchIds: number[] = [];
@@ -1138,7 +1251,6 @@ const updateCompletedMatchesFromLiveData = async (
 
   // 批量更新 daily_matches 表
   try {
-    console.log(`[updateCompletedMatchesFromLiveData] 准备更新 ${updates.length} 场已结束的比赛到 daily_matches 表`);
     
     // 逐个更新，因为需要根据 match_id 和 date 进行匹配
     let successCount = 0;
@@ -1156,10 +1268,11 @@ const updateCompletedMatchesFromLiveData = async (
         continue;
       }
 
-      // 检查是否已经标记为已结束
-      const currentEnded = existingMatch.ended as number | null;
-      const currentStatusId = existingMatch.status_id as number | null;
-      const isAlreadyCompleted = (currentEnded !== null && currentEnded > 0) || currentStatusId === 8;
+      // 检查是否已经标记为已结束（使用统一判断函数）
+      const isAlreadyCompleted = isMatchCompleted({
+        ended: existingMatch.ended as number | null,
+        status_id: existingMatch.status_id as number | null,
+      });
 
       if (isAlreadyCompleted) {
         console.log(`[updateCompletedMatchesFromLiveData] 比赛 ${update.match_id} 已经标记为已结束，跳过更新`);
@@ -1171,7 +1284,7 @@ const updateCompletedMatchesFromLiveData = async (
         .from("daily_matches")
         .update({
           status_id: update.status_id,
-          ended: update.ended,
+          ended: update.ended ?? undefined, // 将 null 转换为 undefined
           home_scores: update.home_scores,
           away_scores: update.away_scores,
           updated_at: new Date().toISOString(),
@@ -1183,11 +1296,12 @@ const updateCompletedMatchesFromLiveData = async (
         console.error(`[updateCompletedMatchesFromLiveData] 更新比赛 ${update.match_id} 失败:`, updateError);
       } else {
         successCount++;
-        console.log(`[updateCompletedMatchesFromLiveData] ✓ 成功更新比赛 ${update.match_id} 为已结束状态`);
       }
     }
 
-    console.log(`[updateCompletedMatchesFromLiveData] 完成更新：成功 ${successCount}/${updates.length} 场`);
+    if (successCount > 0) {
+      console.log(`[updateCompletedMatchesFromLiveData] 完成更新：成功 ${successCount}/${updates.length} 场`);
+    }
     return completedMatchIds;
   } catch (error) {
     console.error(`[updateCompletedMatchesFromLiveData] 批量更新时发生错误:`, error);
@@ -1258,12 +1372,6 @@ const triggerAISettlement = async (matchIds?: number[]): Promise<void> => {
       return;
     }
 
-    console.log(`[fetch-daily-matches] AI 自动下注结算完成`);
-    console.log(`[fetch-daily-matches] 结算结果:`, JSON.stringify({
-      message: data?.message,
-      settlements_count: data?.settlements?.length || 0,
-      status,
-    }, null, 2));
   } catch (error) {
     console.error(`[fetch-daily-matches] 触发 AI 结算时出错:`, error);
   }
@@ -1278,15 +1386,9 @@ const triggerUserBetsSettlement = async (): Promise<void> => {
   }
 
   try {
-    console.log(`[fetch-daily-matches] ========== 开始触发用户手动下注结算 ==========`);
-
     const functionName = "settle-user-bets";
     const functionUrl = `${SUPABASE_URL}/functions/v1/${functionName}`;
     const payload = {};
-
-    console.log(`[fetch-daily-matches] 调用函数: ${functionName}`);
-    console.log(`[fetch-daily-matches] URL: ${functionUrl}`);
-    console.log(`[fetch-daily-matches] Payload: ${JSON.stringify(payload)}`);
 
     const response = await fetch(functionUrl, {
       method: "POST",
@@ -1376,7 +1478,6 @@ const triggerAIAutoBetsSettlement = async (): Promise<void> => {
     }
 
     if (status === 200 || status === 201) {
-      console.log(`[fetch-daily-matches] AI 自动下注结算成功:`, JSON.stringify(data, null, 2));
     } else {
       console.error(`[fetch-daily-matches] AI 自动下注结算失败 (状态码: ${status}):`, data);
     }
@@ -1554,11 +1655,9 @@ const saveMatchLiveData = async (
     });
 
     if (activeMatches.length === 0) {
-      console.log(`[saveMatchLiveData] 没有进行中的比赛需要更新`);
       return 0;
     }
 
-    console.log(`[saveMatchLiveData] 过滤后剩余 ${activeMatches.length} 场进行中的比赛（共 ${liveDataArray.length} 场）`);
   } else {
     // refresh 模式：保存所有状态的比赛（包括已结束的，用于结算）
     console.log(`[saveMatchLiveData] Refresh 模式：保存所有状态的比赛（共 ${liveDataArray.length} 场）`);
@@ -1616,7 +1715,6 @@ const saveMatchLiveData = async (
     if (error) {
       console.error(`[saveMatchLiveData] 批量更新失败:`, error);
       // 如果批量更新失败，尝试逐个更新（降级处理）
-      console.log(`[saveMatchLiveData] 尝试逐个更新...`);
       let fallbackCount = 0;
       for (const rowData of rowsToUpsert) {
         const { error: singleError } = await supabase
@@ -1635,7 +1733,9 @@ const saveMatchLiveData = async (
     }
 
     const savedCount = count || rowsToUpsert.length;
-    console.log(`[saveMatchLiveData] 成功批量更新 ${savedCount} 场进行中的比赛`);
+    if (savedCount > 0) {
+      console.log(`[saveMatchLiveData] 成功更新 ${savedCount} 场比赛的实时数据`);
+    }
     return savedCount;
   } catch (error) {
     console.error(`[saveMatchLiveData] 批量更新时发生错误:`, error);
@@ -1674,7 +1774,6 @@ serve(async (req) => {
       ? timezone.trim()
       : DEFAULT_TIMEZONE;
 
-    console.log(`[fetch-daily-matches] 使用时区: ${resolvedTimezone}`);
 
     const targetDate = customDate && typeof customDate === "string" && customDate.length >= 10
       ? customDate.slice(0, 10)
@@ -1710,7 +1809,6 @@ serve(async (req) => {
                   .filter((id): id is number => id !== null && typeof id === 'number')
               ));
               
-              console.log(`[fetch-daily-matches] 发现 ${analysisMatchIds.length} 场比赛有 AI 分析记录`);
               
               // 查询这些比赛中有赔率信息的
               if (analysisMatchIds.length > 0) {
@@ -1747,7 +1845,6 @@ serve(async (req) => {
         let liveDataCount = 0;
         
         if (liveData && liveData.results && liveData.results.length > 0) {
-          console.log(`[fetch-daily-matches] 获取到 ${liveData.results.length} 场实时比赛数据`);
           
           // 过滤：只保留已被预测过且有赔率信息的比赛
           let filteredLiveData = liveData.results;
@@ -1766,50 +1863,43 @@ serve(async (req) => {
               
               return predictedMatchIdsWithOdds.has(matchIdNum);
             });
-            console.log(`[fetch-daily-matches] 过滤后剩余 ${filteredLiveData.length} 场符合条件的比赛（共 ${liveData.results.length} 场）`);
-            
-            // 调试：打印过滤后的比赛ID
-            if (filteredLiveData.length > 0) {
-              const filteredIds = filteredLiveData.map(m => {
-                const matchId = m.id || m.score?.id;
-                return typeof matchId === 'number' ? matchId : (typeof matchId === 'string' ? parseInt(matchId, 10) : null);
-              }).filter(id => id !== null);
-              console.log(`[fetch-daily-matches] 过滤后的比赛ID列表:`, filteredIds.join(', '));
-            }
           } else {
-            console.log(`[fetch-daily-matches] 没有找到符合条件的比赛，跳过更新`);
             filteredLiveData = [];
           }
           
           if (filteredLiveData.length > 0) {
             // refresh 模式下，保存所有状态的比赛（包括已结束的，用于结算）
             liveDataCount = await saveMatchLiveData(filteredLiveData, true);
-            console.log(`[fetch-daily-matches] 成功保存 ${liveDataCount} 场已预测比赛的实时数据（包括所有状态）`);
-          } else {
-            console.log(`[fetch-daily-matches] 没有符合条件的比赛需要更新`);
           }
 
           // 检查并更新已结束的比赛到 daily_matches 表
           // 只检查已被预测过且有赔率信息的比赛（与 refresh 模式的过滤逻辑一致）
           if (liveData && liveData.results && liveData.results.length > 0) {
-            console.log(`[fetch-daily-matches] 检查实时数据中的已结束比赛（仅限已预测且有赔率的比赛）...`);
             const completedMatchIds = await updateCompletedMatchesFromLiveData(
               liveData.results,
               predictedMatchIdsWithOdds.size > 0 ? predictedMatchIdsWithOdds : undefined
             );
             
             if (completedMatchIds.length > 0) {
-              console.log(`[fetch-daily-matches] 发现 ${completedMatchIds.length} 场已结束的比赛，准备触发结算`);
               // 异步触发结算，不阻塞主流程
               await triggerAllSettlements(completedMatchIds).catch(error => {
                 console.error(`[fetch-daily-matches] 触发结算失败:`, error);
               });
-            } else {
-              console.log(`[fetch-daily-matches] 没有新结束的比赛需要结算`);
             }
           }
-        } else {
-          console.log(`[fetch-daily-matches] 未获取到实时比赛数据`);
+          
+          // 额外检查：从 match_live_data 表中查找已完结但 daily_matches 未更新的比赛
+          // 确保数据同步的完整性（即使实时API没有返回，也能从数据库同步）
+          const syncedMatchIds = await syncCompletedMatchesFromLiveDataTable(
+            predictedMatchIdsWithOdds.size > 0 ? predictedMatchIdsWithOdds : undefined
+          );
+          
+          if (syncedMatchIds.length > 0) {
+            // 异步触发结算，不阻塞主流程
+            await triggerAllSettlements(syncedMatchIds).catch(error => {
+              console.error(`[fetch-daily-matches] 触发结算失败:`, error);
+            });
+          }
         }
 
       return new Response(
@@ -1860,10 +1950,7 @@ serve(async (req) => {
 
     // 获取联赛常量（用于过滤）
       const leagueConstants = await getLeagueConstants();
-      console.log(`[fetch-daily-matches] 加载了 ${leagueConstants.size} 个联赛常量`);
-
     // 调用纳米数据API获取比赛数据
-    console.log(`[fetch-daily-matches] 开始调用纳米数据API获取比赛数据...`);
     const apiResponse = await fetchSportNanoAPIDiary(targetDate);
     
     // 确保 results 存在
@@ -1883,20 +1970,23 @@ serve(async (req) => {
       competitions,
           leagueConstants,
         );
-    console.log(`[fetch-daily-matches] 匹配联赛后剩余 ${filteredMatches.length} 场比赛`);
 
-    // 优化：过滤掉已完成的比赛（非 refresh 模式）
+    // 优化：过滤掉已完成的比赛和推迟的比赛（非 refresh 模式）
     // 只处理未开始（status_id = 1）或进行中（status_id = 2, 3, 4）的比赛
-    // status_id: 1=未开赛, 2=上半场, 3=中场, 4=下半场, 8=完场, 11=腰斩
+    // status_id: 1=未开赛, 2=上半场, 3=中场, 4=下半场, 8=完场, 9=推迟, 11=腰斩, 13=待定
     const activeStatusIds = [1, 2, 3, 4]; // 未开始或进行中
+    const postponedStatusIds = [9, 13]; // 推迟和待定
     const activeMatches = filteredMatches.filter(match => {
       const statusId = match.status_id;
+      // 排除推迟的比赛
+      if (statusId !== undefined && postponedStatusIds.includes(statusId)) {
+        return false;
+      }
       return statusId !== undefined && activeStatusIds.includes(statusId);
     });
     
     if (activeMatches.length < filteredMatches.length) {
       const completedCount = filteredMatches.length - activeMatches.length;
-      console.log(`[fetch-daily-matches] 过滤掉 ${completedCount} 场已完成的比赛，剩余 ${activeMatches.length} 场活跃比赛`);
     }
 
     // 使用过滤后的活跃比赛
@@ -1945,25 +2035,25 @@ serve(async (req) => {
       true, // 正常模式获取赔率
     );
 
-    // 如果成功获取了赔率，触发 AI 分析
-    console.log(`[fetch-daily-matches] 检查 matchesWithOdds: length=${matchesWithOdds?.length || 0}, value=${JSON.stringify(matchesWithOdds || [])}`);
-    if (matchesWithOdds && matchesWithOdds.length > 0) {
-      console.log(`[fetch-daily-matches] 检测到 ${matchesWithOdds.length} 场比赛成功获取赔率，准备触发 AI 分析...`);
-      console.log(`[fetch-daily-matches] 比赛ID列表: ${matchesWithOdds.join(', ')}`);
-      // 异步调用，不阻塞主流程
-      triggerMatchAnalysis(matchesWithOdds).catch(error => {
-        console.error(`[fetch-daily-matches] 触发 AI 分析失败:`, error);
-      });
-    } else {
-      console.log(`[fetch-daily-matches] 没有成功获取赔率的比赛，跳过 AI 分析`);
-    }
 
     // 如果有已完成的比赛，触发自动结算
         if (completedMatchIds.length > 0) {
-      console.log(`[fetch-daily-matches] 发现 ${completedMatchIds.length} 场已完成的比赛，准备触发自动结算`);
           await triggerAllSettlements(completedMatchIds);
         } else {
       console.log(`[fetch-daily-matches] 没有已完成的比赛，跳过结算触发`);
+      }
+      
+      // 额外检查：从 match_live_data 表中查找已完结但 daily_matches 未更新的比赛
+      // 确保数据同步的完整性（即使正常模式没有检测到，也能从数据库同步）
+      console.log(`[fetch-daily-matches] 检查 match_live_data 表中已完结但 daily_matches 未更新的比赛...`);
+      const syncedMatchIds = await syncCompletedMatchesFromLiveDataTable();
+      
+      if (syncedMatchIds.length > 0) {
+        console.log(`[fetch-daily-matches] 从 match_live_data 同步了 ${syncedMatchIds.length} 场已完结的比赛到 daily_matches，准备触发结算`);
+        // 异步触发结算，不阻塞主流程
+        await triggerAllSettlements(syncedMatchIds).catch(error => {
+          console.error(`[fetch-daily-matches] 触发结算失败:`, error);
+        });
       }
 
       return new Response(

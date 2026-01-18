@@ -56,32 +56,49 @@ const fetchCompletedMatches = async (): Promise<MatchResult[]> => {
   const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select("match_id, home_scores, away_scores, ended, status_id")
-    .or("ended.gt.0,status_id.eq.8"); // ended > 0 或 status_id = 8（完场）
+    .or("ended.gt.0,status_id.eq.8,status_id.eq.9,status_id.eq.11,status_id.eq.13"); // ended > 0 或 status_id = 8（完场）、9（推迟）、11（腰斩）、13（待定）
 
   if (error) {
     throw error;
   }
 
-  // 过滤：只保留已结束的比赛
+  // 过滤：只保留已结束、腰斩、推迟或待定的比赛（需要结算的比赛）
   const completedMatches = (allMatches || []).filter((match: any) => {
     const ended = match.ended;
     const endedValue = ended !== null && ended !== undefined 
       ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
       : 0;
     const statusId = match.status_id !== null && match.status_id !== undefined
-      ? (typeof statusId === 'string' ? parseInt(statusId, 10) : Number(statusId))
+      ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
       : null;
     
-    // 比赛已结束：ended > 0（秒级时间戳）或 status_id = 8（完场）
-    return (!isNaN(endedValue) && endedValue > 0) || (!isNaN(statusId) && statusId === 8);
+    // 比赛已结束：ended > 0（秒级时间戳）或 status_id = 8（完场）、9（推迟）、11（腰斩）、13（待定）
+    const validStatusId = statusId !== null && !isNaN(statusId) ? statusId : null;
+    return (!isNaN(endedValue) && endedValue > 0) || 
+           (validStatusId !== null && (validStatusId === 8 || validStatusId === 9 || validStatusId === 11 || validStatusId === 13));
   });
 
-  return completedMatches.map((match: any) => ({
-    match_id: match.match_id ?? 0,
-    goals_home: match.home_scores?.[0] ?? null, // home_scores[0] 是常规时间比分
-    goals_away: match.away_scores?.[0] ?? null, // away_scores[0] 是常规时间比分
-    status_short: match.status_id === 8 ? "FT" : null,
-  })) as MatchResult[];
+  return completedMatches.map((match: any) => {
+    const statusId = match.status_id !== null && match.status_id !== undefined
+      ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
+      : null;
+    
+    let statusShort: string | null = null;
+    if (statusId === 8) {
+      statusShort = "FT"; // 完场
+    } else if (statusId === 9 || statusId === 13) {
+      statusShort = "POSTP"; // 推迟或待定
+    } else if (statusId === 11) {
+      statusShort = "ABD"; // 腰斩
+    }
+    
+    return {
+      match_id: match.match_id ?? 0,
+      goals_home: match.home_scores?.[0] ?? null, // home_scores[0] 是常规时间比分
+      goals_away: match.away_scores?.[0] ?? null, // away_scores[0] 是常规时间比分
+      status_short: statusShort,
+    };
+  }) as MatchResult[];
 };
 
 // 根据投注类型和比赛结果计算输赢
@@ -97,8 +114,9 @@ const calculateBetResult = (
   const awayScore = matchResult.goals_away !== null && matchResult.goals_away !== undefined ? matchResult.goals_away : 0;
   const totalGoals = homeScore + awayScore;
 
-  // 如果比赛被取消或无效，返回 void
-  if (matchResult.status_short === "CANC" || matchResult.status_short === "ABD") {
+  // 如果比赛被取消、无效或推迟，返回 void
+  // status_id = 9（推迟）或 13（待定）的比赛，投注应标记为 void
+  if (matchResult.status_short === "CANC" || matchResult.status_short === "ABD" || matchResult.status_short === "POSTP") {
     return "void";
   }
 
