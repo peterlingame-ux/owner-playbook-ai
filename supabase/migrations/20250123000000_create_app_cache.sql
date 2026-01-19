@@ -40,4 +40,3 @@ COMMENT ON TABLE app_cache IS '应用缓存表，用于存储需要定期刷新�
 COMMENT ON COLUMN app_cache.key IS '缓存键，唯一标识符';
 COMMENT ON COLUMN app_cache.value IS '缓存值，JSON格式';
 COMMENT ON COLUMN app_cache.expires_at IS '过期时间，超过此时间需要刷新';
-

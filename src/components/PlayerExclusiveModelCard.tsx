@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getUTC8Timestamp } from "@/lib/utils";
 import { 
   Sparkles, 
   Send, 
@@ -147,7 +148,7 @@ const MatchTimeDisplay = ({ match }: { match: any }) => {
       // 先查询 daily_matches 表中的 status_id
       // status_id: 1 = 未开赛, 2 = 上半场, 3 = 中场休息, 4 = 下半场, 8 = 完场
       const dailyStatusId = currentMatch.status_id;
-      const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+      const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
       
       // 如果 status_id === 1（未开始）并且当前时间小于 match_time，使用 match_time 显示倒计时
       if (dailyStatusId === 1) {

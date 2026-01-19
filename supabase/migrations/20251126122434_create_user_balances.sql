@@ -6,8 +6,8 @@ CREATE TABLE public.user_balances (
   total_wagered DECIMAL NOT NULL DEFAULT 0.00,
   total_won DECIMAL NOT NULL DEFAULT 0.00,
   total_lost DECIMAL NOT NULL DEFAULT 0.00,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 -- Enable RLS
@@ -96,7 +96,7 @@ BEGIN
   SET 
     balance = balance - p_bet_amount,
     total_wagered = total_wagered + p_bet_amount,
-    updated_at = now()
+    updated_at = NOW()
   WHERE user_id = p_user_id;
 
   -- Insert prediction

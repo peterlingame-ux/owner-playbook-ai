@@ -7,6 +7,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// 获取 UTC+8 时区的当前时间戳（秒级）
+// 获取当前 UTC 时间戳（秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8Timestamp = (): number => {
+  // 直接返回当前 UTC 时间戳（秒级）
+  // 这是标准做法，因为时间戳本身就是 UTC 的
+  return Math.floor(Date.now() / 1000);
+};
+
+// 获取当前 UTC 时间戳（毫秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8TimestampMs = (): number => {
+  // 直接返回当前 UTC 时间戳（毫秒级）
+  return Date.now();
+};
+
 interface UserPrediction {
   id: string;
   user_id: string;
@@ -49,8 +65,8 @@ serve(async (req) => {
 
     // 获取所有已完成但未结算的比赛（使用 ended 字段和 status_id 判断）
     // 比赛结束逻辑：ended > 0（秒级时间戳）或 status_id = 8（完场）
-    const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
-    console.log(`[settle-user-bets] 开始自动结算用户下注，当前时间戳（秒）: ${now}`);
+    const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
+    console.log(`[settle-user-bets] 开始自动结算用户下注，当前时间戳（秒，UTC+8）: ${now}`);
     
     console.log(`[settle-user-bets] 步骤1: 查询所有已结束的比赛（ended > 0 或 status_id = 8）...`);
     const { data: allMatches, error: matchesError } = await supabase

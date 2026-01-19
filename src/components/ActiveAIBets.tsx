@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PlaceBetDialog } from "./PlaceBetDialog";
 import { toast } from "@/hooks/use-toast";
 import TiltCard from "@/components/TiltCard";
+import { getUTC8Timestamp, getUTC8TimestampMs } from "@/lib/utils";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
@@ -50,7 +51,7 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       // 从 ref 中获取最新的 match 对象，确保使用最新的值
       const currentMatch = matchRef.current;
       
-      const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+      const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
       
       // 首先检查当前时间是否小于 daily_matches 里面的比赛开始时间（match_time）
       const matchTime = currentMatch.match_time;
@@ -414,7 +415,7 @@ const normalizeDailyMatch = (match: any, liveData?: any): DailyMatch => {
   let statusElapsed: number | null = null;
   if (liveData?.score_kickoff_time && statusId) {
     // 比赛进行中（上半场或下半场）
-    const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+    const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
     const kickoffTime = liveData.score_kickoff_time; // 上半场开球时间戳（秒）
     
     if (statusId === 2) {
@@ -712,7 +713,7 @@ const ActiveAIBets = () => {
         
         const today = getUTC8DateString(new Date());
         // 计算昨天的日期（UTC+8）
-        const yesterdayDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const yesterdayDate = new Date(getUTC8TimestampMs() - 24 * 60 * 60 * 1000);
         const yesterdayStr = getUTC8DateString(yesterdayDate);
 
         // Fetch yesterday's and today's matches (live or upcoming) - exclude completed madao'j
@@ -1673,7 +1674,7 @@ const ActiveAIBets = () => {
           // 1. Started matches (live) first, then upcoming matches
           // 2. Within same time group, sort by kickoff time (earlier first)
           // 3. For matches at the same time, prioritize top leagues
-          const now = Date.now();
+          const now = getUTC8TimestampMs(); // UTC+8 时间戳（毫秒）
           const matchEntries = Array.from(betsByMatch.values())
             .filter(entry => {
               // 过滤掉已结束的比赛
@@ -2284,7 +2285,7 @@ const ActiveAIBets = () => {
           // 1. Started matches (live) first, then upcoming matches
           // 2. Within same time group, sort by kickoff time (earlier first)
           // 3. For matches at the same time, prioritize top leagues
-          const now = Date.now();
+          const now = getUTC8TimestampMs(); // UTC+8 时间戳（毫秒）
           const matchEntries = Array.from(betsByMatch.values())
             .filter(entry => {
               // 过滤掉已结束的比赛

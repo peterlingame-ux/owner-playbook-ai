@@ -26,8 +26,8 @@ BEGIN
       over_under_pick TEXT,
       pnl NUMERIC,
       settled_at TIMESTAMP WITH TIME ZONE,
-      inserted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-      updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+      inserted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
 
     -- 创建索引
@@ -138,7 +138,7 @@ BEGIN
     AND table_name = 'ai_auto_bets' 
     AND column_name = 'updated_at'
   ) THEN
-    ALTER TABLE public.ai_auto_bets ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now();
+    ALTER TABLE public.ai_auto_bets ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW();
   END IF;
 END $$;
 
@@ -148,7 +148,7 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  NEW.updated_at = now();
+  NEW.updated_at = NOW();
   RETURN NEW;
 END;
 $$;

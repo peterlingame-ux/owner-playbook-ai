@@ -8,7 +8,7 @@ CREATE TABLE public.user_predictions (
   handicap_line DECIMAL,
   over_under_line DECIMAL,
   confidence INTEGER,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   match_date TIMESTAMP WITH TIME ZONE NOT NULL,
   result TEXT CHECK (result IN ('win', 'loss', 'pending')),
   actual_result TEXT

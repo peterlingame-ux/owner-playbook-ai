@@ -6,7 +6,7 @@ CREATE TABLE public.deposit_records (
   network TEXT NOT NULL DEFAULT 'TRC20',
   wallet_address TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   confirmed_at TIMESTAMP WITH TIME ZONE
 );
 

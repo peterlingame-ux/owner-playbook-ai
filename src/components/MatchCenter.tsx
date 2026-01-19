@@ -5,7 +5,7 @@ import { Star, Flame, Play, Loader2, Clock, Calendar, Trophy, TrendingUp } from 
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getUTC8Timestamp } from "@/lib/utils";
 import {
   fetchFixtures,
   fetchMatchLive,
@@ -189,7 +189,7 @@ const MatchCenter = () => {
     let status: 'live' | 'upcoming' | 'finished' = 'upcoming';
     let minute: string | undefined;
     
-    const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+    const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
     const matchTime = match.match_time || 0;
     const statusId = match.status_id;
     
@@ -526,7 +526,7 @@ const MatchCenter = () => {
           return match;
         }
 
-        const now = Math.floor(Date.now() / 1000);
+        const now = getUTC8Timestamp(); // UTC+8 时间戳（秒）
         const kickoffTime = liveData.score.kickoffTime;
         const liveStatusId = liveData.score.status;
 
@@ -740,7 +740,7 @@ const MatchCenter = () => {
         }
         
         // 不显示小于当前时间的比赛（已开始的比赛）
-        const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+        const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
         if (match.timestamp > 0 && match.timestamp < now) {
           return false;
         }

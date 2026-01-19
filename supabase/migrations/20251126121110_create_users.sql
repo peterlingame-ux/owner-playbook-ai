@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS public.users (
   display_name TEXT NOT NULL,
   avatar_url TEXT NOT NULL DEFAULT '/avatars/avatar-1.png',
   signature TEXT DEFAULT '预测玩家',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable RLS

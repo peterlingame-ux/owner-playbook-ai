@@ -47,6 +47,22 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
 const AUTO_BET_TABLE = "ai_auto_bets";
 const DAILY_MATCHES_TABLE = "daily_matches";
 
+// 获取 UTC+8 时区的当前时间戳（秒级）
+// 获取当前 UTC 时间戳（秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8Timestamp = (): number => {
+  // 直接返回当前 UTC 时间戳（秒级）
+  // 这是标准做法，因为时间戳本身就是 UTC 的
+  return Math.floor(Date.now() / 1000);
+};
+
+// 获取当前 UTC 时间戳（毫秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8TimestampMs = (): number => {
+  // 直接返回当前 UTC 时间戳（毫秒级）
+  return Date.now();
+};
+
 // 查询所有已结束的比赛
 const fetchCompletedMatches = async (): Promise<MatchResult[]> => {
   if (!supabase) {
@@ -301,7 +317,7 @@ const autoSettleBets = async () => {
         .update({
           status,
           pnl,
-          settled_at: new Date().toISOString(),
+          settled_at: new Date(getUTC8TimestampMs()).toISOString(),
         })
         .eq("id", bet.id);
 

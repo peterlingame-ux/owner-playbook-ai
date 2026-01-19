@@ -9,7 +9,7 @@ CREATE TABLE public.daily_prize_winners (
   prize_image_url TEXT,
   is_drawn BOOLEAN NOT NULL DEFAULT false,
   drawn_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   UNIQUE (day_number, month, year)
 );
 

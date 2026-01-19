@@ -19,7 +19,7 @@ BEGIN
       position_id BIGINT,
       auto_bet_id BIGINT,
       note TEXT,
-      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
 
     -- 创建索引

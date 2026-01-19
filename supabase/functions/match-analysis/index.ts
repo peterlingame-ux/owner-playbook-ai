@@ -416,6 +416,40 @@ const resolveStrategy = (
   ...aiStrategy,
 });
 
+// 获取当前 UTC 时间戳（秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8Timestamp = (): number => {
+  // 直接返回当前 UTC 时间戳（秒级）
+  // 这是标准做法，因为时间戳本身就是 UTC 的
+  return Math.floor(Date.now() / 1000);
+};
+
+// 获取当前 UTC 时间戳（毫秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8TimestampMs = (): number => {
+  // 直接返回当前 UTC 时间戳（毫秒级）
+  return Date.now();
+};
+
+// 将 UTC 时间戳转换为 UTC+8 时区的日期字符串（用于日志显示）
+const formatUTC8Time = (timestampSeconds: number): string => {
+  // 将秒级时间戳转换为毫秒级
+  const timestampMs = timestampSeconds * 1000;
+  // 创建 Date 对象（JavaScript 的 Date 对象内部存储的是 UTC 时间戳）
+  const date = new Date(timestampMs);
+  // 格式化为 UTC+8 时区的时间字符串
+  return date.toLocaleString('en-US', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }) + ' (UTC+8)';
+};
+
 // 获取当天的比赛
 // 获取 UTC+8 时区的日期字符串（YYYY-MM-DD）
 const getUTC8DateString = (date: Date): string => {
@@ -436,21 +470,21 @@ const getTodayMatches = async () => {
   }
 
   // 获取今天和昨天的日期（使用 UTC+8 时区，与数据库存储一致）
-  const now = new Date();
+  const now = new Date(getUTC8TimestampMs());
   const today = getUTC8DateString(now);
   
   // 计算昨天的日期（UTC+8）
   // 先获取 UTC+8 的当前时间，然后减去 24 小时
-  const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayDate = new Date(getUTC8TimestampMs() - 24 * 60 * 60 * 1000);
   const yesterdayStr = getUTC8DateString(yesterdayDate);
   
   console.log(`[getTodayMatches] 查询比赛: 昨天=${yesterdayStr}, 今天=${today}`);
   
   // 计算时间范围：当前时间往后120分钟内
-  const nowSeconds = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const nowSeconds = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
   const maxTimeSeconds = nowSeconds + (120 * 60); // 当前时间 + 120分钟（秒）
   
-  console.log(`[getTodayMatches] 时间范围: 当前=${nowSeconds} (${new Date(nowSeconds * 1000).toISOString()}), 最大=${maxTimeSeconds} (${new Date(maxTimeSeconds * 1000).toISOString()})`);
+  console.log(`[getTodayMatches] 时间范围: 当前=${nowSeconds} (${formatUTC8Time(nowSeconds)}), 最大=${maxTimeSeconds} (${formatUTC8Time(maxTimeSeconds)})`);
   
   // 查询比赛，过滤未完成的比赛（基于 ended 字段）
   // ended = 0 或 ended 为 null 表示比赛未结束，需要查询
@@ -760,7 +794,7 @@ const findFqtyMatchIdFromCache = (
   const timeTolerance = 2 * 60 * 60; // 2小时（秒）
   const matchTimeMs = matchTime * 1000; // 转换为毫秒（番茄体育API使用毫秒时间戳）
   
-  // 2. 球队名称匹配：使用模糊匹配（包含关系）
+  // 2. 球队名称匹配：只要有一个球队名完全对应即可
   const normalizeTeamName = (name: string): string => {
     // 移除空格、转换为小写、移除特殊字符
     return name.toLowerCase().replace(/\s+/g, '').replace(/[^\w\u4e00-\u9fa5]/g, '');
@@ -783,18 +817,16 @@ const findFqtyMatchIdFromCache = (
       continue; // 时间差异太大，跳过
     }
     
-    // 球队名称匹配
+    // 球队名称匹配：只要有一个球队名完全对应即可
     const normalizedFqtyHome = normalizeTeamName(fqtyMatch.mhn);
     const normalizedFqtyAway = normalizeTeamName(fqtyMatch.man);
     
-    // 检查主队和客队是否匹配（允许部分匹配）
-    const homeMatch = normalizedFqtyHome.includes(normalizedHomeTeam) || 
-                     normalizedHomeTeam.includes(normalizedFqtyHome);
-    const awayMatch = normalizedFqtyAway.includes(normalizedAwayTeam) || 
-                 normalizedAwayTeam.includes(normalizedFqtyAway);
+    // 检查是否至少有一个球队名完全对应
+    const homeMatch = normalizedFqtyHome === normalizedHomeTeam;
+    const awayMatch = normalizedFqtyAway === normalizedAwayTeam;
     
-    if (homeMatch && awayMatch) {
-      console.log(`[match-analysis] [findFqtyMatchIdFromCache] 找到匹配: 纳米数据 ${homeTeamName} vs ${awayTeamName} (${matchTime}) -> 番茄体育 mid=${fqtyMatch.mid}`);
+    if (homeMatch || awayMatch) {
+      console.log(`[match-analysis] [findFqtyMatchIdFromCache] 找到匹配: 纳米数据 ${homeTeamName} vs ${awayTeamName} (${matchTime}) -> 番茄体育 mid=${fqtyMatch.mid} (${homeMatch ? '主队' : '客队'}匹配)`);
       return fqtyMatch.mid;
     }
   }
@@ -818,10 +850,10 @@ const generateDefaultBetInfo = (prediction: string, confidence: number): BetInfo
 
 const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: MatchRequest[]; error?: string }> => {
   // 获取今天和昨天的日期（使用 UTC+8 时区，与数据库存储一致）
-  const now = new Date();
+  const now = new Date(getUTC8TimestampMs());
   const today = getUTC8DateString(now);
   // 计算昨天的日期（UTC+8）
-  const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayDate = new Date(getUTC8TimestampMs() - 24 * 60 * 60 * 1000);
   const yesterdayStr = getUTC8DateString(yesterdayDate);
   
   // 如果提供了 matches 数组，过滤出昨天和今天的比赛
@@ -1062,7 +1094,8 @@ const persistAnalyses = async (
     model_identifier: item.model,
     analysis: item.analysis ?? null,
     error: item.error ?? null,
-    latency_ms: item.latencyMs ?? null,
+    // latency_ms 是 INTEGER 类型，需要将浮点数转换为整数
+    latency_ms: item.latencyMs != null ? Math.round(item.latencyMs) : null,
     match_snapshot: matchInfo,
     bet_snapshot: betSnapshot,
   }));
@@ -2197,7 +2230,7 @@ serve(async (req) => {
               // 更新缓存
               if (supabase && fqtyMatchesCache && fqtyMatchesCache.length > 0) {
                 try {
-                  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+                  const expiresAt = new Date(getUTC8TimestampMs() + 5 * 60 * 1000).toISOString();
                   await supabase.from('app_cache').upsert({
                     key: 'fqty_matches_cache',
                     value: fqtyMatchesCache,
@@ -2558,7 +2591,7 @@ serve(async (req) => {
                     // 更新缓存
                     if (supabase && fqtyMatchesCache && fqtyMatchesCache.length > 0) {
                       try {
-                        const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+                        const expiresAt = new Date(getUTC8TimestampMs() + 5 * 60 * 1000).toISOString();
                         await supabase.from('app_cache').upsert({
                           key: 'fqty_matches_cache',
                           value: fqtyMatchesCache,

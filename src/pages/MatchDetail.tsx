@@ -8,6 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
+import { getUTC8Timestamp } from "@/lib/utils";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -793,7 +794,7 @@ const convertApiMatchToDetailInfo = (
   let status: 'live' | 'finished' | 'upcoming' = 'upcoming';
   let minute: string | undefined;
   
-  const now = Math.floor(Date.now() / 1000);
+  const now = getUTC8Timestamp(); // UTC+8 时间戳（秒）
   const statusId = apiMatch.status_id;
   
   switch (statusId) {
@@ -1554,7 +1555,7 @@ export default function MatchDetail() {
 
     const status = live.score.status;
     const kickoffTime = live.score.kickoffTime; // 上半场开球时间戳（秒）
-    const now = Math.floor(Date.now() / 1000);
+    const now = getUTC8Timestamp(); // UTC+8 时间戳（秒）
 
     // 根据状态码判断是上半场还是下半场
     // 2: 上半场, 3: 中场, 4: 下半场, 5: 加时赛, 7: 点球大战

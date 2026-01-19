@@ -3,10 +3,10 @@ CREATE TABLE public.user_vip (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL UNIQUE,
   is_active BOOLEAN NOT NULL DEFAULT true,
-  started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 -- 启用RLS
@@ -51,7 +51,7 @@ BEGIN
   -- 检查是否已有VIP
   SELECT expires_at INTO existing_expires_at
   FROM public.user_vip
-  WHERE user_id = p_user_id AND is_active = true AND expires_at > now();
+  WHERE user_id = p_user_id AND is_active = true AND expires_at > NOW();
 
   -- 计算新的到期时间
   IF existing_expires_at IS NOT NULL THEN
@@ -59,7 +59,7 @@ BEGIN
     new_expires_at := existing_expires_at + (p_duration_days || ' days')::INTERVAL;
   ELSE
     -- 新开通VIP
-    new_expires_at := now() + (p_duration_days || ' days')::INTERVAL;
+    new_expires_at := NOW() + (p_duration_days || ' days')::INTERVAL;
   END IF;
 
   -- 扣除费用
@@ -67,17 +67,17 @@ BEGIN
   SET 
     balance = balance - p_cost,
     total_wagered = total_wagered + p_cost,
-    updated_at = now()
+    updated_at = NOW()
   WHERE user_id = p_user_id;
 
   -- 插入或更新VIP记录
   INSERT INTO public.user_vip (user_id, is_active, started_at, expires_at)
-  VALUES (p_user_id, true, now(), new_expires_at)
+  VALUES (p_user_id, true, NOW(), new_expires_at)
   ON CONFLICT (user_id) 
   DO UPDATE SET 
     is_active = true,
     expires_at = new_expires_at,
-    updated_at = now();
+    updated_at = NOW();
 
   RETURN json_build_object(
     'success', true,

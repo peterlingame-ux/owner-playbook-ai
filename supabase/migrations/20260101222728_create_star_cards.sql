@@ -5,9 +5,9 @@ CREATE TABLE public.star_cards (
   card_name TEXT NOT NULL,
   card_image TEXT NOT NULL,
   rarity TEXT NOT NULL DEFAULT 'common',
-  obtained_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  obtained_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   obtained_via TEXT NOT NULL DEFAULT 'invitation',
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 -- Enable Row Level Security

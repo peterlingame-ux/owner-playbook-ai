@@ -3,8 +3,8 @@ CREATE TABLE public.usdt_wallets (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE,
   balance DECIMAL NOT NULL DEFAULT 0.00,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 -- Enable Row Level Security
@@ -67,16 +67,16 @@ BEGIN
 
   -- Update deposit status
   UPDATE public.deposit_records
-  SET status = 'confirmed', confirmed_at = now()
+  SET status = 'confirmed', confirmed_at = NOW()
   WHERE id = p_deposit_id;
 
   -- Update or insert USDT wallet balance
   INSERT INTO public.usdt_wallets (user_id, balance, updated_at)
-  VALUES (v_user_id, v_amount, now())
+  VALUES (v_user_id, v_amount, NOW())
   ON CONFLICT (user_id) 
   DO UPDATE SET 
     balance = usdt_wallets.balance + v_amount,
-    updated_at = now();
+    updated_at = NOW();
 
   RETURN json_build_object('success', true, 'new_balance', (SELECT balance FROM public.usdt_wallets WHERE user_id = v_user_id));
 END;
@@ -90,7 +90,7 @@ CREATE TABLE public.withdrawal_records (
   network TEXT NOT NULL DEFAULT 'TRC20',
   wallet_address TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   processed_at TIMESTAMP WITH TIME ZONE
 );
 
@@ -150,7 +150,7 @@ BEGIN
   UPDATE public.usdt_wallets
   SET 
     balance = balance - p_amount,
-    updated_at = now()
+    updated_at = NOW()
   WHERE user_id = p_user_id;
 
   -- Insert withdrawal record

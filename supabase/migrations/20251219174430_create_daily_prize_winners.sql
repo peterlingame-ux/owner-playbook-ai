@@ -3,7 +3,7 @@ CREATE TABLE public.model_follows (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   model_id text NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   UNIQUE (user_id, model_id)
 );
 

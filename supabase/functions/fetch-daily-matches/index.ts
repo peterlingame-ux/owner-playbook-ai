@@ -53,7 +53,7 @@ const getTargetDate = (timezone = DEFAULT_TIMEZONE): string => {
 
 // 获取昨天的日期
 const getYesterdayDate = (timezone = DEFAULT_TIMEZONE): string => {
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const yesterday = new Date(getUTC8TimestampMs() - 24 * 60 * 60 * 1000);
   const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
     year: "numeric",
@@ -70,6 +70,22 @@ const getYesterdayDate = (timezone = DEFAULT_TIMEZONE): string => {
       /^(\d{4})(\d{2})(\d{2})$/,
       "$1-$2-$3",
     );
+};
+
+// 获取 UTC+8 时区的当前时间戳（秒级）
+// 获取当前 UTC 时间戳（秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8Timestamp = (): number => {
+  // 直接返回当前 UTC 时间戳（秒级）
+  // 这是标准做法，因为时间戳本身就是 UTC 的
+  return Math.floor(Date.now() / 1000);
+};
+
+// 获取当前 UTC 时间戳（毫秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8TimestampMs = (): number => {
+  // 直接返回当前 UTC 时间戳（毫秒级）
+  return Date.now();
 };
 
 // 统一比赛状态判断函数
@@ -325,7 +341,7 @@ const findFqtyMatchIdFromCache = (
   const timeTolerance = 2 * 60 * 60; // 2小时（秒）
   const matchTimeMs = matchTime * 1000; // 转换为毫秒（番茄体育API使用毫秒时间戳）
   
-  // 2. 球队名称匹配：使用模糊匹配（包含关系）
+  // 2. 球队名称匹配：只要有一个球队名完全对应即可
   const normalizeTeamName = (name: string): string => {
     // 移除空格、转换为小写、移除特殊字符
     return name.toLowerCase().replace(/\s+/g, '').replace(/[^\w\u4e00-\u9fa5]/g, '');
@@ -348,17 +364,16 @@ const findFqtyMatchIdFromCache = (
       continue; // 时间差异太大，跳过
     }
     
-    // 球队名称匹配
+    // 球队名称匹配：只要有一个球队名完全对应即可
     const normalizedFqtyHome = normalizeTeamName(fqtyMatch.mhn);
     const normalizedFqtyAway = normalizeTeamName(fqtyMatch.man);
     
-    // 检查主队和客队是否匹配（允许部分匹配）
-    const homeMatch = normalizedFqtyHome.includes(normalizedHomeTeam) || 
-                     normalizedHomeTeam.includes(normalizedFqtyHome);
-    const awayMatch = normalizedFqtyAway.includes(normalizedAwayTeam) || 
-                     normalizedAwayTeam.includes(normalizedFqtyAway);
+    // 检查是否至少有一个球队名完全对应
+    const homeMatch = normalizedFqtyHome === normalizedHomeTeam;
+    const awayMatch = normalizedFqtyAway === normalizedAwayTeam;
     
-    if (homeMatch && awayMatch) {
+    if (homeMatch || awayMatch) {
+      console.log(`[findFqtyMatchIdFromCache] 找到匹配: 纳米数据 ${homeTeamName} vs ${awayTeamName} (${matchTime}) -> 番茄体育 mid=${fqtyMatch.mid} (${homeMatch ? '主队' : '客队'}匹配)`);
       return fqtyMatch.mid;
     }
   }
@@ -683,7 +698,7 @@ const convertToDatabaseRecord = async (
     // ended 是秒级时间戳：如果有值（> 0），表示比赛已结束，值为结束时间戳；如果为 null 或 0，表示未结束
     // 如果 API 返回了 ended，使用它；否则根据 status_id 判断（status_id=8 表示完场，使用当前时间戳）
     // 注意：status_id=3 是中场休息，不是比赛结束，所以不设置 ended
-    ended: match.ended ?? (match.status_id === 8 ? Math.floor(Date.now() / 1000) : null),
+    ended: match.ended ?? (match.status_id === 8 ? getUTC8Timestamp() : null),
     updated_at_api: match.updated_at,
     coverage_mlive: match.coverage?.mlive ?? null,
     coverage_intelligence: match.coverage?.intelligence ?? null,
@@ -786,7 +801,7 @@ const upsertMatches = async (
       // 缓存到 app_cache，设置5分钟过期时间
       if (fqtyMatchesCache && fqtyMatchesCache.length > 0 && supabase) {
         try {
-          const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+          const expiresAt = new Date(getUTC8TimestampMs() + 5 * 60 * 1000).toISOString();
           await supabase.from('app_cache').upsert({
             key: 'fqty_matches_cache',
             value: fqtyMatchesCache,
@@ -947,7 +962,7 @@ const upsertMatches = async (
   
 
   // 识别已完成的比赛（ended 是秒级时间戳，> 0 表示已结束）
-  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
   const completedMatchIds: number[] = [];
 
   for (const record of records) {
@@ -1024,7 +1039,7 @@ const syncCompletedMatchesFromLiveDataTable = async (
     }
     
     // 3. 找出需要同步的比赛（match_live_data 已完结，但 daily_matches 未更新）
-    const now = Math.floor(Date.now() / 1000);
+    const now = getUTC8Timestamp(); // UTC+8 时间戳（秒）
     const matchesToSync: Array<{
       match_id: number;
       date: string;
@@ -1167,7 +1182,7 @@ const updateCompletedMatchesFromLiveData = async (
   
   // 处理推迟的比赛：更新 daily_matches 表的状态
   if (postponedMatches.length > 0) {
-    const now = Math.floor(Date.now() / 1000);
+    const now = getUTC8Timestamp(); // UTC+8 时间戳（秒）
     
     for (const liveData of postponedMatches) {
       const matchId = liveData.id || liveData.score.id;
@@ -1198,7 +1213,7 @@ const updateCompletedMatchesFromLiveData = async (
           .from("daily_matches")
           .update({
             status_id: liveData.score?.status || 9, // 9=推迟, 13=待定
-            updated_at: new Date().toISOString(),
+            updated_at: new Date(getUTC8TimestampMs()).toISOString(),
           })
           .eq("date", existingMatch.date)
           .eq("match_id", matchId);

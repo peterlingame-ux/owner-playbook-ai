@@ -121,4 +121,3 @@ DO UPDATE SET
 COMMENT ON TABLE league_constants IS '联赛常量表，存储联赛中文名到英文名的映射关系';
 COMMENT ON COLUMN league_constants.chinese_name IS '联赛中文名称（主键）';
 COMMENT ON COLUMN league_constants.english_name IS '联赛英文名称';
-

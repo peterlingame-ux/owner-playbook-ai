@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS public.likes (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   entity_type TEXT NOT NULL, -- 'ai_model' 或 'player'
   entity_id TEXT NOT NULL, -- AI模型ID（如 'deepseek', 'claude'）或玩家用户ID
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   
   -- 确保同一用户对同一实体只能点赞一次
   UNIQUE(user_id, entity_type, entity_id)
@@ -49,7 +49,7 @@ USING (auth.uid() = user_id);
 CREATE OR REPLACE FUNCTION public.update_likes_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.updated_at = now();
+  NEW.updated_at = NOW();
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -81,4 +81,3 @@ SELECT
 FROM public.likes;
 
 COMMENT ON VIEW public.user_likes IS '用户点赞状态视图，用于快速查询用户是否已点赞某个实体';
-

@@ -3,7 +3,7 @@ CREATE TABLE public.user_follows (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   follower_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   following_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
   UNIQUE(follower_id, following_id),
   CHECK (follower_id != following_id)
 );

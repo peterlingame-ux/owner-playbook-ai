@@ -8,6 +8,21 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// 获取当前 UTC 时间戳（秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8Timestamp = (): number => {
+  // 直接返回当前 UTC 时间戳（秒级）
+  // 这是标准做法，因为时间戳本身就是 UTC 的
+  return Math.floor(Date.now() / 1000);
+};
+
+// 获取当前 UTC 时间戳（毫秒级）
+// 注意：时间戳本身是 UTC 的，这是标准做法
+const getUTC8TimestampMs = (): number => {
+  // 直接返回当前 UTC 时间戳（毫秒级）
+  return Date.now();
+};
+
 type SettlementResult = "win" | "loss" | "push" | "void";
 
 type SettlementItem = {
@@ -136,7 +151,7 @@ const updatePosition = async (
       pnl,
       notes: settlement.notes ?? null,
       score: settlement.score ?? null,
-      settledAt: new Date().toISOString(),
+      settledAt: new Date(getUTC8TimestampMs()).toISOString(),
     },
   };
 
@@ -146,7 +161,7 @@ const updatePosition = async (
       status,
       payout_amount: payout,
       pnl,
-      settled_at: new Date().toISOString(),
+      settled_at: new Date(getUTC8TimestampMs()).toISOString(),
       metadata,
     })
     .eq("id", position.id);
@@ -166,7 +181,7 @@ const updateAutoBetStatus = async (
     .update({
       status,
       pnl,
-      settled_at: new Date().toISOString(),
+      settled_at: new Date(getUTC8TimestampMs()).toISOString(),
     })
     .eq("id", autoBetId);
 
@@ -194,7 +209,7 @@ const updateBalances = async (
     .update({
       available_balance: newAvailable,
       locked_balance: newLocked,
-      updated_at: new Date().toISOString(),
+      updated_at: new Date(getUTC8TimestampMs()).toISOString(),
     })
     .eq("id", balance.id);
 
@@ -314,7 +329,7 @@ const fetchAllCompletedMatches = async () => {
     throw new Error("Supabase client not initialized");
   }
 
-  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
   const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select("match_id, home_scores, away_scores, ended, status_id")
@@ -357,7 +372,7 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
   }
 
   // match_id 是 INTEGER 类型，直接使用数字数组
-  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
   const { data: allMatches, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select("match_id, home_scores, away_scores, ended, status_id")
