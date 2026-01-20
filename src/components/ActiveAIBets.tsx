@@ -2133,14 +2133,21 @@ const ActiveAIBets = () => {
                           : "bg-white/5 border-white/10 opacity-60"
                       }`}>
                         <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 truncate">{getTeamName(currentMatchData!.match, 'home')}</span>
-                        {handicapBet.handicapLine !== undefined && (
-                          <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
-                            handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
-                          }`}>
-                            {handicapBet.handicapLine > 0 ? '+' : ''}
-                            {handicapBet.handicapLine}
-                          </span>
-                        )}
+                        {handicapBet.handicapLine !== undefined && (() => {
+                          // 确保正确处理字符串和数字类型
+                          const handicapLineNum = typeof handicapBet.handicapLine === 'string' 
+                            ? parseFloat(handicapBet.handicapLine) 
+                            : handicapBet.handicapLine;
+                          const homeHandicapLine = isNaN(handicapLineNum) ? 0 : handicapLineNum;
+                          return (
+                            <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
+                              handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
+                            }`}>
+                              {homeHandicapLine > 0 ? '+' : ''}
+                              {homeHandicapLine}
+                            </span>
+                          );
+                        })()}
                       </div>
                       <div className={`p-1.5 sm:p-2.5 rounded-lg border-2 transition-all flex items-center gap-1 sm:gap-2 ${
                         handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY"
@@ -2148,14 +2155,21 @@ const ActiveAIBets = () => {
                           : "bg-white/5 border-white/10 opacity-60"
                       }`}>
                         <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 truncate">{getTeamName(currentMatchData!.match, 'away')}</span>
-                        {handicapBet.handicapLine !== undefined && (
-                          <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
-                            handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
-                          }`}>
-                            {-handicapBet.handicapLine > 0 ? '+' : ''}
-                            {-handicapBet.handicapLine}
-                          </span>
-                        )}
+                        {handicapBet.handicapLine !== undefined && (() => {
+                          // 确保正确计算客队的让球值（主队让球值的相反数）
+                          const handicapLineNum = typeof handicapBet.handicapLine === 'string' 
+                            ? parseFloat(handicapBet.handicapLine) 
+                            : handicapBet.handicapLine;
+                          const awayHandicapLine = isNaN(handicapLineNum) ? 0 : -handicapLineNum;
+                          return (
+                            <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
+                              handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
+                            }`}>
+                              {awayHandicapLine > 0 ? '+' : ''}
+                              {awayHandicapLine}
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
                     
