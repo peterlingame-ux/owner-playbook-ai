@@ -337,11 +337,10 @@ const findFqtyMatchIdFromCache = (
   fqtyMatches: Array<{ mid: string; mhn?: string; man?: string; mgt?: number; [key: string]: unknown }>,
 ): string | null => {
   // 匹配逻辑：
-  // 1. 时间匹配：允许±2小时的误差（因为时区或数据更新延迟）
-  const timeTolerance = 2 * 60 * 60; // 2小时（秒）
+  // 1. 时间匹配：必须完全一致（不允许误差）
   const matchTimeMs = matchTime * 1000; // 转换为毫秒（番茄体育API使用毫秒时间戳）
   
-  // 2. 球队名称匹配：只要有一个球队名完全对应即可
+  // 2. 球队名称匹配：只要有一个球队名完全匹配即可
   const normalizeTeamName = (name: string): string => {
     // 移除空格、转换为小写、移除特殊字符
     return name.toLowerCase().replace(/\s+/g, '').replace(/[^\w\u4e00-\u9fa5]/g, '');
@@ -356,19 +355,18 @@ const findFqtyMatchIdFromCache = (
       continue;
     }
     
-    // 时间匹配
+    // 时间匹配：必须完全一致
     const fqtyMatchTime = typeof fqtyMatch.mgt === "string" ? parseInt(fqtyMatch.mgt) : (fqtyMatch.mgt || 0);
-    const timeDiff = Math.abs(fqtyMatchTime - matchTimeMs);
     
-    if (timeDiff > timeTolerance * 1000) {
-      continue; // 时间差异太大，跳过
+    if (fqtyMatchTime !== matchTimeMs) {
+      continue; // 时间不一致，跳过
     }
     
-    // 球队名称匹配：只要有一个球队名完全对应即可
+    // 球队名称匹配：只要有一个球队名完全匹配即可
     const normalizedFqtyHome = normalizeTeamName(fqtyMatch.mhn);
     const normalizedFqtyAway = normalizeTeamName(fqtyMatch.man);
     
-    // 检查是否至少有一个球队名完全对应
+    // 检查是否至少有一个球队名完全匹配
     const homeMatch = normalizedFqtyHome === normalizedHomeTeam;
     const awayMatch = normalizedFqtyAway === normalizedAwayTeam;
     

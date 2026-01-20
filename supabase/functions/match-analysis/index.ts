@@ -175,7 +175,13 @@ const buildSystemPrompt = (userTrainingData?: string[]) => {
 2. **球员技术面拆解**：分析关键球员状态、战术体系、阵容配置
 3. **异常赔率监测**：分析赔率波动、市场热度、投注趋势
 
-最后给出综合判断和投注建议。请用专业、简洁的语言，重点突出关键信息。`;
+最后给出综合判断和投注建议。请用专业、简洁的语言，重点突出关键信息。
+
+**⚠️ 重要约束规则 ⚠️**
+- 如果提供了市场赔率信息，您必须严格从提供的赔率列表中选择 line 值
+- 绝对不能使用列表外的 line 值，即使您认为其他值更合理
+- 如果选择了不存在的 line 值，您的预测将被系统拒绝，无法下注
+- 请仔细检查您选择的 line 值是否在可用列表中`;
 
   // 如果有用户训练数据，注入到系统提示词中
   if (userTrainingData && userTrainingData.length > 0) {
@@ -225,20 +231,20 @@ const buildUserPrompt = (
   let availableHandicapLines: string[] = [];
   
   if (marketOdds) {
-    oddsInfo = '\n\n**市场赔率信息**\n';
+    oddsInfo = '\n\n**⚠️ 市场赔率信息（必须从以下赔率中选择 line 值）⚠️**\n';
     
     if (marketOdds.overUnder && marketOdds.overUnder.length > 0) {
-      oddsInfo += '\n大小球赔率：\n';
+      oddsInfo += '\n**大小球赔率（您必须从以下 line 值中选择，不能使用其他值）：**\n';
       marketOdds.overUnder.forEach(ou => {
         const lineStr = String(ou.line);
         oddsInfo += `- ${lineStr}球：大球 ${ou.over.toFixed(2)} | 小球 ${ou.under.toFixed(2)}\n`;
         availableOverUnderLines.push(lineStr);
       });
-      oddsInfo += `\n可用的大小球 line 值：${availableOverUnderLines.join(', ')}\n`;
+      oddsInfo += `\n**⚠️ 可用的大小球 line 值（必须从这些值中选择）：${availableOverUnderLines.join(', ')} ⚠️**\n`;
     }
     
     if (marketOdds.handicap && marketOdds.handicap.length > 0) {
-      oddsInfo += '\n让球盘赔率：\n';
+      oddsInfo += '\n**让球盘赔率（您必须从以下 line 值中选择，不能使用其他值）：**\n';
       marketOdds.handicap.forEach(h => {
         // line 可能是数字或字符串（如 "-1/1.5"），直接转换为字符串显示
         let lineStr: string;
@@ -250,7 +256,7 @@ const buildUserPrompt = (
         oddsInfo += `- ${lineStr}：主队 ${h.home.toFixed(2)} | 客队 ${h.away.toFixed(2)}\n`;
         availableHandicapLines.push(lineStr);
       });
-      oddsInfo += `\n可用的让球盘 line 值：${availableHandicapLines.join(', ')}\n`;
+      oddsInfo += `\n**⚠️ 可用的让球盘 line 值（必须从这些值中选择）：${availableHandicapLines.join(', ')} ⚠️**\n`;
     }
   }
 
@@ -258,14 +264,16 @@ const buildUserPrompt = (
     // 构建 line 选择说明
     let lineSelectionGuide = '';
     if (availableOverUnderLines.length > 0 || availableHandicapLines.length > 0) {
-      lineSelectionGuide = '\n\n**重要：line 值选择规则**\n';
-      lineSelectionGuide += '您必须从上面提供的市场赔率中选择 line 值，不能自己创造或使用列表外的值。\n';
+      lineSelectionGuide = '\n\n**⚠️ 强制规则：line 值选择 ⚠️**\n';
+      lineSelectionGuide += '**您必须严格从上面提供的市场赔率中选择 line 值，绝对不能使用列表外的值！**\n';
+      lineSelectionGuide += '**如果选择了不存在的 line 值，系统将拒绝您的预测，无法下注！**\n';
+      lineSelectionGuide += '**请在选择 line 值前，仔细对照上面的赔率列表，确保您选择的 line 值完全匹配列表中的值！**\n';
       if (availableOverUnderLines.length > 0) {
-        lineSelectionGuide += `\n大小球可选的 line 值：${availableOverUnderLines.join(', ')}\n`;
+        lineSelectionGuide += `\n**大小球可选的 line 值（必须从以下值中选择，不能使用其他值）：${availableOverUnderLines.join(', ')}**\n`;
         lineSelectionGuide += '请根据比赛分析，从这些值中选择一个最合适的 line 值。\n';
       }
       if (availableHandicapLines.length > 0) {
-        lineSelectionGuide += `\n让球盘可选的 line 值：${availableHandicapLines.join(', ')}\n`;
+        lineSelectionGuide += `\n**让球盘可选的 line 值（必须从以下值中选择，不能使用其他值）：${availableHandicapLines.join(', ')}**\n`;
         lineSelectionGuide += '请根据比赛分析，从这些值中选择一个最合适的 line 值。\n';
       }
     }
@@ -286,11 +294,11 @@ PREDICTION_MONEYLINE: [HOME_WIN/AWAY_WIN/DRAW] [confidence 0-100]
 
 2. 大小球预测：
 PREDICTION_OVER_UNDER: [OVER/UNDER] [line] [confidence 0-100]
-${availableOverUnderLines.length > 0 ? `⚠️ 必须从以下 line 值中选择：${availableOverUnderLines.join(', ')}` : '⚠️ 如果没有可用的大小球赔率，可以不提供此预测'}
+${availableOverUnderLines.length > 0 ? `⚠️⚠️⚠️ 强制要求：line 值必须从以下列表中选择（不能使用其他值）：${availableOverUnderLines.join(', ')} ⚠️⚠️⚠️` : '⚠️ 如果没有可用的大小球赔率，可以不提供此预测'}
 
 3. 让球盘预测：
 PREDICTION_HANDICAP: [HOME/AWAY] [line] [confidence 0-100]
-${availableHandicapLines.length > 0 ? `⚠️ 必须从以下 line 值中选择：${availableHandicapLines.join(', ')}` : '⚠️ 如果没有可用的让球盘赔率，可以不提供此预测'}
+${availableHandicapLines.length > 0 ? `⚠️⚠️⚠️ 强制要求：line 值必须从以下列表中选择（不能使用其他值）：${availableHandicapLines.join(', ')} ⚠️⚠️⚠️` : '⚠️ 如果没有可用的让球盘赔率，可以不提供此预测'}
 
 例如（假设可用的 line 值包括 2.5, 3.0, -0.5, 0.5）：
 PREDICTION_MONEYLINE: HOME_WIN 75
@@ -302,13 +310,14 @@ PREDICTION_MONEYLINE: AWAY_WIN 70
 PREDICTION_OVER_UNDER: UNDER 3.0 72
 PREDICTION_HANDICAP: AWAY -0.5 65
 
-注意：
+**⚠️⚠️⚠️ 关键注意事项 ⚠️⚠️⚠️**
 - 如果对某个投注类型没有信心（置信度低于50），可以不提供该预测
 - 输赢预测：HOME_WIN 表示主队获胜，AWAY_WIN 表示客队获胜，DRAW 表示平局
-- 大小球的 line 值必须严格从上面列出的可用值中选择，不能使用其他值
-- 让球盘的 line 值必须严格从上面列出的可用值中选择，不能使用其他值
+- **大小球的 line 值必须严格从上面列出的可用值中选择，绝对不能使用其他值！如果使用列表外的值，系统将拒绝您的预测！**
+- **让球盘的 line 值必须严格从上面列出的可用值中选择，绝对不能使用其他值！如果使用列表外的值，系统将拒绝您的预测！**
 - HOME 表示主队让球，AWAY 表示客队让球
-- line 值必须与上面赔率信息中的值完全一致（包括格式，如 "+0.5" 或 "-0.5"）
+- **line 值必须与上面赔率信息中的值完全一致（包括格式，如 "+0.5" 或 "-0.5"），不能有任何偏差！**
+- **在输出预测前，请再次确认您选择的 line 值是否在可用列表中！**
 - 请直接在分析内容后输出预测，不要添加任何标题或分隔符`;
   }
 
@@ -2769,10 +2778,11 @@ serve(async (req) => {
           }
           
           // 解析输赢预测（增加容错性，支持多种格式）
+          // 注意：确保置信度能匹配到完整的数字（1-3位，0-100）
           const moneylinePatterns = [
-            /PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s*(\d+)/i,
-            /MONEYLINE[:\s]+(HOME_WIN|AWAY_WIN|DRAW)[:\s]+(\d+)/i,
-            /输赢[预测预测结果]*[:\s]+(HOME_WIN|AWAY_WIN|DRAW)[:\s]+(\d+)/i,
+            /PREDICTION_MONEYLINE:\s*(HOME_WIN|AWAY_WIN|DRAW)\s+(\d{1,3})\b/i,
+            /MONEYLINE[:\s]+(HOME_WIN|AWAY_WIN|DRAW)[:\s]+(\d{1,3})\b/i,
+            /输赢[预测预测结果]*[:\s]+(HOME_WIN|AWAY_WIN|DRAW)[:\s]+(\d{1,3})\b/i,
           ];
           let moneylinePick: string | undefined;
           let moneylineConfidence: number | undefined;
@@ -2793,10 +2803,11 @@ serve(async (req) => {
           }
 
           // 解析大小球预测（增加容错性，支持多种格式，包括字符串格式的line值如 "2.5/3"）
+          // 注意：使用非贪婪匹配和单词边界，确保置信度能正确匹配到完整的数字（1-3位，0-100）
           const overUnderPatterns = [
-            /PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s*([\d./\s-]+)\s*(\d+)/i,
-            /OVER_UNDER[:\s]+(OVER|UNDER)[:\s]+([\d./\s-]+)[:\s]+(\d+)/i,
-            /大小球[预测预测结果]*[:\s]+(OVER|UNDER|大|小)[:\s]+([\d./\s-]+)[:\s]+(\d+)/i,
+            /PREDICTION_OVER_UNDER:\s*(OVER|UNDER)\s+([\d./\s-]+?)\s+(\d{1,3})\b/i,
+            /OVER_UNDER[:\s]+(OVER|UNDER)[:\s]+([\d./\s-]+?)\s+(\d{1,3})\b/i,
+            /大小球[预测预测结果]*[:\s]+(OVER|UNDER|大|小)[:\s]+([\d./\s-]+?)\s+(\d{1,3})\b/i,
           ];
           let overUnderPick: string | undefined;
           let overUnderLine: number | string | undefined;
@@ -2835,10 +2846,11 @@ serve(async (req) => {
           }
 
           // 解析让球盘预测（增加容错性，支持多种格式，包括字符串格式的line值如 "-1/1.5"）
+          // 注意：使用非贪婪匹配和单词边界，确保置信度能正确匹配到完整的数字（1-3位，0-100）
           const handicapPatterns = [
-            /PREDICTION_HANDICAP:\s*(HOME|AWAY)\s*([-\d./\s+]+)\s*(\d+)/i,
-            /HANDICAP[:\s]+(HOME|AWAY|主|客)[:\s]+([-\d./\s+]+)[:\s]+(\d+)/i,
-            /让球[盘预测预测结果]*[:\s]+(HOME|AWAY|主|客)[:\s]+([-\d./\s+]+)[:\s]+(\d+)/i,
+            /PREDICTION_HANDICAP:\s*(HOME|AWAY)\s+([-\d./\s+]+?)\s+(\d{1,3})\b/i,
+            /HANDICAP[:\s]+(HOME|AWAY|主|客)[:\s]+([-\d./\s+]+?)\s+(\d{1,3})\b/i,
+            /让球[盘预测预测结果]*[:\s]+(HOME|AWAY|主|客)[:\s]+([-\d./\s+]+?)\s+(\d{1,3})\b/i,
           ];
           let handicapPick: string | undefined;
           let handicapLine: number | string | undefined;
