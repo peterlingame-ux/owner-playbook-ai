@@ -836,9 +836,11 @@ const upsertMatches = async (
       const isPredicted = match.id && predictedMatchIds.has(match.id);
       // 检查是否已经请求过赔率（非 refresh 模式下，如果已请求过，不再更新 odds_info）
       const alreadyRequestedOdds = match.id && fetchOdds && existingOddsRequestedMap.get(match.id) === true;
+      // 检查比赛是否已完成（已完成的不需要获取赔率）
+      const isCompleted = isMatchCompleted({ ended: match.ended, status_id: match.status_id });
       
-      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !alreadyRequestedOdds) {
-        // 非 refresh 模式且未被预测过且未请求过赔率的比赛，获取新的赔率信息
+      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !alreadyRequestedOdds && !isCompleted) {
+        // 非 refresh 模式且未被预测过且未请求过赔率且未完成的比赛，获取新的赔率信息
         try {
           // 尝试通过球队名称和比赛时间匹配番茄体育的比赛ID
           const homeTeam = teams.find((t) => t.id === match.home_team_id);
@@ -896,13 +898,15 @@ const upsertMatches = async (
       // 1. 如果实际请求了赔率（无论成功与否），设置为 true
       // 2. 如果刷新模式下已有记录且已请求过，保留原有状态
       // 3. 如果刷新模式下已有记录但未请求过，保持 false
+      // 4. 已完成的比赛保留已有的请求状态，不重新设置
       let oddsRequested: boolean = false;
       
-      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted) {
+      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !isCompleted) {
         // 实际尝试请求了赔率信息（无论成功与否，只要尝试了就算请求过）
+        // 注意：已完成的比赛不会进入这里，因为上面已经过滤了
         oddsRequested = true;
       } else if (match.id && existingOddsRequestedMap.has(match.id)) {
-        // 刷新模式下，保留已有的请求状态（无论是否有赔率信息）
+        // 保留已有的请求状态（无论是否有赔率信息）
         oddsRequested = existingOddsRequestedMap.get(match.id)!;
       } else if (isPredicted && match.id && existingOddsRequestedMap.has(match.id)) {
         // 已被预测过的比赛，保留已有的请求状态
@@ -1984,10 +1988,11 @@ serve(async (req) => {
           leagueConstants,
         );
 
-    // 优化：过滤掉已完成的比赛和推迟的比赛（非 refresh 模式）
-    // 只处理未开始（status_id = 1）或进行中（status_id = 2, 3, 4）的比赛
+    // 优化：过滤掉推迟的比赛（非 refresh 模式）
+    // 处理未开始（status_id = 1）、进行中（status_id = 2, 3, 4）和已完成的比赛（status_id = 8）
+    // 已完成的比赛也需要更新状态和比分，确保数据同步
     // status_id: 1=未开赛, 2=上半场, 3=中场, 4=下半场, 8=完场, 9=推迟, 11=腰斩, 13=待定
-    const activeStatusIds = [1, 2, 3, 4]; // 未开始或进行中
+    const activeStatusIds = [1, 2, 3, 4, 8]; // 未开始、进行中或已完成
     const postponedStatusIds = [9, 13]; // 推迟和待定
     const activeMatches = filteredMatches.filter(match => {
       const statusId = match.status_id;
@@ -1999,10 +2004,11 @@ serve(async (req) => {
     });
     
     if (activeMatches.length < filteredMatches.length) {
-      const completedCount = filteredMatches.length - activeMatches.length;
+      const excludedCount = filteredMatches.length - activeMatches.length;
+      console.log(`[fetch-daily-matches] 过滤掉 ${excludedCount} 场推迟或待定的比赛`);
     }
 
-    // 使用过滤后的活跃比赛
+    // 使用过滤后的比赛（包括已完成的，用于更新状态）
     const matchesToProcess = activeMatches.length > 0 ? activeMatches : filteredMatches;
     
     if (matchesToProcess.length === 0) {
@@ -2038,7 +2044,7 @@ serve(async (req) => {
     }
 
     // 存储到数据库（同时获取赔率信息）
-    // 使用过滤后的活跃比赛，跳过已完成的比赛
+    // 使用过滤后的比赛（包括已完成的，用于更新状态和比分）
     const { completedMatchIds, matchesWithOdds } = await upsertMatches(
       targetDate,
       matchesToProcess,

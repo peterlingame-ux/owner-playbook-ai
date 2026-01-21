@@ -31,20 +31,44 @@ const Header = () => {
   ];
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Sign Out Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Signed Out",
-        description: "See you again soon",
-      });
-      navigate("/");
+    try {
+      // 先尝试全局登出（清除服务器端 session）
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      // 如果错误是 session_not_found，说明 session 已经不存在了，可以视为登出成功
+      if (error) {
+        const isSessionNotFound = 
+          error.message?.includes('session_not_found') || 
+          error.message?.includes('Session from session_id claim in JWT does not exist') ||
+          error.status === 403;
+        
+        if (isSessionNotFound) {
+          // Session 已经不存在或已过期，这是正常情况，不需要显示错误
+          console.log('Session already expired or not found, clearing local state');
+        } else {
+          // 其他错误，记录但不阻止登出流程
+          console.warn('Sign out error (non-critical):', error.message);
+        }
+      }
+    } catch (err) {
+      // 捕获全局登出的异常，但不阻止后续流程
+      console.warn('Global sign out error (non-critical):', err);
     }
+    
+    // 无论全局登出是否成功，都清除本地 session
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (localError) {
+      // 即使清除本地 session 失败，也继续登出流程
+      console.warn('Local sign out error (non-critical):', localError);
+    }
+    
+    // 显示成功提示并跳转
+    toast({
+      title: t('auth.logout') || "登出",
+      description: i18n.language === 'zh' ? "已成功登出" : "Signed out successfully",
+    });
+    navigate("/");
   };
   
   return (

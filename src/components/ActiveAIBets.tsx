@@ -1578,20 +1578,7 @@ const ActiveAIBets = () => {
   // Combine active matches and missing matches
   const allMatchesWithBets = [...matchesWithBets, ...missingMatches];
   
-  // Only show loading state on initial load, not on refresh
-  if (isInitialLoading) {
-    return (
-      <div className="w-full">
-        <div className="flex items-center justify-center mb-3 sm:mb-5">
-          <h2 className="text-sm sm:text-lg lg:text-xl font-semibold text-foreground">{t('active_ai_predictions')}</h2>
-        </div>
-        <p className="text-xs sm:text-sm text-muted-foreground text-center py-4 sm:py-6">
-          加载中...
-        </p>
-      </div>
-    );
-  }
-
+  // 直接显示 AI 模型卡片，即使数据还在加载中
   return (
     <div className="w-full relative overflow-x-hidden max-w-full">
       {/* Subtle refresh indicator */}
