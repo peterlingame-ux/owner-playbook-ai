@@ -1130,7 +1130,7 @@ const PlayerExclusiveModelCard = ({
         </div>
 
         {/* Content */}
-        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!user ? 'blur-sm' : ''}`}>
+        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!user ? 'blur-[1px]' : ''}`}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`player-${matchIndex}-${isManualPrediction ? 'manual' : 'auto'}`}
@@ -1636,7 +1636,7 @@ const PlayerExclusiveModelCard = ({
         {/* 未登录时的遮罩层和提示 */}
         {!user && (
           <div 
-            className="absolute inset-0 z-30 flex items-center justify-center bg-background/70 backdrop-blur-md rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
+            className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 backdrop-blur-sm rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               window.location.href = '/auth';
@@ -1644,7 +1644,7 @@ const PlayerExclusiveModelCard = ({
           >
             <div className="text-center px-4 py-3">
               <p className="text-xs sm:text-sm font-medium text-foreground">
-                注册后免费查看预测
+                注册后获得专属模型
               </p>
             </div>
           </div>

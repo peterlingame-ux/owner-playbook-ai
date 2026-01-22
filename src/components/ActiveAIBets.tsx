@@ -1944,7 +1944,7 @@ const ActiveAIBets = () => {
                               )}
 
               {/* Content */}
-              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!user ? 'blur-sm' : ''}`}>
+              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!user ? 'blur-[1px]' : ''}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -2232,7 +2232,7 @@ const ActiveAIBets = () => {
               {/* 未登录时的遮罩层和提示 */}
               {!user && (
                 <div 
-                  className="absolute inset-0 z-30 flex items-center justify-center bg-background/70 backdrop-blur-md rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
+                  className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 backdrop-blur-sm rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.location.href = '/auth';
