@@ -1031,8 +1031,8 @@ const PlayerExclusiveModelCard = ({
   return (
     <>
       <TiltCard
-        className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className}`}
-        onClick={handleNextMatch}
+        className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className} relative`}
+        onClick={!user ? () => window.location.href = '/auth' : handleNextMatch}
         maxTilt={8}
         scale={1.02}
         glare={false}
@@ -1130,7 +1130,7 @@ const PlayerExclusiveModelCard = ({
         </div>
 
         {/* Content */}
-        <div className="relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden">
+        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!user ? 'blur-sm' : ''}`}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`player-${matchIndex}-${isManualPrediction ? 'manual' : 'auto'}`}
@@ -1632,6 +1632,23 @@ const PlayerExclusiveModelCard = ({
             </motion.div>
           </AnimatePresence>
         </div>
+        
+        {/* 未登录时的遮罩层和提示 */}
+        {!user && (
+          <div 
+            className="absolute inset-0 z-30 flex items-center justify-center bg-background/70 backdrop-blur-md rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = '/auth';
+            }}
+          >
+            <div className="text-center px-4 py-3">
+              <p className="text-xs sm:text-sm font-medium text-foreground">
+                注册后免费查看预测
+              </p>
+            </div>
+          </div>
+        )}
       </TiltCard>
 
       {/* AI Feed Dialog */}

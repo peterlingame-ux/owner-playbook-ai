@@ -1879,8 +1879,8 @@ const ActiveAIBets = () => {
           return (
             <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
               <TiltCard
-                className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''}`}
-                onClick={nextMatch}
+                className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''} relative`}
+                onClick={!user ? () => window.location.href = '/auth' : nextMatch}
                 maxTilt={8}
                 scale={1.02}
                 glare={false}
@@ -1944,7 +1944,7 @@ const ActiveAIBets = () => {
                               )}
 
               {/* Content */}
-              <div className="relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8">
+              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!user ? 'blur-sm' : ''}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -2228,6 +2228,23 @@ const ActiveAIBets = () => {
                   </motion.div>
                 </AnimatePresence>
               </div>
+              
+              {/* 未登录时的遮罩层和提示 */}
+              {!user && (
+                <div 
+                  className="absolute inset-0 z-30 flex items-center justify-center bg-background/70 backdrop-blur-md rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = '/auth';
+                  }}
+                >
+                  <div className="text-center px-4 py-3">
+                    <p className="text-xs sm:text-sm font-medium text-foreground">
+                      注册后免费查看预测
+                    </p>
+                  </div>
+                </div>
+              )}
               </TiltCard>
             </div>
           );

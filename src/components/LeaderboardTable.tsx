@@ -596,6 +596,16 @@ const LeaderboardTable = () => {
   };
 
   const openCopyTradeDialog = (modelId: string, modelName: string) => {
+    // 显示提示：请联系hunsoccer工作人员
+    toast({
+      title: '请联系hunsoccer工作人员',
+      description: '如需开通自动跟单功能，请联系hunsoccer工作人员',
+      variant: "default",
+    });
+    return;
+    
+    // 以下代码已禁用，如需恢复自动跟单功能，请取消注释
+    /*
     if (!user) {
       toast({
         title: t('login_first'),
@@ -607,6 +617,7 @@ const LeaderboardTable = () => {
     }
     setCopyTradeModel({ id: modelId, name: modelName });
     setIsCopyTradeDialogOpen(true);
+    */
   };
 
   // Calculate additional stats for each model
