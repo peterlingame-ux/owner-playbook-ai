@@ -1,14 +1,13 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut } from "lucide-react";
 import OnlineUsers from "@/components/OnlineUsers";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Sheet, SheetContent, SheetTrigger, SheetOverlay } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
 
@@ -16,12 +15,16 @@ import { motion } from "framer-motion";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, refreshUserProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPredictions, setShowPredictions] = useState(false);
   
+  // 确保头像显示最新选择的图片（监听 userProfile 变化）
+  useEffect(() => {
+    // 当 userProfile 更新时，确保头像能正确显示
+    // 这里可以添加额外的逻辑，比如强制刷新头像图片
+  }, [userProfile?.avatar_url]);
 
   const navItems = [
     { to: "/leaderboard", label: t('nav_rank') },
@@ -130,99 +133,29 @@ const Header = () => {
           
           {/* Right: Actions */}
           <div className="flex items-center gap-0.5 sm:gap-1.5 md:gap-2 flex-shrink-0">
-            {/* Mobile Menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="md:hidden h-7 w-7 p-0"
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetOverlay className="bg-black/60 backdrop-blur-sm animate-fade-in" />
-              <SheetContent side="right" className="w-[280px] sm:w-[400px] animate-slide-in-right">
-                <nav className="flex flex-col gap-2 mt-6">
-                  {/* Mobile Navigation Links */}
-                  <div className="space-y-1 mb-4">
-                    {navItems.map((item) => (
-                      <NavLink
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={({ isActive }) =>
-                          `flex items-center px-4 py-3 rounded-full text-base font-medium transition-all duration-300
-                          ${isActive 
-                            ? 'bg-[#2a2a2a] text-white' 
-                            : 'text-[#888888] hover:text-foreground hover:bg-accent/30'
-                          }`
-                        }
-                      >
-                        {item.label}
-                      </NavLink>
-                    ))}
-                  </div>
-
-                  <div className="border-t border-border pt-4 space-y-3">
-                    {user ? (
-                      <>
-                        <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
-                          <Avatar 
-                            className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-                            onClick={() => {
-                              setShowPredictions(true);
-                              setMobileMenuOpen(false);
-                            }}
-                          >
-                            <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name || 'User'} />
-                            <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                              {userProfile?.display_name?.charAt(0) || 'U'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">
-                              {userProfile?.display_name || 'User'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="lg" 
-                          onClick={() => {
-                            handleSignOut();
-                            setMobileMenuOpen(false);
-                          }}
-                          className={`w-full inline-flex items-center justify-center gap-2 h-12 font-bold ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
-                        >
-                          <LogOut size={16} />
-                          <span>{t('auth.logout')}</span>
-                        </Button>
-                      </>
-                    ) : (
-                      <Button 
-                        size="lg" 
-                        onClick={() => {
-                          navigate("/auth");
-                          setMobileMenuOpen(false);
-                        }}
-                        className={`w-full h-12 font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25 ${i18n.language === 'en' ? 'font-pixel tracking-wider text-sm' : 'text-base'}`}
-                      >
-                        {t('auth.login')}
-                      </Button>
-                    )}
-                  </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
-            
             <OnlineUsers />
 
             
             <LanguageSwitcher />
+            
+            {/* Mobile Avatar - 移动端显示头像（在客服按钮右边） */}
+            {user && (
+              <div className="flex sm:hidden items-center">
+                <Avatar 
+                  className="h-7 w-7 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
+                  onClick={() => setShowPredictions(true)}
+                >
+                  <AvatarImage 
+                    src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
+                    alt={userProfile?.display_name || 'User'}
+                    key={userProfile?.avatar_url} // 添加 key 确保头像更新时重新渲染
+                  />
+                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                    {userProfile?.display_name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            )}
             
             {/* Desktop Auth Buttons */}
             <div className="hidden sm:flex items-center gap-1.5">
@@ -232,7 +165,11 @@ const Header = () => {
                     className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
                     onClick={() => setShowPredictions(true)}
                   >
-                    <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.display_name || 'User'} />
+                    <AvatarImage 
+                    src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
+                    alt={userProfile?.display_name || 'User'}
+                    key={userProfile?.avatar_url} // 添加 key 确保头像更新时重新渲染
+                  />
                     <AvatarFallback className="text-xs bg-primary text-primary-foreground">
                       {userProfile?.display_name?.charAt(0) || 'U'}
                     </AvatarFallback>

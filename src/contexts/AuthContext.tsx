@@ -55,10 +55,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .from('users')
       .select('display_name, avatar_url')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (!error && data) {
+    // 如果查询出错且不是"记录不存在"的错误，记录错误
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching user profile:', error);
+      return;
+    }
+
+    // 如果用户记录存在，设置用户资料
+    if (data) {
       setUserProfile(data);
+    } else {
+      // 如果用户记录不存在，尝试创建用户记录
+      // 这可能发生在触发器未正确创建用户记录的情况下
+      const randomAvatarNum = 1 + Math.floor(Math.random() * 6);
+      const defaultAvatar = `/avatars/avatar-${randomAvatarNum}.png`;
+      
+      // 先使用默认值，避免 UI 显示异常
+      setUserProfile({
+        display_name: 'User',
+        avatar_url: defaultAvatar,
+      });
+      
+      // 尝试创建用户记录
+      try {
+        const { data: newUserData, error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            display_name: 'User',
+            avatar_url: defaultAvatar,
+          })
+          .select('display_name, avatar_url')
+          .maybeSingle();
+        
+        if (!insertError && newUserData) {
+          setUserProfile(newUserData);
+        } else if (insertError) {
+          console.warn('Failed to create user profile:', insertError);
+          // 如果创建失败（可能是权限问题），保持使用默认值
+        }
+      } catch (createError) {
+        console.warn('Error creating user profile:', createError);
+        // 保持使用默认值
+      }
     }
   };
 
