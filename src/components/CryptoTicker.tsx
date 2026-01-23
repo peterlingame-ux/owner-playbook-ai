@@ -45,11 +45,20 @@ const CryptoTicker = () => {
       {/* Main Banner */}
       <div className="relative min-h-[260px] sm:min-h-[300px] lg:min-h-[340px] overflow-x-hidden">
         {/* Background Image */}
+        {/* 移动端：向上移动更多，避免显示 hunsoccer 部分 */}
         <motion.div 
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 0.15, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className="absolute inset-0 bg-cover bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-no-repeat sm:hidden"
+          style={{ backgroundImage: `url(${bannerBg})`, backgroundPosition: 'center calc(50% - 50px)' }}
+        />
+        {/* PC端：保持原有位置 */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 0.15, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="hidden sm:block absolute inset-0 bg-cover bg-no-repeat"
           style={{ backgroundImage: `url(${bannerBg})`, backgroundPosition: 'center calc(50% + 40px)' }}
         />
         
