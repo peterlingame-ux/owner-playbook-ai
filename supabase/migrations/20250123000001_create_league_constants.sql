@@ -42,7 +42,6 @@ INSERT INTO league_constants (chinese_name, english_name) VALUES
   ('意大利杯', 'Coppa Italia'),
   ('法国杯', 'Coupe de France'),
   ('德国足协杯', 'DFB Pokal'),
-  ('荷兰乙级联赛', 'Eerste Divisie'),
   ('波兰甲级联赛', 'Ekstraklasa'),
   ('挪威超级联赛', 'Eliteserien'),
   ('荷兰甲级联赛', 'Eredivisie'),

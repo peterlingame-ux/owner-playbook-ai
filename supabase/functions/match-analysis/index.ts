@@ -445,14 +445,61 @@ const DEFAULT_STRATEGY: Required<Pick<StrategyConfig, "minConfidence" | "baseSta
     forceBet: false,
   };
 
+// 为每个AI模型定义不同的策略配置，使下注金额差异化
+const MODEL_SPECIFIC_STRATEGIES: Record<string, StrategyConfig> = {
+  deepseek: {
+    baseStake: 800,  // 基础下注金额
+    stakeMultiplier: 1.2,
+    maxStake: 5000,
+  },
+  grok: {
+    baseStake: 750,  // 稍微不同的基础下注金额
+    stakeMultiplier: 1.15,
+    maxStake: 4800,
+  },
+  gpt5: {
+    baseStake: 850,
+    stakeMultiplier: 1.25,
+    maxStake: 5200,
+  },
+  claude: {
+    baseStake: 820,
+    stakeMultiplier: 1.18,
+    maxStake: 4900,
+  },
+  gemini: {
+    baseStake: 780,
+    stakeMultiplier: 1.22,
+    maxStake: 5100,
+  },
+  hunsoccermax: {
+    baseStake: 830,
+    stakeMultiplier: 1.2,
+    maxStake: 5000,
+  },
+  // 玩家模型（如果存在）
+  player: {
+    baseStake: 700,
+    stakeMultiplier: 1.1,
+    maxStake: 4500,
+  },
+};
+
 const resolveStrategy = (
   globalStrategy?: StrategyConfig,
   aiStrategy?: StrategyConfig,
-): StrategyConfig => ({
-  ...DEFAULT_STRATEGY,
-  ...globalStrategy,
-  ...aiStrategy,
-});
+  aiId?: string,
+): StrategyConfig => {
+  // 获取模型特定的策略配置
+  const modelSpecificStrategy = aiId ? MODEL_SPECIFIC_STRATEGIES[aiId] : undefined;
+  
+  return {
+    ...DEFAULT_STRATEGY,
+    ...modelSpecificStrategy,  // 先应用模型特定策略
+    ...globalStrategy,          // 然后应用全局策略（可以覆盖模型特定策略）
+    ...aiStrategy,              // 最后应用AI特定策略（优先级最高）
+  };
+};
 
 // 获取当前 UTC 时间戳（秒级）
 // 注意：时间戳本身是 UTC 的，这是标准做法
@@ -1801,7 +1848,7 @@ serve(async (req) => {
         }
 
         const todayBetsCount = await getTodayBetsCount(aiId);
-        const strategy = resolveStrategy(body.strategy);
+        const strategy = resolveStrategy(body.strategy, undefined, aiId);
         
         // 从数据库获取赔率信息（纳米数据API的diary接口不包含赔率，需要从其他API获取）
         // 注意：当前实现中，daily_matches表不包含odds_info字段，赔率信息需要从其他API获取
