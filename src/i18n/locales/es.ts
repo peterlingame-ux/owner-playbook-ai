@@ -889,7 +889,7 @@ export const es = {
     "confirm": "Confirmar",
     
     // Missing Personal Center keys
-    "player_default_name": "Jugador",
+    "player_default_name": "Visitante",
     "prediction_expert": "Experto en Predicciones",
     
     "teams": {} as Record<string, string>,

@@ -67,39 +67,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data) {
       setUserProfile(data);
     } else {
-      // 如果用户记录不存在，尝试创建用户记录
-      // 这可能发生在触发器未正确创建用户记录的情况下
-      const randomAvatarNum = 1 + Math.floor(Math.random() * 6);
-      const defaultAvatar = `/avatars/avatar-${randomAvatarNum}.png`;
+      // 如果用户记录不存在，清理认证信息，视为游客
+      console.warn(`User profile not found for userId: ${userId}, clearing auth state`);
       
-      // 先使用默认值，避免 UI 显示异常
-      setUserProfile({
-        display_name: 'User',
-        avatar_url: defaultAvatar,
-      });
+      // 清除用户资料和余额
+      setUserProfile(null);
+      setUserBalance(null);
       
-      // 尝试创建用户记录
-      try {
-        const { data: newUserData, error: insertError } = await supabase
-          .from('users')
-          .insert({
-            id: userId,
-            display_name: 'User',
-            avatar_url: defaultAvatar,
-          })
-          .select('display_name, avatar_url')
-          .maybeSingle();
-        
-        if (!insertError && newUserData) {
-          setUserProfile(newUserData);
-        } else if (insertError) {
-          console.warn('Failed to create user profile:', insertError);
-          // 如果创建失败（可能是权限问题），保持使用默认值
-        }
-      } catch (createError) {
-        console.warn('Error creating user profile:', createError);
-        // 保持使用默认值
-      }
+      // 清除认证状态（登出）
+      await supabase.auth.signOut();
+      
+      // 清除用户和 session 状态
+      setUser(null);
+      setSession(null);
     }
   };
 

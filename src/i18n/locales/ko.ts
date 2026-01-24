@@ -496,7 +496,7 @@ export const ko = {
     
     // Personal Center
     "personal_center": "개인 센터",
-    "player_default_name": "플레이어",
+    "player_default_name": "게스트",
     "prediction_expert": "예측 전문가",
     "vip_member": "VIP 회원",
     "vip_expires": "VIP 만료",

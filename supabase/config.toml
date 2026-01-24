@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.settle-user-bets]
 verify_jwt = false
+
+[functions.check-user-exists]
+verify_jwt = false
+
+[functions.sync-user]
+verify_jwt = false

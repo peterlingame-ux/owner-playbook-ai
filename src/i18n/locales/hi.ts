@@ -527,7 +527,7 @@ export const hi = {
     "hunter_coin_wallet": "Hunter Coin वॉलेट",
     
     // Personal Center keys
-    "player_default_name": "खिलाड़ी",
+    "player_default_name": "अतिथि",
     "prediction_expert": "भविष्यवाणी विशेषज्ञ",
     
     "usdt_deposit": "जमा करें",

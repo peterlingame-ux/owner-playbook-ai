@@ -527,7 +527,7 @@ export const ar = {
     "hunter_coin_wallet": "محفظة Hunter Coin",
     
     // Personal Center keys
-    "player_default_name": "لاعب",
+    "player_default_name": "زائر",
     "prediction_expert": "خبير التوقعات",
     
     "usdt_deposit": "إيداع",

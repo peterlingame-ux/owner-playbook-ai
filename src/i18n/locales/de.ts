@@ -487,7 +487,7 @@ export const de = {
     
     // Personal Center - Profile
     "personal_center": "Persönliches Zentrum",
-    "player_default_name": "Spieler",
+    "player_default_name": "Gast",
     "prediction_expert": "Vorhersage-Experte",
     "following_label": "Folge ich",
     "followers_label": "Follower",

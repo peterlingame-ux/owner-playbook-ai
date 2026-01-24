@@ -183,63 +183,26 @@ const MyPredictions = () => {
   useEffect(() => {
     const fetchPredictions = async () => {
       if (!user) {
-        setUserProfile({
-          display_name: "QuickTiger1234",
-          avatar_url: "/avatars/avatar-1.png",
-          signature: "Prediction Expert",
-          invitation_code: "TIGER88",
-          invited_count: 12
-        });
-        setEditDisplayName("QuickTiger1234");
-        setSelectedAvatar("/avatars/avatar-1.png");
-        setEditSignature("Prediction Expert");
-        
-        const mockMatches = new Map<string, MatchInfo>();
-        mockMatches.set("m1", {
-          fixture_id: 1,
-          home_team_name: "Man United",
-          away_team_name: "Liverpool",
-          league_name: "Premier League",
-          goals_home: 2,
-          goals_away: 1
-        });
-        mockMatches.set("m2", {
-          fixture_id: 2,
-          home_team_name: "Barcelona",
-          away_team_name: "Real Madrid",
-          league_name: "La Liga",
-          goals_home: 3,
-          goals_away: 2
-        });
-        setMatchesMap(mockMatches);
-        
+        // 未登录时不显示 mockdata，设置为空状态
+        setUserProfile(null);
+        // 游客默认值
+        setEditDisplayName(t('player_default_name'));
+        setSelectedAvatar('/avatars/avatar-1.png');
+        setEditSignature(t('prediction_expert'));
+        setMatchesMap(new Map());
         setStats({
-          totalPredictions: 156,
-          correctPredictions: 98,
-          winRate: 62.8,
-          balance: 12500,
-          profit: 2500,
-          totalWagered: 8000,
-          totalWon: 10500,
-          recentPredictions: [
-            { id: "1", match_id: "m1", prediction: "Home +0.5", prediction_type: 'handicap', result: "win", bet_amount: 500, actual_payout: 950, created_at: new Date().toISOString(), match: mockMatches.get("m1") },
-            { id: "2", match_id: "m2", prediction: "Over 2.5", prediction_type: 'over_under', result: "win", bet_amount: 300, actual_payout: 600, created_at: new Date(Date.now() - 86400000).toISOString(), match: mockMatches.get("m2") },
-            { id: "3", match_id: "m1", prediction: "Away +1.5", prediction_type: 'handicap', result: "loss", bet_amount: 200, actual_payout: 0, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), match: mockMatches.get("m1") },
-          ]
+          totalPredictions: 0,
+          correctPredictions: 0,
+          winRate: 0,
+          balance: 0,
+          profit: 0,
+          totalWagered: 0,
+          totalWon: 0,
+          recentPredictions: []
         });
-        
-        setFollowingList([
-          { id: 'demo1', display_name: 'GoldenAce7788', avatar_url: '/avatars/avatar-3.png', signature: 'Streak King', followed_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-        ]);
-        setFollowersList([
-          { id: 'demo3', display_name: 'StarPlayer123', avatar_url: '/avatars/avatar-2.png', signature: 'Newbie', followed_at: new Date(Date.now() - 86400000 * 1).toISOString() },
-        ]);
-        
-        setInvitedUsers([
-          { id: 'inv1', display_name: 'InvitedPlayer1', avatar_url: '/avatars/avatar-4.png', created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
-          { id: 'inv2', display_name: 'InvitedPlayer2', avatar_url: '/avatars/avatar-5.png', created_at: new Date(Date.now() - 86400000 * 5).toISOString() },
-        ]);
-        
+        setFollowingList([]);
+        setFollowersList([]);
+        setInvitedUsers([]);
         setIsLoading(false);
         return;
       }
@@ -315,7 +278,7 @@ const MyPredictions = () => {
     };
 
     fetchPredictions();
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     const fetchFollowData = async () => {
@@ -729,7 +692,7 @@ const MyPredictions = () => {
     if (!user) {
       setUserProfile({ display_name: editDisplayName, avatar_url: selectedAvatar, signature: editSignature });
       setIsEditDialogOpen(false);
-      toast.success("Profile updated!");
+      toast.success(t('profile_updated') || "Profile updated!");
       return;
     }
     
@@ -763,9 +726,9 @@ const MyPredictions = () => {
       setUserProfile(prev => ({ ...prev, display_name: editDisplayName, avatar_url: selectedAvatar, signature: editSignature }) as UserProfile);
       await refreshUserProfile();
       setIsEditDialogOpen(false);
-      toast.success("Profile updated!");
+      toast.success(t('profile_updated') || "Profile updated!");
     } catch (error) {
-      toast.error("Update failed");
+      toast.error(t('update_failed') || "Update failed");
     } finally {
       setIsSaving(false);
     }
@@ -873,20 +836,24 @@ const MyPredictions = () => {
                 <div className="space-y-2">
                   <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('display_name') || 'Display Name'}</Label>
                   <Input
-                    value={editDisplayName}
+                    value={!user ? (t('player_default_name') || 'Guest') : editDisplayName}
                     onChange={(e) => setEditDisplayName(e.target.value)}
                     className="h-10 sm:h-12 bg-background border-border text-sm"
                     maxLength={20}
+                    disabled={!user}
+                    readOnly={!user}
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('bio') || 'Bio'}</Label>
                   <Input
-                    value={editSignature}
+                    value={!user ? (t('prediction_expert') || 'Prediction Expert') : editSignature}
                     onChange={(e) => setEditSignature(e.target.value)}
                     className="h-10 sm:h-12 bg-background border-border text-sm"
                     maxLength={50}
+                    disabled={!user}
+                    readOnly={!user}
                   />
                 </div>
                 
@@ -895,7 +862,7 @@ const MyPredictions = () => {
                     <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">{t('avatar') || 'Avatar'}</Label>
                     {isVipActive && (
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30">
-                        VIP {t('custom_upload') || '自定义上传'}
+                        VIP {t('custom_upload')}
                       </span>
                     )}
                   </div>
@@ -914,7 +881,7 @@ const MyPredictions = () => {
                             
                             // Validate file size (max 2MB)
                             if (file.size > 2 * 1024 * 1024) {
-                              toast.error(t('file_too_large') || '文件过大，最大2MB');
+                              toast.error(t('file_too_large'));
                               return;
                             }
                             
@@ -938,7 +905,7 @@ const MyPredictions = () => {
                               const publicUrl = urlData.publicUrl;
                               setCustomAvatarUrl(publicUrl);
                               setSelectedAvatar(publicUrl);
-                              toast.success(t('avatar_uploaded') || '头像上传成功');
+                              toast.success(t('avatar_uploaded'));
                             } catch (error: any) {
                               console.error('Error uploading avatar:', error);
                               toast.error(error.message || t('upload_failed') || '上传失败');
@@ -951,7 +918,7 @@ const MyPredictions = () => {
                         {isUploadingAvatar ? (
                           <div className="flex flex-col items-center gap-2">
                             <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                            <span className="text-xs text-muted-foreground">{t('uploading') || '上传中...'}</span>
+                            <span className="text-xs text-muted-foreground">{t('uploading')}</span>
                           </div>
                         ) : customAvatarUrl ? (
                           <div className="flex items-center gap-3">
@@ -966,8 +933,8 @@ const MyPredictions = () => {
                         ) : (
                           <>
                             <ImagePlus className="w-8 h-8 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-foreground">{t('upload_custom_avatar') || '上传自定义头像'}</span>
-                            <span className="text-[10px] text-muted-foreground mt-1">{t('max_file_size') || '支持 JPG, PNG (最大2MB)'}</span>
+                            <span className="text-sm text-foreground">{t('upload_custom_avatar')}</span>
+                            <span className="text-[10px] text-muted-foreground mt-1">{t('max_file_size')}</span>
                           </>
                         )}
                       </label>
@@ -977,7 +944,7 @@ const MyPredictions = () => {
                   {/* Default Avatar Options */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {/* Show custom avatar as first option if exists */}
-                    {customAvatarUrl && (
+                    {customAvatarUrl && user && (
                       <button
                         type="button"
                         onClick={() => setSelectedAvatar(customAvatarUrl)}
@@ -1000,27 +967,36 @@ const MyPredictions = () => {
                         </div>
                       </button>
                     )}
-                    {AVATAR_OPTIONS.map((avatar) => (
-                      <button
-                        type="button"
-                        key={avatar}
-                        onClick={() => setSelectedAvatar(avatar)}
-                        className={`relative aspect-square !min-w-0 !min-h-0 rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all shrink-0 whitespace-nowrap touch-manipulation ${
-                          selectedAvatar === avatar 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-border hover:border-muted-foreground'
-                        }`}
-                      >
-                        <Avatar className="h-full w-full rounded-none">
-                          <AvatarImage src={avatar} className="object-cover" />
-                        </Avatar>
-                        {selectedAvatar === avatar && (
-                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <Check className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                          </div>
-                        )}
-                      </button>
-                    ))}
+                    {AVATAR_OPTIONS.map((avatar, index) => {
+                      // 游客默认显示第一个头像且不可选择
+                      const isGuestDefault = !user && index === 0;
+                      const isSelected = !user ? isGuestDefault : (selectedAvatar === avatar);
+                      
+                      return (
+                        <button
+                          type="button"
+                          key={avatar}
+                          onClick={() => user && setSelectedAvatar(avatar)}
+                          disabled={!user}
+                          className={`relative aspect-square !min-w-0 !min-h-0 rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all shrink-0 whitespace-nowrap touch-manipulation ${
+                            !user ? 'opacity-60 cursor-not-allowed' : ''
+                          } ${
+                            isSelected 
+                              ? 'border-primary ring-2 ring-primary/20' 
+                              : 'border-border hover:border-muted-foreground'
+                          }`}
+                        >
+                          <Avatar className="h-full w-full rounded-none">
+                            <AvatarImage src={avatar} className="object-cover" />
+                          </Avatar>
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                              <Check className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -1029,9 +1005,18 @@ const MyPredictions = () => {
                 <Button variant="outline" className="flex-1 h-10 sm:h-12 text-sm" onClick={() => setIsEditDialogOpen(false)}>
                   {t('cancel') || 'Cancel'}
                 </Button>
-                <Button className="flex-1 h-10 sm:h-12 text-sm" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
-                  {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
-                </Button>
+                {!user ? (
+                  <Button 
+                    className="flex-1 h-10 sm:h-12 text-sm" 
+                    onClick={() => navigate("/auth")}
+                  >
+                    {t('auth.login') || 'Login'}
+                  </Button>
+                ) : (
+                  <Button className="flex-1 h-10 sm:h-12 text-sm" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
+                    {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
+                  </Button>
+                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -1042,7 +1027,7 @@ const MyPredictions = () => {
           {/* Name + PRO Badge */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
-              {userProfile?.display_name || t('player_default_name') || '玩家'}
+              {userProfile?.display_name || t('player_default_name') || '游客'}
             </h1>
             {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
             <button 

@@ -527,7 +527,7 @@ export const th = {
     "hunter_coin_wallet": "กระเป๋า Hunter Coin",
     
     // Personal Center keys
-    "player_default_name": "ผู้เล่น",
+    "player_default_name": "ผู้เยี่ยมชม",
     "prediction_expert": "ผู้เชี่ยวชาญการทำนาย",
     
     "usdt_deposit": "ฝาก",

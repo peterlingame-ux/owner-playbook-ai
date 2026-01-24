@@ -6,7 +6,8 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-timezone",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -32,13 +33,10 @@ const payloadSchema = z.object({
 
 type UserRow = {
   id: string;
-  phone_number: string | null;
-  email: string | null;
   display_name: string | null;
   avatar_url: string | null;
-  metadata: Record<string, unknown> | null;
   created_at: string;
-  last_sign_in_at: string | null;
+  updated_at: string;
 };
 
 serve(async (req) => {
@@ -108,7 +106,7 @@ serve(async (req) => {
     // 检查用户是否已存在
     const { data: existingUser } = await supabaseClient
       .from("users")
-      .select("id, invited_by")
+      .select("id, invited_by, display_name, avatar_url")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -142,22 +140,23 @@ serve(async (req) => {
       }
     }
 
+    // 确保 display_name 和 avatar_url 不为 null（它们是 NOT NULL 字段）
+    const displayName = validatedPayload.data.displayName ??
+      (typeof userMetadata.full_name === "string" ? userMetadata.full_name : null) ??
+      existingUser?.display_name ??
+      "User";
+    
+    const avatarUrl = validatedPayload.data.avatarUrl ??
+      (typeof userMetadata.avatar_url === "string" ? userMetadata.avatar_url : null) ??
+      existingUser?.avatar_url ??
+      '/avatars/avatar-1.png';
+
     const upsertPayload: UserRow & { invited_by?: string | null } = {
       id: user.id,
-      phone_number: validatedPayload.data.phoneNumber ?? user.phone ?? null,
-      email: validatedPayload.data.email ?? user.email ?? null,
-      display_name: validatedPayload.data.displayName ??
-        (typeof userMetadata.full_name === "string"
-          ? userMetadata.full_name
-          : null),
-      avatar_url: validatedPayload.data.avatarUrl ??
-        (typeof userMetadata.avatar_url === "string"
-          ? userMetadata.avatar_url
-          : null),
-      metadata: validatedPayload.data.metadata ??
-        (Object.keys(userMetadata).length > 0 ? userMetadata : null),
+      display_name: displayName,
+      avatar_url: avatarUrl,
       created_at: user.created_at ?? now,
-      last_sign_in_at: now,
+      updated_at: now,
     };
 
     // 只有新用户才设置 invited_by

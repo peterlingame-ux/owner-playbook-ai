@@ -487,7 +487,7 @@ export const ja = {
     
     // Personal Center
     "personal_center": "パーソナルセンター",
-    "player_default_name": "プレイヤー",
+    "player_default_name": "ゲスト",
     "prediction_expert": "予測エキスパート",
     "following_label": "フォロー中",
     "followers_label": "フォロワー",

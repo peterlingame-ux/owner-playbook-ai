@@ -221,8 +221,58 @@ const Auth = () => {
 
     setLoading(true);
 
+    const fullPhone = `${normalizedCountryCode}${phone}`;
+
+      // 检查用户是否存在（区分注册和登录）
+      try {
+        const { data: checkData, error: checkError } = await supabase.functions.invoke("check-user-exists", {
+          body: { phone: fullPhone, action: "check" },
+        });
+
+        // 处理网络错误或函数调用错误
+        if (checkError) {
+          console.error("Check user exists error:", checkError);
+          // 如果检查失败，继续原有流程（允许自动注册）
+        } 
+        // 处理函数返回的错误（success: false）
+        else if (checkData && !checkData.success) {
+          console.error("Check user exists failed:", checkData.error);
+          // 如果是系统错误，继续原有流程（允许自动注册）
+          // 如果是参数错误，也应该继续流程，避免阻塞用户
+        }
+        // 处理成功返回（success: true）
+        else if (checkData?.success === true) {
+          // 如果是登录模式但用户不存在
+          if (!isSignUp && checkData.exists === false) {
+            setLoading(false);
+            toast({
+              title: t("auth.user_not_found"),
+              description: t("auth.please_register_first"),
+              variant: "destructive",
+            });
+            return;
+          }
+          // 如果是注册模式但用户已存在
+          if (isSignUp && checkData.exists === true) {
+            setLoading(false);
+            toast({
+              title: t("auth.user_already_exists"),
+              description: t("auth.please_login"),
+              variant: "destructive",
+            });
+            return;
+          }
+          // 如果检查成功且符合预期（登录时用户存在，注册时用户不存在），继续发送验证码
+        }
+        // 如果没有返回数据，继续原有流程
+      } catch (err) {
+        console.error("Check user exists exception:", err);
+        // 如果检查失败，继续原有流程（允许自动注册）
+      }
+
+    // 发送验证码
     const { error } = await supabase.auth.signInWithOtp({
-      phone: `${normalizedCountryCode}${phone}`,
+      phone: fullPhone,
     });
 
     setLoading(false);
@@ -266,6 +316,30 @@ const Auth = () => {
       });
     } else {
       if (data?.user) {
+        // 检查用户是否为新创建（通过检查创建时间）
+        const userCreatedAt = new Date(data.user.created_at);
+        const now = new Date();
+        const timeDiff = now.getTime() - userCreatedAt.getTime();
+        const isNewlyCreated = timeDiff < 60000; // 1分钟内创建的视为新用户
+
+        // 如果是登录模式但用户是新创建的，说明第一道防线失效了
+        // 不删除用户（因为用户已经通过 OTP 验证了手机号），而是提示用户完成注册
+        if (!isSignUp && isNewlyCreated && !forgotPasswordPhone) {
+          // 登出当前 session
+          await supabase.auth.signOut();
+          
+          setLoading(false);
+          toast({
+            title: t("auth.detected_new_user"),
+            description: t("auth.complete_registration"),
+            variant: "default",
+          });
+          // 自动切换到注册模式
+          setIsSignUp(true);
+          setStep("phone");
+          return;
+        }
+
         await syncUserProfile(data.user);
         setPendingUserId(data.user.id);
         
@@ -416,31 +490,110 @@ const Auth = () => {
           });
           setLoginMethod("sms");
         } else {
+          // 根据错误代码显示多语言错误信息
+          let errorMessage = t("auth.phone_or_password_error");
+          if (data?.errorCode === "USER_NOT_FOUND") {
+            errorMessage = t("auth.user_not_found");
+          } else if (data?.errorCode === "INVALID_PASSWORD") {
+            errorMessage = t("auth.invalid_password") || "密码错误";
+          } else if (data?.errorCode === "NO_PASSWORD_SET") {
+            errorMessage = t("auth.no_password_set") || "请先设置密码";
+          } else if (data?.error) {
+            // 如果错误信息是中文，尝试翻译
+            if (data.error === "用户不存在") {
+              errorMessage = t("auth.user_not_found");
+            } else if (data.error === "密码错误") {
+              errorMessage = t("auth.invalid_password") || "密码错误";
+            } else {
+              errorMessage = data.error;
+            }
+          }
+          
           toast({
             title: t("auth.login_failed"),
-            description: data?.error || t("auth.phone_or_password_error"),
+            description: errorMessage,
             variant: "destructive",
           });
         }
         return;
       }
 
-      // 密码验证成功，使用 OTP 完成登录
-      if (data.useDirectLogin && data.userId) {
-        // 发送一个静默的 OTP 来完成登录流程
+      // 密码验证成功，直接完成登录（不需要 OTP）
+      if (data.directLogin && data.magicLink) {
+        // 使用 magic link 直接完成登录
+        // 从 magic link 中提取 token，然后手动验证完成登录
+        try {
+          const url = new URL(data.magicLink);
+          const token = url.searchParams.get('token') || url.searchParams.get('token_hash') || data.hashedToken;
+          
+          if (data.hashedToken) {
+            // 使用 hashedToken 完成登录（magic link 方式）
+            const { data: sessionData, error: sessionError } = await supabase.auth.verifyOtp({
+              token_hash: data.hashedToken,
+              type: 'magiclink',
+            } as any);
+
+            setLoading(false);
+
+            if (sessionError) {
+              console.error("Magic link verification error:", sessionError);
+              // 如果验证失败，回退到 OTP 方式
+              const { error: otpError } = await supabase.auth.signInWithOtp({
+                phone: `${normalizedCountryCode}${phone}`,
+              });
+
+              if (otpError) {
+                toast({
+                  title: t("auth.login_failed"),
+                  description: otpError.message || t("auth.network_error"),
+                  variant: "destructive",
+                });
+              } else {
+                toast({
+                  title: t("auth.code_sent"),
+                  description: t("auth.check_sms"),
+                });
+                setStep("otp");
+                setCountdown(60);
+              }
+            } else {
+              // 登录成功，同步用户资料
+              if (sessionData?.user) {
+                await syncUserProfile(sessionData.user);
+              }
+              
+              toast({
+                title: t("auth.login_success"),
+                description: t("auth.welcome_back"),
+              });
+              navigate("/");
+            }
+          } else {
+            // 如果没有 hashedToken，直接跳转到 magic link（让 Supabase 处理）
+            // 但需要确保 redirectTo 指向正确的前端地址
+            setLoading(false);
+            window.location.href = data.magicLink;
+          }
+        } catch (linkError) {
+          console.error("Magic link processing error:", linkError);
+          // 如果处理失败，直接跳转到 magic link
+          setLoading(false);
+          window.location.href = data.magicLink;
+        }
+        return;
+      } else if (data.fallbackToOtp || (data.useDirectLogin && data.userId && !data.magicLink)) {
+        // 如果 magic link 生成失败，回退到 OTP 方式
         const { error: otpError } = await supabase.auth.signInWithOtp({
           phone: `${normalizedCountryCode}${phone}`,
         });
 
         setLoading(false);
-
         if (otpError) {
           toast({
-            title: t("auth.login_success"),
-            description: t("auth.check_sms"),
+            title: t("auth.login_failed"),
+            description: otpError.message || t("auth.network_error"),
+            variant: "destructive",
           });
-          setStep("otp");
-          setCountdown(60);
         } else {
           toast({
             title: t("auth.code_sent"),

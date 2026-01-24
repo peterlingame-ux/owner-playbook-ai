@@ -651,7 +651,7 @@ export const fr = {
     "follow_success": "Vous suivez maintenant {{name}}",
     
     // Personal Center keys
-    "player_default_name": "Joueur",
+    "player_default_name": "Visiteur",
     "prediction_expert": "Expert en Prédictions",
     "auto_prediction": "Auto",
     "manual_prediction": "Manuel",

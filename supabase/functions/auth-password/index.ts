@@ -3,7 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-timezone",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 // 简单的密码哈希函数（生产环境应使用更安全的方案如 bcrypt）
@@ -31,7 +32,22 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { action, userId, phone, password } = await req.json();
+    // 安全地解析请求体，处理空请求或无效 JSON
+    let requestBody: { action?: string; userId?: string; phone?: string; password?: string } = {};
+    try {
+      const bodyText = await req.text();
+      if (bodyText && bodyText.trim()) {
+        requestBody = JSON.parse(bodyText);
+      }
+    } catch (parseError) {
+      console.error("[auth-password] JSON parse error:", parseError);
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid request body" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    const { action, userId, phone, password } = requestBody;
     console.log(`[auth-password] Action: ${action}, Phone: ${phone ? phone.slice(0, 4) + "****" : "N/A"}`);
 
     if (action === "set-password") {
@@ -124,12 +140,17 @@ serve(async (req) => {
         );
       }
 
-      const authUser = authUsers.users.find(u => u.phone === phone);
+      // 去掉手机号开头的 + 号，统一比较数字部分
+      const normalizedPhone = phone.startsWith('+') ? phone.slice(1) : phone;
+      const authUser = authUsers.users.find(u => {
+        const normalizedUserPhone = u.phone?.startsWith('+') ? u.phone.slice(1) : u.phone;
+        return normalizedUserPhone === normalizedPhone;
+      });
       
       if (!authUser) {
         console.log(`[auth-password] User not found for phone: ${phone.slice(0, 4)}****`);
         return new Response(
-          JSON.stringify({ success: false, error: "用户不存在" }),
+          JSON.stringify({ success: false, error: "用户不存在", errorCode: "USER_NOT_FOUND" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
         );
       }
@@ -144,14 +165,14 @@ serve(async (req) => {
       if (userError || !userData) {
         console.error("[auth-password] Get user data error:", userError);
         return new Response(
-          JSON.stringify({ success: false, error: "用户数据不存在" }),
+          JSON.stringify({ success: false, error: "用户数据不存在", errorCode: "USER_DATA_NOT_FOUND" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
         );
       }
 
       if (!userData.password_hash) {
         return new Response(
-          JSON.stringify({ success: false, error: "请先使用短信验证码登录并设置密码", needSmsLogin: true }),
+          JSON.stringify({ success: false, error: "请先使用短信验证码登录并设置密码", errorCode: "NO_PASSWORD_SET", needSmsLogin: true }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
         );
       }
@@ -162,42 +183,85 @@ serve(async (req) => {
       if (!isValid) {
         console.log(`[auth-password] Invalid password for user: ${authUser.id}`);
         return new Response(
-          JSON.stringify({ success: false, error: "密码错误" }),
+          JSON.stringify({ success: false, error: "密码错误", errorCode: "INVALID_PASSWORD" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
         );
       }
 
-      // 生成自定义 token 让用户登录
-      // 使用 admin API 创建一个 magic link token
-      const { data: signInData, error: signInError } = await supabase.auth.admin.generateLink({
-        type: "magiclink",
-        email: authUser.email || `${phone}@phone.local`,
-        options: {
-          redirectTo: Deno.env.get("SUPABASE_URL"),
-        }
-      });
+      // 密码验证成功，生成 magic link 让用户直接登录（不需要 OTP）
+      // 对于手机号登录，需要确保用户有 email 才能生成 magic link
+      let signInData: any = null;
+      let signInError: any = null;
 
-      if (signInError) {
+      // 准备 email（如果用户没有 email，使用虚拟 email）
+      const virtualEmail = `${normalizedPhone}@phone.local`;
+      const userEmail = authUser.email || virtualEmail;
+
+      // 如果用户没有 email，先尝试更新用户的 email
+      if (!authUser.email) {
+        try {
+          const { error: updateError } = await supabase.auth.admin.updateUserById(authUser.id, {
+            email: virtualEmail,
+          });
+          if (updateError) {
+            console.warn("[auth-password] Failed to update user email:", updateError);
+            // 继续尝试，即使更新失败
+          }
+        } catch (err) {
+          console.warn("[auth-password] Exception updating user email:", err);
+          // 继续尝试，即使更新失败
+        }
+      }
+
+      // 尝试生成 magic link
+      // 获取前端 URL（从请求头或环境变量）
+      const frontendUrl = req.headers.get("origin") || 
+                         req.headers.get("referer")?.split("/").slice(0, 3).join("/") ||
+                         "http://localhost:3000";
+      
+      try {
+        const result = await supabase.auth.admin.generateLink({
+          type: "magiclink",
+          email: userEmail,
+          options: {
+            redirectTo: `${frontendUrl}/`,
+          }
+        });
+        signInData = result.data;
+        signInError = result.error;
+      } catch (err) {
+        console.error("[auth-password] Generate link exception:", err);
+        signInError = err;
+      }
+
+      if (signInError || !signInData) {
         console.error("[auth-password] Generate link error:", signInError);
-        // 尝试另一种方式 - 直接返回用户信息让前端用 OTP 验证
+        // 如果生成 magic link 失败，返回用户信息，让前端使用 OTP 方式
         return new Response(
           JSON.stringify({ 
             success: true, 
             userId: authUser.id,
             phone: authUser.phone,
-            useDirectLogin: true
+            useDirectLogin: true, // 标记为需要 OTP 验证
+            fallbackToOtp: true // 标记为回退到 OTP
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
       console.log(`[auth-password] Login successful for user: ${authUser.id}`);
+      // 返回 magic link 信息，前端可以直接使用完成登录
+      const actionLink = (signInData as any)?.properties?.action_link;
+      const hashedToken = (signInData as any)?.properties?.hashed_token;
+      
       return new Response(
         JSON.stringify({ 
           success: true, 
           userId: authUser.id,
-          token: signInData.properties?.hashed_token,
-          useDirectLogin: true
+          phone: authUser.phone,
+          magicLink: actionLink,
+          hashedToken: hashedToken,
+          directLogin: true // 标记为直接登录，不需要 OTP
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
