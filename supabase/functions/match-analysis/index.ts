@@ -225,26 +225,22 @@ const buildUserPrompt = (
 - 当前比分：${matchInfo.homeScore ?? 0} - ${matchInfo.awayScore ?? 0}
 - 比赛状态：${matchInfo.status === "live" ? "进行中" : "即将开始"}`;
 
-  // 构建赔率信息部分
+  // 构建赔率信息部分（仅作为参考，不强制要求）
   let oddsInfo = '';
-  let availableOverUnderLines: string[] = [];
-  let availableHandicapLines: string[] = [];
   
   if (marketOdds) {
-    oddsInfo = '\n\n**⚠️ 市场赔率信息（必须从以下赔率中选择 line 值）⚠️**\n';
+    oddsInfo = '\n\n**市场赔率信息（仅供参考）**\n';
     
     if (marketOdds.overUnder && marketOdds.overUnder.length > 0) {
-      oddsInfo += '\n**大小球赔率（您必须从以下 line 值中选择，不能使用其他值）：**\n';
+      oddsInfo += '\n**大小球赔率：**\n';
       marketOdds.overUnder.forEach(ou => {
         const lineStr = String(ou.line);
         oddsInfo += `- ${lineStr}球：大球 ${ou.over.toFixed(2)} | 小球 ${ou.under.toFixed(2)}\n`;
-        availableOverUnderLines.push(lineStr);
       });
-      oddsInfo += `\n**⚠️ 可用的大小球 line 值（必须从这些值中选择）：${availableOverUnderLines.join(', ')} ⚠️**\n`;
     }
     
     if (marketOdds.handicap && marketOdds.handicap.length > 0) {
-      oddsInfo += '\n**让球盘赔率（您必须从以下 line 值中选择，不能使用其他值）：**\n';
+      oddsInfo += '\n**让球盘赔率：**\n';
       marketOdds.handicap.forEach(h => {
         // line 可能是数字或字符串（如 "-1/1.5"），直接转换为字符串显示
         let lineStr: string;
@@ -254,31 +250,12 @@ const buildUserPrompt = (
           lineStr = String(h.line);
         }
         oddsInfo += `- ${lineStr}：主队 ${h.home.toFixed(2)} | 客队 ${h.away.toFixed(2)}\n`;
-        availableHandicapLines.push(lineStr);
       });
-      oddsInfo += `\n**⚠️ 可用的让球盘 line 值（必须从这些值中选择）：${availableHandicapLines.join(', ')} ⚠️**\n`;
     }
   }
 
   if (isDefaultBetInfo) {
-    // 构建 line 选择说明
-    let lineSelectionGuide = '';
-    if (availableOverUnderLines.length > 0 || availableHandicapLines.length > 0) {
-      lineSelectionGuide = '\n\n**⚠️ 强制规则：line 值选择 ⚠️**\n';
-      lineSelectionGuide += '**您必须严格从上面提供的市场赔率中选择 line 值，绝对不能使用列表外的值！**\n';
-      lineSelectionGuide += '**如果选择了不存在的 line 值，系统将拒绝您的预测，无法下注！**\n';
-      lineSelectionGuide += '**请在选择 line 值前，仔细对照上面的赔率列表，确保您选择的 line 值完全匹配列表中的值！**\n';
-      if (availableOverUnderLines.length > 0) {
-        lineSelectionGuide += `\n**大小球可选的 line 值（必须从以下值中选择，不能使用其他值）：${availableOverUnderLines.join(', ')}**\n`;
-        lineSelectionGuide += '请根据比赛分析，从这些值中选择一个最合适的 line 值。\n';
-      }
-      if (availableHandicapLines.length > 0) {
-        lineSelectionGuide += `\n**让球盘可选的 line 值（必须从以下值中选择，不能使用其他值）：${availableHandicapLines.join(', ')}**\n`;
-        lineSelectionGuide += '请根据比赛分析，从这些值中选择一个最合适的 line 值。\n';
-      }
-    }
-    
-    return `${basePrompt}${oddsInfo}${lineSelectionGuide}
+    return `${basePrompt}${oddsInfo}
 
 请从老板层面、技术层面、赔率层面进行全面分析，并给出最终投注建议。
 
@@ -294,13 +271,13 @@ PREDICTION_MONEYLINE: [HOME_WIN/AWAY_WIN/DRAW] [confidence 0-100]
 
 2. 大小球预测：
 PREDICTION_OVER_UNDER: [OVER/UNDER] [line] [confidence 0-100]
-${availableOverUnderLines.length > 0 ? `⚠️⚠️⚠️ 强制要求：line 值必须从以下列表中选择（不能使用其他值）：${availableOverUnderLines.join(', ')} ⚠️⚠️⚠️` : '⚠️ 如果没有可用的大小球赔率，可以不提供此预测'}
+注意：line 值可以是任意数值（如 2.5, 3.0, 2.75 等），系统会在市场赔率中查找最接近的匹配值。
 
 3. 让球盘预测：
 PREDICTION_HANDICAP: [HOME/AWAY] [line] [confidence 0-100]
-${availableHandicapLines.length > 0 ? `⚠️⚠️⚠️ 强制要求：line 值必须从以下列表中选择（不能使用其他值）：${availableHandicapLines.join(', ')} ⚠️⚠️⚠️` : '⚠️ 如果没有可用的让球盘赔率，可以不提供此预测'}
+注意：line 值可以是任意数值（如 -0.5, 0.5, -1.5, +1.5 等），系统会在市场赔率中查找最接近的匹配值。
 
-例如（假设可用的 line 值包括 2.5, 3.0, -0.5, 0.5）：
+例如：
 PREDICTION_MONEYLINE: HOME_WIN 75
 PREDICTION_OVER_UNDER: OVER 2.5 68
 PREDICTION_HANDICAP: HOME 0.5 72
@@ -310,14 +287,11 @@ PREDICTION_MONEYLINE: AWAY_WIN 70
 PREDICTION_OVER_UNDER: UNDER 3.0 72
 PREDICTION_HANDICAP: AWAY -0.5 65
 
-**⚠️⚠️⚠️ 关键注意事项 ⚠️⚠️⚠️**
+**注意事项**
 - 如果对某个投注类型没有信心（置信度低于50），可以不提供该预测
 - 输赢预测：HOME_WIN 表示主队获胜，AWAY_WIN 表示客队获胜，DRAW 表示平局
-- **大小球的 line 值必须严格从上面列出的可用值中选择，绝对不能使用其他值！如果使用列表外的值，系统将拒绝您的预测！**
-- **让球盘的 line 值必须严格从上面列出的可用值中选择，绝对不能使用其他值！如果使用列表外的值，系统将拒绝您的预测！**
+- 大小球和让球盘的 line 值可以根据你的分析自由选择，系统会在市场赔率中查找最接近的匹配值
 - HOME 表示主队让球，AWAY 表示客队让球
-- **line 值必须与上面赔率信息中的值完全一致（包括格式，如 "+0.5" 或 "-0.5"），不能有任何偏差！**
-- **在输出预测前，请再次确认您选择的 line 值是否在可用列表中！**
 - 请直接在分析内容后输出预测，不要添加任何标题或分隔符`;
   }
 
@@ -2954,42 +2928,47 @@ serve(async (req) => {
               }
             : null;
 
-          // 从数据库市场赔率中获取大小球真实赔率
+          // 从数据库市场赔率中获取大小球真实赔率（查找最接近的 line 值）
           let overUnderRealOdds: number | null = null;
+          let matchedOverUnderLine: number | string | undefined = undefined;
           if (overUnderPick && overUnderLine !== undefined && savedMarketOdds?.overUnder) {
-            // 匹配逻辑：支持数字和字符串的 line 值，处理格式差异
-            const matchedOdds = savedMarketOdds.overUnder.find(ou => {
-              // 标准化两个line值用于比较（移除空格，统一格式）
-              const normalizeLine = (line: number | string): string => {
-                if (typeof line === 'number') {
-                  return line.toString();
+            // 将 AI 预测的 line 值转换为数字（用于比较）
+            const aiLineNum = typeof overUnderLine === 'number' 
+              ? overUnderLine 
+              : parseFloat(String(overUnderLine));
+            
+            if (!isNaN(aiLineNum)) {
+              // 查找最接近的 line 值（允许容差 0.5）
+              let bestMatch: { odds: number; line: number | string } | null = null;
+              let minDiff = Infinity;
+              
+              for (const ou of savedMarketOdds.overUnder) {
+                const ouLineNum = typeof ou.line === 'number' 
+                  ? ou.line 
+                  : parseFloat(String(ou.line));
+                
+                if (!isNaN(ouLineNum)) {
+                  const diff = Math.abs(ouLineNum - aiLineNum);
+                  // 如果差值在容差范围内（0.5），且比当前最佳匹配更接近
+                  if (diff <= 0.5 && diff < minDiff) {
+                    const selectedOdds = overUnderPick.toUpperCase() === 'OVER' ? ou.over : ou.under;
+                    if (selectedOdds && isOddsInRange(selectedOdds)) {
+                      bestMatch = { odds: selectedOdds, line: ou.line };
+                      minDiff = diff;
+                    }
+                  }
                 }
-                return String(line).trim().replace(/\s+/g, '');
-              };
-              
-              const ouLineStr = normalizeLine(ou.line);
-              const aiLineStr = normalizeLine(overUnderLine);
-              
-              // 先尝试字符串精确匹配
-              if (ouLineStr === aiLineStr) {
-                return true;
               }
               
-              // 如果都是数字格式，尝试数值比较
-              const ouLineNum = parseFloat(ouLineStr);
-              const aiLineNum = parseFloat(aiLineStr);
-              if (!isNaN(ouLineNum) && !isNaN(aiLineNum)) {
-                return Math.abs(ouLineNum - aiLineNum) < 0.01;
+              if (bestMatch) {
+                overUnderRealOdds = bestMatch.odds;
+                matchedOverUnderLine = bestMatch.line;
+                console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测匹配成功: AI选择了line=${overUnderLine}，匹配到市场line=${matchedOverUnderLine}，赔率=${overUnderRealOdds}`);
+              } else {
+                console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测匹配失败: AI选择了line=${overUnderLine}，但在市场赔率中找不到接近的匹配值（容差0.5）`);
               }
-              
-              return false;
-            });
-            if (matchedOdds) {
-              const selectedOdds = overUnderPick.toUpperCase() === 'OVER' ? matchedOdds.over : matchedOdds.under;
-              // 确保选择的赔率在范围内
-              if (selectedOdds && isOddsInRange(selectedOdds)) {
-                overUnderRealOdds = selectedOdds;
-              }
+            } else {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测line值无法转换为数字: ${overUnderLine}`);
             }
           }
 
@@ -3001,58 +2980,61 @@ serve(async (req) => {
                 confidence: overUnderConfidence,
                 odds: overUnderRealOdds, // 使用匹配成功的真实赔率
                 betAmount: 0,
-                overUnderLine,
+                overUnderLine: matchedOverUnderLine ?? overUnderLine, // 使用匹配到的 line 值
                 overUnderPick: overUnderPick.toLowerCase(),
               }
             : null;
-          
-          // 如果AI选择了不存在的line值，记录警告日志
-          if (overUnderPick && overUnderLine && overUnderConfidence && (!overUnderRealOdds || overUnderRealOdds <= 0 || !isOddsInRange(overUnderRealOdds))) {
-            console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 大小球预测匹配失败: AI选择了line=${overUnderLine}，但在市场赔率中不存在或赔率无效，跳过该投注`);
-          }
 
-          // 从数据库市场赔率中获取让球盘真实赔率
+          // 从数据库市场赔率中获取让球盘真实赔率（查找最接近的 line 值）
           let handicapRealOdds: number | null = null;
+          let matchedHandicapLine: number | string | undefined = undefined;
           if (handicapPick && handicapLine !== undefined && savedMarketOdds?.handicap) {
-            // 匹配逻辑：支持数字和字符串的 line 值，处理格式差异（如 "+0.5" vs "0.5"）
-            const matchedOdds = savedMarketOdds.handicap.find(h => {
-              // 标准化两个line值用于比较（移除空格、统一正负号格式）
-              const normalizeLine = (line: number | string): string => {
-                if (typeof line === 'number') {
-                  // 数字格式：正数不加+号，负数保留-号
-                  return line > 0 ? line.toString() : line.toString();
+            // 将 AI 预测的 line 值转换为数字（用于比较）
+            // 处理字符串格式（如 "+0.5", "-0.5", "-1/1.5"）
+            const normalizeLineToNum = (line: number | string): number | null => {
+              if (typeof line === 'number') {
+                return line;
+              }
+              const str = String(line).trim().replace(/\s+/g, '');
+              // 移除开头的+号
+              const cleaned = str.startsWith('+') ? str.substring(1) : str;
+              // 尝试解析为数字（对于 "-1/1.5" 这种格式，取第一个数字）
+              const num = parseFloat(cleaned.split('/')[0]);
+              return isNaN(num) ? null : num;
+            };
+            
+            const aiLineNum = normalizeLineToNum(handicapLine);
+            
+            if (aiLineNum !== null) {
+              // 查找最接近的 line 值（允许容差 0.5）
+              let bestMatch: { odds: number; line: number | string } | null = null;
+              let minDiff = Infinity;
+              
+              for (const h of savedMarketOdds.handicap) {
+                const hLineNum = normalizeLineToNum(h.line);
+                
+                if (hLineNum !== null) {
+                  const diff = Math.abs(hLineNum - aiLineNum);
+                  // 如果差值在容差范围内（0.5），且比当前最佳匹配更接近
+                  if (diff <= 0.5 && diff < minDiff) {
+                    const selectedOdds = handicapPick.toUpperCase() === 'HOME' ? h.home : h.away;
+                    if (selectedOdds && isOddsInRange(selectedOdds)) {
+                      bestMatch = { odds: selectedOdds, line: h.line };
+                      minDiff = diff;
+                    }
+                  }
                 }
-                let str = String(line).trim().replace(/\s+/g, '');
-                // 统一格式：移除开头的+号（但保留-号）
-                if (str.startsWith('+')) {
-                  str = str.substring(1);
-                }
-                return str;
-              };
-              
-              const hLineStr = normalizeLine(h.line);
-              const aiLineStr = normalizeLine(handicapLine);
-              
-              // 先尝试字符串精确匹配
-              if (hLineStr === aiLineStr) {
-                return true;
               }
               
-              // 如果都是数字格式，尝试数值比较
-              const hLineNum = parseFloat(hLineStr);
-              const aiLineNum = parseFloat(aiLineStr);
-              if (!isNaN(hLineNum) && !isNaN(aiLineNum)) {
-                return Math.abs(hLineNum - aiLineNum) < 0.01;
+              if (bestMatch) {
+                handicapRealOdds = bestMatch.odds;
+                matchedHandicapLine = bestMatch.line;
+                console.log(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测匹配成功: AI选择了line=${handicapLine}，匹配到市场line=${matchedHandicapLine}，赔率=${handicapRealOdds}`);
+              } else {
+                console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测匹配失败: AI选择了line=${handicapLine}，但在市场赔率中找不到接近的匹配值（容差0.5）`);
               }
-              
-              return false;
-            });
-            if (matchedOdds) {
-              const selectedOdds = handicapPick.toUpperCase() === 'HOME' ? matchedOdds.home : matchedOdds.away;
-              // 确保选择的赔率在范围内
-              if (selectedOdds && isOddsInRange(selectedOdds)) {
-                handicapRealOdds = selectedOdds;
-              }
+            } else {
+              console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测line值无法转换为数字: ${handicapLine}`);
             }
           }
 
@@ -3064,14 +3046,9 @@ serve(async (req) => {
                 confidence: handicapConfidence,
                 odds: handicapRealOdds, // 使用匹配成功的真实赔率
                 betAmount: 0,
-                handicapLine,
+                handicapLine: matchedHandicapLine ?? handicapLine, // 使用匹配到的 line 值
               }
             : null;
-          
-          // 如果AI选择了不存在的line值，记录警告日志
-          if (handicapPick && handicapLine !== undefined && handicapConfidence && (!handicapRealOdds || handicapRealOdds <= 0 || !isOddsInRange(handicapRealOdds))) {
-            console.warn(`[${aiDisplayName}] 比赛 ${match.matchId} 让球盘预测匹配失败: AI选择了line=${handicapLine}，但在市场赔率中不存在或赔率无效，跳过该投注`);
-          }
 
           // 保存分析记录（使用大小球或让球盘作为主要记录，优先级：大小球 > 让球盘，投注时不考虑输赢）
           const finalBetInfo: BetInfo = overUnderBetInfo || handicapBetInfo || defaultBetInfo;

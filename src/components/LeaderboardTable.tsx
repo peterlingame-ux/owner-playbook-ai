@@ -905,7 +905,16 @@ const LeaderboardTable = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <button 
-                          onClick={() => navigate('/history')}
+                          onClick={() => {
+                            if (!user) {
+                              toast.warning(t('login_required') || '需要登录', {
+                                description: t('login_prompt') || '请登录后查看历史预测'
+                              });
+                              navigate('/auth');
+                              return;
+                            }
+                            navigate('/history');
+                          }}
                           className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40"
                         >
                           历史
@@ -982,7 +991,16 @@ const LeaderboardTable = () => {
                       {/* Action Buttons */}
                       <div className="flex items-center gap-2">
                         <button 
-                          onClick={() => navigate('/history')}
+                          onClick={() => {
+                            if (!user) {
+                              toast.warning(t('login_required') || '需要登录', {
+                                description: t('login_prompt') || '请登录后查看历史预测'
+                              });
+                              navigate('/auth');
+                              return;
+                            }
+                            navigate('/history');
+                          }}
                           className="px-3 py-1.5 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40"
                         >
                           历史预测

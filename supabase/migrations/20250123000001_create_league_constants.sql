@@ -36,6 +36,7 @@ INSERT INTO league_constants (chinese_name, english_name) VALUES
   ('澳大利亚足球超级联赛', 'A-League'),
   ('亚足联冠军联赛', 'AFC Champions League'),
   ('亚足联冠军联赛二', 'AFC Cup'),
+  ('U23亚洲杯', 'AFC U-23 Asian Cup'),
   ('瑞典超级联赛', 'Allsvenskan'),
   ('奥地利甲级联赛', 'Bundesliga'),
   ('英格兰冠军联赛', 'Championship'),

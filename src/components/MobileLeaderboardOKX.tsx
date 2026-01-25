@@ -88,7 +88,8 @@ const getExpertImage = (modelId: string) => {
     case 'claude': return starMessi;
     case 'gemini': return starHaaland;
     case 'grok': return starMbappe;
-    case 'hunsoccer-max': return starHunsoccer;
+    case 'hunsoccer-max':
+    case 'hunsoccermax': return starHunsoccer;
     default: return starRonaldo;
   }
 };
@@ -101,7 +102,8 @@ const getColorTint = (modelId: string) => {
     case 'claude': return 'from-[hsl(14,92%,68%)]/80 to-[hsl(14,92%,50%)]/80';
     case 'gemini': return 'from-[hsl(250,75%,68%)]/80 to-[hsl(250,75%,50%)]/80';
     case 'grok': return 'from-[hsl(158,68%,60%)]/80 to-[hsl(158,68%,45%)]/80';
-    case 'hunsoccer-max': return 'from-[hsl(38,92%,50%)]/80 to-[hsl(38,92%,40%)]/80';
+    case 'hunsoccer-max':
+    case 'hunsoccermax': return 'from-[hsl(38,92%,50%)]/80 to-[hsl(38,92%,40%)]/80';
     default: return 'from-[hsl(217,91%,65%)]/80 to-[hsl(217,91%,45%)]/80';
   }
 };
@@ -1673,15 +1675,15 @@ const MobileLeaderboardOKX = () => {
                   <div className="flex flex-col gap-1.5">
                     <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[9px] text-white flex items-center gap-1">
                       <GoalIcon size={10} className="flex-shrink-0" />
-                      <span>Premier League</span>
+                      <span>{t('league_premier_league') || 'Premier League'}</span>
                     </div>
                     <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[9px] text-white flex items-center gap-1">
                       <GoalIcon size={10} className="flex-shrink-0" />
-                      <span>La Liga</span>
+                      <span>{t('league_la_liga') || 'La Liga'}</span>
                     </div>
                     <div className="px-2 py-1 rounded-full bg-white/10 border border-white/20 text-[9px] text-white flex items-center gap-1">
                       <GoalIcon size={10} className="flex-shrink-0" />
-                      <span>Bundesliga</span>
+                      <span>{t('league_bundesliga') || 'Bundesliga'}</span>
                     </div>
                   </div>
                 </div>
@@ -1698,7 +1700,8 @@ const MobileLeaderboardOKX = () => {
                   const getModelBarColor = (modelId: string) => {
                     switch(modelId) {
                       case 'deepseek': return 'bg-[hsl(217,91%,60%)]';
-                      case 'hunsoccer-max': return 'bg-[hsl(38,92%,50%)]';
+                      case 'hunsoccer-max':
+                      case 'hunsoccermax': return 'bg-[hsl(38,92%,50%)]';
                       case 'grok': return 'bg-[hsl(210,15%,55%)]';
                       case 'gemini': return 'bg-[hsl(250,75%,60%)]';
                       case 'gpt5': return 'bg-[hsl(158,68%,50%)]';
@@ -3554,6 +3557,13 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
             className="px-1 py-0.5 text-[8px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors whitespace-nowrap"
             onClick={(e) => {
               e.stopPropagation();
+              if (!user) {
+                toast.warning(t('login_required') || '需要登录', {
+                  description: t('login_prompt') || '请登录后查看历史记录'
+                });
+                navigate('/auth');
+                return;
+              }
               navigate('/history');
             }}
           >

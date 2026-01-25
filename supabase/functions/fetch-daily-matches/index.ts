@@ -718,7 +718,12 @@ const convertToDatabaseRecord = async (
     away_team_name: awayTeamName,
     away_team_name_zh: awayTeamNameZh,
     away_team_logo: awayTeamLogo,
-    odds_info: oddsInfo ? (typeof oddsInfo === 'object' ? oddsInfo : JSON.parse(JSON.stringify(oddsInfo))) : null,
+    // odds_info: 如果 oddsInfo 为 undefined，不设置该字段（用于保护已有值）
+    // 如果 oddsInfo 为 null，设置为 null（表示明确没有赔率）
+    // 如果 oddsInfo 有值，设置该值
+    ...(oddsInfo !== undefined ? {
+      odds_info: oddsInfo ? (typeof oddsInfo === 'object' ? oddsInfo : JSON.parse(JSON.stringify(oddsInfo))) : null
+    } : {}),
     // odds_requested: 如果 oddsInfo 不为 null，说明已请求过赔率信息
     // 注意：这个字段会在 upsertMatches 中根据实际请求情况更新
     raw: {
@@ -746,11 +751,12 @@ const upsertMatches = async (
   // 从已有记录中获取 odds_info 和 odds_requested 状态（用于所有模式）
   const existingOddsInfoMap = new Map<number, unknown>();
   const existingOddsRequestedMap = new Map<number, boolean>();
+  const existingOddsUpdatedAtMap = new Map<number, string | null>(); // 赔率更新时间
   if (matches.length > 0) {
     const matchIds = matches.map(m => m.id);
       const { data: existingRecords } = await supabase
         .from("daily_matches")
-      .select("match_id, odds_info, odds_requested")
+      .select("match_id, odds_info, odds_requested, odds_info_updated_at")
         .eq("date", date)
       .in("match_id", matchIds);
       
@@ -762,6 +768,8 @@ const upsertMatches = async (
           }
           // 记录是否已请求过赔率信息
           existingOddsRequestedMap.set(record.match_id, record.odds_requested === true);
+          // 记录赔率更新时间
+          existingOddsUpdatedAtMap.set(record.match_id, record.odds_info_updated_at || null);
         }
       }
     }
@@ -836,10 +844,17 @@ const upsertMatches = async (
       const isPredicted = match.id && predictedMatchIds.has(match.id);
       // 检查是否已经请求过赔率（非 refresh 模式下，如果已请求过，不再更新 odds_info）
       const alreadyRequestedOdds = match.id && fetchOdds && existingOddsRequestedMap.get(match.id) === true;
+      // 检查 odds_info 是否有值
+      const hasOddsInfo = match.id && existingOddsInfoMap.has(match.id) && existingOddsInfoMap.get(match.id) !== null && existingOddsInfoMap.get(match.id) !== undefined;
+      // 如果 odds_info 有值且 odds_requested=true，则不再更新 odds_info
+      const shouldSkipOddsUpdate = hasOddsInfo && alreadyRequestedOdds;
       // 检查比赛是否已完成（已完成的不需要获取赔率）
       const isCompleted = isMatchCompleted({ ended: match.ended, status_id: match.status_id });
       
-      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !alreadyRequestedOdds && !isCompleted) {
+      // 如果 odds_info 有值且 odds_requested=true，跳过获取赔率
+      if (shouldSkipOddsUpdate) {
+        console.log(`[upsertMatches] 比赛 ${match.id} 已有赔率信息且已请求过，跳过更新`);
+      } else if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !alreadyRequestedOdds && !isCompleted) {
         // 非 refresh 模式且未被预测过且未请求过赔率且未完成的比赛，获取新的赔率信息
         try {
           // 尝试通过球队名称和比赛时间匹配番茄体育的比赛ID
@@ -880,10 +895,20 @@ const upsertMatches = async (
         if (match.id && existingOddsInfoMap.has(match.id)) {
           oddsInfo = existingOddsInfoMap.get(match.id)!;
         }
-      } else if (alreadyRequestedOdds) {
+      }
+      
+      // 标记是否需要保护 odds_info（不更新）
+      let shouldProtectOddsInfo = false;
+      
+      if (alreadyRequestedOdds) {
         // 非 refresh 模式下，如果已经请求过赔率，使用已有的 odds_info（如果存在），但不更新
         if (match.id && existingOddsInfoMap.has(match.id)) {
           oddsInfo = existingOddsInfoMap.get(match.id)!;
+        } else {
+          // 如果缓存中没有，标记为需要保护（不更新数据库中的已有值）
+          shouldProtectOddsInfo = true;
+          // 不设置 oddsInfo，让 convertToDatabaseRecord 不设置 odds_info 字段
+          oddsInfo = undefined;
         }
       } else if (!fetchOdds) {
         // 刷新模式下，使用已有的 odds_info（如果存在）
@@ -894,6 +919,29 @@ const upsertMatches = async (
       
       const record = await convertToDatabaseRecord(match, date, competitions, teams, oddsInfo);
       
+      // 设置 odds_info_updated_at 字段
+      // 如果成功获取了新的赔率信息（无论是首次获取还是刷新），更新赔率更新时间
+      if (oddsInfo !== null && oddsInfo !== undefined) {
+        // 检查是否是新获取的赔率（不是从缓存中读取的）
+        const isNewlyFetched = fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !alreadyRequestedOdds && !isCompleted;
+        if (isNewlyFetched) {
+          // 新获取的赔率，更新时间戳
+          record.odds_info_updated_at = new Date().toISOString();
+        } else if (match.id && existingOddsUpdatedAtMap.has(match.id)) {
+          // 从缓存中读取的赔率，保留原有的更新时间
+          const existingUpdatedAt = existingOddsUpdatedAtMap.get(match.id);
+          if (existingUpdatedAt) {
+            record.odds_info_updated_at = existingUpdatedAt;
+          }
+        }
+      } else if (match.id && existingOddsUpdatedAtMap.has(match.id)) {
+        // 如果没有赔率信息但数据库中有更新时间，保留原有的更新时间
+        const existingUpdatedAt = existingOddsUpdatedAtMap.get(match.id);
+        if (existingUpdatedAt) {
+          record.odds_info_updated_at = existingUpdatedAt;
+        }
+      }
+      
       // 设置 odds_requested 字段
       // 1. 如果实际请求了赔率（无论成功与否），设置为 true
       // 2. 如果刷新模式下已有记录且已请求过，保留原有状态
@@ -901,7 +949,7 @@ const upsertMatches = async (
       // 4. 已完成的比赛保留已有的请求状态，不重新设置
       let oddsRequested: boolean = false;
       
-      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !isCompleted) {
+      if (fetchOdds && ybtyToken && fqtyMatchesCache && !isPredicted && !alreadyRequestedOdds && !isCompleted) {
         // 实际尝试请求了赔率信息（无论成功与否，只要尝试了就算请求过）
         // 注意：已完成的比赛不会进入这里，因为上面已经过滤了
         oddsRequested = true;
@@ -926,11 +974,25 @@ const upsertMatches = async (
       // 在非 refresh 模式下，如果已经请求过赔率（odds_requested=true），不更新 odds_info 字段
       if (fetchOdds && alreadyRequestedOdds) {
         delete record.odds_info;
+        delete record.odds_info_updated_at;
+      }
+      
+      // 如果需要保护 odds_info（alreadyRequestedOdds = true 但缓存中没有），确保不更新
+      if (shouldProtectOddsInfo) {
+        delete record.odds_info;
+        delete record.odds_info_updated_at;
+      }
+      
+      // 如果 odds_info 有值且 odds_requested=true，确保不更新 odds_info
+      if (shouldSkipOddsUpdate) {
+        delete record.odds_info;
+        delete record.odds_info_updated_at;
       }
       
       // 在刷新模式下，如果 oddsInfo 为 null（即没有新的赔率且没有已有的赔率），则删除 odds_info 字段，避免覆盖
       if (!fetchOdds && oddsInfo === null && !isPredicted) {
         delete record.odds_info;
+        delete record.odds_info_updated_at;
       }
       
       batchRecords.push(record);

@@ -21,8 +21,8 @@ BEGIN
       status TEXT NOT NULL DEFAULT 'pending',
       strategy_config JSONB,
       analysis_reference_ids BIGINT[],
-      handicap_line NUMERIC,
-      over_under_line NUMERIC,
+      handicap_line TEXT, -- 支持数字和字符串格式（如 "-1/1.5", "-0.5"）
+      over_under_line TEXT, -- 支持数字和字符串格式（如 "2.5/3", "2.5"）
       over_under_pick TEXT,
       pnl NUMERIC,
       settled_at TIMESTAMP WITH TIME ZONE,
@@ -50,8 +50,8 @@ BEGIN
     COMMENT ON COLUMN public.ai_auto_bets.status IS '状态（pending/settled/cancelled/won/lost）';
     COMMENT ON COLUMN public.ai_auto_bets.strategy_config IS '策略配置（JSON格式）';
     COMMENT ON COLUMN public.ai_auto_bets.analysis_reference_ids IS '关联的分析记录ID数组';
-    COMMENT ON COLUMN public.ai_auto_bets.handicap_line IS '让球盘盘口';
-    COMMENT ON COLUMN public.ai_auto_bets.over_under_line IS '大小球盘口';
+    COMMENT ON COLUMN public.ai_auto_bets.handicap_line IS '让球盘盘口（支持数字和字符串格式，如 "-1/1.5", "-0.5"）';
+    COMMENT ON COLUMN public.ai_auto_bets.over_under_line IS '大小球盘口（支持数字和字符串格式，如 "2.5/3", "2.5"）';
     COMMENT ON COLUMN public.ai_auto_bets.over_under_pick IS '大小球选择（over/under）';
     COMMENT ON COLUMN public.ai_auto_bets.pnl IS '盈亏金额';
     COMMENT ON COLUMN public.ai_auto_bets.settled_at IS '结算时间';
@@ -88,7 +88,18 @@ BEGIN
     AND table_name = 'ai_auto_bets' 
     AND column_name = 'handicap_line'
   ) THEN
-    ALTER TABLE public.ai_auto_bets ADD COLUMN handicap_line NUMERIC;
+    ALTER TABLE public.ai_auto_bets ADD COLUMN handicap_line TEXT;
+  END IF;
+
+  -- 如果字段已存在但类型是 NUMERIC，改为 TEXT 以支持字符串格式
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'ai_auto_bets' 
+    AND column_name = 'handicap_line'
+    AND data_type = 'numeric'
+  ) THEN
+    ALTER TABLE public.ai_auto_bets ALTER COLUMN handicap_line TYPE TEXT USING handicap_line::TEXT;
   END IF;
 
   -- 检查并添加 over_under_line 字段
@@ -98,7 +109,18 @@ BEGIN
     AND table_name = 'ai_auto_bets' 
     AND column_name = 'over_under_line'
   ) THEN
-    ALTER TABLE public.ai_auto_bets ADD COLUMN over_under_line NUMERIC;
+    ALTER TABLE public.ai_auto_bets ADD COLUMN over_under_line TEXT;
+  END IF;
+
+  -- 如果字段已存在但类型是 NUMERIC，改为 TEXT 以支持字符串格式
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'ai_auto_bets' 
+    AND column_name = 'over_under_line'
+    AND data_type = 'numeric'
+  ) THEN
+    ALTER TABLE public.ai_auto_bets ALTER COLUMN over_under_line TYPE TEXT USING over_under_line::TEXT;
   END IF;
 
   -- 检查并添加 over_under_pick 字段
