@@ -68,6 +68,7 @@ CREATE TABLE public.daily_matches (
   -- 赔率数据（从番茄体育API获取）
   odds_info JSONB, -- 详细赔率信息（从 getMatchOddsInfoPB API 获取）
   odds_requested BOOLEAN DEFAULT FALSE, -- 是否已请求过赔率信息（true-已请求，false-未请求）
+  odds_info_updated_at TIMESTAMPTZ, -- 赔率信息最后更新时间，用于判断是否需要刷新赔率（未预测的比赛超过30分钟且未开始可重新获取）
   
   -- 唯一约束：同一日期同一比赛ID只能有一条记录
   UNIQUE(date, match_id)
@@ -85,6 +86,7 @@ CREATE INDEX idx_daily_matches_ended ON public.daily_matches(ended);
 CREATE INDEX idx_daily_matches_raw ON public.daily_matches USING GIN(raw);
 CREATE INDEX idx_daily_matches_odds_info ON public.daily_matches USING GIN(odds_info);
 CREATE INDEX idx_daily_matches_odds_requested ON public.daily_matches(odds_requested);
+CREATE INDEX idx_daily_matches_odds_info_updated_at ON public.daily_matches(odds_info_updated_at);
 
 -- 添加注释
 COMMENT ON TABLE public.daily_matches IS '每日比赛数据表，支持纳米数据 API 数据结构';
@@ -96,6 +98,7 @@ COMMENT ON COLUMN public.daily_matches.ended IS '是否已结束 (1-已结束, 0
 COMMENT ON COLUMN public.daily_matches.raw IS '原始数据（JSONB格式，存储完整的API响应）';
 COMMENT ON COLUMN public.daily_matches.odds_info IS '详细赔率信息（JSONB格式，从番茄体育 getMatchOddsInfoPB API 获取）';
 COMMENT ON COLUMN public.daily_matches.odds_requested IS '是否已请求过赔率信息（true-已请求，false-未请求）';
+COMMENT ON COLUMN public.daily_matches.odds_info_updated_at IS '赔率信息最后更新时间，用于判断是否需要刷新赔率（未预测的比赛超过30分钟且未开始可重新获取）';
 
 -- 创建函数自动更新 updated_at
 CREATE OR REPLACE FUNCTION public.update_daily_matches_updated_at()
