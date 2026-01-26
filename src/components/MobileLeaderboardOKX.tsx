@@ -559,191 +559,44 @@ const MobileLeaderboardOKX = () => {
     }
   };
 
-  // 根据时间筛选器获取 AI 模型统计数据
+  // 根据时间筛选器获取 AI 模型统计数据（使用与 PC 端相同的计算方式）
   useEffect(() => {
     const fetchAIModelsStats = async () => {
       try {
-        // 计算时间范围
-        const now = new Date();
-        let startDate: Date;
-        
-        if (timeFilter === 'day') {
-          // 今天
-          startDate = new Date(now);
-          startDate.setHours(0, 0, 0, 0);
-        } else if (timeFilter === 'week') {
-          // 本周（过去7天）
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 7);
-        } else {
-          // 本月（过去30天）
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 30);
+        // 使用与 LeaderboardTable 相同的数据源和计算方式
+        // 获取所有AI模型的胜率数据（从 ai_win_rates_overall 视图）
+        const { data: winRatesData, error: winRatesError } = await supabase
+          .from('ai_win_rates_overall' as any)
+          .select('ai_id, total_predictions, correct_predictions, win_rate');
+
+        if (winRatesError) {
+          console.error('Error fetching AI win rates:', winRatesError);
         }
-        
-        const startDateStr = startDate.toISOString();
-        
-        // 查询该时间范围内的 AI 自动投注记录
-        // 根据表结构：status 字段值为 'pending'/'settled'/'cancelled'/'won'/'lost'
-        // 查询已结算的投注（status 为 'won' 或 'lost' 或 'settled'）
-        // 优先使用 settled_at 过滤（已结算的投注），如果没有则使用 inserted_at
-        // 选择字段：ai_id, status, stake_amount, odds, pnl（盈亏金额）
-        let { data: betsData, error } = await supabase
-          .from('ai_auto_bets' as any)
-          .select('ai_id, status, stake_amount, odds, pnl, settled_at, inserted_at')
-          .in('status', ['won', 'lost', 'settled'])
-          .gte('inserted_at', startDateStr);
-        
-        // 如果查询成功，进一步过滤：优先使用 settled_at（如果存在且大于等于开始时间）
-        // 或者在客户端过滤：settled_at >= startDate 或 (settled_at 为 null 且 inserted_at >= startDate)
-        if (!error && betsData) {
-          betsData = betsData.filter((bet: any) => {
-            const settledAt = bet.settled_at ? new Date(bet.settled_at) : null;
-            const insertedAt = bet.inserted_at ? new Date(bet.inserted_at) : null;
-            const startDateObj = new Date(startDateStr);
-            
-            // 如果有 settled_at，使用它；否则使用 inserted_at
-            if (settledAt && settledAt >= startDateObj) {
-              return true;
-            } else if (!settledAt && insertedAt && insertedAt >= startDateObj) {
-              return true;
-            }
-            return false;
-          });
-        }
-        
-        if (error) {
-          console.error('Error fetching AI bets:', error);
-          // 如果查询失败，初始化空统计数据
-          const emptyStatsMap = new Map<string, {
-            winRate: number;
-            totalPredictions: number;
-            correctPredictions: number;
-            profitAmount: number;
-            changePercent: number;
-            totalBetAmount: number;
-          }>();
-          aiModels.forEach(model => {
-            emptyStatsMap.set(model.id, {
-              winRate: 0,
-              totalPredictions: 0,
-              correctPredictions: 0,
-              profitAmount: 0,
-              changePercent: 0,
-              totalBetAmount: 0,
-            });
-          });
-          setAiModelsStats(emptyStatsMap);
-          return;
-        }
-        
-        // 如果没有数据，也初始化空统计
-        if (!betsData || betsData.length === 0) {
-          const emptyStatsMap = new Map<string, {
-            winRate: number;
-            totalPredictions: number;
-            correctPredictions: number;
-            profitAmount: number;
-            changePercent: number;
-            totalBetAmount: number;
-          }>();
-          aiModels.forEach(model => {
-            emptyStatsMap.set(model.id, {
-              winRate: 0,
-              totalPredictions: 0,
-              correctPredictions: 0,
-              profitAmount: 0,
-              changePercent: 0,
-              totalBetAmount: 0,
-            });
-          });
-          setAiModelsStats(emptyStatsMap);
-          return;
-        }
-        
-        // 统计每个 AI 的数据
-        const statsMap = new Map<string, {
-          totalPredictions: number;
-          correctPredictions: number;
-          totalBetAmount: number;
-          totalProfit: number;
-        }>();
-        
-        // 初始化所有 AI 模型
-        aiModels.forEach(model => {
-          statsMap.set(model.id, {
-            totalPredictions: 0,
-            correctPredictions: 0,
-            totalBetAmount: 0,
-            totalProfit: 0,
-          });
-        });
-        
-        // 统计数据
-        if (betsData) {
-          betsData.forEach((bet: any) => {
-            const aiId = bet.ai_id;
-            if (!aiId) return;
-            
-            const stats = statsMap.get(aiId);
-            if (!stats) return;
-            
-            stats.totalPredictions++;
-            stats.totalBetAmount += Number(bet.stake_amount) || 0;
-            
-            // 判断是否正确（通过 status 字段判断）
-            // 根据表结构：status 值为 'won'/'lost'/'settled'/'cancelled'/'pending'
-            if (bet.status === 'won') {
-              stats.correctPredictions++;
-              // 如果有 pnl 字段，直接使用；否则计算
-              if (bet.pnl !== null && bet.pnl !== undefined) {
-                stats.totalProfit += Number(bet.pnl);
-              } else {
-                // 计算盈利：赔率 * 投注金额 - 投注金额
-                const payout = (Number(bet.stake_amount) || 0) * (Number(bet.odds) || 1);
-                stats.totalProfit += payout - (Number(bet.stake_amount) || 0);
-              }
-            } else if (bet.status === 'lost') {
-              // 如果有 pnl 字段，直接使用（pnl 应该是负数）
-              if (bet.pnl !== null && bet.pnl !== undefined) {
-                stats.totalProfit += Number(bet.pnl);
-              } else {
-                // 亏损：减去投注金额
-                stats.totalProfit -= Number(bet.stake_amount) || 0;
-              }
-            } else if (bet.status === 'settled') {
-              // 如果状态是 'settled'，通过 pnl 字段判断输赢
-              if (bet.pnl !== null && bet.pnl !== undefined) {
-                const pnl = Number(bet.pnl);
-                if (pnl > 0) {
-                  stats.correctPredictions++;
-                  stats.totalProfit += pnl;
-                } else if (pnl < 0) {
-                  stats.totalProfit += pnl; // pnl 已经是负数
-                }
-                // pnl === 0 表示平局或取消，只统计预测数
-              }
-              // 如果没有 pnl 字段，无法判断输赢，只统计预测数
-            }
-            // status 为 'cancelled' 或 'pending' 的投注不应该被查询到（已通过 .in('status', ['won', 'lost', 'settled']) 过滤）
-          });
-        }
-        
-        // 获取 AI 余额数据（用于计算总收益）
-        const { data: balancesData } = await supabase
+
+        // 获取所有AI模型的余额数据（用于显示，但不用于计算盈利）
+        const { data: balancesData, error: balancesError } = await supabase
           .from('ai_balances' as any)
           .select('ai_id, available_balance, locked_balance');
-        
-        const INITIAL_BALANCE = 10000;
-        const balancesMap = new Map<string, number>();
-        if (balancesData) {
-          balancesData.forEach((balance: any) => {
-            if (balance.ai_id) {
-              const totalBalance = (balance.available_balance || 0) + (balance.locked_balance || 0);
-              balancesMap.set(balance.ai_id, totalBalance);
-            }
+
+        if (balancesError) {
+          console.error('Error fetching AI balances:', balancesError);
+        }
+
+        // 创建数据映射
+        const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
+        if (winRatesData) {
+          winRatesData.forEach((item: any) => {
+            winRatesMap.set(String(item.ai_id), {
+              total_predictions: Number(item.total_predictions) || 0,
+              correct_predictions: Number(item.correct_predictions) || 0,
+              win_rate: Number(item.win_rate) || 0
+            });
           });
         }
+
+        // 使用与 LeaderboardTable 完全相同的计算方式
+        const avgBetAmount = 200; // 默认平均投注金额（与 LeaderboardTable 保持一致）
+        const avgOdds = 1.8; // 默认平均赔率（与 LeaderboardTable 保持一致）
         
         // 转换为最终统计数据
         const finalStatsMap = new Map<string, {
@@ -755,29 +608,53 @@ const MobileLeaderboardOKX = () => {
           totalBetAmount: number;
         }>();
         
-        statsMap.forEach((stats, aiId) => {
-          const winRate = stats.totalPredictions > 0 
-            ? (stats.correctPredictions / stats.totalPredictions) * 100 
-            : 0;
+        aiModels.forEach(model => {
+          const winRateData = winRatesMap.get(model.id);
           
-          // 计算收益率（基于投注金额和盈利）
-          const changePercent = stats.totalBetAmount > 0
-            ? (stats.totalProfit / stats.totalBetAmount) * 100
-            : 0;
+          // 使用真实数据，如果没有则使用默认值
+          const totalPredictions = winRateData?.total_predictions ?? 0;
+          const correctPredictions = winRateData?.correct_predictions ?? 0;
+          const winRate = winRateData?.win_rate ?? 0;
           
-          finalStatsMap.set(aiId, {
+          // 使用与 LeaderboardTable 完全相同的计算方式
+          const totalBetAmount = totalPredictions * avgBetAmount;
+          const validAmount = correctPredictions * avgBetAmount * avgOdds;
+          const profitAmount = validAmount - totalBetAmount;
+          const profitRate = totalBetAmount > 0 ? (profitAmount / totalBetAmount) * 100 : 0;
+          
+          finalStatsMap.set(model.id, {
             winRate: Math.round(winRate * 10) / 10,
-            totalPredictions: stats.totalPredictions,
-            correctPredictions: stats.correctPredictions,
-            profitAmount: Math.round(stats.totalProfit),
-            changePercent: Math.round(changePercent * 10) / 10,
-            totalBetAmount: Math.round(stats.totalBetAmount),
+            totalPredictions,
+            correctPredictions,
+            profitAmount: Math.round(profitAmount), // 与 LeaderboardTable 保持一致（单位相同）
+            changePercent: Math.round(profitRate * 10) / 10, // 盈利率
+            totalBetAmount: Math.round(totalBetAmount),
           });
         });
         
         setAiModelsStats(finalStatsMap);
       } catch (error) {
         console.error('Error fetching AI models stats:', error);
+        // 如果出错，初始化空统计数据
+        const emptyStatsMap = new Map<string, {
+          winRate: number;
+          totalPredictions: number;
+          correctPredictions: number;
+          profitAmount: number;
+          changePercent: number;
+          totalBetAmount: number;
+        }>();
+        aiModels.forEach(model => {
+          emptyStatsMap.set(model.id, {
+            winRate: 0,
+            totalPredictions: 0,
+            correctPredictions: 0,
+            profitAmount: 0,
+            changePercent: 0,
+            totalBetAmount: 0,
+          });
+        });
+        setAiModelsStats(emptyStatsMap);
       }
     };
     
