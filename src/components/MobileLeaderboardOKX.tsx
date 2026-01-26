@@ -566,8 +566,6 @@ const MobileLeaderboardOKX = () => {
       setAiModelsStats(new Map());
       
       try {
-        console.log('[MobileLeaderboardOKX] 获取AI统计数据，时间筛选器:', timeFilter);
-        
         // 根据时间筛选器计算日期范围
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -601,12 +599,6 @@ const MobileLeaderboardOKX = () => {
         const endDateTime = new Date(endDate);
         endDateTime.setHours(23, 59, 59, 999);
         
-        console.log('[MobileLeaderboardOKX] 查询时间范围:', {
-          start: startDateTime.toISOString(),
-          end: endDateTime.toISOString(),
-          timeFilter
-        });
-        
         // 直接从 sim_positions 表查询指定时间范围内的数据
         const { data: positionsData, error: positionsError } = await supabase
           .from('sim_positions' as any)
@@ -615,11 +607,6 @@ const MobileLeaderboardOKX = () => {
           .not('settled_at', 'is', null)
           .gte('settled_at', startDateTime.toISOString())
           .lte('settled_at', endDateTime.toISOString());
-        
-        console.log('[MobileLeaderboardOKX] 查询结果:', {
-          count: positionsData?.length || 0,
-          error: positionsError?.message
-        });
 
         if (positionsError) {
           console.error('Error fetching AI positions:', positionsError);
@@ -654,15 +641,6 @@ const MobileLeaderboardOKX = () => {
             }
           });
           
-          console.log('[MobileLeaderboardOKX] 统计结果:', {
-            statsByAiSize: statsByAi.size,
-            stats: Array.from(statsByAi.entries()).map(([aiId, stats]) => ({
-              aiId,
-              total: stats.total,
-              wins: stats.wins
-            }))
-          });
-          
           // 转换为所需格式
           statsByAi.forEach((stats, aiId) => {
             const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
@@ -675,15 +653,13 @@ const MobileLeaderboardOKX = () => {
         }
         
         // 如果没有数据，尝试从总体视图获取（作为后备）
-        // 注意：只有在确实没有数据时才使用总体视图，否则会显示错误的数据
         if (winRatesMap.size === 0) {
-          console.warn('[MobileLeaderboardOKX] 指定时间范围内没有数据，使用总体数据作为后备');
           const { data: winRatesData, error: winRatesError } = await supabase
             .from('ai_win_rates_overall' as any)
             .select('ai_id, total_predictions, correct_predictions, win_rate');
 
           if (winRatesError) {
-            console.error('[MobileLeaderboardOKX] Error fetching AI win rates from overall:', winRatesError);
+            console.error('Error fetching AI win rates from overall:', winRatesError);
           } else if (winRatesData) {
             winRatesData.forEach((item: any) => {
               winRatesMap.set(String(item.ai_id), {
@@ -693,8 +669,6 @@ const MobileLeaderboardOKX = () => {
               });
             });
           }
-        } else {
-          console.log('[MobileLeaderboardOKX] 使用指定时间范围内的数据，不使用总体数据');
         }
 
         // 获取所有AI模型的余额数据（用于显示，但不用于计算盈利）
@@ -745,18 +719,9 @@ const MobileLeaderboardOKX = () => {
           });
         });
         
-        console.log('[MobileLeaderboardOKX] 最终统计数据:', {
-          finalStatsMapSize: finalStatsMap.size,
-          stats: Array.from(finalStatsMap.entries()).map(([modelId, stats]) => ({
-            modelId,
-            winRate: stats.winRate,
-            totalPredictions: stats.totalPredictions
-          }))
-        });
-        
         setAiModelsStats(finalStatsMap);
       } catch (error) {
-        console.error('[MobileLeaderboardOKX] Error fetching AI models stats:', error);
+        console.error('Error fetching AI models stats:', error);
         // 如果出错，初始化空统计数据
         const emptyStatsMap = new Map<string, {
           winRate: number;

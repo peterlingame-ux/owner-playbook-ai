@@ -287,8 +287,6 @@ const LeaderboardTable = () => {
       }
       
       try {
-        console.log('[LeaderboardTable] 获取AI统计数据，时间范围:', timeRange);
-        
         // 根据时间范围计算日期范围
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -322,12 +320,6 @@ const LeaderboardTable = () => {
         const endDateTime = new Date(endDate);
         endDateTime.setHours(23, 59, 59, 999);
         
-        console.log('[LeaderboardTable] 查询时间范围:', {
-          start: startDateTime.toISOString(),
-          end: endDateTime.toISOString(),
-          timeRange
-        });
-        
         // 并行获取胜率统计和余额数据
         const [positionsResult, balancesResult] = await Promise.all([
           supabase
@@ -341,13 +333,6 @@ const LeaderboardTable = () => {
             .from('ai_balances' as any)
             .select('ai_id, available_balance, locked_balance')
         ]);
-        
-        console.log('[LeaderboardTable] 查询结果:', {
-          positionsCount: positionsResult.data?.length || 0,
-          positionsError: positionsResult.error?.message,
-          balancesCount: balancesResult.data?.length || 0,
-          balancesError: balancesResult.error?.message
-        });
 
         const { data: positionsData, error: positionsError } = positionsResult;
         const { data: balancesData, error: balancesError } = balancesResult;
@@ -389,15 +374,6 @@ const LeaderboardTable = () => {
             }
           });
           
-          console.log('[LeaderboardTable] 统计结果:', {
-            statsByAiSize: statsByAi.size,
-            stats: Array.from(statsByAi.entries()).map(([aiId, stats]) => ({
-              aiId,
-              total: stats.total,
-              wins: stats.wins
-            }))
-          });
-          
           // 转换为所需格式
           statsByAi.forEach((stats, aiId) => {
             const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
@@ -410,15 +386,13 @@ const LeaderboardTable = () => {
         }
         
         // 如果没有数据，尝试从总体视图获取（作为后备）
-        // 注意：只有在确实没有数据时才使用总体视图，否则会显示错误的数据
         if (winRatesMap.size === 0) {
-          console.warn('[LeaderboardTable] 指定时间范围内没有数据，使用总体数据作为后备');
           const { data: winRatesData, error: winRatesError } = await supabase
             .from('ai_win_rates_overall' as any)
             .select('ai_id, total_predictions, correct_predictions, win_rate');
             
           if (winRatesError) {
-            console.error('[LeaderboardTable] Error fetching win rates from overall:', winRatesError);
+            console.error('Error fetching win rates from overall:', winRatesError);
           } else if (winRatesData) {
             winRatesData.forEach((item: any) => {
               // 确保数据类型正确转换
@@ -433,8 +407,6 @@ const LeaderboardTable = () => {
               });
             });
           }
-        } else {
-          console.log('[LeaderboardTable] 使用指定时间范围内的数据，不使用总体数据');
         }
 
         const balancesMap = new Map<string, { available_balance: number; locked_balance: number }>();
@@ -497,32 +469,11 @@ const LeaderboardTable = () => {
           };
         });
 
-        console.log('[LeaderboardTable] 最终统计数据:', {
-          winRatesMapSize: winRatesMap.size,
-          balancesMapSize: balancesMap.size,
-          modelsUpdated: updatedModels.length,
-          sampleModel: updatedModels[0] ? {
-            id: updatedModels[0].id,
-            winRate: updatedModels[0].winRate,
-            totalPredictions: updatedModels[0].totalPredictions
-          } : null
-        });
-        
         setModelsWithRealData(updatedModels);
-        
-        // 调试日志
-        if (!isRefresh) {
-          console.log('[LeaderboardTable] AI模型真实数据加载完成:', {
-            winRatesCount: winRatesMap.size,
-            balancesCount: balancesMap.size,
-            modelsUpdated: updatedModels.length,
-          });
-        }
       } catch (error) {
         console.error('Error fetching AI stats:', error);
         // 如果出错，使用默认数据（仅在首次加载时）
         if (!isRefresh) {
-          console.warn('[LeaderboardTable] 使用默认模型数据（mockData）');
           setModelsWithRealData(aiModels);
         }
       } finally {
