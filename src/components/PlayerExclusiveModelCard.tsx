@@ -554,29 +554,29 @@ const PlayerExclusiveModelCard = ({
       setIsLoadingMarketOdds(true);
       try {
         // 方法1: 从 matchEntries 中查找当前比赛的分析数据
-        let allMarketOdds = null;
+        let betSnapshot = null;
         if (matchEntries && matchEntries.length > 0) {
           const matchEntry = matchEntries.find(entry => 
             entry.match && (entry.match.mid === matchId || entry.match.match_id === matchId)
           );
           if (matchEntry && (matchEntry as any).analysis) {
             const analysis = (matchEntry as any).analysis;
-            if (analysis.bet_snapshot?.allMarketOdds) {
-              allMarketOdds = analysis.bet_snapshot.allMarketOdds;
-              console.log('[PlayerExclusiveModelCard] Market odds loaded from matchEntries:', allMarketOdds);
+            if (analysis.bet_snapshot) {
+              betSnapshot = analysis.bet_snapshot;
+              console.log('[PlayerExclusiveModelCard] bet_snapshot loaded from matchEntries:', betSnapshot);
             }
           }
         }
 
         // 方法2: 如果 matchEntries 中没有，从 ai_match_analyses 表查询
-        // 查询所有 AI 模型的分析数据（不限制 ai_id），因为 allMarketOdds 可能来自任意模型
-        if (!allMarketOdds) {
+        // 查询所有 AI 模型的分析数据（不限制 ai_id），因为 bet_snapshot 可能来自任意模型
+        if (!betSnapshot) {
           // 尝试字符串格式的 match_id
           let { data: analysesData, error } = await supabase
             .from('ai_match_analyses' as any)
             .select('bet_snapshot, ai_id, match_id')
             .eq('match_id', String(matchId))
-            .limit(10); // 查询多个分析记录，找到包含 allMarketOdds 的
+            .limit(10); // 查询多个分析记录，找到包含 bet_snapshot 的
 
           // 如果失败，尝试数字格式（如果 matchId 是数字字符串）
           if ((error || !analysesData || analysesData.length === 0) && !isNaN(Number(matchId))) {
@@ -591,24 +591,100 @@ const PlayerExclusiveModelCard = ({
           }
 
           if (error) {
-            console.error('[PlayerExclusiveModelCard] Error fetching market odds:', error);
+            console.error('[PlayerExclusiveModelCard] Error fetching bet_snapshot:', error);
           } else if (analysesData && analysesData.length > 0) {
-            // 遍历所有分析记录，找到包含 allMarketOdds 的
+            // 遍历所有分析记录，找到包含 bet_snapshot 的
             for (const analysis of analysesData as any[]) {
-              const betSnapshot = analysis?.bet_snapshot;
-              if (betSnapshot?.allMarketOdds) {
-                allMarketOdds = betSnapshot.allMarketOdds;
-                console.log('[PlayerExclusiveModelCard] Market odds loaded from ai_match_analyses (ai_id:', analysis.ai_id, '):', allMarketOdds);
+              const snapshot = analysis?.bet_snapshot;
+              if (snapshot) {
+                betSnapshot = snapshot;
+                console.log('[PlayerExclusiveModelCard] bet_snapshot loaded from ai_match_analyses (ai_id:', analysis.ai_id, '):', betSnapshot);
                 break; // 找到后退出循环
               }
             }
-            if (!allMarketOdds) {
+            if (!betSnapshot) {
               const sampleAnalysis = analysesData[0] as any;
-              console.warn('[PlayerExclusiveModelCard] Found', analysesData.length, 'analysis records but none contain allMarketOdds');
-              console.warn('[PlayerExclusiveModelCard] Sample bet_snapshot:', sampleAnalysis?.bet_snapshot);
+              console.warn('[PlayerExclusiveModelCard] Found', analysesData.length, 'analysis records but none contain bet_snapshot');
+              console.warn('[PlayerExclusiveModelCard] Sample analysis:', sampleAnalysis);
             }
           } else {
             console.warn('[PlayerExclusiveModelCard] No analysis data found for match_id:', matchId);
+          }
+        }
+
+        // 从 bet_snapshot 中提取 handicap 和 overUnder 的盘口，然后从 allMarketOdds 中找到对应的赔率
+        let allMarketOdds = null;
+        if (betSnapshot) {
+          // 获取 allMarketOdds（包含所有可用的盘口和赔率）
+          allMarketOdds = betSnapshot.allMarketOdds || null;
+          
+          // 从 bet_snapshot.handicap 和 bet_snapshot.overUnder 中获取 AI 选择的盘口
+          const handicapInfo = betSnapshot.handicap;
+          const overUnderInfo = betSnapshot.overUnder;
+          
+          // 如果存在 handicap 或 overUnder 信息，从 allMarketOdds 中找到对应的盘口
+          if (allMarketOdds) {
+            // 处理让分盘口：如果 bet_snapshot.handicap 存在，找到对应的盘口
+            if (handicapInfo && handicapInfo.line !== undefined && allMarketOdds.handicap && Array.isArray(allMarketOdds.handicap)) {
+              const targetHandicapLine = handicapInfo.line;
+              // 在 allMarketOdds.handicap 中查找匹配的盘口
+              const matchedHandicap = allMarketOdds.handicap.find((h: any) => {
+                const hLine = String(h.line || '');
+                const targetLine = String(targetHandicapLine || '');
+                // 精确匹配
+                if (hLine === targetLine) return true;
+                // 处理正负号的情况（如 "-0.5" 和 "0.5"）
+                if (hLine === `-${targetLine}` || `-${hLine}` === targetLine) return true;
+                // 处理字符串格式的盘口（如 "-0.5/1"）
+                if (hLine.includes('/') && targetLine.includes('/')) {
+                  return hLine === targetLine;
+                }
+                return false;
+              });
+              
+              if (matchedHandicap) {
+                // 只保留匹配的让分盘口
+                allMarketOdds.handicap = [matchedHandicap];
+                console.log('[PlayerExclusiveModelCard] Matched handicap line from bet_snapshot.handicap:', matchedHandicap, 'for target:', targetHandicapLine);
+              } else {
+                // 如果找不到完全匹配的，保留所有让分盘口（作为后备）
+                console.warn('[PlayerExclusiveModelCard] Could not find exact match for handicap line:', targetHandicapLine, 'in allMarketOdds, showing all available handicap options');
+                console.warn('[PlayerExclusiveModelCard] Available handicap lines:', allMarketOdds.handicap.map((h: any) => h.line));
+              }
+            }
+            
+            // 处理大小球盘口：如果 bet_snapshot.overUnder 存在，找到对应的盘口
+            if (overUnderInfo && overUnderInfo.line !== undefined && allMarketOdds.overUnder && Array.isArray(allMarketOdds.overUnder)) {
+              const targetOverUnderLine = overUnderInfo.line;
+              // 在 allMarketOdds.overUnder 中查找匹配的盘口
+              const matchedOverUnder = allMarketOdds.overUnder.find((ou: any) => {
+                const ouLine = String(ou.line || '');
+                const targetLine = String(targetOverUnderLine || '');
+                // 精确匹配
+                if (ouLine === targetLine) return true;
+                // 处理字符串格式的盘口（如 "2.5/3"）
+                if (ouLine.includes('/') && targetLine.includes('/')) {
+                  return ouLine === targetLine;
+                }
+                // 尝试数字比较（如果都是数字）
+                const ouNum = parseFloat(ouLine);
+                const targetNum = parseFloat(targetLine);
+                if (!isNaN(ouNum) && !isNaN(targetNum)) {
+                  return Math.abs(ouNum - targetNum) < 0.01; // 允许小的浮点数误差
+                }
+                return false;
+              });
+              
+              if (matchedOverUnder) {
+                // 只保留匹配的大小球盘口
+                allMarketOdds.overUnder = [matchedOverUnder];
+                console.log('[PlayerExclusiveModelCard] Matched overUnder line from bet_snapshot.overUnder:', matchedOverUnder, 'for target:', targetOverUnderLine);
+              } else {
+                // 如果找不到完全匹配的，保留所有大小球盘口（作为后备）
+                console.warn('[PlayerExclusiveModelCard] Could not find exact match for overUnder line:', targetOverUnderLine, 'in allMarketOdds, showing all available overUnder options');
+                console.warn('[PlayerExclusiveModelCard] Available overUnder lines:', allMarketOdds.overUnder.map((ou: any) => ou.line));
+              }
+            }
           }
         }
 
