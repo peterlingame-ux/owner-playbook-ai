@@ -613,20 +613,58 @@ const PlayerExclusiveModelCard = ({
         }
 
         // 从 bet_snapshot 中提取 handicap 和 overUnder 的盘口，然后从 allMarketOdds 中找到对应的赔率
+        // 优先使用 matchEntries 中已有的 bet 数据（与 AI 自动下注显示一致）
+        let targetHandicapLine: number | string | undefined = undefined;
+        let targetOverUnderLine: number | string | undefined = undefined;
+        
+        // 方法1: 优先从 matchEntries 中获取当前比赛的让分盘口（与 AI 自动下注显示一致）
+        if (matchEntries && matchEntries.length > 0) {
+          const matchEntry = matchEntries.find(entry => 
+            entry.match && (entry.match.mid === matchId || entry.match.match_id === matchId)
+          );
+          if (matchEntry && matchEntry.bets && matchEntry.bets.length > 0) {
+            // 找到当前比赛的让分投注（任意 AI 模型的，因为我们要显示与 AI 自动下注相同的盘口）
+            const handicapBet = matchEntry.bets.find(bet => bet.betType === 'handicap');
+            if (handicapBet && handicapBet.handicapLine !== undefined) {
+              targetHandicapLine = handicapBet.handicapLine;
+              console.log('[PlayerExclusiveModelCard] Using handicap line from matchEntries (AI bet):', targetHandicapLine);
+            }
+            
+            // 找到当前比赛的大小球投注（任意 AI 模型的）
+            const overUnderBet = matchEntry.bets.find(bet => bet.betType === 'over_under');
+            if (overUnderBet && overUnderBet.overUnderLine !== undefined) {
+              targetOverUnderLine = overUnderBet.overUnderLine;
+              console.log('[PlayerExclusiveModelCard] Using overUnder line from matchEntries (AI bet):', targetOverUnderLine);
+            }
+          }
+        }
+        
+        // 方法2: 如果 matchEntries 中没有，从 bet_snapshot.handicap 和 bet_snapshot.overUnder 中获取
+        if (betSnapshot && (targetHandicapLine === undefined || targetOverUnderLine === undefined)) {
+          const handicapInfo = betSnapshot.handicap;
+          const overUnderInfo = betSnapshot.overUnder;
+          
+          if (targetHandicapLine === undefined && handicapInfo && handicapInfo.line !== undefined) {
+            targetHandicapLine = handicapInfo.line;
+            console.log('[PlayerExclusiveModelCard] Using handicap line from bet_snapshot.handicap:', targetHandicapLine);
+          }
+          
+          if (targetOverUnderLine === undefined && overUnderInfo && overUnderInfo.line !== undefined) {
+            targetOverUnderLine = overUnderInfo.line;
+            console.log('[PlayerExclusiveModelCard] Using overUnder line from bet_snapshot.overUnder:', targetOverUnderLine);
+          }
+        }
+        
+        // 从 allMarketOdds 中找到对应的盘口和赔率
         let allMarketOdds = null;
         if (betSnapshot) {
           // 获取 allMarketOdds（包含所有可用的盘口和赔率）
           allMarketOdds = betSnapshot.allMarketOdds || null;
           
-          // 从 bet_snapshot.handicap 和 bet_snapshot.overUnder 中获取 AI 选择的盘口
-          const handicapInfo = betSnapshot.handicap;
-          const overUnderInfo = betSnapshot.overUnder;
-          
-          // 如果存在 handicap 或 overUnder 信息，从 allMarketOdds 中找到对应的盘口
+          // 如果存在目标盘口，从 allMarketOdds 中找到对应的盘口
           if (allMarketOdds) {
-            // 处理让分盘口：如果 bet_snapshot.handicap 存在，找到对应的盘口
-            if (handicapInfo && handicapInfo.line !== undefined && allMarketOdds.handicap && Array.isArray(allMarketOdds.handicap)) {
-              const targetHandicapLine = handicapInfo.line;
+            // 处理让分盘口：如果目标盘口存在，找到对应的盘口
+            if (targetHandicapLine !== undefined && allMarketOdds.handicap && Array.isArray(allMarketOdds.handicap)) {
               // 在 allMarketOdds.handicap 中查找匹配的盘口
               const matchedHandicap = allMarketOdds.handicap.find((h: any) => {
                 const hLine = String(h.line || '');
@@ -645,7 +683,7 @@ const PlayerExclusiveModelCard = ({
               if (matchedHandicap) {
                 // 只保留匹配的让分盘口
                 allMarketOdds.handicap = [matchedHandicap];
-                console.log('[PlayerExclusiveModelCard] Matched handicap line from bet_snapshot.handicap:', matchedHandicap, 'for target:', targetHandicapLine);
+                console.log('[PlayerExclusiveModelCard] Matched handicap line:', matchedHandicap, 'for target:', targetHandicapLine);
               } else {
                 // 如果找不到完全匹配的，保留所有让分盘口（作为后备）
                 console.warn('[PlayerExclusiveModelCard] Could not find exact match for handicap line:', targetHandicapLine, 'in allMarketOdds, showing all available handicap options');
@@ -653,9 +691,8 @@ const PlayerExclusiveModelCard = ({
               }
             }
             
-            // 处理大小球盘口：如果 bet_snapshot.overUnder 存在，找到对应的盘口
-            if (overUnderInfo && overUnderInfo.line !== undefined && allMarketOdds.overUnder && Array.isArray(allMarketOdds.overUnder)) {
-              const targetOverUnderLine = overUnderInfo.line;
+            // 处理大小球盘口：如果目标盘口存在，找到对应的盘口
+            if (targetOverUnderLine !== undefined && allMarketOdds.overUnder && Array.isArray(allMarketOdds.overUnder)) {
               // 在 allMarketOdds.overUnder 中查找匹配的盘口
               const matchedOverUnder = allMarketOdds.overUnder.find((ou: any) => {
                 const ouLine = String(ou.line || '');
@@ -678,7 +715,7 @@ const PlayerExclusiveModelCard = ({
               if (matchedOverUnder) {
                 // 只保留匹配的大小球盘口
                 allMarketOdds.overUnder = [matchedOverUnder];
-                console.log('[PlayerExclusiveModelCard] Matched overUnder line from bet_snapshot.overUnder:', matchedOverUnder, 'for target:', targetOverUnderLine);
+                console.log('[PlayerExclusiveModelCard] Matched overUnder line:', matchedOverUnder, 'for target:', targetOverUnderLine);
               } else {
                 // 如果找不到完全匹配的，保留所有大小球盘口（作为后备）
                 console.warn('[PlayerExclusiveModelCard] Could not find exact match for overUnder line:', targetOverUnderLine, 'in allMarketOdds, showing all available overUnder options');
@@ -1663,10 +1700,22 @@ const PlayerExclusiveModelCard = ({
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {typeof confirmedManualBet.handicapLine === 'number' 
-                                ? (confirmedManualBet.handicapLine > 0 ? '+' : '') + confirmedManualBet.handicapLine
-                                : confirmedManualBet.handicapLine
-                              }
+                              {(() => {
+                                const line = confirmedManualBet.handicapLine;
+                                if (typeof line === 'number') {
+                                  return line < 0 ? line.toString() : line > 0 ? `+${line}` : '0';
+                                }
+                                // 处理字符串格式的盘口
+                                const lineStr = String(line);
+                                if (lineStr.startsWith('-')) {
+                                  return lineStr; // 负数，直接返回
+                                }
+                                if (lineStr === '0' || lineStr === '0.0') {
+                                  return '0';
+                                }
+                                // 正数，添加 + 号
+                                return `+${lineStr}`;
+                              })()}
                             </span>
                           )}
                         </div>
@@ -1680,12 +1729,33 @@ const PlayerExclusiveModelCard = ({
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {typeof confirmedManualBet.handicapLine === 'number'
-                                ? (-confirmedManualBet.handicapLine > 0 ? '+' : '') + (-confirmedManualBet.handicapLine)
-                                : confirmedManualBet.handicapLine.startsWith('-') 
-                                  ? confirmedManualBet.handicapLine.substring(1)
-                                  : `-${confirmedManualBet.handicapLine}`
-                              }
+                              {(() => {
+                                // 客队的让分盘是主队的相反数
+                                const homeLine = confirmedManualBet.handicapLine;
+                                if (typeof homeLine === 'number') {
+                                  const awayLine = -homeLine;
+                                  return awayLine < 0 ? awayLine.toString() : awayLine > 0 ? `+${awayLine}` : '0';
+                                }
+                                // 处理字符串格式的盘口
+                                const homeLineStr = String(homeLine);
+                                let awayLineStr: string;
+                                if (homeLineStr.startsWith('-')) {
+                                  // 主队是负数（如 "-0/0.5"），客队应该是正数（"+0/0.5"）
+                                  awayLineStr = homeLineStr.substring(1);
+                                } else {
+                                  // 主队是正数或0（如 "0/0.5"），客队应该是负数（"-0/0.5"）
+                                  awayLineStr = `-${homeLineStr}`;
+                                }
+                                // 格式化客队的让分盘，确保正数前面有 + 号
+                                if (awayLineStr.startsWith('-')) {
+                                  return awayLineStr; // 负数，直接返回
+                                }
+                                if (awayLineStr === '0' || awayLineStr === '0.0') {
+                                  return '0';
+                                }
+                                // 正数，添加 + 号
+                                return `+${awayLineStr}`;
+                              })()}
                             </span>
                           )}
                         </div>
@@ -1792,10 +1862,22 @@ const PlayerExclusiveModelCard = ({
                         <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                           handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
                         }`}>
-                          {typeof handicapBet.handicapLine === 'number'
-                            ? (handicapBet.handicapLine > 0 ? '+' : '') + handicapBet.handicapLine
-                            : handicapBet.handicapLine
-                          }
+                          {(() => {
+                            const line = handicapBet.handicapLine;
+                            if (typeof line === 'number') {
+                              return line < 0 ? line.toString() : line > 0 ? `+${line}` : '0';
+                            }
+                            // 处理字符串格式的盘口
+                            const lineStr = String(line);
+                            if (lineStr.startsWith('-')) {
+                              return lineStr; // 负数，直接返回
+                            }
+                            if (lineStr === '0' || lineStr === '0.0') {
+                              return '0';
+                            }
+                            // 正数，添加 + 号
+                            return `+${lineStr}`;
+                          })()}
                         </span>
                       )}
                     </div>
@@ -1809,12 +1891,33 @@ const PlayerExclusiveModelCard = ({
                         <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                           handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
                         }`}>
-                          {typeof handicapBet.handicapLine === 'number'
-                            ? (-handicapBet.handicapLine > 0 ? '+' : '') + (-handicapBet.handicapLine)
-                            : handicapBet.handicapLine.startsWith('-')
-                              ? handicapBet.handicapLine.substring(1)
-                              : `-${handicapBet.handicapLine}`
-                          }
+                          {(() => {
+                            // 客队的让分盘是主队的相反数
+                            const homeLine = handicapBet.handicapLine;
+                            if (typeof homeLine === 'number') {
+                              const awayLine = -homeLine;
+                              return awayLine < 0 ? awayLine.toString() : awayLine > 0 ? `+${awayLine}` : '0';
+                            }
+                            // 处理字符串格式的盘口
+                            const homeLineStr = String(homeLine);
+                            let awayLineStr: string;
+                            if (homeLineStr.startsWith('-')) {
+                              // 主队是负数（如 "-0/0.5"），客队应该是正数（"+0/0.5"）
+                              awayLineStr = homeLineStr.substring(1);
+                            } else {
+                              // 主队是正数或0（如 "0/0.5"），客队应该是负数（"-0/0.5"）
+                              awayLineStr = `-${homeLineStr}`;
+                            }
+                            // 格式化客队的让分盘，确保正数前面有 + 号
+                            if (awayLineStr.startsWith('-')) {
+                              return awayLineStr; // 负数，直接返回
+                            }
+                            if (awayLineStr === '0' || awayLineStr === '0.0') {
+                              return '0';
+                            }
+                            // 正数，添加 + 号
+                            return `+${awayLineStr}`;
+                          })()}
                         </span>
                       )}
                     </div>
@@ -2338,12 +2441,23 @@ const PlayerExclusiveModelCard = ({
                     }
 
                     // Display all handicap options from allMarketOdds
-                    // Format line display
+                    // Format line display - 确保正数前面显示 + 号
                     const formatLine = (line: number | string): string => {
                       if (typeof line === 'number') {
                         return line < 0 ? line.toString() : line > 0 ? `+${line}` : '0';
                       }
-                      return String(line);
+                      // 处理字符串格式的盘口（如 "-0/0.5", "0/0.5", "2.5/3"）
+                      const lineStr = String(line);
+                      // 如果已经是负数（以 "-" 开头），直接返回
+                      if (lineStr.startsWith('-')) {
+                        return lineStr;
+                      }
+                      // 如果是正数或0，确保前面有 + 号（除非是 "0"）
+                      if (lineStr === '0' || lineStr === '0.0') {
+                        return '0';
+                      }
+                      // 其他情况（正数），添加 + 号
+                      return `+${lineStr}`;
                     };
 
                     // Display all handicap options - show first one by default, but allow selection
@@ -2416,10 +2530,24 @@ const PlayerExclusiveModelCard = ({
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
                             <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">
-                              {typeof firstHandicap.line === 'number' 
-                                ? formatLine(-firstHandicap.line)
-                                : formatLine(firstHandicap.line.startsWith('-') ? firstHandicap.line.substring(1) : `-${firstHandicap.line}`)
-                              }
+                              {(() => {
+                                // 客队的让分盘是主队的相反数
+                                const homeLine = firstHandicap.line;
+                                if (typeof homeLine === 'number') {
+                                  // 数字类型：直接取反
+                                  return formatLine(-homeLine);
+                                } else {
+                                  // 字符串类型：处理正负号
+                                  const homeLineStr = String(homeLine);
+                                  if (homeLineStr.startsWith('-')) {
+                                    // 主队是负数（如 "-0/0.5"），客队应该是正数（"+0/0.5"）
+                                    return formatLine(homeLineStr.substring(1));
+                                  } else {
+                                    // 主队是正数或0（如 "0/0.5"），客队应该是负数（"-0/0.5"）
+                                    return formatLine(`-${homeLineStr}`);
+                                  }
+                                }
+                              })()}
                             </span>
                           </div>
                           {/* 从 allMarketOdds 获取的赔率是欧洲盘，显示时减1转为亚洲盘 */}
