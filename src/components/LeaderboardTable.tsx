@@ -287,21 +287,73 @@ const LeaderboardTable = () => {
       }
       
       try {
+        console.log('[LeaderboardTable] 获取AI统计数据，时间范围:', timeRange);
+        
+        // 根据时间范围计算日期范围
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let startDate: Date;
+        let endDate: Date;
+        
+        if (timeRange === 1) {
+          // 日：获取今天的数据
+          startDate = new Date(today);
+          endDate = new Date(today);
+        } else if (timeRange === 7) {
+          // 周：获取当前周的数据（周一到周日）
+          // 获取本周一的日期
+          const dayOfWeek = now.getDay(); // 0 = 周日, 1 = 周一, ..., 6 = 周六
+          const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 如果是周日，往前推6天；否则往前推 dayOfWeek - 1 天
+          startDate = new Date(today);
+          startDate.setDate(startDate.getDate() - daysToMonday);
+          
+          // 获取本周日的日期
+          endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + 6); // 周一 + 6天 = 周日
+        } else {
+          // 月：获取当前月份的数据（1号到最后一天）
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1); // 当前月份的第一天
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // 当前月份的最后一天
+        }
+        
+        // 设置时间范围的开始和结束时间
+        const startDateTime = new Date(startDate);
+        startDateTime.setHours(0, 0, 0, 0);
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        
+        console.log('[LeaderboardTable] 查询时间范围:', {
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString(),
+          timeRange
+        });
+        
         // 并行获取胜率统计和余额数据
-        const [winRatesResult, balancesResult] = await Promise.all([
+        const [positionsResult, balancesResult] = await Promise.all([
           supabase
-            .from('ai_win_rates_overall' as any)
-            .select('ai_id, total_predictions, correct_predictions, win_rate'),
+            .from('sim_positions' as any)
+            .select('ai_id, metadata')
+            .eq('status', 'settled')
+            .not('settled_at', 'is', null)
+            .gte('settled_at', startDateTime.toISOString())
+            .lte('settled_at', endDateTime.toISOString()),
           supabase
             .from('ai_balances' as any)
             .select('ai_id, available_balance, locked_balance')
         ]);
+        
+        console.log('[LeaderboardTable] 查询结果:', {
+          positionsCount: positionsResult.data?.length || 0,
+          positionsError: positionsResult.error?.message,
+          balancesCount: balancesResult.data?.length || 0,
+          balancesError: balancesResult.error?.message
+        });
 
-        const { data: winRatesData, error: winRatesError } = winRatesResult;
+        const { data: positionsData, error: positionsError } = positionsResult;
         const { data: balancesData, error: balancesError } = balancesResult;
 
-        if (winRatesError) {
-          console.error('Error fetching win rates:', winRatesError);
+        if (positionsError) {
+          console.error('Error fetching positions:', positionsError);
         }
         if (balancesError) {
           console.error('Error fetching balances:', balancesError);
@@ -309,19 +361,80 @@ const LeaderboardTable = () => {
 
         // 创建数据映射（使用真实数据）
         const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
-        if (winRatesData) {
-          winRatesData.forEach((item: any) => {
-            // 确保数据类型正确转换
-            const totalPredictions = Number(item.total_predictions) || 0;
-            const correctPredictions = Number(item.correct_predictions) || 0;
-            const winRate = Number(item.win_rate) || 0;
+        
+        // 从 positions 数据中统计每个AI的胜率
+        if (positionsData && positionsData.length > 0) {
+          // 按 ai_id 分组统计
+          const statsByAi = new Map<string, { total: number; wins: number }>();
+          
+          positionsData.forEach((position: any) => {
+            const aiId = String(position.ai_id);
+            const metadata = position.metadata;
             
-            winRatesMap.set(String(item.ai_id), {
-              total_predictions: totalPredictions,
-              correct_predictions: correctPredictions,
-              win_rate: winRate
+            // 检查结算结果
+            if (metadata && metadata.settlement) {
+              const result = metadata.settlement.result;
+              if (result === 'win' || result === 'loss') {
+                // 初始化统计
+                if (!statsByAi.has(aiId)) {
+                  statsByAi.set(aiId, { total: 0, wins: 0 });
+                }
+                
+                const stats = statsByAi.get(aiId)!;
+                stats.total += 1;
+                if (result === 'win') {
+                  stats.wins += 1;
+                }
+              }
+            }
+          });
+          
+          console.log('[LeaderboardTable] 统计结果:', {
+            statsByAiSize: statsByAi.size,
+            stats: Array.from(statsByAi.entries()).map(([aiId, stats]) => ({
+              aiId,
+              total: stats.total,
+              wins: stats.wins
+            }))
+          });
+          
+          // 转换为所需格式
+          statsByAi.forEach((stats, aiId) => {
+            const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
+            winRatesMap.set(aiId, {
+              total_predictions: stats.total,
+              correct_predictions: stats.wins,
+              win_rate: Math.round(winRate * 10) / 10
             });
           });
+        }
+        
+        // 如果没有数据，尝试从总体视图获取（作为后备）
+        // 注意：只有在确实没有数据时才使用总体视图，否则会显示错误的数据
+        if (winRatesMap.size === 0) {
+          console.warn('[LeaderboardTable] 指定时间范围内没有数据，使用总体数据作为后备');
+          const { data: winRatesData, error: winRatesError } = await supabase
+            .from('ai_win_rates_overall' as any)
+            .select('ai_id, total_predictions, correct_predictions, win_rate');
+            
+          if (winRatesError) {
+            console.error('[LeaderboardTable] Error fetching win rates from overall:', winRatesError);
+          } else if (winRatesData) {
+            winRatesData.forEach((item: any) => {
+              // 确保数据类型正确转换
+              const totalPredictions = Number(item.total_predictions) || 0;
+              const correctPredictions = Number(item.correct_predictions) || 0;
+              const winRate = Number(item.win_rate) || 0;
+              
+              winRatesMap.set(String(item.ai_id), {
+                total_predictions: totalPredictions,
+                correct_predictions: correctPredictions,
+                win_rate: winRate
+              });
+            });
+          }
+        } else {
+          console.log('[LeaderboardTable] 使用指定时间范围内的数据，不使用总体数据');
         }
 
         const balancesMap = new Map<string, { available_balance: number; locked_balance: number }>();
@@ -384,6 +497,17 @@ const LeaderboardTable = () => {
           };
         });
 
+        console.log('[LeaderboardTable] 最终统计数据:', {
+          winRatesMapSize: winRatesMap.size,
+          balancesMapSize: balancesMap.size,
+          modelsUpdated: updatedModels.length,
+          sampleModel: updatedModels[0] ? {
+            id: updatedModels[0].id,
+            winRate: updatedModels[0].winRate,
+            totalPredictions: updatedModels[0].totalPredictions
+          } : null
+        });
+        
         setModelsWithRealData(updatedModels);
         
         // 调试日志

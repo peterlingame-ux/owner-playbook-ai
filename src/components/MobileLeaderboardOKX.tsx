@@ -562,15 +562,139 @@ const MobileLeaderboardOKX = () => {
   // 根据时间筛选器获取 AI 模型统计数据（使用与 PC 端相同的计算方式）
   useEffect(() => {
     const fetchAIModelsStats = async () => {
+      // 重置统计数据，显示加载状态
+      setAiModelsStats(new Map());
+      
       try {
-        // 使用与 LeaderboardTable 相同的数据源和计算方式
-        // 获取所有AI模型的胜率数据（从 ai_win_rates_overall 视图）
-        const { data: winRatesData, error: winRatesError } = await supabase
-          .from('ai_win_rates_overall' as any)
-          .select('ai_id, total_predictions, correct_predictions, win_rate');
+        console.log('[MobileLeaderboardOKX] 获取AI统计数据，时间筛选器:', timeFilter);
+        
+        // 根据时间筛选器计算日期范围
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let startDate: Date;
+        let endDate: Date;
+        
+        if (timeFilter === 'day') {
+          // 日：获取今天的数据
+          startDate = new Date(today);
+          endDate = new Date(today);
+        } else if (timeFilter === 'week') {
+          // 周：获取当前周的数据（周一到周日）
+          // 获取本周一的日期
+          const dayOfWeek = now.getDay(); // 0 = 周日, 1 = 周一, ..., 6 = 周六
+          const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 如果是周日，往前推6天；否则往前推 dayOfWeek - 1 天
+          startDate = new Date(today);
+          startDate.setDate(startDate.getDate() - daysToMonday);
+          
+          // 获取本周日的日期
+          endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + 6); // 周一 + 6天 = 周日
+        } else {
+          // 月：获取当前月份的数据（1号到最后一天）
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1); // 当前月份的第一天
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // 当前月份的最后一天
+        }
+        
+        // 设置时间范围的开始和结束时间
+        const startDateTime = new Date(startDate);
+        startDateTime.setHours(0, 0, 0, 0);
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        
+        console.log('[MobileLeaderboardOKX] 查询时间范围:', {
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString(),
+          timeFilter
+        });
+        
+        // 直接从 sim_positions 表查询指定时间范围内的数据
+        const { data: positionsData, error: positionsError } = await supabase
+          .from('sim_positions' as any)
+          .select('ai_id, metadata')
+          .eq('status', 'settled')
+          .not('settled_at', 'is', null)
+          .gte('settled_at', startDateTime.toISOString())
+          .lte('settled_at', endDateTime.toISOString());
+        
+        console.log('[MobileLeaderboardOKX] 查询结果:', {
+          count: positionsData?.length || 0,
+          error: positionsError?.message
+        });
 
-        if (winRatesError) {
-          console.error('Error fetching AI win rates:', winRatesError);
+        if (positionsError) {
+          console.error('Error fetching AI positions:', positionsError);
+        }
+        
+        // 统计每个AI的胜率数据
+        const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
+        
+        if (positionsData && positionsData.length > 0) {
+          // 按 ai_id 分组统计
+          const statsByAi = new Map<string, { total: number; wins: number }>();
+          
+          positionsData.forEach((position: any) => {
+            const aiId = String(position.ai_id);
+            const metadata = position.metadata;
+            
+            // 检查结算结果
+            if (metadata && metadata.settlement) {
+              const result = metadata.settlement.result;
+              if (result === 'win' || result === 'loss') {
+                // 初始化统计
+                if (!statsByAi.has(aiId)) {
+                  statsByAi.set(aiId, { total: 0, wins: 0 });
+                }
+                
+                const stats = statsByAi.get(aiId)!;
+                stats.total += 1;
+                if (result === 'win') {
+                  stats.wins += 1;
+                }
+              }
+            }
+          });
+          
+          console.log('[MobileLeaderboardOKX] 统计结果:', {
+            statsByAiSize: statsByAi.size,
+            stats: Array.from(statsByAi.entries()).map(([aiId, stats]) => ({
+              aiId,
+              total: stats.total,
+              wins: stats.wins
+            }))
+          });
+          
+          // 转换为所需格式
+          statsByAi.forEach((stats, aiId) => {
+            const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
+            winRatesMap.set(aiId, {
+              total_predictions: stats.total,
+              correct_predictions: stats.wins,
+              win_rate: Math.round(winRate * 10) / 10
+            });
+          });
+        }
+        
+        // 如果没有数据，尝试从总体视图获取（作为后备）
+        // 注意：只有在确实没有数据时才使用总体视图，否则会显示错误的数据
+        if (winRatesMap.size === 0) {
+          console.warn('[MobileLeaderboardOKX] 指定时间范围内没有数据，使用总体数据作为后备');
+          const { data: winRatesData, error: winRatesError } = await supabase
+            .from('ai_win_rates_overall' as any)
+            .select('ai_id, total_predictions, correct_predictions, win_rate');
+
+          if (winRatesError) {
+            console.error('[MobileLeaderboardOKX] Error fetching AI win rates from overall:', winRatesError);
+          } else if (winRatesData) {
+            winRatesData.forEach((item: any) => {
+              winRatesMap.set(String(item.ai_id), {
+                total_predictions: Number(item.total_predictions) || 0,
+                correct_predictions: Number(item.correct_predictions) || 0,
+                win_rate: Number(item.win_rate) || 0
+              });
+            });
+          }
+        } else {
+          console.log('[MobileLeaderboardOKX] 使用指定时间范围内的数据，不使用总体数据');
         }
 
         // 获取所有AI模型的余额数据（用于显示，但不用于计算盈利）
@@ -582,17 +706,6 @@ const MobileLeaderboardOKX = () => {
           console.error('Error fetching AI balances:', balancesError);
         }
 
-        // 创建数据映射
-        const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
-        if (winRatesData) {
-          winRatesData.forEach((item: any) => {
-            winRatesMap.set(String(item.ai_id), {
-              total_predictions: Number(item.total_predictions) || 0,
-              correct_predictions: Number(item.correct_predictions) || 0,
-              win_rate: Number(item.win_rate) || 0
-            });
-          });
-        }
 
         // 使用与 LeaderboardTable 完全相同的计算方式
         const avgBetAmount = 200; // 默认平均投注金额（与 LeaderboardTable 保持一致）
@@ -632,9 +745,18 @@ const MobileLeaderboardOKX = () => {
           });
         });
         
+        console.log('[MobileLeaderboardOKX] 最终统计数据:', {
+          finalStatsMapSize: finalStatsMap.size,
+          stats: Array.from(finalStatsMap.entries()).map(([modelId, stats]) => ({
+            modelId,
+            winRate: stats.winRate,
+            totalPredictions: stats.totalPredictions
+          }))
+        });
+        
         setAiModelsStats(finalStatsMap);
       } catch (error) {
-        console.error('Error fetching AI models stats:', error);
+        console.error('[MobileLeaderboardOKX] Error fetching AI models stats:', error);
         // 如果出错，初始化空统计数据
         const emptyStatsMap = new Map<string, {
           winRate: number;
@@ -1839,13 +1961,13 @@ const MobileLeaderboardOKX = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Challenge AI Banner - Compact on mobile with proper spacing */}
-      <div className="w-full px-2 pt-2">
+      <div className="w-full px-2 pt-4 sm:pt-6">
         <ChallengeAIBanner />
       </div>
 
       {/* Main Tabs - OKX Style */}
       <div className="sticky top-[50px] z-30 bg-background border-b border-border/30">
-        <div className="flex items-center gap-2 px-3 pt-1.5 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 px-3 pt-2 pb-1.5 overflow-x-auto scrollbar-hide">
           {mainTabs.map((tab) => (
             <button
               key={tab.value}
@@ -1870,7 +1992,7 @@ const MobileLeaderboardOKX = () => {
 
       {/* Sub Tabs - Show for all tabs */}
       <div className="sticky top-[90px] z-20 bg-background">
-        <div className="flex items-center gap-2 px-3 py-1.5 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 px-3 py-2 overflow-x-auto scrollbar-hide">
           {subTabs.map((tab) => (
             <button
               key={tab.value}
