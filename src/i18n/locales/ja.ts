@@ -586,6 +586,7 @@ export const ja = {
     "vip_purchase_success": "VIP開通成功！",
     "vip_purchase_failed": "開通失敗",
     "vip_status_active": "VIP会員有効",
+    "vip_not_available": "まだ利用できません",
     "enjoy_all_privileges": "すべての限定特典をお楽しみください",
     "please_login": "先にログインしてください",
     

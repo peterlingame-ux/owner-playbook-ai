@@ -686,6 +686,7 @@ export const ko = {
     "vip_privilege_dm_desc": "다른 플레이어와 개인적으로 채팅",
     "open_vip_now": "지금 VIP 활성화",
     "vip_status_active": "VIP 회원 활성화됨",
+    "vip_not_available": "VIP 기능은 아직 사용할 수 없습니다",
     "enjoy_all_privileges": "모든 독점 혜택을 즐기세요",
     "please_login": "먼저 로그인하세요",
     

@@ -607,6 +607,7 @@ export const th = {
     "vip_purchase_success": "เปิดใช้งาน VIP สำเร็จ!",
     "vip_purchase_failed": "เปิดใช้งานล้มเหลว",
     "vip_status_active": "สมาชิก VIP ใช้งานอยู่",
+    "vip_not_available": "ฟีเจอร์ VIP ยังไม่เปิดใช้งาน",
     "enjoy_all_privileges": "เพลิดเพลินกับสิทธิพิเศษทั้งหมด",
     "please_login": "กรุณาเข้าสู่ระบบก่อน",
     

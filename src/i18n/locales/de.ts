@@ -629,6 +629,7 @@ export const de = {
     "vip_purchase_success": "VIP Erfolgreich Aktiviert!",
     "vip_purchase_failed": "Aktivierung Fehlgeschlagen",
     "vip_status_active": "VIP-Mitglied Aktiv",
+    "vip_not_available": "VIP-Funktion noch nicht verfügbar",
     "enjoy_all_privileges": "Genießen Sie alle exklusiven Vorteile",
     "please_login": "Bitte zuerst anmelden",
     

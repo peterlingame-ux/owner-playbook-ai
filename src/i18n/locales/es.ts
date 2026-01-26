@@ -874,6 +874,7 @@ export const es = {
     "vip_purchase_success": "¡VIP activado con éxito!",
     "vip_purchase_failed": "Error en activación",
     "vip_status_active": "Membresía VIP Activa",
+    "vip_not_available": "Funcionalidad VIP aún no disponible",
     "enjoy_all_privileges": "Disfruta de todos los privilegios exclusivos",
     "please_login": "Por favor inicia sesión primero",
     

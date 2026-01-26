@@ -607,6 +607,7 @@ export const hi = {
     "vip_purchase_success": "VIP सफलतापूर्वक सक्रिय!",
     "vip_purchase_failed": "सक्रियण विफल",
     "vip_status_active": "VIP सदस्यता सक्रिय",
+    "vip_not_available": "VIP सुविधा अभी उपलब्ध नहीं है",
     "enjoy_all_privileges": "सभी विशेष विशेषाधिकारों का आनंद लें",
     "please_login": "कृपया पहले लॉगिन करें",
     

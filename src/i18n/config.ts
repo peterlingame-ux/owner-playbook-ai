@@ -1212,6 +1212,7 @@ const resources = {
       "vip_purchase_success": "VIP activated successfully!",
       "vip_purchase_failed": "Activation failed",
       "vip_status_active": "VIP Membership Active",
+      "vip_not_available": "VIP feature is not yet available",
       "enjoy_all_privileges": "Enjoy all exclusive privileges",
       "please_login": "Please login first",
 
@@ -2501,6 +2502,7 @@ const resources = {
       "vip_purchase_success": "VIP开通成功！",
       "vip_purchase_failed": "开通失败",
       "vip_status_active": "VIP会员已激活",
+      "vip_not_available": "暂未开放",
       "enjoy_all_privileges": "尊享全部专属特权",
       "please_login": "请先登录",
 

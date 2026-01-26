@@ -85,7 +85,7 @@ const AVATAR_OPTIONS = [
 
 const MyPredictions = () => {
   const { t } = useTranslation();
-  const { user, userProfile: authUserProfile, refreshUserProfile, refreshBalance } = useAuth();
+  const { user, userProfile: authUserProfile, refreshUserProfile, refreshBalance, userBalance: authUserBalance } = useAuth();
   const navigate = useNavigate();
   const { level, totalMinutes, getNextLevelProgress, formatOnlineTime } = useOnlineTracking();
   const [stats, setStats] = useState<PredictionStats | null>(null);
@@ -281,6 +281,16 @@ const MyPredictions = () => {
 
     fetchPredictions();
   }, [user, t]);
+
+  // 当 authUserBalance 更新时，同步更新 stats 中的余额
+  useEffect(() => {
+    if (authUserBalance && stats) {
+      setStats(prev => prev ? {
+        ...prev,
+        balance: authUserBalance.balance
+      } : null);
+    }
+  }, [authUserBalance?.balance]);
 
   useEffect(() => {
     const fetchFollowData = async () => {
@@ -1059,7 +1069,9 @@ const MyPredictions = () => {
             {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
             <button 
               type="button"
-              onClick={() => setIsVipDialogOpen(true)}
+              onClick={() => {
+                toast.warning(t('vip_not_available') || '暂未开放');
+              }}
               className={`flex items-center gap-1 !px-2 sm:!px-2.5 !py-1 !min-w-0 !min-h-0 rounded-md relative overflow-hidden shrink-0 whitespace-nowrap touch-manipulation cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
               style={isVipActive ? {
                 background: 'linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)',
@@ -1212,7 +1224,7 @@ const MyPredictions = () => {
             <div className="flex items-center justify-center gap-0.5 sm:gap-1.5 px-1">
               <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5 sm:w-6 sm:h-6 flex-shrink-0" />
               <p className="text-base sm:text-2xl font-bold text-foreground truncate">
-                {(stats?.balance || 0).toLocaleString()}
+                {(authUserBalance?.balance ?? stats?.balance ?? 0).toLocaleString()}
               </p>
             </div>
             <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('hunter_coin_balance') || '猎人币'}</p>

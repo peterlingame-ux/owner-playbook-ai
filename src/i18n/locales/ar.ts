@@ -607,6 +607,7 @@ export const ar = {
     "vip_purchase_success": "تم تفعيل VIP بنجاح!",
     "vip_purchase_failed": "فشل التفعيل",
     "vip_status_active": "عضوية VIP مفعلة",
+    "vip_not_available": "ميزة VIP غير متاحة بعد",
     "enjoy_all_privileges": "استمتع بجميع الامتيازات الحصرية",
     "please_login": "يرجى تسجيل الدخول أولاً",
     

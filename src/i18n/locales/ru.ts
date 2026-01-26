@@ -604,6 +604,7 @@ export const ru = {
     "vip_purchase_success": "VIP Успешно Активирован!",
     "vip_purchase_failed": "Ошибка Активации",
     "vip_status_active": "VIP-Участник Активен",
+    "vip_not_available": "Функция VIP пока недоступна",
     "enjoy_all_privileges": "Наслаждайтесь всеми эксклюзивными привилегиями",
     "please_login": "Сначала войдите в систему",
     
