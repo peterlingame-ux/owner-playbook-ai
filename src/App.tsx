@@ -20,6 +20,7 @@ import Auth from "./pages/Auth";
 import History from "./pages/History";
 import MyPredictions from "./pages/MyPredictions";
 import MyFollowing from "./pages/MyFollowing";
+import MyModelFollows from "./pages/MyModelFollows";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const AnimatedRoutes = () => {
         <Route path="/history" element={<PageTransition><History /></PageTransition>} />
         <Route path="/my-predictions" element={<PageTransition><MyPredictions /></PageTransition>} />
         <Route path="/my-following" element={<PageTransition><MyFollowing /></PageTransition>} />
+        <Route path="/my-model-follows" element={<PageTransition><MyModelFollows /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

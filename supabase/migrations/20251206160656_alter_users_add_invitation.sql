@@ -4,7 +4,7 @@ ADD COLUMN IF NOT EXISTS invitation_code TEXT UNIQUE DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS invited_by TEXT DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS invited_count INTEGER DEFAULT 0;
 
--- 创建生成随机邀请码的函数
+-- 创建生成随机邀请码的函数（5位）
 CREATE OR REPLACE FUNCTION public.generate_invitation_code()
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -16,7 +16,7 @@ DECLARE
   result TEXT := '';
   i INTEGER;
 BEGIN
-  FOR i IN 1..8 LOOP
+  FOR i IN 1..5 LOOP
     result := result || SUBSTR(chars, FLOOR(RANDOM() * LENGTH(chars) + 1)::INTEGER, 1);
   END LOOP;
   RETURN result;

@@ -44,6 +44,7 @@ const resources = {
       // Performance Chart
       "performance_over_time": "Model Win Rate Trends",
       "win_rate": "Win Rate (%)",
+      "ai_model": "AI Model",
       
       // Live Matches
       "upcoming_matches": "UPCOMING MATCHES",
@@ -537,6 +538,11 @@ const resources = {
       "no_following_desc": "Go to the leaderboard to follow players",
       "followed_suffix": "followed",
       "default_signature": "Predictor",
+      "my_model_follows": "Model Follows",
+      "model_follows_count": "Following {{count}} models",
+      "no_model_follows": "No Model Follows",
+      "no_model_follows_desc": "Go to homepage to follow interesting AI models",
+      "go_to_home": "Go to Homepage",
       "vs_text": "vs",
       "home_win_label": "Home Win",
       "away_win_label": "Away Win",
@@ -1047,6 +1053,7 @@ const resources = {
       "follow_model": "Follow Model",
       "following": "Following",
       "unfollow_success": "Unfollowed",
+      "model_follows_label": "Model Follows",
       "operation_failed": "Operation Failed",
       
       // Countdown
@@ -1340,6 +1347,7 @@ const resources = {
       // Performance Chart
       "performance_over_time": "模型预测准确率走势图",
       "win_rate": "预测准确率 (%)",
+      "ai_model": "AI模型",
       
       // Live Matches
       "upcoming_matches": "即将开始的比赛",
@@ -1809,6 +1817,11 @@ const resources = {
       "no_following": "暂无关注",
       "no_following_desc": "去排行榜关注感兴趣的玩家吧",
       "followed_suffix": "关注",
+      "my_model_follows": "模型关注",
+      "model_follows_count": "已关注 {{count}} 个模型",
+      "no_model_follows": "暂无关注的模型",
+      "no_model_follows_desc": "去首页关注感兴趣的AI模型吧",
+      "go_to_home": "前往首页",
       "default_signature": "预测玩家",
       "vs_text": "vs",
       "home_win_label": "主胜",
@@ -2328,6 +2341,7 @@ const resources = {
       "follow_model": "关注模型",
       "following": "已关注",
       "unfollow_success": "已取消关注",
+      "model_follows_label": "模型关注",
       "operation_failed": "操作失败",
       
       // 倒计时
@@ -2433,6 +2447,7 @@ const resources = {
       
       // Invitation
       "my_invitation_code": "我的邀请码",
+      "your_invitation_code": "您的邀请码",
       "invited_count": "已邀请",
       "invitation_bonus_hint": "好友通过您的邀请码注册可获得100猎人币奖励",
       "copy": "复制",

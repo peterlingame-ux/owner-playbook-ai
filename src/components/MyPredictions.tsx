@@ -100,6 +100,7 @@ const MyPredictions = () => {
   const [followingList, setFollowingList] = useState<FollowUser[]>([]);
   const [followersList, setFollowersList] = useState<FollowUser[]>([]);
   const [isLoadingFollows, setIsLoadingFollows] = useState(false);
+  const [modelFollowsCount, setModelFollowsCount] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<'history' | 'records' | 'invite' | 'starcard'>('history');
   const [invitedUsers, setInvitedUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string; created_at: string }>>([]);
   const [isLoadingInvitedUsers, setIsLoadingInvitedUsers] = useState(false);
@@ -203,6 +204,7 @@ const MyPredictions = () => {
         setFollowingList([]);
         setFollowersList([]);
         setInvitedUsers([]);
+        setModelFollowsCount(0);
         setIsLoading(false);
         return;
       }
@@ -340,6 +342,19 @@ const MyPredictions = () => {
             });
             setFollowersList(list);
           }
+        }
+
+        // 获取模型关注数量
+        const { count: modelFollowsCount, error: modelFollowsError } = await supabase
+          .from('model_follows')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if (modelFollowsError) {
+          console.error('Error fetching model follows count:', modelFollowsError);
+          setModelFollowsCount(0);
+        } else {
+          setModelFollowsCount(modelFollowsCount || 0);
         }
       } catch (error) {
         console.error('Error fetching follow data:', error);
@@ -696,6 +711,12 @@ const MyPredictions = () => {
       return;
     }
     
+    // 验证名字长度（最多6个字）
+    if (editDisplayName.trim().length > 6) {
+      toast.error(t('name_too_long') || "名字最多只能输入6个字");
+      return;
+    }
+    
     setIsSaving(true);
     try {
       // 构建更新对象，只包含需要更新的字段
@@ -839,10 +860,16 @@ const MyPredictions = () => {
                     value={!user ? (t('player_default_name') || 'Guest') : editDisplayName}
                     onChange={(e) => setEditDisplayName(e.target.value)}
                     className="h-10 sm:h-12 bg-background border-border text-sm"
-                    maxLength={20}
+                    maxLength={6}
                     disabled={!user}
                     readOnly={!user}
+                    placeholder={t('name_max_6_chars') || "最多6个字"}
                   />
+                  {user && editDisplayName.trim().length > 0 && (
+                    <p className={`text-[10px] sm:text-xs ${editDisplayName.trim().length > 6 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {editDisplayName.trim().length}/6
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -1013,7 +1040,7 @@ const MyPredictions = () => {
                     {t('auth.login') || 'Login'}
                   </Button>
                 ) : (
-                  <Button className="flex-1 h-10 sm:h-12 text-sm" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim()}>
+                  <Button className="flex-1 h-10 sm:h-12 text-sm" onClick={handleSaveProfile} disabled={isSaving || !editDisplayName?.trim() || editDisplayName.trim().length > 6}>
                     {isSaving ? t('saving') || "Saving..." : t('save') || "Save"}
                   </Button>
                 )}
@@ -1146,7 +1173,7 @@ const MyPredictions = () => {
         </div>
       </div>
 
-        {/* Stats Row - Three Columns */}
+        {/* Stats Row - Four Columns */}
         <div className="flex items-stretch gap-1 sm:gap-2 mt-3 sm:mt-6 shrink-0">
           {/* Followers */}
           <button 
@@ -1168,6 +1195,16 @@ const MyPredictions = () => {
           >
             <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">{followingList.length}</p>
             <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('following_label') || '关注'}</p>
+          </button>
+          
+          {/* Model Follows */}
+          <button 
+            type="button"
+            onClick={() => navigate('/my-model-follows')}
+            className="flex-1 !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 whitespace-nowrap touch-manipulation"
+          >
+            <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">{modelFollowsCount}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('model_follows_label') || '模型关注'}</p>
           </button>
           
           {/* Hunter Coin Balance */}
@@ -1433,10 +1470,10 @@ const MyPredictions = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                        {t('your_invitation_code') || 'Your Code'}
+                        {t('your_invitation_code') || 'Your Invitation Code'}
                       </p>
                       <p className="text-3xl font-mono font-bold text-foreground tracking-widest">
-                        {userProfile?.invitation_code || 'XXXXXX'}
+                        {userProfile?.invitation_code || 'XXXXX'}
                       </p>
                     </div>
                     <button 

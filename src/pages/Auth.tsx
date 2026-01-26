@@ -914,7 +914,7 @@ const Auth = () => {
                       placeholder={t("auth.enter_invitation_code")}
                       value={invitationCode}
                       onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
-                      maxLength={10}
+                      maxLength={5}
                       className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
                     />
                   </div>

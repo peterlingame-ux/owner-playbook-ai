@@ -61,8 +61,8 @@ interface BetData {
   confidence: number;
   odds: number;
   betAmount: number;
-  handicapLine?: number;
-  overUnderLine?: number;
+  handicapLine?: number | string; // 支持数字和字符串格式（如 "-0.5/1"）
+  overUnderLine?: number | string; // 支持数字和字符串格式（如 "2.5/3"）
   overUnderPick?: string;
   confirmed: boolean;
 }
@@ -347,7 +347,7 @@ const PlayerExclusiveModelCard = ({
   onToggleAutoPrediction
 }: PlayerExclusiveModelCardProps) => {
   const { t } = useTranslation();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, refreshBalance } = useAuth();
   const [showFeedDialog, setShowFeedDialog] = useState(false);
   const [feedText, setFeedText] = useState('');
   const [isFeeding, setIsFeeding] = useState(false);
@@ -364,20 +364,59 @@ const PlayerExclusiveModelCard = ({
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [manualBetType, setManualBetType] = useState<'handicap' | 'over_under'>('handicap');
   
-  // Calculate available balance (use availableBalance prop if provided, otherwise parse from balanceValue)
-  // Available balance = available_balance (locked_balance is already bet, so we can only use available_balance)
+  // 用户余额状态（用于人工下注）
+  const [userBalance, setUserBalance] = useState<number | null>(null);
+  
+  // 获取用户余额（从 user_balances 表）
+  useEffect(() => {
+    const fetchUserBalance = async () => {
+      if (!user) {
+        setUserBalance(null);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_balances')
+          .select('balance')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('[PlayerExclusiveModelCard] Error fetching user balance:', error);
+          setUserBalance(null);
+          return;
+        }
+        
+        // 如果没有记录，使用默认值 10000
+        setUserBalance(data?.balance ?? 10000);
+      } catch (error) {
+        console.error('[PlayerExclusiveModelCard] Unexpected error fetching user balance:', error);
+        setUserBalance(null);
+      }
+    };
+    
+    fetchUserBalance();
+  }, [user]);
+  
+  // Calculate available balance for manual betting
+  // 人工下注使用用户余额，而不是 AI 模型余额
   const maxBetAmount = useMemo(() => {
+    // 优先使用用户余额（从 user_balances 表获取）
+    if (userBalance !== null) {
+      return userBalance;
+    }
+    // 如果没有用户余额，回退到 availableBalance（AI 模型余额，仅用于显示）
     if (availableBalance !== undefined) {
       return availableBalance;
     }
-    // Fallback: try to parse from balanceValue string (remove commas and convert to number)
-    // Note: This is total balance, not available balance, so it's less accurate
+    // 最后回退到 balanceValue
     if (balanceValue) {
       const parsed = parseInt(balanceValue.replace(/,/g, ''), 10);
       return isNaN(parsed) ? 0 : parsed;
     }
     return 0;
-  }, [availableBalance, balanceValue]);
+  }, [userBalance, availableBalance, balanceValue]);
 
   // Initialize bet amount based on available balance
   const [manualBetAmount, setManualBetAmount] = useState<number | ''>('');
@@ -389,7 +428,7 @@ const PlayerExclusiveModelCard = ({
     }
   }, [maxBetAmount, manualBetAmount]);
   
-  const [manualHandicapLine, setManualHandicapLine] = useState(0);
+  const [manualHandicapLine, setManualHandicapLine] = useState<number | string>(0);
   const [manualOverUnderLine, setManualOverUnderLine] = useState(2.5);
   const [manualPrediction, setManualPrediction] = useState<string>('');
   const [manualOverUnderPick, setManualOverUnderPick] = useState<'over' | 'under'>('over');
@@ -407,6 +446,8 @@ const PlayerExclusiveModelCard = ({
   };
   const [marketOdds, setMarketOdds] = useState<MarketOdds | null>(null);
   const [isLoadingMarketOdds, setIsLoadingMarketOdds] = useState(false);
+  // 使用 ref 存储已查询的 matchId，避免重复查询
+  const lastFetchedMatchIdRef = useRef<string | null>(null);
 
   // Demo matches for manual prediction when no real matches available
   const demoMatches = useMemo(() => [
@@ -461,34 +502,24 @@ const PlayerExclusiveModelCard = ({
   ], []);
 
   // Get matches from matchEntries (current model's AI bets) for manual prediction dialog
+  // 只显示当前模型有下注的比赛
   const matchesFromBets = useMemo(() => {
-    // Priority 1: If matchEntries has data, extract unique matches from it (matches with AI bets)
+    // 只从 matchEntries 中提取比赛（当前模型的下注比赛数据）
     if (matchEntries && matchEntries.length > 0) {
       const uniqueMatches = new Map<string, any>();
       matchEntries.forEach(entry => {
         if (entry && entry.match && entry.match.mid) {
-          // Only include matches with odds_info
+          // 只包含有赔率信息的比赛
           if (entry.match.odds_info !== null && entry.match.odds_info !== undefined) {
             uniqueMatches.set(entry.match.mid, entry.match);
           }
         }
       });
-      const extractedMatches = Array.from(uniqueMatches.values());
-      if (extractedMatches.length > 0) {
-        return extractedMatches;
-      }
+      return Array.from(uniqueMatches.values());
     }
-    // Priority 2: Fallback to availableMatches (real matches from database) if matchEntries is empty
-    // This ensures we show real data instead of demo data when there are no AI bets yet
-    // Filter out matches without odds_info
-    if (availableMatches && availableMatches.length > 0) {
-      return availableMatches.filter((match: any) => 
-        match.odds_info !== null && match.odds_info !== undefined
-      );
-    }
-    // Return empty array if no real data is available (do not use demo data)
+    // 如果没有下注数据，返回空数组（不显示任何比赛）
     return [];
-  }, [matchEntries, availableMatches]);
+  }, [matchEntries]);
   
   // Filter matchesToShow to only include matches with odds_info
   const matchesToShow = matchesFromBets.filter((match: any) => 
@@ -501,58 +532,166 @@ const PlayerExclusiveModelCard = ({
     const fetchMarketOdds = async () => {
       if (!showManualBetDialog || !selectedMatch) {
         setMarketOdds(null);
+        lastFetchedMatchIdRef.current = null;
+        return;
+      }
+
+      // Get match_id from selectedMatch (优先使用 mid，回退到 match_id)
+      // 根据 SQL 迁移文件，mid 是番茄体育格式的比赛ID
+      const matchId = selectedMatch.mid || selectedMatch.match_id;
+      if (!matchId) {
+        console.warn('[PlayerExclusiveModelCard] No match_id found in selectedMatch');
+        setMarketOdds(null);
+        lastFetchedMatchIdRef.current = null;
+        return;
+      }
+
+      // 如果已经查询过相同的 matchId，跳过重复查询
+      if (lastFetchedMatchIdRef.current === String(matchId) && marketOdds) {
         return;
       }
 
       setIsLoadingMarketOdds(true);
       try {
-        // Get match_id from selectedMatch (优先使用 mid，回退到 match_id)
-        // 根据 SQL 迁移文件，mid 是番茄体育格式的比赛ID
-        const matchId = selectedMatch.mid || selectedMatch.match_id;
-        if (!matchId) {
-          console.warn('[PlayerExclusiveModelCard] No match_id found in selectedMatch');
-          setMarketOdds(null);
-          return;
-        }
-
-        // Query ai_match_analyses table for bet_snapshot.allMarketOdds
-        const { data: analysesData, error } = await supabase
-          .from('ai_match_analyses' as any)
-          .select('bet_snapshot')
-          .eq('match_id', matchId)
-          .limit(1)
-          .maybeSingle();
-
-        if (error) {
-          console.error('[PlayerExclusiveModelCard] Error fetching market odds:', error);
-          setMarketOdds(null);
-          return;
-        }
-
-        // Type assertion for bet_snapshot (analysesData may be null)
-        if (analysesData) {
-          const betSnapshot = (analysesData as any)?.bet_snapshot;
-          if (betSnapshot?.allMarketOdds) {
-            setMarketOdds(betSnapshot.allMarketOdds);
-            console.log('[PlayerExclusiveModelCard] Market odds loaded:', betSnapshot.allMarketOdds);
-          } else {
-            console.warn('[PlayerExclusiveModelCard] No allMarketOdds found in bet_snapshot');
-            setMarketOdds(null);
+        // 方法1: 从 matchEntries 中查找当前比赛的分析数据
+        let allMarketOdds = null;
+        if (matchEntries && matchEntries.length > 0) {
+          const matchEntry = matchEntries.find(entry => 
+            entry.match && (entry.match.mid === matchId || entry.match.match_id === matchId)
+          );
+          if (matchEntry && (matchEntry as any).analysis) {
+            const analysis = (matchEntry as any).analysis;
+            if (analysis.bet_snapshot?.allMarketOdds) {
+              allMarketOdds = analysis.bet_snapshot.allMarketOdds;
+              console.log('[PlayerExclusiveModelCard] Market odds loaded from matchEntries:', allMarketOdds);
+            }
           }
+        }
+
+        // 方法2: 如果 matchEntries 中没有，从 ai_match_analyses 表查询
+        // 查询所有 AI 模型的分析数据（不限制 ai_id），因为 allMarketOdds 可能来自任意模型
+        if (!allMarketOdds) {
+          // 尝试字符串格式的 match_id
+          let { data: analysesData, error } = await supabase
+            .from('ai_match_analyses' as any)
+            .select('bet_snapshot, ai_id, match_id')
+            .eq('match_id', String(matchId))
+            .limit(10); // 查询多个分析记录，找到包含 allMarketOdds 的
+
+          // 如果失败，尝试数字格式（如果 matchId 是数字字符串）
+          if ((error || !analysesData || analysesData.length === 0) && !isNaN(Number(matchId))) {
+            const numMatchId = Number(matchId);
+            const result = await supabase
+              .from('ai_match_analyses' as any)
+              .select('bet_snapshot, ai_id, match_id')
+              .eq('match_id', numMatchId)
+              .limit(10);
+            analysesData = result.data;
+            error = result.error;
+          }
+
+          if (error) {
+            console.error('[PlayerExclusiveModelCard] Error fetching market odds:', error);
+          } else if (analysesData && analysesData.length > 0) {
+            // 遍历所有分析记录，找到包含 allMarketOdds 的
+            for (const analysis of analysesData as any[]) {
+              const betSnapshot = analysis?.bet_snapshot;
+              if (betSnapshot?.allMarketOdds) {
+                allMarketOdds = betSnapshot.allMarketOdds;
+                console.log('[PlayerExclusiveModelCard] Market odds loaded from ai_match_analyses (ai_id:', analysis.ai_id, '):', allMarketOdds);
+                break; // 找到后退出循环
+              }
+            }
+            if (!allMarketOdds) {
+              const sampleAnalysis = analysesData[0] as any;
+              console.warn('[PlayerExclusiveModelCard] Found', analysesData.length, 'analysis records but none contain allMarketOdds');
+              console.warn('[PlayerExclusiveModelCard] Sample bet_snapshot:', sampleAnalysis?.bet_snapshot);
+            }
+          } else {
+            console.warn('[PlayerExclusiveModelCard] No analysis data found for match_id:', matchId);
+          }
+        }
+
+        // 方法3: 如果还是没有，尝试从 odds_info 解析（作为最后的后备方案）
+        if (!allMarketOdds && selectedMatch.odds_info) {
+          try {
+            const oddsInfo = typeof selectedMatch.odds_info === 'string' 
+              ? JSON.parse(selectedMatch.odds_info) 
+              : selectedMatch.odds_info;
+            
+            // 从 odds_info 中提取让分和大小球数据
+            if (oddsInfo && oddsInfo.data && Array.isArray(oddsInfo.data)) {
+              const handicapOdds: Array<{ line: number | string; home: number; away: number }> = [];
+              const overUnderOdds: Array<{ line: number | string; over: number; under: number }> = [];
+
+              oddsInfo.data.forEach((market: any) => {
+                // 让分盘 (hpt = 2 或 hpt = 4)
+                if ((market.hpt === 2 || market.hpt === 4) && market.hl && Array.isArray(market.hl)) {
+                  market.hl.forEach((hl: any) => {
+                    if (hl.hv && hl.ol && Array.isArray(hl.ol)) {
+                      const homeOdds = hl.ol.find((o: any) => o.ot === '1' || o.otd === 3);
+                      const awayOdds = hl.ol.find((o: any) => o.ot === '2' || o.otd === 4);
+                      if (homeOdds && awayOdds) {
+                        handicapOdds.push({
+                          line: hl.hv,
+                          home: homeOdds.ov / 100000, // 转换为小数赔率
+                          away: awayOdds.ov / 100000
+                        });
+                      }
+                    }
+                  });
+                }
+                // 大小球 (hpt = 5 或 hpt = 18)
+                if ((market.hpt === 5 || market.hpt === 18) && market.hl && Array.isArray(market.hl)) {
+                  market.hl.forEach((hl: any) => {
+                    if (hl.hv && hl.ol && Array.isArray(hl.ol)) {
+                      const overOdds = hl.ol.find((o: any) => o.ot === 'Over' || o.otd === 2 || o.otd === 96);
+                      const underOdds = hl.ol.find((o: any) => o.ot === 'Under' || o.otd === 1 || o.otd === 95);
+                      if (overOdds && underOdds) {
+                        overUnderOdds.push({
+                          line: hl.hv,
+                          over: overOdds.ov / 100000,
+                          under: underOdds.ov / 100000
+                        });
+                      }
+                    }
+                  });
+                }
+              });
+
+              if (handicapOdds.length > 0 || overUnderOdds.length > 0) {
+                allMarketOdds = {
+                  handicap: handicapOdds.length > 0 ? handicapOdds : undefined,
+                  overUnder: overUnderOdds.length > 0 ? overUnderOdds : undefined
+                };
+                console.log('[PlayerExclusiveModelCard] Market odds parsed from odds_info:', allMarketOdds);
+              }
+            }
+          } catch (parseError) {
+            console.warn('[PlayerExclusiveModelCard] Failed to parse odds_info:', parseError);
+          }
+        }
+
+        if (allMarketOdds) {
+          setMarketOdds(allMarketOdds);
+          lastFetchedMatchIdRef.current = String(matchId);
         } else {
-          console.warn('[PlayerExclusiveModelCard] No analysis data found for match_id:', matchId);
+          console.warn('[PlayerExclusiveModelCard] No market odds found from any source for match_id:', matchId);
           setMarketOdds(null);
+          lastFetchedMatchIdRef.current = String(matchId); // 即使没找到也记录，避免重复查询
         }
       } catch (error) {
         console.error('[PlayerExclusiveModelCard] Unexpected error fetching market odds:', error);
         setMarketOdds(null);
+        lastFetchedMatchIdRef.current = String(matchId); // 即使出错也记录，避免重复查询
       } finally {
         setIsLoadingMarketOdds(false);
       }
     };
 
     fetchMarketOdds();
-  }, [showManualBetDialog, selectedMatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showManualBetDialog, selectedMatch?.mid, selectedMatch?.match_id]);
 
   const trainingSteps = [
     { icon: Database, label: '数据解析', description: '正在分析输入内容...' },
@@ -563,7 +702,7 @@ const PlayerExclusiveModelCard = ({
 
   // Demo mode for non-logged-in users
   const isDemo = !user || !userProfile;
-  const displayName = isDemo ? t('demo_player') || '预测者专属模型' : `${userProfile?.display_name || '玩家'}的模型`;
+  const displayName = isDemo ? t('demo_player') || '预测者专属模型' : `${userProfile?.display_name || '玩家'}`;
   const avatarUrl = isDemo ? '/avatars/avatar-1.png' : (userProfile?.avatar_url || '/avatars/avatar-1.png');
 
   // Calculate training trend data (last 7 days)
@@ -929,7 +1068,15 @@ const PlayerExclusiveModelCard = ({
           p_bet_amount: betAmount,
           p_potential_payout: potentialPayout,
           p_confidence: 75,
-          p_handicap_line: manualBetType === 'handicap' ? manualHandicapLine : null,
+          p_handicap_line: manualBetType === 'handicap' 
+            ? (typeof manualHandicapLine === 'number' 
+                ? manualHandicapLine 
+                : (() => {
+                    // 尝试从字符串中解析第一个数字（如 "-0/0.5" -> -0 或 "-0.5/1" -> -0.5）
+                    const parsed = parseFloat(String(manualHandicapLine));
+                    return isNaN(parsed) ? null : parsed;
+                  })()) as number | null
+            : null,
           p_over_under_line: manualBetType === 'over_under' ? manualOverUnderLine : null,
         });
 
@@ -938,6 +1085,20 @@ const PlayerExclusiveModelCard = ({
           toast.error(t('bet_failed') || '下注失败');
           setIsSubmittingBet(false);
           return;
+        }
+        
+        // 下注成功后刷新用户余额
+        if (refreshBalance) {
+          await refreshBalance();
+        }
+        // 同时更新本地状态
+        const { data: updatedBalance } = await supabase
+          .from('user_balances')
+          .select('balance')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (updatedBalance) {
+          setUserBalance(updatedBalance.balance);
         }
       } catch (err) {
         console.error('Manual bet error:', err);
@@ -1426,8 +1587,10 @@ const PlayerExclusiveModelCard = ({
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               confirmedManualBet.prediction === "HOME" || confirmedManualBet.prediction === "HOME_WIN" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {confirmedManualBet.handicapLine > 0 ? '+' : ''}
-                              {confirmedManualBet.handicapLine}
+                              {typeof confirmedManualBet.handicapLine === 'number' 
+                                ? (confirmedManualBet.handicapLine > 0 ? '+' : '') + confirmedManualBet.handicapLine
+                                : confirmedManualBet.handicapLine
+                              }
                             </span>
                           )}
                         </div>
@@ -1441,8 +1604,12 @@ const PlayerExclusiveModelCard = ({
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               confirmedManualBet.prediction === "AWAY" || confirmedManualBet.prediction === "AWAY_WIN" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {-confirmedManualBet.handicapLine > 0 ? '+' : ''}
-                              {-confirmedManualBet.handicapLine}
+                              {typeof confirmedManualBet.handicapLine === 'number'
+                                ? (-confirmedManualBet.handicapLine > 0 ? '+' : '') + (-confirmedManualBet.handicapLine)
+                                : confirmedManualBet.handicapLine.startsWith('-') 
+                                  ? confirmedManualBet.handicapLine.substring(1)
+                                  : `-${confirmedManualBet.handicapLine}`
+                              }
                             </span>
                           )}
                         </div>
@@ -1549,8 +1716,10 @@ const PlayerExclusiveModelCard = ({
                         <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                           handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
                         }`}>
-                          {handicapBet.handicapLine > 0 ? '+' : ''}
-                          {handicapBet.handicapLine}
+                          {typeof handicapBet.handicapLine === 'number'
+                            ? (handicapBet.handicapLine > 0 ? '+' : '') + handicapBet.handicapLine
+                            : handicapBet.handicapLine
+                          }
                         </span>
                       )}
                     </div>
@@ -1564,8 +1733,12 @@ const PlayerExclusiveModelCard = ({
                         <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                           handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
                         }`}>
-                          {-handicapBet.handicapLine > 0 ? '+' : ''}
-                          {-handicapBet.handicapLine}
+                          {typeof handicapBet.handicapLine === 'number'
+                            ? (-handicapBet.handicapLine > 0 ? '+' : '') + (-handicapBet.handicapLine)
+                            : handicapBet.handicapLine.startsWith('-')
+                              ? handicapBet.handicapLine.substring(1)
+                              : `-${handicapBet.handicapLine}`
+                          }
                         </span>
                       )}
                     </div>
@@ -2100,7 +2273,16 @@ const PlayerExclusiveModelCard = ({
                     // Display all handicap options - show first one by default, but allow selection
                     // For better UX, we'll show the first available handicap line
                     const firstHandicap = marketOdds.handicap[0];
-                    const handicapLine = typeof firstHandicap.line === 'number' ? firstHandicap.line : parseFloat(String(firstHandicap.line)) || 0;
+                    // 解析让球盘：如果是字符串格式（如 "-0/0.5"），保持为字符串；如果是数字，转换为数字
+                    const parseHandicapLine = (line: number | string): number | string => {
+                      if (typeof line === 'number') {
+                        return line;
+                      }
+                      // 尝试解析为数字，如果失败（如 "-0/0.5"），保持为字符串
+                      const parsed = parseFloat(String(line));
+                      return isNaN(parsed) ? line : parsed;
+                    };
+                    const handicapLine = parseHandicapLine(firstHandicap.line);
                     const homeOdds = firstHandicap.home;
                     const awayOdds = firstHandicap.away;
 
@@ -2109,7 +2291,7 @@ const PlayerExclusiveModelCard = ({
                         <button
                           type="button"
                           className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                            manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine
+                            manualBetType === 'handicap' && manualPrediction === 'HOME' && String(manualHandicapLine) === String(handicapLine)
                               ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                               : 'bg-secondary/50 border-border active:bg-secondary/80'
                           }`}
@@ -2120,7 +2302,7 @@ const PlayerExclusiveModelCard = ({
                           }}
                           disabled={!homeOdds || homeOdds <= 0}
                         >
-                          {manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine && (
+                          {manualBetType === 'handicap' && manualPrediction === 'HOME' && String(manualHandicapLine) === String(handicapLine) && (
                             <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
@@ -2139,7 +2321,7 @@ const PlayerExclusiveModelCard = ({
                         <button
                           type="button"
                           className={`p-2.5 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                            manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine
+                            manualBetType === 'handicap' && manualPrediction === 'AWAY' && String(manualHandicapLine) === String(handicapLine)
                               ? 'bg-primary/15 border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_0_20px_hsl(var(--primary)/0.25)] scale-[1.02]'
                               : 'bg-secondary/50 border-border active:bg-secondary/80'
                           }`}
@@ -2150,14 +2332,19 @@ const PlayerExclusiveModelCard = ({
                           }}
                           disabled={!awayOdds || awayOdds <= 0}
                         >
-                          {manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine && (
+                          {manualBetType === 'handicap' && manualPrediction === 'AWAY' && String(manualHandicapLine) === String(handicapLine) && (
                             <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs sm:text-sm font-medium truncate">{safeGetTeamName(selectedMatch, 'away')}</span>
-                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{formatLine(typeof firstHandicap.line === 'number' ? -firstHandicap.line : `-${firstHandicap.line}`)}</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">
+                              {typeof firstHandicap.line === 'number' 
+                                ? formatLine(-firstHandicap.line)
+                                : formatLine(firstHandicap.line.startsWith('-') ? firstHandicap.line.substring(1) : `-${firstHandicap.line}`)
+                              }
+                            </span>
                           </div>
                           {/* 从 allMarketOdds 获取的赔率是欧洲盘，显示时减1转为亚洲盘 */}
                           {awayOdds && awayOdds > 0 ? (

@@ -407,6 +407,73 @@ const fetchCompletedMatches = async (matchIds: number[]) => {
   })) as MatchResult[];
 };
 
+// 解析让球盘字符串格式（如 "-0.5/1" 或 "-1/1.5"）
+// 返回两个盘口值的数组，如果不是分盘格式则返回单个值
+const parseHandicapLine = (handicapLine: number | string | null | undefined): number[] => {
+  if (handicapLine === null || handicapLine === undefined) {
+    return [];
+  }
+  
+  // 如果是数字，直接返回
+  if (typeof handicapLine === 'number') {
+    return [handicapLine];
+  }
+  
+  // 如果是字符串，尝试解析
+  const str = String(handicapLine).trim();
+  
+  // 检查是否是分盘格式（包含 "/"）
+  if (str.includes('/')) {
+    const parts = str.split('/').map(part => part.trim());
+    if (parts.length === 2) {
+      const line1 = parseFloat(parts[0]);
+      const line2 = parseFloat(parts[1]);
+      if (!isNaN(line1) && !isNaN(line2)) {
+        return [line1, line2];
+      }
+    }
+  }
+  
+  // 尝试解析为单个数字
+  const singleLine = parseFloat(str);
+  if (!isNaN(singleLine)) {
+    return [singleLine];
+  }
+  
+  console.warn(`[settle-sim-positions] 无法解析让球盘格式: ${handicapLine}`);
+  return [];
+};
+
+// 计算单个让球盘的结果
+const calculateSingleHandicapResult = (
+  homeScore: number,
+  awayScore: number,
+  handicapLine: number,
+  isHomeBet: boolean,
+): "win" | "loss" | "push" => {
+  if (isHomeBet) {
+    // 主队让球：主队得分 + 让球数 vs 客队得分
+    const adjustedHomeScore = homeScore + handicapLine;
+    if (adjustedHomeScore > awayScore) {
+      return "win";
+    } else if (adjustedHomeScore < awayScore) {
+      return "loss";
+    } else {
+      return "push";
+    }
+  } else {
+    // 客队让球：客队得分 + 让球数 vs 主队得分
+    const adjustedAwayScore = awayScore + handicapLine;
+    if (adjustedAwayScore > homeScore) {
+      return "win";
+    } else if (adjustedAwayScore < homeScore) {
+      return "loss";
+    } else {
+      return "push";
+    }
+  }
+};
+
 // 根据投注类型和比赛结果计算输赢
 const calculateBetResult = (
   position: PositionRow,
@@ -427,35 +494,45 @@ const calculateBetResult = (
   }
 
   if (betType === "handicap") {
-    const handicapLine = metadata?.handicapLine as number | undefined;
+    const handicapLine = metadata?.handicapLine as number | string | undefined;
     if (handicapLine === undefined) {
       console.warn(`[settle-sim-positions] 仓位 ${position.id} 缺少 handicapLine`);
       return "void";
     }
 
-    if (prediction === "HOME") {
-      // 主队让球：主队得分 + 让球数 > 客队得分
-      const adjustedHomeScore = homeScore + handicapLine;
-      if (adjustedHomeScore > awayScore) {
+    // 解析让球盘（支持数字和字符串格式，如 "-0.5/1"）
+    const handicapLines = parseHandicapLine(handicapLine);
+    if (handicapLines.length === 0) {
+      console.warn(`[settle-sim-positions] 仓位 ${position.id} 无法解析 handicapLine: ${handicapLine}`);
+      return "void";
+    }
+
+    const isHomeBet = prediction === "HOME" || prediction === "HOME_WIN";
+
+    // 如果是分盘格式（两个盘口值）
+    if (handicapLines.length === 2) {
+      const [line1, line2] = handicapLines;
+      const result1 = calculateSingleHandicapResult(homeScore, awayScore, line1, isHomeBet);
+      const result2 = calculateSingleHandicapResult(homeScore, awayScore, line2, isHomeBet);
+      
+      // 亚洲让球盘规则：
+      // - 两个盘口都赢 = win
+      // - 两个盘口都输 = loss
+      // - 一个赢一个输 = push（平局，返回本金）
+      if (result1 === "win" && result2 === "win") {
         return "win";
-      } else if (adjustedHomeScore < awayScore) {
+      } else if (result1 === "loss" && result2 === "loss") {
         return "loss";
       } else {
+        // 一个赢一个输，或包含 push 的情况，都视为 push
         return "push";
       }
-    } else if (prediction === "AWAY") {
-      // 客队让球：客队得分 + 让球数 > 主队得分
-      const adjustedAwayScore = awayScore + handicapLine;
-      if (adjustedAwayScore > homeScore) {
-        return "win";
-      } else if (adjustedAwayScore < homeScore) {
-        return "loss";
-      } else {
-        return "push";
-      }
+    } else {
+      // 单个盘口值
+      return calculateSingleHandicapResult(homeScore, awayScore, handicapLines[0], isHomeBet);
     }
   } else if (betType === "over_under") {
-    const overUnderLine = metadata?.overUnderLine as number | undefined;
+    const overUnderLine = metadata?.overUnderLine as number | string | undefined;
     const overUnderPick = metadata?.overUnderPick as string | undefined;
 
     if (overUnderLine === undefined || !overUnderPick) {
@@ -463,22 +540,66 @@ const calculateBetResult = (
       return "void";
     }
 
+    // 解析大小球盘口（支持数字和字符串格式，如 "2.5/3"）
+    const overUnderLines = parseHandicapLine(overUnderLine);
+    if (overUnderLines.length === 0) {
+      console.warn(`[settle-sim-positions] 仓位 ${position.id} 无法解析 overUnderLine: ${overUnderLine}`);
+      return "void";
+    }
+
     const pick = overUnderPick.toLowerCase();
-    if (pick === "over") {
-      if (totalGoals > overUnderLine) {
+
+    // 如果是分盘格式（两个盘口值）
+    if (overUnderLines.length === 2) {
+      const [line1, line2] = overUnderLines;
+      let result1: "win" | "loss" | "push";
+      let result2: "win" | "loss" | "push";
+      
+      if (pick === "over") {
+        result1 = totalGoals > line1 ? "win" : totalGoals < line1 ? "loss" : "push";
+        result2 = totalGoals > line2 ? "win" : totalGoals < line2 ? "loss" : "push";
+      } else if (pick === "under") {
+        result1 = totalGoals < line1 ? "win" : totalGoals > line1 ? "loss" : "push";
+        result2 = totalGoals < line2 ? "win" : totalGoals > line2 ? "loss" : "push";
+      } else {
+        console.warn(`[settle-sim-positions] 仓位 ${position.id} 无效的 overUnderPick: ${overUnderPick}`);
+        return "void";
+      }
+      
+      // 亚洲大小球规则：
+      // - 两个盘口都赢 = win
+      // - 两个盘口都输 = loss
+      // - 一个赢一个输 = push（平局，返回本金）
+      if (result1 === "win" && result2 === "win") {
         return "win";
-      } else if (totalGoals < overUnderLine) {
+      } else if (result1 === "loss" && result2 === "loss") {
         return "loss";
       } else {
+        // 一个赢一个输，或包含 push 的情况，都视为 push
         return "push";
       }
-    } else if (pick === "under") {
-      if (totalGoals < overUnderLine) {
-        return "win";
-      } else if (totalGoals > overUnderLine) {
-        return "loss";
+    } else {
+      // 单个盘口值
+      const line = overUnderLines[0];
+      if (pick === "over") {
+        if (totalGoals > line) {
+          return "win";
+        } else if (totalGoals < line) {
+          return "loss";
+        } else {
+          return "push";
+        }
+      } else if (pick === "under") {
+        if (totalGoals < line) {
+          return "win";
+        } else if (totalGoals > line) {
+          return "loss";
+        } else {
+          return "push";
+        }
       } else {
-        return "push";
+        console.warn(`[settle-sim-positions] 仓位 ${position.id} 无效的 overUnderPick: ${overUnderPick}`);
+        return "void";
       }
     }
   } else if (betType === "moneyline") {

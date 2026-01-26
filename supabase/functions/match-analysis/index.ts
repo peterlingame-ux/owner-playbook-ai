@@ -539,27 +539,19 @@ const getTodayMatches = async () => {
   
   console.log(`[getTodayMatches] 查询比赛: 昨天=${yesterdayStr}, 今天=${today}`);
   
-  // 计算时间范围：当前时间往后120分钟内
-  const nowSeconds = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
-  const maxTimeSeconds = nowSeconds + (120 * 60); // 当前时间 + 120分钟（秒）
-  
-  console.log(`[getTodayMatches] 时间范围: 当前=${nowSeconds} (${formatUTC8Time(nowSeconds)}), 最大=${maxTimeSeconds} (${formatUTC8Time(maxTimeSeconds)})`);
-  
-  // 查询比赛，过滤未完成的比赛（基于 ended 字段）
-  // ended = 0 或 ended 为 null 表示比赛未结束，需要查询
-  // ended = 1 表示比赛已结束，不需要查询
-  // 不再过滤赔率信息，将在 AI 分析之前获取赔率
-  // 只查询当前时间往后120分钟内的比赛
+  // 查询未开赛的比赛（status_id = 1）
+  // 只查询未开赛且未结束的比赛
   // 排除推迟的比赛：status_id = 9（推迟）或 13（待定）
+  // 按开始比赛时间排序
+  // 注意：不限制时间范围，因为脚本每10分钟调用一次，每次分析10场
   const { data, error } = await supabase
     .from(DAILY_MATCHES_TABLE)
     .select('*')
     .in('date', [yesterdayStr, today])
+    .eq('status_id', 1) // 只查询未开赛的比赛（status_id = 1）
     .or('ended.is.null,ended.eq.0') // ended 为 null 或 0 表示未结束
-    .gte('match_time', nowSeconds) // match_time >= 当前时间
-    .lte('match_time', maxTimeSeconds) // match_time <= 当前时间 + 120分钟
     .not('status_id', 'in', '(9,13)') // 排除推迟（9）和待定（13）的比赛
-    .order('match_time', { ascending: true }); // 使用 match_time (比赛开始时间戳，秒) 排序
+    .order('match_time', { ascending: true }); // 按开始比赛时间排序
 
   if (error) {
     console.error('[getTodayMatches] 查询失败:', error);
@@ -567,25 +559,73 @@ const getTodayMatches = async () => {
   }
 
   // 额外过滤：确保排除推迟的比赛（双重保险）
-  const filteredData = (data || []).filter((m: any) => {
+  const unanalyzedMatches = (data || []).filter((m: any) => {
     const statusId = m.status_id;
     // status_id = 9（推迟）或 13（待定）的比赛不分析
     if (statusId === 9 || statusId === 13) {
       console.log(`[getTodayMatches] 跳过推迟的比赛: match_id=${m.match_id}, status_id=${statusId}`);
       return false;
     }
+    // 确保只处理未开赛的比赛（status_id = 1）
+    if (statusId !== 1) {
+      console.log(`[getTodayMatches] 跳过非未开赛的比赛: match_id=${m.match_id}, status_id=${statusId}`);
+      return false;
+    }
     return true;
   });
 
-  console.log(`[getTodayMatches] 查询成功: 找到 ${filteredData.length} 场比赛（当前时间往后120分钟内，已排除推迟的比赛）`);
-  if (filteredData.length > 0) {
-    console.log(`[getTodayMatches] 比赛详情: ${filteredData.map((m: any) => {
+  console.log(`[getTodayMatches] 查询到 ${unanalyzedMatches.length} 场未开赛的比赛`);
+
+  // 查询所有已分析的比赛（所有AI模型的分析记录）
+  // 获取所有AI模型的ID列表
+  const allAiIds = MODEL_CONFIGS.map(m => m.id);
+  
+  // 查询已分析的比赛ID（只要有一个AI模型分析过就算已分析）
+  const { data: analyzedMatches, error: analyzedError } = await supabase
+    .from(ANALYSIS_TABLE)
+    .select('match_id')
+    .in('ai_id', allAiIds)
+    .not('match_id', 'is', null);
+
+  if (analyzedError) {
+    console.error('[getTodayMatches] 查询已分析比赛失败:', analyzedError);
+    // 如果查询失败，继续处理，但会重复分析
+  }
+
+  // 获取已分析的比赛ID集合
+  const analyzedMatchIds = new Set(
+    (analyzedMatches || []).map((m: any) => m.match_id).filter((id: any) => id != null)
+  );
+
+  console.log(`[getTodayMatches] 已分析的比赛数量: ${analyzedMatchIds.size}`);
+
+  // 过滤掉已分析的比赛
+  const unanalyzedData = unanalyzedMatches.filter((m: any) => {
+    const matchId = m.match_id;
+    if (analyzedMatchIds.has(matchId)) {
+      console.log(`[getTodayMatches] 跳过已分析的比赛: match_id=${matchId}`);
+      return false;
+    }
+    return true;
+  });
+
+  // 限制最多10场比赛
+  const MAX_MATCHES = 10;
+  const selectedMatches = unanalyzedData.slice(0, MAX_MATCHES);
+
+  if (unanalyzedData.length > MAX_MATCHES) {
+    console.log(`[getTodayMatches] 未分析的比赛数量 ${unanalyzedData.length} 超过限制 ${MAX_MATCHES}，只处理前 ${MAX_MATCHES} 场`);
+  }
+
+  console.log(`[getTodayMatches] 查询成功: 找到 ${selectedMatches.length} 场未开赛且未分析的比赛（共 ${unanalyzedData.length} 场未分析）`);
+  if (selectedMatches.length > 0) {
+    console.log(`[getTodayMatches] 比赛详情: ${selectedMatches.map((m: any) => {
       const matchTime = m.match_time ? new Date(m.match_time * 1000).toISOString() : 'N/A';
       return `match_id=${m.match_id}, ${m.home_team_name || 'N/A'} vs ${m.away_team_name || 'N/A'}, match_time=${matchTime}, status_id=${m.status_id || 'N/A'}`;
     }).join('; ')}`);
   }
 
-  return filteredData;
+  return selectedMatches;
 };
 
 // ========== 赔率获取相关函数（从 fetch-daily-matches/index.ts 复制）==========
@@ -984,31 +1024,24 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
   }
 
   // 如果都没有提供，查询当天的比赛
-  console.log(`[normalizeMatchesPayload] 请求体为空，开始查询当天比赛`);
+  console.log(`[normalizeMatchesPayload] 请求体为空，开始查询未开赛且未分析的比赛`);
   try {
     const todayMatches = await getTodayMatches();
-    console.log(`[normalizeMatchesPayload] 查询到 ${todayMatches.length} 场当天比赛`);
+    console.log(`[normalizeMatchesPayload] 查询到 ${todayMatches.length} 场未开赛且未分析的比赛`);
     
     if (todayMatches.length === 0) {
-      console.log(`[normalizeMatchesPayload] 今天没有可用的比赛`);
+      console.log(`[normalizeMatchesPayload] 今天没有可用的未开赛且未分析的比赛`);
       return {
         matches: [],
-        error: "今天没有可用的比赛。请提供 matchInfo 和 betInfo，或提供 matches 数组。"
+        error: "今天没有可用的未开赛且未分析的比赛。请提供 matchInfo 和 betInfo，或提供 matches 数组。"
       };
     }
 
-    // 限制同时处理的比赛数量，避免 CPU 时间超限
-    // Supabase Edge Functions 默认 CPU 时间限制为 60 秒
-    // 每场比赛需要调用多个 AI 模型，限制为最多 10 场比赛
-    const MAX_MATCHES = 10;
-    const selectedMatches = todayMatches.slice(0, MAX_MATCHES);
-    if (todayMatches.length > MAX_MATCHES) {
-      console.warn(`[normalizeMatchesPayload] 比赛数量 ${todayMatches.length} 超过限制 ${MAX_MATCHES}，只处理前 ${MAX_MATCHES} 场`);
-    }
-    console.log(`[normalizeMatchesPayload] 处理 ${selectedMatches.length} 场比赛（共 ${todayMatches.length} 场）`);
+    // getTodayMatches 已经限制了最多10场比赛，这里直接使用
+    console.log(`[normalizeMatchesPayload] 处理 ${todayMatches.length} 场未开赛且未分析的比赛`);
 
     // 为每场比赛生成默认的 MatchRequest
-    const matches: MatchRequest[] = selectedMatches.map((match) => {
+    const matches: MatchRequest[] = todayMatches.map((match) => {
       // 判断比赛状态：根据 status_id 字段判断是否为进行中
       // status_id: 0-未开始, 1-进行中, 2-暂停, 3-已结束, 4-取消, 5-延期
       const isLive = match.status_id === 1 || match.status_id === 2;
