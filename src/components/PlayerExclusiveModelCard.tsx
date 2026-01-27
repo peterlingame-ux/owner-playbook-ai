@@ -509,10 +509,7 @@ const PlayerExclusiveModelCard = ({
       const uniqueMatches = new Map<string, any>();
       matchEntries.forEach(entry => {
         if (entry && entry.match && entry.match.mid) {
-          // 只包含有赔率信息的比赛
-          if (entry.match.odds_info !== null && entry.match.odds_info !== undefined) {
-            uniqueMatches.set(entry.match.mid, entry.match);
-          }
+          uniqueMatches.set(entry.match.mid, entry.match);
         }
       });
       return Array.from(uniqueMatches.values());
@@ -521,10 +518,8 @@ const PlayerExclusiveModelCard = ({
     return [];
   }, [matchEntries]);
   
-  // Filter matchesToShow to only include matches with odds_info
-  const matchesToShow = matchesFromBets.filter((match: any) => 
-    match.odds_info !== null && match.odds_info !== undefined
-  );
+  // 使用 matchesFromBets 作为要显示的比赛列表
+  const matchesToShow = matchesFromBets;
   
   // Debug: Log what data source is being used
   // Fetch market odds from ai_match_analyses when dialog opens and match is selected
