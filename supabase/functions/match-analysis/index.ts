@@ -558,9 +558,17 @@ const getTodayMatches = async () => {
     throw error;
   }
 
-  // 额外过滤：确保排除推迟的比赛（双重保险）
+  // 额外过滤：确保排除推迟的比赛和已结束的比赛（双重保险）
   const unanalyzedMatches = (data || []).filter((m: any) => {
     const statusId = m.status_id;
+    const ended = m.ended;
+    
+    // 排除已结束的比赛（ended 不为 null 且不为 0 表示已结束）
+    if (ended !== null && ended !== undefined && ended !== 0) {
+      console.log(`[getTodayMatches] 跳过已结束的比赛: match_id=${m.match_id}, ended=${ended}`);
+      return false;
+    }
+    
     // status_id = 9（推迟）或 13（待定）的比赛不分析
     if (statusId === 9 || statusId === 13) {
       console.log(`[getTodayMatches] 跳过推迟的比赛: match_id=${m.match_id}, status_id=${statusId}`);
@@ -2221,7 +2229,66 @@ serve(async (req) => {
           if (!matchId || !supabase) return null;
           
           try {
-            // 从 daily_matches 表查询 odds_info 字段
+            // 优先从 ai_match_analyses 表的 bet_snapshot.allMarketOdds 获取赔率
+            // 查询该比赛的所有分析记录，获取最新的 bet_snapshot
+            const { data: analysesData, error: analysesError } = await supabase
+              .from(ANALYSIS_TABLE)
+              .select('bet_snapshot')
+              .eq('match_id', matchId)
+              .not('bet_snapshot', 'is', null)
+              .order('inserted_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (!analysesError && analysesData && analysesData.bet_snapshot) {
+              try {
+                const betSnapshot = analysesData.bet_snapshot as any;
+                if (betSnapshot.allMarketOdds) {
+                  const allMarketOdds = betSnapshot.allMarketOdds as MarketOdds;
+                  
+                  // 如果 includeAllOdds 为 false，需要过滤赔率（只保留 >= 1.7 的）
+                  if (!includeAllOdds) {
+                    const filteredOdds: MarketOdds = {};
+                    
+                    // 过滤大小球赔率
+                    if (allMarketOdds.overUnder && allMarketOdds.overUnder.length > 0) {
+                      filteredOdds.overUnder = allMarketOdds.overUnder.filter(ou => {
+                        return ou.over && ou.under && 
+                               isOddsInRange(ou.over) && isOddsInRange(ou.under);
+                      });
+                    }
+                    
+                    // 过滤让球盘赔率
+                    if (allMarketOdds.handicap && allMarketOdds.handicap.length > 0) {
+                      filteredOdds.handicap = allMarketOdds.handicap.filter(h => {
+                        return h.home && h.away && 
+                               isOddsInRange(h.home) && isOddsInRange(h.away);
+                      });
+                    }
+                    
+                    if ((filteredOdds.overUnder && filteredOdds.overUnder.length > 0) ||
+                        (filteredOdds.handicap && filteredOdds.handicap.length > 0)) {
+                      console.log(`[getAllMarketOdds] 从 ai_match_analyses.bet_snapshot.allMarketOdds 成功读取比赛 ${matchId} 的赔率信息（已过滤）`);
+                      console.log(`[getAllMarketOdds] 大小球盘口: ${filteredOdds.overUnder?.length || 0} 个, 让球盘盘口: ${filteredOdds.handicap?.length || 0} 个`);
+                      return filteredOdds;
+                    }
+                  } else {
+                    // includeAllOdds 为 true，直接返回所有赔率
+                    if ((allMarketOdds.overUnder && allMarketOdds.overUnder.length > 0) ||
+                        (allMarketOdds.handicap && allMarketOdds.handicap.length > 0)) {
+                      console.log(`[getAllMarketOdds] 从 ai_match_analyses.bet_snapshot.allMarketOdds 成功读取比赛 ${matchId} 的赔率信息（全部）`);
+                      console.log(`[getAllMarketOdds] 大小球盘口: ${allMarketOdds.overUnder?.length || 0} 个, 让球盘盘口: ${allMarketOdds.handicap?.length || 0} 个`);
+                      return allMarketOdds;
+                    }
+                  }
+                }
+              } catch (betSnapshotError) {
+                console.warn(`[getAllMarketOdds] 解析 ai_match_analyses.bet_snapshot.allMarketOdds 失败:`, betSnapshotError);
+                // 继续尝试从 daily_matches 表获取
+              }
+            }
+            
+            // 回退：从 daily_matches 表查询 odds_info 字段
             const { data: matchData, error } = await supabase
               .from(DAILY_MATCHES_TABLE)
               .select('odds_info')
@@ -2245,7 +2312,7 @@ serve(async (req) => {
               : parseOddsInfoFromDB(matchData.odds_info);
             
             if (parsedOdds) {
-              console.log(`[getAllMarketOdds] 从数据库成功读取比赛 ${matchId} 的赔率信息`);
+              console.log(`[getAllMarketOdds] 从 daily_matches.odds_info 成功读取比赛 ${matchId} 的赔率信息`);
               console.log(`[getAllMarketOdds] 大小球盘口: ${parsedOdds.overUnder?.length || 0} 个, 让球盘盘口: ${parsedOdds.handicap?.length || 0} 个`);
               return parsedOdds;
             } else {

@@ -807,11 +807,12 @@ const ActiveAIBets = () => {
 
         // Fetch auto bets (pending and confirmed status for active predictions)
         // 包含昨天和今天的投注（因为要显示昨天和今天的比赛）
-        // 显示 pending 和 confirmed 状态的投注（已确定但比赛未完成的投注）
+        // 显示 pending、confirmed 和 open 状态的投注（已确定但比赛未完成的投注）
+        // 注意：ai_auto_bets 表使用 inserted_at 字段（不是 created_at）
         const { data: betsData, error: betsError } = await supabase
           .from('ai_auto_bets' as any)
           .select('*')
-          .in('status', ['pending', 'confirmed'])
+          .in('status', ['pending', 'confirmed', 'open'])
           .gte('inserted_at', `${yesterdayStr}T00:00:00Z`)
           .order('inserted_at', { ascending: false });
 
@@ -1442,7 +1443,7 @@ const ActiveAIBets = () => {
       handicapLine: bet.handicap_line ?? undefined,
       overUnderLine: bet.over_under_line ?? undefined,
       overUnderPick: bet.over_under_pick ?? undefined,
-      confirmed: bet.status === 'confirmed' || bet.status === 'pending',
+      confirmed: bet.status === 'confirmed' || bet.status === 'pending' || bet.status === 'open',
     };
   };
 
@@ -1503,9 +1504,9 @@ const ActiveAIBets = () => {
   const betMatchIds = new Set(autoBets.map(bet => bet.match_id?.toString()).filter(Boolean));
   
   // Then, get matches that have bets from the active matches list
-  // Only show matches that have odds_info (赔率信息)
+  // 注意：暂时不要求必须有 odds_info，因为投注可能在没有赔率信息时创建
   const matchesWithBets = matches.filter(match => 
-    betMatchIds.has(match.mid) && match.odds_info !== null && match.odds_info !== undefined
+    betMatchIds.has(match.mid)
   );
   
   // State to store missing matches (matches that have bets but are not in active matches list)
@@ -1551,10 +1552,8 @@ const ActiveAIBets = () => {
                 return false;
               }
               
-              // 过滤掉没有赔率信息的比赛
-              if (!match.odds_info || match.odds_info === null || match.odds_info === undefined) {
-                return false;
-              }
+              // 不再强制要求有赔率信息，因为投注可能在没有赔率信息时创建
+              // 但如果有赔率信息会更好显示
               
               return true;
             });
@@ -1618,10 +1617,8 @@ const ActiveAIBets = () => {
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
           allMatchesWithBets.forEach(match => {
-            // 只处理有赔率信息的比赛
-            if (!match.odds_info || match.odds_info === null || match.odds_info === undefined) {
-              return;
-            }
+            // 不再强制要求有赔率信息，因为投注可能在没有赔率信息时创建
+            // 但如果有赔率信息会更好显示
             
             const matchBets = autoBets
               .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
@@ -2262,10 +2259,8 @@ const ActiveAIBets = () => {
           const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
           
           allMatchesWithBets.forEach(match => {
-            // 只处理有赔率信息的比赛
-            if (!match.odds_info || match.odds_info === null || match.odds_info === undefined) {
-              return;
-            }
+            // 不再强制要求有赔率信息，因为投注可能在没有赔率信息时创建
+            // 但如果有赔率信息会更好显示
             
             const matchBets = autoBets
               .filter(b => b.match_id?.toString() === match.mid && b.ai_id === 'hunsoccermax')

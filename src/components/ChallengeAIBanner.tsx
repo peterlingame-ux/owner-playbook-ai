@@ -571,7 +571,7 @@ const ChallengeAIBanner = () => {
                         </div>
                       )}
                     </div>
-                    <p className="font-bold text-[9px] sm:text-sm truncate max-w-[70px] sm:max-w-none">{t('predictor_exclusive_model') || '预测者专属模型'}</p>
+                    <p className="font-bold text-[9px] sm:text-sm truncate max-w-[70px] sm:max-w-none">{currentPlayer?.displayName || userProfile?.display_name || t('predictor_exclusive_model') || '预测者专属模型'}</p>
                   </div>
                   <div className="flex items-center gap-1 sm:gap-6 text-[7px] sm:text-sm">
                     <span className="text-muted-foreground">

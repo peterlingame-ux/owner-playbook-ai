@@ -33,12 +33,14 @@ const UserModelCard = () => {
   const { user, loading: authLoading, userProfile } = useAuth();
   const navigate = useNavigate();
 
+  const INITIAL_BALANCE = 10000;
+  
   const [stats, setStats] = useState<UserStats>({
     totalPredictions: 0,
     correctPredictions: 0,
     winRate: 0,
     profit: 0,
-    totalBalance: 0,
+    totalBalance: INITIAL_BALANCE, // 参考其他模型显示默认值
   });
 
   // 从数据库获取 hunsoccermax 模型的统计数据
@@ -46,51 +48,65 @@ const UserModelCard = () => {
     const fetchHunsoccermaxStats = async () => {
       try {
         // 从 ai_win_rates_overall 视图获取 hunsoccermax 模型的统计数据
+        // 使用 maybeSingle() 而不是 single()，因为视图可能没有该 AI 的数据（如果没有已结算的投注）
         const { data: winRateData, error: winRateError } = await supabase
           .from('ai_win_rates_overall' as any)
           .select('total_predictions, correct_predictions, win_rate')
           .eq('ai_id', 'hunsoccermax')
-          .single();
+          .maybeSingle();
 
         if (winRateError) {
           console.error('Error fetching hunsoccermax win rates:', winRateError);
-          // 如果查询失败，保持默认值
+          // 如果查询失败，设置默认值（参考其他模型显示默认值）
+          setStats({
+            totalPredictions: 0,
+            correctPredictions: 0,
+            winRate: 0,
+            profit: 0,
+            totalBalance: INITIAL_BALANCE,
+          });
           return;
         }
 
-        if (winRateData) {
-          const winRateDataTyped = winRateData as any;
-          const totalPredictions = Number(winRateDataTyped.total_predictions) || 0;
-          const correctPredictions = Number(winRateDataTyped.correct_predictions) || 0;
-          const winRate = Number(winRateDataTyped.win_rate) || 0;
+        // 处理胜率数据（可能为 null，如果视图中没有该 AI 的数据）
+        const winRateDataTyped = winRateData as any;
+        const totalPredictions = winRateDataTyped ? (Number(winRateDataTyped.total_predictions) || 0) : 0;
+        const correctPredictions = winRateDataTyped ? (Number(winRateDataTyped.correct_predictions) || 0) : 0;
+        const winRate = winRateDataTyped ? (Number(winRateDataTyped.win_rate) || 0) : 0;
 
-          // 获取余额数据来计算收益
-          const { data: balanceData, error: balanceError } = await supabase
-            .from('ai_balances' as any)
-            .select('available_balance, locked_balance')
-            .eq('ai_id', 'hunsoccermax')
-            .single();
+        // 获取余额数据来计算收益
+        const { data: balanceData, error: balanceError } = await supabase
+          .from('ai_balances' as any)
+          .select('available_balance, locked_balance')
+          .eq('ai_id', 'hunsoccermax')
+          .maybeSingle();
 
-          const INITIAL_BALANCE = 10000;
-          let profit = 0;
-          let totalBalance = INITIAL_BALANCE;
+        let profit = 0;
+        let totalBalance = INITIAL_BALANCE;
 
-          if (!balanceError && balanceData) {
-            const balanceDataTyped = balanceData as any;
-            totalBalance = (Number(balanceDataTyped.available_balance) || 0) + (Number(balanceDataTyped.locked_balance) || 0);
-            profit = totalBalance - INITIAL_BALANCE;
-          }
-
-          setStats({
-            totalPredictions,
-            correctPredictions,
-            winRate,
-            profit,
-            totalBalance,
-          });
+        if (!balanceError && balanceData) {
+          const balanceDataTyped = balanceData as any;
+          totalBalance = (Number(balanceDataTyped.available_balance) || 0) + (Number(balanceDataTyped.locked_balance) || 0);
+          profit = totalBalance - INITIAL_BALANCE;
         }
+
+        setStats({
+          totalPredictions,
+          correctPredictions,
+          winRate,
+          profit,
+          totalBalance,
+        });
       } catch (error) {
         console.error('Error fetching hunsoccermax stats:', error);
+        // 如果出错，设置默认值（参考其他模型显示默认值）
+        setStats({
+          totalPredictions: 0,
+          correctPredictions: 0,
+          winRate: 0,
+          profit: 0,
+          totalBalance: INITIAL_BALANCE,
+        });
       }
     };
 
@@ -136,10 +152,8 @@ const UserModelCard = () => {
     ? userProfile?.display_name || t("my_exclusive_model")
     : t("demo_player");
 
-  // 显示当前模型的总钱数
-  const totalBalanceLabel = stats.totalPredictions > 0
-    ? stats.totalBalance.toLocaleString()
-    : "--";
+  // 显示当前模型的总钱数（参考其他模型显示默认值）
+  const totalBalanceLabel = stats.totalBalance.toLocaleString();
 
   return (
     <TiltCard
@@ -257,7 +271,7 @@ const UserModelCard = () => {
                 {t("win_rate")}
               </span>
               <span className="text-xs sm:text-3xl font-bold font-mono tabular-nums text-foreground flex-shrink-0">
-                {stats.totalPredictions > 0 ? `${animatedWinRate.toFixed(1)}%` : "--%"}
+                {animatedWinRate.toFixed(1)}%
               </span>
             </div>
 
@@ -265,7 +279,7 @@ const UserModelCard = () => {
             <div className="relative h-0.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
               <div
                 className={`absolute inset-y-0 left-0 rounded-full ${USER_THEME.progress} transition-all duration-500`}
-                style={{ width: `${stats.totalPredictions > 0 ? animatedWinRate : 0}%` }}
+                style={{ width: `${animatedWinRate}%` }}
               />
               {/* Animated shine effect - Desktop only */}
               <motion.div
@@ -282,19 +296,19 @@ const UserModelCard = () => {
             <div className="text-center min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("correct_short") || t("correct")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-success">
-                {stats.totalPredictions > 0 ? stats.correctPredictions : "--"}
+                {stats.correctPredictions}
               </p>
             </div>
             <div className="text-center border-x border-white/10 min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("predictions_short") || t("total_predictions")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-foreground">
-                {stats.totalPredictions > 0 ? stats.totalPredictions : "--"}
+                {stats.totalPredictions}
               </p>
             </div>
             <div className="text-center min-w-0 overflow-hidden">
               <p className="text-[5px] sm:text-[10px] text-muted-foreground uppercase tracking-wide leading-tight mb-0 font-medium truncate">{t("wrong_short") || t("wrong")}</p>
               <p className="text-[9px] sm:text-xl font-bold font-mono tabular-nums text-destructive">
-                {stats.totalPredictions > 0 ? wrongPredictions : "--"}
+                {wrongPredictions}
               </p>
             </div>
           </div>

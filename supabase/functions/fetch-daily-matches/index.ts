@@ -917,6 +917,12 @@ const upsertMatches = async (
         }
       }
       
+      // 保护已有的 odds_info：如果 oddsInfo 为 null 但数据库中有 odds_info，将 oddsInfo 设置为 undefined
+      // 这样 convertToDatabaseRecord 就不会设置 odds_info 字段，从而保护已有值
+      if (oddsInfo === null && hasOddsInfo) {
+        oddsInfo = undefined;
+      }
+      
       const record = await convertToDatabaseRecord(match, date, competitions, teams, oddsInfo);
       
       // 设置 odds_info_updated_at 字段
@@ -966,33 +972,50 @@ const upsertMatches = async (
       
       record.odds_requested = oddsRequested;
       
-      // 如果比赛已被预测过，但 oddsInfo 为 null（数据库中没有 odds_info），则删除 odds_info 字段，避免覆盖
-      if (isPredicted && oddsInfo === null) {
+      // 统一保护规则：如果数据库中已经有 odds_info，永远不更新这个字段
+      // 这是最优先的保护规则，确保已有的赔率数据不会被覆盖
+      if (hasOddsInfo) {
         delete record.odds_info;
-      }
-      
-      // 在非 refresh 模式下，如果已经请求过赔率（odds_requested=true），不更新 odds_info 字段
-      if (fetchOdds && alreadyRequestedOdds) {
-        delete record.odds_info;
-        delete record.odds_info_updated_at;
-      }
-      
-      // 如果需要保护 odds_info（alreadyRequestedOdds = true 但缓存中没有），确保不更新
-      if (shouldProtectOddsInfo) {
-        delete record.odds_info;
-        delete record.odds_info_updated_at;
-      }
-      
-      // 如果 odds_info 有值且 odds_requested=true，确保不更新 odds_info
-      if (shouldSkipOddsUpdate) {
-        delete record.odds_info;
-        delete record.odds_info_updated_at;
-      }
-      
-      // 在刷新模式下，如果 oddsInfo 为 null（即没有新的赔率且没有已有的赔率），则删除 odds_info 字段，避免覆盖
-      if (!fetchOdds && oddsInfo === null && !isPredicted) {
-        delete record.odds_info;
-        delete record.odds_info_updated_at;
+        // 如果数据库中有 odds_info，也保留原有的 odds_info_updated_at
+        if (match.id && existingOddsUpdatedAtMap.has(match.id)) {
+          const existingUpdatedAt = existingOddsUpdatedAtMap.get(match.id);
+          if (existingUpdatedAt) {
+            record.odds_info_updated_at = existingUpdatedAt;
+          }
+        } else {
+          delete record.odds_info_updated_at;
+        }
+      } else {
+        // 只有在数据库中没有 odds_info 的情况下，才处理其他逻辑
+        
+        // 如果比赛已被预测过，但 oddsInfo 为 null 且确认数据库中没有 odds_info，则删除 odds_info 字段，避免覆盖
+        if (isPredicted && oddsInfo === null) {
+          delete record.odds_info;
+        }
+        
+        // 在非 refresh 模式下，如果已经请求过赔率（odds_requested=true），不更新 odds_info 字段
+        if (fetchOdds && alreadyRequestedOdds) {
+          delete record.odds_info;
+          delete record.odds_info_updated_at;
+        }
+        
+        // 如果需要保护 odds_info（alreadyRequestedOdds = true 但缓存中没有），确保不更新
+        if (shouldProtectOddsInfo) {
+          delete record.odds_info;
+          delete record.odds_info_updated_at;
+        }
+        
+        // 如果 odds_info 有值且 odds_requested=true，确保不更新 odds_info
+        if (shouldSkipOddsUpdate) {
+          delete record.odds_info;
+          delete record.odds_info_updated_at;
+        }
+        
+        // 在刷新模式下，如果 oddsInfo 为 null 且确认数据库中没有 odds_info，则删除 odds_info 字段，避免覆盖
+        if (!fetchOdds && oddsInfo === null && !isPredicted) {
+          delete record.odds_info;
+          delete record.odds_info_updated_at;
+        }
       }
       
       batchRecords.push(record);
