@@ -208,9 +208,9 @@ const FlipCountdown = ({ days, hours, minutes, seconds, t }: {
 };
 
 const PRIZE_POOL = 1000000; // $1,000,000
-const AI_BENCHMARK_PREDICTIONS = 247;
-const AI_BENCHMARK_WIN_RATE = 78.95;
-const AI_BENCHMARK_PROFIT = 2478900; // $24,789 in cents
+const AI_BENCHMARK_PREDICTIONS = 0;
+const AI_BENCHMARK_WIN_RATE = 0;
+const AI_BENCHMARK_PROFIT = 0; // $24,789 in cents
 
 interface PlayerData {
   id: string;
@@ -350,17 +350,9 @@ const ChallengeAIBanner = () => {
           };
         });
 
-        // 按胜率排序，找到排名第一的模型
+        // 按胜率排序，找到排名第一的模型（与 LeaderboardTable 排序逻辑完全一致）
         const sortedModels = modelsWithData
-          .filter(m => m.totalPredictions > 0) // 只考虑有预测数据的模型
-          .sort((a, b) => {
-            // 先按胜率排序
-            if (Math.abs(a.winRate - b.winRate) > 0.01) {
-              return b.winRate - a.winRate;
-            }
-            // 胜率相同则按预测数量排序
-            return b.totalPredictions - a.totalPredictions;
-          });
+          .sort((a, b) => b.winRate - a.winRate); // 与 LeaderboardTable 第709行排序逻辑一致
 
         if (sortedModels.length > 0) {
           setTopAIModel(sortedModels[0]);
@@ -535,7 +527,7 @@ const ChallengeAIBanner = () => {
           
           {/* AI vs 玩家数据对比 - 手机端超紧凑单行 */}
           <div className="w-full max-w-3xl mx-auto space-y-0.5 sm:space-y-2">
-            {/* AI数据 */}
+            {/* AI数据 - 排行榜第一名 */}
             <div className="bg-muted/40 backdrop-blur-sm rounded px-1.5 sm:px-4 py-1 sm:py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 sm:gap-3">
