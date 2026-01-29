@@ -303,7 +303,7 @@ export const PlayerLeaderboardCard = ({
             <div className="min-w-0">
               <p className="text-[7px] text-muted-foreground leading-none">盈利率</p>
               <p className={`text-[10px] font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
+                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
               </p>
             </div>
           </div>
@@ -510,7 +510,7 @@ export const PlayerLeaderboardCard = ({
         <div className="text-center">
           <p className="text-xs text-muted-foreground mb-1">{t('profit_rate')}</p>
           <p className="text-base font-bold font-mono-data text-foreground">
-            {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+            {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
           </p>
         </div>
         

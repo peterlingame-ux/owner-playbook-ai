@@ -174,7 +174,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const [selectedBetOption, setSelectedBetOption] = useState<string>("");
   const [isDemo, setIsDemo] = useState(false);
   const [betAmount, setBetAmount] = useState<string>("100");
-  const [userBalance, setUserBalance] = useState<number>(10000);
+  const [userBalance, setUserBalance] = useState<number>(100000);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // 已移除 matchStats 和 matchLoading 状态
@@ -339,7 +339,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       .select('balance')
       .eq('user_id', user.id)
       .maybeSingle();
-    setUserBalance(data?.balance ?? 10000);
+    setUserBalance(data?.balance ?? 100000);
   };
 
   const fetchAIPredictions = async (matchId: number) => {

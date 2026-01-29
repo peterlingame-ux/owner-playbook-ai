@@ -26,7 +26,7 @@ const DAILY_MATCHES_TABLE = "daily_matches";
 const FQTY_API_BASE_URL = "https://api.j7nwyhqg.com/yewu11/v1/m/matchDetail";
 
 // AI 虚拟资金初始值
-const INITIAL_AI_BALANCE = 10000;
+const INITIAL_AI_BALANCE = 100000;
 
 type ModelConfig = {
   id: string;
@@ -108,6 +108,8 @@ type RequestBody = {
   betInfo?: BetInfo;
   aiModel?: string;
   aiId?: string;
+  /** 阶段：analysis=仅分析不下注，bet=仅从当日全部分析中选重要比赛下注。不传则默认仅分析。 */
+  phase?: "analysis" | "bet";
 };
 
 type ModelAnalysisResult = ModelConfig & {
@@ -617,12 +619,46 @@ const getTodayMatches = async () => {
     return true;
   });
 
-  // 限制最多3场比赛
+  // 与下注阶段、ActiveAIBets 一致的优先联赛列表（分析时也优先分析重要比赛）
+  const PRIORITY_LEAGUES_ANALYSIS = [
+    "英格兰冠军联赛",
+    "英格兰超级联赛",
+    "澳大利亚超级联赛",
+    "德国甲级联赛",
+    "西班牙甲级联赛",
+    "意大利甲级联赛",
+    "法国甲级联赛",
+    "荷兰甲级联赛",
+    "葡萄牙超级联赛",
+    "西班牙乙级联赛",
+    "意大利乙级联赛",
+    "土耳其超级联赛",
+    "德国乙级联赛",
+  ];
+  const getLeaguePriorityForAnalysis = (leagueName: string | null | undefined): number => {
+    if (!leagueName) return 999;
+    const index = PRIORITY_LEAGUES_ANALYSIS.indexOf(leagueName);
+    return index === -1 ? 100 : index;
+  };
+
+  // 排序：重要联赛优先，再按开球时间升序；再取前 N 场
+  const sortedUnanalyzed = unanalyzedData.slice().sort((a: any, b: any) => {
+    const aLeague = a.competition_name_zh ?? a.competition_name ?? "";
+    const bLeague = b.competition_name_zh ?? b.competition_name ?? "";
+    const aP = getLeaguePriorityForAnalysis(aLeague);
+    const bP = getLeaguePriorityForAnalysis(bLeague);
+    if (aP !== bP) return aP - bP;
+    const aTime = a.match_time ?? 0;
+    const bTime = b.match_time ?? 0;
+    return aTime - bTime;
+  });
+
+  // 仅分析阶段每次最多处理 3 场，避免单次超时（5 场易 shutdown）；下注由 phase=bet 从全部分析中选重要比赛
   const MAX_MATCHES = 3;
-  const selectedMatches = unanalyzedData.slice(0, MAX_MATCHES);
+  const selectedMatches = sortedUnanalyzed.slice(0, MAX_MATCHES);
 
   if (unanalyzedData.length > MAX_MATCHES) {
-    console.log(`[getTodayMatches] 未分析的比赛数量 ${unanalyzedData.length} 超过限制 ${MAX_MATCHES}，只处理前 ${MAX_MATCHES} 场`);
+    console.log(`[getTodayMatches] 未分析的比赛数量 ${unanalyzedData.length} 超过限制 ${MAX_MATCHES}，按重要联赛+开球时间排序后取前 ${MAX_MATCHES} 场`);
   }
 
   console.log(`[getTodayMatches] 查询成功: 找到 ${selectedMatches.length} 场未开赛且未分析的比赛（共 ${unanalyzedData.length} 场未分析）`);
@@ -1709,6 +1745,229 @@ const analyzeBetWithModels = async (
   return Promise.all(MODEL_CONFIGS.map(analyzeWithModel));
 };
 
+/**
+ * 下注阶段：从当日全部分析中选重要比赛下注（不分析新比赛）。由 cron 单独触发 phase=bet。
+ *
+ * 调用时机建议（UTC+8）：
+ * 1. 分析 cron：每 10 分钟调用一次（不传 phase 或 phase=analysis），把当日未分析比赛逐步分析完。
+ * 2. 下注 cron：在「分析已跑过一段时间、当日比赛多数已有分析」之后调用，例如：
+ *    - 每天 12:00 一次：上午的分析已覆盖大部分早场，可对重要联赛+高置信度下注；
+ *    - 或 12:00、15:00、18:00 各一次：分时段下注，每次只下尚未下注且已有分析的比赛，重要联赛优先。
+ * 不宜太早（分析还没多少）或太晚（比赛已开打，runBetPhaseOnly 会过滤未开赛，但可下注池会变少）。
+ *
+ * 请求示例：POST body: { "phase": "bet" }
+ */
+async function runBetPhaseOnly(
+  body: RequestBody,
+  helpers: {
+    getOrCreateBalance: (aiId: string, aiDisplayName: string) => Promise<any>;
+    getTodayBetsCount: (aiId: string) => Promise<number>;
+  },
+): Promise<{ results: any[]; message: string }> {
+  if (!supabase) {
+    return { results: [], message: "Supabase 未配置" };
+  }
+  const today = getUTC8DateString(new Date());
+  const yesterdayDate = new Date(getUTC8TimestampMs() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = getUTC8DateString(yesterdayDate);
+
+  const { data: dailyRows } = await supabase
+    .from(DAILY_MATCHES_TABLE)
+    .select("match_id, home_team_name, away_team_name, competition_name, competition_name_zh, match_time, ended, status_id")
+    .in("date", [yesterdayStr, today])
+    .eq("status_id", 1)
+    .or("ended.is.null,ended.eq.0");
+
+  // 与 ActiveAIBets 一致的优先联赛列表（按优先级排序，数字越小越重要）
+  const PRIORITY_LEAGUES = [
+    "英格兰冠军联赛",
+    "英格兰超级联赛",
+    "澳大利亚超级联赛",
+    "德国甲级联赛",
+    "西班牙甲级联赛",
+    "意大利甲级联赛",
+    "法国甲级联赛",
+    "荷兰甲级联赛",
+    "葡萄牙超级联赛",
+    "西班牙乙级联赛",
+    "意大利乙级联赛",
+    "土耳其超级联赛",
+    "德国乙级联赛",
+  ];
+  const getLeaguePriority = (leagueName: string | null | undefined): number => {
+    if (!leagueName) return 999;
+    const index = PRIORITY_LEAGUES.indexOf(leagueName);
+    return index === -1 ? 100 : index;
+  };
+
+  const matchInfoByMatchId = new Map<
+    number,
+    { league: string; leagueNameForPriority: string; homeTeam: string; awayTeam: string; matchTime?: number }
+  >();
+  const todayMatchIds: number[] = [];
+  (dailyRows || []).forEach((r: any) => {
+    const mid = r.match_id;
+    if (mid == null) return;
+    todayMatchIds.push(mid);
+    const league = r.competition_name_zh ?? r.competition_name ?? "Unknown";
+    matchInfoByMatchId.set(mid, {
+      league: r.competition_name ?? "Unknown",
+      leagueNameForPriority: league,
+      homeTeam: r.home_team_name || "Home",
+      awayTeam: r.away_team_name || "Away",
+      matchTime: r.match_time,
+    });
+  });
+  console.log(`[runBetPhaseOnly] 当日未开赛比赛数: ${todayMatchIds.length}`);
+
+  const results: any[] = [];
+  const minConfidence = 60;
+
+  for (const modelConfig of MODEL_CONFIGS) {
+    const aiId = modelConfig.id;
+    const aiDisplayName = modelConfig.displayName;
+    const balance = await helpers.getOrCreateBalance(aiId, aiDisplayName);
+    if (!balance) continue;
+    const strategy = resolveStrategy(body.strategy, undefined, aiId);
+
+    const { data: analyses } = await supabase
+      .from(ANALYSIS_TABLE)
+      .select("id, match_id, bet_snapshot")
+      .in("match_id", todayMatchIds)
+      .eq("ai_id", aiId)
+      .not("bet_snapshot", "is", null);
+
+    if (!analyses || analyses.length === 0) continue;
+
+    const { data: existingBets } = await supabase
+      .from(AUTO_BET_TABLE)
+      .select("match_id")
+      .eq("ai_id", aiId)
+      .in("match_id", todayMatchIds)
+      .in("status", ["pending", "won", "lost"]);
+    const alreadyBetMatchIds = new Set(
+      (existingBets || []).map((b: any) => b.match_id).filter((id: any) => id != null)
+    );
+
+    type BetCandidate = {
+      match: MatchRequest;
+      betInfo: BetInfo;
+      analysisRefs: StoredAnalysisResult[];
+    };
+    const allBetsToConsider: BetCandidate[] = [];
+
+    for (const row of analyses as any[]) {
+      const matchId = row.match_id;
+      if (alreadyBetMatchIds.has(matchId)) continue;
+      const info = matchInfoByMatchId.get(matchId);
+      if (!info) continue;
+      const snap = row.bet_snapshot as any;
+      if (!snap) continue;
+
+      let overUnder: BetInfo | null = null;
+      let handicap: BetInfo | null = null;
+      if (snap.overUnder && snap.overUnder.confidence && snap.overUnder.odds && isOddsInRange(snap.overUnder.odds)) {
+        overUnder = {
+          betType: "over_under",
+          prediction: snap.overUnder.prediction || "over",
+          confidence: snap.overUnder.confidence,
+          odds: snap.overUnder.odds,
+          betAmount: 0,
+          overUnderLine: snap.overUnder.line,
+          overUnderPick: (snap.overUnder.prediction || "over").toLowerCase(),
+        };
+      }
+      if (snap.handicap && snap.handicap.confidence && snap.handicap.odds && isOddsInRange(snap.handicap.odds)) {
+        handicap = {
+          betType: "handicap",
+          prediction: snap.handicap.prediction || "home",
+          confidence: snap.handicap.confidence,
+          odds: snap.handicap.odds,
+          betAmount: 0,
+          handicapLine: snap.handicap.line,
+        };
+      }
+      const analysisRefs: StoredAnalysisResult[] = [{ id: row.id, modelId: aiId }];
+      const matchRequest: MatchRequest = {
+        matchId,
+        matchInfo: {
+          league: info.league,
+          homeTeam: info.homeTeam,
+          awayTeam: info.awayTeam,
+        },
+        aiBets: [],
+      };
+
+      if (overUnder && handicap) {
+        if (overUnder.confidence >= handicap.confidence && overUnder.confidence >= minConfidence) {
+          allBetsToConsider.push({ match: matchRequest, betInfo: overUnder, analysisRefs });
+        } else if (handicap.confidence >= minConfidence) {
+          allBetsToConsider.push({ match: matchRequest, betInfo: handicap, analysisRefs });
+        }
+      } else if (overUnder && overUnder.confidence >= minConfidence) {
+        allBetsToConsider.push({ match: matchRequest, betInfo: overUnder, analysisRefs });
+      } else if (handicap && handicap.confidence >= minConfidence) {
+        allBetsToConsider.push({ match: matchRequest, betInfo: handicap, analysisRefs });
+      }
+    }
+
+    // 排序：先按重要联赛优先（与 ActiveAIBets 一致），再按置信度从高到低；每场只保留一个最佳投注
+    const sorted = allBetsToConsider.sort((a, b) => {
+      const aP = getLeaguePriority(matchInfoByMatchId.get(a.match.matchId!)?.leagueNameForPriority);
+      const bP = getLeaguePriority(matchInfoByMatchId.get(b.match.matchId!)?.leagueNameForPriority);
+      if (aP !== bP) return aP - bP; // 重要联赛在前
+      return (b.betInfo.confidence || 0) - (a.betInfo.confidence || 0); // 同等级按置信度
+    });
+    const uniqueByMatch = new Map<number, BetCandidate>();
+    for (const b of sorted) {
+      const mid = b.match.matchId;
+      if (mid != null && !uniqueByMatch.has(mid)) uniqueByMatch.set(mid, b);
+    }
+    const baseStake = strategy.baseStake || 800;
+    const maxBetsByBalance = Math.floor((balance.available_balance || 0) / baseStake);
+    // 不做 10 笔限制：只要余额够就按顺序下完（重要联赛优先，再按置信度）
+    const maxBets = Math.min(maxBetsByBalance, uniqueByMatch.size);
+    const betsToPlace = Array.from(uniqueByMatch.values()).slice(0, Math.max(0, maxBets));
+
+    for (const bet of betsToPlace) {
+      const { data: latestBalance } = await supabase
+        .from(AI_BALANCES_TABLE)
+        .select("*")
+        .eq("ai_id", aiId)
+        .single();
+      if (!latestBalance) continue;
+      const odds = bet.betInfo.odds;
+      if (!odds || odds <= 0 || !isOddsInRange(odds)) continue;
+      const finalBetInfo: BetInfo = { ...bet.betInfo, odds };
+      const stake = calculateStake(finalBetInfo, strategy);
+      if ((latestBalance.available_balance ?? 0) < stake) continue;
+      finalBetInfo.betAmount = stake;
+      const autoBetResult = await createAutoBet(
+        bet.match.matchId,
+        aiId,
+        aiDisplayName,
+        finalBetInfo,
+        stake,
+        strategy,
+        bet.analysisRefs,
+      );
+      if (autoBetResult.placed) {
+        results.push({
+          matchId: bet.match.matchId,
+          aiId,
+          aiDisplayName,
+          autoBet: autoBetResult,
+        });
+      }
+    }
+  }
+
+  return {
+    results,
+    message: `下注阶段完成，本次下注 ${results.length} 笔`,
+  };
+}
+
 serve(async (req) => {
   console.log(`[match-analysis] ========== 函数被调用 ==========`);
   console.log(`[match-analysis] 请求方法: ${req.method}`);
@@ -1739,6 +1998,53 @@ serve(async (req) => {
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // 获取或创建每个 AI 的余额（phase=bet 时也需要）
+    const getOrCreateBalance = async (aiId: string, aiDisplayName: string) => {
+      if (!supabase) return null;
+      const { data: existing } = await supabase
+        .from(AI_BALANCES_TABLE)
+        .select('*')
+        .eq('ai_id', aiId)
+        .single();
+      if (existing) return existing;
+      const { data: newBalance } = await supabase
+        .from(AI_BALANCES_TABLE)
+        .insert({
+          ai_id: aiId,
+          ai_display_name: aiDisplayName,
+          available_balance: INITIAL_AI_BALANCE,
+          locked_balance: 0,
+          currency: 'USD',
+        })
+        .select()
+        .single();
+      return newBalance;
+    };
+    const getTodayBetsCount = async (aiId: string) => {
+      if (!supabase) return 0;
+      const today = getUTC8DateString(new Date());
+      const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
+      const { count } = await supabase
+        .from(AUTO_BET_TABLE)
+        .select('*', { count: 'exact', head: true })
+        .eq('ai_id', aiId)
+        .eq('status', 'pending')
+        .gte('inserted_at', todayStartUTC8);
+      return count || 0;
+    };
+
+    // phase=bet：仅从当日全部分析中选重要比赛下注（不分析新比赛）
+    if (body.phase === "bet") {
+      console.log(`[match-analysis] phase=bet，执行下注阶段：从当日全部分析中选重要比赛下注`);
+      const betPhaseResult = await runBetPhaseOnly(body, {
+        getOrCreateBalance,
+        getTodayBetsCount,
+      });
+      return new Response(JSON.stringify(betPhaseResult), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log(`[match-analysis] 开始规范化请求体...`);
@@ -1785,49 +2091,6 @@ serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // 获取或创建每个 AI 的余额
-    const getOrCreateBalance = async (aiId: string, aiDisplayName: string) => {
-      if (!supabase) return null;
-      
-      const { data: existing } = await supabase
-        .from(AI_BALANCES_TABLE)
-        .select('*')
-        .eq('ai_id', aiId)
-        .single();
-      
-      if (existing) return existing;
-      
-      const { data: newBalance } = await supabase
-        .from(AI_BALANCES_TABLE)
-        .insert({
-          ai_id: aiId,
-          ai_display_name: aiDisplayName,
-          available_balance: INITIAL_AI_BALANCE,
-          locked_balance: 0,
-          currency: 'USD',
-        })
-        .select()
-        .single();
-      
-      return newBalance;
-    };
-
-    // 获取今天已下注次数
-    const getTodayBetsCount = async (aiId: string) => {
-      if (!supabase) return 0;
-      // 使用 UTC+8 时区获取今天的日期（与数据库存储一致）
-      const today = getUTC8DateString(new Date());
-      // inserted_at 是 TIMESTAMPTZ，需要转换为 UTC+8 时区的开始时间
-      const todayStartUTC8 = new Date(`${today}T00:00:00+08:00`).toISOString();
-      const { count } = await supabase
-        .from(AUTO_BET_TABLE)
-        .select('*', { count: 'exact', head: true })
-        .eq('ai_id', aiId)
-        .eq('status', 'pending')
-        .gte('inserted_at', todayStartUTC8);
-      return count || 0;
-    };
 
     const results: Array<{
       matchId?: number;
@@ -3209,6 +3472,26 @@ serve(async (req) => {
         }
         
         const matchAnalyses = allMatchAnalyses;
+
+        // 仅分析模式：不下注，下注由 phase=bet 单独触发（从当日全部分析中选重要比赛下注）
+        if (body.phase !== "bet") {
+          for (const matchAnalysis of matchAnalyses) {
+            const rawAnalysis = matchAnalysis.analyses.find((a) => a.analysis)?.analysis ?? null;
+            aiResults.push({
+              matchId: matchAnalysis.match.matchId,
+              aiId,
+              aiDisplayName,
+              analyses: matchAnalysis.analyses,
+              analysisRefs: matchAnalysis.analysisRefs,
+              primaryAnalysis: formatAnalysisResult(rawAnalysis, matchAnalysis.allPredictions),
+              autoBet: {
+                placed: false,
+                reason: "仅分析模式，下注由 bet 阶段执行",
+              },
+            });
+          }
+          return aiResults;
+        }
 
         // 第二步：为每场比赛选择置信度最高的一个投注（只考虑大小球或让球盘，不考虑输赢预测）
         // 注意：虽然AI会预测输赢（moneyline），但在投注决策时不使用输赢预测

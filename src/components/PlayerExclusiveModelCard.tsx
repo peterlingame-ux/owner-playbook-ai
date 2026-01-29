@@ -388,8 +388,8 @@ const PlayerExclusiveModelCard = ({
           return;
         }
         
-        // 如果没有记录，使用默认值 10000
-        setUserBalance(data?.balance ?? 10000);
+        // 如果没有记录，使用默认值 100000
+        setUserBalance(data?.balance ?? 100000);
       } catch (error) {
         console.error('[PlayerExclusiveModelCard] Unexpected error fetching user balance:', error);
         setUserBalance(null);

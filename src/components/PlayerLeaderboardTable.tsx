@@ -295,7 +295,7 @@ const PlayerLeaderboardTable = () => {
   };
   
   // Get real balance from auth context
-  const realBalance = userBalance?.balance ?? 10000;
+  const realBalance = userBalance?.balance ?? 100000;
 
   // Get current user's rank
   const currentUserRank = user ? allPlayers.find(p => p.id === user.id) : null;
@@ -324,7 +324,7 @@ const PlayerLeaderboardTable = () => {
     const fetchAllPlayers = async () => {
       try {
         setIsLoading(true);
-        const INITIAL_BALANCE = 10000;
+        const INITIAL_BALANCE = 100000;
         
         // 将虚拟玩家转换为 PlayerData 格式（只选择推荐者）
         const virtualPlayersData: PlayerData[] = virtualPlayers
@@ -414,7 +414,7 @@ const PlayerLeaderboardTable = () => {
           
           const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
           const rawProfit = balance - INITIAL_BALANCE;
-          // 盈利不能低于-10000（本金全亏），确保盈利率最低为-100%
+          // 盈利不能低于-初始金额（本金全亏），确保盈利率最低为-100%
           const profit = Math.max(-INITIAL_BALANCE, rawProfit);
           const changePercent = Math.max(-100, (profit / INITIAL_BALANCE) * 100);
           
@@ -1186,7 +1186,7 @@ const PlayerLeaderboardTable = () => {
                 </div>
                 <div>
                   <p className={`text-2xl font-bold font-mono-data ${currentUserRank.changePercent >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {currentUserRank.changePercent >= 0 ? '+' : ''}{currentUserRank.changePercent.toFixed(1)}%
+                    {currentUserRank.changePercent >= 0 ? '+' : ''}{currentUserRank.changePercent.toFixed(2)}%
                   </p>
                   <p className="text-xs text-muted-foreground">{t('roi')}</p>
                 </div>

@@ -376,7 +376,7 @@ const MobileLeaderboardOKX = () => {
           winRate: parseFloat(winRate.toFixed(1)),
           balance: vp.balance || 0,
           profit: profit,
-          changePercent: parseFloat(changePercent.toFixed(1)),
+          changePercent,
           profitAmount: profit,
           rank: 0,
           currentStreak: currentStreak,
@@ -599,10 +599,10 @@ const MobileLeaderboardOKX = () => {
         const endDateTime = new Date(endDate);
         endDateTime.setHours(23, 59, 59, 999);
         
-        // 直接从 sim_positions 表查询指定时间范围内的数据
+        // 直接从 sim_positions 表查询指定时间范围内的数据（含 stake_amount、pnl 用于盈利率/盈利金额统计）
         const { data: positionsData, error: positionsError } = await supabase
           .from('sim_positions' as any)
-          .select('ai_id, metadata')
+          .select('ai_id, metadata, stake_amount, pnl')
           .eq('status', 'settled')
           .not('settled_at', 'is', null)
           .gte('settled_at', startDateTime.toISOString())
@@ -651,6 +651,22 @@ const MobileLeaderboardOKX = () => {
             });
           });
         }
+
+        // 从 sim_positions 聚合每个 AI 的投注总额与盈亏（盈利率、盈利金额均基于表内数据）
+        const profitByAi = new Map<string, { totalStake: number; totalPnl: number }>();
+        if (positionsData && positionsData.length > 0) {
+          positionsData.forEach((position: any) => {
+            const aiId = String(position.ai_id);
+            const stake = Number(position.stake_amount) || 0;
+            const pnl = Number(position.pnl) ?? 0;
+            if (!profitByAi.has(aiId)) {
+              profitByAi.set(aiId, { totalStake: 0, totalPnl: 0 });
+            }
+            const agg = profitByAi.get(aiId)!;
+            agg.totalStake += stake;
+            agg.totalPnl += pnl;
+          });
+        }
         
         // 如果没有数据，尝试从总体视图获取（作为后备）
         if (winRatesMap.size === 0) {
@@ -681,11 +697,8 @@ const MobileLeaderboardOKX = () => {
         }
 
 
-        // 使用与 LeaderboardTable 完全相同的计算方式
-        const avgBetAmount = 200; // 默认平均投注金额（与 LeaderboardTable 保持一致）
-        const avgOdds = 1.8; // 默认平均赔率（与 LeaderboardTable 保持一致）
-        
-        // 转换为最终统计数据
+        // 盈利率与盈利金额：从 sim_positions 表聚合；盈利率 = 盈利金额 / 初始金额（与 LeaderboardTable 一致）
+        const INITIAL_BALANCE = 100000;
         const finalStatsMap = new Map<string, {
           winRate: number;
           totalPredictions: number;
@@ -697,24 +710,21 @@ const MobileLeaderboardOKX = () => {
         
         aiModels.forEach(model => {
           const winRateData = winRatesMap.get(model.id);
-          
-          // 使用真实数据，如果没有则使用默认值
           const totalPredictions = winRateData?.total_predictions ?? 0;
           const correctPredictions = winRateData?.correct_predictions ?? 0;
           const winRate = winRateData?.win_rate ?? 0;
           
-          // 使用与 LeaderboardTable 完全相同的计算方式
-          const totalBetAmount = totalPredictions * avgBetAmount;
-          const validAmount = correctPredictions * avgBetAmount * avgOdds;
-          const profitAmount = validAmount - totalBetAmount;
-          const profitRate = totalBetAmount > 0 ? (profitAmount / totalBetAmount) * 100 : 0;
+          const profitData = profitByAi.get(model.id);
+          const totalBetAmount = profitData?.totalStake ?? 0;
+          const profitAmount = profitData?.totalPnl ?? 0;
+          const profitRate = INITIAL_BALANCE > 0 ? (profitAmount / INITIAL_BALANCE) * 100 : 0;
           
           finalStatsMap.set(model.id, {
             winRate: Math.round(winRate * 10) / 10,
             totalPredictions,
             correctPredictions,
-            profitAmount: Math.round(profitAmount), // 与 LeaderboardTable 保持一致（单位相同）
-            changePercent: Math.round(profitRate * 10) / 10, // 盈利率
+            profitAmount: Math.round(profitAmount),
+            changePercent: profitRate, // 盈利率 = 盈利金额 / 初始金额（不取整）
             totalBetAmount: Math.round(totalBetAmount),
           });
         });
@@ -1543,7 +1553,7 @@ const MobileLeaderboardOKX = () => {
       return {
         ...model,
         winRate: Math.round(winRate * 10) / 10,
-        changePercent: Math.round(changePercent * 10) / 10,
+        changePercent,
         followers: Math.max(0, followers),
         likes: Math.max(0, likes),
         tradingDays: 30 + (seed % 60), // 保持稳定的交易天数
@@ -3565,7 +3575,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
                 : (t('profit_short') || '盈利率')}
             </span>
             <span className={`text-base font-bold tracking-tight ${isPositive ? 'text-success' : 'text-destructive'}`}>
-              {isPositive ? '+' : ''}{player.changePercent.toFixed(1)}%
+              {isPositive ? '+' : ''}{player.changePercent.toFixed(2)}%
             </span>
           </div>
           {/* Profit Amount - Same Line */}

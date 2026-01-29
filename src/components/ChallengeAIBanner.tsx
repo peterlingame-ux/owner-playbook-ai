@@ -299,20 +299,33 @@ const ChallengeAIBanner = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // 获取排名第一的AI模型数据（真实数据）
+  // 获取排名第一的AI模型数据（真实数据，盈利金额与排行榜一致：从 sim_positions 聚合）
   useEffect(() => {
     const fetchTopAIModel = async () => {
       try {
-        // 获取所有AI模型的胜率数据
-        const { data: winRatesData, error: winRatesError } = await supabase
-          .from('ai_win_rates_overall' as any)
-          .select('ai_id, total_predictions, correct_predictions, win_rate');
+        // 并行获取胜率（ai_win_rates_overall）与盈利（sim_positions 表聚合）
+        const [winRatesResult, positionsResult] = await Promise.all([
+          supabase
+            .from('ai_win_rates_overall' as any)
+            .select('ai_id, total_predictions, correct_predictions, win_rate'),
+          supabase
+            .from('sim_positions' as any)
+            .select('ai_id, stake_amount, pnl')
+            .eq('status', 'settled')
+            .not('settled_at', 'is', null),
+        ]);
+
+        const { data: winRatesData, error: winRatesError } = winRatesResult;
+        const { data: positionsData, error: positionsError } = positionsResult;
 
         if (winRatesError) {
           console.error('Error fetching AI win rates:', winRatesError);
         }
+        if (positionsError) {
+          console.error('Error fetching AI positions for profit:', positionsError);
+        }
 
-        // 创建数据映射
+        // 创建胜率映射
         const winRatesMap = new Map<string, { total_predictions: number; correct_predictions: number; win_rate: number }>();
         if (winRatesData) {
           winRatesData.forEach((item: any) => {
@@ -324,21 +337,23 @@ const ChallengeAIBanner = () => {
           });
         }
 
-        // 计算每个模型的数据并找到排名第一的（按胜率排序）
-        // 使用与 LeaderboardTable 完全相同的盈利计算方式
-        const avgBetAmount = 200; // 默认平均投注金额（与 LeaderboardTable 保持一致）
-        const avgOdds = 1.8; // 默认平均赔率（与 LeaderboardTable 保持一致）
+        // 从 sim_positions 聚合每个 AI 的盈利金额（与 LeaderboardTable 一致）
+        const profitByAi = new Map<string, number>();
+        if (positionsData && positionsData.length > 0) {
+          positionsData.forEach((position: any) => {
+            const aiId = String(position.ai_id);
+            const pnl = Number(position.pnl) ?? 0;
+            profitByAi.set(aiId, (profitByAi.get(aiId) ?? 0) + pnl);
+          });
+        }
+
+        // 计算每个模型的数据并找到排名第一的（按胜率排序），盈利金额使用 sim_positions 聚合结果
         const modelsWithData: AIModelData[] = aiModels.map(model => {
           const winRateData = winRatesMap.get(model.id);
-
           const totalPredictions = winRateData?.total_predictions ?? 0;
           const correctPredictions = winRateData?.correct_predictions ?? 0;
           const winRate = winRateData?.win_rate ?? 0;
-
-          // 使用与 LeaderboardTable 完全相同的计算方式
-          const totalBetAmount = totalPredictions * avgBetAmount;
-          const validAmount = correctPredictions * avgBetAmount * avgOdds;
-          const profitAmount = validAmount - totalBetAmount; // 与 LeaderboardTable 保持一致（单位相同）
+          const profitAmount = Math.round(profitByAi.get(model.id) ?? 0);
 
           return {
             id: model.id,
@@ -346,7 +361,7 @@ const ChallengeAIBanner = () => {
             totalPredictions,
             correctPredictions,
             winRate,
-            profitAmount // 与 LeaderboardTable 中的 profitAmount 单位一致
+            profitAmount
           };
         });
 

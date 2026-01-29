@@ -48,12 +48,12 @@ const generateRealisticPlayer = (
   const grossLoss = incorrectPredictions * avgBet;
   const rawProfit = Math.round(grossWin - grossLoss);
   
-  const initialBalance = 10000;
-  // 盈利不能低于-10000（即本金全亏），确保盈利率最低为-100%
+  const initialBalance = 100000;
+  // 盈利不能低于-初始金额（即本金全亏），确保盈利率最低为-100%
   const profit = Math.max(-initialBalance, rawProfit);
   const balance = Math.max(0, initialBalance + profit); // 最低余额为0
   // 盈利率基于初始本金，限制在 -100% 到 无上限
-  const changePercent = Math.round((profit / initialBalance) * 1000) / 10;
+  const changePercent = (profit / initialBalance) * 100;
   
   // 根据胜率计算合理的连胜/连败记录
   const bestStreak = Math.max(2, Math.round(winRate / 10 + Math.random() * 4));

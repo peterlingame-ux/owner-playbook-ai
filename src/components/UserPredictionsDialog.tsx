@@ -275,14 +275,14 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                         <Slider
                           value={[betAmount]}
                           onValueChange={(value) => setBetAmount(value[0])}
-                          max={userBalance?.balance || 10000}
+                          max={userBalance?.balance || 100000}
                           step={50}
                           className="mt-3 sm:mt-4"
                         />
                         <div className="flex justify-between mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-muted-foreground">
                           <span>0</span>
-                          <span>{((userBalance?.balance || 10000) / 2).toFixed(0)}</span>
-                          <span>{userBalance?.balance.toFixed(0) || 10000}</span>
+                          <span>{((userBalance?.balance || 100000) / 2).toFixed(0)}</span>
+                          <span>{userBalance?.balance.toFixed(0) || 100000}</span>
                         </div>
                         <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-primary/10 rounded-lg">
                           <p className="text-xs sm:text-sm">

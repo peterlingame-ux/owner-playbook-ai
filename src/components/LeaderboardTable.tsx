@@ -89,7 +89,7 @@ const modelPointsData: Record<string, number> = {
 
 // Animated Points Balance Component
 const AnimatedPointsBalance = ({ modelId }: { modelId: string }) => {
-  const basePoints = modelPointsData[modelId] || 10000;
+  const basePoints = modelPointsData[modelId] || 100000;
   
   const animatedValue = useCountAnimation(basePoints, {
     duration: 1500,
@@ -279,7 +279,7 @@ const LeaderboardTable = () => {
 
   // 从数据库获取真实AI模型统计数据
   useEffect(() => {
-    const INITIAL_BALANCE = 10000;
+    const INITIAL_BALANCE = 100000;
     
     const fetchAIStats = async (isRefresh = false) => {
       if (!isRefresh) {
@@ -320,11 +320,11 @@ const LeaderboardTable = () => {
         const endDateTime = new Date(endDate);
         endDateTime.setHours(23, 59, 59, 999);
         
-        // 并行获取胜率统计和余额数据
+        // 并行获取胜率统计、盈亏统计（stake_amount/pnl）和余额数据
         const [positionsResult, balancesResult] = await Promise.all([
           supabase
             .from('sim_positions' as any)
-            .select('ai_id, metadata')
+            .select('ai_id, metadata, stake_amount, pnl')
             .eq('status', 'settled')
             .not('settled_at', 'is', null)
             .gte('settled_at', startDateTime.toISOString())
@@ -382,6 +382,22 @@ const LeaderboardTable = () => {
               correct_predictions: stats.wins,
               win_rate: Math.round(winRate * 10) / 10
             });
+          });
+        }
+
+        // 从 sim_positions 聚合每个 AI 的投注总额与盈亏（盈利率、盈利金额均基于表内数据）
+        const profitByAi = new Map<string, { totalStake: number; totalPnl: number }>();
+        if (positionsData && positionsData.length > 0) {
+          positionsData.forEach((position: any) => {
+            const aiId = String(position.ai_id);
+            const stake = Number(position.stake_amount) || 0;
+            const pnl = Number(position.pnl) ?? 0;
+            if (!profitByAi.has(aiId)) {
+              profitByAi.set(aiId, { totalStake: 0, totalPnl: 0 });
+            }
+            const agg = profitByAi.get(aiId)!;
+            agg.totalStake += stake;
+            agg.totalPnl += pnl;
           });
         }
         
@@ -443,13 +459,12 @@ const LeaderboardTable = () => {
           const profit = totalBalance - INITIAL_BALANCE;
           const changePercent = INITIAL_BALANCE > 0 ? (profit / INITIAL_BALANCE) * 100 : 0;
 
-          // 计算投注和盈利数据（基于真实预测数据估算）
-          const avgBetAmount = 200; // 默认平均投注金额
-          const totalBetAmount = totalPredictions * avgBetAmount;
-          const avgOdds = 1.8; // 默认平均赔率
-          const validAmount = correctPredictions * avgBetAmount * avgOdds;
-          const profitAmount = validAmount - totalBetAmount;
-          const profitRate = totalBetAmount > 0 ? (profitAmount / totalBetAmount) * 100 : 0;
+          // 盈利率与盈利金额：从 sim_positions 表聚合（stake_amount、pnl）；盈利率 = 盈利金额 / 初始金额
+          const profitData = profitByAi.get(model.id);
+          const totalBetAmount = profitData?.totalStake ?? 0;
+          const profitAmount = profitData?.totalPnl ?? 0;
+          const validAmount = totalBetAmount + profitAmount;
+          const profitRate = INITIAL_BALANCE > 0 ? (profitAmount / INITIAL_BALANCE) * 100 : 0;
 
           return {
             ...model,
@@ -460,11 +475,11 @@ const LeaderboardTable = () => {
             change: profit >= 0 
               ? `+$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
               : `-$${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-            changePercent: Math.round(changePercent * 100) / 100,
+            changePercent,
             totalBetAmount,
             validAmount,
             profitAmount,
-            profitRate: Math.round(profitRate * 10) / 10,
+            profitRate,
             accuracy: Math.round(winRate * 10) / 10,
           };
         });
@@ -967,7 +982,7 @@ const LeaderboardTable = () => {
                       <div>
                         <p className="text-[8px] text-muted-foreground mb-0.5">盈利率</p>
                         <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.locked ? '?' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(0)}%`}
+                          {model.locked ? '?' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%`}
                         </p>
                       </div>
                     </div>
@@ -1162,7 +1177,7 @@ const LeaderboardTable = () => {
                       <div className="text-center">
                         <p className="text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
                         <p className={`text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-                          {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(1)}%`}
+                          {model.locked ? '???' : `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%`}
                         </p>
                       </div>
                       <div 

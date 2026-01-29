@@ -78,7 +78,7 @@ const PlayerDetail = () => {
       
       try {
         setIsLoading(true);
-        const INITIAL_BALANCE = 10000;
+        const INITIAL_BALANCE = 100000;
         
         // 并行查询：用户信息、预测记录和余额数据
         const [userResult, predictionsResult, balanceResult] = await Promise.all([
@@ -340,12 +340,12 @@ const PlayerDetail = () => {
     return prediction.profit;
   };
 
-  const INITIAL_BALANCE = 10000;
+  const INITIAL_BALANCE = 100000;
   
   // 使用 user_balances 表的余额数据
   const currentBalance = userBalance?.currentValue ?? INITIAL_BALANCE;
   const totalProfit = userBalance?.profit ?? 0;
-  const roi = userBalance?.changePercent ? userBalance.changePercent.toFixed(1) : "0.0";
+  const roi = userBalance?.changePercent != null ? userBalance.changePercent.toFixed(2) : "0.00";
   
   // 计算统计数据（使用未筛选的数据）
   const totalPredictions = playerPredictions.length;

@@ -33,7 +33,7 @@ const UserModelCard = () => {
   const { user, loading: authLoading, userProfile } = useAuth();
   const navigate = useNavigate();
 
-  const INITIAL_BALANCE = 10000;
+  const INITIAL_BALANCE = 100000;
   
   const [stats, setStats] = useState<UserStats>({
     totalPredictions: 0,

@@ -211,7 +211,7 @@ const MyPredictions = () => {
 
       try {
         setIsLoading(true);
-        const INITIAL_BALANCE = 10000;
+        const INITIAL_BALANCE = 100000;
 
         const { data: profileData } = await supabase
           .from('users')
@@ -457,8 +457,8 @@ const MyPredictions = () => {
         setUserBalance(balanceData.balance || 0);
         setAvailableBalance(balanceData.available_balance || balanceData.balance || 0);
       } else {
-        setUserBalance(10000);
-        setAvailableBalance(10000);
+        setUserBalance(100000);
+        setAvailableBalance(100000);
       }
       
       // 获取今日比赛（带 odds_info）
@@ -674,7 +674,7 @@ const MyPredictions = () => {
             .eq('user_id', user.id)
             .maybeSingle();
           
-          const INITIAL_BALANCE = 10000;
+          const INITIAL_BALANCE = 100000;
           const balance = balanceData?.balance ?? INITIAL_BALANCE;
           const profit = balance - INITIAL_BALANCE;
           const totalWagered = predictionsData.reduce((sum, p) => sum + (p.bet_amount || 0), 0);

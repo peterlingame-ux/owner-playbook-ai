@@ -177,7 +177,7 @@ const PlayerCopyTradingBoard = () => {
     predictionType: string;
     odds: string;
   } | null>(null);
-  const [userBalance, setUserBalance] = useState(10000);
+  const [userBalance, setUserBalance] = useState(100000);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
   const [isCopying, setIsCopying] = useState(false);
   const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
@@ -216,7 +216,7 @@ const PlayerCopyTradingBoard = () => {
     const fetchAllPlayers = async () => {
       try {
         setIsLoading(true);
-        const INITIAL_BALANCE = 10000;
+        const INITIAL_BALANCE = 100000;
         
         // 将虚拟玩家转换为 PlayerData 格式（只选择允许跟单的玩家）
         const virtualPlayersData: PlayerData[] = virtualPlayers
@@ -289,7 +289,7 @@ const PlayerCopyTradingBoard = () => {
           
           const balance = balancesMap.get(user.id) || INITIAL_BALANCE;
           const rawProfit = balance - INITIAL_BALANCE;
-          // 盈利不能低于-10000（本金全亏），确保盈利率最低为-100%
+          // 盈利不能低于-初始金额（本金全亏），确保盈利率最低为-100%
           const profit = Math.max(-INITIAL_BALANCE, rawProfit);
           const changePercent = Math.max(-100, (profit / INITIAL_BALANCE) * 100);
           
@@ -948,7 +948,7 @@ const PlayerCopyTradingBoard = () => {
             <div>
               <p className="text-[8px] text-muted-foreground mb-0.5">盈利率</p>
               <p className={`text-xs font-bold ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(0)}%
+                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
               </p>
             </div>
           </div>
@@ -1105,7 +1105,7 @@ const PlayerCopyTradingBoard = () => {
             <div className="text-center">
               <p className="text-xs text-muted-foreground mb-1">{t('profit_rate_label')}</p>
               <p className={`text-base font-bold font-mono-data ${profitRate >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
               </p>
             </div>
             <div 

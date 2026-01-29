@@ -462,10 +462,10 @@ const History = () => {
     return prediction.profit;
   };
 
-  const INITIAL_BALANCE = 10000;
+  const INITIAL_BALANCE = 100000;
   const totalProfit = filteredHistory.reduce((sum, p) => sum + calculateProfit(p), 0);
   const currentBalance = INITIAL_BALANCE + totalProfit;
-  const roi = totalPredictions > 0 ? ((totalProfit / INITIAL_BALANCE) * 100).toFixed(1) : "0.0";
+  const roi = totalPredictions > 0 ? ((totalProfit / INITIAL_BALANCE) * 100).toFixed(2) : "0.00";
 
   // 计算玩家统计数据
   const playerTotalPredictions = filteredPlayerHistory.length;
@@ -473,7 +473,7 @@ const History = () => {
   const playerWinRate = playerTotalPredictions > 0 ? ((playerCorrectPredictions / playerTotalPredictions) * 100).toFixed(1) : "0.0";
   const playerTotalProfit = filteredPlayerHistory.reduce((sum, p) => sum + calculateProfit(p), 0);
   const playerCurrentBalance = INITIAL_BALANCE + playerTotalProfit;
-  const playerRoi = playerTotalPredictions > 0 ? ((playerTotalProfit / INITIAL_BALANCE) * 100).toFixed(1) : "0.0";
+  const playerRoi = playerTotalPredictions > 0 ? ((playerTotalProfit / INITIAL_BALANCE) * 100).toFixed(2) : "0.00";
 
   // 获取选中的模型信息
   const selectedModel = filterModel !== "all" ? aiModels.find(m => m.id === filterModel) : null;

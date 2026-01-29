@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       // 如果没有记录，使用默认值
       setUserBalance({
-        balance: 10000,
+        balance: 100000,
         total_wagered: 0,
         total_won: 0,
         total_lost: 0,

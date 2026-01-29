@@ -92,7 +92,7 @@ const Index = () => {
   
   // 从数据库获取真实AI模型统计数据
   useEffect(() => {
-    const INITIAL_BALANCE = 10000;
+    const INITIAL_BALANCE = 100000;
     
     const fetchAIStats = async (isRefresh = false) => {
       if (!isRefresh) {

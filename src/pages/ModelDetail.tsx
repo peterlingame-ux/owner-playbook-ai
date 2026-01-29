@@ -122,7 +122,7 @@ const ModelDetail = () => {
         console.log(`[ModelDetail] Fetched ${positionsData?.length || 0} positions for model ${modelId}`);
 
         // 处理余额数据（与首页逻辑一致）
-        const INITIAL_BALANCE = 10000;
+        const INITIAL_BALANCE = 100000;
         if (!balanceError && balanceData) {
           const balance = balanceData as any;
           const totalBalance = (balance.available_balance || 0) + (balance.locked_balance || 0);
@@ -318,12 +318,12 @@ const ModelDetail = () => {
     return prediction.profit;
   };
 
-  const INITIAL_BALANCE = 10000;
+  const INITIAL_BALANCE = 100000;
   
   // 使用 ai_balances 表的余额数据（与首页一致）
   const currentBalance = aiBalance?.currentValue ?? INITIAL_BALANCE;
   const totalProfit = aiBalance?.profit ?? 0;
-  const roi = aiBalance?.changePercent ? aiBalance.changePercent.toFixed(1) : "0.0";
+  const roi = aiBalance?.changePercent != null ? aiBalance.changePercent.toFixed(2) : "0.00";
   
   // 计算筛选后的总盈利（用于表格显示）
   const filteredTotalProfit = filteredPredictions.reduce((sum, p) => sum + calculateProfit(p), 0);

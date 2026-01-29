@@ -2,7 +2,7 @@
 CREATE TABLE public.user_balances (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  balance DECIMAL NOT NULL DEFAULT 10000.00 CHECK (balance >= 0),
+  balance DECIMAL NOT NULL DEFAULT 100000.00 CHECK (balance >= 0),
   total_wagered DECIMAL NOT NULL DEFAULT 0.00,
   total_won DECIMAL NOT NULL DEFAULT 0.00,
   total_lost DECIMAL NOT NULL DEFAULT 0.00,
@@ -42,7 +42,7 @@ SET search_path = public
 AS $$
 BEGIN
   INSERT INTO public.user_balances (user_id, balance)
-  VALUES (NEW.id, 10000.00)
+  VALUES (NEW.id, 100000.00)
   ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
 END;
