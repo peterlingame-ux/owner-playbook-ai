@@ -617,8 +617,8 @@ const getTodayMatches = async () => {
     return true;
   });
 
-  // 限制最多10场比赛
-  const MAX_MATCHES = 10;
+  // 限制最多3场比赛
+  const MAX_MATCHES = 3;
   const selectedMatches = unanalyzedData.slice(0, MAX_MATCHES);
 
   if (unanalyzedData.length > MAX_MATCHES) {
@@ -1045,7 +1045,7 @@ const normalizeMatchesPayload = async (body: RequestBody): Promise<{ matches: Ma
       };
     }
 
-    // getTodayMatches 已经限制了最多10场比赛，这里直接使用
+    // getTodayMatches 已经限制了最多5场比赛，这里直接使用
     console.log(`[normalizeMatchesPayload] 处理 ${todayMatches.length} 场未开赛且未分析的比赛`);
 
     // 为每场比赛生成默认的 MatchRequest
@@ -3220,27 +3220,79 @@ serve(async (req) => {
 
         // 对每场比赛，选择置信度更高的投注（只比较大小球和让球盘，不考虑输赢）
         for (const matchAnalysis of matchAnalyses) {
-          const overUnderConfidence = matchAnalysis.overUnderBetInfo?.confidence ?? 0;
-          const handicapConfidence = matchAnalysis.handicapBetInfo?.confidence ?? 0;
+          // 如果 overUnderBetInfo 或 handicapBetInfo 为 null，尝试从 bet_snapshot 恢复
+          let overUnderBetInfo = matchAnalysis.overUnderBetInfo;
+          let handicapBetInfo = matchAnalysis.handicapBetInfo;
+          
+          // 如果两者都为 null，尝试从已保存的分析记录中恢复
+          if (!overUnderBetInfo && !handicapBetInfo && matchAnalysis.analysisRefs && matchAnalysis.analysisRefs.length > 0 && supabase) {
+            try {
+              const { data: existingData } = await supabase
+                .from(ANALYSIS_TABLE)
+                .select('bet_snapshot')
+                .eq('id', matchAnalysis.analysisRefs[0].id)
+                .single();
+              
+              if (existingData?.bet_snapshot) {
+                const betSnapshot = existingData.bet_snapshot as any;
+                
+                // 从 bet_snapshot 恢复 overUnderBetInfo
+                if (betSnapshot.overUnder && !overUnderBetInfo) {
+                  const ou = betSnapshot.overUnder;
+                  if (ou.confidence && ou.odds && ou.odds > 0 && isOddsInRange(ou.odds)) {
+                    overUnderBetInfo = {
+                      betType: 'over_under',
+                      prediction: ou.prediction,
+                      confidence: ou.confidence,
+                      odds: ou.odds,
+                      betAmount: 0,
+                      overUnderLine: ou.line,
+                      overUnderPick: ou.prediction.toLowerCase(),
+                    };
+                  }
+                }
+                
+                // 从 bet_snapshot 恢复 handicapBetInfo
+                if (betSnapshot.handicap && !handicapBetInfo) {
+                  const h = betSnapshot.handicap;
+                  if (h.confidence && h.odds && h.odds > 0 && isOddsInRange(h.odds)) {
+                    handicapBetInfo = {
+                      betType: 'handicap',
+                      prediction: h.prediction,
+                      confidence: h.confidence,
+                      odds: h.odds,
+                      betAmount: 0,
+                      handicapLine: h.line,
+                    };
+                  }
+                }
+              }
+            } catch (error) {
+              console.warn(`[${aiDisplayName}] 从 bet_snapshot 恢复投注信息失败:`, error);
+            }
+          }
+          
+          const overUnderConfidence = overUnderBetInfo?.confidence ?? 0;
+          const handicapConfidence = handicapBetInfo?.confidence ?? 0;
 
           // 选择置信度更高的投注
-          if (overUnderConfidence > handicapConfidence && overUnderConfidence >= (strategy.minConfidence ?? 60)) {
+          if (overUnderConfidence > handicapConfidence && overUnderConfidence >= (strategy.minConfidence ?? 60) && overUnderBetInfo) {
             allBetsToConsider.push({
               match: matchAnalysis.match,
-              betInfo: matchAnalysis.overUnderBetInfo!,
+              betInfo: overUnderBetInfo,
               analysisRefs: matchAnalysis.analysisRefs,
             });
-          } else if (handicapConfidence > overUnderConfidence && handicapConfidence >= (strategy.minConfidence ?? 60)) {
+          } else if (handicapConfidence > overUnderConfidence && handicapConfidence >= (strategy.minConfidence ?? 60) && handicapBetInfo) {
             allBetsToConsider.push({
               match: matchAnalysis.match,
-              betInfo: matchAnalysis.handicapBetInfo!,
+              betInfo: handicapBetInfo,
               analysisRefs: matchAnalysis.analysisRefs,
             });
-          } else if (overUnderConfidence === handicapConfidence && overUnderConfidence >= (strategy.minConfidence ?? 60)) {
+          } else if (overUnderConfidence === handicapConfidence && overUnderConfidence >= (strategy.minConfidence ?? 60) && overUnderBetInfo) {
             // 如果置信度相同，优先选择大小球
             allBetsToConsider.push({
               match: matchAnalysis.match,
-              betInfo: matchAnalysis.overUnderBetInfo!,
+              betInfo: overUnderBetInfo,
               analysisRefs: matchAnalysis.analysisRefs,
             });
           }
@@ -3249,27 +3301,79 @@ serve(async (req) => {
         // 如果没有符合条件的，选择置信度最高的投注（不限制最低置信度）
         if (allBetsToConsider.length === 0) {
           for (const matchAnalysis of matchAnalyses) {
-            const overUnderConfidence = matchAnalysis.overUnderBetInfo?.confidence ?? 0;
-            const handicapConfidence = matchAnalysis.handicapBetInfo?.confidence ?? 0;
+            // 如果 overUnderBetInfo 或 handicapBetInfo 为 null，尝试从 bet_snapshot 恢复
+            let overUnderBetInfo = matchAnalysis.overUnderBetInfo;
+            let handicapBetInfo = matchAnalysis.handicapBetInfo;
+            
+            // 如果两者都为 null，尝试从已保存的分析记录中恢复
+            if (!overUnderBetInfo && !handicapBetInfo && matchAnalysis.analysisRefs && matchAnalysis.analysisRefs.length > 0 && supabase) {
+              try {
+                const { data: existingData } = await supabase
+                  .from(ANALYSIS_TABLE)
+                  .select('bet_snapshot')
+                  .eq('id', matchAnalysis.analysisRefs[0].id)
+                  .single();
+                
+                if (existingData?.bet_snapshot) {
+                  const betSnapshot = existingData.bet_snapshot as any;
+                  
+                  // 从 bet_snapshot 恢复 overUnderBetInfo
+                  if (betSnapshot.overUnder && !overUnderBetInfo) {
+                    const ou = betSnapshot.overUnder;
+                    if (ou.confidence && ou.odds && ou.odds > 0 && isOddsInRange(ou.odds)) {
+                      overUnderBetInfo = {
+                        betType: 'over_under',
+                        prediction: ou.prediction,
+                        confidence: ou.confidence,
+                        odds: ou.odds,
+                        betAmount: 0,
+                        overUnderLine: ou.line,
+                        overUnderPick: ou.prediction.toLowerCase(),
+                      };
+                    }
+                  }
+                  
+                  // 从 bet_snapshot 恢复 handicapBetInfo
+                  if (betSnapshot.handicap && !handicapBetInfo) {
+                    const h = betSnapshot.handicap;
+                    if (h.confidence && h.odds && h.odds > 0 && isOddsInRange(h.odds)) {
+                      handicapBetInfo = {
+                        betType: 'handicap',
+                        prediction: h.prediction,
+                        confidence: h.confidence,
+                        odds: h.odds,
+                        betAmount: 0,
+                        handicapLine: h.line,
+                      };
+                    }
+                  }
+                }
+              } catch (error) {
+                console.warn(`[${aiDisplayName}] 从 bet_snapshot 恢复投注信息失败:`, error);
+              }
+            }
+            
+            const overUnderConfidence = overUnderBetInfo?.confidence ?? 0;
+            const handicapConfidence = handicapBetInfo?.confidence ?? 0;
 
             // 选择置信度更高的投注
-            if (overUnderConfidence > handicapConfidence && overUnderConfidence > 0) {
+            if (overUnderConfidence > handicapConfidence && overUnderConfidence > 0 && overUnderBetInfo) {
               allBetsToConsider.push({
                 match: matchAnalysis.match,
-                betInfo: matchAnalysis.overUnderBetInfo!,
+                betInfo: overUnderBetInfo,
                 analysisRefs: matchAnalysis.analysisRefs,
               });
-            } else if (handicapConfidence > overUnderConfidence && handicapConfidence > 0) {
+            } else if (handicapConfidence > overUnderConfidence && handicapConfidence > 0 && handicapBetInfo) {
               allBetsToConsider.push({
                 match: matchAnalysis.match,
-                betInfo: matchAnalysis.handicapBetInfo!,
+                betInfo: handicapBetInfo,
                 analysisRefs: matchAnalysis.analysisRefs,
               });
-            } else if (overUnderConfidence === handicapConfidence && overUnderConfidence > 0) {
+            } else if (overUnderConfidence === handicapConfidence && overUnderConfidence > 0 && overUnderBetInfo) {
               // 如果置信度相同，优先选择大小球
               allBetsToConsider.push({
                 match: matchAnalysis.match,
-                betInfo: matchAnalysis.overUnderBetInfo!,
+                betInfo: overUnderBetInfo,
                 analysisRefs: matchAnalysis.analysisRefs,
               });
             }
