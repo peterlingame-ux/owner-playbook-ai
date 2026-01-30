@@ -155,30 +155,49 @@ const parseHandicapLine = (handicapLine: number | string | null): number[] => {
 };
 
 // 计算单个让球盘的结果
+// handicapLine < 0：主队让球，比较 (主队+让球数) vs 客队
+// handicapLine > 0：客队让球，比较 主队 vs (客队+让球数)
 const calculateSingleHandicapResult = (
   homeScore: number,
   awayScore: number,
   handicapLine: number,
   isHomeBet: boolean,
 ): "win" | "loss" | "push" => {
-  if (isHomeBet) {
-    // 主队让球：主队得分 + 让球数 vs 客队得分
+  if (handicapLine < 0) {
+    // 主队让球：主队得分 + 让球数（负数） vs 客队得分，即 (主 - |line|) vs 客
     const adjustedHomeScore = homeScore + handicapLine;
-    if (adjustedHomeScore > awayScore) {
-      return "win";
-    } else if (adjustedHomeScore < awayScore) {
-      return "loss";
+    if (isHomeBet) {
+      if (adjustedHomeScore > awayScore) return "win";
+      if (adjustedHomeScore < awayScore) return "loss";
+      return "push";
     } else {
+      // 投注客队：客队赢当 客 > (主+line)
+      if (awayScore > adjustedHomeScore) return "win";
+      if (awayScore < adjustedHomeScore) return "loss";
+      return "push";
+    }
+  } else if (handicapLine > 0) {
+    // 客队让球：主队得分 vs 客队得分 + 让球数，即 主 vs (客 + line)
+    const adjustedAwayScore = awayScore + handicapLine;
+    if (isHomeBet) {
+      // 投注主队：主队赢当 主 > (客+line)
+      if (homeScore > adjustedAwayScore) return "win";
+      if (homeScore < adjustedAwayScore) return "loss";
+      return "push";
+    } else {
+      if (adjustedAwayScore > homeScore) return "win";
+      if (adjustedAwayScore < homeScore) return "loss";
       return "push";
     }
   } else {
-    // 客队让球：客队得分 + 让球数 vs 主队得分
-    const adjustedAwayScore = awayScore + handicapLine;
-    if (adjustedAwayScore > homeScore) {
-      return "win";
-    } else if (adjustedAwayScore < homeScore) {
-      return "loss";
+    // handicapLine === 0：平手盘，直接比比分
+    if (isHomeBet) {
+      if (homeScore > awayScore) return "win";
+      if (homeScore < awayScore) return "loss";
+      return "push";
     } else {
+      if (awayScore > homeScore) return "win";
+      if (awayScore < homeScore) return "loss";
       return "push";
     }
   }

@@ -356,22 +356,29 @@ const ModelDetail = () => {
       case "moneyline": 
         return t('bet_type_moneyline') || 'Moneyline';
       case "handicap": 
-        // 显示让球线和让球方
+        // 显示让球线和让球方（盘口以主队为基准：主队 +line，客队 -line）
         if (prediction.handicapLine !== undefined) {
-          const lineStr = `${prediction.handicapLine > 0 ? '+' : ''}${prediction.handicapLine}`;
-          // 根据 prediction 判断是哪个球队让球
+          const rawLine = typeof prediction.handicapLine === 'string'
+            ? parseFloat(prediction.handicapLine as string)
+            : Number(prediction.handicapLine);
           const predStr = prediction.prediction as string;
+          const isAway = predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY');
+          const displayLine = isAway ? -rawLine : rawLine;
+          const lineStr = `${displayLine > 0 ? '+' : ''}${displayLine}`;
           if (predStr === 'HOME' || predStr === 'HOME_WIN' || predStr.includes('HOME')) {
             const teamName = match ? getTeamName(match, 'home') : t('home') || 'Home';
             return `${teamName} ${lineStr}`;
-          } else if (predStr === 'AWAY' || predStr === 'AWAY_WIN' || predStr.includes('AWAY')) {
+          } else if (isAway) {
             const teamName = match ? getTeamName(match, 'away') : t('away') || 'Away';
             return `${teamName} ${lineStr}`;
           } else {
-            if (prediction.handicapLine < 0 && match) {
-              return `${getTeamName(match, 'home')} ${lineStr}`;
-            } else if (prediction.handicapLine > 0 && match) {
-              return `${getTeamName(match, 'away')} ${lineStr}`;
+            if (!isNaN(rawLine) && rawLine < 0 && match) {
+              const homeLineStr = `${rawLine > 0 ? '+' : ''}${rawLine}`;
+              return `${getTeamName(match, 'home')} ${homeLineStr}`;
+            } else if (!isNaN(rawLine) && rawLine > 0 && match) {
+              const awayLine = -rawLine;
+              const awayLineStr = `${awayLine > 0 ? '+' : ''}${awayLine}`;
+              return `${getTeamName(match, 'away')} ${awayLineStr}`;
             }
             return lineStr;
           }
