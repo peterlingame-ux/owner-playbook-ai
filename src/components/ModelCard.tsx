@@ -96,7 +96,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
           .insert({ user_id: user!.id, model_id: model.id });
         if (error) throw error;
         setIsFollowing(true);
-        toast.success(t('follow_success'));
+        toast.success(t('follow_success', { name: (model.displayName || model.name).split(' ')[0] }));
       }
     } catch (error) {
       console.error('Follow toggle error:', error);

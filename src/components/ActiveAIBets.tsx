@@ -809,11 +809,13 @@ const ActiveAIBets = () => {
         // 包含昨天和今天的投注（因为要显示昨天和今天的比赛）
         // 显示 pending、confirmed 和 open 状态的投注（已确定但比赛未完成的投注）
         // 注意：ai_auto_bets 表使用 inserted_at 字段（不是 created_at）
+        // 使用 yesterday 00:00 UTC+8 作为下限，确保凌晨（UTC+8）插入的投注被包含
+        const yesterdayStartISO = new Date(`${yesterdayStr}T00:00:00+08:00`).toISOString();
         const { data: betsData, error: betsError } = await supabase
           .from('ai_auto_bets' as any)
           .select('*')
           .in('status', ['pending', 'confirmed', 'open'])
-          .gte('inserted_at', `${yesterdayStr}T00:00:00Z`)
+          .gte('inserted_at', yesterdayStartISO)
           .order('inserted_at', { ascending: false });
 
         if (betsError) {

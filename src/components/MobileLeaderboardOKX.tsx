@@ -2455,7 +2455,8 @@ const MobileLeaderboardOKX = () => {
               className="flex-1"
               onClick={() => {
                 if (playerToFollow) {
-                  toast.success(t('follow_success', { name: playerToFollow.displayName }) || `已关注 ${playerToFollow.displayName}`);
+                  const displayName = playerToFollow.displayName || t('prediction_player') || '该玩家';
+                  toast.success(t('follow_success', { name: displayName }) || `已关注 ${displayName}`);
                 }
                 setShowFollowPlayerDialog(false);
                 setPlayerToFollow(null);

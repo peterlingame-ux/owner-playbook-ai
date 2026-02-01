@@ -177,8 +177,8 @@ const calculateSingleHandicapResult = (
       return "push";
     }
   } else if (handicapLine > 0) {
-    // 客队让球：主队得分 vs 客队得分 + 让球数，即 主 vs (客 + line)
-    const adjustedAwayScore = awayScore + handicapLine;
+    // 客队让球：主队得分 vs 客队得分 减去 让球数，即 主 vs (客 - line)
+    const adjustedAwayScore = awayScore - handicapLine;
     if (isHomeBet) {
       // 投注主队：主队赢当 主 > (客+line)
       if (homeScore > adjustedAwayScore) return "win";
