@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+  <rect width="900" height="600" fill="#DE2910"/>
+  <g fill="#fff" stroke="#fff">
+    <!-- Simplified bauhinia flower - 5 petals -->
+    <ellipse cx="450" cy="220" rx="80" ry="120" transform="rotate(-36 450 300)"/>
+    <ellipse cx="450" cy="220" rx="80" ry="120" transform="rotate(36 450 300)"/>
+    <ellipse cx="450" cy="220" rx="80" ry="120" transform="rotate(108 450 300)"/>
+    <ellipse cx="450" cy="220" rx="80" ry="120" transform="rotate(180 450 300)"/>
+    <ellipse cx="450" cy="220" rx="80" ry="120" transform="rotate(252 450 300)"/>
+    <circle cx="450" cy="300" r="40" fill="#DE2910"/>
+  </g>
+</svg>

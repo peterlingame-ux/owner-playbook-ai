@@ -22,10 +22,12 @@ import flagRussia from "@/assets/flag-russia.png";
 import flagIndia from "@/assets/flag-india.png";
 import flagItaly from "@/assets/flag-italy.png";
 import flagThailand from "@/assets/flag-thailand.png";
+import flagHongKong from "@/assets/flag-hong-kong.svg";
 
 const languages = [
   { code: 'en', label: 'EN', flag: flagUsa, alt: 'USA Flag' },
-  { code: 'zh', label: '中文', flag: flagChina, alt: 'China Flag' },
+  { code: 'zh', label: '简体', flag: flagChina, alt: 'China Flag' },
+  { code: 'zh-HK', label: '繁體', flag: flagHongKong, alt: 'Hong Kong Flag' },
   { code: 'ko', label: '한국어', flag: flagKorea, alt: 'Korea Flag' },
   { code: 'es', label: 'ES', flag: flagSpain, alt: 'Spain Flag' },
   { code: 'fr', label: 'FR', flag: flagFrance, alt: 'France Flag' },

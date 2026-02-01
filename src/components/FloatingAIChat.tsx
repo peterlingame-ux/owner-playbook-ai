@@ -101,7 +101,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
   });
 
   const content = message.role === "assistant" && message.isTyping ? displayedText : message.content;
-  const locale = i18n.language === "zh" ? "zh-CN" : "en-US";
+  const locale = i18n.language.startsWith("zh") ? (i18n.language === "zh-HK" ? "zh-HK" : "zh-CN") : "en-US";
 
   return (
     <div

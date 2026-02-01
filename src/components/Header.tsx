@@ -69,7 +69,7 @@ const Header = () => {
     // 显示成功提示并跳转
     toast({
       title: t('auth.logout') || "登出",
-      description: i18n.language === 'zh' ? "已成功登出" : "Signed out successfully",
+      description: i18n.language.startsWith('zh') ? "已成功登出" : "Signed out successfully",
     });
     navigate("/");
   };

@@ -1372,7 +1372,7 @@ const ActiveAIBets = () => {
     }
     
     // If Chinese language, try to get translation from i18n
-    if (i18n.language === 'zh') {
+    if (i18n.language.startsWith('zh')) {
       const translatedName = t(`teams.${originalName}`, originalName);
       // If translation key exists in resources, it will return the translated value
       // Otherwise, it returns the original name as fallback
@@ -1393,7 +1393,7 @@ const ActiveAIBets = () => {
     }
     
     // If Chinese language, try to get translation from i18n
-    if (i18n.language === 'zh') {
+    if (i18n.language.startsWith('zh')) {
       const translatedName = t(`leagues.${originalName}`, originalName);
       // If translation key exists in resources, it will return the translated value
       // Otherwise, it returns the original name as fallback

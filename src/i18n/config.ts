@@ -2,8 +2,26 @@ import i18n from 'i18next';
 
 // Added win_rate_percent translation key
 import { initReactI18next } from 'react-i18next';
+import { Converter } from 'opencc-js/cn2t';
 import { teamsZh } from './teams-zh';
 import { leaguesZh } from './leagues-zh';
+
+// 簡體轉香港繁體的轉換器 (Simplified to Hong Kong Traditional Chinese)
+const s2t = Converter({ from: 'cn', to: 'hk' });
+
+function convertToTraditional<T>(obj: T): T {
+  if (typeof obj === 'string') {
+    return s2t(obj) as T;
+  }
+  if (obj !== null && typeof obj === 'object' && !Array.isArray(obj)) {
+    const result = {} as Record<string, unknown>;
+    for (const [key, value] of Object.entries(obj)) {
+      result[key] = convertToTraditional(value);
+    }
+    return result as T;
+  }
+  return obj;
+}
 import { es } from './locales/es';
 import { fr } from './locales/fr';
 import { de } from './locales/de';
@@ -2624,6 +2642,11 @@ const resources = {
   th: th
 };
 
+// 香港繁體 (zh-HK): 從簡體中文自動轉換為繁體中文
+(resources as Record<string, { translation: Record<string, unknown> }>)['zh-HK'] = {
+  translation: convertToTraditional((resources as { zh: { translation: Record<string, unknown> } }).zh.translation)
+};
+
 // Import teams and leagues translations
 // Teams translations will be loaded dynamically or from a separate file
 // Leagues translations will be loaded dynamically or from a separate file
@@ -2636,7 +2659,7 @@ i18n
     resources,
     lng: savedLanguage,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'zh', 'ko', 'es', 'fr', 'de', 'pt', 'ja', 'ar', 'ru', 'hi', 'it', 'th'],
+    supportedLngs: ['en', 'zh', 'zh-HK', 'ko', 'es', 'fr', 'de', 'pt', 'ja', 'ar', 'ru', 'hi', 'it', 'th'],
     interpolation: {
       escapeValue: false
     }

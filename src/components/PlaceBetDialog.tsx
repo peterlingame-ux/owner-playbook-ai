@@ -155,7 +155,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   
   // 获取中文球队名
   const getTeamNameZh = (teamName: string): string => {
-    if (i18n.language === 'zh') {
+    if (i18n.language.startsWith('zh')) {
       return teamsZh[teamName] || teamName;
     }
     return teamName;
@@ -163,7 +163,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   
   // 获取中文联赛名
   const getLeagueNameZh = (leagueName: string): string => {
-    if (i18n.language === 'zh') {
+    if (i18n.language.startsWith('zh')) {
       return leaguesZh[leagueName] || leagueName;
     }
     return leagueName;
@@ -544,7 +544,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <span className="text-xs sm:text-sm font-medium">{t('challenge_ai')}</span>
                   <span className="text-[9px] sm:text-[10px] text-muted-foreground px-1 sm:px-1.5 py-0.5 bg-muted rounded">
-                    {format(new Date(), i18n.language === 'zh' ? 'MM月dd日' : 'MMM dd')}
+                    {format(new Date(), i18n.language.startsWith('zh') ? 'MM月dd日' : 'MMM dd')}
                   </span>
                 </div>
                 {isDemo && (

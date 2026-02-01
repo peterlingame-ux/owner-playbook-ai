@@ -360,7 +360,7 @@ const PlayerDetail = () => {
     if (!originalName) return '';
     
     // If Chinese language, try to get translation from i18n
-    if (i18n.language === 'zh') {
+    if (i18n.language.startsWith('zh')) {
       const translatedName = t(`teams.${originalName}`, originalName);
       return translatedName;
     }

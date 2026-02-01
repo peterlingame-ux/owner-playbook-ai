@@ -67,7 +67,7 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
             <Input
-              placeholder={i18n.language === "ko" ? "국가 검색..." : i18n.language === "zh" ? "搜索国家..." : "Search country..."}
+              placeholder={i18n.language === "ko" ? "국가 검색..." : i18n.language === "zh-HK" ? "搜尋國家..." : i18n.language === "zh" ? "搜索国家..." : "Search country..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8 h-9 bg-white/5 border-white/10 text-white text-base placeholder:text-white/40"
@@ -96,7 +96,7 @@ const CountryCodeSelect = ({ value, onChange }: CountryCodeSelectProps) => {
             ))}
             {filteredCountries.length === 0 && (
               <div className="py-6 text-center text-white/50 text-sm">
-                {i18n.language === "ko" ? "결과 없음" : i18n.language === "zh" ? "无结果" : "No results"}
+                {i18n.language === "ko" ? "결과 없음" : i18n.language === "zh-HK" ? "無結果" : i18n.language === "zh" ? "无结果" : "No results"}
               </div>
             )}
           </div>

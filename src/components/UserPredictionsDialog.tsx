@@ -180,7 +180,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                           <div className="flex items-center gap-2 sm:gap-4">
                             <div className="text-right flex-1 min-w-0">
                               <p className="font-medium text-xs sm:text-base truncate">
-                                {i18n.language === 'zh' ? match.homeTeamZh || match.homeTeam : match.homeTeam}
+                                {i18n.language.startsWith('zh') ? match.homeTeamZh || match.homeTeam : match.homeTeam}
                               </p>
                             </div>
                             <div className="text-center px-2 sm:px-4 shrink-0">
@@ -188,7 +188,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                             </div>
                             <div className="text-left flex-1 min-w-0">
                               <p className="font-medium text-xs sm:text-base truncate">
-                                {i18n.language === 'zh' ? match.awayTeamZh || match.awayTeam : match.awayTeam}
+                                {i18n.language.startsWith('zh') ? match.awayTeamZh || match.awayTeam : match.awayTeam}
                               </p>
                             </div>
                           </div>
@@ -227,7 +227,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                             <div className="flex items-center space-x-2 mb-2">
                               <RadioGroupItem value="HOME_COVER" id="home_cover" />
                               <Label htmlFor="home_cover" className="text-xs sm:text-base">
-                                {i18n.language === 'zh' 
+                                {i18n.language.startsWith('zh') 
                                   ? selectedMatch.homeTeamZh || selectedMatch.homeTeam 
                                   : selectedMatch.homeTeam} {t("让分成功")}
                               </Label>
@@ -235,7 +235,7 @@ export const UserPredictionsDialog = ({ open, onOpenChange, userId }: UserPredic
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="AWAY_COVER" id="away_cover" />
                               <Label htmlFor="away_cover" className="text-xs sm:text-base">
-                                {i18n.language === 'zh' 
+                                {i18n.language.startsWith('zh') 
                                   ? selectedMatch.awayTeamZh || selectedMatch.awayTeam 
                                   : selectedMatch.awayTeam} {t("让分成功")}
                               </Label>
