@@ -26,6 +26,7 @@ import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getUTC8Range, getUTC8DateString, getUTC8RangeLabel } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { AIModel } from "@/types/prediction";
@@ -287,39 +288,10 @@ const LeaderboardTable = () => {
       }
       
       try {
-        // 根据时间范围计算日期范围
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        let startDate: Date;
-        let endDate: Date;
-        
-        if (timeRange === 1) {
-          // 日：获取今天的数据
-          startDate = new Date(today);
-          endDate = new Date(today);
-        } else if (timeRange === 7) {
-          // 周：获取当前周的数据（周一到周日）
-          // 获取本周一的日期
-          const dayOfWeek = now.getDay(); // 0 = 周日, 1 = 周一, ..., 6 = 周六
-          const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 如果是周日，往前推6天；否则往前推 dayOfWeek - 1 天
-          startDate = new Date(today);
-          startDate.setDate(startDate.getDate() - daysToMonday);
-          
-          // 获取本周日的日期
-          endDate = new Date(startDate);
-          endDate.setDate(endDate.getDate() + 6); // 周一 + 6天 = 周日
-        } else {
-          // 月：获取当前月份的数据（1号到最后一天）
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1); // 当前月份的第一天
-          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // 当前月份的最后一天
-        }
-        
-        // 设置时间范围的开始和结束时间
-        const startDateTime = new Date(startDate);
-        startDateTime.setHours(0, 0, 0, 0);
-        const endDateTime = new Date(endDate);
-        endDateTime.setHours(23, 59, 59, 999);
-        
+        // 按 UTC+8 的日/周/月计算时间范围，再转为 UTC 查询 settled_at
+        const rangeMode = timeRange === 1 ? "day" : timeRange === 7 ? "week" : "month";
+        const { start: startDateTime, end: endDateTime } = getUTC8Range(rangeMode);
+
         // 并行获取胜率统计、盈亏统计（stake_amount/pnl）和余额数据
         const [positionsResult, balancesResult] = await Promise.all([
           supabase
@@ -513,11 +485,10 @@ const LeaderboardTable = () => {
   useEffect(() => {
     const fetchTodayWinRates = async () => {
       try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayStr = today.toISOString().split('T')[0];
+        // 使用 UTC+8 的「今天」日期（与排行榜日/周/月一致）
+        const todayStr = getUTC8DateString();
 
-        // 从 ai_win_rates_daily 视图获取今日数据
+        // 从 ai_win_rates_daily 视图获取今日数据（settlement_date 按 UTC+8 日）
         const { data: dailyData, error } = await supabase
           .from('ai_win_rates_daily' as any)
           .select('ai_id, total_bets, wins, win_rate')
@@ -799,38 +770,43 @@ const LeaderboardTable = () => {
         <CardHeader className="px-3 sm:px-4 py-3 sm:py-4 border-b border-border/30 bg-muted/20">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg sm:text-xl font-semibold text-foreground">{t('all_models')}</CardTitle>
-            {/* Time Range Filter - 时间筛选按钮 */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <button
-                onClick={() => setTimeRange(1)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
-                  timeRange === 1
-                    ? 'bg-foreground text-background' 
-                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
-                }`}
-              >
-                日
-              </button>
-              <button
-                onClick={() => setTimeRange(7)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
-                  timeRange === 7
-                    ? 'bg-foreground text-background' 
-                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
-                }`}
-              >
-                周
-              </button>
-              <button
-                onClick={() => setTimeRange(30)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
-                  timeRange === 30
-                    ? 'bg-foreground text-background' 
-                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
-                }`}
-              >
-                月
-              </button>
+            {/* Time Range Filter - 时间筛选按钮（UTC+8 日/周/月） */}
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <button
+                  onClick={() => setTimeRange(1)}
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 1
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  日
+                </button>
+                <button
+                  onClick={() => setTimeRange(7)}
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 7
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  周
+                </button>
+                <button
+                  onClick={() => setTimeRange(30)}
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
+                    timeRange === 30
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  月
+                </button>
+              </div>
+              <span className="text-[10px] text-muted-foreground" title="按北京时间（UTC+8）统计">
+                统计范围：{getUTC8RangeLabel(timeRange === 1 ? "day" : timeRange === 7 ? "week" : "month")}
+              </span>
             </div>
           </div>
         </CardHeader>
@@ -997,7 +973,8 @@ const LeaderboardTable = () => {
                         <button 
                           onClick={() => {
                             if (!user) {
-                              toast.warning(t('login_required') || '需要登录', {
+                              toast({
+                                title: t('login_required') || '需要登录',
                                 description: t('login_prompt') || '请登录后查看历史预测'
                               });
                               navigate('/auth');
@@ -1083,7 +1060,8 @@ const LeaderboardTable = () => {
                         <button 
                           onClick={() => {
                             if (!user) {
-                              toast.warning(t('login_required') || '需要登录', {
+                              toast({
+                                title: t('login_required') || '需要登录',
                                 description: t('login_prompt') || '请登录后查看历史预测'
                               });
                               navigate('/auth');

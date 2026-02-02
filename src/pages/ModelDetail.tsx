@@ -428,7 +428,7 @@ const ModelDetail = () => {
           className="mb-4 sm:mb-6 text-xs sm:text-sm h-8 sm:h-10"
         >
           <ArrowLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-          {t('back_to_models')}
+          {t('back_to_models') || '返回模型列表'}
         </Button>
 
         {/* 模型信息头部 - 带背景 */}
@@ -554,7 +554,7 @@ const ModelDetail = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[70px] sm:w-[100px] text-[10px] sm:text-xs px-2">{t('date')}</TableHead>
-                  <TableHead className="text-[10px] sm:text-xs px-2">{t('match')}</TableHead>
+                  <TableHead className="text-[10px] sm:text-xs px-2">{t('match') || '比赛'}</TableHead>
                   <TableHead className="hidden md:table-cell text-[10px] sm:text-xs px-2">{t('ai_prediction') || 'AI预测'}</TableHead>
                   <TableHead className="hidden sm:table-cell text-[10px] sm:text-xs px-2">{t('bet_type')}</TableHead>
                   <TableHead className="text-right text-[10px] sm:text-xs px-2">{t('odds')}</TableHead>
@@ -572,8 +572,9 @@ const ModelDetail = () => {
                   </TableRow>
                 ) : filteredPredictions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-xs sm:text-sm text-muted-foreground">
-                      {t('no_predictions')}
+                    <TableCell colSpan={8} className="text-center py-8 sm:py-12">
+                      <p className="text-sm text-muted-foreground">{t('no_predictions') || '暂无预测记录'}</p>
+                      <p className="text-xs text-muted-foreground/80 mt-1">{t('no_predictions_hint') || '该模型暂无已结算的预测，完成比赛后将显示在此'}</p>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -594,45 +595,45 @@ const ModelDetail = () => {
                         </TableCell>
                         <TableCell className="px-2 py-2">
                           {match ? (
-                            <div className="flex items-center gap-1.5 sm:gap-2">
-                              {match.homeLogo && (
-                                <img 
-                                  src={match.homeLogo} 
-                                  alt={getTeamName(match, 'home')}
-                                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="text-[11px] sm:text-sm font-medium truncate">
-                                  {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
+                            <>
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                                  {match.homeLogo && (
+                                    <img
+                                      src={match.homeLogo}
+                                      alt={getTeamName(match, 'home')}
+                                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    />
+                                  )}
+                                  <span className="text-[11px] sm:text-sm font-medium truncate">{getTeamName(match, 'home')}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                                <div className="flex flex-col items-center gap-0.5 shrink-0">
+                                  <span className="text-[10px] sm:text-xs text-muted-foreground">vs</span>
                                   {match.homeScore !== undefined && match.awayScore !== undefined && (
-                                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                    <span className="text-[10px] sm:text-xs font-mono text-muted-foreground">
                                       {match.homeScore} - {match.awayScore}
                                     </span>
                                   )}
-                                  {match.league && (
-                                    <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                                      • {match.league}
-                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 justify-end">
+                                  <span className="text-[11px] sm:text-sm font-medium truncate">{getTeamName(match, 'away')}</span>
+                                  {match.awayLogo && (
+                                    <img
+                                      src={match.awayLogo}
+                                      alt={getTeamName(match, 'away')}
+                                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    />
                                   )}
                                 </div>
                               </div>
-                              {match.awayLogo && (
-                                <img 
-                                  src={match.awayLogo} 
-                                  alt={getTeamName(match, 'away')}
-                                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
+                              {match.league && (
+                                <div className="text-[10px] sm:text-xs text-muted-foreground truncate mt-0.5 pl-0.5">
+                                  • {match.league}
+                                </div>
                               )}
-                            </div>
+                            </>
                           ) : (
                             <div className="text-[11px] sm:text-sm text-muted-foreground">
                               Match ID: {prediction.matchId || 'N/A'}
@@ -690,8 +691,9 @@ const ModelDetail = () => {
                 {t('loading') || '加载中...'}
               </div>
             ) : filteredPredictions.length === 0 ? (
-              <div className="text-center py-6 text-xs text-muted-foreground">
-                {t('no_predictions')}
+              <div className="text-center py-8 px-4">
+                <p className="text-sm text-muted-foreground">{t('no_predictions') || '暂无预测记录'}</p>
+                <p className="text-xs text-muted-foreground/80 mt-1">{t('no_predictions_hint') || '该模型暂无已结算的预测'}</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
@@ -721,38 +723,38 @@ const ModelDetail = () => {
                         )}
                       </div>
                       
-                      {/* 第二行：比赛信息 */}
+                      {/* 第二行：比赛信息 主队[图标+名字] vs 比分 客队[名字+图标] */}
                       {match ? (
                         <>
-                          <div className="flex items-center gap-1.5 mb-1">
-                            {match.homeLogo && (
-                              <img 
-                                src={match.homeLogo} 
-                                alt={getTeamName(match, 'home')}
-                                className="w-4 h-4 object-contain shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            )}
-                            <span className="text-[11px] font-medium truncate flex-1">
-                              {getTeamName(match, 'home')} vs {getTeamName(match, 'away')}
-                            </span>
-                            {match.awayLogo && (
-                              <img 
-                                src={match.awayLogo} 
-                                alt={getTeamName(match, 'away')}
-                                className="w-4 h-4 object-contain shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            )}
-                            {match.homeScore !== undefined && match.awayScore !== undefined && (
-                              <span className="text-[10px] font-semibold ml-1">
-                                {match.homeScore}-{match.awayScore}
-                              </span>
-                            )}
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              {match.homeLogo && (
+                                <img
+                                  src={match.homeLogo}
+                                  alt={getTeamName(match, 'home')}
+                                  className="w-4 h-4 object-contain shrink-0"
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              )}
+                              <span className="text-[11px] font-medium truncate">{getTeamName(match, 'home')}</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center shrink-0 px-1">
+                              <span className="text-[9px] text-muted-foreground">vs</span>
+                              {match.homeScore !== undefined && match.awayScore !== undefined && (
+                                <span className="text-[10px] font-mono font-semibold">{match.homeScore}-{match.awayScore}</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+                              <span className="text-[11px] font-medium truncate">{getTeamName(match, 'away')}</span>
+                              {match.awayLogo && (
+                                <img
+                                  src={match.awayLogo}
+                                  alt={getTeamName(match, 'away')}
+                                  className="w-4 h-4 object-contain shrink-0"
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              )}
+                            </div>
                           </div>
                           {match.league && (
                             <div className="text-[9px] text-muted-foreground mb-1.5 truncate">

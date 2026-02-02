@@ -432,6 +432,7 @@ export type Database = {
           invitation_code: string | null
           invited_by: string | null
           invited_count: number | null
+          is_seed_user: boolean
           password_hash: string | null
           signature: string | null
           updated_at: string | null
@@ -444,6 +445,7 @@ export type Database = {
           invitation_code?: string | null
           invited_by?: string | null
           invited_count?: number | null
+          is_seed_user?: boolean
           password_hash?: string | null
           signature?: string | null
           updated_at?: string | null
@@ -456,6 +458,7 @@ export type Database = {
           invitation_code?: string | null
           invited_by?: string | null
           invited_count?: number | null
+          is_seed_user?: boolean
           password_hash?: string | null
           signature?: string | null
           updated_at?: string | null

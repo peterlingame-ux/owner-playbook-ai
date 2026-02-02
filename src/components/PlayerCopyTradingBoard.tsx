@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { virtualPlayers } from "@/data/virtualPlayers";
 import { Flame, Skull, UserPlus, Calendar, X, Trophy, TrendingUp, TrendingDown, Lock, CheckCircle2, Sparkles, Users, ThumbsUp, Search, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -135,35 +134,10 @@ const maskPlayerName = (name: string): string => {
   return name || '';
 };
 
-// Mock follower data for each player
-const generatePlayerMockFollowers = (playerId: string, playerName: string, count: number) => {
-  const names = ['田雨', '慢慢扛', '小明', '阿杰', '球迷王', '预测达人', '足彩老手', '胜率之王', '稳赚不赔', '神预测'];
-  const avatars = ['/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png', '/avatars/avatar-5.png', '/avatars/avatar-6.png'];
-  
-  return Array.from({ length: Math.min(count, 20) }, (_, i) => {
-    const isTop3 = i < 3;
-    const baseCopyAmount = isTop3 ? 800 + Math.random() * 600 : 200 + Math.random() * 500;
-    const profit = (Math.random() - 0.3) * baseCopyAmount * 0.3;
-    
-    return {
-      id: `${playerId}-follower-${i}`,
-      rank: i + 1,
-      name: Math.random() > 0.5 
-        ? names[Math.floor(Math.random() * names.length)] 
-        : `${Math.floor(100 + Math.random() * 900)}***${Math.floor(1000 + Math.random() * 9000)}`,
-      avatar: avatars[Math.floor(Math.random() * avatars.length)],
-      days: Math.floor(1 + Math.random() * 30),
-      profit: profit,
-      copyAmount: baseCopyAmount,
-      totalVolume: baseCopyAmount * (1 + Math.random()),
-    };
-  });
-};
-
 const PlayerCopyTradingBoard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userBalance, refreshBalance } = useAuth();
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [todayStats, setTodayStats] = useState<Map<string, { total: number; correct: number; winRate: number }>>(new Map());
@@ -177,8 +151,8 @@ const PlayerCopyTradingBoard = () => {
     predictionType: string;
     odds: string;
   } | null>(null);
-  const [userBalance, setUserBalance] = useState(100000);
   const [copyBetAmount, setCopyBetAmount] = useState(100);
+  const realBalance = userBalance?.balance ?? 100000;
   const [isCopying, setIsCopying] = useState(false);
   const [timeRange, setTimeRange] = useState<1 | 7 | 30>(7);
   const [followedPlayers, setFollowedPlayers] = useState<Set<string>>(new Set());
@@ -218,38 +192,15 @@ const PlayerCopyTradingBoard = () => {
         setIsLoading(true);
         const INITIAL_BALANCE = 100000;
         
-        // 将虚拟玩家转换为 PlayerData 格式（只选择允许跟单的玩家）
-        const virtualPlayersData: PlayerData[] = virtualPlayers
-          .filter(player => player.allowCopyTrade !== false) // 只选择允许跟单的玩家
-          .map((player) => {
-            // 为虚拟玩家计算投注金额和盈利金额
-            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
-            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
-            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
-            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
-            
-            return {
-              ...player,
-              totalBetAmount,
-              profitAmount,
-              bestStreak: player.bestStreak || 0,
-              worstStreak: player.worstStreak || 0,
-              currentStreak: 0,
-              isVirtual: true,
-              allowCopyTrade: player.allowCopyTrade ?? true,
-            };
-          });
-        
-        // 获取所有用户的基本信息
+        // 仅使用真实数据：从 users + user_balances + user_predictions 聚合
         const { data: usersData, error: usersError } = await supabase
           .from('users')
           .select('id, display_name, avatar_url');
         
         if (usersError) throw usersError;
         
-        // 如果没有真实用户或获取失败，只使用虚拟玩家
         if (!usersData || usersData.length === 0) {
-          setAllPlayers(virtualPlayersData);
+          setAllPlayers([]);
           return;
         }
         
@@ -342,32 +293,10 @@ const PlayerCopyTradingBoard = () => {
           };
         }).filter(player => player.totalPredictions > 0);
         
-        // 合并真实玩家和虚拟玩家
-        const combined = [...virtualPlayersData, ...realPlayerStats];
-        setAllPlayers(combined);
+        setAllPlayers(realPlayerStats);
       } catch (error) {
         console.error('Error fetching all players:', error);
-        const virtualPlayersData: PlayerData[] = virtualPlayers
-          .filter(player => player.allowCopyTrade !== false)
-          .map((player) => {
-            // 为虚拟玩家计算投注金额和盈利金额
-            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
-            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
-            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
-            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
-            
-            return {
-              ...player,
-              totalBetAmount,
-              profitAmount,
-              bestStreak: player.bestStreak || 0,
-              worstStreak: player.worstStreak || 0,
-              currentStreak: 0,
-              isVirtual: true,
-              allowCopyTrade: player.allowCopyTrade ?? true,
-            };
-          });
-        setAllPlayers(virtualPlayersData);
+        setAllPlayers([]);
       } finally {
         setIsLoading(false);
       }
@@ -549,18 +478,6 @@ const PlayerCopyTradingBoard = () => {
         statsMap.set(pred.user_id, current);
       });
       
-      // 为虚拟玩家生成模拟今日数据
-      virtualPlayers.forEach(player => {
-        const total = Math.floor(Math.random() * 8) + 3;
-        const correct = Math.floor(total * (player.winRate / 100) + (Math.random() - 0.5) * 2);
-        const actualCorrect = Math.max(0, Math.min(total, correct));
-        statsMap.set(player.id, {
-          total,
-          correct: actualCorrect,
-          winRate: total > 0 ? (actualCorrect / total) * 100 : 0
-        });
-      });
-      
       setTodayStats(statsMap);
     };
     
@@ -584,56 +501,6 @@ const PlayerCopyTradingBoard = () => {
   }, [user]);
 
   const fetchTodayPredictions = async (player: PlayerData) => {
-    // 模拟球队名称和联赛信息
-    const mockTeams = [
-      { home: '皇家马德里', away: '巴塞罗那', homeScore: 2, awayScore: 1, league: '西甲', time: '03:00' },
-      { home: '曼城', away: '利物浦', homeScore: 3, awayScore: 2, league: '英超', time: '23:30' },
-      { home: '拜仁慕尼黑', away: '多特蒙德', homeScore: 1, awayScore: 1, league: '德甲', time: '21:30' },
-      { home: '巴黎圣日耳曼', away: '马赛', homeScore: 2, awayScore: 0, league: '法甲', time: '03:45' },
-      { home: '尤文图斯', away: 'AC米兰', homeScore: 0, awayScore: 1, league: '意甲', time: '02:45' },
-      { home: '切尔西', away: '阿森纳', homeScore: 2, awayScore: 2, league: '英超', time: '20:00' },
-      { home: '国际米兰', away: '那不勒斯', homeScore: 3, awayScore: 1, league: '意甲', time: '00:30' },
-      { home: '马德里竞技', away: '塞维利亚', homeScore: 1, awayScore: 0, league: '西甲', time: '01:00' },
-    ];
-
-    if (player.isVirtual) {
-      // 为虚拟玩家生成模拟数据
-      const stats = todayStats.get(player.id);
-      const mockPredictions: TodayPrediction[] = [];
-      const total = stats?.total || 5;
-      const correct = stats?.correct || 3;
-      
-      for (let i = 0; i < total; i++) {
-        const teamInfo = mockTeams[i % mockTeams.length];
-        const predType = Math.random() > 0.5 ? 'over_under' : 'handicap';
-        const overUnderLine = [2.0, 2.5, 3.0, 3.5][Math.floor(Math.random() * 4)];
-        const handicapLine = [-0.5, -1, -1.5, 0.5, 1][Math.floor(Math.random() * 5)];
-        mockPredictions.push({
-          id: `mock-${i}`,
-          match_id: `match-${1000 + i}`,
-          prediction: predType === 'over_under' 
-            ? (Math.random() > 0.5 ? `大${overUnderLine}` : `小${overUnderLine}`)
-            : (Math.random() > 0.5 ? `主让${Math.abs(handicapLine)}` : `客让${Math.abs(handicapLine)}`),
-          prediction_type: predType,
-          bet_amount: Math.floor(Math.random() * 500) + 100,
-          potential_payout: Math.floor(Math.random() * 800) + 200,
-          actual_payout: i < correct ? Math.floor(Math.random() * 800) + 200 : 0,
-          result: i < correct ? 'win' : 'loss',
-          created_at: new Date().toISOString(),
-          home_team: teamInfo.home,
-          away_team: teamInfo.away,
-          home_score: teamInfo.homeScore,
-          away_score: teamInfo.awayScore,
-          match_status: 'FT',
-          league: teamInfo.league,
-          match_time: teamInfo.time
-        });
-      }
-      
-      setSelectedPlayer({ player, predictions: mockPredictions });
-      return;
-    }
-    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -648,24 +515,80 @@ const PlayerCopyTradingBoard = () => {
       toast.error(t('fetch_today_failed'));
       return;
     }
-
-    // 为真实玩家的预测添加模拟比赛信息（实际应从API获取）
-    const predictionsWithDetails: TodayPrediction[] = (data || []).map((pred, index) => {
-      const teamInfo = mockTeams[index % mockTeams.length];
+    if (!data || data.length === 0) {
+      setSelectedPlayer({ player, predictions: [] });
+      return;
+    }
+    const matchIds = [...new Set((data as { match_id: string }[]).map((p) => p.match_id).filter((id) => id && !String(id).startsWith("upcoming-") && !String(id).startsWith("completed-")))];
+    const matchesMap: Record<string, { home_team?: string; away_team?: string; home_scores?: number[]; away_scores?: number[]; league?: string; match_time?: number }> = {};
+    if (matchIds.length > 0) {
+      const { data: matchesData } = await supabase
+        .from("daily_matches" as any)
+        .select("match_id, home_team, away_team, home_scores, away_scores, league, match_time")
+        .in("match_id", matchIds);
+      (matchesData || []).forEach((m: any) => {
+        matchesMap[String(m.match_id)] = {
+          home_team: m.home_team,
+          away_team: m.away_team,
+          home_scores: m.home_scores,
+          away_scores: m.away_scores,
+          league: m.league,
+          match_time: m.match_time,
+        };
+      });
+    }
+    const predictionsWithDetails: TodayPrediction[] = (data as any[]).map((pred) => {
+      const match = matchesMap[String(pred.match_id)];
+      const homeScore = match?.home_scores?.[0] ?? null;
+      const awayScore = match?.away_scores?.[0] ?? null;
       return {
         ...pred,
-        home_team: teamInfo.home,
-        away_team: teamInfo.away,
-        home_score: pred.result ? teamInfo.homeScore : null,
-        away_score: pred.result ? teamInfo.awayScore : null,
-        match_status: pred.result ? 'FT' : 'NS',
-        league: teamInfo.league,
-        match_time: teamInfo.time
+        home_team: match?.home_team,
+        away_team: match?.away_team,
+        home_score: homeScore,
+        away_score: awayScore,
+        match_status: pred.result ? "FT" : "NS",
+        league: match?.league,
+        match_time: match?.match_time != null ? String(match.match_time) : undefined,
       };
     });
-    
     setSelectedPlayer({ player, predictions: predictionsWithDetails });
   };
+
+  // 获取某玩家的跟单用户列表（真实数据：user_follows + users）
+  const fetchPlayerFollowers = async (playerId: string, _playerName: string): Promise<{ id: string; name: string; avatar: string; days: number; profit: number; copyAmount: number; totalVolume: number }[]> => {
+    const { data: followsData, error: followsError } = await supabase
+      .from('user_follows')
+      .select('follower_id, created_at')
+      .eq('following_id', playerId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (followsError || !followsData?.length) return [];
+    const followerIds = followsData.map((f) => f.follower_id);
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('id, display_name, avatar_url')
+      .in('id', followerIds);
+    if (usersError || !usersData?.length) return [];
+    const userMap = new Map(usersData.map((u) => [u.id, u]));
+    return followsData.map((f) => {
+      const u = userMap.get(f.follower_id);
+      const created = f.created_at ? new Date(f.created_at) : new Date();
+      const days = Math.max(0, Math.floor((Date.now() - created.getTime()) / (24 * 60 * 60 * 1000)));
+      return {
+        id: f.follower_id,
+        name: u?.display_name ?? '',
+        avatar: u?.avatar_url ?? '',
+        days,
+        profit: 0,
+        copyAmount: 0,
+        totalVolume: 0,
+      };
+    });
+  };
+
+  // 占位符预测不可写入数据库
+  const isPlaceholderPrediction = (matchId: string) => /^(upcoming-|completed-)/.test(String(matchId ?? ''));
 
   // 按最佳连胜排序
   const topStreakPlayers = [...allPlayers]
@@ -677,43 +600,59 @@ const PlayerCopyTradingBoard = () => {
     .sort((a, b) => b.worstStreak - a.worstStreak)
     .slice(0, 10);
 
-  // 模拟比赛数据用于跟单
-  const mockUpcomingMatches = [
-    { home: '皇家马德里', away: '巴塞罗那', matchId: 'upcoming-1001' },
-    { home: '曼城', away: '利物浦', matchId: 'upcoming-1002' },
-    { home: '拜仁慕尼黑', away: '多特蒙德', matchId: 'upcoming-1003' },
-    { home: '巴黎圣日耳曼', away: '马赛', matchId: 'upcoming-1004' },
-  ];
-
-  const handleCopyTrade = (player: PlayerData) => {
-    // 生成一个虚拟的待跟单预测
-    const randomMatch = mockUpcomingMatches[Math.floor(Math.random() * mockUpcomingMatches.length)];
+  const handleCopyTrade = async (player: PlayerData) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { data, error } = await supabase
+      .from('user_predictions')
+      .select('*')
+      .eq('user_id', player.id)
+      .gte('created_at', today.toISOString())
+      .order('created_at', { ascending: false });
+    if (error || !data?.length) {
+      toast.error(t('player_no_today_recommend') || '该玩家今日暂无推荐');
+      return;
+    }
+    const matchIds = [...new Set((data as { match_id: string }[]).map((p) => p.match_id).filter((id) => id && !isPlaceholderPrediction(id)))];
+    if (matchIds.length === 0) {
+      toast.error(t('player_no_today_recommend') || '该玩家今日暂无推荐');
+      return;
+    }
+    const matchesMap: Record<string, { home_team?: string; away_team?: string; home_scores?: number[]; away_scores?: number[]; league?: string; match_time?: number }> = {};
+    const { data: matchesData } = await supabase
+      .from('daily_matches' as any)
+      .select('match_id, home_team, away_team, home_scores, away_scores, league, match_time')
+      .in('match_id', matchIds);
+    (matchesData || []).forEach((m: any) => {
+      matchesMap[String(m.match_id)] = {
+        home_team: m.home_team,
+        away_team: m.away_team,
+        home_scores: m.home_scores,
+        away_scores: m.away_scores,
+        league: m.league,
+        match_time: m.match_time,
+      };
+    });
+    const firstRow = data[0] as any;
+    const match = matchesMap[String(firstRow.match_id)];
+    const homeScore = match?.home_scores?.[0] ?? null;
+    const awayScore = match?.away_scores?.[0] ?? null;
     const prediction: TodayPrediction = {
-      id: `copy-${Date.now()}`,
-      match_id: randomMatch.matchId,
-      prediction: Math.random() > 0.5 ? 'Over 2.5' : 'Under 2.5',
-      prediction_type: Math.random() > 0.5 ? 'over_under' : 'handicap',
-      bet_amount: 200,
-      potential_payout: 360,
-      actual_payout: null,
-      result: null,
-      created_at: new Date().toISOString(),
-      home_team: randomMatch.home,
-      away_team: randomMatch.away,
-      home_logo: getTeamLogo(randomMatch.home),
-      away_logo: getTeamLogo(randomMatch.away),
-      home_score: null,
-      away_score: null,
-      match_status: 'NS'
+      ...firstRow,
+      home_team: match?.home_team,
+      away_team: match?.away_team,
+      home_score: homeScore,
+      away_score: awayScore,
+      match_status: firstRow.result ? 'FT' : 'NS',
+      league: match?.league,
+      match_time: match?.match_time != null ? String(match.match_time) : undefined,
+      home_logo: match?.home_team ? getTeamLogo(match.home_team) : null,
+      away_logo: match?.away_team ? getTeamLogo(match.away_team) : null,
     };
-    
-    // 检查是否需要付费解锁
     const unlockPrice = player.unlockPrice ?? 0;
     if (unlockPrice > 0) {
-      // 需要付费，显示解锁弹窗
       setUnlockDialog({ player, prediction });
     } else {
-      // 免费，直接进入跟单流程
       setCopyTradeDialog({ player, prediction, betAmount: 100 });
       setCopyBetAmount(100);
     }
@@ -721,47 +660,75 @@ const PlayerCopyTradingBoard = () => {
 
   const confirmCopyTrade = async () => {
     if (!copyTradeDialog) return;
-    
-    if (copyBetAmount > userBalance) {
-      toast.error(t('insufficient_balance'));
+    if (copyBetAmount > realBalance) {
+      toast.error(t('insufficient_balance') || t('insufficient_balance_subscribe'));
       return;
     }
-
     if (copyBetAmount < 10) {
-      toast.error(t('min_copy_amount'));
+      toast.error(t('min_copy_amount') || t('min_subscribe_amount'));
       return;
     }
-
+    if (isPlaceholderPrediction(copyTradeDialog.prediction.match_id)) {
+      toast.error(t('subscribe_placeholder_only') || '该条为展示数据，暂不可订阅');
+      return;
+    }
     setIsCopying(true);
-    
-    // 模拟跟单过程
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // 更新虚拟余额
-    setUserBalance(prev => prev - copyBetAmount);
-    
+    const oldBalance = realBalance;
     const odds = copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount
       ? (copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount).toFixed(2)
       : '1.80';
-    
-    // 将该预测添加到已跟单列表，解锁显示
-    setCopiedPredictions(prev => {
-      const newSet = new Set(prev);
-      newSet.add(copyTradeDialog.prediction.id);
-      return newSet;
-    });
-    
-    // 显示成功对话框
-    setCopySuccess({
-      show: true,
-      playerName: copyTradeDialog.player.displayName,
-      betAmount: copyBetAmount,
-      prediction: copyTradeDialog.prediction,
-      predictionType: copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让分',
-      odds
-    });
-    setIsCopying(false);
-    setCopyTradeDialog(null);
+    const predictionType = copyTradeDialog.prediction.prediction_type === 'over_under' ? '大小球' : '让分';
+    try {
+      let newBalance = oldBalance - copyBetAmount;
+      if (user) {
+        const potentialPayout = copyBetAmount * (copyTradeDialog.prediction.potential_payout && copyTradeDialog.prediction.bet_amount
+          ? copyTradeDialog.prediction.potential_payout / copyTradeDialog.prediction.bet_amount
+          : 1.8);
+        const matchDate = (copyTradeDialog.prediction as any).match_date ?? new Date().toISOString();
+        const { data, error } = await supabase.rpc('place_bet', {
+          p_user_id: user.id,
+          p_match_id: copyTradeDialog.prediction.match_id,
+          p_prediction_type: copyTradeDialog.prediction.prediction_type,
+          p_prediction: `订阅-${copyTradeDialog.player.displayName}: ${copyTradeDialog.prediction.prediction}`,
+          p_bet_amount: copyBetAmount,
+          p_potential_payout: potentialPayout,
+          p_match_date: matchDate,
+        });
+        if (error) {
+          toast.error((t('subscribe_failed') || '订阅失败') + ': ' + error.message);
+          return;
+        }
+        const result = data as { success: boolean; error?: string; new_balance?: number };
+        if (!result.success) {
+          toast.error(result.error || (t('subscribe_failed') || '订阅失败'));
+          return;
+        }
+        await refreshBalance();
+        newBalance = result.new_balance ?? newBalance;
+      } else {
+        await new Promise((r) => setTimeout(r, 500));
+        toast.success(t('subscribe_success_demo') || '演示模式：订阅成功');
+      }
+      setCopiedPredictions((prev) => {
+        const next = new Set(prev);
+        next.add(copyTradeDialog.prediction.id);
+        return next;
+      });
+      setCopySuccess({
+        show: true,
+        playerName: copyTradeDialog.player.displayName,
+        betAmount: copyBetAmount,
+        prediction: copyTradeDialog.prediction,
+        predictionType,
+        odds,
+      });
+      setCopyTradeDialog(null);
+    } catch (err) {
+      console.error(err);
+      toast.error(t('subscribe_failed') || '订阅失败，请稍后重试');
+    } finally {
+      setIsCopying(false);
+    }
   };
 
   // 确认猎人币解锁
@@ -820,14 +787,14 @@ const PlayerCopyTradingBoard = () => {
   // 从今日跟单弹窗中跟单
   const handleCopyTradeFromPrediction = (pred: TodayPrediction) => {
     if (!selectedPlayer) return;
-    
-    // 检查是否需要付费解锁
+    if (isPlaceholderPrediction(pred.match_id)) {
+      toast.error(t('subscribe_placeholder_only') || '该条为展示数据，暂不可订阅');
+      return;
+    }
     const unlockPrice = selectedPlayer.player.unlockPrice ?? 0;
     if (unlockPrice > 0) {
-      // 需要付费，显示解锁弹窗
       setUnlockDialog({ player: selectedPlayer.player, prediction: pred });
     } else {
-      // 免费，直接进入跟单流程
       setCopyTradeDialog({ player: selectedPlayer.player, prediction: pred, betAmount: 100 });
       setCopyBetAmount(100);
     }
@@ -1110,25 +1077,16 @@ const PlayerCopyTradingBoard = () => {
             </div>
             <div 
               className="text-right cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-                const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
-                const variance = (seed % 50) - 25;
-                const followerCount = Math.max(0, baseCount + variance);
-                const followers = generatePlayerMockFollowers(player.id, player.displayName, followerCount);
+                const followers = await fetchPlayerFollowers(player.id, player.displayName);
                 setSelectedPlayerFollowers({ playerId: player.id, playerName: player.displayName, followers });
                 setIsPlayerFollowersDialogOpen(true);
               }}
             >
               <p className="text-xs text-muted-foreground mb-1 flex items-center justify-end gap-1"><Users className="h-3 w-3" fill="currentColor" />{t('followers_count')}</p>
               <p className="text-base font-bold font-mono-data text-primary hover:underline">
-                {(() => {
-                  const seed = player.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-                  const baseCount = Math.floor(player.winRate * 2 + player.totalPredictions * 0.5);
-                  const variance = (seed % 50) - 25;
-                  return Math.max(0, baseCount + variance);
-                })()}{t('people_suffix')}
+                {followerCounts.get(player.id) ?? 0}{t('people_suffix')}
               </p>
             </div>
           </div>
@@ -1660,7 +1618,7 @@ const PlayerCopyTradingBoard = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{t('copy_amount')}</span>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    {t('available_balance_label')}: <span className="text-foreground font-medium flex items-center gap-0.5">{userBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
+                    {t('available_balance_label')}: <span className="text-foreground font-medium flex items-center gap-0.5">{realBalance.toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3" /></span>
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -1697,7 +1655,7 @@ const PlayerCopyTradingBoard = () => {
                 <Button
                   className="flex-1"
                   onClick={confirmCopyTrade}
-                  disabled={isCopying || copyBetAmount > userBalance}
+                  disabled={isCopying || copyBetAmount > realBalance || copyBetAmount < 10}
                 >
                   {isCopying ? (
                     <>

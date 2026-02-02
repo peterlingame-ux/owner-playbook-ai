@@ -14,11 +14,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { virtualPlayers } from "@/data/virtualPlayers";
 import { aiModels } from "@/data/mockData";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import { GoalIcon } from "@/components/FootballIcons";
+import { getUTC8Range, getUTC8RangeLabel } from "@/lib/utils";
 
 // AI Model Icons
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -136,6 +136,8 @@ const MobileLeaderboardOKX = () => {
   const [selectedModelForFollowers, setSelectedModelForFollowers] = useState<string | null>(null);
   const [showPlayerFollowersDialog, setShowPlayerFollowersDialog] = useState(false);
   const [selectedPlayerForFollowers, setSelectedPlayerForFollowers] = useState<PlayerData | null>(null);
+  const [playerFollowersList, setPlayerFollowersList] = useState<{ id: string; name: string; avatar: string; days: number; profit: number; copyAmount: number; totalVolume: number }[]>([]);
+  const [isLoadingPlayerFollowers, setIsLoadingPlayerFollowers] = useState(false);
   // Follow player confirmation dialog state
   const [showFollowPlayerDialog, setShowFollowPlayerDialog] = useState(false);
   const [playerToFollow, setPlayerToFollow] = useState<PlayerData | null>(null);
@@ -273,129 +275,112 @@ const MobileLeaderboardOKX = () => {
     fetchUsdtBalance();
   }, [user]);
 
-  // Fetch players data
+  // 仅使用真实数据：users + user_balances + user_predictions + user_follows
   const fetchPlayers = useCallback(async () => {
     setIsLoading(true);
     try {
-      // 获取真实用户数据
-      const { data: predictions } = await supabase
-        .from('user_predictions')
-        .select('user_id, result, bet_amount, actual_payout')
-        .not('result', 'is', null);
+      const INITIAL_BALANCE = 100000;
 
-      // 获取用户资料
-      const { data: users } = await supabase
+      const { data: usersData, error: usersError } = await supabase
         .from('users')
         .select('id, display_name, avatar_url');
+      if (usersError) throw usersError;
+      if (!usersData?.length) {
+        setAllPlayers([]);
+        return;
+      }
 
-      // 处理真实用户数据
-      const userStats = new Map<string, {
-        totalPredictions: number;
-        correctPredictions: number;
-        totalBet: number;
-        totalProfit: number;
-      }>();
+      const { data: balancesData, error: balancesError } = await supabase
+        .from('user_balances')
+        .select('user_id, balance');
+      if (balancesError) throw balancesError;
 
-      predictions?.forEach((p) => {
-        if (!userStats.has(p.user_id)) {
-          userStats.set(p.user_id, {
-            totalPredictions: 0,
-            correctPredictions: 0,
-            totalBet: 0,
-            totalProfit: 0
-          });
-        }
-        const stats = userStats.get(p.user_id)!;
-        stats.totalPredictions++;
-        if (p.result === 'won') stats.correctPredictions++;
-        stats.totalBet += p.bet_amount || 0;
-        stats.totalProfit += (p.actual_payout || 0) - (p.bet_amount || 0);
+      const { data: predictionsData, error: predictionsError } = await supabase
+        .from('user_predictions')
+        .select('user_id, result, bet_amount, actual_payout');
+      if (predictionsError) throw predictionsError;
+
+      const { data: followersData } = await supabase
+        .from('user_follows')
+        .select('following_id');
+      const followerCountMap = new Map<string, number>();
+      followersData?.forEach((row: { following_id: string }) => {
+        followerCountMap.set(row.following_id, (followerCountMap.get(row.following_id) ?? 0) + 1);
       });
 
-      const realPlayers: PlayerData[] = [];
-      users?.forEach((u) => {
-        const stats = userStats.get(u.id);
-        if (stats && stats.totalPredictions >= 3) {
-          const winRate = (stats.correctPredictions / stats.totalPredictions) * 100;
-          realPlayers.push({
+      const balancesMap = new Map(balancesData?.map((b) => [b.user_id, b.balance]) ?? []);
+
+      const realPlayers: PlayerData[] = usersData
+        .map((u) => {
+          const userPredictions = predictionsData?.filter((p) => p.user_id === u.id) ?? [];
+          const totalPredictions = userPredictions.length;
+          if (totalPredictions === 0) return null;
+          const correctPredictions = userPredictions.filter((p) => p.result === 'win').length;
+          const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+          const totalBetAmount = userPredictions.reduce((sum, p) => sum + (p.bet_amount || 0), 0);
+          const validAmount = userPredictions.reduce((sum, p) => {
+            if (p.result === 'win') return sum + (p.actual_payout || p.bet_amount || 0);
+            return sum;
+          }, 0);
+          const profitAmount = validAmount - totalBetAmount;
+          const balance = balancesMap.get(u.id) ?? INITIAL_BALANCE;
+          const profit = Math.max(-INITIAL_BALANCE, balance - INITIAL_BALANCE);
+          const changePercent = Math.max(-100, (profit / INITIAL_BALANCE) * 100);
+
+          let bestStreak = 0,
+            tempStreak = 0,
+            worstStreak = 0,
+            lossStreak = 0,
+            currentStreak = 0;
+          userPredictions.forEach((pred) => {
+            if (pred.result === 'win') {
+              tempStreak++;
+              bestStreak = Math.max(bestStreak, tempStreak);
+              lossStreak = 0;
+            } else if (pred.result === 'loss') {
+              tempStreak = 0;
+              lossStreak++;
+              worstStreak = Math.max(worstStreak, lossStreak);
+            }
+          });
+          for (let i = userPredictions.length - 1; i >= 0; i--) {
+            if (userPredictions[i].result === 'win') currentStreak++;
+            else break;
+          }
+
+          const isWinner = changePercent > 0 && winRate >= 55;
+          return {
             id: u.id,
             displayName: u.display_name,
             avatarUrl: u.avatar_url,
-            totalPredictions: stats.totalPredictions,
-            correctPredictions: stats.correctPredictions,
+            totalPredictions,
+            correctPredictions,
             winRate: parseFloat(winRate.toFixed(1)),
-            balance: 0,
-            profit: stats.totalProfit,
-            changePercent: stats.totalBet > 0 ? (stats.totalProfit / stats.totalBet) * 100 : 0,
-            profitAmount: stats.totalProfit,
+            balance,
+            profit,
+            changePercent: parseFloat(changePercent.toFixed(2)),
+            profitAmount,
             rank: 0,
-            currentStreak: Math.floor(Math.random() * 8),
-            worstStreak: Math.floor(Math.random() * 5),
+            bestStreak,
+            currentStreak,
+            worstStreak,
             isVirtual: false,
-            followers: Math.floor(100 + Math.random() * 500),
-            tradingDays: Math.floor(10 + Math.random() * 80),
-            tradingVolume: Math.floor(50000 + Math.random() * 2000000),
-          });
-        }
-      });
+            isWinner,
+            followers: followerCountMap.get(u.id) ?? 0,
+            tradingDays: 0,
+            tradingVolume: totalBetAmount,
+          };
+        })
+        .filter(Boolean) as PlayerData[];
 
-      // 添加虚拟玩家 - 分为高准确率（赢家）和低准确率（输家）
-      const virtualPlayerData: PlayerData[] = virtualPlayers.map((vp, i) => {
-        const seed = vp.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-        // 一半是高胜率玩家，一半是低胜率玩家
-        const isWinner = i < virtualPlayers.length / 2;
-        
-        // 高准确率玩家：胜率60-85%，正收益，连胜
-        // 低准确率玩家：胜率25-45%，负收益，连负
-        const winRate = isWinner 
-          ? 60 + (seed % 25) // 60-85%
-          : 25 + (seed % 20); // 25-45%
-        
-        const changePercent = isWinner 
-          ? 15 + (seed % 35) // +15% to +50%
-          : -(10 + (seed % 30)); // -10% to -40%
-        
-        const profit = isWinner 
-          ? 5000 + (seed % 15000) // 正收益
-          : -(2000 + (seed % 8000)); // 负收益
-        
-        const currentStreak = isWinner 
-          ? 3 + (seed % 8) // 3-10连胜
-          : 0;
-        
-        const worstStreak = isWinner 
-          ? 0
-          : 3 + (seed % 7); // 3-9连负
-        
-        return {
-          id: vp.id,
-          displayName: vp.displayName,
-          avatarUrl: vp.avatarUrl,
-          totalPredictions: vp.totalPredictions,
-          correctPredictions: Math.round(vp.totalPredictions * (winRate / 100)),
-          winRate: parseFloat(winRate.toFixed(1)),
-          balance: vp.balance || 0,
-          profit: profit,
-          changePercent,
-          profitAmount: profit,
-          rank: 0,
-          currentStreak: currentStreak,
-          worstStreak: worstStreak,
-          isVirtual: true,
-          isWinner: isWinner, // 标记是赢家还是输家
-          followers: Math.floor(200 + Math.random() * 800),
-          tradingDays: Math.floor(30 + Math.random() * 100),
-          tradingVolume: Math.floor(500000 + Math.random() * 5000000),
-        };
-      });
-
-      const combined = [...realPlayers, ...virtualPlayerData]
+      const combined = [...realPlayers]
         .sort((a, b) => b.winRate - a.winRate)
         .map((p, i) => ({ ...p, rank: i + 1 }));
 
       setAllPlayers(combined);
     } catch (error) {
       console.error('Error fetching players:', error);
+      setAllPlayers([]);
     } finally {
       setIsLoading(false);
     }
@@ -566,38 +551,8 @@ const MobileLeaderboardOKX = () => {
       setAiModelsStats(new Map());
       
       try {
-        // 根据时间筛选器计算日期范围
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        let startDate: Date;
-        let endDate: Date;
-        
-        if (timeFilter === 'day') {
-          // 日：获取今天的数据
-          startDate = new Date(today);
-          endDate = new Date(today);
-        } else if (timeFilter === 'week') {
-          // 周：获取当前周的数据（周一到周日）
-          // 获取本周一的日期
-          const dayOfWeek = now.getDay(); // 0 = 周日, 1 = 周一, ..., 6 = 周六
-          const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 如果是周日，往前推6天；否则往前推 dayOfWeek - 1 天
-          startDate = new Date(today);
-          startDate.setDate(startDate.getDate() - daysToMonday);
-          
-          // 获取本周日的日期
-          endDate = new Date(startDate);
-          endDate.setDate(endDate.getDate() + 6); // 周一 + 6天 = 周日
-        } else {
-          // 月：获取当前月份的数据（1号到最后一天）
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1); // 当前月份的第一天
-          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // 当前月份的最后一天
-        }
-        
-        // 设置时间范围的开始和结束时间
-        const startDateTime = new Date(startDate);
-        startDateTime.setHours(0, 0, 0, 0);
-        const endDateTime = new Date(endDate);
-        endDateTime.setHours(23, 59, 59, 999);
+        // 按 UTC+8 的日/周/月计算时间范围，再转为 UTC 查询 settled_at（与 PC 端 LeaderboardTable 一致）
+        const { start: startDateTime, end: endDateTime } = getUTC8Range(timeFilter);
         
         // 直接从 sim_positions 表查询指定时间范围内的数据（含 stake_amount、pnl 用于盈利率/盈利金额统计）
         const { data: positionsData, error: positionsError } = await supabase
@@ -757,6 +712,56 @@ const MobileLeaderboardOKX = () => {
     
     fetchAIModelsStats();
   }, [timeFilter]);
+
+  // 获取某玩家的跟单用户列表（真实数据：user_follows + users）
+  const fetchPlayerFollowers = async (playerId: string, _playerName: string): Promise<{ id: string; name: string; avatar: string; days: number; profit: number; copyAmount: number; totalVolume: number }[]> => {
+    const { data: followsData, error: followsError } = await supabase
+      .from('user_follows')
+      .select('follower_id, created_at')
+      .eq('following_id', playerId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (followsError || !followsData?.length) return [];
+    const followerIds = followsData.map((f) => f.follower_id);
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('id, display_name, avatar_url')
+      .in('id', followerIds);
+    if (usersError || !usersData?.length) return [];
+    const userMap = new Map(usersData.map((u) => [u.id, u]));
+    return followsData.map((f) => {
+      const u = userMap.get(f.follower_id);
+      const created = f.created_at ? new Date(f.created_at) : new Date();
+      const days = Math.max(0, Math.floor((Date.now() - created.getTime()) / (24 * 60 * 60 * 1000)));
+      return {
+        id: f.follower_id,
+        name: u?.display_name ?? '',
+        avatar: u?.avatar_url ?? '',
+        days,
+        profit: 0,
+        copyAmount: 0,
+        totalVolume: 0,
+      };
+    });
+  };
+
+  // 打开玩家跟单者弹窗时拉取真实跟单列表
+  useEffect(() => {
+    if (!showPlayerFollowersDialog || !selectedPlayerForFollowers) {
+      setPlayerFollowersList([]);
+      return;
+    }
+    let cancelled = false;
+    setIsLoadingPlayerFollowers(true);
+    fetchPlayerFollowers(selectedPlayerForFollowers.id, selectedPlayerForFollowers.displayName).then((list) => {
+      if (!cancelled) {
+        setPlayerFollowersList(list);
+      }
+    }).finally(() => {
+      if (!cancelled) setIsLoadingPlayerFollowers(false);
+    });
+    return () => { cancelled = true; };
+  }, [showPlayerFollowersDialog, selectedPlayerForFollowers?.id]);
 
   // Get sorted and filtered players based on current tab and sort
   const getDisplayPlayers = useCallback(() => {
@@ -1342,6 +1347,9 @@ const MobileLeaderboardOKX = () => {
     }
   };
 
+  // 占位符预测（今日推荐无真实数据时的模拟项）不可写入数据库，避免 user_predictions 出现 upcoming-1001 等脏数据
+  const isPlaceholderPrediction = (matchId: string) => /^(upcoming-|completed-)/.test(String(matchId ?? ''));
+
   // Confirm copy trade
   const confirmCopyTrade = async () => {
     if (!copyTradeDialog) return;
@@ -1355,6 +1363,11 @@ const MobileLeaderboardOKX = () => {
 
     if (copyBetAmount < 10) {
       toast.error('最低订阅金额为 10 猎人币');
+      return;
+    }
+
+    if (isPlaceholderPrediction(copyTradeDialog.prediction.match_id)) {
+      toast.error(t('subscribe_placeholder_only') || '该条为展示数据，暂不可订阅');
       return;
     }
     
@@ -1586,11 +1599,9 @@ const MobileLeaderboardOKX = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" />
-            {timeFilter === 'day' ? t('today_data') || '今日数据' : 
-             timeFilter === 'week' ? t('weekly_data') || '本周数据' : 
-             t('monthly_data') || '本月数据'}
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={t('time_range_utc8') || '按北京时间（UTC+8）统计'}>
+            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+            <span>统计范围：{getUTC8RangeLabel(timeFilter)}</span>
           </div>
         </div>
 
@@ -1772,11 +1783,9 @@ const MobileLeaderboardOKX = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" />
-            {timeFilter === 'day' ? t('today_data') || '今日数据' : 
-             timeFilter === 'week' ? t('weekly_data') || '本周数据' : 
-             t('monthly_data') || '本月数据'}
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={t('time_range_utc8') || '按北京时间（UTC+8）统计'}>
+            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+            <span>统计范围：{getUTC8RangeLabel(timeFilter)}</span>
           </div>
         </div>
 
@@ -1993,7 +2002,7 @@ const MobileLeaderboardOKX = () => {
       {/* Time Filter & All Predictors - For accuracy and copyTrade tabs */}
       {(mainTab === 'accuracy' || mainTab === 'copyTrade') && (
         <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/20 gap-2">
-          <div className="flex items-center gap-1.5 min-w-0 flex-shrink">
+          <div className="flex items-center gap-1.5 min-w-0 flex-shrink flex-wrap">
             <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
               {timeFilters.map((filter) => (
                 <button
@@ -2011,6 +2020,9 @@ const MobileLeaderboardOKX = () => {
             </div>
             <span className="px-1.5 py-0.5 text-[9px] font-bold bg-muted/30 text-muted-foreground rounded flex-shrink-0">
               TOP10
+            </span>
+            <span className="text-[9px] text-muted-foreground" title={t('time_range_utc8') || '按北京时间（UTC+8）统计'}>
+              统计范围：{getUTC8RangeLabel(timeFilter)}
             </span>
           </div>
           <button 
@@ -2211,76 +2223,11 @@ const MobileLeaderboardOKX = () => {
             <span>{t('player_profit_volume') || '玩家收益 | 带单规模'}</span>
           </div>
           
-          {/* Subscribers List */}
+          {/* Subscribers List - 暂无真实数据 */}
           <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-3 pt-3">
-            {(() => {
-              // Generate mock subscribers data
-              const mockSubscribers = virtualPlayers.slice(0, 10).map((player, idx) => ({
-                id: player.id,
-                displayName: player.displayName.length > 5 
-                  ? player.displayName.substring(0, 3) + '***' + player.displayName.slice(-4) 
-                  : player.displayName,
-                avatarUrl: player.avatarUrl,
-                subscribeCount: Math.floor(5 + Math.random() * 30),
-                profit: Math.round((Math.random() - 0.3) * 300 * 100) / 100,
-                volume: Math.round(500 + Math.random() * 1500 * 100) / 100,
-              }));
-              
-              return mockSubscribers.map((sub, index) => (
-                <motion.div
-                  key={sub.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  className="flex items-center gap-3"
-                >
-                  {/* Rank Medal */}
-                  <div className="w-8 flex-shrink-0 flex justify-center">
-                    {index === 0 ? (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
-                        <Trophy className="h-4 w-4 text-yellow-900" />
-                      </div>
-                    ) : index === 1 ? (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center shadow-lg">
-                        <Trophy className="h-4 w-4 text-gray-700" />
-                      </div>
-                    ) : index === 2 ? (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg">
-                        <Trophy className="h-4 w-4 text-amber-900" />
-                      </div>
-                    ) : (
-                      <span className="text-lg font-bold text-muted-foreground">{index + 1}</span>
-                    )}
-                  </div>
-                  
-                  {/* Avatar */}
-                  <Avatar className="w-12 h-12 border-2 border-border">
-                    <AvatarImage src={sub.avatarUrl} alt={sub.displayName} />
-                    <AvatarFallback>{sub.displayName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  
-                  {/* Name & Subscribe Count */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-base text-foreground truncate">{sub.displayName}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      {t('subscribed_count', { count: sub.subscribeCount }) || `已订阅${sub.subscribeCount}次`}
-                    </p>
-                  </div>
-                  
-                  {/* Profit & Volume */}
-                  <div className="text-right flex-shrink-0">
-                    <p className={`text-lg font-bold flex items-center justify-end gap-0.5 ${sub.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {sub.profit >= 0 ? '+' : ''}{sub.profit.toFixed(2)}
-                      <img src={hunterCoinIcon} alt="HC" className="w-4 h-4" />
-                    </p>
-                    <p className="text-sm text-muted-foreground flex items-center justify-end gap-0.5">
-                      {sub.volume.toFixed(2)}
-                      <img src={hunterCoinIcon} alt="HC" className="w-3.5 h-3.5" />
-                    </p>
-                  </div>
-                </motion.div>
-              ));
-            })()}
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              {t('no_followers') || '暂无跟单者'}
+            </div>
           </div>
           
           {/* Close Button */}
@@ -2338,22 +2285,18 @@ const MobileLeaderboardOKX = () => {
             <span>{t('player_profit_volume') || '玩家收益 | 带单规模'}</span>
           </div>
           
-          {/* Followers List */}
+          {/* Followers List - 真实数据 */}
           <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-3 pt-3">
-            {(() => {
-              // Generate mock followers data
-              const mockFollowers = virtualPlayers.slice(0, 10).map((player, idx) => ({
-                id: player.id,
-                displayName: player.displayName.length > 5 
-                  ? player.displayName.substring(0, 3) + '***' + player.displayName.slice(-4) 
-                  : player.displayName,
-                avatarUrl: player.avatarUrl,
-                followCount: Math.floor(5 + Math.random() * 30),
-                profit: Math.round((Math.random() - 0.3) * 300 * 100) / 100,
-                volume: Math.round(500 + Math.random() * 1500 * 100) / 100,
-              }));
-              
-              return mockFollowers.map((follower, index) => (
+            {isLoadingPlayerFollowers ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : playerFollowersList.length === 0 ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                {t('no_followers') || '暂无跟单者'}
+              </div>
+            ) : (
+              playerFollowersList.map((follower, index) => (
                 <motion.div
                   key={follower.id}
                   initial={{ opacity: 0, x: -10 }}
@@ -2361,7 +2304,6 @@ const MobileLeaderboardOKX = () => {
                   transition={{ delay: index * 0.03 }}
                   className="flex items-center gap-3"
                 >
-                  {/* Rank Medal */}
                   <div className="w-8 flex-shrink-0 flex justify-center">
                     {index === 0 ? (
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
@@ -2379,35 +2321,29 @@ const MobileLeaderboardOKX = () => {
                       <span className="text-lg font-bold text-muted-foreground">{index + 1}</span>
                     )}
                   </div>
-                  
-                  {/* Avatar */}
                   <Avatar className="w-12 h-12 border-2 border-border">
-                    <AvatarImage src={follower.avatarUrl} alt={follower.displayName} />
-                    <AvatarFallback>{follower.displayName.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={follower.avatar} alt={follower.name} />
+                    <AvatarFallback>{follower.name?.charAt(0) || '?'}</AvatarFallback>
                   </Avatar>
-                  
-                  {/* Name & Follow Count */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-base text-foreground truncate">{follower.displayName}</h4>
+                    <h4 className="font-bold text-base text-foreground truncate">{follower.name || t('anonymous')}</h4>
                     <p className="text-xs text-muted-foreground">
-                      {t('followed_count', { count: follower.followCount }) || `已跟单${follower.followCount}次`}
+                      {t('followed_days', { count: follower.days }) || `跟单${follower.days}天`}
                     </p>
                   </div>
-                  
-                  {/* Profit & Volume */}
                   <div className="text-right flex-shrink-0">
                     <p className={`text-lg font-bold flex items-center justify-end gap-0.5 ${follower.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {follower.profit >= 0 ? '+' : ''}{follower.profit.toFixed(2)}
                       <img src={hunterCoinIcon} alt="HC" className="w-4 h-4" />
                     </p>
                     <p className="text-sm text-muted-foreground flex items-center justify-end gap-0.5">
-                      {follower.volume.toFixed(2)}
+                      {follower.totalVolume.toFixed(2)}
                       <img src={hunterCoinIcon} alt="HC" className="w-3.5 h-3.5" />
                     </p>
                   </div>
                 </motion.div>
-              ));
-            })()}
+              ))
+            )}
           </div>
           
           {/* Close Button */}
@@ -3439,6 +3375,7 @@ interface PlayerCardOKXProps {
 const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick, onHistoryClick, onPredictionClick, onFollowPlayerClick }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isPositive = player.changePercent >= 0;
   
   // Check if player qualifies for prize pool (win rate >= 60% AND correct predictions >= 10)

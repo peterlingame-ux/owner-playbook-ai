@@ -12,7 +12,6 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { virtualPlayers } from "@/data/virtualPlayers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
@@ -69,30 +68,6 @@ const maskPlayerName = (name: string): string => {
   return name || '';
 };
 
-// Mock follower data for each player
-const generatePlayerMockFollowers = (playerId: string, playerName: string, count: number) => {
-  const names = ['田雨', '慢慢扛', '小明', '阿杰', '球迷王', '预测达人', '足彩老手', '胜率之王', '稳赚不赔', '神预测'];
-  const avatars = ['/avatars/avatar-1.png', '/avatars/avatar-2.png', '/avatars/avatar-3.png', '/avatars/avatar-4.png', '/avatars/avatar-5.png', '/avatars/avatar-6.png'];
-  
-  return Array.from({ length: Math.min(count, 20) }, (_, i) => {
-    const isTop3 = i < 3;
-    const baseCopyAmount = isTop3 ? 800 + Math.random() * 600 : 200 + Math.random() * 500;
-    const profit = (Math.random() - 0.3) * baseCopyAmount * 0.3;
-    
-    return {
-      id: `${playerId}-follower-${i}`,
-      rank: i + 1,
-      name: Math.random() > 0.5 
-        ? names[Math.floor(Math.random() * names.length)] 
-        : `${Math.floor(100 + Math.random() * 900)}***${Math.floor(1000 + Math.random() * 9000)}`,
-      avatar: avatars[Math.floor(Math.random() * avatars.length)],
-      days: Math.floor(1 + Math.random() * 30),
-      profit: profit,
-      copyAmount: baseCopyAmount,
-      totalVolume: baseCopyAmount * (1 + Math.random()),
-    };
-  });
-};
 import {
   Dialog,
   DialogContent,
@@ -326,38 +301,15 @@ const PlayerLeaderboardTable = () => {
         setIsLoading(true);
         const INITIAL_BALANCE = 100000;
         
-        // 将虚拟玩家转换为 PlayerData 格式（只选择推荐者）
-        const virtualPlayersData: PlayerData[] = virtualPlayers
-          .filter(player => player.isRecommender !== false) // 只选择推荐者
-          .map((player, index) => {
-            // 为虚拟玩家计算投注金额和盈利金额
-            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
-            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
-            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
-            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
-            
-            return {
-              ...player,
-              totalBetAmount,
-              profitAmount,
-              rank: index + 1,
-              isVirtual: true,
-              isRecommender: player.isRecommender ?? true,
-              unlockPrice: player.unlockPrice,
-              isVip: player.isVip, // 传递VIP状态
-            };
-          });
-        
-        // 获取所有用户的基本信息
+        // 仅使用真实数据：从 users + user_balances + user_predictions 聚合
         const { data: usersData, error: usersError } = await supabase
           .from('users')
           .select('id, display_name, avatar_url, signature');
         
         if (usersError) throw usersError;
         
-        // 如果没有真实用户或获取失败，只使用虚拟玩家
         if (!usersData || usersData.length === 0) {
-          setAllPlayers(virtualPlayersData);
+          setAllPlayers([]);
           return;
         }
         
@@ -469,11 +421,8 @@ const PlayerLeaderboardTable = () => {
           };
         }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
         
-        // 合并真实玩家和虚拟玩家
-        const combined = [...virtualPlayersData, ...realPlayerStats];
-        
-        // 按胜率排序并设置排名
-        const sortedPlayers = combined
+        // 按胜率排序并设置排名（仅真实数据）
+        const sortedPlayers = realPlayerStats
           .sort((a, b) => b.winRate - a.winRate)
           .map((player, index) => ({
             ...player,
@@ -483,26 +432,7 @@ const PlayerLeaderboardTable = () => {
         setAllPlayers(sortedPlayers);
       } catch (error) {
         console.error('Error fetching all players:', error);
-        // 出错时使用虚拟玩家（只选择推荐者）
-        const virtualPlayersData: PlayerData[] = virtualPlayers
-          .filter(player => player.isRecommender !== false)
-          .map((player, index) => {
-            // 为虚拟玩家计算投注金额和盈利金额
-            // 虚拟玩家的profit数据是以分为单位（与真实玩家一致）
-            // 假设平均每次投注200元（20000分），总投注金额 = totalPredictions * 20000
-            const totalBetAmount = player.totalPredictions * 20000; // 每次投注200元 = 20000分
-            const profitAmount = player.profit; // profit已经是盈利金额（以分为单位）
-            
-            return {
-              ...player,
-              totalBetAmount,
-              profitAmount,
-              rank: index + 1,
-              isVirtual: true,
-              isRecommender: player.isRecommender ?? true,
-            };
-          });
-        setAllPlayers(virtualPlayersData);
+        setAllPlayers([]);
       } finally {
         setIsLoading(false);
       }
@@ -562,6 +492,38 @@ const PlayerLeaderboardTable = () => {
     });
     setLikeCounts(initLikeCounts);
   }, [allPlayers]);
+
+  // 获取某玩家的跟单用户列表（真实数据：user_follows + users）
+  const fetchPlayerFollowers = async (playerId: string, playerName: string): Promise<{ id: string; name: string; avatar: string; days: number; profit: number; copyAmount: number; totalVolume: number }[]> => {
+    const { data: followsData, error: followsError } = await supabase
+      .from('user_follows')
+      .select('follower_id, created_at')
+      .eq('following_id', playerId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (followsError || !followsData?.length) return [];
+    const followerIds = followsData.map((f) => f.follower_id);
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('id, display_name, avatar_url')
+      .in('id', followerIds);
+    if (usersError || !usersData?.length) return [];
+    const userMap = new Map(usersData.map((u) => [u.id, u]));
+    return followsData.map((f, i) => {
+      const u = userMap.get(f.follower_id);
+      const created = f.created_at ? new Date(f.created_at) : new Date();
+      const days = Math.max(0, Math.floor((Date.now() - created.getTime()) / (24 * 60 * 60 * 1000)));
+      return {
+        id: f.follower_id,
+        name: u?.display_name ?? '',
+        avatar: u?.avatar_url ?? '',
+        days,
+        profit: 0,
+        copyAmount: 0,
+        totalVolume: 0,
+      };
+    });
+  };
 
   // 处理点赞/取消点赞（使用本地状态，不涉及数据库）
   const handleLike = (playerId: string, e?: React.MouseEvent) => {
@@ -651,19 +613,6 @@ const PlayerLeaderboardTable = () => {
           todayWinRatesMap.set(userId, { winRate, total: stats.total, correct: stats.correct });
         });
 
-        // 为虚拟玩家生成模拟今日数据（参考跟单排行榜的逻辑）
-        virtualPlayers.forEach(player => {
-          const total = Math.floor(Math.random() * 8) + 3;
-          const correct = Math.floor(total * (player.winRate / 100) + (Math.random() - 0.5) * 2);
-          const actualCorrect = Math.max(0, Math.min(total, correct));
-          const winRate = total > 0 ? (actualCorrect / total) * 100 : 0;
-          todayWinRatesMap.set(player.id, {
-            total,
-            correct: actualCorrect,
-            winRate,
-          });
-        });
-
         setTodayWinRates(todayWinRatesMap);
       } catch (error) {
         console.error('Error fetching today win rates:', error);
@@ -673,104 +622,10 @@ const PlayerLeaderboardTable = () => {
     fetchTodayWinRates();
   }, []);
 
-  // 获取指定玩家的今日推荐比赛
-  const fetchTodayHistory = async (playerId: string, playerName: string, isVirtual: boolean) => {
+  // 获取指定玩家的今日预测（仅真实数据：user_predictions + daily_matches）
+  const fetchTodayHistory = async (playerId: string, playerName: string, _isVirtual: boolean) => {
     setIsLoadingHistory(true);
     setIsHistoryDialogOpen(true);
-    
-    // 今日推荐的比赛（未开始的比赛）
-    const upcomingMatches = [
-      { home: '皇家马德里', away: '巴塞罗那', matchTime: '21:00' },
-      { home: '曼城', away: '利物浦', matchTime: '22:30' },
-      { home: '拜仁慕尼黑', away: '多特蒙德', matchTime: '21:30' },
-      { home: '巴黎圣日耳曼', away: '马赛', matchTime: '23:00' },
-      { home: '尤文图斯', away: 'AC米兰', matchTime: '20:45' },
-      { home: '切尔西', away: '阿森纳', matchTime: '22:00' },
-      { home: '国际米兰', away: '那不勒斯', matchTime: '21:45' },
-      { home: '马德里竞技', away: '塞维利亚', matchTime: '20:00' },
-    ];
-    
-    // 已完成的比赛（用于显示历史战绩）
-    const completedMatches = [
-      { home: '曼联', away: '热刺', homeScore: 2, awayScore: 1 },
-      { home: '阿森纳', away: '纽卡斯尔', homeScore: 3, awayScore: 0 },
-    ];
-
-    // 为虚拟玩家生成模拟数据
-    if (isVirtual) {
-      const todayData = todayWinRates.get(playerId);
-      // 生成2-4场未开始的推荐比赛
-      const upcomingCount = Math.floor(Math.random() * 3) + 2;
-      // 生成1-2场已完成的比赛
-      const completedCount = Math.floor(Math.random() * 2) + 1;
-      
-      const mockPredictions: TodayPrediction[] = [];
-      
-      // 添加未开始的推荐比赛
-      for (let i = 0; i < upcomingCount; i++) {
-        const match = upcomingMatches[i % upcomingMatches.length];
-        const betAmount = Math.floor(Math.random() * 400) + 100;
-        const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
-        // 只有大小球和让分胜负两种类型
-        const isOverUnder = Math.random() > 0.5;
-        const overUnderPredictions = ['大 2.5球', '小 2.5球', '大 1.5球', '小 1.5球', '大 3.5球', '小 3.5球'];
-        const handicapPredictions = ['让分主胜 -0.5', '让分客胜 +0.5', '让分主胜 -1', '让分客胜 +1', '让分主胜 -1.5', '让分客胜 +1.5'];
-        const prediction = isOverUnder 
-          ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
-          : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
-        mockPredictions.push({
-          id: `upcoming-${playerId}-${i}`,
-          match_id: `upcoming-${1000 + i}`,
-          prediction: prediction,
-          prediction_type: isOverUnder ? 'over_under' : 'handicap',
-          bet_amount: betAmount,
-          potential_payout: potentialPayout,
-          result: null, // 未开始
-          actual_payout: null,
-          created_at: new Date().toISOString(),
-          match_date: new Date().toISOString(),
-          home_team: match.home,
-          away_team: match.away,
-          home_score: null,
-          away_score: null,
-        });
-      }
-      
-      // 添加已完成的比赛
-      for (let i = 0; i < completedCount; i++) {
-        const match = completedMatches[i % completedMatches.length];
-        const isWin = Math.random() > 0.4;
-        const betAmount = Math.floor(Math.random() * 400) + 100;
-        const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
-        const isOverUnder = Math.random() > 0.5;
-        const overUnderPredictions = ['大 2.5球', '小 2.5球', '大 1.5球', '小 1.5球'];
-        const handicapPredictions = ['让分主胜 -0.5', '让分客胜 +0.5', '让分主胜 -1', '让分客胜 +1'];
-        const prediction = isOverUnder 
-          ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
-          : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
-        mockPredictions.push({
-          id: `completed-${playerId}-${i}`,
-          match_id: `completed-${2000 + i}`,
-          prediction: prediction,
-          prediction_type: isOverUnder ? 'over_under' : 'handicap',
-          bet_amount: betAmount,
-          potential_payout: potentialPayout,
-          result: isWin ? 'win' : 'loss',
-          actual_payout: isWin ? potentialPayout : 0,
-          created_at: new Date(Date.now() - 3600000).toISOString(),
-          match_date: new Date().toISOString(),
-          home_team: match.home,
-          away_team: match.away,
-          home_score: match.homeScore,
-          away_score: match.awayScore,
-        });
-      }
-      
-      setSelectedPlayerHistory({ playerId, playerName, predictions: mockPredictions });
-      setIsLoadingHistory(false);
-      return;
-    }
-
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -784,97 +639,53 @@ const PlayerLeaderboardTable = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching today history:', error);
+        setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
+        return;
       }
-
-      // 如果没有真实数据，生成虚拟数据（包含未开始的推荐比赛）
       if (!data || data.length === 0) {
-        const upcomingCount = Math.floor(Math.random() * 3) + 2;
-        const completedCount = Math.floor(Math.random() * 2) + 1;
-        
-        const mockPredictions: TodayPrediction[] = [];
-        // 只有大小球和让分胜负两种类型
-        const overUnderPredictions = ['大 2.5球', '小 2.5球', '大 1.5球', '小 1.5球', '大 3.5球', '小 3.5球'];
-        const handicapPredictions = ['让分主胜 -0.5', '让分客胜 +0.5', '让分主胜 -1', '让分客胜 +1', '让分主胜 -1.5', '让分客胜 +1.5'];
-        
-        // 添加未开始的推荐比赛
-        for (let i = 0; i < upcomingCount; i++) {
-          const match = upcomingMatches[i % upcomingMatches.length];
-          const betAmount = Math.floor(Math.random() * 400) + 100;
-          const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
-          const isOverUnder = Math.random() > 0.5;
-          const prediction = isOverUnder 
-            ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
-            : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
-          mockPredictions.push({
-            id: `upcoming-real-${playerId}-${i}`,
-            match_id: `upcoming-${3000 + i}`,
-            prediction: prediction,
-            prediction_type: isOverUnder ? 'over_under' : 'handicap',
-            bet_amount: betAmount,
-            potential_payout: potentialPayout,
-            result: null,
-            actual_payout: null,
-            created_at: new Date().toISOString(),
-            match_date: new Date().toISOString(),
-            home_team: match.home,
-            away_team: match.away,
-            home_score: null,
-            away_score: null,
-          });
-        }
-        
-        // 添加已完成的比赛
-        for (let i = 0; i < completedCount; i++) {
-          const match = completedMatches[i % completedMatches.length];
-          const isWin = Math.random() > 0.4;
-          const betAmount = Math.floor(Math.random() * 400) + 100;
-          const potentialPayout = betAmount * (Math.random() * 0.8 + 1.5);
-          const isOverUnder = Math.random() > 0.5;
-          const prediction = isOverUnder 
-            ? overUnderPredictions[Math.floor(Math.random() * overUnderPredictions.length)]
-            : handicapPredictions[Math.floor(Math.random() * handicapPredictions.length)];
-          mockPredictions.push({
-            id: `completed-real-${playerId}-${i}`,
-            match_id: `completed-${4000 + i}`,
-            prediction: prediction,
-            prediction_type: isOverUnder ? 'over_under' : 'handicap',
-            bet_amount: betAmount,
-            potential_payout: potentialPayout,
-            result: isWin ? 'win' : 'loss',
-            actual_payout: isWin ? potentialPayout : 0,
-            created_at: new Date(Date.now() - 3600000).toISOString(),
-            match_date: new Date().toISOString(),
-            home_team: match.home,
-            away_team: match.away,
-            home_score: match.homeScore,
-            away_score: match.awayScore,
-          });
-        }
-        
-        setSelectedPlayerHistory({ playerId, playerName, predictions: mockPredictions });
-      } else {
-        const predictionsData: TodayPrediction[] = data.map((pred: any, index: number) => {
-          const match = upcomingMatches[index % upcomingMatches.length];
-          return {
-            id: pred.id,
-            match_id: pred.match_id,
-            prediction: pred.prediction,
-            prediction_type: pred.prediction_type,
-            bet_amount: pred.bet_amount,
-            potential_payout: pred.potential_payout,
-            result: pred.result,
-            actual_payout: pred.actual_payout,
-            created_at: pred.created_at,
-            match_date: pred.match_date,
-            home_team: match.home,
-            away_team: match.away,
-            home_score: pred.result ? 2 : null,
-            away_score: pred.result ? 1 : null,
+        setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
+        return;
+      }
+      const matchIds = [...new Set((data as { match_id: string }[]).map((p) => p.match_id).filter((id) => id && !String(id).startsWith("upcoming-") && !String(id).startsWith("completed-")))];
+      const matchesMap: Record<string, { home_team?: string; away_team?: string; home_scores?: number[]; away_scores?: number[] }> = {};
+      if (matchIds.length > 0) {
+        const { data: matchesData } = await supabase
+          .from("daily_matches" as any)
+          .select("match_id, home_team, away_team, home_scores, away_scores")
+          .in("match_id", matchIds);
+        (matchesData || []).forEach((m: { match_id: string; home_team?: string; away_team?: string; home_scores?: number[]; away_scores?: number[] }) => {
+          matchesMap[String(m.match_id)] = {
+            home_team: m.home_team,
+            away_team: m.away_team,
+            home_scores: m.home_scores,
+            away_scores: m.away_scores,
           };
         });
-        setSelectedPlayerHistory({ playerId, playerName, predictions: predictionsData });
       }
+      const predictionsData: TodayPrediction[] = (data as any[]).map((pred) => {
+        const match = matchesMap[String(pred.match_id)];
+        const homeScore = match?.home_scores?.[0] ?? null;
+        const awayScore = match?.away_scores?.[0] ?? null;
+        return {
+          id: pred.id,
+          match_id: pred.match_id,
+          prediction: pred.prediction,
+          prediction_type: pred.prediction_type,
+          bet_amount: pred.bet_amount,
+          potential_payout: pred.potential_payout,
+          result: pred.result,
+          actual_payout: pred.actual_payout,
+          created_at: pred.created_at,
+          match_date: pred.match_date,
+          handicap_line: pred.handicap_line,
+          over_under_line: pred.over_under_line,
+          home_team: match?.home_team,
+          away_team: match?.away_team,
+          home_score: homeScore,
+          away_score: awayScore,
+        };
+      });
+      setSelectedPlayerHistory({ playerId, playerName, predictions: predictionsData });
     } catch (error) {
       console.error('Error fetching today history:', error);
       setSelectedPlayerHistory({ playerId, playerName, predictions: [] });
@@ -892,6 +703,9 @@ const PlayerLeaderboardTable = () => {
     setCopyBetAmount(100);
   };
 
+  // 占位符预测（今日推荐无真实数据时的模拟项）不可写入数据库，避免 user_predictions 出现 upcoming-1001 等脏数据
+  const isPlaceholderPrediction = (matchId: string) => /^(upcoming-|completed-)/.test(String(matchId ?? ''));
+
   const confirmCopyTrade = async () => {
     if (!copyTradeDialog) {
       return;
@@ -906,6 +720,11 @@ const PlayerLeaderboardTable = () => {
 
     if (copyBetAmount < 10) {
       toast.error(t('min_subscribe_amount'));
+      return;
+    }
+
+    if (isPlaceholderPrediction(copyTradeDialog.prediction.match_id)) {
+      toast.error(t('subscribe_placeholder_only') || '该条为展示数据，暂不可订阅');
       return;
     }
 
@@ -1314,9 +1133,9 @@ const PlayerLeaderboardTable = () => {
                                 e.stopPropagation();
                                 fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                               }}
-                              onShowFollowers={(e, p, count) => {
+                              onShowFollowers={async (e, p) => {
                                 e.stopPropagation();
-                                const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                                const followers = await fetchPlayerFollowers(p.id, p.displayName);
                                 setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
                                 setIsPlayerFollowersDialogOpen(true);
                               }}
@@ -1403,9 +1222,9 @@ const PlayerLeaderboardTable = () => {
                                 e.stopPropagation();
                                 fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                               }}
-                              onShowFollowers={(e, p, count) => {
+                              onShowFollowers={async (e, p) => {
                                 e.stopPropagation();
-                                const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
+                                const followers = await fetchPlayerFollowers(p.id, p.displayName);
                                 setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
                                 setIsPlayerFollowersDialogOpen(true);
                               }}
@@ -1493,11 +1312,11 @@ const PlayerLeaderboardTable = () => {
                               e.stopPropagation();
                               fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                             }}
-                            onShowFollowers={(e, p, count) => {
+                            onShowFollowers={async (e, p) => {
                               e.stopPropagation();
-                              const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
-                              setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
-                              setIsPlayerFollowersDialogOpen(true);
+                              const followers = await fetchPlayerFollowers(p.id, p.displayName);
+                                setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                                setIsPlayerFollowersDialogOpen(true);
                             }}
                             maskPlayerName={maskPlayerName}
                             calculateEstimatedPrize={calculateEstimatedPrize}
@@ -1579,11 +1398,11 @@ const PlayerLeaderboardTable = () => {
                         e.stopPropagation();
                         fetchTodayHistory(player.id, player.displayName, player.isVirtual || false);
                       }}
-                            onShowFollowers={(e, p, count) => {
+                            onShowFollowers={async (e, p) => {
                               e.stopPropagation();
-                              const followers = generatePlayerMockFollowers(p.id, p.displayName, count);
-                              setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
-                              setIsPlayerFollowersDialogOpen(true);
+                              const followers = await fetchPlayerFollowers(p.id, p.displayName);
+                                setSelectedPlayerFollowers({ playerId: p.id, playerName: p.displayName, followers });
+                                setIsPlayerFollowersDialogOpen(true);
                             }}
                             maskPlayerName={maskPlayerName}
                             calculateEstimatedPrize={calculateEstimatedPrize}
