@@ -302,6 +302,7 @@ export const ja = {
       "register_now": "今すぐ登録!",
       "have_account": "アカウントをお持ち?",
       "login_now": "今すぐログイン",
+      "view_predictions_free_after_register": "登録後、予測を無料で閲覧",
       "ai_models": "AI予測モデル",
       "validation_failed": "検証失敗",
       "valid_country_code": "有効な国コードを入力してください",

@@ -302,6 +302,7 @@ export const ru = {
       "register_now": "Зарегистрируйтесь Сейчас!",
       "have_account": "Есть аккаунт?",
       "login_now": "Войдите Сейчас",
+      "view_predictions_free_after_register": "Бесплатный просмотр прогнозов после регистрации",
       "ai_models": "Модели Прогнозирования ИИ",
       "validation_failed": "Ошибка Проверки",
       "valid_country_code": "Введите правильный код страны",

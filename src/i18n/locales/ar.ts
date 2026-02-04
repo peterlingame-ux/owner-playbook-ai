@@ -302,6 +302,7 @@ export const ar = {
       "register_now": "سجل الآن!",
       "have_account": "لديك حساب؟",
       "login_now": "سجل الدخول الآن",
+      "view_predictions_free_after_register": "عرض التوقعات مجاناً بعد التسجيل",
       "ai_models": "نماذج التنبؤ بالذكاء الاصطناعي",
       "validation_failed": "فشل التحقق",
       "valid_country_code": "أدخل رمز دولة صالح",

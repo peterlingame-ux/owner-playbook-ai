@@ -302,6 +302,7 @@ export const th = {
       "register_now": "สมัครเลย!",
       "have_account": "มีบัญชีแล้ว?",
       "login_now": "เข้าสู่ระบบเลย",
+      "view_predictions_free_after_register": "ดูการทำนายฟรีหลังลงทะเบียน",
       "ai_models": "โมเดลทำนาย AI",
       "validation_failed": "การตรวจสอบล้มเหลว",
       "valid_country_code": "กรุณากรอกรหัสประเทศที่ถูกต้อง",

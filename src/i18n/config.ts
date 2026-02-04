@@ -32,6 +32,7 @@ import { ru } from './locales/ru';
 import { hi } from './locales/hi';
 import { it } from './locales/it';
 import { th } from './locales/th';
+import { vi } from './locales/vi';
 import { ko } from './locales/ko';
 
 const resources = {
@@ -544,6 +545,7 @@ const resources = {
       "subscription_full_desc": "{{model}} subscription is full, please try again later or choose another AI model",
       "login_required": "Login Required",
       "login_prompt": "Please login to view AI prediction analysis results",
+      "view_predictions_free_after_register": "Free to view predictions after registration",
       "login_now": "Login Now",
       "follow": "Follow",
       "followers": "Followers",
@@ -1826,6 +1828,7 @@ const resources = {
       "subscription_full_desc": "{{model}} 的订阅名额已满，请稍后再试或选择其他AI模型",
       "login_required": "需要登录",
       "login_prompt": "登录后即可查看AI的预测分析结果",
+      "view_predictions_free_after_register": "注册后免费查看预测",
       "login_now": "立即登录",
       "follow": "关注",
       "followers": "关注者",
@@ -2641,7 +2644,8 @@ const resources = {
   ru: ru,
   hi: hi,
   it: it,
-  th: th
+  th: th,
+  vi: vi
 };
 
 // 香港繁體 (zh-HK): 從簡體中文自動轉換為繁體中文
@@ -2661,7 +2665,7 @@ i18n
     resources,
     lng: savedLanguage,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'zh', 'zh-HK', 'ko', 'es', 'fr', 'de', 'pt', 'ja', 'ar', 'ru', 'hi', 'it', 'th'],
+    supportedLngs: ['en', 'zh', 'zh-HK', 'ko', 'es', 'fr', 'de', 'pt', 'ja', 'ar', 'ru', 'hi', 'it', 'th', 'vi'],
     interpolation: {
       escapeValue: false
     }

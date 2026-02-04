@@ -302,6 +302,7 @@ export const it = {
       "register_now": "Registrati Ora!",
       "have_account": "Hai un account?",
       "login_now": "Accedi Ora",
+      "view_predictions_free_after_register": "Visualizza le previsioni gratuitamente dopo la registrazione",
       "ai_models": "Modelli di Previsione IA",
       "validation_failed": "Validazione Fallita",
       "valid_country_code": "Inserisci un prefisso paese valido",

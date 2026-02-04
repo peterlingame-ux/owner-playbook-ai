@@ -2241,7 +2241,7 @@ const ActiveAIBets = () => {
                 >
                   <div className="text-center px-4 py-3">
                     <p className="text-xs sm:text-sm font-medium text-foreground">
-                      注册后免费查看预测
+                      {t('view_predictions_free_after_register')}
                     </p>
                   </div>
                 </div>

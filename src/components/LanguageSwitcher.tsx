@@ -22,6 +22,7 @@ import flagRussia from "@/assets/flag-russia.png";
 import flagIndia from "@/assets/flag-india.png";
 import flagItaly from "@/assets/flag-italy.png";
 import flagThailand from "@/assets/flag-thailand.png";
+import flagVietnam from "@/assets/flag-vietnam.svg";
 import flagHongKong from "@/assets/flag-hong-kong.svg";
 
 const languages = [
@@ -39,6 +40,7 @@ const languages = [
   { code: 'hi', label: 'हिंदी', flag: flagIndia, alt: 'India Flag' },
   { code: 'it', label: 'IT', flag: flagItaly, alt: 'Italy Flag' },
   { code: 'th', label: 'ไทย', flag: flagThailand, alt: 'Thailand Flag' },
+  { code: 'vi', label: 'Tiếng Việt', flag: flagVietnam, alt: 'Vietnam Flag' },
 ];
 
 const LanguageSwitcher = () => {

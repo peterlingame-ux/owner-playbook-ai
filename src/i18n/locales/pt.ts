@@ -302,6 +302,7 @@ export const pt = {
       "register_now": "Registre-se Agora!",
       "have_account": "Já tem conta?",
       "login_now": "Entre Agora",
+      "view_predictions_free_after_register": "Visualize previsões grátis após o cadastro",
       "ai_models": "Modelos de Previsão IA",
       "validation_failed": "Validação Falhou",
       "valid_country_code": "Digite um código de país válido",

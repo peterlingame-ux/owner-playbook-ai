@@ -302,6 +302,7 @@ export const de = {
       "register_now": "Jetzt Registrieren!",
       "have_account": "Haben Sie ein Konto?",
       "login_now": "Jetzt Anmelden",
+      "view_predictions_free_after_register": "Nach Registrierung kostenlos Vorhersagen ansehen",
       "ai_models": "KI Vorhersagemodelle",
       "validation_failed": "Validierung Fehlgeschlagen",
       "valid_country_code": "Bitte gültige Ländervorwahl eingeben",

@@ -381,6 +381,7 @@ export const ko = {
       "register_now": "지금 가입!",
       "have_account": "계정이 있으신가요?",
       "login_now": "지금 로그인",
+      "view_predictions_free_after_register": "회원가입 후 무료로 예측 보기",
       "ai_models": "AI 예측 모델",
       "validation_failed": "검증 실패",
       "valid_country_code": "유효한 국가 코드를 입력하세요",

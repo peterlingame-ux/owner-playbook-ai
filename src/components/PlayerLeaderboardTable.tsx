@@ -11,6 +11,7 @@ import { AnimatedPrize, AnimatedPrizePool } from "./AnimatedPrize";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { getUTC8Range } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Area, AreaChart } from "recharts";
@@ -332,15 +333,14 @@ const PlayerLeaderboardTable = () => {
         // 创建VIP用户集合
         const vipUserIds = new Set(vipData?.map(v => v.user_id) || []);
         
-        // 获取所有用户的预测统计 - 根据时间范围筛选
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - timeRange);
-        startDate.setHours(0, 0, 0, 0);
-        
+        // 获取所有用户的预测统计 - 按 UTC+8 日/周/月时间范围（与 AI 排行榜一致）
+        const rangeMode = timeRange === 1 ? "day" : timeRange === 7 ? "week" : "month";
+        const { start: rangeStart, end: rangeEnd } = getUTC8Range(rangeMode);
         const { data: predictionsData, error: predictionsError } = await supabase
           .from('user_predictions')
           .select('user_id, result, confidence, created_at, bet_amount, actual_payout')
-          .gte('created_at', startDate.toISOString());
+          .gte('created_at', rangeStart.toISOString())
+          .lte('created_at', rangeEnd.toISOString());
         
         if (predictionsError) throw predictionsError;
         

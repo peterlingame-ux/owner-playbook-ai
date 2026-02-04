@@ -385,6 +385,7 @@ export const es = {
       "register_now": "¡Regístrate Ahora!",
       "have_account": "¿Ya tienes cuenta?",
       "login_now": "Inicia Sesión",
+      "view_predictions_free_after_register": "Ver predicciones gratis tras registrarse",
       "ai_models": "Modelos de Predicción IA",
       "validation_failed": "Validación Fallida",
       "valid_country_code": "Ingrese código de país válido",

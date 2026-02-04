@@ -302,6 +302,7 @@ export const hi = {
       "register_now": "अभी रजिस्टर करें!",
       "have_account": "खाता है?",
       "login_now": "अभी लॉगिन करें",
+      "view_predictions_free_after_register": "रजिस्ट्रेशन के बाद मुफ्त में भविष्यवाणियाँ देखें",
       "ai_models": "AI भविष्यवाणी मॉडल",
       "validation_failed": "सत्यापन विफल",
       "valid_country_code": "कृपया मान्य देश कोड दर्ज करें",
