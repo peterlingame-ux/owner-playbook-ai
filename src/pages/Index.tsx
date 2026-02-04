@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
@@ -259,7 +259,7 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       
-      <div className="container mx-auto px-2 sm:px-4 md:px-6 py-3 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
+      <div key={i18n.language} className="container mx-auto px-2 sm:px-4 md:px-6 py-3 sm:py-6 lg:py-10 safe-area-padding max-w-7xl w-full overflow-x-hidden">
         {/* Official Promotional Video Section - Western Minimalist Style */}
         <section className="mb-6 sm:mb-12 lg:mb-16">
           {/* Title */}
@@ -375,9 +375,9 @@ const Index = () => {
           </p>
         </section>
 
-        {/* AI Betting Cards - Match Predictions Today */}
+        {/* AI Betting Cards - Match Predictions Today (key so language switch remounts) */}
         <section id="match-predictions" className="mb-6 sm:mb-10 lg:mb-14 scroll-mt-20">
-          <ActiveAIBets />
+          <ActiveAIBets key={i18n.language} />
         </section>
 
         {/* Models Section */}

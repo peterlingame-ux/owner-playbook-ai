@@ -260,7 +260,7 @@ const UserModelCard = () => {
               }`}>
                 {totalBalanceLabel}
               </span>
-              <img src={hunterCoinIcon} alt="猎人币" className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" />
+              <img src={hunterCoinIcon} alt={t('hunter_coins_unit') || 'Hunter Coins'} className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" />
             </div>
           </div>
 

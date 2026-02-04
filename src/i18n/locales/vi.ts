@@ -37,7 +37,10 @@ export const vi = {
     "player": "Người chơi",
     "predictions": "Dự đoán",
     "correct": "Đúng",
+    "correct_short": "Thắng",
     "wrong": "Sai",
+    "wrong_short": "Thua",
+    "predictions_short": "Tổng",
     "performance": "Thành tích",
     "ai_leaderboard": "AI",
     "player_leaderboard": "Người chơi",
@@ -159,6 +162,9 @@ export const vi = {
     "legend_away": "Khách",
     "legend_pass": "Đường chuyền/chạy",
     "total_predictions": "Tổng dự đoán",
+
+    "active_ai_predictions": "Dự đoán trận đấu AI hôm nay",
+    "ai_predictions_today": "Các trận AI dự đoán hôm nay, cập nhật hàng ngày",
 
     // Match Center
     "loading_matches": "Đang tải trận đấu...",
@@ -302,7 +308,6 @@ export const vi = {
       "register_now": "Đăng ký ngay!",
       "have_account": "Đã có tài khoản?",
       "login_now": "Đăng nhập ngay",
-      "view_predictions_free_after_register": "Xem dự đoán miễn phí sau khi đăng ký",
       "ai_models": "Mô hình dự đoán AI",
       "validation_failed": "Xác thực thất bại",
       "valid_country_code": "Vui lòng nhập mã quốc gia hợp lệ",
@@ -341,6 +346,10 @@ export const vi = {
     },
 
     // Common
+    "no_active_predictions": "Hiện không có dự đoán đang hoạt động",
+    "no_bets_for_ai": "AI này chưa có bản ghi cược",
+    "no_bets": "Chưa có cược",
+    "view_predictions_free_after_register": "Xem dự đoán miễn phí sau khi đăng ký",
     "load_failed": "Tải thất bại",
     "fetch_match_failed": "Không thể tải trận đấu",
     "unknown_error": "Đã xảy ra lỗi không xác định",
@@ -354,6 +363,7 @@ export const vi = {
     "subscribe_failed": "Đăng ký thất bại",
     "login_first": "Vui lòng đăng nhập trước",
     "login_to_subscribe": "Đăng nhập để theo dõi mô hình AI",
+    "login_to_create_model": "Đăng nhập để tạo mô hình riêng",
     "fetch_analysis_failed": "Tải phân tích thất bại",
     "cannot_fetch_analysis": "Không thể tải phân tích",
     "no_analysis_found": "Không tìm thấy phân tích",
@@ -362,6 +372,9 @@ export const vi = {
     "fetch_match_list_failed": "Tải danh sách trận thất bại",
     "operation_failed": "Thao tác thất bại",
     "copy_trade": "Theo dõi mô hình",
+    "follow_model": "Theo dõi mô hình",
+    "following": "Đang theo dõi",
+    "demo_player": "Mô hình người chơi",
     "one_click_copy_trade": "Sao chép giao dịch một chạm",
     "copy_trade_player": "Theo dõi người chơi",
     "copy_trade_btn": "Theo dõi",

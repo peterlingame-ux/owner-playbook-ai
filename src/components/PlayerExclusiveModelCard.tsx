@@ -1998,7 +1998,7 @@ const PlayerExclusiveModelCard = ({
           >
             <div className="text-center px-4 py-3">
               <p className="text-xs sm:text-sm font-medium text-foreground">
-                注册后获得专属模型
+                {t('view_predictions_free_after_register')}
               </p>
             </div>
           </div>
