@@ -12,7 +12,9 @@ import { ArrowLeft, Eye, EyeOff, Lock, Phone, Home } from "lucide-react";
 import CountryCodeSelect from "@/components/CountryCodeSelect";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import authBg from "@/assets/auth-football-bg.jpg";
 import aiBluewhale from "@/assets/ai-icon-bluewhale.png";
 import aiGemini from "@/assets/ai-icon-gemini.png";
@@ -54,6 +56,8 @@ const Auth = () => {
   const [invitationCode, setInvitationCode] = useState("");
   const [invitationBonus, setInvitationBonus] = useState<number>(0);
   const [forgotPasswordPhone, setForgotPasswordPhone] = useState("");
+  const [showTrialDialog, setShowTrialDialog] = useState(false);
+  const [trialEndsAt, setTrialEndsAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -358,7 +362,10 @@ const Auth = () => {
               title: t("auth.register_success"),
               description: t("auth.welcome"),
             });
-            navigate("/");
+            const trialEnd = new Date(data.user.created_at);
+            trialEnd.setDate(trialEnd.getDate() + 7);
+            setTrialEndsAt(trialEnd);
+            setShowTrialDialog(true);
           } catch (err) {
             setLoading(false);
             toast({
@@ -453,7 +460,15 @@ const Auth = () => {
             title: t("auth.password_set_success"),
             description: t("auth.login_with_password"),
           });
-          navigate("/");
+          const isNewUser = user && (Date.now() - new Date(user.created_at).getTime() < 5 * 60 * 1000);
+          if (isNewUser) {
+            const trialEnd = new Date(user!.created_at);
+            trialEnd.setDate(trialEnd.getDate() + 7);
+            setTrialEndsAt(trialEnd);
+            setShowTrialDialog(true);
+          } else {
+            navigate("/");
+          }
         }
       }
     } catch (err) {
@@ -1168,6 +1183,33 @@ const Auth = () => {
         </CardContent>
       </Card>
       </div>
+
+      {/* 7-Day Free Trial Dialog - shown after registration */}
+      <Dialog open={showTrialDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowTrialDialog(false);
+          navigate("/");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>{t("free_trial_7_days_title")}</DialogTitle>
+            <DialogDescription>
+              {t("free_trial_7_days_desc")}
+              {trialEndsAt && (
+                <span className="mt-2 block font-medium text-foreground">
+                  {t("free_trial_ends_at")}: {format(trialEndsAt, "yyyy-MM-dd HH:mm")}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => { setShowTrialDialog(false); navigate("/"); }}>
+              {t("trial_dialog_continue")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <style>{`
         @keyframes float {

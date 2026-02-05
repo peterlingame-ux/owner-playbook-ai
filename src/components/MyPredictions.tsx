@@ -1191,43 +1191,49 @@ const MyPredictions = () => {
           <button 
             type="button"
             onClick={() => navigate('/my-following')}
-            className="flex-1 !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 whitespace-nowrap touch-manipulation"
+            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
           >
-            <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">
-              {followersList.length >= 1000 ? `${(followersList.length / 1000).toFixed(1)}K` : followersList.length}
-            </p>
-            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('followers_label') || '粉丝'}</p>
+            <div className="flex-1 flex items-center justify-center min-h-[28px] sm:min-h-[36px]">
+              <p className="text-base sm:text-2xl font-bold text-foreground whitespace-nowrap">
+                {followersList.length >= 1000 ? `${(followersList.length / 1000).toFixed(1)}K` : followersList.length}
+              </p>
+            </div>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-auto truncate px-1 shrink-0 whitespace-nowrap">{t('followers_label') || '粉丝'}</p>
           </button>
           
           {/* Following */}
           <button 
             type="button"
             onClick={() => navigate('/my-following')}
-            className="flex-1 !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 whitespace-nowrap touch-manipulation"
+            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
           >
-            <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">{followingList.length}</p>
-            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('following_label') || '关注'}</p>
+            <div className="flex-1 flex items-center justify-center min-h-[28px] sm:min-h-[36px]">
+              <p className="text-base sm:text-2xl font-bold text-foreground whitespace-nowrap">{followingList.length}</p>
+            </div>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-auto truncate px-1 shrink-0 whitespace-nowrap">{t('following_label') || '关注'}</p>
           </button>
           
           {/* Model Follows */}
           <button 
             type="button"
             onClick={() => navigate('/my-model-follows')}
-            className="flex-1 !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 whitespace-nowrap touch-manipulation"
+            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
           >
-            <p className="text-base sm:text-2xl font-bold text-foreground shrink-0 whitespace-nowrap">{modelFollowsCount}</p>
-            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1 shrink-0 whitespace-nowrap">{t('model_follows_label') || '模型关注'}</p>
+            <div className="flex-1 flex items-center justify-center min-h-[28px] sm:min-h-[36px]">
+              <p className="text-base sm:text-2xl font-bold text-foreground whitespace-nowrap">{modelFollowsCount}</p>
+            </div>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-auto truncate px-1 shrink-0 whitespace-nowrap">{t('model_follows_label') || '模型关注'}</p>
           </button>
           
           {/* Hunter Coin Balance */}
-          <div className="flex-1 py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0 overflow-hidden">
-            <div className="flex items-center justify-center gap-0.5 sm:gap-1.5 px-1">
-              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3.5 h-3.5 sm:w-6 sm:h-6 flex-shrink-0" />
-              <p className="text-base sm:text-2xl font-bold text-foreground truncate">
+          <div className="flex-1 flex flex-col py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0 overflow-hidden">
+            <div className="flex-1 flex items-center justify-center gap-0.5 sm:gap-1.5 px-0.5 min-w-0 min-h-[28px] sm:min-h-[36px]">
+              <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3 sm:w-5 sm:h-5 flex-shrink-0" />
+              <p className="text-[11px] sm:text-lg font-bold text-foreground min-w-0">
                 {(authUserBalance?.balance ?? stats?.balance ?? 0).toLocaleString()}
               </p>
             </div>
-            <p className="text-[9px] sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate px-1">{t('hunter_coin_balance') || '猎人币'}</p>
+            <p className="text-[9px] sm:text-sm text-muted-foreground mt-auto truncate px-1 shrink-0">{t('hunter_coin_balance') || '猎人币'}</p>
           </div>
         </div>
 

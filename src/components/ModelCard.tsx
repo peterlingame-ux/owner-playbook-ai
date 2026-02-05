@@ -196,7 +196,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
               </div>
             </motion.div>
             <div className="min-w-0">
-              <h3 className={`font-bold text-[9px] sm:text-lg tracking-tight uppercase ${theme.accent} truncate`}>
+              <h3 className={`font-semibold text-[9px] sm:text-lg tracking-tight uppercase ${theme.accent} truncate`}>
                 {model.displayName.split(' ')[0]}
               </h3>
             </div>

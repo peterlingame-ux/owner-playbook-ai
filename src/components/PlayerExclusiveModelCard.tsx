@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { getUTC8Timestamp } from "@/lib/utils";
 import { 
@@ -348,6 +349,7 @@ const PlayerExclusiveModelCard = ({
 }: PlayerExclusiveModelCardProps) => {
   const { t } = useTranslation();
   const { user, userProfile, refreshBalance } = useAuth();
+  const { trialExpired } = useTrialStatus(user);
   const [showFeedDialog, setShowFeedDialog] = useState(false);
   const [feedText, setFeedText] = useState('');
   const [isFeeding, setIsFeeding] = useState(false);
@@ -1308,7 +1310,7 @@ const PlayerExclusiveModelCard = ({
     <>
       <TiltCard
         className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className} relative`}
-        onClick={!user ? () => window.location.href = '/auth' : handleNextMatch}
+        onClick={!user ? () => window.location.href = '/auth' : trialExpired ? undefined : handleNextMatch}
         maxTilt={8}
         scale={1.02}
         glare={false}
@@ -1406,7 +1408,7 @@ const PlayerExclusiveModelCard = ({
         </div>
 
         {/* Content */}
-        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!user ? 'blur-[1px]' : ''}`}>
+        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!user || trialExpired ? 'blur-[1px]' : ''}`}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`player-${matchIndex}-${isManualPrediction ? 'manual' : 'auto'}`}
@@ -1455,7 +1457,7 @@ const PlayerExclusiveModelCard = ({
                     )}
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-[9px] sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate max-w-[70px] sm:max-w-none">
+                    <span className="text-[9px] sm:text-sm font-semibold tracking-wide uppercase text-slate-200 truncate max-w-[70px] sm:max-w-none">
                       {displayName}
                     </span>
                     <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
@@ -1757,12 +1759,12 @@ const PlayerExclusiveModelCard = ({
                       </div>
                       
                       {/* Stats Row */}
-                      <div className="flex items-center justify-between text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
-                        <div className="flex items-center gap-2 sm:gap-4">
-                          <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
-                          <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                      <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 overflow-hidden">
+                          <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                          <span className="shrink-0 text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span></span>
                         </div>
-                        <span className="font-mono font-bold text-success flex items-center gap-0.5">
+                        <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">
                           <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                           {(confirmedManualBet.betAmount * confirmedManualBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </span>
@@ -1808,12 +1810,12 @@ const PlayerExclusiveModelCard = ({
                       </div>
                       
                       {/* Bottom Stats Row */}
-                      <div className="flex items-center justify-between text-[9px] sm:text-[11px] pt-1.5 border-t border-white/10">
-                        <span className="text-muted-foreground">
-                          {t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span>
-                          <span className="ml-2 font-mono">@{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span>
-                        </span>
-                        <span className="font-mono font-bold text-success flex items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
+                      <div className="flex flex-nowrap items-center gap-2 text-[9px] sm:text-[11px] pt-1.5 border-t border-white/10">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+                          <span className="truncate text-muted-foreground">{t('confidence') || '置信度'}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                          <span className="shrink-0 font-mono text-muted-foreground">@{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span>
+                        </div>
+                        <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
                       </div>
                     </div>
                   )}
@@ -1919,12 +1921,12 @@ const PlayerExclusiveModelCard = ({
                   </div>
                   
                   {/* Stats Row */}
-                  <div className="flex items-center justify-between text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
-                    <div className="flex items-center gap-2 sm:gap-4">
-                      <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
-                      <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                  <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
+                    <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 overflow-hidden">
+                      <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
+                      <span className="shrink-0 text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
                     </div>
-                    <span className="font-mono font-bold text-success flex items-center gap-0.5">
+                    <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">
                       <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                       {(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </span>
@@ -1971,12 +1973,12 @@ const PlayerExclusiveModelCard = ({
                   </div>
                   
                   {/* Stats Row */}
-                  <div className="flex items-center justify-between text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
-                    <div className="flex items-center gap-2 sm:gap-4">
-                      <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
-                      <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                  <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
+                    <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 overflow-hidden">
+                      <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
+                      <span className="shrink-0 text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
                     </div>
-                    <span className="font-mono font-bold text-success flex items-center gap-0.5">
+                    <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">
                       <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                       {(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </span>
@@ -1987,18 +1989,22 @@ const PlayerExclusiveModelCard = ({
           </AnimatePresence>
         </div>
         
-        {/* 未登录时的遮罩层和提示 */}
-        {!user && (
+        {/* 未登录或试用已到期的遮罩层和提示 */}
+        {(!user || trialExpired) && (
           <div 
             className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 backdrop-blur-sm rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
-              window.location.href = '/auth';
+              if (!user) {
+                window.location.href = '/auth';
+              } else if (trialExpired) {
+                window.location.href = 'mailto:support@hunsoccer.com';
+              }
             }}
           >
-            <div className="text-center px-4 py-3">
-              <p className="text-xs sm:text-sm font-medium text-foreground">
-                {t('view_predictions_free_after_register')}
+            <div className="flex justify-center px-4 py-3 min-w-0">
+              <p className="text-[10px] sm:text-xs font-medium text-foreground w-max max-w-full break-words text-center">
+                {!user ? t('view_predictions_free_after_register') : t('free_trial_expired_contact')}
               </p>
             </div>
           </div>

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
 import PlayerExclusiveModelCard from "@/components/PlayerExclusiveModelCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { PlaceBetDialog } from "./PlaceBetDialog";
 import { toast } from "@/hooks/use-toast";
 import TiltCard from "@/components/TiltCard";
@@ -593,6 +594,7 @@ const MODEL_GRADIENTS: Record<string, { from: string; to: string; accent: string
 const ActiveAIBets = () => {
   const { t, i18n } = useTranslation();
   const { user, userProfile } = useAuth();
+  const { trialExpired } = useTrialStatus(user);
   
   // Get AI models (exclude locked ones like mystery and boospot, and hunsoccermax which is replaced by player's model)
   const activeAIs = aiModels.filter(ai => !ai.locked && ai.id !== 'hunsoccermax');
@@ -1599,7 +1601,7 @@ const ActiveAIBets = () => {
       {/* Modern Section Header */}
       <div className="flex items-center justify-center mb-3 sm:mb-6 lg:mb-8 px-1">
         <div className="relative">
-          <h2 className="text-xs sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight text-center">
+          <h2 className="text-xs sm:text-xl lg:text-2xl font-semibold text-foreground tracking-tight text-center">
             {t('active_ai_predictions')}
           </h2>
           <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 sm:h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60 rounded-full" />
@@ -1881,7 +1883,7 @@ const ActiveAIBets = () => {
             <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
               <TiltCard
                 className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''} relative`}
-                onClick={!user ? () => window.location.href = '/auth' : nextMatch}
+                onClick={!user ? () => window.location.href = '/auth' : trialExpired ? undefined : nextMatch}
                 maxTilt={8}
                 scale={1.02}
                 glare={false}
@@ -1945,7 +1947,7 @@ const ActiveAIBets = () => {
                               )}
 
               {/* Content */}
-              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!user ? 'blur-[1px]' : ''}`}>
+              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!user || trialExpired ? 'blur-[1px]' : ''}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -1985,7 +1987,7 @@ const ActiveAIBets = () => {
                           <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 sm:w-3.5 sm:h-3.5 bg-success rounded-full border sm:border-2 border-card" />
                         </div>
                         <div className="flex flex-col min-w-0 flex-1">
-                          <span className={`text-[9px] sm:text-sm font-bold tracking-wide uppercase ${gradient.accent} truncate max-w-[70px] sm:max-w-none`}>
+                          <span className={`text-[9px] sm:text-sm font-semibold tracking-wide uppercase ${gradient.accent} truncate max-w-[70px] sm:max-w-none`}>
                             {getModelDisplayName(aiModel)}
                           </span>
                           <span className="text-[8px] sm:text-xs text-muted-foreground/80 font-medium inline-flex items-center gap-0.5 shrink-0">
@@ -2122,17 +2124,21 @@ const ActiveAIBets = () => {
                       }`}>
                         <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 truncate">{getTeamName(currentMatchData!.match, 'home')}</span>
                         {handicapBet.handicapLine !== undefined && (() => {
-                          // 确保正确处理字符串和数字类型
-                          const handicapLineNum = typeof handicapBet.handicapLine === 'string' 
-                            ? parseFloat(handicapBet.handicapLine) 
-                            : handicapBet.handicapLine;
-                          const homeHandicapLine = isNaN(handicapLineNum) ? 0 : handicapLineNum;
+                          const line = handicapBet.handicapLine;
+                          let display: string;
+                          if (typeof line === 'number') {
+                            display = line < 0 ? line.toString() : line > 0 ? `+${line}` : '0';
+                          } else {
+                            const lineStr = String(line);
+                            if (lineStr.startsWith('-')) display = lineStr;
+                            else if (lineStr === '0' || lineStr === '0.0') display = '0';
+                            else display = `+${lineStr}`;
+                          }
                           return (
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {homeHandicapLine > 0 ? '+' : ''}
-                              {homeHandicapLine}
+                              {display}
                             </span>
                           );
                         })()}
@@ -2144,17 +2150,23 @@ const ActiveAIBets = () => {
                       }`}>
                         <span className="text-[8px] sm:text-[10px] font-semibold flex-1 min-w-0 truncate">{getTeamName(currentMatchData!.match, 'away')}</span>
                         {handicapBet.handicapLine !== undefined && (() => {
-                          // 确保正确计算客队的让球值（主队让球值的相反数）
-                          const handicapLineNum = typeof handicapBet.handicapLine === 'string' 
-                            ? parseFloat(handicapBet.handicapLine) 
-                            : handicapBet.handicapLine;
-                          const awayHandicapLine = isNaN(handicapLineNum) ? 0 : -handicapLineNum;
+                          const homeLine = handicapBet.handicapLine;
+                          let display: string;
+                          if (typeof homeLine === 'number') {
+                            const awayLine = -homeLine;
+                            display = awayLine < 0 ? awayLine.toString() : awayLine > 0 ? `+${awayLine}` : '0';
+                          } else {
+                            const homeLineStr = String(homeLine);
+                            const awayLineStr = homeLineStr.startsWith('-') ? homeLineStr.substring(1) : `-${homeLineStr}`;
+                            if (awayLineStr.startsWith('-')) display = awayLineStr;
+                            else if (awayLineStr === '0' || awayLineStr === '0.0') display = '0';
+                            else display = `+${awayLineStr}`;
+                          }
                           return (
                             <span className={`text-[8px] sm:text-[10px] font-mono font-bold shrink-0 ${
                               handicapBet.prediction === "AWAY_WIN" || handicapBet.prediction === "AWAY" ? "text-primary" : "text-muted-foreground"
                             }`}>
-                              {awayHandicapLine > 0 ? '+' : ''}
-                              {awayHandicapLine}
+                              {display}
                             </span>
                           );
                         })()}
@@ -2162,12 +2174,12 @@ const ActiveAIBets = () => {
                     </div>
                     
                     {/* Stats Row */}
-                    <div className="flex items-center justify-between text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
-                      <div className="flex items-center gap-2 sm:gap-4">
-                        <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
-                        <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
+                    <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 overflow-hidden">
+                        <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{handicapBet.confidence}%</span></span>
+                        <span className="shrink-0 text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, handicapBet.odds - 1).toFixed(2)}</span></span>
                       </div>
-                      <span className="font-mono font-bold text-success flex items-center gap-0.5">
+                      <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">
                         <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                         {(handicapBet.betAmount * handicapBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                       </span>
@@ -2214,12 +2226,12 @@ const ActiveAIBets = () => {
                     </div>
                     
                     {/* Stats Row */}
-                    <div className="flex items-center justify-between text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
-                      <div className="flex items-center gap-2 sm:gap-4">
-                        <span className="text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
-                        <span className="text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
+                    <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 sm:pt-2 border-t border-white/10">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 overflow-hidden">
+                        <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{overUnderBet.confidence}%</span></span>
+                        <span className="shrink-0 text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, overUnderBet.odds - 1).toFixed(2)}</span></span>
                       </div>
-                      <span className="font-mono font-bold text-success flex items-center gap-0.5">
+                      <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">
                         <img src={hunterCoinIcon} alt="猎人币" className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                         {(overUnderBet.betAmount * overUnderBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                       </span>
@@ -2230,18 +2242,22 @@ const ActiveAIBets = () => {
                 </AnimatePresence>
               </div>
               
-              {/* 未登录时的遮罩层和提示 */}
-              {!user && (
+              {/* 未登录或试用已到期的遮罩层和提示 */}
+              {(!user || trialExpired) && (
                 <div 
                   className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 backdrop-blur-sm rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    window.location.href = '/auth';
+                    if (!user) {
+                      window.location.href = '/auth';
+                    } else if (trialExpired) {
+                      window.location.href = 'mailto:support@hunsoccer.com';
+                    }
                   }}
                 >
-                  <div className="text-center px-4 py-3">
-                    <p className="text-xs sm:text-sm font-medium text-foreground">
-                      {t('view_predictions_free_after_register')}
+                  <div className="flex justify-center px-4 py-3 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-medium text-foreground w-max max-w-full break-words text-center">
+                      {!user ? t('view_predictions_free_after_register') : t('free_trial_expired_contact')}
                     </p>
                   </div>
                 </div>

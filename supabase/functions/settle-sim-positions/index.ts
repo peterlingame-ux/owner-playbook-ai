@@ -23,7 +23,7 @@ const getUTC8TimestampMs = (): number => {
   return Date.now();
 };
 
-type SettlementResult = "win" | "loss" | "push" | "void";
+type SettlementResult = "win" | "loss" | "push" | "half_win" | "half_loss" | "void";
 
 type SettlementItem = {
   positionId: number;
@@ -101,6 +101,8 @@ const VALID_RESULTS: SettlementResult[] = [
   "win",
   "loss",
   "push",
+  "half_win",
+  "half_loss",
   "void",
 ];
 
@@ -118,6 +120,14 @@ const computePayout = (
   switch (item.result) {
     case "win":
       payout = position.stake_amount * position.odds;
+      break;
+    case "half_win":
+      // 赢一半：本金 + 一半利润 = stake * (1 + (odds-1)/2) = stake * (1 + odds) / 2
+      payout = (position.stake_amount * (1 + position.odds)) / 2;
+      break;
+    case "half_loss":
+      // 输一半：退回一半本金
+      payout = position.stake_amount / 2;
       break;
     case "push":
     case "void":
@@ -426,9 +436,15 @@ const parseHandicapLine = (handicapLine: number | string | null | undefined): nu
   if (str.includes('/')) {
     const parts = str.split('/').map(part => part.trim());
     if (parts.length === 2) {
-      const line1 = parseFloat(parts[0]);
-      const line2 = parseFloat(parts[1]);
+      let line1 = parseFloat(parts[0]);
+      let line2 = parseFloat(parts[1]);
       if (!isNaN(line1) && !isNaN(line2)) {
+        // 亚洲盘分盘规则：第二个数若未带符号，则继承第一个数的符号
+        // 如 "-2.5/3" 表示 -2.5 和 -3；"-2/2.5" 表示 -2 和 -2.5
+        const part2 = parts[1];
+        if (line1 < 0 && !part2.startsWith('+') && !part2.startsWith('-')) {
+          line2 = -Math.abs(line2);
+        }
         return [line1, line2];
       }
     }
@@ -515,18 +531,18 @@ const calculateBetResult = (
       const result1 = calculateSingleHandicapResult(homeScore, awayScore, line1, isHomeBet);
       const result2 = calculateSingleHandicapResult(homeScore, awayScore, line2, isHomeBet);
       
-      // 亚洲让球盘规则：
-      // - 两个盘口都赢 = win
-      // - 两个盘口都输 = loss
-      // - 一个赢一个输 = push（平局，返回本金）
-      if (result1 === "win" && result2 === "win") {
-        return "win";
-      } else if (result1 === "loss" && result2 === "loss") {
-        return "loss";
-      } else {
-        // 一个赢一个输，或包含 push 的情况，都视为 push
-        return "push";
-      }
+      // 亚洲让球盘分盘规则：
+      // - 两个都赢 = win；两个都输 = loss
+      // - 一赢一输 = push（退本金）
+      // - 一赢一 push = half_win（赢一半）；一输一 push = half_loss（输一半）
+      // - 两个都 push = push
+      if (result1 === "win" && result2 === "win") return "win";
+      if (result1 === "loss" && result2 === "loss") return "loss";
+      if (result1 === "push" && result2 === "push") return "push";
+      if ((result1 === "win" && result2 === "loss") || (result1 === "loss" && result2 === "win")) return "push";
+      if ((result1 === "win" && result2 === "push") || (result1 === "push" && result2 === "win")) return "half_win";
+      if ((result1 === "loss" && result2 === "push") || (result1 === "push" && result2 === "loss")) return "half_loss";
+      return "push"; // fallback
     } else {
       // 单个盘口值
       return calculateSingleHandicapResult(homeScore, awayScore, handicapLines[0], isHomeBet);
@@ -566,18 +582,14 @@ const calculateBetResult = (
         return "void";
       }
       
-      // 亚洲大小球规则：
-      // - 两个盘口都赢 = win
-      // - 两个盘口都输 = loss
-      // - 一个赢一个输 = push（平局，返回本金）
-      if (result1 === "win" && result2 === "win") {
-        return "win";
-      } else if (result1 === "loss" && result2 === "loss") {
-        return "loss";
-      } else {
-        // 一个赢一个输，或包含 push 的情况，都视为 push
-        return "push";
-      }
+      // 亚洲大小球分盘规则：同上
+      if (result1 === "win" && result2 === "win") return "win";
+      if (result1 === "loss" && result2 === "loss") return "loss";
+      if (result1 === "push" && result2 === "push") return "push";
+      if ((result1 === "win" && result2 === "loss") || (result1 === "loss" && result2 === "win")) return "push";
+      if ((result1 === "win" && result2 === "push") || (result1 === "push" && result2 === "win")) return "half_win";
+      if ((result1 === "loss" && result2 === "push") || (result1 === "push" && result2 === "loss")) return "half_loss";
+      return "push";
     } else {
       // 单个盘口值
       const line = overUnderLines[0];

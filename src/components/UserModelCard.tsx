@@ -239,7 +239,7 @@ const UserModelCard = () => {
 
               <div className="min-w-0">
                 <h3
-                  className={`font-bold text-[9px] sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
+                  className={`font-semibold text-[9px] sm:text-lg tracking-tight uppercase ${USER_THEME.accent} truncate`}
                   title={title}
                 >
                   {title}
