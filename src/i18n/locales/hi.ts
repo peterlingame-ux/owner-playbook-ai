@@ -123,6 +123,13 @@ export const hi = {
     "the_contestants": "प्रतिस्पर्धी AI मॉडल",
     "top_players": "खिलाड़ी चैंपियन",
     "view_details": "विवरण देखें",
+    "ai_prediction_board": "AI भविष्यवाणी रैंकिंग",
+    "accuracy_board": "सटीकता रैंकिंग",
+    "copy_trading_board": "कॉपी ट्रेड रैंकिंग",
+    "all_participating_models": "सभी भाग लेने वाले मॉडल",
+    "best_winning_model": "सर्वश्रेष्ठ जीतने वाला मॉडल",
+    "hot_streak_predictor": "जीत की लकीर में भविष्यवक्ता",
+    "cold_streak_predictor": "हार की लकीर में भविष्यवक्ता",
     
     // AI Analysis Section
     "ai_analysis_title": "रियल-टाइम मैच इंटेलिजेंस",
@@ -419,6 +426,9 @@ export const hi = {
     "total_predictions_count": "कुल",
     "correct_count": "सही",
     "wrong_count": "गलत",
+    "time_day": "दिन",
+    "time_week": "सप्ताह",
+    "time_month": "माह",
     "time_filter_1d": "1दि",
     "time_filter_7d": "7दि",
     "time_filter_30d": "30दि",
@@ -535,6 +545,7 @@ export const hi = {
     
     // Wallet
     "hunter_coin_wallet": "Hunter Coin वॉलेट",
+    "hunter_coin_disclaimer": "Hunter Coin एक सिम्युलेटेड इन-प्लेटफॉर्म मुद्रा है जिसका उपयोग पूर्वानुमान गतिविधियों के सिम्युलेटेड परिणामों को रिकॉर्ड और प्रदर्शित करने के लिए किया जाता है। Hunter Coin किसी भी फिएट या वर्चुअल मुद्रा का प्रतिनिधित्व नहीं करता और इसमें कोई वित्तीय विशेषताएं नहीं हैं। Hunter Coins मुफ्त में वितरित किए जाते हैं; नए उपयोगकर्ताओं को 10,000 मिलते हैं और इन्हें खरीदा नहीं जा सकता। Hunter Coins को निकाला, नकदी में बदला या किसी भी समतुल्य मूल्य के लिए विनिमय नहीं किया जा सकता। Hunter Coins को प्लेटफॉर्म के बाहर स्थानांतरित, कारोबार या परिचालित नहीं किया जा सकता। Hunter Coins केवल प्लेटफॉर्म के भीतर सिमुलेशन और प्रदर्शन उद्देश्यों के लिए उपयोग किए जाते हैं।",
     
     // Personal Center keys
     "player_default_name": "अतिथि",

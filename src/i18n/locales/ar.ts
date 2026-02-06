@@ -123,6 +123,13 @@ export const ar = {
     "the_contestants": "نماذج الذكاء الاصطناعي المتنافسة",
     "top_players": "أبطال اللاعبين",
     "view_details": "عرض التفاصيل",
+    "ai_prediction_board": "ترتيب توقعات الذكاء الاصطناعي",
+    "accuracy_board": "ترتيب دقة المتنبئين",
+    "copy_trading_board": "ترتيب نسخ صفقات المتنبئين",
+    "all_participating_models": "جميع النماذج المشاركة",
+    "best_winning_model": "أفضل نموذج فائز",
+    "hot_streak_predictor": "المتنبئون المتصاعدون",
+    "cold_streak_predictor": "المتنبئون المنخفضون",
     
     // AI Analysis Section
     "ai_analysis_title": "ذكاء المباريات في الوقت الحقيقي",
@@ -419,6 +426,9 @@ export const ar = {
     "total_predictions_count": "الإجمالي",
     "correct_count": "صحيح",
     "wrong_count": "خاطئ",
+    "time_day": "يوم",
+    "time_week": "أسبوع",
+    "time_month": "شهر",
     "time_filter_1d": "1ي",
     "time_filter_7d": "7أ",
     "time_filter_30d": "30ي",
@@ -535,6 +545,7 @@ export const ar = {
     
     // Wallet
     "hunter_coin_wallet": "محفظة Hunter Coin",
+    "hunter_coin_disclaimer": "Hunter Coin هو عملة محاكاة داخل المنصة تُستخدم لتسجيل وعرض النتائج المحاكاة من أنشطة التنبؤ. Hunter Coin لا يمثل أي عملة fiduciaria أو افتراضية ولا يمتلك أي خصائص مالية. يتم توزيع Hunter Coins مجانًا؛ يحصل المستخدمون الجدد على 10,000 ولا يمكن شراؤها. لا يمكن سحب Hunter Coins أو استبدالها نقدًا أو بأي قيمة مكافئة. لا يمكن نقل Hunter Coins أو تداولها أو تداولها خارج المنصة. Hunter Coins مخصصة لأغراض المحاكاة والعرض فقط داخل المنصة.",
     
     // Personal Center keys
     "player_default_name": "زائر",

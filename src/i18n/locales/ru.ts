@@ -123,6 +123,13 @@ export const ru = {
     "the_contestants": "Соревнующиеся ИИ Модели",
     "top_players": "Чемпионы Игроков",
     "view_details": "ПОДРОБНЕЕ",
+    "ai_prediction_board": "Рейтинг ИИ прогнозов",
+    "accuracy_board": "Рейтинг точности",
+    "copy_trading_board": "Рейтинг копирования сделок",
+    "all_participating_models": "Все участвующие модели",
+    "best_winning_model": "Лучшая модель",
+    "hot_streak_predictor": "Прогнозисты в серии побед",
+    "cold_streak_predictor": "Прогнозисты в серии поражений",
     
     // AI Analysis Section
     "ai_analysis_title": "Интеллект Матчей в Реальном Времени",
@@ -420,6 +427,9 @@ export const ru = {
     "total_predictions_count": "Всего",
     "correct_count": "Правильно",
     "wrong_count": "Неправильно",
+    "time_day": "День",
+    "time_week": "Неделя",
+    "time_month": "Месяц",
     "time_filter_1d": "1Д",
     "time_filter_7d": "7Д",
     "time_filter_30d": "30Д",
@@ -588,6 +598,7 @@ export const ru = {
     
     // Wallet
     "hunter_coin_wallet": "Кошелёк Hunter Coin",
+    "hunter_coin_disclaimer": "Hunter Coin — это имитационная внутриплатформенная валюта для учёта и отображения имитационных результатов прогнозной активности. Hunter Coin не представляет никакую фиатную или виртуальную валюту и не обладает финансовыми атрибутами. Hunter Coins распространяются бесплатно; новые пользователи получают 10 000, и их нельзя купить. Hunter Coins нельзя вывести, обналичить или обменять на любую эквивалентную стоимость. Hunter Coins нельзя передавать, торговать или обращать вне платформы. Hunter Coins используются исключительно для имитации и отображения в рамках платформы.",
     "usdt_deposit": "Депозит",
     "deposit_amount": "Сумма Депозита",
     "wallet_address": "Адрес Кошелька",

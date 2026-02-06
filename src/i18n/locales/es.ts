@@ -120,9 +120,16 @@ export const es = {
     "keep_going": "Sigue Así",
     
     // Model Cards
-    "the_contestants": "Modelos de IA Compitiendo",
+    "the_contestants": "Modelos de IA en competencia",
     "top_players": "Campeones de Jugadores",
     "view_details": "VER DETALLES",
+    "ai_prediction_board": "Ranking de Predicciones IA",
+    "accuracy_board": "Ranking de Precisión",
+    "copy_trading_board": "Ranking de Copy Trade",
+    "all_participating_models": "Todos los Modelos Participantes",
+    "best_winning_model": "Mejor Modelo Ganador",
+    "hot_streak_predictor": "Predictores en Racha",
+    "cold_streak_predictor": "Predictores en Bajada",
     
     // AI Analysis Section
     "ai_analysis_title": "Inteligencia de Partidos en Tiempo Real",
@@ -482,6 +489,9 @@ export const es = {
     "total_predictions_count": "Total",
     "correct_count": "Correctas",
     "wrong_count": "Incorrectas",
+    "time_day": "Día",
+    "time_week": "Semana",
+    "time_month": "Mes",
     "time_filter_1d": "1D",
     "time_filter_7d": "7D",
     "time_filter_30d": "30D",
@@ -731,6 +741,7 @@ export const es = {
     
     // Hunter Coin Wallet
     "hunter_coin_wallet": "Billetera Hunter Coin",
+    "hunter_coin_disclaimer": "Hunter Coin es una moneda simulada dentro de la plataforma utilizada para registrar y mostrar resultados simulados de actividades de predicción. Hunter Coin no representa ninguna moneda fiduciaria o virtual y no tiene atributos financieros. Los Hunter Coins se distribuyen gratuitamente; los usuarios nuevos reciben 10.000 y no se pueden comprar. Los Hunter Coins no se pueden retirar, convertir en efectivo ni intercambiar por ningún valor equivalente. Los Hunter Coins no se pueden transferir, comerciar ni circular fuera de la plataforma. Los Hunter Coins son únicamente para fines de simulación y visualización dentro de la plataforma.",
     "hunter_coin_balance": "Saldo Hunter Coin",
     "usdt_wallet": "Billetera Hunter Coin",
     "usdt_wallet_balance": "Saldo Hunter Coin",

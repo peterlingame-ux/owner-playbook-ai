@@ -781,7 +781,7 @@ const LeaderboardTable = () => {
                       : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                   }`}
                 >
-                  日
+                  {t('time_day')}
                 </button>
                 <button
                   onClick={() => setTimeRange(7)}
@@ -791,7 +791,7 @@ const LeaderboardTable = () => {
                       : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                   }`}
                 >
-                  周
+                  {t('time_week')}
                 </button>
                 <button
                   onClick={() => setTimeRange(30)}
@@ -801,7 +801,7 @@ const LeaderboardTable = () => {
                       : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
                   }`}
                 >
-                  月
+                  {t('time_month')}
                 </button>
               </div>
               <span className="text-[10px] text-muted-foreground" title="按北京时间（UTC+8）统计">

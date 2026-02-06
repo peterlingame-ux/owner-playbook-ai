@@ -123,6 +123,13 @@ export const de = {
     "the_contestants": "Konkurrierende KI-Modelle",
     "top_players": "Spieler-Champions",
     "view_details": "DETAILS ANZEIGEN",
+    "ai_prediction_board": "KI-Vorhersage-Ranking",
+    "accuracy_board": "Genauigkeits-Ranking",
+    "copy_trading_board": "Copy-Trade-Ranking",
+    "all_participating_models": "Alle teilnehmenden Modelle",
+    "best_winning_model": "Bestes Gewinnmodell",
+    "hot_streak_predictor": "Vorhersagen in Serie",
+    "cold_streak_predictor": "Vorhersagen in Talfahrt",
     
     // AI Analysis Section
     "ai_analysis_title": "Echtzeit-Spiel-Intelligenz",
@@ -419,6 +426,9 @@ export const de = {
     "total_predictions_count": "Gesamt",
     "correct_count": "Richtig",
     "wrong_count": "Falsch",
+    "time_day": "Tag",
+    "time_week": "Woche",
+    "time_month": "Monat",
     "time_filter_1d": "1T",
     "time_filter_7d": "7T",
     "time_filter_30d": "30T",
@@ -574,6 +584,7 @@ export const de = {
     
     // Wallet
     "hunter_coin_wallet": "Hunter Coin Brieftasche",
+    "hunter_coin_disclaimer": "Hunter Coin ist eine simulierte In-Platform-Währung zur Aufzeichnung und Anzeige simulierter Ergebnisse aus Prognoseaktivitäten. Hunter Coin stellt keine Fiat- oder Kryptowährung dar und hat keine finanziellen Attribute. Hunter Coins werden kostenlos verteilt; neue Benutzer erhalten 10.000 und sie können nicht gekauft werden. Hunter Coins können nicht ausgezahlt, in Bargeld umgetauscht oder gegen einen Gegenwert eingetauscht werden. Hunter Coins können nicht übertragen, gehandelt oder außerhalb der Plattform zirkuliert werden. Hunter Coins dienen ausschließlich Simulations- und Anzeigezwecken innerhalb der Plattform.",
     "usdt_deposit": "Einzahlen",
     "deposit_amount": "Einzahlungsbetrag",
     "wallet_address": "Brieftaschen-Adresse",

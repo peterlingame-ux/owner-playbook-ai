@@ -42,7 +42,7 @@ const resources = {
       "online_users": "ONLINE USERS",
       "users_watching": "users online",
       "nav_live": "AI PREDICTIONS",
-      "nav_rank": "RANK",
+      "nav_rank": "RANKING",
       "nav_history": "HISTORY",
       "nav_blog": "ABOUT",
       "nav_models": "MATCHES",
@@ -232,7 +232,7 @@ const resources = {
       "high_accuracy_all_predictors": "High Accuracy - All Predictors",
       "low_accuracy_all_predictors": "Low Accuracy - All Predictors",
       // Model Cards
-      "the_contestants": "AI Competing Models",
+      "the_contestants": "Competing AI Models",
       "top_players": "Player Champions",
       "view_details": "VIEW DETAILS",
       // AI Analysis Section

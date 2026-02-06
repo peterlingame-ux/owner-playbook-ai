@@ -123,9 +123,16 @@ export const vi = {
     "keep_going": "Tiếp tục",
 
     // Model Cards
-    "the_contestants": "Các mô hình AI thi đấu",
+    "the_contestants": "Các mô hình AI tranh tài",
     "top_players": "Quán quân người chơi",
     "view_details": "Xem chi tiết",
+    "ai_prediction_board": "Bảng xếp hạng dự đoán AI",
+    "accuracy_board": "Bảng xếp hạng độ chính xác",
+    "copy_trading_board": "Bảng xếp hạng copy trade",
+    "all_participating_models": "Tất cả mô hình tham gia",
+    "best_winning_model": "Mô hình thắng tốt nhất",
+    "hot_streak_predictor": "Người dự đoán thắng liên tiếp",
+    "cold_streak_predictor": "Người dự đoán thua liên tiếp",
 
     // AI Analysis Section
     "ai_analysis_title": "Tình báo trận đấu thời gian thực",
@@ -433,6 +440,9 @@ export const vi = {
     "total_predictions_count": "Tổng",
     "correct_count": "Đúng",
     "wrong_count": "Sai",
+    "time_day": "Ngày",
+    "time_week": "Tuần",
+    "time_month": "Tháng",
     "time_filter_1d": "1n",
     "time_filter_7d": "7n",
     "time_filter_30d": "30n",
@@ -548,6 +558,7 @@ export const vi = {
 
     // Wallet
     "hunter_coin_wallet": "Ví Hunter Coin",
+    "hunter_coin_disclaimer": "Hunter Coin là đơn vị tiền tệ mô phỏng trong nền tảng, dùng để ghi nhận và hiển thị kết quả mô phỏng từ các hoạt động dự đoán. Hunter Coin không đại diện cho bất kỳ tiền tệ fiat hay ảo nào và không có thuộc tính tài chính. Hunter Coin được phân phối miễn phí; người dùng mới nhận được 10.000 và không thể mua. Hunter Coin không thể rút, đổi thành tiền mặt hay bất kỳ giá trị tương đương nào. Hunter Coin không thể chuyển nhượng, giao dịch hay lưu hành bên ngoài nền tảng. Hunter Coin chỉ dùng cho mục đích mô phỏng và hiển thị trong nền tảng.",
 
     // Personal Center keys
     "player_default_name": "Khách",

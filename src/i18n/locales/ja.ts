@@ -123,6 +123,13 @@ export const ja = {
     "the_contestants": "競争中のAIモデル",
     "top_players": "プレイヤーチャンピオン",
     "view_details": "詳細を見る",
+    "ai_prediction_board": "AI予測ランキング",
+    "accuracy_board": "予測者精度ランキング",
+    "copy_trading_board": "予測者コピートレードランキング",
+    "all_participating_models": "全参加モデル",
+    "best_winning_model": "最高勝率モデル",
+    "hot_streak_predictor": "連勝予測者",
+    "cold_streak_predictor": "連敗予測者",
     
     // AI Analysis Section
     "ai_analysis_title": "リアルタイム試合インテリジェンス",
@@ -419,6 +426,9 @@ export const ja = {
     "total_predictions_count": "合計",
     "correct_count": "正解",
     "wrong_count": "不正解",
+    "time_day": "日",
+    "time_week": "週",
+    "time_month": "月",
     "time_filter_1d": "1日",
     "time_filter_7d": "7日",
     "time_filter_30d": "30日",
@@ -564,6 +574,7 @@ export const ja = {
     
     // Wallet
     "hunter_coin_wallet": "ハンターコインウォレット",
+    "hunter_coin_disclaimer": "Hunter Coinは予測活動によるシミュレーション結果を記録・表示するためのプラットフォーム内シミュレーション通貨です。Hunter Coinは法定通貨や仮想通貨を表すものではなく、金融属性を持ちません。Hunter Coinsは無料で配布され、新規登録ユーザーは10,000を獲得でき、購入はできません。Hunter Coinsは出金、現金化、または同等の価値との交換ができません。Hunter Coinsはプラットフォーム外への譲渡、取引、流通はできません。Hunter Coinsはプラットフォーム内のシミュレーションおよび表示目的のみに使用されます。",
     "usdt_deposit": "入金",
     "deposit_amount": "入金額",
     "wallet_address": "ウォレットアドレス",

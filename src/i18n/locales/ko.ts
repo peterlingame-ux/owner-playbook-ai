@@ -10,7 +10,7 @@ export const ko = {
     "nav_blog": "소개",
     "nav_models": "경기",
     "nav_my": "마이",
-    "nav_personal_center": "개인 센터",
+    "nav_personal_center": "마이",
     
     // Stats
     "highest_win_rate": "최고 승률",
@@ -122,9 +122,19 @@ export const ko = {
     "keep_going": "계속하세요",
     
     // Model Cards
-    "the_contestants": "경쟁 중인 AI 모델",
+    "the_contestants": "AI 경쟁 모델",
     "top_players": "플레이어 챔피언",
     "view_details": "상세 보기",
+    "ai_prediction_board": "AI 예측 랭킹",
+    "accuracy_board": "예측자 정확도 랭킹",
+    "copy_trading_board": "예측자 카피 트레이드 랭킹",
+    "all_participating_models": "전체 참가 모델",
+    "best_winning_model": "최고 승률 모델",
+    "hot_streak_predictor": "연승 예측자",
+    "cold_streak_predictor": "연패 예측자",
+    "time_day": "일",
+    "time_week": "주",
+    "time_month": "월",
     
     // AI Analysis Section
     "ai_analysis_title": "실시간 경기 인텔리전스",
@@ -529,6 +539,7 @@ export const ko = {
     "users_invited": "명 초대됨",
     "my_wallet": "내 지갑",
     "hunter_coins": "헌터코인",
+    "hunter_coin_disclaimer": "Hunter Coin은 예측 활동의 시뮬레이션 결과를 기록하고 표시하기 위한 플랫폼 내 시뮬레이션 통화입니다. Hunter Coin은 법정 통화나 가상 화폐를 대표하지 않으며 금융 속성이 없습니다. Hunter Coin은 무료로 배포되며, 신규 가입 사용자는 10,000을 받으며 구매할 수 없습니다. Hunter Coin은 출금, 현금화 또는 동등한 가치로 교환할 수 없습니다. Hunter Coin은 플랫폼 외부로 양도, 거래 또는 유통할 수 없습니다. Hunter Coin은 플랫폼 내 시뮬레이션 및 표시 용도로만 사용됩니다.",
     "balance": "잔액",
     "usdt_wallet": "USDT 지갑",
     "wallet": "지갑",

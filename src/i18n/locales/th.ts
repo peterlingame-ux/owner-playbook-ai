@@ -123,6 +123,13 @@ export const th = {
     "the_contestants": "โมเดล AI ที่แข่งขัน",
     "top_players": "แชมป์ผู้เล่น",
     "view_details": "ดูรายละเอียด",
+    "ai_prediction_board": "อันดับการทำนาย AI",
+    "accuracy_board": "อันดับความแม่นยำ",
+    "copy_trading_board": "อันดับคัดลอกการเทรด",
+    "all_participating_models": "โมเดลที่เข้าร่วมทั้งหมด",
+    "best_winning_model": "โมเดลชนะดีที่สุด",
+    "hot_streak_predictor": "ผู้ทำนายชนะต่อเนื่อง",
+    "cold_streak_predictor": "ผู้ทำนายแพ้ต่อเนื่อง",
     
     // AI Analysis Section
     "ai_analysis_title": "ข่าวกรองแมตช์แบบเรียลไทม์",
@@ -419,6 +426,9 @@ export const th = {
     "total_predictions_count": "ทั้งหมด",
     "correct_count": "ถูก",
     "wrong_count": "ผิด",
+    "time_day": "วัน",
+    "time_week": "สัปดาห์",
+    "time_month": "เดือน",
     "time_filter_1d": "1ว",
     "time_filter_7d": "7ว",
     "time_filter_30d": "30ว",
@@ -535,6 +545,7 @@ export const th = {
     
     // Wallet
     "hunter_coin_wallet": "กระเป๋า Hunter Coin",
+    "hunter_coin_disclaimer": "Hunter Coin เป็นสกุลเงินจำลองในแพลตฟอร์มที่ใช้บันทึกและแสดงผลลัพธ์จำลองจากกิจกรรมการทำนาย Hunter Coin ไม่แสดงถึงสกุลเงิน fiat หรือเสมือนจริงใดๆ และไม่มีคุณลักษณะทางการเงิน Hunter Coins แจกจ่ายฟรี ผู้ใช้ใหม่ได้รับ 10,000 และไม่สามารถซื้อได้ Hunter Coins ถอนออก แลกเป็นเงินสด หรือแลกเปลี่ยนเป็นมูลค่าที่เทียบเท่าไม่ได้ Hunter Coins ไม่สามารถโอน ซื้อขาย หรือหมุนเวียนนอกแพลตฟอร์มได้ Hunter Coins ใช้เพื่อการจำลองและแสดงผลภายในแพลตฟอร์มเท่านั้น",
     
     // Personal Center keys
     "player_default_name": "ผู้เยี่ยมชม",
