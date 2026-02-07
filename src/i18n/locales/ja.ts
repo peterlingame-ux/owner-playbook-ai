@@ -429,6 +429,8 @@ export const ja = {
     "time_day": "日",
     "time_week": "週",
     "time_month": "月",
+    "stats_range": "統計範囲",
+    "time_range_utc8": "北京時間（UTC+8）基準",
     "time_filter_1d": "1日",
     "time_filter_7d": "7日",
     "time_filter_30d": "30日",

@@ -26,7 +26,7 @@ import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import { AnimatedWinRate } from "./AnimatedWinRate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getUTC8Range, getUTC8DateString, getUTC8RangeLabel } from "@/lib/utils";
+import { getUTC8Range, getUTC8DateString, getUTC8RangeLabelWithLocale } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { AIModel } from "@/types/prediction";
@@ -227,7 +227,7 @@ const aiModelAdvantages: Record<string, string> = {
 };
 
 const LeaderboardTable = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [modelsWithRealData, setModelsWithRealData] = useState<AIModel[]>(aiModels);
@@ -804,8 +804,8 @@ const LeaderboardTable = () => {
                   {t('time_month')}
                 </button>
               </div>
-              <span className="text-[10px] text-muted-foreground" title="按北京时间（UTC+8）统计">
-                统计范围：{getUTC8RangeLabel(timeRange === 1 ? "day" : timeRange === 7 ? "week" : "month")}
+              <span className="text-[10px] text-muted-foreground" title={t("time_range_utc8")}>
+                {t("stats_range")}：{getUTC8RangeLabelWithLocale(timeRange === 1 ? "day" : timeRange === 7 ? "week" : "month", i18n.language)}
               </span>
             </div>
           </div>

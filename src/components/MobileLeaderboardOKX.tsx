@@ -18,7 +18,7 @@ import { aiModels } from "@/data/mockData";
 import hunterCoinIcon from "@/assets/hunter-coin-new.png";
 import ChallengeAIBanner from "@/components/ChallengeAIBanner";
 import { GoalIcon } from "@/components/FootballIcons";
-import { getUTC8Range, getUTC8RangeLabel } from "@/lib/utils";
+import { getUTC8Range, getUTC8RangeLabelWithLocale } from "@/lib/utils";
 
 // AI Model Icons
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -109,7 +109,7 @@ const getColorTint = (modelId: string) => {
 };
 
 const MobileLeaderboardOKX = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   
@@ -1599,9 +1599,9 @@ const MobileLeaderboardOKX = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={t('time_range_utc8') || '按北京时间（UTC+8）统计'}>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={t('time_range_utc8')}>
             <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>统计范围：{getUTC8RangeLabel(timeFilter)}</span>
+            <span>{t('stats_range')}：{getUTC8RangeLabelWithLocale(timeFilter, i18n.language)}</span>
           </div>
         </div>
 
@@ -1783,9 +1783,9 @@ const MobileLeaderboardOKX = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={t('time_range_utc8') || '按北京时间（UTC+8）统计'}>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={t('time_range_utc8')}>
             <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>统计范围：{getUTC8RangeLabel(timeFilter)}</span>
+            <span>{t('stats_range')}：{getUTC8RangeLabelWithLocale(timeFilter, i18n.language)}</span>
           </div>
         </div>
 
@@ -2021,8 +2021,8 @@ const MobileLeaderboardOKX = () => {
             <span className="px-1.5 py-0.5 text-[9px] font-bold bg-muted/30 text-muted-foreground rounded flex-shrink-0">
               TOP10
             </span>
-            <span className="text-[9px] text-muted-foreground" title={t('time_range_utc8') || '按北京时间（UTC+8）统计'}>
-              统计范围：{getUTC8RangeLabel(timeFilter)}
+            <span className="text-[9px] text-muted-foreground" title={t('time_range_utc8')}>
+              {t('stats_range')}：{getUTC8RangeLabelWithLocale(timeFilter, i18n.language)}
             </span>
           </div>
           <button 

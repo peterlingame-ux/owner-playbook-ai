@@ -429,6 +429,8 @@ export const ar = {
     "time_day": "يوم",
     "time_week": "أسبوع",
     "time_month": "شهر",
+    "stats_range": "نطاق الإحصائيات",
+    "time_range_utc8": "حسب توقيت بكين (UTC+8)",
     "time_filter_1d": "1ي",
     "time_filter_7d": "7أ",
     "time_filter_30d": "30ي",

@@ -492,6 +492,8 @@ export const es = {
     "time_day": "Día",
     "time_week": "Semana",
     "time_month": "Mes",
+    "stats_range": "Rango de estadísticas",
+    "time_range_utc8": "Según hora de Beijing (UTC+8)",
     "time_filter_1d": "1D",
     "time_filter_7d": "7D",
     "time_filter_30d": "30D",

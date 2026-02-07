@@ -430,6 +430,8 @@ export const ru = {
     "time_day": "День",
     "time_week": "Неделя",
     "time_month": "Месяц",
+    "stats_range": "Период статистики",
+    "time_range_utc8": "По пекинскому времени (UTC+8)",
     "time_filter_1d": "1Д",
     "time_filter_7d": "7Д",
     "time_filter_30d": "30Д",

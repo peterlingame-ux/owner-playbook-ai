@@ -535,6 +535,8 @@ export const fr = {
     "time_day": "Jour",
     "time_week": "Semaine",
     "time_month": "Mois",
+    "stats_range": "Période statistique",
+    "time_range_utc8": "Selon l'heure de Beijing (UTC+8)",
     "time_filter_1d": "1J",
     "time_filter_7d": "7J",
     "time_filter_30d": "30J",

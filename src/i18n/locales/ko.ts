@@ -135,6 +135,8 @@ export const ko = {
     "time_day": "일",
     "time_week": "주",
     "time_month": "월",
+    "stats_range": "통계 범위",
+    "time_range_utc8": "베이징 시간(UTC+8) 기준",
     
     // AI Analysis Section
     "ai_analysis_title": "실시간 경기 인텔리전스",

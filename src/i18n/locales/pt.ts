@@ -429,6 +429,8 @@ export const pt = {
     "time_day": "Dia",
     "time_week": "Semana",
     "time_month": "Mês",
+    "stats_range": "Período estatístico",
+    "time_range_utc8": "Conforme horário de Pequim (UTC+8)",
     "time_filter_1d": "1D",
     "time_filter_7d": "7D",
     "time_filter_30d": "30D",

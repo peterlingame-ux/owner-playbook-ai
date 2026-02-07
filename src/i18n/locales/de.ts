@@ -429,6 +429,8 @@ export const de = {
     "time_day": "Tag",
     "time_week": "Woche",
     "time_month": "Monat",
+    "stats_range": "Statistikbereich",
+    "time_range_utc8": "Basierend auf Peking-Zeit (UTC+8)",
     "time_filter_1d": "1T",
     "time_filter_7d": "7T",
     "time_filter_30d": "30T",

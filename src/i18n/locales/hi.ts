@@ -429,6 +429,8 @@ export const hi = {
     "time_day": "दिन",
     "time_week": "सप्ताह",
     "time_month": "माह",
+    "stats_range": "आंकड़े की अवधि",
+    "time_range_utc8": "बीजिंग समय (UTC+8) के अनुसार",
     "time_filter_1d": "1दि",
     "time_filter_7d": "7दि",
     "time_filter_30d": "30दि",

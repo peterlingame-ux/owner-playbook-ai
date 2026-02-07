@@ -443,6 +443,8 @@ export const vi = {
     "time_day": "Ngày",
     "time_week": "Tuần",
     "time_month": "Tháng",
+    "stats_range": "Phạm vi thống kê",
+    "time_range_utc8": "Theo giờ Bắc Kinh (UTC+8)",
     "time_filter_1d": "1n",
     "time_filter_7d": "7n",
     "time_filter_30d": "30n",

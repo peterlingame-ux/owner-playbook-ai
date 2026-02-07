@@ -83,6 +83,14 @@ export function getUTC8RangeLabel(mode: "day" | "week" | "month"): string {
     : `${formatUTC8DateForDisplay(start)} - ${formatUTC8DateForDisplay(end)}`;
 }
 
+/** 多语言：按 UTC+8 日/周/月范围格式化，使用 Intl 和 Asia/Shanghai 时区 */
+export function getUTC8RangeLabelWithLocale(mode: "day" | "week" | "month", locale: string): string {
+  const { start, end } = getUTC8Range(mode);
+  const opts: Intl.DateTimeFormatOptions = { timeZone: "Asia/Shanghai", month: "short", day: "numeric" };
+  const fmt = (d: Date) => new Intl.DateTimeFormat(locale, opts).format(d);
+  return mode === "day" ? fmt(start) : `${fmt(start)} - ${fmt(end)}`;
+}
+
 /** 获取 UTC+8 下的「今天」日期字符串 YYYY-MM-DD（用于 settlement_date 等） */
 export function getUTC8DateString(): string {
   const cal = getUTC8Calendar();

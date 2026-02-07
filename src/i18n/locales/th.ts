@@ -429,6 +429,8 @@ export const th = {
     "time_day": "วัน",
     "time_week": "สัปดาห์",
     "time_month": "เดือน",
+    "stats_range": "ช่วงสถิติ",
+    "time_range_utc8": "ตามเวลาปักกิ่ง (UTC+8)",
     "time_filter_1d": "1ว",
     "time_filter_7d": "7ว",
     "time_filter_30d": "30ว",
