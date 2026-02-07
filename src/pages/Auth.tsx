@@ -932,6 +932,7 @@ const Auth = () => {
                       maxLength={5}
                       className="h-9 sm:h-12 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-teal-400 focus:ring-teal-400 rounded-lg uppercase tracking-widest"
                     />
+                    <p className="text-white/50 text-[10px] sm:text-xs">{t("star_cards_exchange_vip") || "2 star cards can be exchanged for 1 month free VIP"}</p>
                   </div>
                 </>
               )}

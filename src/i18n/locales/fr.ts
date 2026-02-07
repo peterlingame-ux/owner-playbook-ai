@@ -449,7 +449,8 @@ export const fr = {
     "level_up_tip": "Restez en ligne pour monter de niveau",
     "vip_status": "Statut VIP",
     "vip_member": "Membre VIP",
-    "not_vip": "Période d'essai VIP expirée",
+    "not_vip": "Période d'essai expirée",
+    "invite_to_get_vip": "Invitez des amis pour obtenir VIP gratuitement",
     "vip_expires": "VIP Expire",
     "become_vip": "Devenir VIP",
     "invitation_code": "Code d'Invitation",
@@ -613,7 +614,7 @@ export const fr = {
     "player_bellingham": "Bellingham",
     "player_saka": "Saka",
     "player_son": "Son",
-    "star_card_tab": "Cartes de Stars",
+    "star_card_tab": "Cartes",
     "display_name": "Nom",
     "bio": "Bio",
     "avatar": "Avatar",
@@ -623,8 +624,9 @@ export const fr = {
     "correct_predictions_count": "Correctes",
     "personal_records": "Statistiques",
     "invite_reward_title": "Récompense Carte de Star",
-    "invite_reward_desc": "Invitez 5 amis pour 1 carte",
-    "star_cards_earned": "{{count}} cartes gagnées",
+"invite_reward_desc": "Invitez 5 amis pour 1 carte",
+   "star_cards_exchange_vip": "2 cartes star peuvent être échangées contre 1 mois de VIP gratuit",
+   "star_cards_earned": "{{count}} cartes gagnées",
     "total_invited": "{{count}} invités",
     
     // VIP Dialog
@@ -738,7 +740,7 @@ export const fr = {
     "joined_date": "Inscrit le",
     
     // Additional keys
-    "invitation_code_tab": "Code d'Invitation",
+    "invitation_code_tab": "Inviter",
     "history_records": "Historique",
     "your_invitation_code": "Votre Code d'Invitation",
     "invited_count": "Invités",

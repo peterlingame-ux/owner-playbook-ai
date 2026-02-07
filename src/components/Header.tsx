@@ -173,25 +173,39 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <Avatar className="h-9 w-9">
+                          <Avatar className="h-9 w-9 shrink-0">
                             <AvatarImage src={userProfile?.avatar_url || "/avatars/avatar-1.png"} />
                             <AvatarFallback className="text-xs">{userProfile?.display_name?.charAt(0) || "U"}</AvatarFallback>
                           </Avatar>
-                          <span className="font-medium truncate">{userProfile?.display_name || "User"}</span>
+                          <span className="font-medium truncate min-w-0">{userProfile?.display_name || "User"}</span>
                         </div>
-                        {userVip?.expiresAt && (
-                          <div className="text-xs text-muted-foreground space-y-0.5 pl-11">
-                            <div>{t("membership_expires")}: {formatExpiryDate(userVip.expiresAt)}</div>
-                            <div className="text-foreground">
-                              {t("membership_remaining")}: <MembershipCountdown expiresAt={userVip.expiresAt} isActive={userVip.isActive} />
+                        <div className="flex items-center gap-2">
+                          {/* VIP 图标 - 与我的页面逻辑一致 */}
+                          <span
+                            className={`flex items-center justify-center !px-1.5 !py-0.5 !min-w-0 rounded text-[9px] font-bold shrink-0 h-5 ${userVip?.isActive ? "animate-pulse text-white" : "text-gray-400"}`}
+                            style={userVip?.isActive ? {
+                              background: "linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)",
+                              boxShadow: "0 1px 6px rgba(80, 180, 220, 0.5)",
+                            } : {
+                              background: "linear-gradient(135deg, hsl(0 0% 25%) 0%, hsl(0 0% 35%) 100%)",
+                              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                            }}
+                          >
+                            VIP
+                          </span>
+                          {userVip?.expiresAt ? (
+                            <div className="text-xs text-muted-foreground space-y-0.5 min-w-0 flex-1">
+                              <div>{t("membership_expires")}: {formatExpiryDate(userVip.expiresAt)}</div>
+                              <div className="text-foreground">
+                                {t("membership_remaining")}: <MembershipCountdown expiresAt={userVip.expiresAt} isActive={userVip.isActive} />
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        {!userVip?.expiresAt && (
-                          <div className="text-xs text-muted-foreground pl-11">{t("not_vip")}</div>
-                        )}
+                          ) : (
+                            <span className="text-xs text-muted-foreground">{t("not_vip")}，{t("invite_to_get_vip")}</span>
+                          )}
+                        </div>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -228,25 +242,39 @@ const Header = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
-                            <Avatar className="h-9 w-9">
+                            <Avatar className="h-9 w-9 shrink-0">
                               <AvatarImage src={userProfile?.avatar_url || "/avatars/avatar-1.png"} />
                               <AvatarFallback className="text-xs">{userProfile?.display_name?.charAt(0) || "U"}</AvatarFallback>
                             </Avatar>
-                            <span className="font-medium truncate">{userProfile?.display_name || "User"}</span>
+                            <span className="font-medium truncate min-w-0">{userProfile?.display_name || "User"}</span>
                           </div>
-                          {userVip?.expiresAt && (
-                            <div className="text-xs text-muted-foreground space-y-0.5 pl-11">
-                              <div>{t("membership_expires")}: {formatExpiryDate(userVip.expiresAt)}</div>
-                              <div className="text-foreground">
-                                {t("membership_remaining")}: <MembershipCountdown expiresAt={userVip.expiresAt} isActive={userVip.isActive} />
+                          <div className="flex items-center gap-2">
+                            {/* VIP 图标 - 与我的页面逻辑一致 */}
+                            <span
+                              className={`flex items-center justify-center !px-1.5 !py-0.5 !min-w-0 rounded text-[9px] font-bold shrink-0 h-5 ${userVip?.isActive ? "animate-pulse text-white" : "text-gray-400"}`}
+                              style={userVip?.isActive ? {
+                                background: "linear-gradient(135deg, hsl(195 85% 55%) 0%, hsl(210 90% 65%) 50%, hsl(195 80% 60%) 100%)",
+                                boxShadow: "0 1px 6px rgba(80, 180, 220, 0.5)",
+                              } : {
+                                background: "linear-gradient(135deg, hsl(0 0% 25%) 0%, hsl(0 0% 35%) 100%)",
+                                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                              }}
+                            >
+                              VIP
+                            </span>
+                            {userVip?.expiresAt ? (
+                              <div className="text-xs text-muted-foreground space-y-0.5 min-w-0 flex-1">
+                                <div>{t("membership_expires")}: {formatExpiryDate(userVip.expiresAt)}</div>
+                                <div className="text-foreground">
+                                  {t("membership_remaining")}: <MembershipCountdown expiresAt={userVip.expiresAt} isActive={userVip.isActive} />
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          {!userVip?.expiresAt && (
-                            <div className="text-xs text-muted-foreground pl-11">{t("not_vip")}</div>
-                          )}
+                            ) : (
+                              <span className="text-xs text-muted-foreground">{t("not_vip")}，{t("invite_to_get_vip")}</span>
+                            )}
+                          </div>
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />

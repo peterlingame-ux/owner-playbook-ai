@@ -407,8 +407,8 @@ const MyPredictions = () => {
   // 打开人工预测对话框（参考 PlayerExclusiveModelCard）
   const openManualBetDialog = async () => {
     if (!user) {
-      toast.warning(t('login_first') || '请先登录', {
-        description: t('login_to_subscribe') || '登录后即可进行预测'
+      toast.warning(t('login_first') || 'Please login first', {
+        description: t('login_to_subscribe') || 'Login to place predictions'
       });
       navigate('/auth');
       return;
@@ -447,14 +447,14 @@ const MyPredictions = () => {
       
       if (error) {
         console.error('Error fetching matches:', error);
-        toast.error('获取比赛列表失败');
+        toast.error(t('fetch_matches_failed') || 'Failed to fetch matches');
         setPredictionMatches([]);
       } else {
         setPredictionMatches(matchesData || []);
       }
     } catch (error) {
       console.error('Error fetching matches:', error);
-      toast.error('获取比赛列表失败');
+      toast.error(t('fetch_matches_failed') || 'Failed to fetch matches');
       setPredictionMatches([]);
     } finally {
       setIsLoadingPredictionMatches(false);
@@ -514,15 +514,15 @@ const MyPredictions = () => {
   // 辅助函数：安全获取队伍名称
   const safeGetTeamName = (match: any, side: 'home' | 'away'): string => {
     if (side === 'home') {
-      return match.mhn || match.home_team_name || match.homeTeamName || '主队';
+      return match.mhn || match.home_team_name || match.homeTeamName || t('prediction_home') || 'Home';
     } else {
-      return match.man || match.away_team_name || match.awayTeamName || '客队';
+      return match.man || match.away_team_name || match.awayTeamName || t('prediction_away') || 'Away';
     }
   };
 
   // 辅助函数：安全获取联赛名称
   const safeGetLeagueName = (match: any): string => {
-    return match.tn || match.league_name || match.competition_name || '未知联赛';
+    return match.tn || match.league_name || match.competition_name || t('unknown_league') || 'Unknown';
   };
 
   // 提交预测
@@ -530,17 +530,17 @@ const MyPredictions = () => {
     if (!user || !selectedMatch) return;
     
     if (manualBetType === 'handicap' && !manualPrediction) {
-      toast.error('请选择预测选项');
+      toast.error(t('select_prediction_option') || 'Please select prediction');
       return;
     }
     
     if (!manualBetAmount || manualBetAmount <= 0) {
-      toast.error('请输入投注金额');
+      toast.error(t('enter_bet_amount_hint') || 'Please enter bet amount');
       return;
     }
 
     if (manualBetAmount > availableBalance) {
-      toast.error('余额不足');
+      toast.error(t('insufficient_balance') || 'Insufficient balance');
       return;
     }
 
@@ -587,7 +587,7 @@ const MyPredictions = () => {
 
       if (insertError) {
         console.error('Error creating prediction:', insertError);
-        toast.error('提交预测失败');
+        toast.error(t('bet_failed') || 'Failed to submit prediction');
         return;
       }
 
@@ -603,7 +603,7 @@ const MyPredictions = () => {
         setAvailableBalance(balanceData.available_balance || 0);
       }
 
-      toast.success('预测提交成功');
+      toast.success(t('prediction_submit_success') || 'Prediction submitted');
       setShowManualBetDialog(false);
       setSelectedMatch(null);
       setManualPrediction('');
@@ -680,7 +680,7 @@ const MyPredictions = () => {
       }, 2500);
     } catch (error) {
       console.error('Error submitting prediction:', error);
-      toast.error('提交预测失败');
+      toast.error(t('bet_failed') || 'Failed to submit prediction');
     } finally {
       setIsSubmittingBet(false);
     }
@@ -1037,13 +1037,13 @@ const MyPredictions = () => {
           {/* Name + PRO Badge */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-[180px] sm:max-w-none">
-              {userProfile?.display_name || t('player_default_name') || '游客'}
+              {userProfile?.display_name || t('player_default_name') || 'Guest'}
             </h1>
             {/* VIP Badge - Diamond shining when active, dark when inactive - Clickable */}
             <button 
               type="button"
               onClick={() => {
-                toast.warning(t('vip_not_available') || '暂未开放');
+                toast.warning(t('vip_not_available') || 'Not available yet');
               }}
               className={`flex items-center gap-1 !px-2 sm:!px-2.5 !py-1 !min-w-0 !min-h-0 rounded-md relative overflow-hidden shrink-0 whitespace-nowrap touch-manipulation cursor-pointer hover:scale-105 transition-transform ${isVipActive ? 'animate-pulse' : ''}`}
               style={isVipActive ? {
@@ -1158,13 +1158,13 @@ const MyPredictions = () => {
         </div>
       </div>
 
-        {/* Stats Row - Four Columns */}
-        <div className="flex items-stretch gap-1 sm:gap-2 mt-3 sm:mt-6 shrink-0">
+        {/* Stats Row - Four Columns - min-w prevents layout stretch on language switch */}
+        <div className="flex items-stretch gap-1 sm:gap-2 mt-3 sm:mt-6 shrink-0 min-h-0">
           {/* Followers */}
           <button 
             type="button"
             onClick={() => navigate('/my-following')}
-            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
+            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-[3.5rem] sm:!min-w-[4rem] !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
           >
             <div className="flex-1 flex items-center justify-center min-h-[28px] sm:min-h-[36px]">
               <p className="text-base sm:text-2xl font-bold text-foreground whitespace-nowrap">
@@ -1178,7 +1178,7 @@ const MyPredictions = () => {
           <button 
             type="button"
             onClick={() => navigate('/my-following')}
-            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
+            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-[3.5rem] sm:!min-w-[4rem] !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
           >
             <div className="flex-1 flex items-center justify-center min-h-[28px] sm:min-h-[36px]">
               <p className="text-base sm:text-2xl font-bold text-foreground whitespace-nowrap">{followingList.length}</p>
@@ -1190,7 +1190,7 @@ const MyPredictions = () => {
           <button 
             type="button"
             onClick={() => navigate('/my-model-follows')}
-            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-0 !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
+            className="flex-1 flex flex-col !py-2 sm:!py-4 !min-w-[3.5rem] sm:!min-w-[4rem] !min-h-0 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center hover:bg-muted/30 transition-colors overflow-hidden shrink-0 touch-manipulation"
           >
             <div className="flex-1 flex items-center justify-center min-h-[28px] sm:min-h-[36px]">
               <p className="text-base sm:text-2xl font-bold text-foreground whitespace-nowrap">{modelFollowsCount}</p>
@@ -1199,7 +1199,7 @@ const MyPredictions = () => {
           </button>
           
           {/* Hunter Coin Balance */}
-          <div className="flex-1 flex flex-col py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-0 overflow-hidden">
+          <div className="flex-1 flex flex-col py-2 sm:py-4 rounded-lg sm:rounded-xl border border-border/50 bg-card/50 text-center min-w-[3.5rem] sm:min-w-[4rem] overflow-hidden shrink-0">
             <div className="flex-1 flex items-center justify-center gap-0.5 sm:gap-1.5 px-0.5 min-w-0 min-h-[28px] sm:min-h-[36px]">
               <img src={hunterCoinIcon} alt="Hunter Coin" className="w-3 h-3 sm:w-5 sm:h-5 flex-shrink-0" />
               <p className="text-[11px] sm:text-lg font-bold text-foreground min-w-0">
@@ -1210,13 +1210,13 @@ const MyPredictions = () => {
           </div>
         </div>
 
-        {/* Tabs - Responsive Scrollable */}
+        {/* Tabs - Fixed width to prevent stretch on language switch */}
         <div className="mt-3 sm:mt-6 shrink-0">
-          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1.5 sm:pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1.5 sm:pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4 shrink-0 flex-nowrap">
             <button
               type="button"
               onClick={() => setActiveTab('history')}
-              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
+              className={`!w-[4.5rem] sm:!w-[5.25rem] !min-w-[4.5rem] sm:!min-w-[5.25rem] !max-w-[4.5rem] sm:!max-w-[5.25rem] !px-2 !py-1.5 sm:!py-2.5 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all shrink-0 touch-manipulation whitespace-nowrap ${
                 activeTab === 'history' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -1227,7 +1227,7 @@ const MyPredictions = () => {
             <button
               type="button"
               onClick={() => setActiveTab('records')}
-              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
+              className={`!w-[4.5rem] sm:!w-[5.25rem] !min-w-[4.5rem] sm:!min-w-[5.25rem] !max-w-[4.5rem] sm:!max-w-[5.25rem] !px-2 !py-1.5 sm:!py-2.5 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all shrink-0 touch-manipulation whitespace-nowrap ${
                 activeTab === 'records' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -1238,7 +1238,7 @@ const MyPredictions = () => {
             <button
               type="button"
               onClick={() => setActiveTab('invite')}
-              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
+              className={`!w-[4.5rem] sm:!w-[5.25rem] !min-w-[4.5rem] sm:!min-w-[5.25rem] !max-w-[4.5rem] sm:!max-w-[5.25rem] !px-2 !py-1.5 sm:!py-2.5 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all shrink-0 touch-manipulation whitespace-nowrap ${
                 activeTab === 'invite' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -1249,7 +1249,7 @@ const MyPredictions = () => {
             <button
               type="button"
               onClick={() => setActiveTab('starcard')}
-              className={`!px-2.5 sm:!px-5 !py-1.5 sm:!py-2.5 !min-w-0 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
+              className={`!w-[4.5rem] sm:!w-[5.25rem] !min-w-[4.5rem] sm:!min-w-[5.25rem] !max-w-[4.5rem] sm:!max-w-[5.25rem] !px-2 !py-1.5 sm:!py-2.5 !min-h-0 rounded-full text-[10px] sm:text-sm font-medium transition-all shrink-0 touch-manipulation whitespace-nowrap ${
                 activeTab === 'starcard' 
                   ? 'bg-foreground text-background' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -1486,8 +1486,11 @@ const MyPredictions = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground">{t('invite_reward_title') || 'Star Card Reward'}</p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-muted-foreground break-words">
                         {t('invite_reward_desc') || 'Invite 5 friends for 1 star card'}
+                      </p>
+                      <p className="text-xs text-muted-foreground break-words">
+                        {t('star_cards_exchange_vip') || '2 star cards can be exchanged for 1 month free VIP'}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -1734,7 +1737,7 @@ const MyPredictions = () => {
         <DialogContent className="sm:max-w-md w-[calc(100%-24px)] max-w-[360px] max-h-[80vh] p-0 gap-0 bg-background border-border rounded-xl overflow-hidden">
           <DialogHeader className="px-4 py-3 border-b border-border">
             <DialogTitle className="text-sm font-medium text-foreground">
-              {selectedMatch ? '人工下注' : '选择比赛'}
+              {selectedMatch ? t('manual_bet_title') : t('select_match')}
             </DialogTitle>
           </DialogHeader>
 
@@ -1745,7 +1748,7 @@ const MyPredictions = () => {
                 {isLoadingPredictionMatches ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" />
-                    加载中...
+                    {t('loading') || 'Loading...'}
                   </div>
                 ) : predictionMatches.length > 0 ? (
                   predictionMatches.map((match: any) => (
@@ -1792,7 +1795,7 @@ const MyPredictions = () => {
 
                 {/* Handicap Section */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">让分</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('bet_type_handicap') || t('handicap_bet') || 'Handicap'}</span>
                   {(() => {
                     if (isLoadingMarketOdds) {
                       return (
@@ -1806,7 +1809,7 @@ const MyPredictions = () => {
                     if (!marketOdds?.handicap || marketOdds.handicap.length === 0) {
                       return (
                         <div className="p-4 text-center text-sm text-muted-foreground">
-                          暂无让分赔率数据
+                          {t('no_handicap_odds') || 'No handicap odds'}
                         </div>
                       );
                     }
@@ -1850,7 +1853,7 @@ const MyPredictions = () => {
                           {homeOdds && homeOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'HOME' && manualHandicapLine === handicapLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, homeOdds - 1).toFixed(2)}</p>
                           ) : (
-                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('no_data') || 'No data'}</p>
                           )}
                         </button>
                         <button
@@ -1879,7 +1882,7 @@ const MyPredictions = () => {
                           {awayOdds && awayOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'handicap' && manualPrediction === 'AWAY' && manualHandicapLine === handicapLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, awayOdds - 1).toFixed(2)}</p>
                           ) : (
-                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('no_data') || 'No data'}</p>
                           )}
                         </button>
                       </div>
@@ -1889,7 +1892,7 @@ const MyPredictions = () => {
 
                 {/* Over/Under Section */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">大小球</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">{t('bet_type_over_under') || t('over_under_bet') || 'Over/Under'}</span>
                   {(() => {
                     if (isLoadingMarketOdds) {
                       return (
@@ -1903,7 +1906,7 @@ const MyPredictions = () => {
                     if (!marketOdds?.overUnder || marketOdds.overUnder.length === 0) {
                       return (
                         <div className="p-4 text-center text-sm text-muted-foreground">
-                          暂无大小球赔率数据
+                          {t('no_over_under_odds') || 'No over/under odds'}
                         </div>
                       );
                     }
@@ -1934,11 +1937,11 @@ const MyPredictions = () => {
                               <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
-                          <span className="text-xs sm:text-sm font-medium">大球 {overUnderLine}</span>
+                          <span className="text-xs sm:text-sm font-medium">{t('over') || 'Over'} {overUnderLine}</span>
                           {overOdds && overOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'over' && manualOverUnderLine === overUnderLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, overOdds - 1).toFixed(2)}</p>
                           ) : (
-                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('no_data') || 'No data'}</p>
                           )}
                         </button>
                         <button
@@ -1960,11 +1963,11 @@ const MyPredictions = () => {
                               <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />
                             </div>
                           )}
-                          <span className="text-xs sm:text-sm font-medium">小球 {overUnderLine}</span>
+                          <span className="text-xs sm:text-sm font-medium">{t('under') || 'Under'} {overUnderLine}</span>
                           {underOdds && underOdds > 0 ? (
                             <p className={`text-base sm:text-lg font-bold mt-1 ${manualBetType === 'over_under' && manualOverUnderPick === 'under' && manualOverUnderLine === overUnderLine ? 'text-primary' : 'text-foreground'}`}>@{Math.max(0, underOdds - 1).toFixed(2)}</p>
                           ) : (
-                            <p className="text-xs text-muted-foreground mt-1">暂无数据</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('no_data') || 'No data'}</p>
                           )}
                         </button>
                       </div>
@@ -1974,7 +1977,7 @@ const MyPredictions = () => {
 
                 {/* Bet Amount Input */}
                 <div className="flex items-center justify-between pt-3 border-t border-border">
-                  <span className="text-xs sm:text-sm text-muted-foreground">投注猎人币</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('bet_hunter_coin') || 'Bet Hunter Coins'}</span>
                   <div className="flex items-center gap-1.5">
                     <img src={hunterCoinIcon} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
                     <input
@@ -1982,7 +1985,7 @@ const MyPredictions = () => {
                       min={1}
                       max={availableBalance}
                       value={manualBetAmount === '' ? '' : manualBetAmount}
-                      placeholder="输入金额"
+                      placeholder={t('enter_amount') || 'Enter amount'}
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         if (inputValue === '') {
@@ -1999,7 +2002,7 @@ const MyPredictions = () => {
                     />
                     {availableBalance > 0 && (
                       <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                        最多 {availableBalance.toLocaleString()}
+                        {t('max_prefix') || 'Max'} {availableBalance.toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -2014,7 +2017,7 @@ const MyPredictions = () => {
                   {isSubmittingBet ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
-                  确认预测{manualBetAmount !== '' ? ` · ${manualBetAmount}` : ''}
+                  {t('confirm_prediction') || 'Confirm Prediction'}{manualBetAmount !== '' ? ` · ${manualBetAmount}` : ''}
                 </Button>
               </div>
             )}
@@ -2026,7 +2029,7 @@ const MyPredictions = () => {
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-[200px] w-[160px] p-4 gap-0 bg-card/95 backdrop-blur-md border-border/50 text-center rounded-xl">
           <DialogHeader className="sr-only">
-            <DialogTitle>{t('bet_success') || '预测成功'}</DialogTitle>
+            <DialogTitle>{t('bet_success') || 'Prediction Success'}</DialogTitle>
           </DialogHeader>
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -2054,7 +2057,7 @@ const MyPredictions = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              {t('success') || '成功'}
+              {t('success') || 'Success'}
             </motion.p>
           </motion.div>
         </DialogContent>
