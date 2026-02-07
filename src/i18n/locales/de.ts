@@ -287,6 +287,7 @@ export const de = {
       "confirm_password": "Passwort Bestätigen",
       "enter_confirm_password": "Passwort erneut eingeben",
       "invitation_code": "Einladungscode",
+      "not_vip": "VIP-Probezeit abgelaufen",
       "invitation_code_hint": "(Erhalte Star-Karte für je 5 Einladungen)",
       "enter_invitation_code": "Einladungscode eingeben",
       "verification_code": "Bestätigungscode",

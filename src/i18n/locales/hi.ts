@@ -477,7 +477,7 @@ export const hi = {
     "level_up_tip": "स्तर बढ़ाने के लिए ऑनलाइन रहें",
     "vip_status": "VIP स्थिति",
     "vip_member": "VIP सदस्य",
-    "not_vip": "VIP नहीं",
+    "not_vip": "VIP परीक्षण समाप्त",
     "vip_expires": "VIP समाप्ति",
     "become_vip": "VIP बनें",
     "invitation_code": "आमंत्रण कोड",

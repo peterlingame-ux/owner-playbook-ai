@@ -287,6 +287,7 @@ export const it = {
       "confirm_password": "Conferma Password",
       "enter_confirm_password": "Inserisci password di nuovo",
       "invitation_code": "Codice Invito",
+      "not_vip": "Periodo di prova VIP scaduto",
       "invitation_code_hint": "(Ottieni Carta Stella per ogni 5 inviti)",
       "enter_invitation_code": "Inserisci codice invito",
       "verification_code": "Codice di Verifica",

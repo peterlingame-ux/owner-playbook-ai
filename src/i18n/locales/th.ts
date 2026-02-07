@@ -477,7 +477,7 @@ export const th = {
     "level_up_tip": "อยู่ออนไลน์เพื่อเลเวลอัพ",
     "vip_status": "สถานะ VIP",
     "vip_member": "สมาชิก VIP",
-    "not_vip": "ไม่ใช่ VIP",
+    "not_vip": "VIP ทดลองหมดอายุ",
     "vip_expires": "VIP หมดอายุ",
     "become_vip": "เป็น VIP",
     "invitation_code": "รหัสเชิญ",

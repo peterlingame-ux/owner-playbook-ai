@@ -449,7 +449,7 @@ export const fr = {
     "level_up_tip": "Restez en ligne pour monter de niveau",
     "vip_status": "Statut VIP",
     "vip_member": "Membre VIP",
-    "not_vip": "Non VIP",
+    "not_vip": "Période d'essai VIP expirée",
     "vip_expires": "VIP Expire",
     "become_vip": "Devenir VIP",
     "invitation_code": "Code d'Invitation",

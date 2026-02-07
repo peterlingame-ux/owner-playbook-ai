@@ -287,6 +287,7 @@ export const pt = {
       "confirm_password": "Confirmar Senha",
       "enter_confirm_password": "Digite a senha novamente",
       "invitation_code": "Código de Convite",
+      "not_vip": "Período de teste VIP expirado",
       "invitation_code_hint": "(Ganhe Cartão Estrela a cada 5 convites)",
       "enter_invitation_code": "Digite o código de convite",
       "verification_code": "Código de Verificação",

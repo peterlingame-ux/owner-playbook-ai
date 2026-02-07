@@ -477,7 +477,7 @@ export const ar = {
     "level_up_tip": "ابق متصلاً للترقية",
     "vip_status": "حالة VIP",
     "vip_member": "عضو VIP",
-    "not_vip": "ليس VIP",
+    "not_vip": "انتهت فترة تجربة VIP",
     "vip_expires": "تنتهي صلاحية VIP",
     "become_vip": "اشترك VIP",
     "invitation_code": "رمز الدعوة",

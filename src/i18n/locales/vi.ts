@@ -491,7 +491,7 @@ export const vi = {
     "level_up_tip": "Online để lên cấp",
     "vip_status": "Trạng thái VIP",
     "vip_member": "Thành viên VIP",
-    "not_vip": "Không phải VIP",
+    "not_vip": "Dùng thử VIP đã hết hạn",
     "vip_expires": "VIP hết hạn",
     "become_vip": "Trở thành VIP",
     "invitation_code": "Mã mời",

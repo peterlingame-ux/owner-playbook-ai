@@ -612,7 +612,7 @@ export const es = {
     "level_up_tip": "Mantente en línea para subir de nivel",
     "vip_status": "Estado VIP",
     "vip_member": "Miembro VIP",
-    "not_vip": "No VIP",
+    "not_vip": "Prueba VIP caducada",
     "vip_expires": "VIP Expira",
     "become_vip": "Hazte VIP",
     "invitation_code": "Código de Invitación",

@@ -480,7 +480,7 @@ export const ru = {
     "level_up_tip": "Оставайтесь онлайн для повышения уровня",
     "vip_status": "Статус VIP",
     "vip_member": "VIP Участник",
-    "not_vip": "Не VIP",
+    "not_vip": "VIP пробный период истёк",
     "vip_expires": "VIP Истекает",
     "become_vip": "Стать VIP",
     "invitation_code": "Код Приглашения",

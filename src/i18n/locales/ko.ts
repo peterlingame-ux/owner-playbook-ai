@@ -523,7 +523,7 @@ export const ko = {
     "vip_member": "VIP 회원",
     "vip_expires": "VIP 만료",
     "vip_expired": "VIP 만료됨",
-    "not_vip": "비 VIP",
+    "not_vip": "VIP 체험 만료됨",
     "edit_profile": "프로필 편집",
     "save_profile": "프로필 저장",
     "profile_updated": "프로필이 업데이트되었습니다",

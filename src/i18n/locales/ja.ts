@@ -287,6 +287,7 @@ export const ja = {
       "confirm_password": "パスワード確認",
       "enter_confirm_password": "パスワードを再入力",
       "invitation_code": "招待コード",
+      "not_vip": "VIP体験期間終了",
       "invitation_code_hint": "（5人招待ごとにスターカード贈呈）",
       "enter_invitation_code": "招待コードを入力",
       "verification_code": "認証コード",
