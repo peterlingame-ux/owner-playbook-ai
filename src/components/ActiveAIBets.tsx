@@ -51,22 +51,21 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
     const updateTime = () => {
       // 从 ref 中获取最新的 match 对象，确保使用最新的值
       const currentMatch = matchRef.current;
-      
+
       const now = getUTC8Timestamp(); // 当前时间戳（秒，UTC+8）
-      
+
       // 首先检查当前时间是否小于 daily_matches 里面的比赛开始时间（match_time）
       const matchTime = currentMatch.match_time;
-      if (matchTime && typeof matchTime === 'number' && matchTime > 0) {
+      const matchTimeValid = matchTime && typeof matchTime === 'number' && matchTime > 0;
+      if (matchTimeValid) {
         // 检查当前时间是否小于 match_time
         if (now < matchTime) {
           // 比赛还未开始，显示倒计时
           const diff = matchTime - now;
+          const displayVal = `${Math.floor(diff / 3600).toString().padStart(2, '0')}:${Math.floor((diff % 3600) / 60).toString().padStart(2, '0')}:${(diff % 60).toString().padStart(2, '0')}`;
           setMatchStatus('not_started');
           setShowCountdown(true);
-          const hours = Math.floor(diff / 3600);
-          const minutes = Math.floor((diff % 3600) / 60);
-          const seconds = diff % 60;
-          setTimeDisplay(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+          setTimeDisplay(displayVal);
           return;
         }
         // 如果当前时间大于等于 match_time，继续执行后面的逻辑（计算比赛进行时间）
@@ -95,10 +94,10 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       
       // 如果有比分但没有状态数据，推断比赛正在进行中
       if (hasScore && (!currentMatch.live_kickoff_time || currentMatch.live_status_id === null || currentMatch.live_status_id === undefined)) {
+        const displayVal = t('in_progress') || '进行中';
         setMatchStatus('live');
         setShowCountdown(false);
-        // 显示"进行中"或使用默认时间显示
-        setTimeDisplay(t('in_progress') || '进行中');
+        setTimeDisplay(displayVal);
         return;
       }
       
@@ -108,22 +107,24 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       
       if (liveStatusId === 3) {
         // 中场休息
+        const displayVal = t('half_time_break') || '中场休息';
         setMatchStatus('half_time');
         setShowCountdown(false);
-        setTimeDisplay(t('half_time_break') || '中场休息');
+        setTimeDisplay(displayVal);
         return;
       }
       
       // 如果开球时间无效，无法计算
       if (!kickoffTimeSeconds || Number.isNaN(kickoffTimeSeconds) || kickoffTimeSeconds <= 0) {
+        const displayVal = hasScore ? (t('in_progress') || '进行中') : '--:--:--';
         if (hasScore) {
           setMatchStatus('live');
           setShowCountdown(false);
-          setTimeDisplay(t('in_progress') || '进行中');
+          setTimeDisplay(displayVal);
         } else {
           setMatchStatus('not_started');
           setShowCountdown(true);
-          setTimeDisplay('--:--:--');
+          setTimeDisplay(displayVal);
         }
         return;
       }
@@ -158,11 +159,12 @@ const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
       }
       else if (liveStatusId === 9) {
         // 推迟
+        const displayVal = t('postponed') || '推迟';
         setMatchStatus('postponed');
         setShowCountdown(false);
-        setTimeDisplay(t('postponed') || '推迟');
+        setTimeDisplay(displayVal);
         return;
-      }else {
+      } else {
         // 其他状态（完场、取消等），显示默认值
         setMatchStatus('other');
         setShowCountdown(false);
@@ -593,8 +595,12 @@ const MODEL_GRADIENTS: Record<string, { from: string; to: string; accent: string
 
 const ActiveAIBets = () => {
   const { t, i18n } = useTranslation();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, userVip } = useAuth();
   const { trialExpired } = useTrialStatus(user);
+  // 可查看 AI 赛事分析：已登录 且 (试用期内 或 有有效会员)
+  const canViewAnalysis = user && (userVip?.isActive || !trialExpired);
+  const canViewAnalysisRef = useRef(canViewAnalysis);
+  canViewAnalysisRef.current = canViewAnalysis;
   
   // Get AI models (exclude locked ones like mystery and boospot, and hunsoccermax which is replaced by player's model)
   const activeAIs = aiModels.filter(ai => !ai.locked && ai.id !== 'hunsoccermax');
@@ -695,6 +701,11 @@ const ActiveAIBets = () => {
   // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
     const fetchData = async (isRefresh = false) => {
+      // 已登录、试用已过、无会员：不请求数据
+      if (!canViewAnalysisRef.current) {
+        if (!isRefresh) setIsInitialLoading(false);
+        return;
+      }
       try {
         if (isRefresh) {
           setIsRefreshing(true);
@@ -918,10 +929,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'daily_matches',
         },
-        (payload) => {
-          console.log('Match updated, refreshing data:', payload);
-          fetchData(true);
-        }
+        () => fetchData(true)
       )
       .subscribe();
     
@@ -935,10 +943,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'match_live_data',
         },
-        (payload) => {
-          console.log('Live data updated, refreshing matches:', payload);
-          fetchData(true);
-        }
+        () => fetchData(true)
       )
       .on(
         'postgres_changes',
@@ -947,10 +952,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'match_live_data',
         },
-        (payload) => {
-          console.log('New live data inserted, refreshing matches:', payload);
-          fetchData(true);
-        }
+        () => fetchData(true)
       )
       .subscribe();
 
@@ -964,10 +966,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'ai_auto_bets',
         },
-        (payload) => {
-          console.log('New auto bet inserted, refreshing data:', payload);
-          fetchData(true);
-        }
+        () => fetchData(true)
       )
       .on(
         'postgres_changes',
@@ -976,10 +975,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'ai_auto_bets',
         },
-        (payload) => {
-          console.log('Auto bet updated, refreshing data:', payload);
-          fetchData(true);
-        }
+        () => fetchData(true)
       )
       .subscribe();
 
@@ -1883,7 +1879,7 @@ const ActiveAIBets = () => {
             <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
               <TiltCard
                 className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br ${gradient.from} ${gradient.to} backdrop-blur-sm border border-white/10 hover:border-white/25 transition-colors duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${lockedCardHeight ? 'h-[var(--ai-card-h)]' : ''} relative`}
-                onClick={!user ? () => window.location.href = '/auth' : trialExpired ? undefined : nextMatch}
+                onClick={!user ? () => window.location.href = '/auth' : !canViewAnalysis ? undefined : nextMatch}
                 maxTilt={8}
                 scale={1.02}
                 glare={false}
@@ -1947,7 +1943,7 @@ const ActiveAIBets = () => {
                               )}
 
               {/* Content */}
-              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!user || trialExpired ? 'blur-[1px]' : ''}`}>
+              <div className={`relative z-10 space-y-1 sm:space-y-4 overflow-hidden pb-5 sm:pb-8 ${!canViewAnalysis ? 'blur-[1px]' : ''}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${aiModel.id}-${matchIndex}`}
@@ -2242,15 +2238,15 @@ const ActiveAIBets = () => {
                 </AnimatePresence>
               </div>
               
-              {/* 未登录或试用已到期的遮罩层和提示 */}
-              {(!user || trialExpired) && (
+              {/* 未登录 / 试用已过且无会员的遮罩层 */}
+              {!canViewAnalysis && (
                 <div 
                   className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 backdrop-blur-sm rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (!user) {
                       window.location.href = '/auth';
-                    } else if (trialExpired) {
+                    } else {
                       window.location.href = 'mailto:support@hunsoccer.com';
                     }
                   }}

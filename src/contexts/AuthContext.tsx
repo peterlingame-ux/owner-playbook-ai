@@ -14,14 +14,21 @@ interface UserBalance {
   total_lost: number;
 }
 
+interface UserVip {
+  isActive: boolean;
+  expiresAt: string | null;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   userProfile: UserProfile | null;
   userBalance: UserBalance | null;
+  userVip: UserVip | null;
   refreshBalance: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
+  refreshUserVip: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -30,8 +37,10 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   userProfile: null,
   userBalance: null,
+  userVip: null,
   refreshBalance: async () => {},
   refreshUserProfile: async () => {},
+  refreshUserVip: async () => {},
 });
 
 export const useAuth = () => {
@@ -48,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
+  const [userVip, setUserVip] = useState<UserVip | null>(null);
 
   // Fetch user profile
   const fetchUserProfile = async (userId: string) => {
@@ -116,10 +126,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Fetch user VIP status
+  const fetchUserVip = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_vip')
+      .select('is_active, expires_at')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching user VIP:', error);
+      return;
+    }
+
+    if (data && data.expires_at) {
+      const expiresAt = data.expires_at as string;
+      const isActive = data.is_active === true && new Date(expiresAt) > new Date();
+      setUserVip({ isActive, expiresAt });
+    } else {
+      setUserVip({ isActive: false, expiresAt: null });
+    }
+  };
+
   // Refresh user profile
   const refreshUserProfile = async () => {
     if (user) {
       await fetchUserProfile(user.id);
+    }
+  };
+
+  // Refresh user VIP
+  const refreshUserVip = async () => {
+    if (user) {
+      await fetchUserVip(user.id);
     }
   };
 
@@ -136,10 +175,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setTimeout(() => {
             fetchUserProfile(session.user.id);
             fetchUserBalance(session.user.id);
+            fetchUserVip(session.user.id);
           }, 0);
         } else {
           setUserProfile(null);
           setUserBalance(null);
+          setUserVip(null);
         }
       }
     );
@@ -154,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTimeout(() => {
           fetchUserProfile(session.user.id);
           fetchUserBalance(session.user.id);
+          fetchUserVip(session.user.id);
         }, 0);
       }
     });
@@ -162,7 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, userProfile, userBalance, refreshBalance, refreshUserProfile }}>
+    <AuthContext.Provider value={{ user, session, loading, userProfile, userBalance, userVip, refreshBalance, refreshUserProfile, refreshUserVip }}>
       {children}
     </AuthContext.Provider>
   );

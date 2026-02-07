@@ -348,8 +348,10 @@ const PlayerExclusiveModelCard = ({
   onToggleAutoPrediction
 }: PlayerExclusiveModelCardProps) => {
   const { t } = useTranslation();
-  const { user, userProfile, refreshBalance } = useAuth();
+  const { user, userProfile, refreshBalance, userVip } = useAuth();
   const { trialExpired } = useTrialStatus(user);
+  // 可查看 AI 赛事分析：已登录 且 (试用期内 或 有有效会员)
+  const canViewAnalysis = user && (userVip?.isActive || !trialExpired);
   const [showFeedDialog, setShowFeedDialog] = useState(false);
   const [feedText, setFeedText] = useState('');
   const [isFeeding, setIsFeeding] = useState(false);
@@ -1310,7 +1312,7 @@ const PlayerExclusiveModelCard = ({
     <>
       <TiltCard
         className={`group rounded-lg sm:rounded-2xl p-1.5 sm:p-5 bg-gradient-to-br from-amber-900/20 via-slate-800/60 to-slate-900/40 backdrop-blur-sm border-2 border-amber-500/60 hover:border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300 overflow-hidden cursor-pointer h-full min-h-[160px] sm:min-h-[320px] ${className} relative`}
-        onClick={!user ? () => window.location.href = '/auth' : trialExpired ? undefined : handleNextMatch}
+        onClick={!user ? () => window.location.href = '/auth' : !canViewAnalysis ? undefined : handleNextMatch}
         maxTilt={8}
         scale={1.02}
         glare={false}
@@ -1408,7 +1410,7 @@ const PlayerExclusiveModelCard = ({
         </div>
 
         {/* Content */}
-        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!user || trialExpired ? 'blur-[1px]' : ''}`}>
+        <div className={`relative z-10 space-y-1.5 sm:space-y-4 overflow-hidden ${!canViewAnalysis ? 'blur-[1px]' : ''}`}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`player-${matchIndex}-${isManualPrediction ? 'manual' : 'auto'}`}
@@ -1989,15 +1991,15 @@ const PlayerExclusiveModelCard = ({
           </AnimatePresence>
         </div>
         
-        {/* 未登录或试用已到期的遮罩层和提示 */}
-        {(!user || trialExpired) && (
+        {/* 未登录 / 试用已过且无会员的遮罩层 */}
+        {!canViewAnalysis && (
           <div 
             className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 backdrop-blur-sm rounded-lg sm:rounded-2xl pointer-events-auto cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               if (!user) {
                 window.location.href = '/auth';
-              } else if (trialExpired) {
+              } else {
                 window.location.href = 'mailto:support@hunsoccer.com';
               }
             }}

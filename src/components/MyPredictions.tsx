@@ -85,7 +85,7 @@ const AVATAR_OPTIONS = [
 
 const MyPredictions = () => {
   const { t } = useTranslation();
-  const { user, userProfile: authUserProfile, refreshUserProfile, refreshBalance, userBalance: authUserBalance } = useAuth();
+  const { user, userProfile: authUserProfile, refreshUserProfile, refreshBalance, refreshUserVip, userBalance: authUserBalance, userVip } = useAuth();
   const navigate = useNavigate();
   const { level, totalMinutes, getNextLevelProgress, formatOnlineTime } = useOnlineTracking();
   const [stats, setStats] = useState<PredictionStats | null>(null);
@@ -122,41 +122,14 @@ const MyPredictions = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
   const [availableBalance, setAvailableBalance] = useState<number>(0);
-  const [isVipActive, setIsVipActive] = useState(false);
   const [isVipDialogOpen, setIsVipDialogOpen] = useState(false);
   const [starCards, setStarCards] = useState<Array<{ id: string; card_name: string; card_image: string; rarity: string; obtained_at: string }>>([]);
   const [isLoadingStarCards, setIsLoadingStarCards] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [customAvatarUrl, setCustomAvatarUrl] = useState<string | null>(null);
 
-  // Fetch VIP status
-  const fetchVipStatus = async () => {
-    if (!user) {
-      setIsVipActive(false);
-      return;
-    }
-    
-    try {
-      const { data } = await supabase
-        .from('user_vip')
-        .select('is_active, expires_at')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (data && data.is_active && new Date(data.expires_at) > new Date()) {
-        setIsVipActive(true);
-      } else {
-        setIsVipActive(false);
-      }
-    } catch (error) {
-      console.error('Error fetching VIP status:', error);
-      setIsVipActive(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVipStatus();
-  }, [user]);
+  // 使用 AuthContext 的 userVip，VIP 图标根据 userVip?.isActive 点亮
+  const isVipActive = userVip?.isActive ?? false;
 
   useEffect(() => {
     if (authUserProfile) {
@@ -2092,7 +2065,7 @@ const MyPredictions = () => {
         open={isVipDialogOpen}
         onOpenChange={setIsVipDialogOpen}
         isVipActive={isVipActive}
-        onVipPurchased={fetchVipStatus}
+        onVipPurchased={refreshUserVip}
       />
     </div>
   );

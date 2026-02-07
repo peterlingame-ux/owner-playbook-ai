@@ -10,15 +10,30 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPredictionsDialog } from "@/components/UserPredictionsDialog";
-
+import VipSubscriptionDialog from "@/components/VipSubscriptionDialog";
+import { MembershipCountdown } from "@/components/MembershipCountdown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
+
+const formatExpiryDate = (iso: string) => {
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" });
+};
 
 const Header = () => {
   const { t, i18n } = useTranslation();
-  const { user, userProfile, refreshUserProfile } = useAuth();
+  const { user, userProfile, userVip, refreshUserProfile, refreshUserVip } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showPredictions, setShowPredictions] = useState(false);
+  const [showVipDialog, setShowVipDialog] = useState(false);
   
   // 确保头像显示最新选择的图片（监听 userProfile 变化）
   useEffect(() => {
@@ -138,51 +153,110 @@ const Header = () => {
             
             <LanguageSwitcher />
             
-            {/* Mobile Avatar - 移动端显示头像（在客服按钮右边） */}
+            {/* Mobile Avatar - 移动端显示头像 */}
             {user && (
               <div className="flex sm:hidden items-center">
-                <Avatar 
-                  className="h-7 w-7 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
-                  onClick={() => setShowPredictions(true)}
-                >
-                  <AvatarImage 
-                    src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
-                    alt={userProfile?.display_name || 'User'}
-                    key={userProfile?.avatar_url} // 添加 key 确保头像更新时重新渲染
-                  />
-                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                    {userProfile?.display_name?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="rounded-full focus:outline-none focus:ring-0">
+                      <Avatar className="h-7 w-7 cursor-pointer transition-all">
+                        <AvatarImage
+                          src={userProfile?.avatar_url || "/avatars/avatar-1.png"}
+                          alt={userProfile?.display_name || "User"}
+                          key={userProfile?.avatar_url}
+                        />
+                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                          {userProfile?.display_name?.charAt(0) || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={userProfile?.avatar_url || "/avatars/avatar-1.png"} />
+                            <AvatarFallback className="text-xs">{userProfile?.display_name?.charAt(0) || "U"}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium truncate">{userProfile?.display_name || "User"}</span>
+                        </div>
+                        {userVip?.expiresAt && (
+                          <div className="text-xs text-muted-foreground space-y-0.5 pl-11">
+                            <div>{t("membership_expires")}: {formatExpiryDate(userVip.expiresAt)}</div>
+                            <div className="text-foreground">
+                              {t("membership_remaining")}: <MembershipCountdown expiresAt={userVip.expiresAt} isActive={userVip.isActive} />
+                            </div>
+                          </div>
+                        )}
+                        {!userVip?.expiresAt && (
+                          <div className="text-xs text-muted-foreground pl-11">{t("not_vip")}</div>
+                        )}
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      {t("auth.logout")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
-            
+
             {/* Desktop Auth Buttons */}
             <div className="hidden sm:flex items-center gap-1.5">
               {user ? (
                 <div className="flex items-center gap-2">
-                  <Avatar 
-                    className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
-                    onClick={() => setShowPredictions(true)}
-                  >
-                    <AvatarImage 
-                    src={userProfile?.avatar_url || '/avatars/avatar-1.png'} 
-                    alt={userProfile?.display_name || 'User'}
-                    key={userProfile?.avatar_url} // 添加 key 确保头像更新时重新渲染
-                  />
-                    <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                      {userProfile?.display_name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
-                    {userProfile?.display_name || 'User'}
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleSignOut}
-                    className="h-8 w-8 p-0"
-                  >
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="rounded-full focus:outline-none focus:ring-0 flex items-center gap-2">
+                        <Avatar className="h-8 w-8 cursor-pointer transition-all">
+                          <AvatarImage
+                            src={userProfile?.avatar_url || "/avatars/avatar-1.png"}
+                            alt={userProfile?.display_name || "User"}
+                            key={userProfile?.avatar_url}
+                          />
+                          <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                            {userProfile?.display_name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
+                          {userProfile?.display_name || "User"}
+                        </span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="h-9 w-9">
+                              <AvatarImage src={userProfile?.avatar_url || "/avatars/avatar-1.png"} />
+                              <AvatarFallback className="text-xs">{userProfile?.display_name?.charAt(0) || "U"}</AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium truncate">{userProfile?.display_name || "User"}</span>
+                          </div>
+                          {userVip?.expiresAt && (
+                            <div className="text-xs text-muted-foreground space-y-0.5 pl-11">
+                              <div>{t("membership_expires")}: {formatExpiryDate(userVip.expiresAt)}</div>
+                              <div className="text-foreground">
+                                {t("membership_remaining")}: <MembershipCountdown expiresAt={userVip.expiresAt} isActive={userVip.isActive} />
+                              </div>
+                            </div>
+                          )}
+                          {!userVip?.expiresAt && (
+                            <div className="text-xs text-muted-foreground pl-11">{t("not_vip")}</div>
+                          )}
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {t("auth.logout")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut} className="h-8 w-8 p-0">
                     <LogOut size={16} />
                   </Button>
                 </div>
@@ -201,11 +275,19 @@ const Header = () => {
       </div>
 
       {user && (
-        <UserPredictionsDialog 
-          open={showPredictions} 
-          onOpenChange={setShowPredictions}
-          userId={user.id}
-        />
+        <>
+          <UserPredictionsDialog
+            open={showPredictions}
+            onOpenChange={setShowPredictions}
+            userId={user.id}
+          />
+          <VipSubscriptionDialog
+            open={showVipDialog}
+            onOpenChange={setShowVipDialog}
+            isVipActive={userVip?.isActive ?? false}
+            onVipPurchased={refreshUserVip}
+          />
+        </>
       )}
     </header>
   );
