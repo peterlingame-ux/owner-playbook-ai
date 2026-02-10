@@ -20,6 +20,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedWinRate } from "@/components/AnimatedWinRate";
 import CryptoTicker from "@/components/CryptoTicker";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDailyMatchesByFixtureIds } from "@/lib/fetchDailyMatchesByFixtureIds";
 import { useAuth } from "@/contexts/AuthContext";
 import iconGreencourt from "@/assets/icon_greencourt.jpg";
 import deepseekIcon from "@/assets/deepseek-icon.png";
@@ -125,19 +126,13 @@ const History = () => {
           // 获取所有唯一的 match_id
           const matchIds = [...new Set(positionsData.map((p: any) => p.match_id).filter(Boolean))];
           
-          // 查询比赛信息
+          // 查询比赛信息（按 fixture_id 分批查询，避免 URL 过长）
           let matchesMap = new Map();
           if (matchIds.length > 0) {
-            const { data: matchesData, error: matchesError } = await supabase
-              .from('daily_matches' as any)
-              .select('*')
-              .in('fixture_id', matchIds);
-  
-            if (!matchesError && matchesData) {
-              matchesData.forEach((match: any) => {
-                matchesMap.set(match.fixture_id, match);
-              });
-            }
+            const matchesData = await fetchDailyMatchesByFixtureIds(supabase as any, matchIds);
+            matchesData.forEach((match: any) => {
+              matchesMap.set(match.fixture_id, match);
+            });
           }
   
           // 转换数据格式
@@ -483,21 +478,13 @@ const History = () => {
     return iconGreencourt;
   };
 
-  // Helper function to get team name based on language
+  // Helper: 根据当前语言返回球队名（使用 i18n 多语言表）
   const getTeamName = (match: HistoryRecord['match'], team: 'home' | 'away') => {
     if (!match) return '';
-    
     const originalName = team === 'home' ? match.homeTeam : match.awayTeam;
     if (!originalName) return '';
-    
-    // If Chinese language, try to get translation from i18n
-    if (i18n.language.startsWith('zh')) {
-      const translatedName = t(`teams.${originalName}`, originalName);
-      return translatedName;
-    }
-    
-    // Return original name for English
-    return originalName;
+    // 始终通过 i18n 查询：en / zh / zh-HK 等都会走 teams 多语言表，查不到时回退原始名
+    return t(`teams.${originalName}`, originalName);
   };
 
   const getBetTypeLabel = (betType: string, prediction: HistoryRecord, match?: HistoryRecord['match']) => {

@@ -44,7 +44,7 @@ interface PlayerLeaderboardCardProps {
   onViewHistory: (e: React.MouseEvent) => void;
   onShowFollowers?: (e: React.MouseEvent, player: PlayerData, followerCount: number) => void;
   maskPlayerName: (name: string) => string;
-  calculateEstimatedPrize: (winRate: number, rank: number, totalEligiblePlayers: number) => number;
+  calculateEstimatedPrize: (player: { totalPredictions: number; winRate: number; profit: number }, totalEligiblePlayers: number) => number;
   totalEligiblePlayers: number;
   aiBenchmarkWinRate: number;
   boardType?: 'hot' | 'profit' | 'cold'; // 区分排行榜类型
@@ -191,7 +191,7 @@ export const PlayerLeaderboardCard = ({
     return points.join(' ');
   };
 
-  const prize = calculateEstimatedPrize(player.winRate, index + 1, totalEligiblePlayers);
+  const prize = calculateEstimatedPrize(player, totalEligiblePlayers);
   const profitRate = player.changePercent || 0;
 
   return (

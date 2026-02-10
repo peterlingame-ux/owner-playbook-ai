@@ -14,6 +14,12 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { teamsZh } from "@/i18n/teams-zh";
+import { teamsZht } from "@/i18n/teams-zht";
+import { teamsEn } from "@/i18n/teams-en";
+import { leaguesZh } from "@/i18n/leagues-zh";
+import { leaguesZht } from "@/i18n/leagues-zht";
+import { leaguesEn } from "@/i18n/leagues-en";
 import iconGreencourt from "@/assets/icon_greencourt.jpg";
 import deepseekIcon from "@/assets/deepseek-icon.png";
 import gpt5Icon from "@/assets/openai-icon.png";
@@ -59,6 +65,34 @@ type ModelPrediction = {
     league?: string;
   };
 };
+
+// 辅助：在 map 中按“值”做精确/模糊匹配，反查英文 key（处理简称/全称差异）
+function findKeyByValueLike(map: Record<string, string>, name: string): string | undefined {
+  const exact = Object.entries(map).find(([, v]) => v === name);
+  if (exact) return exact[0];
+  const fuzzy = Object.entries(map).find(([, v]) => v.includes(name) || name.includes(v));
+  return fuzzy?.[0];
+}
+
+// 将球队名规范为英文 key，便于使用 teams 多语言表
+function toTeamEnglishKey(name: string): string {
+  if (!name) return name;
+  if (teamsEn[name] !== undefined) return name;
+  const fromZh = findKeyByValueLike(teamsZh, name);
+  if (fromZh) return fromZh;
+  const fromZht = findKeyByValueLike(teamsZht, name);
+  return fromZht || name;
+}
+
+// 将联赛名规范为英文 key，便于使用 leagues 多语言表
+function toLeagueEnglishKey(name: string): string {
+  if (!name) return name;
+  if (leaguesEn[name] !== undefined) return name;
+  const fromZh = findKeyByValueLike(leaguesZh, name);
+  if (fromZh) return fromZh;
+  const fromZht = findKeyByValueLike(leaguesZht, name);
+  return fromZht || name;
+}
 
 const ModelDetail = () => {
   const { t, i18n } = useTranslation();
@@ -260,13 +294,19 @@ const ModelDetail = () => {
             profit,
             match: match ? {
               id: match.match_id?.toString() || '',
-              homeTeam: match.home_team_name || '',
-              awayTeam: match.away_team_name || '',
+              // 规范为英文 key，后续通过 i18n 多语言表显示
+              homeTeam: toTeamEnglishKey(match.home_team_name || ''),
+              awayTeam: toTeamEnglishKey(match.away_team_name || ''),
               homeScore: match.home_scores?.[0] ?? match.goals_home ?? undefined,
               awayScore: match.away_scores?.[0] ?? match.goals_away ?? undefined,
               homeLogo: match.home_team_logo || match.home_logo || undefined,
               awayLogo: match.away_team_logo || match.away_logo || undefined,
-              league: match.competition_name || match.competition_name_zh || match.league_name || undefined,
+              league: toLeagueEnglishKey(
+                match.competition_name ||
+                match.competition_name_zh ||
+                match.league_name ||
+                ''
+              ) || undefined,
             } : undefined,
           };
         });
@@ -334,21 +374,21 @@ const ModelDetail = () => {
   const correctPredictions = modelPredictions.filter(p => p.correct).length;
   const winRate = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(2) : "0.00";
 
-  // Helper function to get team name based on language
+  // Helper: 根据当前语言返回球队名（使用 i18n 多语言表）
   const getTeamName = (match: ModelPrediction['match'], team: 'home' | 'away') => {
     if (!match) return '';
     
     const originalName = team === 'home' ? match.homeTeam : match.awayTeam;
     if (!originalName) return '';
     
-    // If Chinese language, try to get translation from i18n
-    if (i18n.language.startsWith('zh')) {
-      const translatedName = t(`teams.${originalName}`, originalName);
-      return translatedName;
-    }
-    
-    // Return original name for English
-    return originalName;
+    // 始终通过 i18n 查询：en / zh / zh-HK 等都会走 teams 多语言表，查不到时回退原始名
+    return t(`teams.${originalName}`, originalName);
+  };
+
+  // Helper: 联赛名多语言
+  const getLeagueName = (league?: string) => {
+    if (!league) return '';
+    return t(`leagues.${league}`, league);
   };
 
   const getBetTypeLabel = (betType: string, prediction: ModelPrediction, match?: ModelPrediction['match']) => {
@@ -630,7 +670,7 @@ const ModelDetail = () => {
                               </div>
                               {match.league && (
                                 <div className="text-[10px] sm:text-xs text-muted-foreground truncate mt-0.5 pl-0.5">
-                                  • {match.league}
+                                  • {getLeagueName(match.league)}
                                 </div>
                               )}
                             </>
@@ -758,7 +798,7 @@ const ModelDetail = () => {
                           </div>
                           {match.league && (
                             <div className="text-[9px] text-muted-foreground mb-1.5 truncate">
-                              {match.league}
+                              {getLeagueName(match.league)}
                             </div>
                           )}
                         </>

@@ -8,6 +8,12 @@ import { TrendingUp, ArrowRight, Shield, ChevronLeft, ChevronRight, Sparkles } f
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { teamsZh } from "@/i18n/teams-zh";
+import { teamsZht } from "@/i18n/teams-zht";
+import { teamsEn } from "@/i18n/teams-en";
+import { leaguesZh } from "@/i18n/leagues-zh";
+import { leaguesZht } from "@/i18n/leagues-zht";
+import { leaguesEn } from "@/i18n/leagues-en";
 import { MatchAnalysisDialog, ModelAnalysis } from "@/components/MatchAnalysisDialog";
 import PlayerExclusiveModelCard from "@/components/PlayerExclusiveModelCard";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +39,34 @@ const AI_ICONS: Record<string, string> = {
   grok: grokIcon,
   hunsoccermax: hunsoccerIcon,
 };
+
+// 在 map 中按“值”做精确/模糊匹配，反查英文 key（处理简称/全称差异）
+function findKeyByValueLike(map: Record<string, string>, name: string): string | undefined {
+  const exact = Object.entries(map).find(([, v]) => v === name);
+  if (exact) return exact[0];
+  const fuzzy = Object.entries(map).find(([, v]) => v.includes(name) || name.includes(v));
+  return fuzzy?.[0];
+}
+
+// 将球队名规范为英文 key，便于使用 teams 多语言表
+function toTeamEnglishKey(name: string): string {
+  if (!name) return name;
+  if (teamsEn[name] !== undefined) return name;
+  const fromZh = findKeyByValueLike(teamsZh, name);
+  if (fromZh) return fromZh;
+  const fromZht = findKeyByValueLike(teamsZht, name);
+  return fromZht || name;
+}
+
+// 将联赛名规范为英文 key，便于使用 leagues 多语言表
+function toLeagueEnglishKey(name: string): string {
+  if (!name) return name;
+  if (leaguesEn[name] !== undefined) return name;
+  const fromZh = findKeyByValueLike(leaguesZh, name);
+  if (fromZh) return fromZh;
+  const fromZht = findKeyByValueLike(leaguesZht, name);
+  return fromZht || name;
+}
 
 // 比赛时间显示组件（进行时间或倒计时）
 const MatchTimeDisplay = ({ match }: { match: DailyMatch }) => {
@@ -1360,51 +1394,30 @@ const ActiveAIBets = () => {
     }
   };
 
-  // Helper function to get team name based on language
+  // Helper function to get team name based on language（使用多语言表）
   const getTeamName = (match: DailyMatch | any, team: 'home' | 'away') => {
-    // Get original team name from match data
-    const originalName = ('home_team_name' in match)
+    if (!match) return '';
+
+    const rawName = ('home_team_name' in match)
       ? (team === 'home' ? match.home_team_name : match.away_team_name)
       : (team === 'home' ? match.homeTeam : match.awayTeam);
-    
-    if (!originalName) {
-      return '';
-    }
-    
-    // If Chinese language, try to get translation from i18n
-    if (i18n.language.startsWith('zh')) {
-      const translatedName = t(`teams.${originalName}`, originalName);
-      // If translation key exists in resources, it will return the translated value
-      // Otherwise, it returns the original name as fallback
-      return translatedName;
-    }
-    
-    // Return original name for English
-    return originalName;
+
+    if (!rawName) return '';
+
+    // 先规范为英文 key，再通过 i18n 查多语言表，所有语言统一逻辑
+    const key = toTeamEnglishKey(rawName);
+    return t(`teams.${key}`, key);
   };
 
-  // Helper function to get league name based on language
+  // Helper function to get league name based on language（使用多语言表）
   const getLeagueName = (match: DailyMatch | any) => {
-    // Get original league name from match data
-    const originalName = match.league_name || match.league;
-    
-    if (!originalName) {
-      return '';
-    }
-    
-    // If Chinese language, try to get translation from i18n
-    if (i18n.language.startsWith('zh')) {
-      const translatedName = t(`leagues.${originalName}`, originalName);
-      // If translation key exists in resources, it will return the translated value
-      // Otherwise, it returns the original name as fallback
-      return translatedName;
-    }
-    
-    // Return original name for English
-    return originalName;
+    const rawName = match.league_name || match.league;
+    if (!rawName) return '';
+    const key = toLeagueEnglishKey(rawName);
+    return t(`leagues.${key}`, key);
   };
 
-  // Convert database match to component format
+  // Convert database match to component format（同时规范球队/联赛名为英文 key）
   const convertMatch = (match: DailyMatch) => {
     const isLive = match.status_short === 'LIVE';
     const kickoff = getKickoffDate(match);
@@ -1417,9 +1430,9 @@ const ActiveAIBets = () => {
         minute: '2-digit',
         hour12: false 
       }) : '--:--',
-      league: match.league_name,
-      homeTeam: match.home_team_name,
-      awayTeam: match.away_team_name,
+      league: toLeagueEnglishKey(match.league_name || ''),
+      homeTeam: toTeamEnglishKey(match.home_team_name || ''),
+      awayTeam: toTeamEnglishKey(match.away_team_name || ''),
       homeScore: match.goals_home ?? 0,
       awayScore: match.goals_away ?? 0,
       status: isLive ? 'live' : 'upcoming',

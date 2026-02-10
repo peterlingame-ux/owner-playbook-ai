@@ -14,7 +14,6 @@ import gpt5Icon from "@/assets/openai-icon.png";
 import claudeIcon from "@/assets/claude-icon.png";
 import geminiIcon from "@/assets/gemini-icon.png";
 import grokIcon from "@/assets/grok-icon.png";
-import { virtualPlayers } from "@/data/virtualPlayers";
 import { aiModels } from "@/data/mockData";
 
 // Animated number component
@@ -208,9 +207,6 @@ const FlipCountdown = ({ days, hours, minutes, seconds, t }: {
 };
 
 const PRIZE_POOL = 1000000; // $1,000,000
-const AI_BENCHMARK_PREDICTIONS = 0;
-const AI_BENCHMARK_WIN_RATE = 0;
-const AI_BENCHMARK_PROFIT = 0; // $24,789 in cents
 
 interface PlayerData {
   id: string;
@@ -369,53 +365,26 @@ const ChallengeAIBanner = () => {
         const sortedModels = modelsWithData
           .sort((a, b) => b.winRate - a.winRate); // 与 LeaderboardTable 第709行排序逻辑一致
 
+        // 仅使用真实数据：AI 预测准确率（胜率）最高的模型作为基准，无数据时不设 fallback
         if (sortedModels.length > 0) {
           setTopAIModel(sortedModels[0]);
         } else {
-          // 如果没有真实数据，使用默认值
-          setTopAIModel({
-            id: 'hunsoccer-max',
-            name: aiModels.find(m => m.id === 'hunsoccer-max')?.displayName || 'HUNSOCCER MAX',
-            totalPredictions: AI_BENCHMARK_PREDICTIONS,
-            correctPredictions: Math.round(AI_BENCHMARK_PREDICTIONS * AI_BENCHMARK_WIN_RATE / 100),
-            winRate: AI_BENCHMARK_WIN_RATE,
-            profitAmount: AI_BENCHMARK_PROFIT
-          });
+          setTopAIModel(null);
         }
       } catch (error) {
         console.error('Error fetching top AI model:', error);
-        // 使用默认值
-        setTopAIModel({
-          id: 'hunsoccer-max',
-          name: aiModels.find(m => m.id === 'hunsoccer-max')?.displayName || 'HUNSOCCER MAX',
-          totalPredictions: AI_BENCHMARK_PREDICTIONS,
-          correctPredictions: Math.round(AI_BENCHMARK_PREDICTIONS * AI_BENCHMARK_WIN_RATE / 100),
-          winRate: AI_BENCHMARK_WIN_RATE,
-          profitAmount: AI_BENCHMARK_PROFIT
-        });
+        setTopAIModel(null);
       }
     };
 
     fetchTopAIModel();
   }, []);
 
-  // 获取所有玩家数据（包括用户专属模型）
+  // 获取所有玩家数据（仅使用真实用户表里的数据，不再包含虚拟玩家）
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        // 合并虚拟玩家和真实玩家
-        const virtualPlayersData = virtualPlayers.map((vp, index) => ({
-          id: vp.id,
-          displayName: vp.displayName,
-          avatarUrl: vp.avatarUrl,
-          totalPredictions: vp.totalPredictions,
-          correctPredictions: vp.correctPredictions,
-          winRate: vp.winRate,
-          profitAmount: vp.profit || 0,
-          rank: index + 1,
-        }));
-
-        // 获取真实玩家数据（用户专属模型）
+        // 获取真实玩家数据（当前登录用户的专属模型表现）
         if (user) {
           // 获取用户预测数据（包含投注金额和实际赔付）
           const { data: predictionsData, error: predictionsError } = await supabase
@@ -464,23 +433,16 @@ const ChallengeAIBanner = () => {
             rank: 0,
           };
 
-          const allPlayersData = [...virtualPlayersData, realPlayerData];
-          setAllPlayers(allPlayersData);
+          // 目前只使用真实用户数据（单个用户），后续如需统计所有真实玩家，可复用排行榜的聚合逻辑
+          setAllPlayers([realPlayerData]);
         } else {
-          setAllPlayers(virtualPlayersData);
+          // 未登录时不计入任何玩家，达标人数为 0
+          setAllPlayers([]);
         }
       } catch (error) {
         console.error('Error fetching players:', error);
-        setAllPlayers(virtualPlayers.map((vp, index) => ({
-          id: vp.id,
-          displayName: vp.displayName,
-          avatarUrl: vp.avatarUrl,
-          totalPredictions: vp.totalPredictions,
-          correctPredictions: vp.correctPredictions,
-          winRate: vp.winRate,
-          profitAmount: vp.profit || 0,
-          rank: index + 1,
-        })));
+        // 查询失败时也不使用虚拟玩家，保持为空
+        setAllPlayers([]);
       }
     };
 
@@ -492,21 +454,26 @@ const ChallengeAIBanner = () => {
   const playerWinRate = currentPlayer?.winRate || 0;
   const playerProfit = currentPlayer?.profitAmount || 0;
   
-  // 使用真实AI模型数据作为基准（如果可用）
-  const aiBenchmarkPredictions = topAIModel?.totalPredictions || AI_BENCHMARK_PREDICTIONS;
-  const aiBenchmarkWinRate = topAIModel?.winRate || AI_BENCHMARK_WIN_RATE;
-  const aiBenchmarkProfit = topAIModel?.profitAmount || AI_BENCHMARK_PROFIT;
-  
-  const meetsRequirements = playerPredictions >= aiBenchmarkPredictions && 
-                           playerWinRate >= aiBenchmarkWinRate && 
-                           playerProfit >= aiBenchmarkProfit;
-  
-  const qualifiedCount = allPlayers.filter(p => 
-    p.totalPredictions >= aiBenchmarkPredictions && 
-    p.winRate >= aiBenchmarkWinRate && 
-    (p.profitAmount || 0) >= aiBenchmarkProfit
-  ).length;
+  // 基准仅使用上面获取的真实数据：胜率最高的 AI 模型，无真实数据时不计达标
+  const hasRealBenchmark = topAIModel != null;
+  const aiBenchmarkPredictions = topAIModel?.totalPredictions ?? 0;
+  const aiBenchmarkWinRate = topAIModel?.winRate ?? 0;
+  const aiBenchmarkProfit = topAIModel?.profitAmount ?? 0;
+
+  const qualifiedCount = hasRealBenchmark
+    ? allPlayers.filter(p =>
+        p.totalPredictions > aiBenchmarkPredictions &&
+        p.winRate > aiBenchmarkWinRate &&
+        (p.profitAmount ?? 0) > aiBenchmarkProfit
+      ).length
+    : 0;
   const prizePerPerson = qualifiedCount > 0 ? Math.floor(PRIZE_POOL / qualifiedCount) : PRIZE_POOL;
+
+  // 达标：仅当有真实 AI 基准时，且比赛场次、胜率、金额都严格大于该 AI
+  const meetsRequirements = hasRealBenchmark &&
+    playerPredictions > aiBenchmarkPredictions &&
+    playerWinRate > aiBenchmarkWinRate &&
+    playerProfit > aiBenchmarkProfit;
 
   // Update previous prize value when it changes
   useEffect(() => {
@@ -555,9 +522,9 @@ const ChallengeAIBanner = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-6 text-[7px] sm:text-sm">
-                  <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">{topAIModel?.totalPredictions || AI_BENCHMARK_PREDICTIONS}</span></span>
-                  <span className="text-muted-foreground">{t('banner_win_rate')} <span className="font-bold text-foreground">{topAIModel ? topAIModel.winRate.toFixed(2) : AI_BENCHMARK_WIN_RATE.toFixed(2)}%</span></span>
-                  <span className="text-muted-foreground hidden xs:flex items-center gap-0.5">{t('banner_profit')} <span className="font-bold text-foreground flex items-center gap-0.5">{topAIModel ? Math.abs(topAIModel.profitAmount).toLocaleString() : Math.round(AI_BENCHMARK_PROFIT / 100).toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-2 h-2 sm:w-4 sm:h-4" /></span></span>
+                  <span className="text-muted-foreground">{t('banner_predictions')} <span className="font-bold text-foreground">{topAIModel != null ? topAIModel.totalPredictions : '—'}</span></span>
+                  <span className="text-muted-foreground">{t('banner_win_rate')} <span className="font-bold text-foreground">{topAIModel != null ? `${topAIModel.winRate.toFixed(2)}%` : '—'}</span></span>
+                  <span className="text-muted-foreground hidden xs:flex items-center gap-0.5">{t('banner_profit')} <span className="font-bold text-foreground flex items-center gap-0.5">{topAIModel != null ? Math.abs(topAIModel.profitAmount).toLocaleString() : '—'}<img src={hunterCoinIcon} alt="猎人币" className="w-2 h-2 sm:w-4 sm:h-4" /></span></span>
                 </div>
               </div>
             </div>
@@ -582,13 +549,13 @@ const ChallengeAIBanner = () => {
                   </div>
                   <div className="flex items-center gap-1 sm:gap-6 text-[7px] sm:text-sm">
                     <span className="text-muted-foreground">
-                      {t('banner_predictions')} <span className={`font-bold ${playerPredictions >= aiBenchmarkPredictions ? 'text-success' : 'text-foreground'}`}>{playerPredictions}</span>
+                      {t('banner_predictions')} <span className={`font-bold ${playerPredictions > aiBenchmarkPredictions ? 'text-success' : 'text-foreground'}`}>{playerPredictions}</span>
                     </span>
                     <span className="text-muted-foreground">
-                      {t('banner_win_rate')} <span className={`font-bold ${playerWinRate >= aiBenchmarkWinRate ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(1)}%</span>
+                      {t('banner_win_rate')} <span className={`font-bold ${playerWinRate > aiBenchmarkWinRate ? 'text-success' : 'text-foreground'}`}>{playerWinRate.toFixed(1)}%</span>
                     </span>
                     <span className="text-muted-foreground hidden xs:flex items-center gap-0.5">
-                      {t('banner_profit')} <span className={`font-bold flex items-center gap-0.5 ${playerProfit >= aiBenchmarkProfit ? 'text-success' : 'text-foreground'}`}>{(playerProfit / 100).toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-2 h-2 sm:w-4 sm:h-4" /></span>
+                      {t('banner_profit')} <span className={`font-bold flex items-center gap-0.5 ${playerProfit > aiBenchmarkProfit ? 'text-success' : 'text-foreground'}`}>{(playerProfit / 100).toLocaleString()}<img src={hunterCoinIcon} alt="猎人币" className="w-2 h-2 sm:w-4 sm:h-4" /></span>
                     </span>
                   </div>
                 </div>

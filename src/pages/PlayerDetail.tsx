@@ -14,6 +14,7 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDailyMatchesByFixtureIds } from "@/lib/fetchDailyMatchesByFixtureIds";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import iconGreencourt from "@/assets/icon_greencourt.jpg";
 
@@ -150,19 +151,13 @@ const PlayerDetail = () => {
         // 获取所有唯一的 match_id
         const matchIds = [...new Set(predictionsData.map((p: any) => p.match_id).filter(Boolean))];
         
-        // 查询比赛信息
+        // 查询比赛信息（按 fixture_id 分批查询，避免 URL 过长）
         let matchesMap = new Map();
         if (matchIds.length > 0) {
-          const { data: matchesData, error: matchesError } = await supabase
-            .from('daily_matches' as any)
-            .select('*')
-            .in('fixture_id', matchIds);
-
-          if (!matchesError && matchesData) {
-            matchesData.forEach((match: any) => {
-              matchesMap.set(match.fixture_id, match);
-            });
-          }
+          const matchesData = await fetchDailyMatchesByFixtureIds(supabase as any, matchIds);
+          matchesData.forEach((match: any) => {
+            matchesMap.set(match.fixture_id, match);
+          });
         }
 
         // 转换数据格式

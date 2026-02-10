@@ -22,16 +22,18 @@ import { useCountAnimation } from "@/hooks/useCountAnimation";
 import winningStreakBg from "@/assets/winning-streak-bg.png";
 import losingStreakBg from "@/assets/losing-streak-bg.png";
 
-// 奖金池配置
+// 奖金池配置 - 达标需比赛场次、胜率、金额都严格大于 AI 最佳模型
 const PRIZE_POOL = 1000000;
+const AI_BENCHMARK_PREDICTIONS = 0;
 const AI_BENCHMARK_WIN_RATE = 58;
+const AI_BENCHMARK_PROFIT = 0;
+const isEligible = (p: { totalPredictions: number; winRate: number; profitAmount?: number }): boolean =>
+  p.totalPredictions > AI_BENCHMARK_PREDICTIONS && p.winRate > AI_BENCHMARK_WIN_RATE && (p.profitAmount ?? 0) > AI_BENCHMARK_PROFIT;
 
-// 计算预计奖金 - 奖金池平均分配给所有达标玩家
-const calculateEstimatedPrize = (winRate: number, _rank: number, eligiblePlayers: number): number => {
-  if (winRate <= AI_BENCHMARK_WIN_RATE) return 0;
+// 计算预计奖金 - 仅当玩家达标时参与平分
+const calculateEstimatedPrize = (player: { totalPredictions: number; winRate: number; profitAmount?: number }, eligiblePlayers: number): number => {
+  if (!isEligible(player)) return 0;
   if (eligiblePlayers === 0) return 0;
-  
-  // 奖金池平均分配给所有达标玩家
   return Math.floor(PRIZE_POOL / eligiblePlayers);
 };
 // 球队Logo导入
@@ -832,8 +834,8 @@ const PlayerCopyTradingBoard = () => {
       return points.join(' ');
     };
 
-    const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
-    const prize = calculateEstimatedPrize(player.winRate, rank || 1, eligiblePlayers);
+    const eligiblePlayers = allPlayers.filter(p => isEligible(p)).length;
+    const prize = calculateEstimatedPrize(player, eligiblePlayers);
     const isFollowed = followedPlayers.has(player.id);
     const followerCount = followerCounts.get(player.id) || 0;
     const isFollowingPlayer = isFollowing.has(player.id);

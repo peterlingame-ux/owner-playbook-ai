@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -210,6 +210,18 @@ const MobileLeaderboardOKX = () => {
     predictionType?: string;
     odds?: string;
   } | null>(null);
+
+  // AI 最佳模型基准（达标需比赛场次、胜率、金额都严格大于此）
+  const aiBenchmark = useMemo(() => {
+    if (aiModelsStats.size === 0) return { totalPredictions: 0, winRate: 0, profitAmount: 0 };
+    let best = { totalPredictions: 0, winRate: 0, profitAmount: 0 };
+    aiModelsStats.forEach((stats) => {
+      if (stats.winRate > best.winRate) {
+        best = { totalPredictions: stats.totalPredictions, winRate: stats.winRate, profitAmount: stats.profitAmount };
+      }
+    });
+    return best;
+  }, [aiModelsStats]);
 
   // MatchCountdown component
   const MatchCountdown = ({ matchDate }: { matchDate: string | Date }) => {
@@ -2078,6 +2090,7 @@ const MobileLeaderboardOKX = () => {
                       setPlayerToFollow(player);
                       setShowFollowPlayerDialog(true);
                     }}
+                    aiBenchmark={aiBenchmark}
                   />
                 ))
               )}
@@ -3370,16 +3383,16 @@ interface PlayerCardOKXProps {
   onHistoryClick: (playerId: string, playerName: string, isVirtual: boolean) => void;
   onPredictionClick?: () => void; // 预测按钮点击处理
   onFollowPlayerClick: (player: PlayerData) => void;
+  aiBenchmark: { totalPredictions: number; winRate: number; profitAmount: number };
 }
 
-const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick, onHistoryClick, onPredictionClick, onFollowPlayerClick }: PlayerCardOKXProps) => {
+const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, mainTab, onFollowersClick, onHistoryClick, onPredictionClick, onFollowPlayerClick, aiBenchmark }: PlayerCardOKXProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const isPositive = player.changePercent >= 0;
-  
-  // Check if player qualifies for prize pool (win rate >= 60% AND correct predictions >= 10)
-  const isQualified = player.winRate >= 60 && player.correctPredictions >= 10;
+  // 达标：比赛场次、胜率、金额都严格大于 AI 最佳模型
+  const isQualified = player.totalPredictions > aiBenchmark.totalPredictions && player.winRate > aiBenchmark.winRate && (player.profitAmount ?? 0) > aiBenchmark.profitAmount;
 
   return (
     <motion.div

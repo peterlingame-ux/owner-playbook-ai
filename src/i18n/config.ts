@@ -4,7 +4,11 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { Converter } from 'opencc-js/cn2t';
 import { teamsZh } from './teams-zh';
+import { teamsZht } from './teams-zht';
+import { teamsEn } from './teams-en';
 import { leaguesZh } from './leagues-zh';
+import { leaguesZht } from './leagues-zht';
+import { leaguesEn } from './leagues-en';
 
 // 簡體轉香港繁體的轉換器 (Simplified to Hong Kong Traditional Chinese)
 const s2t = Converter({ from: 'cn', to: 'hk' });
@@ -1363,9 +1367,9 @@ const resources = {
       // Footer Risk Warning
       "footer_risk_warning": "This platform is for AI analysis and simulation only. No betting services, no investment advice. Results are for reference and do not guarantee outcomes. We do not provide or encourage any form of betting or gambling activities.",
       
-      // Teams and Leagues translations (empty for English, use original names)
-      "teams": {} as Record<string, string>,
-      "leagues": {} as Record<string, string>
+      // Teams and Leagues translations (English: key = name_en)
+      "teams": teamsEn,
+      "leagues": leaguesEn
     }
   },
   zh: {
@@ -2700,9 +2704,13 @@ const resources = {
   vi: vi
 };
 
-// 香港繁體 (zh-HK): 從簡體中文自動轉換為繁體中文
+// 香港繁體 (zh-HK): 從簡體中文自動轉換為繁體中文，球隊/聯賽名使用 API 繁體 (name_zht)
 (resources as Record<string, { translation: Record<string, unknown> }>)['zh-HK'] = {
-  translation: convertToTraditional((resources as { zh: { translation: Record<string, unknown> } }).zh.translation)
+  translation: {
+    ...convertToTraditional((resources as { zh: { translation: Record<string, unknown> } }).zh.translation),
+    teams: teamsZht,
+    leagues: leaguesZht
+  }
 };
 
 // Import teams and leagues translations

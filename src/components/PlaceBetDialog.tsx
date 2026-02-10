@@ -10,12 +10,16 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDailyMatchesByFixtureIds } from "@/lib/fetchDailyMatchesByFixtureIds";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { teamsZh } from "@/i18n/teams-zh";
+import { teamsZht } from "@/i18n/teams-zht";
 import { leaguesZh } from "@/i18n/leagues-zh";
+import { leaguesZht } from "@/i18n/leagues-zht";
+import { leaguesEn } from "@/i18n/leagues-en";
 
 // AI模型图标映射
 import gpt5Icon from "@/assets/ai-icon-chatgpt.png";
@@ -153,20 +157,18 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   
-  // 获取中文球队名
-  const getTeamNameZh = (teamName: string): string => {
-    if (i18n.language.startsWith('zh')) {
-      return teamsZh[teamName] || teamName;
-    }
+  // 按语言返回球队名（简体/繁体/英文）
+  const getTranslatedTeamName = (teamName: string): string => {
+    if (i18n.language === 'zh-HK') return teamsZht[teamName] || teamName;
+    if (i18n.language === 'zh') return teamsZh[teamName] || teamName;
     return teamName;
   };
-  
-  // 获取中文联赛名
-  const getLeagueNameZh = (leagueName: string): string => {
-    if (i18n.language.startsWith('zh')) {
-      return leaguesZh[leagueName] || leagueName;
-    }
-    return leagueName;
+
+  // 按语言返回联赛名（简体/繁体/英文）
+  const getTranslatedLeagueName = (leagueName: string): string => {
+    if (i18n.language === 'zh-HK') return leaguesZht[leagueName] || leagueName;
+    if (i18n.language === 'zh') return leaguesZh[leagueName] || leagueName;
+    return leaguesEn[leagueName] || leagueName;
   };
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(match);
   const [aiPredictions, setAiPredictions] = useState<AIBet[]>([]);
@@ -280,21 +282,15 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
       });
 
       const matchIds = [...matchAIMap.keys()];
-
-      // 获取比赛详情
-      const { data: matchesData, error: matchesError } = await supabase
-        .from('daily_matches' as any)
-        .select('*')
-        .in('fixture_id', matchIds)
-        .order('kickoff_at', { ascending: true });
-
-      if (matchesError) {
-        console.error('Error fetching matches:', matchesError);
-        // 使用演示数据
-        setAiMatches(DEMO_AI_MATCHES);
-        setIsDemo(true);
-        return;
-      }
+      
+      // 获取比赛详情（按 fixture_id 分批查询，避免 URL 过长导致 400）
+      const matchesData = await fetchDailyMatchesByFixtureIds(supabase as any, matchIds);
+      // 保持原有按开球时间排序的逻辑
+      matchesData.sort((a: any, b: any) => {
+        const ak = a.kickoff_at ? new Date(a.kickoff_at).getTime() : 0;
+        const bk = b.kickoff_at ? new Date(b.kickoff_at).getTime() : 0;
+        return ak - bk;
+      });
 
       // 合并数据
       const matchesWithAI: AIMatchWithDetails[] = (matchesData || []).map((m: any) => {
@@ -377,8 +373,8 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
   const getBetOptions = (): BetOption[] => {
     if (selectedBetType === "handicap") {
       return [
-        { label: `${selectedMatch ? getTeamNameZh(selectedMatch.home_team_name) : ''} -1.5`, value: "home_-1.5", odds: 2.10, line: -1.5 },
-        { label: `${selectedMatch ? getTeamNameZh(selectedMatch.away_team_name) : ''} +1.5`, value: "away_+1.5", odds: 1.75, line: 1.5 },
+        { label: `${selectedMatch ? getTranslatedTeamName(selectedMatch.home_team_name) : ''} -1.5`, value: "home_-1.5", odds: 2.10, line: -1.5 },
+        { label: `${selectedMatch ? getTranslatedTeamName(selectedMatch.away_team_name) : ''} +1.5`, value: "away_+1.5", odds: 1.75, line: 1.5 },
       ];
     } else {
       // over_under
@@ -600,7 +596,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                         >
                           {/* 联赛和时间 */}
                           <div className="flex items-center justify-between mb-1 sm:mb-1.5">
-                            <span className="text-[9px] sm:text-[10px] text-muted-foreground truncate max-w-[45%]">{getLeagueNameZh(m.league_name)}</span>
+                            <span className="text-[9px] sm:text-[10px] text-muted-foreground truncate max-w-[45%]">{getTranslatedLeagueName(m.league_name)}</span>
                             <span className={`text-[9px] sm:text-[10px] font-mono ${isStarted ? 'text-amber-500' : 'text-muted-foreground'}`}>
                               {isStarted ? t('match_started') : kickoffTime}
                             </span>
@@ -613,7 +609,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                               {m.home_logo && (
                                 <img src={m.home_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                               )}
-                              <span className="text-[10px] sm:text-xs font-medium truncate">{getTeamNameZh(m.home_team_name)}</span>
+                              <span className="text-[10px] sm:text-xs font-medium truncate">{getTranslatedTeamName(m.home_team_name)}</span>
                             </div>
                             
                             {/* VS - 包含AI图标在下方 */}
@@ -666,7 +662,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                             
                             {/* 客队 */}
                             <div className="flex items-center justify-end gap-1 sm:gap-1.5 flex-1 min-w-0">
-                              <span className="text-[10px] sm:text-xs font-medium truncate text-right">{getTeamNameZh(m.away_team_name)}</span>
+                              <span className="text-[10px] sm:text-xs font-medium truncate text-right">{getTranslatedTeamName(m.away_team_name)}</span>
                               {m.away_logo && (
                                 <img src={m.away_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                               )}
@@ -699,7 +695,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                   {/* 联赛信息 */}
                   <div className="text-center mb-2 sm:mb-3">
                     <span className="text-[9px] sm:text-[10px] text-white/70 bg-black/30 px-1.5 sm:px-2 py-0.5 rounded">
-                      {getLeagueNameZh(selectedMatch.league_name)}
+                      {getTranslatedLeagueName(selectedMatch.league_name)}
                     </span>
                   </div>
                   
@@ -710,7 +706,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       {selectedMatch.home_logo && (
                         <img src={selectedMatch.home_logo} alt="" className="w-8 h-8 sm:w-12 sm:h-12 object-contain" />
                       )}
-                      <span className="text-white font-medium text-[10px] sm:text-sm truncate max-w-full text-center">{getTeamNameZh(selectedMatch.home_team_name)}</span>
+                      <span className="text-white font-medium text-[10px] sm:text-sm truncate max-w-full text-center">{getTranslatedTeamName(selectedMatch.home_team_name)}</span>
                     </div>
                     
                     {/* VS 和倒计时 */}
@@ -751,7 +747,7 @@ export const PlaceBetDialog = ({ open, onOpenChange, match, onBetPlaced }: Place
                       {selectedMatch.away_logo && (
                         <img src={selectedMatch.away_logo} alt="" className="w-8 h-8 sm:w-12 sm:h-12 object-contain" />
                       )}
-                      <span className="text-white font-medium text-[10px] sm:text-sm truncate max-w-full text-center">{getTeamNameZh(selectedMatch.away_team_name)}</span>
+                      <span className="text-white font-medium text-[10px] sm:text-sm truncate max-w-full text-center">{getTranslatedTeamName(selectedMatch.away_team_name)}</span>
                     </div>
                   </div>
                 </div>

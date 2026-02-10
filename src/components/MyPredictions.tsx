@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDailyMatchesByFixtureIds } from "@/lib/fetchDailyMatchesByFixtureIds";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import USDTWalletDialog from "./USDTWalletDialog";
@@ -216,16 +217,21 @@ const MyPredictions = () => {
         const matchesDataMap = new Map<string, MatchInfo>();
         
         if (matchIds.length > 0) {
-          const { data: matchesData } = await supabase
-            .from('daily_matches' as any)
-            .select('fixture_id, home_team_name, away_team_name, home_logo, away_logo, league_name, goals_home, goals_away')
-            .in('fixture_id', matchIds.map(id => parseInt(id)));
-          
-          if (matchesData) {
-            matchesData.forEach((match: any) => {
-              matchesDataMap.set(match.fixture_id.toString(), match as MatchInfo);
-            });
-          }
+          const matchesData = await fetchDailyMatchesByFixtureIds(supabase as any, matchIds);
+          matchesData.forEach((match: any) => {
+            // 只保留用到的字段
+            const info: MatchInfo = {
+              fixture_id: match.fixture_id,
+              home_team_name: match.home_team_name,
+              away_team_name: match.away_team_name,
+              home_logo: match.home_logo,
+              away_logo: match.away_logo,
+              league_name: match.league_name,
+              goals_home: match.goals_home,
+              goals_away: match.goals_away,
+            };
+            matchesDataMap.set(match.fixture_id.toString(), info);
+          });
         }
         setMatchesMap(matchesDataMap);
 
@@ -624,16 +630,20 @@ const MyPredictions = () => {
           const matchesDataMap = new Map<string, MatchInfo>();
           
           if (matchIds.length > 0) {
-            const { data: matchesData } = await supabase
-              .from('daily_matches' as any)
-              .select('fixture_id, home_team_name, away_team_name, home_logo, away_logo, league_name, goals_home, goals_away')
-              .in('fixture_id', matchIds.map(id => parseInt(id)));
-            
-            if (matchesData) {
-              matchesData.forEach((match: any) => {
-                matchesDataMap.set(match.fixture_id.toString(), match as MatchInfo);
-              });
-            }
+            const matchesData = await fetchDailyMatchesByFixtureIds(supabase as any, matchIds);
+            matchesData.forEach((match: any) => {
+              const info: MatchInfo = {
+                fixture_id: match.fixture_id,
+                home_team_name: match.home_team_name,
+                away_team_name: match.away_team_name,
+                home_logo: match.home_logo,
+                away_logo: match.away_logo,
+                league_name: match.league_name,
+                goals_home: match.goals_home,
+                goals_away: match.goals_away,
+              };
+              matchesDataMap.set(match.fixture_id.toString(), info);
+            });
           }
           setMatchesMap(matchesDataMap);
 

@@ -11,6 +11,42 @@ import {
   fetchMatchLive,
 } from "@/lib/sportnanoapi";
 import type { FixtureResponse, Competition, DiaryMatch, DiaryTeam, FixturesListResponse, MatchLiveData } from "@/types/footballApi";
+import { teamsZh } from "@/i18n/teams-zh";
+import { teamsZht } from "@/i18n/teams-zht";
+import { teamsEn } from "@/i18n/teams-en";
+import { leaguesZh } from "@/i18n/leagues-zh";
+import { leaguesZht } from "@/i18n/leagues-zht";
+import { leaguesEn } from "@/i18n/leagues-en";
+
+/** 在一个 map 中按“值”查找英文 key，支持模糊匹配（处理“曼联” vs “曼彻斯特联”这类简称） */
+function findKeyByValueLike(map: Record<string, string>, name: string): string | undefined {
+  // 优先精确匹配
+  const exact = Object.entries(map).find(([, v]) => v === name);
+  if (exact) return exact[0];
+  // 尝试模糊匹配：值包含名称或名称包含值
+  const fuzzy = Object.entries(map).find(([, v]) => v.includes(name) || name.includes(v));
+  return fuzzy?.[0];
+}
+
+/** 将 API 返回的球队名（可能为中文简称/全称或英文）规范为英文 key */
+function toTeamEnglishKey(name: string): string {
+  if (!name) return name;
+  if (teamsEn[name] !== undefined) return name; // 已是英文 key
+  const fromZh = findKeyByValueLike(teamsZh, name);
+  if (fromZh) return fromZh;
+  const fromZht = findKeyByValueLike(teamsZht, name);
+  return fromZht || name;
+}
+
+/** 将联赛名规范为英文 key（同上逻辑） */
+function toLeagueEnglishKey(name: string): string {
+  if (!name) return name;
+  if (leaguesEn[name] !== undefined) return name;
+  const fromZh = findKeyByValueLike(leaguesZh, name);
+  if (fromZh) return fromZh;
+  const fromZht = findKeyByValueLike(leaguesZht, name);
+  return fromZht || name;
+}
 
 // 比赛数据接口
 interface VirtualMatch {
@@ -117,16 +153,16 @@ const MatchCenter = () => {
 
     return {
       id: matchId.toString(),
-      league: leagueData?.name ?? '未知联赛',
+      league: toLeagueEnglishKey(leagueData?.name ?? '未知联赛'),
       leagueColor: 'text-destructive', // 可以根据联赛类型设置不同颜色
       time,
       minute,
       status,
       timestamp,
       isHidden: false, // 旧格式没有 status_id，默认不隐藏
-      homeTeam: teamsData?.home?.name ?? '未知主队',
+      homeTeam: toTeamEnglishKey(teamsData?.home?.name ?? '未知主队'),
       homeScore: goalsData?.home ?? undefined,
-      awayTeam: teamsData?.away?.name ?? '未知客队',
+      awayTeam: toTeamEnglishKey(teamsData?.away?.name ?? '未知客队'),
       awayScore: goalsData?.away ?? undefined,
       halfTimeScore,
       corners: undefined, // API 可能不包含角球数据
@@ -446,10 +482,9 @@ const MatchCenter = () => {
     // 使用 match.competition_id 从 competitions 数组中查找对应的联赛信息
     const competition = competitions.find(c => c.id === match.competition_id);
     
-    // 获取联赛名称：优先使用中文名称，如果没有则使用英文名称
-    const leagueName = competition 
-      ? (competition.name || '未知联赛')
-      : '未知联赛';
+    // 联赛/球队名规范为英文 key，便于多语言 t('leagues.xxx')/t('teams.xxx')
+    const leagueNameRaw = competition ? (competition.name || '未知联赛') : '未知联赛';
+    const leagueName = toLeagueEnglishKey(leagueNameRaw);
 
     // 生成比赛编号
     const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -465,7 +500,7 @@ const MatchCenter = () => {
       status,
       timestamp: match.match_time || 0, // 保存时间戳用于排序
       isHidden, // 标记是否需要隐藏（status_id === 0）
-      homeTeam: homeTeam?.name || '未知主队',
+      homeTeam: toTeamEnglishKey(homeTeam?.name || '未知主队'),
       homeRank: match.home_position ? (() => {
         const parsed = parseInt(match.home_position, 10);
         return isNaN(parsed) ? undefined : parsed;
@@ -473,7 +508,7 @@ const MatchCenter = () => {
       homeScore,
       homeYellowCards,
       homeRedCards,
-      awayTeam: awayTeam?.name || '未知客队',
+      awayTeam: toTeamEnglishKey(awayTeam?.name || '未知客队'),
       awayRank: match.away_position ? (() => {
         const parsed = parseInt(match.away_position, 10);
         return isNaN(parsed) ? undefined : parsed;
@@ -796,7 +831,7 @@ const MatchCenter = () => {
         <div className="flex items-center gap-1 sm:gap-2 min-w-0 justify-start">
           <div className="flex items-center gap-1">
             <span className="text-[9px] sm:text-xs font-semibold text-amber-500/90 uppercase tracking-wider truncate max-w-[100px] xs:max-w-[120px] sm:max-w-none">
-              {match.league}
+              {t(`leagues.${match.league}`, match.league)}
             </span>
           </div>
           <span className="text-[9px] sm:text-xs text-muted-foreground/70 flex items-center gap-0.5 flex-shrink-0">
@@ -863,7 +898,7 @@ const MatchCenter = () => {
             <span className="text-[7px] sm:text-[10px] text-muted-foreground/50 font-medium hidden xs:inline">[{match.homeRank}]</span>
           )}
           <span className="text-[10px] sm:text-sm font-medium text-foreground/90 truncate group-hover:text-foreground transition-colors">
-            {match.homeTeam}
+            {t(`teams.${match.homeTeam}`, match.homeTeam)}
           </span>
         </div>
 
@@ -913,7 +948,7 @@ const MatchCenter = () => {
         {/* Away team */}
         <div className="flex items-center gap-0.5 sm:gap-2 min-w-0 overflow-hidden">
           <span className="text-[10px] sm:text-sm font-medium text-foreground/90 truncate group-hover:text-foreground transition-colors">
-            {match.awayTeam}
+            {t(`teams.${match.awayTeam}`, match.awayTeam)}
           </span>
           {match.awayRank !== undefined && !isNaN(match.awayRank) && (
             <span className="text-[7px] sm:text-[10px] text-muted-foreground/50 font-medium hidden xs:inline">[{match.awayRank}]</span>

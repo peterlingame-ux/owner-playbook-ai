@@ -222,9 +222,13 @@ const PlayerLeaderboardTable = () => {
   const [isPlayerFollowersDialogOpen, setIsPlayerFollowersDialogOpen] = useState(false);
   const [selectedPlayerFollowers, setSelectedPlayerFollowers] = useState<{ playerId: string; playerName: string; followers: any[] } | null>(null);
   
-  // 奖金池配置
+  // 奖金池配置 - 达标需比赛场次、胜率、金额都严格大于 AI 最佳模型
   const PRIZE_POOL = 1000000; // $1,000,000
-  const AI_BENCHMARK_WIN_RATE = 58; // AI基准胜率 58%
+  const AI_BENCHMARK_PREDICTIONS = 0; // AI 基准预测场次
+  const AI_BENCHMARK_WIN_RATE = 58; // AI 基准胜率 58%
+  const AI_BENCHMARK_PROFIT = 0; // AI 基准盈利（猎人币）
+  const isEligible = (p: { totalPredictions: number; winRate: number; profit: number }) =>
+    p.totalPredictions > AI_BENCHMARK_PREDICTIONS && p.winRate > AI_BENCHMARK_WIN_RATE && p.profit > AI_BENCHMARK_PROFIT;
   
   // 倒计时状态
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -261,12 +265,9 @@ const PlayerLeaderboardTable = () => {
     return () => clearInterval(timer);
   }, []);
   
-  // 计算预计奖金 - 奖金池平均分配给所有达标玩家
-  const calculateEstimatedPrize = (playerWinRate: number, _playerRank: number, totalEligiblePlayers: number): number => {
-    // 只有胜率超过AI的玩家才能获得奖金
-    if (playerWinRate <= AI_BENCHMARK_WIN_RATE) return 0;
-    
-    // 奖金池平均分配给所有达标玩家
+  // 计算预计奖金 - 仅当玩家达标（场次、胜率、金额都大于 AI）时参与平分
+  const calculateEstimatedPrize = (player: { totalPredictions: number; winRate: number; profit: number }, totalEligiblePlayers: number): number => {
+    if (!isEligible(player)) return 0;
     return Math.floor(PRIZE_POOL / Math.max(totalEligiblePlayers, 1));
   };
   
@@ -347,6 +348,9 @@ const PlayerLeaderboardTable = () => {
         // 创建映射
         const balancesMap = new Map(balancesData?.map(b => [b.user_id, b.balance]) || []);
         
+        // 排行榜最低入榜门槛：至少 N 场预测，避免 1-2 场就上榜
+        const MIN_PREDICTIONS_FOR_RANKING = 10;
+
         // 计算每个用户的统计数据
         const realPlayerStats = usersData.map(user => {
           const userPredictions = predictionsData?.filter(p => p.user_id === user.id) || [];
@@ -419,7 +423,7 @@ const PlayerLeaderboardTable = () => {
             isRecommender: true, // 真实玩家默认都是推荐者
             isVip: vipUserIds.has(user.id), // VIP状态
           };
-        }).filter(player => player.totalPredictions > 0); // 只保留有预测记录的玩家
+        }).filter(player => player.totalPredictions >= MIN_PREDICTIONS_FOR_RANKING); // 只保留预测场次达到门槛的玩家
         
         // 按胜率排序并设置排名（仅真实数据）
         const sortedPlayers = realPlayerStats
@@ -1117,7 +1121,7 @@ const PlayerLeaderboardTable = () => {
                         .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
                         .slice(0, 10)
                         .map((player, index) => {
-                          const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                          const eligiblePlayers = allPlayers.filter(p => isEligible(p)).length;
                           return (
                             <PlayerLeaderboardCard
                               key={player.id}
@@ -1206,7 +1210,7 @@ const PlayerLeaderboardTable = () => {
                         .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
                         .slice(0, 10)
                         .map((player, index) => {
-                          const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                          const eligiblePlayers = allPlayers.filter(p => isEligible(p)).length;
                           return (
                             <PlayerLeaderboardCard
                               key={player.id}
@@ -1296,7 +1300,7 @@ const PlayerLeaderboardTable = () => {
                       .sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))
                       .slice(0, 10)
                       .map((player, index) => {
-                        const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                        const eligiblePlayers = allPlayers.filter(p => isEligible(p)).length;
                         return (
                           <PlayerLeaderboardCard
                             key={player.id}
@@ -1382,7 +1386,7 @@ const PlayerLeaderboardTable = () => {
                       .sort((a, b) => (b.worstStreak || 0) - (a.worstStreak || 0))
                       .slice(0, 10)
                       .map((player, index) => {
-                        const eligiblePlayers = allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length;
+                        const eligiblePlayers = allPlayers.filter(p => isEligible(p)).length;
                         return (
                           <PlayerLeaderboardCard
                         key={player.id}
@@ -2329,7 +2333,7 @@ const PlayerLeaderboardTable = () => {
                     }}
                     maskPlayerName={maskPlayerName}
                     calculateEstimatedPrize={calculateEstimatedPrize}
-                    totalEligiblePlayers={allPlayers.filter(p => p.winRate > AI_BENCHMARK_WIN_RATE).length}
+                    totalEligiblePlayers={allPlayers.filter(p => isEligible(p)).length}
                     aiBenchmarkWinRate={AI_BENCHMARK_WIN_RATE}
                     boardType={selectedAllPlayer.boardType}
                     todayWinRate={todayWinRates.get(selectedAllPlayer.player.id)?.winRate}
