@@ -878,19 +878,6 @@ const PlayerCopyTradingBoard = () => {
             </Avatar>
             <div className="flex-1 min-w-0">
               <span className="font-bold text-sm text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
-              <div className="text-[9px] text-muted-foreground">
-                {streakType === 'worst' ? (
-                  <span className="inline-flex items-center gap-0.5">
-                    <Skull className="w-2.5 h-2.5 text-destructive" />
-                    连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-0.5">
-                    <Flame className="w-2.5 h-2.5 text-destructive" />
-                    连胜 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span>
-                  </span>
-                )}
-              </div>
             </div>
             <div className="text-right flex-shrink-0">
               <p className="text-base font-bold font-mono-data text-success">{player.winRate.toFixed(0)}%</p>
@@ -922,7 +909,7 @@ const PlayerCopyTradingBoard = () => {
             </div>
           </div>
           
-          {/* Row 3: Prize + Buttons */}
+          {/* Row 3: Prize */}
           <div className="flex items-center justify-between gap-2">
             {prize > 0 ? (
               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[9px] font-bold">
@@ -931,26 +918,6 @@ const PlayerCopyTradingBoard = () => {
             ) : (
               <span className="text-[9px] text-muted-foreground">未达标</span>
             )}
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/history');
-                }}
-                className="px-2 py-1 text-[9px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40"
-              >
-                历史
-              </button>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fetchTodayPredictions(player);
-                }}
-                className="px-2.5 py-1 text-[9px] font-bold rounded bg-warning text-warning-foreground"
-              >
-                今日跟单
-              </button>
-            </div>
           </div>
         </div>
 
@@ -1001,13 +968,6 @@ const PlayerCopyTradingBoard = () => {
               </div>
               <div>
                 <span className="font-semibold text-base text-foreground">{maskPlayerName(player.displayName)}</span>
-                <div className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1">
-                  {streakType === 'worst' ? (
-                    <span>连败 <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
-                  ) : (
-                    <span>连续正确 <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
-                  )}
-                </div>
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
@@ -1018,18 +978,6 @@ const PlayerCopyTradingBoard = () => {
               ) : (
                 <span className="px-2 py-1 rounded-md bg-muted/40 border border-border/50 text-muted-foreground text-xs">未达标</span>
               )}
-              <button 
-                onClick={(e) => { e.stopPropagation(); navigate('/history'); }}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground border border-border/40"
-              >
-                历史预测
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); fetchTodayPredictions(player); }}
-                className="px-3.5 py-1.5 text-xs font-bold rounded-md bg-warning text-warning-foreground"
-              >
-                今日跟单
-              </button>
             </div>
           </div>
           

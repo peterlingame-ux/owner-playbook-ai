@@ -3451,67 +3451,7 @@ const PlayerCardOKX = ({ player, index, generateChartPath, onClick, subTab, main
           </h3>
           <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
             <span className="truncate">{t('predicted_matches', { count: player.totalPredictions }) || `预测${player.totalPredictions}场`}</span>
-            {/* Streak Indicators - Like PC version with count */}
-            <div className="flex items-center gap-0.5 flex-shrink-0">
-              {Array.from({ length: Math.min(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0), 3) }).map((_, i) => (
-                <span 
-                  key={i} 
-                  className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold border ${
-                    subTab === 'high' 
-                      ? 'border-success/50 text-success bg-success/10' 
-                      : 'border-destructive/50 text-destructive bg-destructive/10'
-                  }`}
-                >
-                  {subTab === 'high' ? (t('win_badge') || '胜') : (t('loss_badge') || '败')}
-                </span>
-              ))}
-              {/* Show streak count number */}
-              {(subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)) > 0 && (
-                <span className={`text-[9px] font-bold ml-0.5 ${
-                  subTab === 'high' ? 'text-success' : 'text-destructive'
-                }`}>
-                  ×{subTab === 'high' ? (player.currentStreak || 0) : (player.worstStreak || 0)}
-                </span>
-              )}
-            </div>
           </div>
-        </div>
-        {/* Top Right Action Buttons */}
-        <div className="flex items-center gap-0.5 flex-shrink-0">
-          <button 
-            className="px-1 py-0.5 text-[8px] font-medium bg-muted/50 hover:bg-muted rounded transition-colors whitespace-nowrap"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!user) {
-                toast.warning(t('login_required') || '需要登录', {
-                  description: t('login_prompt') || '请登录后查看历史记录'
-                });
-                navigate('/auth');
-                return;
-              }
-              navigate('/history');
-            }}
-          >
-            {mainTab === 'copyTrade' 
-              ? (t('history_record') || '历史记录')
-              : (t('history_record') || '历史记录')}
-          </button>
-          <button 
-            className="px-1 py-0.5 text-[8px] font-medium bg-success hover:bg-success/90 text-success-foreground rounded transition-colors whitespace-nowrap"
-            onClick={(e) => {
-              e.stopPropagation();
-              // 打开预测对话框（参考首页用户模型的开始预测界面）
-              if (onPredictionClick) {
-                onPredictionClick();
-              } else {
-                onHistoryClick(player.id, player.displayName, player.isVirtual || false);
-              }
-            }}
-          >
-            {mainTab === 'copyTrade' 
-              ? (t('today_copy_trade') || '今日跟单')
-              : (t('today_predictions') || '今日预测')}
-          </button>
         </div>
       </div>
 

@@ -261,16 +261,9 @@ export const PlayerLeaderboardCard = ({
               </button>
             )}
           </div>
-          {/* Name + Streak */}
+          {/* Name */}
           <div className="flex-1 min-w-0 overflow-hidden">
             <span className="font-bold text-xs text-foreground truncate block">{maskPlayerName(player.displayName)}</span>
-            <div className="text-[8px] text-muted-foreground flex items-center gap-0.5">
-              {boardType === 'cold' ? (
-                <span>{t('lose_streak')} <span className="text-destructive font-bold">{player.worstStreak || 0}</span></span>
-              ) : (
-                <span>{t('win_streak')} <span className="text-success font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
-              )}
-            </div>
           </div>
           {/* Win Rate */}
           <div className="text-right flex-shrink-0">
@@ -306,24 +299,6 @@ export const PlayerLeaderboardCard = ({
                 {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
               </p>
             </div>
-          </div>
-          {/* Buttons */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate('/history');
-              }}
-              className="px-1.5 py-0.5 text-[8px] font-medium rounded bg-muted/60 text-muted-foreground border border-border/40 whitespace-nowrap"
-            >
-              历史
-            </button>
-            <button 
-              onClick={onViewHistory}
-              className="px-2 py-0.5 text-[8px] font-bold rounded bg-warning text-warning-foreground whitespace-nowrap"
-            >
-              推荐
-            </button>
           </div>
         </div>
       </div>
@@ -379,44 +354,14 @@ export const PlayerLeaderboardCard = ({
                 </button>
               )}
             </div>
-            {/* Name & Stats */}
+            {/* Name */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-base text-foreground">{maskPlayerName(player.displayName)}</span>
               </div>
-              <div className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
-                {boardType === 'cold' ? (
-                  <>
-                    <span className="whitespace-nowrap">{t('lose_streak')} <span className="text-foreground font-bold">{player.worstStreak || 0}</span></span>
-                    <span className="flex items-center gap-0.5 ml-0.5">
-                      {Array.from({ length: Math.min(player.worstStreak || 0, 3) }).map((_, i) => (
-                        <span key={i} className="w-5 h-5 rounded-full bg-foreground/20 border border-foreground/50 flex items-center justify-center text-[9px] text-foreground font-bold">
-                          {t('loss_badge')}
-                        </span>
-                      ))}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="whitespace-nowrap">{t('win_streak')} <span className="text-destructive font-bold">{player.currentStreak || player.bestStreak || 0}</span></span>
-                    <span className="flex items-center gap-0.5 ml-0.5">
-                      {Array.from({ length: Math.min(player.currentStreak || player.bestStreak || 0, 5) }).map((_, i) => (
-                        <span key={i} className="w-5 h-5 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center text-[9px] text-destructive font-bold">
-                          {t('win_badge')}
-                        </span>
-                      ))}
-                      {(player.currentStreak || player.bestStreak || 0) > 5 && (
-                        <span className="w-5 h-5 rounded-full bg-destructive/10 border border-dashed border-destructive/40 flex items-center justify-center text-[9px] text-destructive/70 font-medium">
-                          …
-                        </span>
-                      )}
-                    </span>
-                  </>
-                )}
-              </div>
             </div>
           </div>
-          {/* Action Buttons & Prize */}
+          {/* Prize */}
           <div className="flex items-center gap-3 flex-shrink-0">
             {prize > 0 ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-warning/25 to-warning/15 border border-warning/40 text-warning text-xs font-bold shadow-sm whitespace-nowrap">
@@ -427,23 +372,6 @@ export const PlayerLeaderboardCard = ({
                 {t('not_qualified')}
               </span>
             )}
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/history');
-                }}
-                className="px-3 py-1 text-xs font-medium rounded-md bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/40 whitespace-nowrap"
-              >
-                {t('view_history')}
-              </button>
-              <button 
-                onClick={onViewHistory}
-                className="px-3.5 py-1 text-xs font-bold rounded-md bg-gradient-to-r from-warning to-warning/90 text-warning-foreground hover:from-warning/90 hover:to-warning transition-all duration-300 shadow-md shadow-warning/30 whitespace-nowrap"
-              >
-                {t('today_recommendations')}
-              </button>
-            </div>
           </div>
         </div>
       </div>
