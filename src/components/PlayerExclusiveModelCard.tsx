@@ -402,6 +402,24 @@ const PlayerExclusiveModelCard = ({
     
     fetchUserBalance();
   }, [user]);
+
+  // 是否已订阅任意 AI 自动跟单（已跟单则不可同时使用人工预测）
+  const [hasActiveAiCopySubscription, setHasActiveAiCopySubscription] = useState(false);
+  useEffect(() => {
+    if (!user) {
+      setHasActiveAiCopySubscription(false);
+      return;
+    }
+    (async () => {
+      const { data, error } = await (supabase as any)
+        .from('user_ai_copy_subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .limit(1);
+      setHasActiveAiCopySubscription(!error && data && data.length > 0);
+    })();
+  }, [user?.id]);
   
   // Calculate available balance for manual betting
   // 人工下注使用用户余额，而不是 AI 模型余额
@@ -1244,50 +1262,59 @@ const PlayerExclusiveModelCard = ({
     }, 2500);
   };
 
-  // Check if user has manual bet for current match (from database)
+  // 检查当日是否有人工下注：有则只显示该场，不再显示 AI 比赛信息
   useEffect(() => {
     const checkManualBet = async () => {
-      // Only check in manual prediction mode, when user is logged in, and when there is a current match
-      if (!isManualPrediction || !user || !currentMatchData?.match?.mid) {
+      if (!isManualPrediction || !user) {
         setHasManualBet(false);
         return;
       }
 
       setIsCheckingManualBet(true);
       try {
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
+        const todayStartISO = `${todayStr}T00:00:00+08:00`;
+
         const { data, error } = await supabase
           .from('user_predictions')
           .select('id, match_id, prediction_type, prediction, bet_amount, potential_payout, handicap_line, over_under_line, confidence, result, created_at')
           .eq('user_id', user.id)
-          .eq('match_id', currentMatchData.match.mid)
-          .eq('result', 'pending') // Only check pending bets (not settled)
+          .eq('result', 'pending')
+          .gte('created_at', todayStartISO)
           .order('created_at', { ascending: false })
           .limit(1);
 
-        if (error) {
-          console.error('Error checking manual bet:', error);
+        if (error || !data?.length) {
           setHasManualBet(false);
-        } else if (data && data.length > 0) {
-          // User has a pending manual bet for this match
-          setHasManualBet(true);
-          // Optionally, set confirmedManualBet from database data
-          const bet = data[0];
-          setConfirmedManualBet({
-            match: currentMatchData.match,
-            betType: bet.prediction_type,
-            prediction: bet.prediction,
-            betAmount: bet.bet_amount,
-            odds: bet.potential_payout ? bet.potential_payout / bet.bet_amount : 1.85,
-            confidence: bet.confidence || 75,
-            handicapLine: bet.handicap_line,
-            overUnderLine: bet.over_under_line,
-            overUnderPick: bet.prediction === 'OVER' ? 'over' : bet.prediction === 'UNDER' ? 'under' : undefined,
-            confirmed: true,
-          });
-          setManualBetConfirmed(true);
-        } else {
-          setHasManualBet(false);
+          setManualBetConfirmed(false);
+          setConfirmedManualBet(null);
+          return;
         }
+
+        const bet = data[0];
+        const matchId = String(bet.match_id ?? '');
+        const match = availableMatches?.find((m: any) => String(m?.mid ?? m?.match_id ?? '') === matchId);
+        if (!match) {
+          setHasManualBet(false);
+          setManualBetConfirmed(false);
+          setConfirmedManualBet(null);
+          return;
+        }
+
+        setConfirmedManualBet({
+          match,
+          betType: bet.prediction_type,
+          prediction: bet.prediction,
+          betAmount: bet.bet_amount,
+          odds: bet.potential_payout ? bet.potential_payout / bet.bet_amount : 1.85,
+          confidence: bet.confidence || 75,
+          handicapLine: bet.handicap_line,
+          overUnderLine: bet.over_under_line,
+          overUnderPick: bet.prediction === 'OVER' ? 'over' : bet.prediction === 'UNDER' ? 'under' : undefined,
+          confirmed: true,
+        });
+        setHasManualBet(true);
+        setManualBetConfirmed(true);
       } catch (err) {
         console.error('Error checking manual bet:', err);
         setHasManualBet(false);
@@ -1297,7 +1324,7 @@ const PlayerExclusiveModelCard = ({
     };
 
     checkManualBet();
-  }, [isManualPrediction, user, currentMatchData?.match?.mid]);
+  }, [isManualPrediction, user?.id, availableMatches]);
 
   // Reset manual bet when switching modes
   useEffect(() => {
@@ -1339,7 +1366,7 @@ const PlayerExclusiveModelCard = ({
         </div>
 
         {/* Match Counter - Bottom Right - Only show if not in manual prediction mode without manual bet */}
-        {matchEntries.length > 1 && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
+        {matchEntries.length > 1 && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && !(hasManualBet || manualBetConfirmed) && (
           <div className="absolute bottom-0.5 sm:bottom-1.5 right-1.5 sm:right-3 z-20 flex items-center gap-0.5 sm:gap-1 opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
             <button
               type="button"
@@ -1363,9 +1390,24 @@ const PlayerExclusiveModelCard = ({
           </div>
         )}
 
-        {/* Auto/Manual Toggle - Top Right */}
+        {/* 当日已有人工下注：右上角只显示「预测」按钮；否则显示人工/自动切换 */}
         <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20">
-          {onToggleAutoPrediction ? (
+          {(hasManualBet || manualBetConfirmed) ? (
+            <button
+              type="button"
+              className="!px-2 sm:!px-3 !py-0.5 sm:!py-1 !min-w-0 !min-h-0 rounded-full text-[8px] sm:text-xs font-medium bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 backdrop-blur-sm shrink-0 whitespace-nowrap touch-manipulation"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (hasActiveAiCopySubscription) {
+                  toast.info(t('manual_prediction_disabled_by_copy_trade') || '您已开启自动跟单，无法同时使用人工预测。请先在排行榜取消跟单后再试。');
+                  return;
+                }
+                setShowManualBetDialog(true);
+              }}
+            >
+              {t('predict_btn') || '预测'}
+            </button>
+          ) : onToggleAutoPrediction ? (
             <div 
               className="flex items-center bg-secondary/80 rounded-full p-0.5 backdrop-blur-sm shrink-0"
               onClick={(e) => e.stopPropagation()}
@@ -1490,27 +1532,94 @@ const PlayerExclusiveModelCard = ({
               {/* Divider */}
               <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-              {/* Match Info */}
-              {/* In manual prediction mode, show "Start Prediction" button if there is no manual bet, regardless of AI auto bets */}
-              {isManualPrediction && !hasManualBet && !manualBetConfirmed ? (
-                /* Manual Prediction Mode - Show "Start Prediction" button when no bets exist */
+              {/* Match Info：当日已有人工下注时只显示人工场，不显示 AI 比赛 */}
+              {(hasManualBet || manualBetConfirmed) && confirmedManualBet ? (
+                /* 当日已有人工下注：只显示人工下注比赛信息 */
+                <div className="space-y-1.5 sm:space-y-3">
+                  <div className="flex items-center justify-center">
+                    <Badge className="text-[7px] sm:text-[11px] py-0.5 sm:py-1 px-1.5 sm:px-3 bg-white/10 border-white/20 text-foreground/90 font-medium backdrop-blur-sm max-w-full truncate">
+                      {safeGetLeagueName(confirmedManualBet.match)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-1 sm:gap-2 px-0.5 relative -translate-y-1">
+                    <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                      <div className="relative shrink-0">
+                        {safeGetTeamLogo(confirmedManualBet.match, 'home') ? (
+                          <img src={safeGetTeamLogo(confirmedManualBet.match, 'home')} alt={safeGetTeamName(confirmedManualBet.match, 'home')} className="h-6 w-6 sm:h-10 sm:w-10 object-contain" />
+                        ) : (
+                          <div className="h-6 w-6 sm:h-10 sm:w-10 flex items-center justify-center"><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" /></div>
+                        )}
+                      </div>
+                      <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">{safeGetTeamName(confirmedManualBet.match, 'home')}</p>
+                    </div>
+                    <div className="flex flex-col items-center gap-0 sm:gap-0.5 shrink-0">
+                      {((confirmedManualBet.match.goals_home ?? confirmedManualBet.match.mhs) != null || (confirmedManualBet.match.goals_away ?? confirmedManualBet.match.mas) != null) && (
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">{confirmedManualBet.match.goals_home ?? confirmedManualBet.match.mhs ?? 0}</span>
+                          <span className="text-[8px] sm:text-xs text-muted-foreground/70 font-medium">-</span>
+                          <span className="text-[9px] sm:text-sm font-bold text-foreground font-mono">{confirmedManualBet.match.goals_away ?? confirmedManualBet.match.mas ?? 0}</span>
+                        </div>
+                      )}
+                      <MatchTimeDisplay match={confirmedManualBet.match} />
+                    </div>
+                    <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-hidden">
+                      <div className="relative shrink-0">
+                        {safeGetTeamLogo(confirmedManualBet.match, 'away') ? (
+                          <img src={safeGetTeamLogo(confirmedManualBet.match, 'away')} alt={safeGetTeamName(confirmedManualBet.match, 'away')} className="h-6 w-6 sm:h-10 sm:w-10 object-contain" />
+                        ) : (
+                          <div className="h-6 w-6 sm:h-10 sm:w-10 flex items-center justify-center"><Shield className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-muted-foreground" /></div>
+                        )}
+                      </div>
+                      <p className="font-semibold text-[7px] sm:text-xs text-center leading-tight truncate w-full max-w-[50px] sm:max-w-[100px]">{safeGetTeamName(confirmedManualBet.match, 'away')}</p>
+                    </div>
+                  </div>
+                  {confirmedManualBet.betType === 'handicap' && (
+                    <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 border border-white/10">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('handicap_bet') || '让球'}</span>
+                        <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 bg-success/20 text-success border-success/30">{confirmedManualBet.confirmed ? '已确认' : '待确认'}</Badge>
+                      </div>
+                      <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 border-t border-white/10">
+                        <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                        <span className="shrink-0 text-muted-foreground">@<span className="font-mono font-bold text-foreground">{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span></span>
+                        <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toLocaleString(undefined, { maximumFractionDigits: 0 })}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
+                      </div>
+                    </div>
+                  )}
+                  {confirmedManualBet.betType === 'over_under' && (
+                    <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 border border-white/10">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] sm:text-xs font-semibold text-foreground/90 uppercase tracking-wider">{t('over_under_bet') || '大小球'}</span>
+                        <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 bg-success/20 text-success border-success/30">{confirmedManualBet.confirmed ? '已确认' : '待确认'}</Badge>
+                      </div>
+                      <div className="flex flex-nowrap items-center gap-2 text-[10px] sm:text-xs pt-1.5 border-t border-white/10">
+                        <span className="truncate text-muted-foreground">{t('confidence')}: <span className="font-bold text-foreground">{confirmedManualBet.confidence}%</span></span>
+                        <span className="shrink-0 font-mono text-muted-foreground">@{Math.max(0, confirmedManualBet.odds - 1).toFixed(2)}</span>
+                        <span className="font-mono font-bold text-success flex shrink-0 items-center gap-0.5">{(confirmedManualBet.betAmount * confirmedManualBet.odds).toFixed(0)}<img src={hunterCoinIcon} alt="" className="w-3 h-3 sm:w-4 sm:h-4" /></span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : isManualPrediction && !hasManualBet && !manualBetConfirmed ? (
                 <div className="flex flex-col items-center justify-center py-2 sm:py-6 text-center px-1 overflow-hidden shrink-0">
                   <img src={hunsoccerAlphaLogo} alt="HUNSOCCER" className="h-8 sm:h-16 w-auto opacity-15 mb-1 sm:mb-3 shrink-0" />
-                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full shrink-0">
-                    {t('manual_prediction_hint') || '选择比赛进行人工预测'}
-                  </p>
+                  <p className="text-[7px] sm:text-sm text-muted-foreground/80 font-medium truncate max-w-full shrink-0">{t('manual_prediction_hint') || '选择比赛进行人工预测'}</p>
                   <button
                     type="button"
                     className="text-[6px] sm:text-xs mt-0.5 sm:mt-1 !px-2 sm:!px-3 !py-0.5 sm:!py-1 !min-w-0 !min-h-0 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 hover:border-primary/50 transition-all duration-200 font-medium shrink-0 whitespace-nowrap touch-manipulation cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (hasActiveAiCopySubscription) {
+                        toast.info(t('manual_prediction_disabled_by_copy_trade') || '您已开启自动跟单，无法同时使用人工预测。请先在排行榜取消跟单后再试。');
+                        return;
+                      }
                       setShowManualBetDialog(true);
                     }}
                   >
                     {t('start_prediction') || '开始预测'}
                   </button>
                 </div>
-              ) : currentMatchData ? (
+              ) : currentMatchData && !(hasManualBet || manualBetConfirmed) ? (
                 <div className="space-y-1.5 sm:space-y-3">
                   {/* League Badge */}
                   <div className="flex items-center justify-center">
@@ -1594,6 +1703,10 @@ const PlayerExclusiveModelCard = ({
                     className="text-[6px] sm:text-xs mt-0.5 sm:mt-1 !px-2 sm:!px-3 !py-0.5 sm:!py-1 !min-w-0 !min-h-0 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 hover:border-primary/50 transition-all duration-200 font-medium shrink-0 whitespace-nowrap touch-manipulation cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (hasActiveAiCopySubscription) {
+                        toast.info(t('manual_prediction_disabled_by_copy_trade') || '您已开启自动跟单，无法同时使用人工预测。请先在排行榜取消跟单后再试。');
+                        return;
+                      }
                       setShowManualBetDialog(true);
                     }}
                   >
@@ -1836,7 +1949,7 @@ const PlayerExclusiveModelCard = ({
               )}
 
               {/* Handicap Bet - Modern Style - Only show if not in manual prediction mode without manual bet */}
-              {handicapBet && currentMatchData && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
+              {handicapBet && currentMatchData && !(hasManualBet || manualBetConfirmed) && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
                 <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                   {/* Bet Type Header */}
                   <div className="flex items-center justify-between">
@@ -1937,7 +2050,7 @@ const PlayerExclusiveModelCard = ({
               )}
 
               {/* Over/Under Bet - Modern Style - Only show if not in manual prediction mode without manual bet */}
-              {overUnderBet && currentMatchData && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
+              {overUnderBet && currentMatchData && !(hasManualBet || manualBetConfirmed) && !(isManualPrediction && !hasManualBet && !manualBetConfirmed) && (
                 <div className="block bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 space-y-2 sm:space-y-3 border border-white/10">
                   {/* Bet Type Header */}
                   <div className="flex items-center justify-between">

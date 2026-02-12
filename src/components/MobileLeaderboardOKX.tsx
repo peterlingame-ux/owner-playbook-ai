@@ -120,6 +120,9 @@ const MobileLeaderboardOKX = () => {
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showRulesExpanded, setShowRulesExpanded] = useState(false);
   const [allPlayers, setAllPlayers] = useState<PlayerData[]>([]);
+  /** 跟单排行榜专用：仅包含「订阅了自动跟单」的用户，再查其下注信息 */
+  const [copyTradePlayers, setCopyTradePlayers] = useState<PlayerData[]>([]);
+  const [isLoadingCopyTrade, setIsLoadingCopyTrade] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // AI模型统计数据（根据时间筛选器）
   const [aiModelsStats, setAiModelsStats] = useState<Map<string, {
@@ -185,6 +188,9 @@ const MobileLeaderboardOKX = () => {
   const [isCopyTradeDialogOpen, setIsCopyTradeDialogOpen] = useState(false);
   const [copyTradeAmount, setCopyTradeAmount] = useState<number>(100);
   const [isCopyTrading, setIsCopyTrading] = useState(false);
+  /** 当前用户已订阅自动跟单的 AI id 集合（用于显示「已订阅」与「取消跟单」） */
+  const [subscribedAiIds, setSubscribedAiIds] = useState<Set<string>>(new Set());
+  const [isCancellingCopy, setIsCancellingCopy] = useState<string | null>(null);
   // 预测对话框状态（参考首页用户模型的开始预测界面）
   const [showPredictionDialog, setShowPredictionDialog] = useState(false);
   const [selectedMatchForPrediction, setSelectedMatchForPrediction] = useState<any>(null);
@@ -401,6 +407,181 @@ const MobileLeaderboardOKX = () => {
   useEffect(() => {
     fetchPlayers();
   }, [fetchPlayers]);
+
+  // 跟单排行榜：先查订阅自动跟单的用户，再查这些用户的下注信息
+  const fetchCopyTradePlayers = useCallback(async () => {
+    setIsLoadingCopyTrade(true);
+    try {
+      const INITIAL_BALANCE = 100000;
+      const { data: subsData, error: subsError } = await (supabase as any)
+        .from("user_ai_copy_subscriptions")
+        .select("user_id")
+        .eq("is_active", true);
+      if (subsError || !subsData?.length) {
+        setCopyTradePlayers([]);
+        return;
+      }
+      const subscriberIds = [...new Set((subsData as { user_id: string }[]).map((r) => r.user_id))];
+
+      const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select("id, display_name, avatar_url")
+        .in("id", subscriberIds);
+      if (usersError || !usersData?.length) {
+        setCopyTradePlayers([]);
+        return;
+      }
+
+      const { data: balancesData } = await supabase
+        .from("user_balances")
+        .select("user_id, balance")
+        .in("user_id", subscriberIds);
+
+      const { data: predictionsData } = await supabase
+        .from("user_predictions")
+        .select("user_id, result, bet_amount, actual_payout")
+        .in("user_id", subscriberIds);
+
+      const { data: followersData } = await supabase
+        .from("user_follows")
+        .select("following_id")
+        .in("following_id", subscriberIds);
+      const followerCountMap = new Map<string, number>();
+      followersData?.forEach((row: { following_id: string }) => {
+        followerCountMap.set(row.following_id, (followerCountMap.get(row.following_id) ?? 0) + 1);
+      });
+
+      const balancesMap = new Map(balancesData?.map((b) => [b.user_id, b.balance]) ?? []);
+
+      const realPlayers: PlayerData[] = usersData
+        .map((u) => {
+          const userPredictions = predictionsData?.filter((p) => p.user_id === u.id) ?? [];
+          const totalPredictions = userPredictions.length;
+          const correctPredictions = userPredictions.filter((p) => p.result === "win").length;
+          const winRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+          const totalBetAmount = userPredictions.reduce((sum, p) => sum + (p.bet_amount || 0), 0);
+          const validAmount = userPredictions.reduce((sum, p) => {
+            if (p.result === "win") return sum + (p.actual_payout || p.bet_amount || 0);
+            return sum;
+          }, 0);
+          const profitAmount = validAmount - totalBetAmount;
+          const balance = balancesMap.get(u.id) ?? INITIAL_BALANCE;
+          const profit = Math.max(-INITIAL_BALANCE, balance - INITIAL_BALANCE);
+          const changePercent = Math.max(-100, (profit / INITIAL_BALANCE) * 100);
+
+          let bestStreak = 0,
+            tempStreak = 0,
+            worstStreak = 0,
+            lossStreak = 0,
+            currentStreak = 0;
+          userPredictions.forEach((pred) => {
+            if (pred.result === "win") {
+              tempStreak++;
+              bestStreak = Math.max(bestStreak, tempStreak);
+              lossStreak = 0;
+            } else if (pred.result === "loss") {
+              tempStreak = 0;
+              lossStreak++;
+              worstStreak = Math.max(worstStreak, lossStreak);
+            }
+          });
+          for (let i = userPredictions.length - 1; i >= 0; i--) {
+            if (userPredictions[i].result === "win") currentStreak++;
+            else break;
+          }
+
+          const isWinner = changePercent > 0 && winRate >= 55;
+          return {
+            id: u.id,
+            displayName: u.display_name,
+            avatarUrl: u.avatar_url,
+            totalPredictions,
+            correctPredictions,
+            winRate: parseFloat(winRate.toFixed(1)),
+            balance,
+            profit,
+            changePercent: parseFloat(changePercent.toFixed(2)),
+            profitAmount,
+            rank: 0,
+            bestStreak,
+            currentStreak,
+            worstStreak,
+            isVirtual: false,
+            isWinner,
+            followers: followerCountMap.get(u.id) ?? 0,
+            tradingDays: 0,
+            tradingVolume: totalBetAmount,
+          };
+        })
+        .filter(Boolean) as PlayerData[];
+
+      const combined = [...realPlayers]
+        .sort((a, b) => b.winRate - a.winRate)
+        .map((p, i) => ({ ...p, rank: i + 1 }));
+
+      setCopyTradePlayers(combined);
+    } catch (error) {
+      console.error("Error fetching copy-trade players:", error);
+      setCopyTradePlayers([]);
+    } finally {
+      setIsLoadingCopyTrade(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mainTab === "copyTrade") {
+      fetchCopyTradePlayers();
+    }
+  }, [mainTab, fetchCopyTradePlayers]);
+
+  // 拉取当前用户已订阅的 AI 列表（用于展示「已订阅」/「取消跟单」）
+  useEffect(() => {
+    if (!user) {
+      setSubscribedAiIds(new Set());
+      return;
+    }
+    (async () => {
+      const { data, error } = await (supabase as any)
+        .from("user_ai_copy_subscriptions")
+        .select("ai_id")
+        .eq("user_id", user.id)
+        .eq("is_active", true);
+      if (error) {
+        setSubscribedAiIds(new Set());
+        return;
+      }
+      setSubscribedAiIds(new Set((data || []).map((r: { ai_id: string }) => r.ai_id)));
+    })();
+  }, [user?.id]);
+
+  // 取消 AI 自动跟单：将 is_active 置为 false
+  const handleCancelCopyTrade = useCallback(
+    async (aiId: string) => {
+      if (!user) return;
+      setIsCancellingCopy(aiId);
+      try {
+        const { error } = await (supabase as any)
+          .from("user_ai_copy_subscriptions")
+          .update({ is_active: false, updated_at: new Date().toISOString() })
+          .eq("user_id", user.id)
+          .eq("ai_id", aiId);
+        if (error) throw error;
+        setSubscribedAiIds((prev) => {
+          const next = new Set(prev);
+          next.delete(aiId);
+          return next;
+        });
+        if (mainTab === "copyTrade") fetchCopyTradePlayers();
+        toast.success(t("cancel_copy_trade_success") || "已取消跟单");
+      } catch (e) {
+        console.error("Cancel copy trade error:", e);
+        toast.error(t("cancel_copy_trade_failed") || "取消失败，请重试");
+      } finally {
+        setIsCancellingCopy(null);
+      }
+    },
+    [user?.id, mainTab, fetchCopyTradePlayers, t]
+  );
 
   // 从数据库获取AI模型点赞数和用户点赞状态
   useEffect(() => {
@@ -775,9 +956,10 @@ const MobileLeaderboardOKX = () => {
     return () => { cancelled = true; };
   }, [showPlayerFollowersDialog, selectedPlayerForFollowers?.id]);
 
-  // Get sorted and filtered players based on current tab and sort
+  // Get sorted and filtered players based on current tab and sort（跟单榜用订阅自动跟单用户+下注信息）
   const getDisplayPlayers = useCallback(() => {
-    let filtered = [...allPlayers];
+    const source = mainTab === "copyTrade" ? copyTradePlayers : allPlayers;
+    let filtered = [...source];
     
     // Filter by sub tab - 高准确率榜显示赢家，低准确率榜显示输家
     if (subTab === 'high') {
@@ -827,7 +1009,7 @@ const MobileLeaderboardOKX = () => {
     }
 
     return filtered.slice(0, 20);
-  }, [allPlayers, subTab, sortType]);
+  }, [mainTab, allPlayers, copyTradePlayers, subTab, sortType]);
 
   // Fetch today history for a player
   const fetchTodayHistory = async (playerId: string, playerName: string, isVirtual: boolean) => {
@@ -988,7 +1170,7 @@ const MobileLeaderboardOKX = () => {
 
   // Handle copy trade from history
   const handleCopyTradeFromHistory = (pred: TodayPrediction) => {
-    const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+    const player = (mainTab === "copyTrade" ? copyTradePlayers : allPlayers).find(p => p.id === selectedPlayerHistory?.playerId);
     if (!player) return;
     
     // 检查是否需要付费解锁
@@ -1103,16 +1285,8 @@ const MobileLeaderboardOKX = () => {
     }
   };
 
-  // Open copy trade dialog for AI model
+  // Open copy trade dialog for AI model（订阅后该 AI 新下注会自动以设定金额跟单）
   const openCopyTradeDialog = (modelId: string, modelName: string) => {
-    // 显示提示：请联系hunsoccer工作人员
-    toast.info('请联系hunsoccer工作人员', {
-      description: '如需开通自动跟单功能，请联系hunsoccer工作人员'
-    });
-    return;
-    
-    // 以下代码已禁用，如需恢复自动跟单功能，请取消注释
-    /*
     if (!user) {
       toast.warning(t('login_first') || '请先登录', {
         description: t('login_to_subscribe') || '登录后即可订阅AI模型'
@@ -1120,9 +1294,13 @@ const MobileLeaderboardOKX = () => {
       navigate('/auth');
       return;
     }
+    // 仅支持同时跟单一个模型，已有订阅时仅提示
+    if (subscribedAiIds.size >= 1 && !subscribedAiIds.has(modelId)) {
+      toast.info(t('only_one_copy_trade_model') || '仅支持同时跟单一个模型，请先取消当前跟单后再选择其他。');
+      return;
+    }
     setCopyTradeModel({ id: modelId, name: modelName });
     setIsCopyTradeDialogOpen(true);
-    */
   };
 
   // 获取市场赔率（当选择比赛时）
@@ -1295,7 +1473,7 @@ const MobileLeaderboardOKX = () => {
     return match.tn || match.league_name || match.competition_name || '未知联赛';
   };
 
-  // Handle copy trade for AI model
+  // Handle copy trade for AI model：写入订阅表，后续由 Edge Function 按该 AI 新下注自动跟单（每笔使用此处设定的金额）
   const handleCopyTrade = async () => {
     if (!user) {
       toast.warning(t('login_first') || '请先登录', {
@@ -1306,46 +1484,39 @@ const MobileLeaderboardOKX = () => {
 
     if (!copyTradeModel) return;
 
+    const stake = Math.round(Number(copyTradeAmount)) || 100;
+    if (stake < 10 || stake > 10000) {
+      toast.error(t('invalid_amount') || '金额无效', {
+        description: t('stake_range_hint') || '每笔跟单金额须在 10～10000 猎人币之间'
+      });
+      return;
+    }
+
     setIsCopyTrading(true);
     try {
-      // 检查用户余额
-      const { data: balanceData, error: balanceError } = await supabase
-        .from('user_balances')
-        .select('balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // 表 user_ai_copy_subscriptions 在迁移中新增，若类型未生成可用 as any
+      const { error: upsertError } = await (supabase as any)
+        .from("user_ai_copy_subscriptions")
+        .upsert(
+          {
+            user_id: user.id,
+            ai_id: copyTradeModel.id,
+            stake_amount: stake,
+            is_active: true,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,ai_id' }
+        );
 
-      if (balanceError || !balanceData) {
-        toast.error(t('fetch_balance_failed') || '获取余额失败', {
-          description: t('please_try_later') || '请稍后重试'
-        });
-        return;
-      }
-
-      if (balanceData.balance < copyTradeAmount) {
-        toast.error(t('insufficient_balance_title') || '余额不足', {
-          description: t('current_balance_need', { current: balanceData.balance.toFixed(2), need: copyTradeAmount }) || `当前余额 ${balanceData.balance.toFixed(2)}，需要 ${copyTradeAmount}`
-        });
-        return;
-      }
-
-      // 扣除余额
-      const { error: updateError } = await supabase
-        .from('user_balances')
-        .update({ 
-          balance: balanceData.balance - copyTradeAmount,
-          total_wagered: (balanceData as any).total_wagered + copyTradeAmount,
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) {
-        throw updateError;
+      if (upsertError) {
+        throw upsertError;
       }
 
       toast.success(t('subscribe_success') || '订阅成功', {
-        description: t('subscribed_model', { model: copyTradeModel.name, amount: copyTradeAmount }) || `已订阅 ${copyTradeModel.name}，金额 ${copyTradeAmount} 猎人币`
+        description: t('subscribed_model', { model: copyTradeModel.name, amount: stake }) || `已开启 ${copyTradeModel.name} 自动跟单，每笔 ${stake} 猎人币`
       });
 
+      setSubscribedAiIds((prev) => new Set(prev).add(copyTradeModel.id));
       setIsCopyTradeDialogOpen(false);
       setCopyTradeModel(null);
       setCopyTradeAmount(100);
@@ -1864,15 +2035,31 @@ const MobileLeaderboardOKX = () => {
                 >
                   {t('history_predictions') || '历史预测'}
                 </button>
-                <button 
-                  className="px-1.5 py-0.5 text-[9px] font-medium bg-warning hover:bg-warning/90 text-warning-foreground rounded transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openCopyTradeDialog(model.id, model.name);
-                  }}
-                >
-                  {t('auto_copy_trade') || '自动跟单'}
-                </button>
+                {subscribedAiIds.has(model.id) ? (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] text-muted-foreground">{t('subscribed') || '已订阅'}</span>
+                    <button
+                      className="px-1.5 py-0.5 text-[9px] font-medium bg-muted hover:bg-destructive/20 text-muted-foreground hover:text-destructive rounded transition-colors disabled:opacity-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelCopyTrade(model.id);
+                      }}
+                      disabled={isCancellingCopy === model.id}
+                    >
+                      {isCancellingCopy === model.id ? (t('cancelling') || '取消中…') : (t('cancel_copy_trade') || '取消跟单')}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="px-1.5 py-0.5 text-[9px] font-medium bg-warning hover:bg-warning/90 text-warning-foreground rounded transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openCopyTradeDialog(model.id, model.name);
+                    }}
+                  >
+                    {t('auto_copy_trade') || '自动跟单'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -2051,7 +2238,7 @@ const MobileLeaderboardOKX = () => {
       {/* Content Area */}
       <div className="px-3 py-1.5 space-y-2 pb-24">
         <AnimatePresence mode="wait">
-          {isLoading && mainTab !== 'ai' ? (
+          {mainTab !== 'ai' && (mainTab === 'copyTrade' ? isLoadingCopyTrade : isLoading) ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -2070,6 +2257,12 @@ const MobileLeaderboardOKX = () => {
             >
               {mainTab === 'ai' ? (
                 renderAIModels()
+              ) : mainTab === 'copyTrade' && getDisplayPlayers().length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+                  <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                  <p className="text-sm font-medium text-foreground">{t('no_copy_trade_subscribers') || '暂无订阅自动跟单的用户'}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('no_copy_trade_subscribers_hint') || '在 AI 预测排行榜中点击「自动跟单」订阅后，将显示在此'}</p>
+                </div>
               ) : (
                 getDisplayPlayers().map((player, index) => (
                   <PlayerCardOKX
@@ -2125,9 +2318,9 @@ const MobileLeaderboardOKX = () => {
             </div>
           </div>
           
-          {/* Predictors List */}
+          {/* Predictors List（跟单榜时仅显示订阅自动跟单的用户） */}
           <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-2">
-            {allPlayers
+            {(mainTab === 'copyTrade' ? copyTradePlayers : allPlayers)
               .filter(player => 
                 player.displayName.toLowerCase().includes(searchQuery.toLowerCase())
               )
@@ -2425,21 +2618,21 @@ const MobileLeaderboardOKX = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-3">
                 <Avatar className="w-10 h-10 border-2 border-border">
-                  <AvatarImage src={allPlayers.find(p => p.id === selectedPlayerHistory?.playerId)?.avatarUrl} />
+                  <AvatarImage src={(mainTab === "copyTrade" ? copyTradePlayers : allPlayers).find(p => p.id === selectedPlayerHistory?.playerId)?.avatarUrl} />
                   <AvatarFallback className="bg-muted text-foreground font-bold text-sm">
                     {selectedPlayerHistory?.playerName?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <span className="text-base font-bold">{(() => {
-                    const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+                    const player = (mainTab === "copyTrade" ? copyTradePlayers : allPlayers).find(p => p.id === selectedPlayerHistory?.playerId);
                     return player ? (player.displayName.length > 5 
                       ? player.displayName.substring(0, 3) + '***' + player.displayName.slice(-4) 
                       : player.displayName) : (selectedPlayerHistory?.playerName || '');
                   })()}</span>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     {(() => {
-                      const player = allPlayers.find(p => p.id === selectedPlayerHistory?.playerId);
+                      const player = (mainTab === "copyTrade" ? copyTradePlayers : allPlayers).find(p => p.id === selectedPlayerHistory?.playerId);
                       const unlockPrice = player?.unlockPrice ?? 0;
                       return (
                         <>
@@ -2809,9 +3002,9 @@ const MobileLeaderboardOKX = () => {
               </div>
             </div>
             
-            {/* Amount Input */}
+            {/* Amount Input - 每笔跟单金额，由定时任务在该 AI 新下注时自动使用 */}
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">订阅金额 (猎人币)</label>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('stake_per_bet_label') || '每笔跟单金额'} (猎人币)</label>
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {[50, 100, 200, 500].map((amount) => (
                   <button
@@ -2830,17 +3023,18 @@ const MobileLeaderboardOKX = () => {
               <input
                 type="number"
                 value={copyTradeAmount}
-                onChange={(e) => setCopyTradeAmount(Math.max(10, parseInt(e.target.value) || 0))}
+                onChange={(e) => setCopyTradeAmount(Math.min(10000, Math.max(10, parseInt(e.target.value) || 0)))}
                 className="w-full px-3 py-2 bg-muted/50 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-warning/50"
-                placeholder="自定义金额"
+                placeholder="10～10000"
                 min={10}
+                max={10000}
               />
             </div>
             
             {/* Info Note */}
             <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg">
               <p className="text-xs text-warning">
-                订阅后，系统将在该AI模型下一次预测时，自动为您投注相同的选项
+                {t('ai_copy_trade_note') || '订阅后，该 AI 每次新下注时系统将自动以您设置的金额跟单（仅让球/大小球）'}
               </p>
             </div>
           </div>
@@ -2851,11 +3045,11 @@ const MobileLeaderboardOKX = () => {
               onClick={() => setIsCopyTradeDialogOpen(false)}
               className="flex-1 py-2.5 text-sm font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
             >
-              取消
+              {t('cancel') || '取消'}
             </button>
             <button
               onClick={handleCopyTrade}
-              disabled={isCopyTrading || copyTradeAmount < 10}
+              disabled={isCopyTrading || copyTradeAmount < 10 || copyTradeAmount > 10000}
               className="flex-1 py-2.5 text-sm font-medium rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isCopyTrading ? (
@@ -2894,7 +3088,7 @@ const MobileLeaderboardOKX = () => {
                   transition={{ type: "spring", delay: 0.2, duration: 0.6 }}
                 >
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={allPlayers.find(p => p.displayName === copySuccess.playerName)?.avatarUrl} />
+                    <AvatarImage src={(mainTab === "copyTrade" ? copyTradePlayers : allPlayers).find(p => p.displayName === copySuccess.playerName)?.avatarUrl} />
                     <AvatarFallback className="text-xl">{copySuccess.playerName?.charAt(0)}</AvatarFallback>
                   </Avatar>
                   
