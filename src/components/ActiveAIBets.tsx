@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, type CSSProperties } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { teamsZh } from "@/i18n/teams-zh";
@@ -637,7 +637,10 @@ const ActiveAIBets = () => {
   canViewAnalysisRef.current = canViewAnalysis;
   
   // Get AI models (exclude locked ones like mystery and boospot, and hunsoccermax which is replaced by player's model)
-  const activeAIs = aiModels.filter(ai => !ai.locked && ai.id !== 'hunsoccermax');
+  const activeAIs = useMemo(
+    () => aiModels.filter(ai => !ai.locked && ai.id !== 'hunsoccermax'),
+    []
+  );
 
   // Helper function to get model display name (same as ModelCard - only show base name without version)
   const getModelDisplayName = (model: typeof aiModels[0]) => {
@@ -705,6 +708,7 @@ const ActiveAIBets = () => {
     setLockedCardHeight((prev) => (prev ? Math.max(prev, max) : max));
   }, []);
 
+  const aiBalancesKeyCount = Object.keys(aiBalances).length;
   useLayoutEffect(() => {
     if (!isAutoPrediction) return;
 
@@ -723,7 +727,7 @@ const ActiveAIBets = () => {
     measureAndLockCardHeight,
     matches.length,
     autoBets.length,
-    Object.keys(aiBalances).length,
+    aiBalancesKeyCount,
   ]);
 
   useEffect(() => {
@@ -1513,29 +1517,39 @@ const ActiveAIBets = () => {
   };
 
   // Get matches with bets (live or upcoming)
-  // First, get all unique match_ids from bets
-  const betMatchIds = new Set(autoBets.map(bet => bet.match_id?.toString()).filter(Boolean));
-  
+  // First, get all unique match_ids from bets (memoized to avoid unnecessary effect triggers)
+  const betMatchIds = useMemo(
+    () => new Set(autoBets.map(bet => bet.match_id?.toString()).filter(Boolean)),
+    [autoBets]
+  );
+
   // Then, get matches that have bets from the active matches list
   // 注意：暂时不要求必须有 odds_info，因为投注可能在没有赔率信息时创建
-  const matchesWithBets = matches.filter(match => 
-    betMatchIds.has(match.mid)
+  const matchesWithBets = useMemo(
+    () => matches.filter(match => betMatchIds.has(match.mid)),
+    [matches, betMatchIds]
   );
-  
+
   // State to store missing matches (matches that have bets but are not in active matches list)
   const [missingMatches, setMissingMatches] = useState<DailyMatch[]>([]);
-  
+
+  // Combine active matches and missing matches (memoized to avoid recalc in render)
+  const allMatchesWithBets = useMemo(
+    () => [...matchesWithBets, ...missingMatches],
+    [matchesWithBets, missingMatches]
+  );
+
   // Fetch missing matches that have bets but are not in the active matches list
   useEffect(() => {
     const fetchMissingMatches = async () => {
-      const missingMatchIds = Array.from(betMatchIds).filter(mid => 
-        !matches.some(m => m.mid === mid)
+      const missingMatchIds = Array.from(betMatchIds).filter((mid): mid is string =>
+        typeof mid === 'string' && !matches.some(m => m.mid === mid)
       );
-      
+
       if (missingMatchIds.length > 0) {
         // 将字符串 ID 转换为数字（数据库中的 match_id 是 INTEGER 类型）
-        const numericMatchIds = missingMatchIds.map(id => {
-          const numId = parseInt(id);
+        const numericMatchIds = missingMatchIds.map((id: string) => {
+          const numId = parseInt(id, 10);
           return isNaN(numId) ? null : numId;
         }).filter((id): id is number => id !== null);
         
@@ -1585,11 +1599,67 @@ const ActiveAIBets = () => {
     };
     
     fetchMissingMatches();
-  }, [betMatchIds.size, matches.length, autoBets.length]);
-  
-  // Combine active matches and missing matches
-  const allMatchesWithBets = [...matchesWithBets, ...missingMatches];
-  
+  }, [betMatchIds, matches, autoBets.length]);
+
+  // Clamp currentMatchIndex when data changes only (avoid setState during render and avoid running on every index switch)
+  const currentMatchIndexRef = useRef(currentMatchIndex);
+  currentMatchIndexRef.current = currentMatchIndex;
+  useEffect(() => {
+    let hasInvalid = false;
+    const updates: Record<string, number> = {};
+    const idxState = currentMatchIndexRef.current;
+    activeAIs.forEach((aiModel) => {
+      const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
+      allMatchesWithBets.forEach((match) => {
+        const matchBets = autoBets
+          .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
+          .map(bet => convertBet(bet, match));
+        if (matchBets.length > 0) betsByMatch.set(match.mid, { match, bets: matchBets });
+      });
+      const top5Leagues = [
+        '英格兰冠军联赛', '英格兰超级联赛', '澳大利亚超级联赛', '德国甲级联赛', '西班牙甲级联赛',
+        '意大利甲级联赛', '法国甲级联赛', '荷兰甲级联赛', '葡萄牙超级联赛', '西班牙乙级联赛',
+        '意大利乙级联赛', '土耳其超级联赛', '德国乙级联赛',
+      ];
+      const getLeaguePriority = (leagueName: string | null | undefined): number => {
+        if (!leagueName) return 999;
+        const index = top5Leagues.indexOf(leagueName);
+        return index === -1 ? 100 : index;
+      };
+      const now = getUTC8TimestampMs();
+      const matchEntries = Array.from(betsByMatch.values())
+        .filter((entry) => {
+          const match = entry.match;
+          const ended = match.ended;
+          const endedValue = ended !== null && ended !== undefined ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended)) : 0;
+          const statusId = match.status_id !== null && match.status_id !== undefined ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id)) : null;
+          if (!isNaN(endedValue) && endedValue > 0) return false;
+          if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const aKickoff = a.match.mgt && a.match.mgt > 0 ? a.match.mgt : (a.match.match_time ? (typeof a.match.match_time === 'string' ? parseInt(a.match.match_time, 10) * 1000 : a.match.match_time * 1000) : 0);
+          const bKickoff = b.match.mgt && b.match.mgt > 0 ? b.match.mgt : (b.match.match_time ? (typeof b.match.match_time === 'string' ? parseInt(b.match.match_time, 10) * 1000 : b.match.match_time * 1000) : 0);
+          const aStarted = aKickoff > 0 && now > aKickoff;
+          const bStarted = bKickoff > 0 && now > bKickoff;
+          if (aStarted && !bStarted) return -1;
+          if (!aStarted && bStarted) return 1;
+          if (aKickoff === 0 && bKickoff === 0) return getLeaguePriority(a.match.league_name) - getLeaguePriority(b.match.league_name);
+          if (aKickoff === 0) return 1;
+          if (bKickoff === 0) return -1;
+          if (aKickoff !== bKickoff) return aKickoff - bKickoff;
+          return getLeaguePriority(a.match.league_name) - getLeaguePriority(b.match.league_name);
+        })
+        .slice(0, 5);
+      const currentIdx = idxState[aiModel.id] ?? 0;
+      if (matchEntries.length > 0 && currentIdx >= matchEntries.length) {
+        updates[aiModel.id] = 0;
+        hasInvalid = true;
+      }
+    });
+    if (hasInvalid) setCurrentMatchIndex(prev => ({ ...prev, ...updates }));
+  }, [allMatchesWithBets, autoBets, activeAIs]);
+
   // 直接显示 AI 模型卡片，即使数据还在加载中
   return (
     <div className="w-full relative overflow-x-hidden max-w-full">
@@ -1729,12 +1799,8 @@ const ActiveAIBets = () => {
             })
             .slice(0, 5); // 限制最多显示5场比赛
           
-          // 如果当前索引超出范围，重置为0
-          const validMatchIndex = matchIndex >= matchEntries.length ? 0 : matchIndex;
-          if (validMatchIndex !== matchIndex) {
-            setCurrentMatchIndex(prev => ({ ...prev, [aiModel.id]: 0 }));
-          }
-          
+          // 索引由 useEffect 校正，渲染时仅做安全取值，避免在渲染中 setState 导致卡顿
+          const validMatchIndex = matchEntries.length === 0 ? 0 : Math.min(matchIndex, matchEntries.length - 1);
           const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
           
           // Separate bets by type: moneyline (胜负), handicap (让球), and over_under (大小球)
