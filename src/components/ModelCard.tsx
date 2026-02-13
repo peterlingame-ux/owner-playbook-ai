@@ -29,6 +29,10 @@ import starHunsoccer from "@/assets/star-hunsoccer.jpg";
 
 interface ModelCardProps {
   model: AIModel;
+  /** 由父组件批量拉取后传入时，不再每个卡片单独请求 model_follows，可显著减少请求数 */
+  isFollowing?: boolean;
+  /** 关注/取关成功后由父组件刷新关注列表（与 isFollowing 配套使用） */
+  onFollowChange?: () => void;
 }
 
 // Model-specific gradient colors
@@ -42,34 +46,37 @@ const MODEL_THEMES: Record<string, { from: string; to: string; accent: string; b
   hunsoccermax: { from: 'from-amber-600/15', to: 'to-yellow-500/5', accent: 'text-amber-400', border: 'border-amber-500/30', progress: 'bg-gradient-to-r from-amber-500 to-yellow-400' },
 };
 
-const ModelCard = ({ model }: ModelCardProps) => {
+const ModelCard = ({ model, isFollowing: isFollowingProp, onFollowChange }: ModelCardProps) => {
   const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowingLocal, setIsFollowingLocal] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
-  
+
+  // 父组件传入 isFollowing 时使用传入值且不再发请求；否则使用本地状态并自行请求
+  const isFollowing = isFollowingProp !== undefined ? isFollowingProp : isFollowingLocal;
+
   // Animated win rate
-  const animatedWinRate = useCountAnimation(model.winRate, { 
+  const animatedWinRate = useCountAnimation(model.winRate, {
     duration: 1500,
     startValue: Math.max(0, model.winRate - 15)
   });
-  
-  // Check follow status
+
+  // 仅当未由父组件传入 isFollowing 时才请求当前卡片的关注状态（避免 N 次请求）
   useEffect(() => {
+    if (isFollowingProp !== undefined || !user) return;
     const checkFollowStatus = async () => {
-      if (!user) return;
       const { data } = await supabase
         .from('model_follows')
         .select('id')
         .eq('user_id', user.id)
         .eq('model_id', model.id)
         .maybeSingle();
-      setIsFollowing(!!data);
+      setIsFollowingLocal(!!data);
     };
     checkFollowStatus();
-  }, [user, model.id]);
-  
+  }, [user, model.id, isFollowingProp]);
+
   // Follow/Unfollow handler
   const handleFollowToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -78,7 +85,7 @@ const ModelCard = ({ model }: ModelCardProps) => {
       navigate("/auth");
       return;
     }
-    
+
     setFollowLoading(true);
     try {
       if (isFollowing) {
@@ -88,14 +95,16 @@ const ModelCard = ({ model }: ModelCardProps) => {
           .eq('user_id', user!.id)
           .eq('model_id', model.id);
         if (error) throw error;
-        setIsFollowing(false);
+        if (isFollowingProp === undefined) setIsFollowingLocal(false);
+        onFollowChange?.();
         toast.success(t('unfollow_success'));
       } else {
         const { error } = await supabase
           .from('model_follows')
           .insert({ user_id: user!.id, model_id: model.id });
         if (error) throw error;
-        setIsFollowing(true);
+        if (isFollowingProp === undefined) setIsFollowingLocal(true);
+        onFollowChange?.();
         toast.success(t('follow_success', { name: (model.displayName || model.name).split(' ')[0] }));
       }
     } catch (error) {

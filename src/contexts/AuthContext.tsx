@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -58,6 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
   const [userVip, setUserVip] = useState<UserVip | null>(null);
+  /** 已拉取过 profile/balance/vip 的 user id，避免 onAuthStateChange 与 getSession 重复请求 */
+  const fetchedUserIdRef = useRef<string | null>(null);
 
   // Fetch user profile
   const fetchUserProfile = async (userId: string) => {
@@ -162,22 +164,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // 仅对当前 userId 拉取一次 profile/balance/vip，避免 onAuthStateChange 与 getSession 重复请求导致加载变慢
+  const loadUserDataOnce = (userId: string) => {
+    if (fetchedUserIdRef.current === userId) return;
+    fetchedUserIdRef.current = userId;
+    fetchUserProfile(userId);
+    fetchUserBalance(userId);
+    fetchUserVip(userId);
+  };
+
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Defer profile fetch to avoid blocking
         if (session?.user) {
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-            fetchUserBalance(session.user.id);
-            fetchUserVip(session.user.id);
-          }, 0);
+          loadUserDataOnce(session.user.id);
         } else {
+          fetchedUserIdRef.current = null;
           setUserProfile(null);
           setUserBalance(null);
           setUserVip(null);
@@ -185,18 +190,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
       if (session?.user) {
-        setTimeout(() => {
-          fetchUserProfile(session.user.id);
-          fetchUserBalance(session.user.id);
-          fetchUserVip(session.user.id);
-        }, 0);
+        loadUserDataOnce(session.user.id);
       }
     });
 

@@ -665,7 +665,6 @@ const ActiveAIBets = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   // Track if this is the first mount to avoid showing loading on language change
-  const isFirstMount = useRef(true);
   const prevLanguage = useRef(i18n.language);
 
   // State to track which match index is shown for each AI
@@ -958,11 +957,8 @@ const ActiveAIBets = () => {
       }
     };
 
-    // Only fetch data on initial mount
-    if (isFirstMount.current) {
-      fetchData(false);
-      isFirstMount.current = false;
-    }
+    // 有权限时立即拉取（首屏或 canViewAnalysis 从 false 变为 true 时都会触发，避免等 30s 轮询）
+    fetchData(false);
 
     // Refresh data every 30 seconds (silent refresh)
     const interval = setInterval(() => fetchData(true), 30000);
@@ -1033,7 +1029,7 @@ const ActiveAIBets = () => {
       supabase.removeChannel(autoBetsChannel);
       supabase.removeChannel(liveDataChannel);
     };
-  }, []); // Only run on mount, not on language change
+  }, [canViewAnalysis]); // 当 canViewAnalysis 变为 true 时重新执行，立即拉取比赛数据而非等 30s 轮询
 
   // Update language ref when language changes (for getTeamName/getLeagueName to react)
   useEffect(() => {
@@ -1670,7 +1666,7 @@ const ActiveAIBets = () => {
     if (hasInvalid) setCurrentMatchIndex(prev => ({ ...prev, ...updates }));
   }, [allMatchesWithBets, autoBets, activeAIs]);
 
-  // 预计算每张 AI 卡片数据，避免在每次渲染中重复做 filter/sort/marketOdds 等重计算
+  // 预计算每张 AI 卡片数据。拆成两层：切换场次时只重算「按索引取当前场次+赔率」，不重算 filter/sort，减轻切换卡顿。
   type BetItem = ReturnType<typeof convertBet>;
   type MatchEntryItem = { match: DailyMatch; bets: BetItem[] };
   const TOP5_LEAGUES = [
@@ -1684,21 +1680,10 @@ const ActiveAIBets = () => {
     return index === -1 ? 100 : index;
   };
 
-  const perAIDataMap = useMemo(() => {
+  // 第一层：仅依赖比赛/投注数据，不依赖 currentMatchIndex。切换场次时此 memo 不重算。
+  const matchEntriesAndMetaPerAI = useMemo(() => {
     const now = getUTC8TimestampMs();
-    const map: Record<string, {
-      matchEntries: MatchEntryItem[];
-      matchIndex: number;
-      validMatchIndex: number;
-      currentMatchData: MatchEntryItem | null;
-      moneylineBet: BetItem | null;
-      handicapBet: BetItem | null;
-      overUnderBet: BetItem | null;
-      bet: BetItem | null;
-      balanceNumber: string;
-      gradient: { from: string; to: string; accent: string; glow: string };
-    }> = {};
-
+    const map: Record<string, { matchEntries: MatchEntryItem[]; balanceNumber: string; gradient: { from: string; to: string; accent: string; glow: string } }> = {};
     activeAIs.forEach((aiModel) => {
       const betsByMatch = new Map<string, MatchEntryItem>();
       allMatchesWithBets.forEach((match) => {
@@ -1707,7 +1692,6 @@ const ActiveAIBets = () => {
           .map(bet => convertBet(bet, match));
         if (matchBets.length > 0) betsByMatch.set(match.mid, { match, bets: matchBets });
       });
-
       const matchEntries = Array.from(betsByMatch.values())
         .filter((entry) => {
           const match = entry.match;
@@ -1732,7 +1716,32 @@ const ActiveAIBets = () => {
           return getLeaguePriorityForSort(a.match.league_name) - getLeaguePriorityForSort(b.match.league_name);
         })
         .slice(0, 5);
+      const balance = aiBalances[aiModel.id];
+      const balanceNumber = balance
+        ? (balance.available_balance + balance.locked_balance).toLocaleString()
+        : (aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000');
+      const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
+      map[aiModel.id] = { matchEntries, balanceNumber, gradient };
+    });
+    return map;
+  }, [allMatchesWithBets, autoBets, aiBalances, activeAIs, convertBet]);
 
+  // 第二层：仅根据 currentMatchIndex 取当前场次并解析赔率。切换场次时只跑这层，计算量小。
+  const perAIDataMap = useMemo(() => {
+    const map: Record<string, {
+      matchEntries: MatchEntryItem[];
+      matchIndex: number;
+      validMatchIndex: number;
+      currentMatchData: MatchEntryItem | null;
+      moneylineBet: BetItem | null;
+      handicapBet: BetItem | null;
+      overUnderBet: BetItem | null;
+      bet: BetItem | null;
+      balanceNumber: string;
+      gradient: { from: string; to: string; accent: string; glow: string };
+    }> = {};
+    activeAIs.forEach((aiModel) => {
+      const { matchEntries, balanceNumber, gradient } = matchEntriesAndMetaPerAI[aiModel.id] ?? { matchEntries: [], balanceNumber: '0', gradient: MODEL_GRADIENTS.gpt5 };
       const matchIndex = currentMatchIndex[aiModel.id] || 0;
       const validMatchIndex = matchEntries.length === 0 ? 0 : Math.min(matchIndex, matchEntries.length - 1);
       const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
@@ -1802,12 +1811,6 @@ const ActiveAIBets = () => {
       }
 
       const bet = moneylineBet || handicapBet || overUnderBet;
-      const balance = aiBalances[aiModel.id];
-      const balanceNumber = balance
-        ? (balance.available_balance + balance.locked_balance).toLocaleString()
-        : (aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000');
-      const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
-
       map[aiModel.id] = {
         matchEntries,
         matchIndex,
@@ -1822,7 +1825,7 @@ const ActiveAIBets = () => {
       };
     });
     return map;
-  }, [allMatchesWithBets, autoBets, currentMatchIndex, marketOddsMap, moneylinePredictions, aiBalances, activeAIs, convertBet, convertMatch]);
+  }, [matchEntriesAndMetaPerAI, currentMatchIndex, marketOddsMap, moneylinePredictions, activeAIs, convertMatch]);
 
   // 直接显示 AI 模型卡片，即使数据还在加载中
   return (
